@@ -1,0 +1,1 @@
+# NWGS.Stratis
