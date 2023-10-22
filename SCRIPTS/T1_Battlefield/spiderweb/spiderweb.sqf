@@ -1,5 +1,70 @@
 //================================================================================================================
 //================================================================================================================
+//Dots to useful coordinates
+NWG_SPWB_IsPlainSurfaceAt = {
+    // private _dot = _this;
+
+    // Is position flat and bit away from terrain objects
+    if ((count (_this isFlatEmpty [1,-1,0.25,1,([0,2] select (surfaceIsWater _this))])) == 0) exitWith {false};
+
+    // Is it indeed away from terrain and mission objects
+    if ((count (nearestTerrainObjects [_this,[],8,false,true])) > 0) exitWith {false};
+    if ((count (_this nearEntities 8)) > 0) exitWith {false};
+
+    // Is not inside some rock or building
+    private _thisASL = AGLtoASL _this;
+    if ((count (lineIntersectsSurfaces [_thisASL,(_thisASL vectorAdd [0, 0, 50]),objNull,objNull,false,1,"GEOM","NONE"])) > 0) exitWith {false};
+
+    // After all checks have passed, return true
+    true
+};
+
+NWG_SPWB_FindPlainsRoadsWaterAroundDots = {
+    params ["_dots","_searchRad","_searchStep",["_doPlains",true],["_doRoads",true],["_doWater",true]];
+
+    private _plains = [];
+    private _roads = [];
+    private _water = [];
+    private "_dot";
+
+    //do
+    {
+        scopeName "foreach_dots";
+
+        for "_r" from 0 to _searchRad step _searchStep do {
+            _dot = _x getPos [_r,(random 360)];
+            _dot set [2,0];
+
+            if (surfaceIsWater _dot) then {
+                if (!_doWater) then { continue };
+                if (((ASLToATL _dot)#2) < 5) then { continue };//Depth check
+                if (!(_dot call NWG_SPWB_IsPlainSurfaceAt)) then { continue };
+                _water pushBack _dot;
+                breakTo "foreach_dots";
+            };
+
+            if (isOnRoad _dot) then {
+                if (!_doRoads) then { continue };
+                _dot = getPosWorld (roadAt _dot);
+                _dot set [2,0];
+                _roads pushBack _dot;
+                breakTo "foreach_dots";
+            };
+
+            if (_doPlains && {_dot call NWG_SPWB_IsPlainSurfaceAt}) then {
+                _plains pushBack _dot;
+                breakTo "foreach_dots";
+            };
+        };
+
+    } forEach _dots;
+
+    //return
+    [_plains,_roads,_water]
+};
+
+//================================================================================================================
+//================================================================================================================
 //Dots generation - Core for other functions
 
 NWG_SPWB_GenerateDotsCircle = {
