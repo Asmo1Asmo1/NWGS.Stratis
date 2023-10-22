@@ -1,6 +1,7 @@
 //===========================================================
 //GUI elements
 #include "GUI\magrepack\magrepackGUI.hpp"
+#include "GUI\view_distance\viewDistanceGUI.h"
 
 //===========================================================
 //Loading screen
