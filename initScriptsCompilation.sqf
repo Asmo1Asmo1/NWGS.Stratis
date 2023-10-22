@@ -31,7 +31,9 @@ NWG_fnc_compile = {
 //================================================================================================================
 //Compile functions and modules
 
-//TODO
+//T2_UserInteraction
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepack.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\view_distance\viewDistance.sqf" call NWG_fnc_compile);
 
 //================================================================================================================
 //================================================================================================================
