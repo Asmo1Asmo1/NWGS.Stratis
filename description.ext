@@ -1,0 +1,63 @@
+//===========================================================
+//GUI elements
+//TODO
+
+//===========================================================
+//Loading screen
+author			= "Asmo";
+onLoadName		= "NWG: Scavenger";
+onLoadMission	= "Scavenger v0.1";
+
+class Header
+{
+	gameType =  Coop;	// Game type
+	minPlayers =  1;	// minimum number of players the mission supports
+	maxPlayers = 16;	// maximum number of players the mission supports
+};
+
+//===========================================================
+//Vanilla medicine params
+ReviveMode = 0;                         //0: disabled, 1: enabled, 2: controlled by player attributes
+
+//===========================================================
+//Respawn params
+respawn = "BASE";
+respawnButton = 0;
+respawnDelay = 0;
+respawnDialog = 0;
+respawnOnStart = -1;
+
+//===========================================================
+//Mission params
+debriefing = 0;
+
+//===========================================================
+//Radio channels
+disableChannels[] = {
+	{
+		0,		// channel ID Global
+		true,	// disable text chat
+		true	// disable voice chat
+	},
+	{ 1, false, true },//Side
+    { 2, true,  true },//Command
+    { 3, false, false },//Group
+    { 4, false, false },//Vehicle
+    { 4, false, false }//Direct
+};
+
+//===========================================================
+//Mission params
+disabledAI = 1;
+enableDebugConsole[] = { "76561198043217146", "76561199162313370" };
+forceRotorLibSimulation = 0;//0 - based on player's options
+saving = 0;
+
+//===========================================================
+//Server security
+allowFunctionsLog = 1;
+allowFunctionsRecompile = 0;
+
+//===========================================================
+//Irrelative settings
+onCheat = "hint str _this";//for GETALLGEAR cheat (deprecated)
