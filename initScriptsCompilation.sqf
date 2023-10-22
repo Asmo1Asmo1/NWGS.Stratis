@@ -1,0 +1,68 @@
+//================================================================================================================
+//================================================================================================================
+//Prepare variables and collections
+params ["_flag"];
+
+NWG_SER_IsServermod = _flag isNotEqualTo "";
+private _isDevBuild = (is3DENPreview || {is3DENMultiplayer});
+
+private _commonFunctions = [];//Functions to be run on server and client both
+private _serverFunctions = [];//Functions to be run on server only
+private _clientFunctions = [];//Functions to be run on client only
+
+private _serverModules = [];//Modules to be run on server only
+private _clientModules = [];//Modules to be run on client only
+
+//================================================================================================================
+//================================================================================================================
+//Prepare compilation script
+NWG_fnc_compile = {
+    // private _fileAddress = _this;
+    private _fileAddress = (if (NWG_SER_IsServermod) then {(format ["NWG\%1",_this])} else {_this});
+    (if (fileExists _fileAddress) then {
+        (compileFinal preprocessFileLineNumbers _fileAddress)
+    } else {
+        diag_log formatText ["%1(%2) [ERROR] %3 %4", __FILE__, __LINE__, "#### File not found: ", _fileAddress];
+        {}//Return empty code block
+    })
+};
+
+//================================================================================================================
+//================================================================================================================
+//Compile functions and modules
+
+//TODO
+
+//================================================================================================================
+//================================================================================================================
+//ServerSide
+{call _x} forEach _commonFunctions;
+{call _x} forEach _serverFunctions;
+{call _x} forEach _serverModules;
+
+//================================================================================================================
+//================================================================================================================
+//Send to Players
+NWG_SER_toSendToPlayer = [];
+NWG_SER_toSendToPlayer append _commonFunctions;
+NWG_SER_toSendToPlayer append _clientFunctions;
+NWG_SER_toSendToPlayer append _clientModules;
+
+NWG_fnc_playerScriptsRequest = {
+    params ["_playerObj","_language"];
+
+    //Network check
+    private _callerID = remoteExecutedOwner;
+    if (isDedicated && {_callerID == 0 && {local _playerObj}}) exitWith {
+        diag_log formatText ["%1(%2) [ERROR] %3", __FILE__, __LINE__,  "#### NWG_fnc_playerScriptsRequest: Caller can not be identified"];
+    };
+    private _recipient = if (_callerID != 0) then {_callerID} else {_playerObj};
+
+    //Send
+    NWG_SER_toSendToPlayer remoteExec ["NWG_fnc_clientScriptsReceive",_recipient];
+};
+
+//================================================================================================================
+//================================================================================================================
+//Finalize
+NWG_SER_CompilationDone = true;
