@@ -1,6 +1,36 @@
+//Settings
+NWG_SPWB_Settings = createHashMapFromArray [
+    ["AREA_SPAWNSEARCH_DENSITY",30],//Step 1: The area is covered in random points each 'DENSITY' meters. Higher - more results. Lower - faster execution.
+    ["AREA_SPAWNSEARCH_SUBRAD",20],//Step 2: Search for valid spawn point is done around each random point in 'SUBRAD' radius. Higher - more results. Lower - faster execution. Keep lower than 'DENSITY' to prevent overlap.
+    ["AREA_SPAWNSEARCH_SUBRAD_STEP",2],//Step 2: From 0 to 'SUBRAD' incrementing by 'SUBRAD_STEP'. Higher - faster execution. Lower - more results. Keep as divider of 'SUBRAD' for correct work.
+    ["",0]
+];
+
+//================================================================================================================
+//================================================================================================================
+//Area spawn points search
+
+NWG_SPWB_MarkupArea = {
+    params ["_pos","_minRad","_maxRad"];
+
+    private _searchStep = NWG_SPWB_Settings get "AREA_SPAWNSEARCH_DENSITY";
+    private _subSearchRad = NWG_SPWB_Settings get "AREA_SPAWNSEARCH_SUBRAD";
+    private _subSearchStep = NWG_SPWB_Settings get "AREA_SPAWNSEARCH_SUBRAD_STEP";
+
+    //Cover the area with initial search dots
+    private _dots = [_pos,_minRad,_maxRad,_searchStep] call NWG_SPWB_GenerateDottedArea;
+
+    //Search for plains, roads and water around each dot
+    private _result = [_dots,_subSearchRad,_subSearchStep,/*_doPlains:*/true,/*_doRoads:*/true,/*_doWater:*/true] call NWG_SPWB_FindPlainsRoadsWaterAroundDots;
+
+    //return [_plains,_roads,_water]
+    _result
+};
+
 //================================================================================================================
 //================================================================================================================
 //Dots to useful coordinates
+
 NWG_SPWB_IsPlainSurfaceAt = {
     // private _dot = _this;
 
