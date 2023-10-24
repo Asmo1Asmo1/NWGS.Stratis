@@ -34,9 +34,9 @@ NWG_fnc_compile = {
 //Compile functions and modules
 
 //T1_Battlefield
-_serverModules pushBack ("SCRIPTS\T1_Battlefield\spiderweb\spiderweb.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\dots\dots.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {
-    _serverModules pushBack ("SCRIPTS\T1_Battlefield\spiderweb\spiderwebTests.sqf" call NWG_fnc_compile);
+    _serverModules pushBack ("SCRIPTS\T1_Battlefield\dots\dotsTests.sqf" call NWG_fnc_compile);
 };
 
 //T2_UserInteraction
