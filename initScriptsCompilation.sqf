@@ -19,6 +19,8 @@ private _clientModules = [];//Modules to be run on client only
 NWG_fnc_compile = {
     // private _fileAddress = _this;
     private _fileAddress = (if (NWG_SER_IsServermod) then {(format ["NWG\%1",_this])} else {_this});
+
+    //return
     (if (fileExists _fileAddress) then {
         (compileFinal preprocessFileLineNumbers _fileAddress)
     } else {
@@ -30,6 +32,12 @@ NWG_fnc_compile = {
 //================================================================================================================
 //================================================================================================================
 //Compile functions and modules
+
+//T1_Battlefield
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\dots\dots.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {
+    _serverModules pushBack ("SCRIPTS\T1_Battlefield\dots\dotsTests.sqf" call NWG_fnc_compile);
+};
 
 //T2_UserInteraction
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepack.sqf" call NWG_fnc_compile);
