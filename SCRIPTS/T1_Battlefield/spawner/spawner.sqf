@@ -1,5 +1,98 @@
 //================================================================================================================
 //================================================================================================================
+//Spawning of a vehicle
+
+//Spawn the vehicle with engines running and free space search around given position
+NWG_SPWN_SpawnVehicleFreely = {
+    params ["_classname","_pos","_dir",["_appearance",false],["_pylons",false],["_deferReveal",false]];
+
+    //Pre-spawn (direction, appearance, pylons applied)
+    _vehicle = _this call NWG_SPWN_PrespawnVehicle;
+    //Place around (safe position, collision check)
+    [_vehicle,_pos] call NWG_SPWN_PlaceAround;
+
+    //Start engines and reveal
+    _vehicle engineOn true;
+    if (!_deferReveal) then {
+        _vehicle call NWG_SPWN_Reveal;
+    };
+
+    //Set flying mode for aircrafts
+    if (_vehicle isKindOf "Air" && {(_pos#2) > 5}) then {
+        //Fix spawning with wings folded
+        private _curPos = getPosATL _vehicle;
+        _vehicle setVehiclePosition [_vehicle,[],0,"FLY"];
+        _vehicle setPosATL _curPos;
+
+        _vehicle setVelocity [(100*(sin _dir)),(100*(cos _dir)),10];
+        _vehicle flyInHeight (_pos#2);
+    };
+
+    //return
+    _vehicle
+};
+
+NWG_SPWN_PrespawnVehicle = {
+    params ["_classname","_NaN","_dir",["_appearance",false],["_pylons",false]];
+
+    //Pre-spawn a default vehicle at a safe position
+    private _safepos = call NWG_SPWN_GetSafePrespawnPos;
+    private _vehicle = createVehicle [_classname,_safepos,[],0,"CAN_COLLIDE"];
+
+    //Setup appearance and pylons
+    if (_appearance isNotEqualTo false) then {[_vehicle,_appearance] call NWG_SPWN_SetVehicleAppearance};
+    if (_pylons isNotEqualTo false) then {[_vehicle,_pylons] call NWG_SPWN_SetVehiclePylons};
+
+    //Rotate and hide
+    _vehicle setDir _dir;
+    _vehicle call NWG_SPWN_Hide;
+
+    //return
+    _vehicle
+};
+
+NWG_SPWN_PlaceAround = {
+    params ["_object","_pos"];
+
+    //Normalize placement height
+    if ((_pos#2) < 0) then {_pos set [2,0]};
+
+    //Get variables for check
+    private _boundingBox = _object call NWG_SPWN_GetBoundingBox;
+    private _isInAir = (_pos#2) > 0.3;
+    private _isOnWater = surfaceIsWater _pos;
+    private _isMan = _object isKindOf "Man";
+    private _isAirCraft = _object isKindOf "Air";
+    private "_placementVar";
+
+    //Do iterations of attempts to place the object
+    for "_r" from 0 to 50 step 1 do
+    {
+        _placementVar = _pos getPos [_r,(random 360)];
+        _placementVar set [2,(_pos#2)];
+
+        //Check water/terrain consistency (fix vehicles spawning in water when original position is on land and vice versa)
+        if (!_isInAir && {_isOnWater != (surfaceIsWater _placementVar)}) then {continue};
+
+        //Convert Z coordinate if over water
+        if (surfaceIsWater _placementVar) then {_placementVar = ASLToATL _placementVar};
+
+        //Place the object
+        _object setPosATL _placementVar;
+
+        //Try to avoid collision with the ground
+        if (!_isInAir && {!_isOnWater && {!_isMan}}) then {_object setVectorUp (surfaceNormal _placementVar)};
+
+        //Check for collisions
+        if ([_object,_boundingBox] call NWG_SPWN_CollisionCheck) exitWith {};
+    };
+
+    //return
+    _object
+};
+
+//================================================================================================================
+//================================================================================================================
 //Spawn utils
 NWG_SPWN_GetSafePrespawnPos = {
     private _safepos = localNamespace getVariable ["NWG_tempSafePos",(
@@ -11,6 +104,89 @@ NWG_SPWN_GetSafePrespawnPos = {
     if (surfaceIsWater _safepos) then {_safepos = ASLToATL _safepos};
     //return
     _safepos
+};
+
+NWG_SPWN_Hide = {
+    _this enableSimulationGlobal false;
+    _this hideObjectGlobal true;
+};
+
+NWG_SPWN_Reveal = {
+    _this enableSimulationGlobal true;
+    _this hideObjectGlobal false;
+};
+
+NWG_SPWN_GetBoundingBox = {
+    // private _object = _this;
+
+    //Get boundings
+    private _bb = 0 boundingBoxReal _this;
+
+    //Adjust
+    private _minZ = (_bb#0)#2;
+    private _maxZ = (_bb#1)#2;
+    (_bb#1) set [2,(_maxZ - ((abs (_maxZ - _minZ))*0.15))];
+    (_bb#0) set [2,(_minZ + ((((getPosATL _this)#2) + 0.1) - ((ASLToATL (_this modelToWorldWorld (_bb#0)))#2)))];
+
+    //Return full bounding box as relative points to the model
+    //return
+    [
+        [/*minX*/((_bb#0)#0),/*minY*/((_bb#0)#1),/*minZ*/(_bb#0)#2],
+        [/*maxX*/((_bb#1)#0),/*minY*/((_bb#0)#1),/*minZ*/(_bb#0)#2],
+        [/*maxX*/((_bb#1)#0),/*maxY*/((_bb#1)#1),/*minZ*/(_bb#0)#2],
+        [/*minX*/((_bb#0)#0),/*maxY*/((_bb#1)#1),/*minZ*/(_bb#0)#2],
+
+        [/*minX*/((_bb#0)#0),/*minY*/((_bb#0)#1),/*maxZ*/(_bb#1)#2],
+        [/*maxX*/((_bb#1)#0),/*minY*/((_bb#0)#1),/*maxZ*/(_bb#1)#2],
+        [/*maxX*/((_bb#1)#0),/*maxY*/((_bb#1)#1),/*maxZ*/(_bb#1)#2],
+        [/*minX*/((_bb#0)#0),/*maxY*/((_bb#1)#1),/*maxZ*/(_bb#1)#2]
+    ]
+};
+
+NWG_SPWN_collisionCheckOrder = [
+        //Lower diagonals
+        [0,2],[1,3],
+        //Lower perimeter
+        [0,1],[1,2],[2,3],[3,0],
+        //Verticals
+        [4,0],[5,1],[6,2],[7,3],
+        //Side diagonals
+        [4,1],[5,2],[6,3],[7,0],
+        //Upper perimeter
+        [4,5],[5,6],[6,7],[7,4],
+        //Upper diagonals (optional)
+        [4,6],[5,7]
+        //Inner diagonals (optional)
+        // [4,2],[5,3],[6,0],[7,1]
+];
+NWG_SPWN_CollisionCheck = {
+    params ["_object","_boundingBox"];
+
+    //Convert relative bounding box to world coordinates for current position
+    private _worldBoundingBox = (_boundingBox + []) apply {(_object modelToWorldWorld _x)};
+
+    //Additionally check if lower points gone underground
+    private ["_point","_atlZ"];
+    if (((getPosATL _object)#2) < 0.3) then {
+        for "_i" from 0 to 3 do {
+            _point = _worldBoundingBox#_i;
+            _atlZ = (ASLToATL _point)#2;
+            if (_atlZ < 0.05) then {_point set [2,( (_point#2) - (_atlZ-0.05) )]};
+        };
+    };
+
+    //Check possible intersection with any other object
+    private _intersectArgs = [nil,nil,_object,objNull,true,1,"FIRE","VIEW",true];
+    private _ok = true;
+    //do
+    {
+        _intersectArgs set [0,(_worldBoundingBox#(_x#0))];
+        _intersectArgs set [1,(_worldBoundingBox#(_x#1))];
+        if ((count (lineIntersectsSurfaces _intersectArgs)) > 0) exitWith {_ok = false};
+    } forEach NWG_SPWN_collisionCheckOrder;
+
+    //return
+    _ok
 };
 
 //================================================================================================================
