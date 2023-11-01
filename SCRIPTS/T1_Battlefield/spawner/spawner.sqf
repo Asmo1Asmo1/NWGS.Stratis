@@ -2,21 +2,6 @@
 //================================================================================================================
 //Spawning of a vehicle
 
-//Spawn the vehicle with free space search around given position
-NWG_SPWN_SpawnVehicleFreely = {
-    params ["_classname","_pos","_dir",["_appearance",false],["_pylons",false],["_deferReveal",false]];
-
-    private _vehicle = _this call NWG_SPWN_PrespawnVehicle;
-    [_vehicle,_pos] call NWG_SPWN_PlaceAround;
-    if (!_deferReveal) then {_vehicle call NWG_SPWN_Reveal};
-
-    //return
-    _vehicle
-};
-
-//================================================================================================================
-//================================================================================================================
-//Prespawn
 NWG_SPWN_PrespawnVehicle = {
     params ["_classname","_NaN","_dir",["_appearance",false],["_pylons",false]];
 
@@ -34,6 +19,72 @@ NWG_SPWN_PrespawnVehicle = {
 
     //return
     _vehicle
+};
+
+//Spawn the vehicle with free space search around given position
+NWG_SPWN_SpawnVehicleFreely = {
+    params ["_classname","_pos","_dir",["_appearance",false],["_pylons",false],["_deferReveal",false]];
+
+    private _vehicle = _this call NWG_SPWN_PrespawnVehicle;
+    [_vehicle,_pos] call NWG_SPWN_PlaceAround;
+    if (!_deferReveal) then {_vehicle call NWG_SPWN_Reveal};
+
+    //return
+    _vehicle
+};
+
+//================================================================================================================
+//================================================================================================================
+//Spawning of units
+
+NWG_SPWN_PrespawnUnits = {
+    params ["_classnames","_NaN",["_side",west]];
+
+    private _group = createGroup [_side,/*delete when empty:*/true];
+    private _safepos = call NWG_SPWN_GetSafePrespawnPos;
+    private _createArgs = [nil,_safepos,[],0,"CAN_COLLIDE"];
+    private _units = [];
+    private "_unit";
+
+    {
+        _createArgs set [0,_x];
+        _unit = _group createUnit _createArgs;
+
+        //Fix units from other faction beign spawned into 'wrong' side
+        //see: https://community.bistudio.com/wiki/createUnit
+        if ((side _unit) isNotEqualTo _side) then {
+            [_unit] joinSilent _group;
+        };
+
+        _units pushBack _unit;
+    } forEach _classnames;
+
+    //return
+    _units
+};
+
+//Spawn the group of units at given position
+NWG_SPWN_SpawnUnitsFreely = {
+    params ["_classnames","_pos",["_side",west]];
+
+    //Pre-spawn units at a safe position
+    private _units = _this call NWG_SPWN_PrespawnUnits;
+
+    //Place units around given position
+    //do
+    {
+        _x setDir (random 360);
+        [_x,_pos] call NWG_SPWN_PlaceAround;
+    } forEach _units;
+
+    //Delete default waypoint(s) if any
+    private _group = group (_units#0);
+    for "_i" from ((count (waypoints _group)) - 1) to 0 step -1 do {
+        deleteWaypoint [_group, _i];
+    };
+
+    //return
+    _units
 };
 
 //================================================================================================================
@@ -145,9 +196,9 @@ NWG_SPWN_collisionCheckOrder = [
         //Upper perimeter
         [4,5],[5,6],[6,7],[7,4],
         //Upper diagonals (optional)
-        [4,6],[5,7]
+        [4,6],[5,7],
         //Inner diagonals (optional)
-        // [4,2],[5,3],[6,0],[7,1]
+        [4,2] /*,[5,3],[6,0],[7,1]*/
 ];
 NWG_SPWN_CollisionCheck = {
     params ["_object","_boundingBox"];
