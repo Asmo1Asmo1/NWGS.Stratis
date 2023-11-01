@@ -2,36 +2,21 @@
 //================================================================================================================
 //Spawning of a vehicle
 
-//Spawn the vehicle with engines running and free space search around given position
+//Spawn the vehicle with free space search around given position
 NWG_SPWN_SpawnVehicleFreely = {
     params ["_classname","_pos","_dir",["_appearance",false],["_pylons",false],["_deferReveal",false]];
 
-    //Pre-spawn (direction, appearance, pylons applied)
-    _vehicle = _this call NWG_SPWN_PrespawnVehicle;
-    //Place around (safe position, collision check)
+    private _vehicle = _this call NWG_SPWN_PrespawnVehicle;
     [_vehicle,_pos] call NWG_SPWN_PlaceAround;
-
-    //Start engines and reveal
-    _vehicle engineOn true;
-    if (!_deferReveal) then {
-        _vehicle call NWG_SPWN_Reveal;
-    };
-
-    //Set flying mode for aircrafts
-    if (_vehicle isKindOf "Air" && {(_pos#2) > 5}) then {
-        //Fix spawning with wings folded
-        private _curPos = getPosATL _vehicle;
-        _vehicle setVehiclePosition [_vehicle,[],0,"FLY"];
-        _vehicle setPosATL _curPos;
-
-        _vehicle setVelocity [(100*(sin _dir)),(100*(cos _dir)),10];
-        _vehicle flyInHeight (_pos#2);
-    };
+    if (!_deferReveal) then {_vehicle call NWG_SPWN_Reveal};
 
     //return
     _vehicle
 };
 
+//================================================================================================================
+//================================================================================================================
+//Prespawn
 NWG_SPWN_PrespawnVehicle = {
     params ["_classname","_NaN","_dir",["_appearance",false],["_pylons",false]];
 
@@ -51,6 +36,9 @@ NWG_SPWN_PrespawnVehicle = {
     _vehicle
 };
 
+//================================================================================================================
+//================================================================================================================
+//Placement utils
 NWG_SPWN_PlaceAround = {
     params ["_object","_pos"];
 
@@ -62,7 +50,6 @@ NWG_SPWN_PlaceAround = {
     private _isInAir = (_pos#2) > 0.3;
     private _isOnWater = surfaceIsWater _pos;
     private _isMan = _object isKindOf "Man";
-    private _isAirCraft = _object isKindOf "Air";
     private "_placementVar";
 
     //Do iterations of attempts to place the object
@@ -78,10 +65,13 @@ NWG_SPWN_PlaceAround = {
         if (surfaceIsWater _placementVar) then {_placementVar = ASLToATL _placementVar};
 
         //Place the object
-        _object setPosATL _placementVar;
-
-        //Try to avoid collision with the ground
-        if (!_isInAir && {!_isOnWater && {!_isMan}}) then {_object setVectorUp (surfaceNormal _placementVar)};
+        if (!_isInAir && {!_isOnWater && {!_isMan}}) then {
+            //Placement with attempt to avoid ground collision
+            _object setVehiclePosition [_placementVar,[],0,"CAN_COLLIDE"];
+        } else {
+            //Just move it there
+            _object setPosATL _placementVar;
+        };
 
         //Check for collisions
         if ([_object,_boundingBox] call NWG_SPWN_CollisionCheck) exitWith {};
