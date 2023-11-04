@@ -22,7 +22,7 @@ NWG_SPWN_PrespawnVehicle = {
 };
 
 //Spawn the vehicle with free space search around given position
-NWG_SPWN_SpawnVehicleFreely = {
+NWG_SPWN_SpawnVehicleAround = {
     params ["_classname","_pos","_dir",["_appearance",false],["_pylons",false],["_deferReveal",false]];
 
     private _vehicle = _this call NWG_SPWN_PrespawnVehicle;
@@ -64,7 +64,7 @@ NWG_SPWN_PrespawnUnits = {
 };
 
 //Spawn the group of units at given position
-NWG_SPWN_SpawnUnitsFreely = {
+NWG_SPWN_SpawnUnitsAround = {
     params ["_classnames","_pos",["_side",west]];
 
     //Pre-spawn units at a safe position
@@ -82,6 +82,21 @@ NWG_SPWN_SpawnUnitsFreely = {
     for "_i" from ((count (waypoints _group)) - 1) to 0 step -1 do {
         deleteWaypoint [_group, _i];
     };
+
+    //return
+    _units
+};
+
+NWG_SPWN_SpawnUnitsIntoVehicle = {
+    params ["_classnames","_vehicle",["_side",west]];
+
+    //Pre-spawn units at a safe position
+    private _units = _this call NWG_SPWN_PrespawnUnits;
+    private _group = group (_units#0);
+
+    //Place units into vehicle
+    _group addVehicle _vehicle;
+    {_x moveInAny _vehicle} forEach _units;
 
     //return
     _units
