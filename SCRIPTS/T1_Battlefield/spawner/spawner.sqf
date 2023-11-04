@@ -87,6 +87,7 @@ NWG_SPWN_SpawnUnitsAround = {
     _units
 };
 
+//Spawn the group of units into given vehicle
 NWG_SPWN_SpawnUnitsIntoVehicle = {
     params ["_classnames","_vehicle",["_side",west]];
 

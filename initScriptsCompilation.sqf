@@ -34,9 +34,15 @@ NWG_fnc_compile = {
 //Compile functions and modules
 
 //T1_Battlefield
+//dots
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\dots\dots.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\dots\dotsTests.sqf" call NWG_fnc_compile)};
+//dspawn
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\dspawn\dspawn.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\dspawn\dspawnTests.sqf" call NWG_fnc_compile)};
+//spawner
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\spawner\spawner.sqf" call NWG_fnc_compile);
+_serverFunctions pushBack ("SCRIPTS\T1_Battlefield\spawner\spawnerFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\spawner\spawnerTests.sqf" call NWG_fnc_compile)};
 
 //T2_UserInteraction
