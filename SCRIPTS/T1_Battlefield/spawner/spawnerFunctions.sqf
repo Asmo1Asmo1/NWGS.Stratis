@@ -26,3 +26,43 @@ NWG_fnc_spwnSpawnUnitsIntoVehicle = {
     _this call NWG_SPWN_SpawnUnitsIntoVehicle
     //returns _units (array)
 };
+
+//Get appearance of the vehicle
+//params:
+//_vehicle - vehicle to get appearance of
+//returns:
+//appearance of the vehicle
+NWG_fnc_spwnGetVehicleAppearance = {
+    //params ["_vehicle"];
+    _this call NWG_SPWN_GetVehicleAppearance
+    //returns _appearance
+};
+
+//Set appearance of the vehicle
+//params:
+//_vehicle - vehicle to set appearance of
+//_appearance - appearance to set
+NWG_fnc_spwnSetVehicleAppearance = {
+    //params ["_vehicle","_appearance"];
+    _this call NWG_SPWN_SetVehicleAppearance
+};
+
+//Get pylons of the vehicle
+//params:
+//_vehicle - vehicle to get pylons of
+//returns:
+//pylons of the vehicle
+NWG_fnc_spwnGetVehiclePylons = {
+    //params ["_vehicle"];
+    _this call NWG_SPWN_GetVehiclePylons
+    //returns _pylons
+};
+
+//Set pylons of the vehicle
+//params:
+//_vehicle - vehicle to set pylons of
+//_pylons - pylons to set
+NWG_fnc_spwnSetVehiclePylons = {
+    //params ["_vehicle","_pylons"];
+    _this call NWG_SPWN_SetVehiclePylons
+};

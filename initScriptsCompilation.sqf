@@ -40,6 +40,7 @@ if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\dots\dot
 //dspawn
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\dspawn\dspawn.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\dspawn\dspawnTests.sqf" call NWG_fnc_compile)};
+if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\dspawn\dspawnDev.sqf" call NWG_fnc_compile)};
 //spawner
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\spawner\spawner.sqf" call NWG_fnc_compile);
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\spawner\spawnerFunctions.sqf" call NWG_fnc_compile);
