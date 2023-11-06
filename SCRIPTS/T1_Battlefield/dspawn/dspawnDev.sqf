@@ -190,6 +190,7 @@ NWG_DSPAWN_Dev_GetVehicleWeapons = {
 NWG_DSPAWN_Dev_CompactStringArray = {
     // private _array = _this;
     private _result = [];
+    private _i = -1;
 
     //do
     {
