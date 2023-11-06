@@ -33,6 +33,10 @@ NWG_fnc_compile = {
 //================================================================================================================
 //Compile functions and modules
 
+//T0_Core
+//commonFunctions
+_commonFunctions pushBack ("SCRIPTS\T0_Core\commonFunctions.sqf" call NWG_fnc_compile);
+
 //T1_Battlefield
 //dots
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\dots\dots.sqf" call NWG_fnc_compile);
