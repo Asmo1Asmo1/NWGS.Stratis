@@ -20,3 +20,8 @@
 #define DESCR_VEHICLE 2
 #define DESCR_UNITS 3
 #define DESCR_ADDITIONAL_CODE 4
+
+//Catalogue page structure
+#define PASSENGERS_CONTAINER 0
+#define PARADROP_CONTAINER 1
+#define GROUPS_CONTAINER 2
