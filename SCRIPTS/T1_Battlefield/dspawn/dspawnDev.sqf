@@ -20,7 +20,11 @@
 //================================================================================================================
 //Group description gathering
 NWG_DSPAWN_Dev_EasyGather = {
-    (group player) call NWG_DSPAWN_Dev_Gather;
+    if (!isNull player) then {
+        (group player) call NWG_DSPAWN_Dev_Gather;
+    } else {
+        ((groups west)#0) call NWG_DSPAWN_Dev_Gather;
+    };
 };
 
 NWG_DSPAWN_Dev_Gather = {
@@ -43,7 +47,7 @@ NWG_DSPAWN_Dev_Gather = {
 
     //Gather group's vehicle values
     private _vehClassname = typeOf _grpVehicle;
-    private _maxPassengers = {isNull (_x#0)} count (fullCrew [_vehicle,"",true]);
+    private _maxPassengers = {isNull (_x#0)} count (fullCrew [_grpVehicle,"",true]);
 
     //Enrich the _unitsDescr with amount of random passengers
     if (_maxPassengers > 0) then {
@@ -125,7 +129,7 @@ NWG_DSPAWN_Dev_GenerateTags = {
 
     //Vehicle tags -
     if (!("INF" in _tags)) then {
-        if ((count (_grpVehicle call NWG_DSPAWN_Dev_GetVehicleWeapons)) > 0)
+        if ((count (_grpVehicle call NWG_DSPAWN_Dev_GetVehicleWeapons)) > 0 || {(count (_grpVehicle call NWG_fnc_spwnGetVehiclePylons)) > 0})
             then {_tags pushBack "MEC"}
             else {_tags pushBack "MOT"};
     };
@@ -137,6 +141,11 @@ NWG_DSPAWN_Dev_GenerateTags = {
             case "helicopterrtd";
             case "helicopterx": {_tags pushBack "HELI"};
         };
+    };
+
+    //UAV tags -
+    if (!("INF" in _tags) && {unitIsUAV _grpVehicle}) then {
+        _tags pushBack "UAV";
     };
 
     //Weapon tags -
@@ -208,4 +217,37 @@ NWG_DSPAWN_Dev_CompactStringArray = {
 
     //return
     _this
+};
+
+//================================================================================================================
+//================================================================================================================
+//Additional code helpers
+
+//Gets the attachTo offset and setVectorDirAndUp values between two objects
+//note: both objects will be temporarily attached to one another for this to work
+//note: place two objects in the editor, give them names and call this function from runtime
+//params:
+// _parentObject - object to attach to
+// _attachedObject - object to attach
+//returns:
+// array [attachTo offset, setVectorDirAndUp args]
+NWG_DSPAWN_Dev_AC_GetAttachToValues = {
+    params ["_parentObject","_attachedObject"];
+
+    _attachedObject disableCollisionWith _parentObject;
+    _attachedObject attachTo [_parentObject];
+
+    private _result = [
+        //Offset
+        (_parentObject getRelPos _attachedObject),
+        //Dir and Up
+        [(_attachedObject vectorWorldToModelVisual vectorDirVisual _parentObject),
+        (_attachedObject vectorWorldToModelVisual vectorUpVisual _parentObject)]
+    ];
+
+    detach _attachedObject;
+    _attachedObject enableCollisionWith _parentObject;
+
+    //return
+    _result
 };

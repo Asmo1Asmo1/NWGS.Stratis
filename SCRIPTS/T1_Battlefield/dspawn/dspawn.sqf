@@ -243,6 +243,33 @@ NWG_DSPAWN_SpawnVehicledGroup = {
 
 //================================================================================================================
 //================================================================================================================
+//Additional code helpers
+NWG_DSPAWN_AC_AttachTurret = {
+    params ["_group","_vehicle","_NaN","_turretClassname","_attachToValues",["_gunnerClassname","DEFAULT"]];
+    _attachToValues params ["_offset","_dirAndUp"];
+
+    //Spawn and attach turret
+    private _turret = [_turretClassname,0,0] call NWG_fnc_spwnPrespawnVehicle;
+    _turret call NWG_fnc_spwnRevealObject;
+    _turret disableCollisionWith _vehicle;
+    _turret attachTo [_vehicle,_offset];
+    _turret setVectorDirAndUp _dirAndUp;
+
+    //Add gunner
+    private _gunner = objNull;
+    if (_gunner isEqualTo "DEFAULT") then {
+        _group createVehicleCrew _turret;
+        _gunner = gunner _turret;
+        if ((side _gunner) isNotEqualTo (side _group)) then {[_gunner] joinSilent _group};
+    } else {
+        _gunner = ([[_gunnerClassname],"_NaN",(side _group)] call NWG_fnc_spwnPrespawnUnits)#0;
+        _gunner call NWG_fnc_spwnRevealObject;
+        _gunner moveInAny _turret;
+    };
+};
+
+//================================================================================================================
+//================================================================================================================
 //TAGs system
 NWG_DSPAWN_GetTags = {
     // private _group = _this;
