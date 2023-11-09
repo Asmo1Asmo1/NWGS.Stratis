@@ -168,7 +168,7 @@
         ],
         //Panther
         [
-            ["VEH","MEC","REG"],1,
+            ["VEH","MEC","REG"],2,
             ["B_APC_Tracked_01_rcws_F",[["Sand",1],["showCamonetHull",0.5,"showBags",0.5]],false],
             [3,"B_crew_F",8,"RANDOM"]
         ],
