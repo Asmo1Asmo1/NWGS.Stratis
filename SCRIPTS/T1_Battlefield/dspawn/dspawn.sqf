@@ -25,7 +25,7 @@ NWG_DSPAWN_GetCataloguePage = {
 
     //Prepare variables
     private _pageName = _this;
-    private _catalogueAddress = NWG_DSPAWN_Settings get ["CatalogueAddress",""];
+    private _catalogueAddress = NWG_DSPAWN_Settings get "CatalogueAddress";
     private _valid = true;
     private _abort = {
         // private _errorMessage = _this;
@@ -36,7 +36,6 @@ NWG_DSPAWN_GetCataloguePage = {
     };
 
     //Try load from file
-    if (_catalogueAddress isEqualTo "") exitWith {"NWG_DSPAWN_GetCataloguePage: Catalogue address not set, can not load '%1'" call _abort};
     _page = call ((format["%1\%2.sqf",_catalogueAddress,_pageName]) call NWG_fnc_compile);
     if (isNil "_page") exitWith {"NWG_DSPAWN_GetCataloguePage: Could not load the catalogue page '%1'" call _abort};
 
@@ -68,79 +67,77 @@ NWG_DSPAWN_GetCataloguePage = {
     _page
 };
 
-NWG_DSPAWN_GetCataloguePagePassengers = {
-    // private _pageName = _this;
-    private _page = _this call NWG_DSPAWN_GetCataloguePage;
-    if (_page isEqualTo false) exitWith {false};
-    //return
-    (_page#PASSENGERS_CONTAINER)
-};
-
-NWG_DSPAWN_GetCataloguePageParadrop = {
-    // private _pageName = _this;
-    private _page = _this call NWG_DSPAWN_GetCataloguePage;
-    if (_page isEqualTo false) exitWith {false};
-    //return
-    (_page#PARADROP_CONTAINER)
-};
-
-NWG_DSPAWN_GetCataloguePageGroups = {
-    // private _pageName = _this;
-    private _page = _this call NWG_DSPAWN_GetCataloguePage;
-    if (_page isEqualTo false) exitWith {false};
-    //return
-    (_page#GROUPS_CONTAINER)
-};
-
-//Not sure if caching is required
-// NWG_DSPAWN_gcpgf_previousRequest = [];
-// NWG_DSPAWN_gcpgf_previousResult = [];
-NWG_DSPAWN_GetCataloguePageGroupsFiltered = {
-    params ["_pageName","_filter"];
+NWG_DSPAWN_gcv_previousRequest = [];
+NWG_DSPAWN_gcv_previousResult = [];
+NWG_DSPAWN_GetCatalogueValues = {
+    params ["_pageName",["_filter",[]]];
 
     //Check cache
-    // if (_this isEqualTo NWG_DSPAWN_gcpgf_previousRequest) exitWith {NWG_DSPAWN_gcpgf_previousResult};
+    if (_this isEqualTo NWG_DSPAWN_gcv_previousRequest) exitWith {NWG_DSPAWN_gcv_previousResult};
 
-    //Get groups
-    private _groups = _pageName call NWG_DSPAWN_GetCataloguePageGroups;
-    if (_groups isEqualTo false) exitWith {false};
+    //Get the page
+    private _page = _pageName call NWG_DSPAWN_GetCataloguePage;
+    if (_page isEqualTo false) exitWith {false};//Could not load the page for whatever reason (logged internally)
+    _page params ["_passengersContainer","_paradropContainer","_groupsContainer"];
 
+    //While passengers and paradrop are provided AS IS, groups are filtered and processed with spawn chance based on their tier
     //Unpack filter
     _filter params [["_tagsWhiteList",[]],["_tagsBlackList",[]],["_tierWhiteList",[]]];
 
     //Check if filter is empty
-    if (_tagsWhiteList isEqualTo [] && {_tagsBlackList isEqualTo [] && {_tierWhiteList isEqualTo []}}) exitWith {
-        // NWG_DSPAWN_gcpgf_previousRequest = _this;
-        // NWG_DSPAWN_gcpgf_previousResult = _groups;
-        _groups
+    private _filteredGroups = if (_tagsWhiteList isEqualTo [] && {_tagsBlackList isEqualTo [] && {_tierWhiteList isEqualTo []}}) then {
+        _groupsContainer
+    } else {
+        //Prepare filtering functions
+        private _tagsfilterW = if (_tagsWhiteList isNotEqualTo [])
+            then {{(count ((_this#DESCR_TAGS) arrayIntersect _tagsWhiteList)) > 0}}
+            else {{true}};
+        private _tagsFilterB = if (_tagsBlackList isNotEqualTo [])
+            then {{(count ((_this#DESCR_TAGS) arrayIntersect _tagsBlackList)) == 0}}
+            else {{true}};
+        private _tierFilter = if (_tierWhiteList isNotEqualTo [])
+            then {{(_this#DESCR_TIER) in _tierWhiteList}}
+            else {{true}};
+
+        //Filter groups
+        _groupsContainer select {(_x call _tagsfilterW) && {(_x call _tagsFilterB) && {(_x call _tierFilter)}}}
     };
 
-    //Prepare filtering functions
-    private _tagsfilterW = if (_tagsWhiteList isNotEqualTo [])
-        then {{(count ((_this#DESCR_TAGS) arrayIntersect _tagsWhiteList)) > 0}}
-        else {{true}};
-    private _tagsFilterB = if (_tagsBlackList isNotEqualTo [])
-        then {{(count ((_this#DESCR_TAGS) arrayIntersect _tagsBlackList)) == 0}}
-        else {{true}};
-    private _tierFilter = if (_tierWhiteList isNotEqualTo [])
-        then {{(_this#DESCR_TIER) in _tierWhiteList}}
-        else {{true}};
-
-    //Filter groups
-    private _filteredGroups = _groups select {(_x call _tagsfilterW) && {(_x call _tagsFilterB) && {(_x call _tierFilter)}}};
     if ((count _filteredGroups) == 0) exitWith {
-        (format ["NWG_DSPAWN_GetFilledCatalogueGroup: Could not find any group at page '%1' that match filter '%2'",_pageName,_filter]) call NWG_fnc_logError;
-        // NWG_DSPAWN_gcpgf_previousRequest = _this;
-        // NWG_DSPAWN_gcpgf_previousResult = false;
+        (format ["NWG_DSPAWN_GetCatalogueValues: Could not find any group at page '%1' that matches filter '%2'",_pageName,_filter]) call NWG_fnc_logError;
+        NWG_DSPAWN_gcv_previousRequest = _this;
+        NWG_DSPAWN_gcv_previousResult = [];
         false
     };
 
-    //Cache
-    // NWG_DSPAWN_gcpgf_previousRequest = _this;
-    // NWG_DSPAWN_gcpgf_previousResult = _filteredGroups;
+    //Multiply by spawn chance (tier)
+    private _resultGroups = [];
+    //do
+    {
+        switch (_x#DESCR_TIER) do {
+            case (1): {
+                _resultGroups pushBack _x;
+                _resultGroups pushBack _x;
+                _resultGroups pushBack _x;
+            };
+            case (2): {
+                _resultGroups pushBack _x;
+                _resultGroups pushBack _x;
+            };
+            case (3): {
+                _resultGroups pushBack _x;
+            };
+            default {
+                (format ["NWG_DSPAWN_GetCatalogueValues: Invalid group tier '%1':'%2'",_pageName,_x]) call NWG_fnc_logError;
+            };
+        };
+    } forEach _filteredGroups;
 
-    //return
-    _filteredGroups
+    //Cache and return
+    private _result = [_passengersContainer,_paradropContainer,_resultGroups];
+    NWG_DSPAWN_gcv_previousRequest = _this;
+    NWG_DSPAWN_gcv_previousResult = _result;
+    _result
 };
 
 //================================================================================================================
