@@ -3,9 +3,48 @@ NWG_DOTS_Settings = createHashMapFromArray [
     ["AREA_SPAWNSEARCH_DENSITY",30],//Step 1: The area is covered in random points each 'DENSITY' meters. Higher - more results. Lower - faster execution.
     ["AREA_SPAWNSEARCH_SUBRAD",20],//Step 2: Search for valid spawn point is done around each random point in 'SUBRAD' radius. Higher - more results. Lower - faster execution. Keep lower than 'DENSITY' to prevent overlap.
     ["AREA_SPAWNSEARCH_SUBRAD_STEP",2],//Step 2: From 0 to 'SUBRAD' incrementing by 'SUBRAD_STEP'. Higher - faster execution. Lower - more results. Keep as divider of 'SUBRAD' for correct work.
-    ["LOCATIONS_MINBETWEEN",100],//Min distance between result locations for 'NWG_DOTS_FindLocations' (part of Trigger Markup)
+    ["LOCATIONS_RADIUS",[25,100]],//Radius outside trigger to search for locations (_triggerRad + LOCATIONS_RADIUS)
+    ["LOCATIONS_MINBETWEEN",100],//Min distance between locations in trigger markup
+    ["ROADS_RADIUS",[100,200]],//Radius outside trigger to search for roads in trigger markup
     ["",0]
 ];
+
+//================================================================================================================
+//================================================================================================================
+//Trigger markup
+NWG_DOTS_MarkupTrigger = {
+    // private _trigger = _this;
+    params ["_triggerPos","_triggerRad"];
+
+    //Markup trigger area
+    ([_triggerPos,0,_triggerRad] call NWG_DOTS_MarkupArea) params ["_plains","_roads","_water"];
+
+    //Outside roads
+    private _roadsAway = [];
+    if ((count _roads)>0) then {
+        private _root = _roads select ([_roads,_triggerPos] call NWG_DOTS_FindIndexOfNearest);
+        (NWG_DOTS_Settings get "ROADS_RADIUS") params ["_roadMinDistance","_roadMaxDistance"];
+        _roadsAway = [_root,(_triggerRad+_roadMinDistance),(_triggerRad+_roadMaxDistance)] call NWG_DOTS_FindRoadsAway;
+    };
+
+    //Outside locations
+    (NWG_DOTS_Settings get "LOCATIONS_RADIUS") params ["_locationMinDistance","_locationMaxDistance"];
+    private _locations = [_triggerPos,(_triggerRad+_locationMinDistance),(_triggerRad+_locationMaxDistance)] call NWG_DOTS_FindLocations;
+
+    //Donate to 'roads away' and 'locations' if required (unbalanced)
+    private _donateIfRequired = {
+        params ["_recipient","_donor"];
+        if ((count _recipient) == 0 || {(count _donor) == 0}) exitWith {};
+        private _midPoint = _recipient call NWG_DOTS_FindMidpoint;
+        if ((_midPoint distance2D _triggerPos) < _triggerRad) exitWith {};
+        _recipient pushBack (_donor deleteAt ([_donor,_midPoint] call NWG_DOTS_FindIndexOfFarthest));
+    };
+    [_roadsAway,_roads] call _donateIfRequired;
+    [_locations,_plains] call _donateIfRequired;
+
+    //return
+    [_plains,_roads,_water,_roadsAway,_locations]
+};
 
 //================================================================================================================
 //================================================================================================================
@@ -134,6 +173,64 @@ NWG_DOTS_FindShores = {
 
     //return
     _result
+};
+
+//================================================================================================================
+//================================================================================================================
+//Dots manipulation
+NWG_DOTS_FindMidpoint = {
+    // private _dots = _this;
+    private _N = (count _this);
+    private _sumX = 0;
+    private _sumY = 0;
+    //do
+    {
+        _sumX = _sumX + (_x#0);
+        _sumY = _sumY + (_x#1);
+    } forEach _this;
+
+    //return
+    [(_sumX/_N),(_sumY/_N),0]
+};
+
+NWG_DOTS_FindIndexOfNearest = {
+    params ["_dots","_pos"];
+
+    private _minDistance = 999999;
+    private _index = -1;
+    private _dist = 0;
+
+    //do
+    {
+        _dist = (_x distance _pos);
+        if (_dist < _minDistance) then {
+            _minDistance = _dist;
+            _index = _forEachIndex;
+        };
+    } forEach _dots;
+
+    //return
+    _index
+};
+
+NWG_DOTS_FindIndexOfFarthest = {
+    params ["_dots","_pos"];
+
+    private _maxDistance = -1;
+    private _index = -1;
+    private _dist = 0;
+
+    //do
+    {
+        _dist = (_x distance _pos);
+        if (_dist > _maxDistance) then {
+            _maxDistance = _dist;
+            _index = _forEachIndex;
+        };
+    } forEach _dots;
+
+    //return
+    _index
 };
 
 //================================================================================================================

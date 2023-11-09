@@ -1,5 +1,23 @@
 //================================================================================================================
 //================================================================================================================
+//Trigger markup
+// 250 call NWG_DOTS_MarkupTrigger_Test
+NWG_DOTS_MarkupTrigger_Test = {
+    private _triggerRad = _this;
+    private _triggerPos = getPosATL player;
+
+    call NWG_fnc_testClearMap;
+    ([_triggerPos,_triggerRad] call NWG_DOTS_MarkupTrigger) params ["_plains","_roads","_water","_roadsAway","_locations"];
+
+    {[_x,(format ["testP_%1",_forEachIndex]),"ColorGreen"] call NWG_fnc_testPlaceMarker} forEach _plains;
+    {[_x,(format ["testR_%1",_forEachIndex]),"ColorOrange"] call NWG_fnc_testPlaceMarker} forEach _roads;
+    {[_x,(format ["testW_%1",_forEachIndex]),"ColorBlue"] call NWG_fnc_testPlaceMarker} forEach _water;
+    {[_x,(format ["testRA_%1",_forEachIndex]),"ColorRed"] call NWG_fnc_testPlaceMarker} forEach _roadsAway;
+    {[_x,(format ["testL_%1",_forEachIndex]),"ColorCIV"] call NWG_fnc_testPlaceMarker} forEach _locations;
+};
+
+//================================================================================================================
+//================================================================================================================
 //Area spawn points search
 // [0,150] call NWG_DOTS_MarkupArea_Test
 NWG_DOTS_MarkupArea_Test = {
@@ -51,6 +69,38 @@ NWG_DOTS_FindShores_Test = {
     {[_x,(format ["test_%1",_forEachIndex]),"ColorGreen"] call NWG_fnc_testPlaceMarker} forEach _dots;
 };
 
+//================================================================================================================
+//================================================================================================================
+//Dots manipulation
+// call NWG_DOTS_FindMidpoint_Test
+NWG_DOTS_FindMidpoint_Test = {
+    call NWG_fnc_testClearMap;
+    private _dots = [(getPosATL player),150,15] call NWG_DOTS_GenerateDotsCloud;
+    private _midpoint = _dots call NWG_DOTS_FindMidpoint;
+    {[_x,(format ["test_%1",_forEachIndex]),"ColorRed"] call NWG_fnc_testPlaceMarker} forEach _dots;
+    [_midpoint,"test_midpoint","ColorBlue"] call NWG_fnc_testPlaceMarker;
+    _midpoint
+};
+
+// call NWG_DOTS_FindIndexOfNearest_Test
+NWG_DOTS_FindIndexOfNearest_Test = {
+    call NWG_fnc_testClearMap;
+    private _dots = [(getPosATL player),150,15] call NWG_DOTS_GenerateDotsCloud;
+    private _nearest = _dots deleteAt ([_dots,(getPosATL player)] call NWG_DOTS_FindIndexOfNearest);
+    {[_x,(format ["test_%1",_forEachIndex]),"ColorRed"] call NWG_fnc_testPlaceMarker} forEach _dots;
+    [_nearest,"test_nearest","ColorBlue"] call NWG_fnc_testPlaceMarker;
+    _nearest
+};
+
+// call NWG_DOTS_FindIndexOfFarthest_Test
+NWG_DOTS_FindIndexOfFarthest_Test = {
+    call NWG_fnc_testClearMap;
+    private _dots = [(getPosATL player),150,15] call NWG_DOTS_GenerateDotsCloud;
+    private _farthest = _dots deleteAt ([_dots,(getPosATL player)] call NWG_DOTS_FindIndexOfFarthest);
+    {[_x,(format ["test_%1",_forEachIndex]),"ColorRed"] call NWG_fnc_testPlaceMarker} forEach _dots;
+    [_farthest,"test_farthest","ColorBlue"] call NWG_fnc_testPlaceMarker;
+    _farthest
+};
 
 //================================================================================================================
 //================================================================================================================
