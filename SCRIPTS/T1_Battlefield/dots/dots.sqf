@@ -3,13 +3,13 @@ NWG_DOTS_Settings = createHashMapFromArray [
     ["AREA_SPAWNSEARCH_DENSITY",30],//Step 1: The area is covered in random points each 'DENSITY' meters. Higher - more results. Lower - faster execution.
     ["AREA_SPAWNSEARCH_SUBRAD",20],//Step 2: Search for valid spawn point is done around each random point in 'SUBRAD' radius. Higher - more results. Lower - faster execution. Keep lower than 'DENSITY' to prevent overlap.
     ["AREA_SPAWNSEARCH_SUBRAD_STEP",2],//Step 2: From 0 to 'SUBRAD' incrementing by 'SUBRAD_STEP'. Higher - faster execution. Lower - more results. Keep as divider of 'SUBRAD' for correct work.
+    ["LOCATIONS_MINBETWEEN",100],//Min distance between result locations for 'NWG_DOTS_FindLocations' (part of Trigger Markup)
     ["",0]
 ];
 
 //================================================================================================================
 //================================================================================================================
 //Area spawn points search
-
 NWG_DOTS_MarkupArea = {
     params ["_pos","_minRad","_maxRad"];
 
@@ -21,7 +21,7 @@ NWG_DOTS_MarkupArea = {
     private _dots = [_pos,_minRad,_maxRad,_searchStep] call NWG_DOTS_GenerateDottedArea;
 
     //Search for plains, roads and water around each dot
-    private _result = [_dots,_subSearchRad,_subSearchStep,/*_doPlains:*/true,/*_doRoads:*/true,/*_doWater:*/true] call NWG_DOTS_FindPlainsRoadsWaterAroundDots;
+    private _result = [_dots,_subSearchRad,_subSearchStep] call NWG_DOTS_FindPlainsRoadsWaterAroundDots;
 
     //return [_plains,_roads,_water]
     _result
@@ -29,8 +29,116 @@ NWG_DOTS_MarkupArea = {
 
 //================================================================================================================
 //================================================================================================================
-//Dots to useful coordinates
+//Exotic search
+NWG_DOTS_FindRoadsAway = {
+    params ["_roadPos","_minDistance","_maxDistance"];
 
+    //Get first road to start search from
+    private _root = roadAt _roadPos;
+    if (isNull _root) exitWith {[]};
+
+    //Define variables
+    private _roadWeb = [];
+    private _result = [];
+
+    //Recursive search
+    private _recursiveSearch =
+    {
+        if (_this in _roadWeb) exitWith {};//Already added
+        _roadWeb pushBack _this;
+
+        private _distance = (getPosWorld _this) distance _roadPos;
+        private _connectedRoads = roadsConnectedTo [_this,true];
+        if (_distance < _minDistance) exitWith {{_x call _recursiveSearch} forEach _connectedRoads};
+
+        if (((count _connectedRoads) <= 1) || {_distance >= (_minDistance + (random (_maxDistance - _minDistance)))}) then {
+            //Add to result
+            private _roadDot = getPosWorld _this;
+            _roadDot set [2,0];//[x,y,=>z]
+            _result pushBack _roadDot;
+        } else {
+            //Continue the search
+            {_x call _recursiveSearch} forEach _connectedRoads;
+        };
+    };
+
+    _root call _recursiveSearch;
+
+    //return
+    _result
+};
+
+NWG_DOTS_FindLocations = {
+    params ["_pos","_minRad","_maxRad"];
+
+    //Get all location types
+    private _locationTypes = localNamespace getVariable "NWG_DOTS_locationTypes";
+    if (isNil "_locationTypes") then {
+        _locationTypes = [];
+        "_locationTypes pushBack configName _x; true" configClasses (configFile >> "CfgLocationTypes");
+        localNamespace setVariable ["NWG_DOTS_locationTypes",_locationTypes];
+    };
+
+    //Find nearest ground locations
+    private _locations = ((nearestLocations [_pos,_locationTypes,_maxRad])
+        apply {locationPosition _x})
+        select {!surfaceIsWater _x && {(_x distance2D _pos) > _minRad}};
+
+    //Find spawn area around each location
+    private _searchRad = NWG_DOTS_Settings get "AREA_SPAWNSEARCH_SUBRAD";
+    private _searchStep = NWG_DOTS_Settings get "AREA_SPAWNSEARCH_SUBRAD_STEP";
+    private _minDist = NWG_DOTS_Settings get "LOCATIONS_MINBETWEEN";
+    private _result = [];
+    private ["_cur","_dot"];
+    //do
+    {
+        //Check min distance to result locations
+        _cur = _x;
+        if ((_result findIf {(_cur distance2D _x) < _minDist}) != -1) then {continue};
+
+        //Find suitable spawn point around location
+        for "_r" from 0 to _searchRad step _searchStep do {
+            _dot = _cur getPos [_r,(random 360)];
+            _dot set [2,0];
+            if (!surfaceIsWater _dot && {_dot call NWG_DOTS_IsPlainSurfaceAt}) exitWith {_result pushBack _dot};
+        };
+    } forEach _locations;
+
+    //return
+    _result
+};
+
+NWG_DOTS_FindShores = {
+    params ["_pos","_rad"];
+
+    private _step = (_rad/10) max 15;
+    private _dots = [_pos,_rad,(round ((6.28*_rad)/_step))] call NWG_DOTS_GenerateDotsCircle;
+    private _result = [];
+
+    //Pre-check that there are both water AND ground in given radius
+    //(not much sence to search for shores if there is no water or no ground)
+    private _waterCount = {surfaceIsWater _x} count _dots;
+    if (_waterCount == 0 || {_waterCount == (count _dots)}) exitWith {_result};
+
+    //Find them shores
+    private _lastIndex = (count _dots) - 1;
+    private ["_prevDot","_nextDot"];
+    for "_i" from 0 to _lastIndex do {
+        if (surfaceIsWater (_dots#_i)) then {continue};
+        _prevDot = if (_i > 0) then {_dots#(_i-1)} else {_dots#_lastIndex};
+        _nextDot = if (_i < _lastIndex) then {_dots#(_i+1)} else {_dots#0};
+        if (surfaceIsWater _prevDot || {surfaceIsWater _nextDot}) then {
+            _result pushBack (_dots#_i);
+        };
+    };
+
+    //return
+    _result
+};
+
+//================================================================================================================
+//================================================================================================================
+//Dots to useful coordinates
 NWG_DOTS_IsPlainSurfaceAt = {
     // private _dot = _this;
 
@@ -50,7 +158,7 @@ NWG_DOTS_IsPlainSurfaceAt = {
 };
 
 NWG_DOTS_FindPlainsRoadsWaterAroundDots = {
-    params ["_dots","_searchRad","_searchStep",["_doPlains",true],["_doRoads",true],["_doWater",true]];
+    params ["_dots","_searchRad","_searchStep",["_doWater",true]];
 
     private _plains = [];
     private _roads = [];
@@ -74,14 +182,13 @@ NWG_DOTS_FindPlainsRoadsWaterAroundDots = {
             };
 
             if (isOnRoad _dot) then {
-                if (!_doRoads) then { continue };
                 _dot = getPosWorld (roadAt _dot);
                 _dot set [2,0];
                 _roads pushBack _dot;
                 breakTo "foreach_dots";
             };
 
-            if (_doPlains && {_dot call NWG_DOTS_IsPlainSurfaceAt}) then {
+            if (_dot call NWG_DOTS_IsPlainSurfaceAt) then {
                 _plains pushBack _dot;
                 breakTo "foreach_dots";
             };
@@ -96,7 +203,6 @@ NWG_DOTS_FindPlainsRoadsWaterAroundDots = {
 //================================================================================================================
 //================================================================================================================
 //Dots generation - Core for other functions
-
 NWG_DOTS_GenerateDotsCircle = {
     params ["_pos","_rad","_count"];
 

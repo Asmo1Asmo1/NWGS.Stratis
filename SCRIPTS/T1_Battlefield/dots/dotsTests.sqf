@@ -17,6 +17,43 @@ NWG_DOTS_MarkupArea_Test = {
 
 //================================================================================================================
 //================================================================================================================
+//Exotic search
+// [500,1000] call NWG_DOTS_FindRoadsAway_Test
+NWG_DOTS_FindRoadsAway_Test = {
+    params ["_minDistance","_maxDistance"];
+
+    call NWG_fnc_testClearMap;
+    private _pos = getPosATL player;
+    private _root = [_pos,_maxDistance] call BIS_fnc_nearestRoad;
+    if (isNull _root) exitWith {[]};
+
+    private _dots = [(getPosATL _root),_minDistance,_maxDistance] call NWG_DOTS_FindRoadsAway;
+    {[_x,(format ["test_%1",_forEachIndex]),"ColorRed"] call NWG_fnc_testPlaceMarker} forEach _dots;
+};
+
+// [500,1000] call NWG_DOTS_FindLocations_Test
+NWG_DOTS_FindLocations_Test = {
+    params ["_minRad","_maxRad"];
+
+    call NWG_fnc_testClearMap;
+    private _pos = getPosATL player;
+    private _dots = [_pos,_minRad,_maxRad] call NWG_DOTS_FindLocations;
+    {[_x,(format ["test_%1",_forEachIndex]),"ColorCIV"] call NWG_fnc_testPlaceMarker} forEach _dots;
+};
+
+// 250 call NWG_DOTS_FindShores_Test
+NWG_DOTS_FindShores_Test = {
+    private _rad = _this;
+
+    call NWG_fnc_testClearMap;
+    private _pos = getPosATL player;
+    private _dots = [_pos,_rad] call NWG_DOTS_FindShores;
+    {[_x,(format ["test_%1",_forEachIndex]),"ColorGreen"] call NWG_fnc_testPlaceMarker} forEach _dots;
+};
+
+
+//================================================================================================================
+//================================================================================================================
 //Dots to useful coordinates
 // [0,150,15] call NWG_DOTS_IsPlainSurfaceAt_Test
 NWG_DOTS_IsPlainSurfaceAt_Test = {
