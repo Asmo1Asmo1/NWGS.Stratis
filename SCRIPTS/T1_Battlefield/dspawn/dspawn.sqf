@@ -5,12 +5,79 @@
 //Settings
 NWG_DSPAWN_Settings = createHashMapFromArray [
     ["CatalogueAddress","DATASETS\Server\Dspawn"],
+    ["TriggerPopulationDistribution",[5,3,1,1,1]],//Default population as INF/VEH/ARM/AIR/BOAT
     ["",0]
 ];
 
 //================================================================================================================
 //================================================================================================================
-//Public methods
+//Populate trigger
+NWG_DSPAWN_TRIGGER_CalculatePopulation = {
+    params ["_targetCount","_filter"];
+    private _result = (NWG_DSPAWN_Settings get "TriggerPopulationDistribution") + [];//Shallow copy of default distribution
+
+    //Prepare variables
+    private _curCount = 0;
+    private _updateCurCount = {
+        _curCount = 0;
+        {_curCount = _curCount + _x} forEach _result;
+        _curCount
+    };
+
+    //Check default distribution
+    call _updateCurCount;
+    if (_curCount <= 0 || {(_result findIf {_x < 0}) != -1}) exitWith {
+        (format ["NWG_DSPAWN_TRIGGER_CalculatePopulation: Trigger population setting '%1' is invalid",_result]) call NWG_fnc_logError;
+        _result
+    };
+
+    //Apply filter
+    if (_filter isNotEqualTo []) then {
+        _filter params [["_whiteList",[]],["_blackList",[]]];
+        private _set = ["INF","VEH","ARM","AIR","BOAT"];
+        _whiteList = _whiteList arrayIntersect _set;
+        _blackList = _blackList arrayIntersect _set;
+        if (_whiteList isEqualTo [] && {_blackList isEqualTo []}) exitWith {};
+
+        if (_whiteList isNotEqualTo []) then {_set = _set select {_x in _whiteList}};
+        if (_blackList isNotEqualTo []) then {_set = _set select {!(_x in _blackList)}};
+
+        if (!("INF" in _set)) then {_result set [0,0]};
+        if (!("VEH" in _set)) then {_result set [1,0]};
+        if (!("ARM" in _set)) then {_result set [2,0]};
+        if (!("AIR" in _set)) then {_result set [3,0]};
+        if (!("BOAT" in _set)) then {_result set [4,0]};
+
+        if ((call _updateCurCount) <= 0) then {
+            (format ["NWG_DSPAWN_TRIGGER_CalculatePopulation: Trigger filter '%1' resulted in ZERO population",_filter]) call NWG_fnc_logError;
+            _result
+        };
+    };
+    if (_curCount <= 0 || {_curCount == _targetCount}) exitWith {_result};//No need to modify population further
+
+    //Roughly apply multiplier
+    private _multiplier = (round (_targetCount / _curCount)) max 1;
+    if (_multiplier != 1) then {
+        _result = _result apply {_x * _multiplier};
+        call _updateCurCount;
+    };
+    if (_curCount == _targetCount) exitWith {_result};//No need to modify population further
+
+    //Precisely modify population
+    private _diff = abs (_targetCount - _curCount);
+    private _change = if (_targetCount > _curCount) then {1} else {-1};
+    private _indexes = [];
+    private _j = -1;
+    for "_i" from 1 to _diff do {
+        {if (_x > 0) then {_indexes pushBack _forEachIndex}} forEach _result;
+        _j = selectRandom _indexes;
+        _result set [_j,((_result#_j)+_change)];
+        _indexes resize 0;
+    };
+
+    //return
+    _result
+};
 
 //================================================================================================================
 //================================================================================================================
