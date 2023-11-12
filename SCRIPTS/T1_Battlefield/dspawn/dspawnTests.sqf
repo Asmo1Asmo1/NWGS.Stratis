@@ -1,6 +1,24 @@
 //================================================================================================================
 //================================================================================================================
-//Public methods
+//Populate trigger
+// [20,[]] call NWG_DSPAWN_TRIGGER_Populate_Test
+// [20,[["MOT"],["ARM"]]] call NWG_DSPAWN_TRIGGER_Populate_Test
+NWG_DSPAWN_TRIGGER_CalculatePopulation_Test = {
+    // params ["_targetCount","_filter"];
+    _this call NWG_DSPAWN_TRIGGER_CalculatePopulation
+};
+
+// 150 call NWG_DSPAWN_TRIGGER_FindOccupiableBuildings_Test
+NWG_DSPAWN_TRIGGER_FindOccupiableBuildings_Test = {
+    private _rad = _this;
+    private _pos = getPosATL player;
+    private _buildings = [_pos,_rad] call NWG_DSPAWN_TRIGGER_FindOccupiableBuildings;
+
+    call NWG_fnc_testClearMap;
+    {
+        [(getPosWorld _x),(format ["%1_test",_foreachIndex])] call NWG_fnc_testPlaceMarker;
+    } forEach _buildings;
+};
 
 //================================================================================================================
 //================================================================================================================
@@ -86,3 +104,26 @@ NWG_DSPAWN_SpawnVehicledGroup_Test = {
 //================================================================================================================
 //================================================================================================================
 //Paradrop
+
+//================================================================================================================
+//================================================================================================================
+//Test utils
+
+NWG_fnc_testClearMap =
+{
+    //do
+    {
+        deleteMarker _x;
+    } forEach allMapMarkers;
+};
+
+NWG_fnc_testPlaceMarker =
+{
+    params ["_pos","_name",["_color","ColorRed"],["_text",""]];
+
+    private _marker = createMarkerLocal [_name,_pos];
+    _marker setMarkerShapeLocal "icon";
+    _marker setMarkerTypeLocal "mil_dot";
+    _marker setMarkerColorLocal _color;
+    _marker setMarkerTextLocal _text;
+};

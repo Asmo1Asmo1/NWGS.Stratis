@@ -79,6 +79,20 @@ NWG_DSPAWN_TRIGGER_CalculatePopulation = {
     _result
 };
 
+NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
+    // private _trigger = _this;
+    params ["_triggerPos","_triggerRad"];
+
+    //return
+    (_triggerPos nearObjects _triggerRad) select {
+        switch (true) do {
+            case (!(_x call NWG_fnc_ocIsBuilding)): {false};
+            case ((count (_x buildingPos -1)) < 4): {false};
+            default {true};
+        };
+    };
+};
+
 //================================================================================================================
 //================================================================================================================
 //Catalogue read
