@@ -28,7 +28,7 @@ NWG_fnc_spwnPrespawnUnits = {
     //returns _units (array)
 };
 
-//Spawn the vehicle with free space search around given position
+//Spawn the vehicle around given position
 //params:
 //_classname - classname of the vehicle
 //_pos - position to spawn around
@@ -44,6 +44,19 @@ NWG_fnc_spwnSpawnVehicleAround = {
     //returns _vehicle
 };
 
+//Spawn the group of units around given position
+//params:
+//_classnames - array of classnames of the units
+//_pos - position to spawn around
+//_side - [optional] side of the units
+//returns:
+//array of spawned units
+NWG_fnc_spwnSpawnUnitsAround = {
+    //params ["_classnames","_pos",["_side",west]];
+    _this call NWG_SPWN_SpawnUnitsAround
+    //returns _units (array)
+};
+
 //Spawn the group of units into given vehicle
 //params:
 //_classnames - array of classnames of the units
@@ -54,6 +67,19 @@ NWG_fnc_spwnSpawnVehicleAround = {
 NWG_fnc_spwnSpawnUnitsIntoVehicle = {
     //params ["_classnames","_vehicle",["_side",west]];
     _this call NWG_SPWN_SpawnUnitsIntoVehicle
+    //returns _units (array)
+};
+
+//Spawn the group of units into given building
+//params:
+//_classnames - array of classnames of the units
+//_building - building to spawn into
+//_side - [optional] side of the units
+//returns:
+//array of spawned units
+NWG_fnc_spwnSpawnUnitsIntoBuilding = {
+    //params ["_classnames","_building",["_side",west]];
+    _this call NWG_SPWN_SpawnUnitsIntoBuilding
     //returns _units (array)
 };
 

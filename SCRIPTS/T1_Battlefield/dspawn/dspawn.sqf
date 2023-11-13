@@ -307,17 +307,73 @@ NWG_DSPAWN_FillWithPassengers = {
 
 //================================================================================================================
 //================================================================================================================
+//Group description processing
+NWG_DSPAWN_PrepareGroupForSpawn = {
+    params ["_groupDescr","_passengersContainer"];
+    _groupDescr = _groupDescr + [];//Shallow copy to avoid modifying the original
+    private _unitsDescr = _groupDescr#DESCR_UNITS;
+    _unitsDescr = _unitsDescr + [];//Shallow copy to avoid modifying the original
+    _unitsDescr = _unitsDescr call NWG_DSPAWN_UnCompactStringArray;
+    _unitsDescr = [_unitsDescr,_passengersContainer] call NWG_DSPAWN_FillWithPassengers;
+    _groupDescr set [DESCR_UNITS,_unitsDescr];
+    //return
+    _groupDescr
+};
+
+//================================================================================================================
+//================================================================================================================
 //Spawn
 NWG_DSPAWN_SpawnVehicledGroup = {
-    params  ["_vehicleClassname","_unitClassnames","_pos","_dir",
-            ["_vehicleAppearance", false],["_vehiclePylons", false],["_deferReveal", false],["_side", west]];
+    params ["_groupDescr","_pos","_dir",["_deferReveal",false],["_side", west]];
 
+    private _vehicleDescr = _groupDescr#DESCR_VEHICLE;
+    _vehicleDescr params ["_vehicleClassname",["_vehicleAppearance",false],["_vehiclePylons",false]];
     private _vehicle = [_vehicleClassname,_pos,_dir,_vehicleAppearance,_vehiclePylons,_deferReveal] call NWG_fnc_spwnSpawnVehicleAround;
-    private _units = [_unitClassnames,_vehicle,_side] call NWG_fnc_spwnSpawnUnitsIntoVehicle;
+
+    private _unitsDescr = _groupDescr#DESCR_UNITS;
+    private _units = [_unitsDescr,_vehicle,_side] call NWG_fnc_spwnSpawnUnitsIntoVehicle;
     private _group = group (_units#0);
 
     //return
-    [_group,_vehicle,_units]
+    ([_groupDescr,[_group,_vehicle,_units]] call NWG_DSPAWN_SpawnGroupFinalize)
+};
+
+NWG_DSPAWN_SpawnInfantryGroup = {
+    params ["_groupDescr","_pos",["_side", west]];
+
+    private _unitsDescr = _groupDescr#DESCR_UNITS;
+    private _units = [_unitsDescr,_pos,_side] call NWG_fnc_spwnSpawnUnitsAround;
+    private _group = group (_units#0);
+
+    //return
+    ([_groupDescr,[_group,false,_units]] call NWG_DSPAWN_SpawnGroupFinalize)
+};
+
+NWG_DSPAWN_SpawnInfantryGroupInBuilding = {
+    params ["_groupDescr","_building",["_side", west]];
+
+    private _unitsDescr = _groupDescr#DESCR_UNITS;
+    private _units = [_unitsDescr,_building,_side] call NWG_fnc_spwnSpawnUnitsIntoBuilding;
+    private _group = group (_units#0);
+
+    //return
+    ([_groupDescr,[_group,false,_units]] call NWG_DSPAWN_SpawnGroupFinalize)
+};
+
+NWG_DSPAWN_SpawnGroupFinalize = {
+    params ["_groupDescr","_spawnResult"];
+
+    //Run additional code
+    private _additionalCode = _groupDescr param [DESCR_ADDITIONAL_CODE,{}];
+    _spawnResult call _additionalCode;
+
+    //Set tags
+    private _tags = _groupDescr#DESCR_TAGS;
+    private _group = _spawnResult#0;
+    _group setVariable ["NWG_DSPAWN_tags",_tags];
+
+    //return
+    _spawnResult
 };
 
 //================================================================================================================

@@ -80,9 +80,55 @@ NWG_DSPAWN_FillWithPassengers_Test = {
 //================================================================================================================
 //================================================================================================================
 //Spawn
+NWG_DSPAWN_TestGroupDescription = [
+    ["VEH","MOT","REG"],1,
+    ["B_MRAP_01_F"],
+    ["B_Soldier_F",3,"RANDOM"]
+];
+
+NWG_DSPAN_TestPassengersCatalogue = [
+    ["B_RangeMaster_F","B_Survivor_F","B_Deck_Crew_F"],
+    ["O_Survivor_F"],
+    ["C_Man_formal_1_F","C_Man_formal_2_F","C_Man_formal_3_F"]
+];
+
+// call NWG_DSPAWN_PrepareGroupForSpawn_Test
+NWG_DSPAWN_PrepareGroupForSpawn_Test = {
+    private _groupDescr = NWG_DSPAWN_TestGroupDescription;
+    private _passengersContainer = NWG_DSPAN_TestPassengersCatalogue;
+    [_groupDescr,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn
+};
+
 // call NWG_DSPAWN_SpawnVehicledGroup_Test
 NWG_DSPAWN_SpawnVehicledGroup_Test = {
-    ["B_MRAP_01_F",["O_Survivor_F","B_Deck_Crew_F","I_Survivor_F","C_man_p_beggar_F"],(getPosATL player),(random 360)] call NWG_DSPAWN_SpawnVehicledGroup;
+    private _groupDescr = NWG_DSPAWN_TestGroupDescription;
+    private _passengersContainer = NWG_DSPAN_TestPassengersCatalogue;
+    _groupDescr = [_groupDescr,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
+
+    private _pos = getPosATL player;
+    private _dir = random 360;
+
+    [_groupDescr,_pos,_dir] call NWG_DSPAWN_SpawnVehicledGroup
+};
+
+// call NWG_DSPAWN_SpawnInfantryGroup_Test
+NWG_DSPAWN_SpawnInfantryGroup_Test = {
+    private _groupDescr = NWG_DSPAWN_TestGroupDescription;
+    private _passengersContainer = NWG_DSPAN_TestPassengersCatalogue;
+    _groupDescr = [_groupDescr,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
+    private _pos = getPosATL player;
+
+    [_groupDescr,_pos] call NWG_DSPAWN_SpawnInfantryGroup
+};
+
+// call NWG_DSPAWN_SpawnInfantryGroupInBuilding_Test
+//note: requires 'test2' building in editor
+NWG_DSPAWN_SpawnInfantryGroupInBuilding_Test = {
+    private _groupDescr = NWG_DSPAWN_TestGroupDescription;
+    private _passengersContainer = NWG_DSPAN_TestPassengersCatalogue;
+    _groupDescr = [_groupDescr,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
+
+    [_groupDescr,test2] call NWG_DSPAWN_SpawnInfantryGroupInBuilding
 };
 
 //================================================================================================================
