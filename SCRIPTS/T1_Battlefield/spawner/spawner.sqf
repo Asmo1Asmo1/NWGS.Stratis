@@ -46,6 +46,7 @@ NWG_SPWN_PrespawnUnits = {
     private _units = [];
     private "_unit";
 
+    //do
     {
         _createArgs set [0,_x];
         _unit = _group createUnit _createArgs;
@@ -63,11 +64,22 @@ NWG_SPWN_PrespawnUnits = {
     _units
 };
 
+NWG_SPWN_FinalizeUnitsSpawn = {
+    // private _units = _this;
+    private _group = group (_this#0);
+
+    //Delete default waypoint(s) if any
+    for "_i" from ((count (waypoints _group)) - 1) to 0 step -1 do {
+        deleteWaypoint [_group, _i];
+    };
+
+    //return
+    _units
+};
+
 //Spawn the group of units at given position
 NWG_SPWN_SpawnUnitsAround = {
     params ["_classnames","_pos",["_side",west]];
-
-    //Pre-spawn units at a safe position
     private _units = _this call NWG_SPWN_PrespawnUnits;
 
     //Place units around given position
@@ -77,30 +89,48 @@ NWG_SPWN_SpawnUnitsAround = {
         [_x,_pos] call NWG_SPWN_PlaceAround;
     } forEach _units;
 
-    //Delete default waypoint(s) if any
-    private _group = group (_units#0);
-    for "_i" from ((count (waypoints _group)) - 1) to 0 step -1 do {
-        deleteWaypoint [_group, _i];
-    };
-
     //return
-    _units
+    (_units call NWG_SPWN_FinalizeUnitsSpawn)
 };
 
 //Spawn the group of units into given vehicle
 NWG_SPWN_SpawnUnitsIntoVehicle = {
     params ["_classnames","_vehicle",["_side",west]];
-
-    //Pre-spawn units at a safe position
     private _units = _this call NWG_SPWN_PrespawnUnits;
-    private _group = group (_units#0);
 
     //Place units into vehicle
+    private _group = group (_units#0);
     _group addVehicle _vehicle;
     {_x moveInAny _vehicle} forEach _units;
 
     //return
-    _units
+    (_units call NWG_SPWN_FinalizeUnitsSpawn)
+};
+
+//Spawn the group of units into given building
+NWG_SPWN_SpawnUnitsIntoBuilding = {
+    params ["_classnames","_building",["_side",west]];
+    private _units = _this call NWG_SPWN_PrespawnUnits;
+
+    //Place units into building
+    private _buildingPositions = (_building buildingPos -1) call NWG_fnc_arrayShuffle;
+    //Safe check just in case there are no building positions at all (will cause an infinite loop)
+    if ((count _buildingPositions) == 0) exitWith {
+        "NWG_SPWN_SpawnUnitsIntoBuilding: No building positions found!" call NWG_fnc_logError;
+    };
+    while {(count _buildingPositions) < (count _units)} do {
+        _buildingPositions append _buildingPositions;
+    };
+    _buildingPositions resize (count _units);
+
+    //do
+    {
+        _x setDir (random 360);
+        _x setPosATL (_buildingPositions select _forEachIndex);
+    } forEach _units;
+
+    //return
+    (_units call NWG_SPWN_FinalizeUnitsSpawn)
 };
 
 //================================================================================================================

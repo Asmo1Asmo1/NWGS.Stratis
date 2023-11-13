@@ -26,3 +26,9 @@ NWG_SPWN_SpawnUnitsAround_Test = {
 NWG_SPWN_SpawnUnitsIntoVehicle_Test = {
     [["O_Survivor_F","B_Deck_Crew_F","I_Survivor_F","C_man_p_beggar_F"],test1] call NWG_SPWN_SpawnUnitsIntoVehicle;
 };
+
+// call NWG_SPWN_SpawnUnitsIntoBuilding_Test
+// note: requires building 'test2' to be placed in the editor
+NWG_SPWN_SpawnUnitsIntoBuilding_Test = {
+    [["O_Survivor_F","B_Deck_Crew_F","I_Survivor_F","C_man_p_beggar_F"],test2] call NWG_SPWN_SpawnUnitsIntoBuilding;
+};
