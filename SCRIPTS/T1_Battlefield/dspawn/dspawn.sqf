@@ -88,6 +88,7 @@ NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
         switch (true) do {
             case (!(_x call NWG_fnc_ocIsBuilding)): {false};
             case ((count (_x buildingPos -1)) < 4): {false};
+            case (_x call NWG_STHLD_IsBuildingOccupied): {false};
             default {true};
         };
     };
