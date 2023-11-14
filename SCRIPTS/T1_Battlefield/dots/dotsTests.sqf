@@ -7,13 +7,14 @@ NWG_DOTS_MarkupTrigger_Test = {
     private _triggerPos = getPosATL player;
 
     call NWG_fnc_testClearMap;
-    ([_triggerPos,_triggerRad] call NWG_DOTS_MarkupTrigger) params ["_plains","_roads","_water","_roadsAway","_locations"];
+    ([_triggerPos,_triggerRad] call NWG_DOTS_MarkupTrigger) params ["_plains","_roads","_water","_roadsAway","_locations","_air"];
 
     {[_x,(format ["testP_%1",_forEachIndex]),"ColorGreen"] call NWG_fnc_testPlaceMarker} forEach _plains;
     {[_x,(format ["testR_%1",_forEachIndex]),"ColorOrange"] call NWG_fnc_testPlaceMarker} forEach _roads;
     {[_x,(format ["testW_%1",_forEachIndex]),"ColorBlue"] call NWG_fnc_testPlaceMarker} forEach _water;
     {[_x,(format ["testRA_%1",_forEachIndex]),"ColorRed"] call NWG_fnc_testPlaceMarker} forEach _roadsAway;
     {[_x,(format ["testL_%1",_forEachIndex]),"ColorCIV"] call NWG_fnc_testPlaceMarker} forEach _locations;
+    {[_x,(format ["testA_%1",_forEachIndex]),"ColorYellow"] call NWG_fnc_testPlaceMarker} forEach _air;
 };
 
 //================================================================================================================

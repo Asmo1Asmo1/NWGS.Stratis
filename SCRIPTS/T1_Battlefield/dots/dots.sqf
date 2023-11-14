@@ -2,10 +2,12 @@
 NWG_DOTS_Settings = createHashMapFromArray [
     ["AREA_SPAWNSEARCH_DENSITY",30],//Step 1: The area is covered in random points each 'DENSITY' meters. Higher - more results. Lower - faster execution.
     ["AREA_SPAWNSEARCH_SUBRAD",20],//Step 2: Search for valid spawn point is done around each random point in 'SUBRAD' radius. Higher - more results. Lower - faster execution. Keep lower than 'DENSITY' to prevent overlap.
-    ["AREA_SPAWNSEARCH_SUBRAD_STEP",2],//Step 2: From 0 to 'SUBRAD' incrementing by 'SUBRAD_STEP'. Higher - faster execution. Lower - more results. Keep as divider of 'SUBRAD' for correct work.
-    ["LOCATIONS_RADIUS",[25,100]],//Radius outside trigger to search for locations (_triggerRad + LOCATIONS_RADIUS)
-    ["LOCATIONS_MINBETWEEN",100],//Min distance between locations in trigger markup
-    ["ROADS_RADIUS",[100,200]],//Radius outside trigger to search for roads in trigger markup
+    ["AREA_SPAWNSEARCH_SUBRAD_STEP",1],//Step 2: From 0 to 'SUBRAD' incrementing by 'SUBRAD_STEP'. Higher - faster execution. Lower - more results. Keep as divider of 'SUBRAD' for correct work.
+    ["TRIGGER_LOCATIONS_RADIUS",[25,100]],//Radius outside trigger to search for locations (_triggerRad + TRIGGER_LOCATIONS_RADIUS)
+    ["TRIGGER_LOCATIONS_MINBETWEEN",100],//Min distance between locations in trigger markup
+    ["TRIGGER_ROADS_RADIUS",[100,200]],//Radius outside trigger to search for roads in trigger markup
+    ["TRIGGER_AIR_RADIUS",200],//(Max) radius outside trigger to markup air spawn points
+    ["TRIGGER_AIR_HEIGHT",[100,125,150,175,200]],//Height that would be randomly assigned as a z coordinate for air spawn points
     ["",0]
 ];
 
@@ -23,12 +25,12 @@ NWG_DOTS_MarkupTrigger = {
     private _roadsAway = [];
     if ((count _roads)>0) then {
         private _root = _roads select ([_roads,_triggerPos] call NWG_DOTS_FindIndexOfNearest);
-        (NWG_DOTS_Settings get "ROADS_RADIUS") params ["_roadMinDistance","_roadMaxDistance"];
+        (NWG_DOTS_Settings get "TRIGGER_ROADS_RADIUS") params ["_roadMinDistance","_roadMaxDistance"];
         _roadsAway = [_root,(_triggerRad+_roadMinDistance),(_triggerRad+_roadMaxDistance)] call NWG_DOTS_FindRoadsAway;
     };
 
     //Outside locations
-    (NWG_DOTS_Settings get "LOCATIONS_RADIUS") params ["_locationMinDistance","_locationMaxDistance"];
+    (NWG_DOTS_Settings get "TRIGGER_LOCATIONS_RADIUS") params ["_locationMinDistance","_locationMaxDistance"];
     private _locations = [_triggerPos,(_triggerRad+_locationMinDistance),(_triggerRad+_locationMaxDistance)] call NWG_DOTS_FindLocations;
 
     //Donate to 'roads away' and 'locations' if required (unbalanced)
@@ -42,8 +44,15 @@ NWG_DOTS_MarkupTrigger = {
     [_roadsAway,_roads] call _donateIfRequired;
     [_locations,_plains] call _donateIfRequired;
 
+    //Air points
+    private _maxRad = NWG_DOTS_Settings get "TRIGGER_AIR_RADIUS";
+    private _airHeight = NWG_DOTS_Settings get "TRIGGER_AIR_HEIGHT";
+    private _air = ([_triggerPos,_triggerRad,3] call NWG_DOTS_GenerateDotsCircle) +
+                   ([_triggerPos,(_triggerRad+_maxRad),3] call NWG_DOTS_GenerateDotsCloud);
+    {(_x set [2,(selectRandom _airHeight)])} forEach _air;
+
     //return
-    [_plains,_roads,_water,_roadsAway,_locations]
+    [_plains,_roads,_water,_roadsAway,_locations,_air]
 };
 
 //================================================================================================================
@@ -126,7 +135,7 @@ NWG_DOTS_FindLocations = {
     //Find spawn area around each location
     private _searchRad = NWG_DOTS_Settings get "AREA_SPAWNSEARCH_SUBRAD";
     private _searchStep = NWG_DOTS_Settings get "AREA_SPAWNSEARCH_SUBRAD_STEP";
-    private _minDist = NWG_DOTS_Settings get "LOCATIONS_MINBETWEEN";
+    private _minDist = NWG_DOTS_Settings get "TRIGGER_LOCATIONS_MINBETWEEN";
     private _result = [];
     private ["_cur","_dot"];
     //do
