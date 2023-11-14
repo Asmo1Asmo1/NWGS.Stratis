@@ -6,6 +6,7 @@
 NWG_DSPAWN_Settings = createHashMapFromArray [
     ["CatalogueAddress","DATASETS\Server\Dspawn"],
     ["TriggerPopulationDistribution",[5,3,1,1,1]],//Default population as INF/VEH/ARM/AIR/BOAT
+    ["WaypointRadius",25],//Default radius for any waypoint-related logic, the more - the easier for big vehicles and complicated terrains
     ["",0]
 ];
 
@@ -334,6 +335,19 @@ NWG_DSPAWN_SpawnVehicledGroup = {
     private _units = [_unitsDescr,_vehicle,_side] call NWG_fnc_spwnSpawnUnitsIntoVehicle;
     private _group = group (_units#0);
 
+    //Fix air vehicles falling down
+    if ("AIR" in (_groupDescr#DESCR_TAGS)) then {
+        private _curPos = getPosATL _vehicle;
+        _vehicle setVehiclePosition [_vehicle,[],0,"FLY"];
+        _vehicle setPosATL _curPos;
+        _vehicle flyInHeight (_curPos#2);
+        if ("PLANE" in (_groupDescr#DESCR_TAGS)) then {
+            _vehicle setVelocity [(100*(sin _dir)),(100*(cos _dir)),0];
+        } else {
+            _vehicle setVelocity [(50*(sin _dir)),(50*(cos _dir)),0];
+        };
+    };
+
     //return
     ([_groupDescr,[_group,_vehicle,_units]] call NWG_DSPAWN_SpawnGroupFinalize)
 };
@@ -367,10 +381,14 @@ NWG_DSPAWN_SpawnGroupFinalize = {
     private _additionalCode = _groupDescr param [DESCR_ADDITIONAL_CODE,{}];
     _spawnResult call _additionalCode;
 
-    //Set tags
+    //Save tags
     private _tags = _groupDescr#DESCR_TAGS;
     private _group = _spawnResult#0;
     _group setVariable ["NWG_DSPAWN_tags",_tags];
+
+    //Set initial behaviour
+    _group setCombatMode "RED";
+    _group setFormation (selectRandom ["STAG COLUMN","WEDGE","VEE","DIAMOND"]);
 
     //return
     _spawnResult
@@ -420,10 +438,43 @@ NWG_DSPAWN_SetTags = {
 //================================================================================================================
 //================================================================================================================
 //Waypoints
+NWG_DSPAWN_AddWaypoint = {
+    params ["_group","_pos",["_type","MOVE"]];
+
+    if (!surfaceIsWater _pos) then {_pos = ATLToASL _pos};
+    private _wp = _group addWaypoint [_pos,-1];
+    _wp setWaypointType _type;
+    _wp setWaypointCompletionRadius (NWG_DSPAWN_Settings get "WaypointRadius");
+    //return
+    _wp
+};
 
 //================================================================================================================
 //================================================================================================================
 //Patrol logic
+NWG_DSPAWN_SendToPatrol = {
+    params ["_group","_patrolRoute"];
+
+    //Delete current waypoints (if any)
+    for "_i" from ((count (waypoints _group)) - 1) to 0 step -1 do {
+        deleteWaypoint [_group, _i];
+    };
+
+    //Add new patrol route
+    {[_group,_x] call NWG_DSPAWN_AddWaypoint} forEach _patrolRoute;
+
+    //If not a 'standing patrol'
+    if ((count _patrolRoute) > 1) then {
+        //Add cycle (repeat)
+        [_group,(_patrolRoute#0),"CYCLE"] call NWG_DSPAWN_AddWaypoint;
+        //Set 'slow patrolling' behaviour
+        _group setSpeedMode "LIMITED";
+        _group setBehaviourStrong "SAFE";
+    };
+
+    //Save patrol route for future logic
+    _group setVariable ["NWG_DSPAWN_patrolRoute",_patrolRoute];
+};
 
 //================================================================================================================
 //================================================================================================================
