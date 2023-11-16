@@ -1,6 +1,13 @@
 //================================================================================================================
 //================================================================================================================
 //Populate trigger
+// [250,20] call NWG_DSPAWN_TRIGGER_PopulateTrigger_Test
+NWG_DSPAWN_TRIGGER_PopulateTrigger_Test = {
+    params ["_radius","_groupsCount",["_filter",[]]];
+    private _trigger = [(getPosATL player),_radius];
+    [_trigger,_groupsCount,"NATO",_filter] call NWG_DSPAWN_TRIGGER_PopulateTrigger
+};
+
 // [20,[]] call NWG_DSPAWN_TRIGGER_Populate_Test
 // [20,[["MOT"],["ARM"]]] call NWG_DSPAWN_TRIGGER_Populate_Test
 NWG_DSPAWN_TRIGGER_CalculatePopulation_Test = {

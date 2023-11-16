@@ -1,3 +1,14 @@
+//Markups the trigger area with dots
+//params:
+//_triggerPos: center of the trigger
+//_triggerRad: radius of the trigger
+//returns:
+//array of positions [_plains,_roads,_water,_roadsAway,_locations,_air]
+NWG_fnc_dtsMarkupTrigger = {
+    //params ["_triggerPos","_triggerRad"];
+    _this call NWG_DOTS_MarkupTrigger
+};
+
 //Markups an area with dots
 //params:
 //_pos: center of the area

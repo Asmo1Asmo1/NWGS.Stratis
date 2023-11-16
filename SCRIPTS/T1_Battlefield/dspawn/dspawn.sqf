@@ -4,18 +4,253 @@
 //================================================================================================================
 //Settings
 NWG_DSPAWN_Settings = createHashMapFromArray [
-    ["CatalogueAddress","DATASETS\Server\Dspawn"],
-    ["TriggerPopulationDistribution",[5,3,1,1,1]],//Default population as INF/VEH/ARM/AIR/BOAT
-    ["WaypointRadius",25],//Default radius for any waypoint-related logic, the more - the easier for big vehicles and complicated terrains
+    ["CATALOGUE_ADDRESS","DATASETS\Server\Dspawn"],
+    ["TRIGGER_POPULATION_DISTRIBUTION",[5,3,1,1,1]],//Default population as INF/VEH/ARM/AIR/BOAT
+    ["TRIGGER_MAX_BUILDINGS_TO_OCCUPY",5],//Max number of buildings that dspawn will try to occupy with 'ambush' infantry forces
+    ["TRIGGER_INF_BUILDINGS_DYNAMIC_SIMULATION",false],//If true - infantry spawned in buildings will act only when players are nearby
+    ["TRIGGER_INF_BUILDINGS_DISABLE_PATH",false],//If true - infantry spawned in buildings will not leave their positions, becoming static enemies
+    ["WAYPOINT_RADIUS",25],//Default radius for any waypoint-related logic, the more - the easier for big vehicles and complicated terrains
     ["",0]
 ];
 
 //================================================================================================================
 //================================================================================================================
 //Populate trigger
-NWG_DSPAWN_TRIGGER_CalculatePopulation = {
+#define SP_INDEX_GROUND 0
+#define SP_INDEX_WATER 1
+#define SP_INDEX_ROADS_AWAY 2
+#define SP_INDEX_LOCATIONS 3
+#define SP_INDEX_AIR 4
+
+#define G_INDEX_INF 0
+#define G_INDEX_VEH 1
+#define G_INDEX_ARM 2
+#define G_INDEX_AIR 3
+#define G_INDEX_BOAT 4
+
+NWG_DSPAWN_TRIGGER_PopulateTrigger = {
+    params ["_trigger","_groupsCount","_faction",["_filter",[]],["_side",west]];
+
+    //Generate trigger map
+    private _spawnMap = _trigger call NWG_fnc_dtsMarkupTrigger;//[_plains,_roads,_water,_roadsAway,_locations,_air]
+    if (_spawnMap isEqualTo false) exitWith {
+        (format ["NWG_DSPAWN_TRIGGER_PopulateTrigger: Could not generate trigger map for trigger '%1'",_trigger]) call NWG_fnc_logError;
+        false
+    };
+    {_x call NWG_fnc_arrayShuffle} forEach _spawnMap;
+    private _spawnPoints = [
+        ((_spawnMap#0)+(_spawnMap#1)),//_plains + _roads
+        (_spawnMap#2),//_water
+        (_spawnMap#3),//_roadsAway
+        (_spawnMap#4),//_locations
+        (_spawnMap#5)//_air
+    ];
+    private _spawnPointsPointers = [0,0,0,0,0];
+
+    //Calculate trigger population distribution
+    private _population = [_groupsCount,_filter] call NWG_DSPAWN_TRIGGER_CalculatePopulationDistribution;
+    if ((count _population) != 5 || {(_population findIf {_x > 0}) == -1}) exitWith {
+        (format ["NWG_DSPAWN_TRIGGER_PopulateTrigger: Trigger population distribution '%1' is invalid",_population]) call NWG_fnc_logError;
+        false
+    };
+
+    //Get catalogue values for spawn
+    private _catalogueValues = [_faction,_filter] call NWG_DSPAWN_GetCatalogueValues;
+    if (_catalogueValues isEqualTo false) exitWith {
+        (format ["NWG_DSPAWN_TRIGGER_PopulateTrigger: Could not load catalogue values for faction '%1' and filter '%2'",_faction,_filter]) call NWG_fnc_logError;
+        false
+    };
+    private _passengersContainer = _catalogueValues#0;
+    private _groupsContainer = _catalogueValues#2;
+    private _groups = [
+        ((_groupsContainer select {"INF" in (_x#DESCR_TAGS)}) call NWG_fnc_arrayShuffle),
+        ((_groupsContainer select {"VEH" in (_x#DESCR_TAGS)}) call NWG_fnc_arrayShuffle),
+        ((_groupsContainer select {"ARM" in (_x#DESCR_TAGS)}) call NWG_fnc_arrayShuffle),
+        ((_groupsContainer select {"AIR" in (_x#DESCR_TAGS)}) call NWG_fnc_arrayShuffle),
+        ((_groupsContainer select {"BOAT" in (_x#DESCR_TAGS)}) call NWG_fnc_arrayShuffle)
+    ];
+    private _groupsPointers = [0,0,0,0,0];
+
+    //Prepare scripts
+    private _getNext = {
+        params ["_index","_array","_pointersArray"];
+        private _pointer = _pointersArray#_index;
+        private _result = (_array#_index)#_pointer;
+        _pointer = _pointer + 1;
+        if (_pointer >= (count (_array#_index))) then {_pointer = 0};
+        _pointersArray set [_index,_pointer];
+        //return
+        _result
+    };
+    private _spawnPatrols = {
+        params ["_groupsIndex","_spawnPointsIndex","_targetCount","_patrolLength"];
+
+        //Check
+        if ((count (_groups#_groupsIndex)) == 0) exitWith {0};//No groups to spawn
+        if ((count (_spawnPoints#_spawnPointsIndex)) == 0) exitWith {0};//Nowhere to spawn
+        if (_targetCount <= 0) exitWith {0};//No groups to spawn
+
+        //Prepare sub-scripts and variables
+        private _patrolPoints = _spawnPoints#_spawnPointsIndex;
+        private _patrolRoute = [];
+        private _groupToSpawn = [];
+        private _generatePatrolRoute = switch (true) do {
+            case (_patrolLength == 1 || {(count _patrolPoints) == 1}): {{
+                [([_spawnPointsIndex,_spawnPoints,_spawnPointsPointers] call _getNext)]
+            }};
+            case (_patrolLength == 2 || {(count _patrolPoints) == 2}): {{
+                private _p1 = [_spawnPointsIndex,_spawnPoints,_spawnPointsPointers] call _getNext;
+                private _p2 = _patrolPoints select ([_patrolPoints,_p1] call NWG_fnc_dtsFindIndexOfFarthest);
+                [_p1,_p2]
+            }};
+            default /*_patrolLength == 3 && (count _spawnPoints) >= 3*/ {{
+                private _p1 = [_spawnPointsIndex,_spawnPoints,_spawnPointsPointers] call _getNext;
+                private _p2 = _patrolPoints select ([_patrolPoints,_p1] call NWG_fnc_dtsFindIndexOfFarthest);
+                private _p3 = selectRandom _patrolPoints;
+                while {_p3 isEqualTo _p1 || {_p3 isEqualTo _p2}} do {_p3 = selectRandom _patrolPoints};
+                [_p1,_p2,_p3]
+            }};
+        };
+        private _spawnSelected = switch (true) do {
+            case (_groupsIndex == G_INDEX_INF): {{
+                [_groupToSpawn,(_patrolRoute#0)] call NWG_DSPAWN_SpawnInfantryGroup
+            }};
+            case (_patrolLength == 1): {{
+                [_groupToSpawn,(_patrolRoute#0),(random 360)] call NWG_DSPAWN_SpawnVehicledGroup
+            }};
+            default /*!INF && _patrolLength > 1*/ {{
+                private _dir = if ((count _patrolRoute)>1) then {(_patrolRoute#0) getDir (_patrolRoute#1)} else {random 360};
+                [_groupToSpawn,(_patrolRoute#0),_dir] call NWG_DSPAWN_SpawnVehicledGroup
+            }};
+        };
+
+        //Start spawning
+        private _resultCount = 0;
+        private "_spawnResult";
+        for "_i" from 1 to _targetCount do {
+            _patrolRoute = call _generatePatrolRoute;
+            _groupToSpawn = [_groupsIndex,_groups,_groupsPointers] call _getNext;
+            _groupToSpawn = [_groupToSpawn,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
+            _spawnResult = call _spawnSelected;
+            if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) then {continue};
+            [(_spawnResult#0),_patrolRoute] call NWG_DSPAWN_SendToPatrol;
+            _resultCount = _resultCount + 1;
+        };
+
+        //return
+        _resultCount
+    };
+
+    //Populate trigger in order BOAT->AIR->ARM->VEH->INF to utilize the spawning positions
+    //Each time the population is unable to be fulfilled (e.g. there is no water to spawn BOATs) the remainder is fallbacked to INF category
+    private _targetCount = 0;
+    private _resultCount = 0;
+    private _totalResultCount = 0;
+
+    //Spawn BOATs
+    _targetCount = _population#G_INDEX_BOAT;
+    _resultCount = [G_INDEX_BOAT,SP_INDEX_WATER,_targetCount,3] call _spawnPatrols;
+    _totalResultCount = _totalResultCount + _resultCount;
+    _population set [G_INDEX_BOAT,0];
+    _population set [G_INDEX_INF,((_population#G_INDEX_INF)+(_targetCount-_resultCount))];//Fallback to INF
+
+    //Spawn AIRs
+    _targetCount = _population#G_INDEX_AIR;
+    _resultCount = [G_INDEX_AIR,SP_INDEX_AIR,_targetCount,3] call _spawnPatrols;
+    _totalResultCount = _totalResultCount + _resultCount;
+    _population set [G_INDEX_AIR,0];
+    _population set [G_INDEX_INF,((_population#G_INDEX_INF)+(_targetCount-_resultCount))];//Fallback to INF
+
+    //Spawn ARM
+    _targetCount = _population#G_INDEX_ARM;
+    _resultCount = [G_INDEX_ARM,SP_INDEX_GROUND,_targetCount,1] call _spawnPatrols;
+    _totalResultCount = _totalResultCount + _resultCount;
+    _population set [G_INDEX_ARM,0];
+    _population set [G_INDEX_INF,((_population#G_INDEX_INF)+(_targetCount-_resultCount))];//Fallback to INF
+
+    //Spawn VEH
+    //Spawn VEH on roads away to roll throughout trigger
+    _targetCount = (count (_spawnPoints#SP_INDEX_ROADS_AWAY)) min (_population#G_INDEX_VEH);
+    _resultCount = [G_INDEX_VEH,SP_INDEX_ROADS_AWAY,_targetCount,2] call _spawnPatrols;
+    _totalResultCount = _totalResultCount + _resultCount;
+    _population set [G_INDEX_VEH,((_population#G_INDEX_VEH)-_resultCount)];
+    //Spawn remaining VEH on the ground just standing
+    _targetCount = _population#G_INDEX_VEH;
+    _resultCount = [G_INDEX_VEH,SP_INDEX_GROUND,_targetCount,1] call _spawnPatrols;
+    _totalResultCount = _totalResultCount + _resultCount;
+    _population set [G_INDEX_VEH,0];
+    _population set [G_INDEX_INF,((_population#G_INDEX_INF)+(_targetCount-_resultCount))];//Fallback to INF
+
+    //Spawn INF
+    //Spawn INF patrols locations<->ground to go in and out of the trigger
+    //This logic mixes spawn points from different categories, so it is not possible to use _spawnPatrols script
+    if (((count (_spawnPoints#SP_INDEX_LOCATIONS)) > 0) && {(count (_spawnPoints#SP_INDEX_GROUND)) > 0}) then {
+        private _locations = _spawnPoints#SP_INDEX_LOCATIONS;
+        private _ground = _spawnPoints#SP_INDEX_GROUND;
+        _targetCount = (count _locations) min (_population#G_INDEX_INF);
+        _resultCount = 0;
+        for "_i" from 1 to _targetCount do {
+            private _p1 = [SP_INDEX_LOCATIONS,_spawnPoints,_spawnPointsPointers] call _getNext;
+            private _p2 = _ground select ([_ground,_p1] call NWG_fnc_dtsFindIndexOfFarthest);
+            private _patrolRoute = [_p1,_p2];
+            if ((count _ground) > 1) then {
+                private _p3 = selectRandom _ground;
+                while {_p3 isEqualTo _p2} do {_p3 = selectRandom _ground};
+                _patrolRoute pushBack _p3;
+            };
+            _patrolRoute = _patrolRoute call NWG_fnc_arrayShuffle;
+            private _groupToSpawn = [G_INDEX_INF,_groups,_groupsPointers] call _getNext;
+            _groupToSpawn = [_groupToSpawn,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
+            private _spawnResult = [_groupToSpawn,(_patrolRoute#0)] call NWG_DSPAWN_SpawnInfantryGroup;
+            if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) then {continue};
+            [(_spawnResult#0),_patrolRoute] call NWG_DSPAWN_SendToPatrol;
+            _resultCount = _resultCount + 1;
+        };
+        _totalResultCount = _totalResultCount + _resultCount;
+        _population set [G_INDEX_INF,((_population#G_INDEX_INF)-_resultCount)];
+    };
+    //Spawn INF patrols as ambushes in buildings
+    private _buildings = _trigger call NWG_DSPAWN_TRIGGER_FindOccupiableBuildings;
+    if ((count _buildings) > 0) then {
+        _targetCount = ((NWG_DSPAWN_Settings get "TRIGGER_MAX_BUILDINGS_TO_OCCUPY") min (_population#G_INDEX_INF)) min (count _buildings);
+        _resultCount = 0;
+        if ((count _buildings) > _targetCount) then {
+            _buildings = _buildings call NWG_fnc_arrayShuffle;
+            _buildings resize _targetCount;
+        };
+
+        private _dynamicIfNeeded = if ((NWG_DSPAWN_Settings get "TRIGGER_INF_BUILDINGS_DYNAMIC_SIMULATION"))
+            then {{_this enableDynamicSimulation true}}
+            else {{}};
+        private _disablePathIfNeeded = if ((NWG_DSPAWN_Settings get "TRIGGER_INF_BUILDINGS_DISABLE_PATH"))
+            then {{{_x disableAI "PATH"} forEach (units _this)}}
+            else {{}};
+        //do
+        {
+            private _groupToSpawn = [G_INDEX_INF,_groups,_groupsPointers] call _getNext;
+            _groupToSpawn = [_groupToSpawn,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
+            private _spawnResult = [_groupToSpawn,_x] call NWG_DSPAWN_SpawnInfantryGroupInBuilding;
+            if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) then {continue};
+            _resultCount = _resultCount + 1;
+            (_spawnResult#0) call _dynamicIfNeeded;
+            (_spawnResult#0) call _disablePathIfNeeded;
+        } forEach _buildings;
+        _totalResultCount = _totalResultCount + _resultCount;
+        _population set [G_INDEX_INF,((_population#G_INDEX_INF)-_resultCount)];
+    };
+    //Spawn INF patrols roaming the trigger
+    _targetCount = _population#G_INDEX_INF;
+    _resultCount = [G_INDEX_INF,SP_INDEX_GROUND,_targetCount,3] call _spawnPatrols;
+    _totalResultCount = _totalResultCount + _resultCount;
+    _population set [G_INDEX_INF,0];
+
+    //return
+    _totalResultCount
+};
+
+NWG_DSPAWN_TRIGGER_CalculatePopulationDistribution = {
     params ["_targetCount","_filter"];
-    private _result = (NWG_DSPAWN_Settings get "TriggerPopulationDistribution") + [];//Shallow copy of default distribution
+    private _result = (NWG_DSPAWN_Settings get "TRIGGER_POPULATION_DISTRIBUTION") + [];//Shallow copy of default distribution
 
     //Prepare variables
     private _curCount = 0;
@@ -51,7 +286,6 @@ NWG_DSPAWN_TRIGGER_CalculatePopulation = {
 
         if ((call _updateCurCount) <= 0) then {
             (format ["NWG_DSPAWN_TRIGGER_CalculatePopulation: Trigger filter '%1' resulted in ZERO population",_filter]) call NWG_fnc_logError;
-            _result
         };
     };
     if (_curCount <= 0 || {_curCount == _targetCount}) exitWith {_result};//No need to modify population further
@@ -108,7 +342,7 @@ NWG_DSPAWN_GetCataloguePage = {
 
     //Prepare variables
     private _pageName = _this;
-    private _catalogueAddress = NWG_DSPAWN_Settings get "CatalogueAddress";
+    private _catalogueAddress = NWG_DSPAWN_Settings get "CATALOGUE_ADDRESS";
     private _valid = true;
     private _abort = {
         // private _errorMessage = _this;
@@ -370,6 +604,9 @@ NWG_DSPAWN_SpawnInfantryGroupInBuilding = {
     private _units = [_unitsDescr,_building,_side] call NWG_fnc_spwnSpawnUnitsIntoBuilding;
     private _group = group (_units#0);
 
+    //Mark building as occupied
+    _building call NWG_fnc_shMarkBuildingOccupied;
+
     //return
     ([_groupDescr,[_group,false,_units]] call NWG_DSPAWN_SpawnGroupFinalize)
 };
@@ -444,7 +681,7 @@ NWG_DSPAWN_AddWaypoint = {
     if (!surfaceIsWater _pos) then {_pos = ATLToASL _pos};
     private _wp = _group addWaypoint [_pos,-1];
     _wp setWaypointType _type;
-    _wp setWaypointCompletionRadius (NWG_DSPAWN_Settings get "WaypointRadius");
+    _wp setWaypointCompletionRadius (NWG_DSPAWN_Settings get "WAYPOINT_RADIUS");
     //return
     _wp
 };
