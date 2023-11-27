@@ -19,6 +19,24 @@ NWG_DOTS_MarkupTrigger_Test = {
 
 //================================================================================================================
 //================================================================================================================
+//Reinforcements markup
+// call NWG_DOTS_MarkupReinforcement_Test
+NWG_DOTS_MarkupReinforcement_Test = {
+    private _pos = getPosATL player;
+
+    call NWG_fnc_testClearMap;
+    (_pos call NWG_DOTS_MarkupReinforcement) params ["_infPlains","_infRoads","_vehPlains","_vehRoads","_boats","_air"];
+
+    {[_x,(format ["testIP_%1",_forEachIndex]),"ColorGreen"] call NWG_fnc_testPlaceMarker} forEach _infPlains;
+    {[_x,(format ["testIR_%1",_forEachIndex]),"ColorOrange"] call NWG_fnc_testPlaceMarker} forEach _infRoads;
+    {[_x,(format ["testVP_%1",_forEachIndex]),"ColorKhaki"] call NWG_fnc_testPlaceMarker} forEach _vehPlains;
+    {[_x,(format ["testVR_%1",_forEachIndex]),"ColorRed"] call NWG_fnc_testPlaceMarker} forEach _vehRoads;
+    {[_x,(format ["testB_%1",_forEachIndex]),"ColorBlue"] call NWG_fnc_testPlaceMarker} forEach _boats;
+    {[_x,(format ["testA_%1",_forEachIndex]),"ColorYellow"] call NWG_fnc_testPlaceMarker} forEach _air;
+};
+
+//================================================================================================================
+//================================================================================================================
 //Area spawn points search
 // [0,150] call NWG_DOTS_MarkupArea_Test
 NWG_DOTS_MarkupArea_Test = {

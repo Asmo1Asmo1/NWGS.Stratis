@@ -122,3 +122,26 @@ NWG_fnc_selectRandomGuaranteed = {
     //return
     (_array#_index)
 };
+
+//===============================================================
+//Players
+//Returns array of all players
+//params: none
+//returns: array of all players
+NWG_fnc_getPlayersAll =
+{
+    // allPlayers - 0.0006, but returns headless clients
+    // call BIS_fnc_listPlayers - works fine, but 0.0056
+    (allPlayers - (entities "HeadlessClient_F")) //0.0011
+};
+
+//Returns array of all vehicles of players
+//params: none
+//returns: array of vehicles
+//note: includes 'isKindOf "Man"' vehicles as well (players themselves)
+//note: returns array of uniqe objects
+NWG_fnc_getPlayerVehiclesAll =
+{
+    private _result = (((call NWG_fnc_getPlayersAll) apply {vehicle _x}) select {alive _x});
+    _result arrayIntersect _result//Remove duplicates and return
+};
