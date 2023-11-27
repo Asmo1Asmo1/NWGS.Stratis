@@ -1,21 +1,24 @@
 //Settings
 NWG_DOTS_Settings = createHashMapFromArray [
-    ["AREA_SPAWNSEARCH_DENSITY",30],//Step 1: The area is covered in random points each 'DENSITY' meters. Higher - more results. Lower - faster execution.
+    ["AREA_SPAWNSEARCH_DENSITY",30],//Step 1: The area is covered in random points each 'DENSITY' meters. Lower - more results. Higher - faster execution.
     ["AREA_SPAWNSEARCH_SUBRAD",20],//Step 2: Search for valid spawn point is done around each random point in 'SUBRAD' radius. Higher - more results. Lower - faster execution. Keep lower than 'DENSITY' to prevent overlap.
     ["AREA_SPAWNSEARCH_SUBRAD_STEP",1],//Step 2: From 0 to 'SUBRAD' incrementing by 'SUBRAD_STEP'. Higher - faster execution. Lower - more results. Keep as divider of 'SUBRAD' for correct work.
     ["AREA_AIR_HEIGHT",[100,125,150,175,200]],//Height that would be randomly assigned as a z coordinate for air spawn points
-    ["TRIGGER_SPAWNSEARCH_SETTINGS_MULTIPLIER",1],//Multiplier for AREA_SPAWNSEARCH settings for trigger markup
+
+    ["TRIGGER_SPAWNSEARCH_SETTINGS_MULTIPLIER",1],//Multiplier for AREA_SPAWNSEARCH settings for trigger markup (leave it 1)
     ["TRIGGER_LOCATIONS_RADIUS",[25,100]],//Radius outside trigger to search for locations (_triggerRad + TRIGGER_LOCATIONS_RADIUS)
     ["TRIGGER_LOCATIONS_MINBETWEEN",100],//Min distance between locations in trigger markup
     ["TRIGGER_ROADS_RADIUS",[100,200]],//Radius outside trigger to search for roads in trigger markup
     ["TRIGGER_AIR_RADIUS",200],//(Max) radius outside trigger to markup air spawn points
+
     ["REINF_SPAWNSEARCH_SETTINGS_MULTIPLIER",5],//Multiplier for AREA_SPAWNSEARCH settings for reinforcement markup, keep it >1 - it does not need to be so precise as trigger search
     ["REINF_SHORECHECK_RADIUS",100],//Radius to check if there are shores around given position to decide whether or not calculate water positions
     ["REINF_INFANTRY_RADIUS",[500,700]],//Min-Max radius of the infantry spawn
     ["REINF_VEHICLE_RADIUS",[1000,1200]],//Min-Max radius of the vehicle spawn
     ["REINF_AIR_RADIUS",[3000,4000]],//Min-Max radius of the air spawn
     ["REINF_AIR_COUNT",7],//Number of air dots to generate for reinforcement markup
-    ["REINF_TO_PLAYER_MIN_DISTANCE",100],//Min distance between spawn points and players
+    ["REINF_TO_PLAYER_MIN_DISTANCE",300],//Min distance between spawn points and players
+
     ["",0]
 ];
 
@@ -28,7 +31,7 @@ NWG_DOTS_MarkupTrigger = {
 
     //Markup trigger area
     private _settingsMultiplier = NWG_DOTS_Settings get "TRIGGER_SPAWNSEARCH_SETTINGS_MULTIPLIER";
-    ([_triggerPos,0,_triggerRad,true,_settingsMultiplier] call NWG_DOTS_MarkupArea) params ["_plains","_roads","_water"];
+    ([_triggerPos,0,_triggerRad,true,_settingsMultiplier] call NWG_DOTS_AreaSpawnsearch) params ["_plains","_roads","_water"];
 
     //Outside roads
     private _roadsAway = [];
@@ -73,12 +76,12 @@ NWG_DOTS_MarkupReinforcement = {
 
     //Calculate INF spawn radius
     private _infRad = (NWG_DOTS_Settings get "REINF_INFANTRY_RADIUS");
-    ([_pos,(_infRad#0),(_infRad#1),false,_settingsMultiplier] call NWG_DOTS_MarkupArea) params ["_infPlains","_infRoads"];
+    ([_pos,(_infRad#0),(_infRad#1),false,_settingsMultiplier] call NWG_DOTS_AreaSpawnsearch) params ["_infPlains","_infRoads"];
 
     //Calculate VEH spawn radius (with BOAT if there are shores)
     private _vehRad = (NWG_DOTS_Settings get "REINF_VEHICLE_RADIUS");
     private _isShoresAround = (count ([_pos,(NWG_DOTS_Settings get "REINF_SHORECHECK_RADIUS")] call NWG_DOTS_FindShores)) > 0;
-    ([_pos,(_vehRad#0),(_vehRad#1),_isShoresAround,_settingsMultiplier] call NWG_DOTS_MarkupArea) params ["_vehPlains","_vehRoads","_boats"];
+    ([_pos,(_vehRad#0),(_vehRad#1),_isShoresAround,_settingsMultiplier] call NWG_DOTS_AreaSpawnsearch) params ["_vehPlains","_vehRoads","_boats"];
 
     //Calculate AIR spawn radius
     (NWG_DOTS_Settings get "REINF_AIR_RADIUS") params ["_minAirRad","_maxAirRad"];
@@ -111,7 +114,7 @@ NWG_DOTS_MarkupReinforcement = {
 //================================================================================================================
 //================================================================================================================
 //Area spawn points search
-NWG_DOTS_MarkupArea = {
+NWG_DOTS_AreaSpawnsearch = {
     params ["_pos","_minRad","_maxRad",["_doWater",true],["_settingsMultiplier",1]];
 
     private _searchStep = (NWG_DOTS_Settings get "AREA_SPAWNSEARCH_DENSITY") * _settingsMultiplier;

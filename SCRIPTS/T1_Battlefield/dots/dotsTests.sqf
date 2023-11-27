@@ -38,12 +38,12 @@ NWG_DOTS_MarkupReinforcement_Test = {
 //================================================================================================================
 //================================================================================================================
 //Area spawn points search
-// [0,150] call NWG_DOTS_MarkupArea_Test
-NWG_DOTS_MarkupArea_Test = {
+// [0,150] call NWG_DOTS_AreaSpawnsearch_Test
+NWG_DOTS_AreaSpawnsearch_Test = {
     params ["_minRad","_maxRad"];
 
     call NWG_fnc_testClearMap;
-    private _dots = [(getPosWorld player),_minRad,_maxRad] call NWG_DOTS_MarkupArea;
+    private _dots = [(getPosWorld player),_minRad,_maxRad] call NWG_DOTS_AreaSpawnsearch;
     _dots params ["_plains","_roads","_water"];
     {[_x,(format ["testP_%1",_forEachIndex]),"ColorGreen"] call NWG_fnc_testPlaceMarker} forEach _plains;
     {[_x,(format ["testR_%1",_forEachIndex]),"ColorRed"] call NWG_fnc_testPlaceMarker} forEach _roads;

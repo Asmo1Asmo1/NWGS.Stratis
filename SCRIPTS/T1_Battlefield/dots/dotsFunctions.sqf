@@ -18,7 +18,7 @@ NWG_fnc_dtsMarkupTrigger = {
 //array of positions (z is always 0) [_plains,_roads,_water]
 NWG_fnc_dtsMarkupArea = {
     //params ["_pos","_minRad","_maxRad"];
-    _this call NWG_DOTS_MarkupArea
+    _this call NWG_DOTS_AreaSpawnsearch
 };
 
 //Returns the index of the nearest dot to the given position
