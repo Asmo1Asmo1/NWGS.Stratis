@@ -54,6 +54,24 @@ NWG_DOTS_FindDotForWaypoint_Test = {
     [_dot,"test_dot",_color] call NWG_fnc_testPlaceMarker;
 };
 
+// [100,"ground",3] call NWG_DOTS_GenerateSimplePatrol_Test
+NWG_DOTS_GenerateSimplePatrol_Test = {
+    params ["_rad","_type","_patrolLength"];
+    private _pos = getPosATL player;
+    private _color = switch (_type) do {
+        case "ground": {"ColorRed"};
+        case "water": {"ColorBlue"};
+        case "air": {"ColorCIV"};
+        default {"ColorBlack"};
+    };
+
+    private _dots = [[_pos,_rad],_type,_patrolLength] call NWG_DOTS_GenerateSimplePatrol;
+    if (_dots isEqualTo false) exitWith {"No dots found"};
+
+    call NWG_fnc_testClearMap;
+    {[_x,(format ["test_%1",_forEachIndex]),_color] call NWG_fnc_testPlaceMarker} forEach _dots;
+};
+
 //================================================================================================================
 //================================================================================================================
 //Area spawn points search

@@ -111,6 +111,7 @@ NWG_DOTS_MarkupReinforcement = {
     _result
 };
 
+//Helper for reinforcements attack logic
 NWG_DOTS_FindDotForWaypoint = {
     params ["_pos","_rad","_type"];
 
@@ -134,6 +135,63 @@ NWG_DOTS_FindDotForWaypoint = {
 
     if (_result isNotEqualTo false && {_type isEqualTo "air"}) then {
         _result set [2,(selectRandom (NWG_DOTS_Settings get "AREA_AIR_HEIGHT"))]
+    };
+
+    //return
+    _result
+};
+
+//Helper for post-attack logic for reinforcement group to join the rest forces in trigger
+NWG_DOTS_GenerateSimplePatrol = {
+    params ["_trigger","_type","_patrolLength"];
+    _trigger params ["_triggerPos","_triggerRad"];
+
+    //Get the initial array of dots
+    private _maxCount = _patrolLength max 8;
+    private _maxRad = if (_type isEqualTo "air")
+        then {(_triggerRad + (NWG_DOTS_Settings get "TRIGGER_AIR_RADIUS"))}
+        else {_triggerRad};
+
+    private _dots = ([_triggerPos,_triggerRad,_maxCount] call NWG_DOTS_GenerateDotsCircle) +
+                    ([_triggerPos,_maxRad,_maxCount] call NWG_DOTS_GenerateDotsCloud);
+
+    //Filter by type (ground,water,air)
+    _dots = switch (_type) do {
+        case "ground": { _dots select {!(surfaceIsWater _x)} };
+        case "water":  { _dots select {surfaceIsWater _x} };
+        case "air":    { _dots };
+        default {
+            format ["NWG_DOTS_GenerateSimplePatrol: Unknown type '%1'",_type] call NWG_fnc_logError;
+            _dots
+        };
+    };
+    if ((count _dots) == 0) exitWith {false};
+
+    //Start forming the result
+    private _result = [];
+    //Sub-function to utilize 'exitWith'
+    call {
+        //First dot - random
+        private _i = floor (random (count _dots));
+        _result pushBack (_dots deleteAt _i);
+        if (_patrolLength == 1 || {(count _dots) == 0}) exitWith {};
+
+        //Second dot - farthest from first
+        _i = [_dots,(_result#0)] call NWG_DOTS_FindIndexOfFarthest;
+        _result pushBack (_dots deleteAt _i);
+        if (_patrolLength == 2 || {(count _dots) == 0}) exitWith {};
+
+        //The rest - just random dots until patrol length is reached or no dots left
+        while {((count _result) < _patrolLength) && {(count _dots) > 0}} do {
+            _i = floor (random (count _dots));
+            _result pushBack (_dots deleteAt _i);
+        };
+    };
+
+    //Air height
+    if (_type isEqualTo "air") then {
+        private _airHeight = NWG_DOTS_Settings get "AREA_AIR_HEIGHT";
+        {(_x set [2,(selectRandom _airHeight)])} forEach _result;
     };
 
     //return
