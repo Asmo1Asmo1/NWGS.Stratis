@@ -35,6 +35,25 @@ NWG_DOTS_MarkupReinforcement_Test = {
     {[_x,(format ["testA_%1",_forEachIndex]),"ColorYellow"] call NWG_fnc_testPlaceMarker} forEach _air;
 };
 
+// [100,"ground"] call NWG_DOTS_FindDotForWaypoint_Test
+NWG_DOTS_FindDotForWaypoint_Test = {
+    params ["_rad","_type"];
+    private _pos = getPosATL player;
+    private _color = switch (_type) do {
+        case "ground": {"ColorRed"};
+        case "shore":  {"ColorGreen"};
+        case "water": {"ColorBlue"};
+        case "air": {"ColorCIV"};
+        default {"ColorBlack"};
+    };
+
+    private _dot = [_pos,_rad,_type] call NWG_DOTS_FindDotForWaypoint;
+    if (_dot isEqualTo false) exitWith {"No dot found"};
+
+    call NWG_fnc_testClearMap;
+    [_dot,"test_dot",_color] call NWG_fnc_testPlaceMarker;
+};
+
 //================================================================================================================
 //================================================================================================================
 //Area spawn points search

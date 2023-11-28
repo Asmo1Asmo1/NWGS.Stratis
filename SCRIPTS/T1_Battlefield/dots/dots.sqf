@@ -111,6 +111,35 @@ NWG_DOTS_MarkupReinforcement = {
     _result
 };
 
+NWG_DOTS_FindDotForWaypoint = {
+    params ["_pos","_rad","_type"];
+
+    private _dots = [];
+    private _result = false;
+    private _getDots = switch (_type) do {
+        case "ground": { {([_pos,(_rad+(_this*10)),16] call NWG_DOTS_GenerateDotsCircle) select {!(surfaceIsWater _x)}} };
+        case "water":  { {([_pos,(_rad+(_this*10)),16] call NWG_DOTS_GenerateDotsCircle) select {surfaceIsWater _x}} };
+        case "shore":  { {[_pos,(_rad+(_this*10))] call NWG_DOTS_FindShores} };
+        case "air":    { {[_pos,(_rad+(_this*10)),3] call NWG_DOTS_GenerateDotsCircle} };
+        default {
+            format ["NWG_DOTS_FindDotForWaypoint: Unknown type '%1'",_type] call NWG_fnc_logError;
+            {[_pos,(_rad+(_this*10)),3] call NWG_DOTS_GenerateDotsCircle}
+        };
+    };
+
+    for "_i" from 0 to 5 do {
+        _dots = _i call _getDots;
+        if ((count _dots) > 0) exitWith {_result = selectRandom _dots};
+    };
+
+    if (_result isNotEqualTo false && {_type isEqualTo "air"}) then {
+        _result set [2,(selectRandom (NWG_DOTS_Settings get "AREA_AIR_HEIGHT"))]
+    };
+
+    //return
+    _result
+};
+
 //================================================================================================================
 //================================================================================================================
 //Area spawn points search
