@@ -19,13 +19,68 @@ NWG_DOTS_MarkupTrigger_Test = {
 
 //================================================================================================================
 //================================================================================================================
+//Reinforcements markup
+// call NWG_DOTS_MarkupReinforcement_Test
+NWG_DOTS_MarkupReinforcement_Test = {
+    private _pos = getPosATL player;
+
+    call NWG_fnc_testClearMap;
+    (_pos call NWG_DOTS_MarkupReinforcement) params ["_infPlains","_infRoads","_vehPlains","_vehRoads","_boats","_air"];
+
+    {[_x,(format ["testIP_%1",_forEachIndex]),"ColorGreen"] call NWG_fnc_testPlaceMarker} forEach _infPlains;
+    {[_x,(format ["testIR_%1",_forEachIndex]),"ColorOrange"] call NWG_fnc_testPlaceMarker} forEach _infRoads;
+    {[_x,(format ["testVP_%1",_forEachIndex]),"ColorKhaki"] call NWG_fnc_testPlaceMarker} forEach _vehPlains;
+    {[_x,(format ["testVR_%1",_forEachIndex]),"ColorRed"] call NWG_fnc_testPlaceMarker} forEach _vehRoads;
+    {[_x,(format ["testB_%1",_forEachIndex]),"ColorBlue"] call NWG_fnc_testPlaceMarker} forEach _boats;
+    {[_x,(format ["testA_%1",_forEachIndex]),"ColorYellow"] call NWG_fnc_testPlaceMarker} forEach _air;
+};
+
+// [100,"ground"] call NWG_DOTS_FindDotForWaypoint_Test
+NWG_DOTS_FindDotForWaypoint_Test = {
+    params ["_rad","_type"];
+    private _pos = getPosATL player;
+    private _color = switch (_type) do {
+        case "ground": {"ColorRed"};
+        case "shore":  {"ColorGreen"};
+        case "water": {"ColorBlue"};
+        case "air": {"ColorCIV"};
+        default {"ColorBlack"};
+    };
+
+    private _dot = [_pos,_rad,_type] call NWG_DOTS_FindDotForWaypoint;
+    if (_dot isEqualTo false) exitWith {"No dot found"};
+
+    call NWG_fnc_testClearMap;
+    [_dot,"test_dot",_color] call NWG_fnc_testPlaceMarker;
+};
+
+// [100,"ground",3] call NWG_DOTS_GenerateSimplePatrol_Test
+NWG_DOTS_GenerateSimplePatrol_Test = {
+    params ["_rad","_type","_patrolLength"];
+    private _pos = getPosATL player;
+    private _color = switch (_type) do {
+        case "ground": {"ColorRed"};
+        case "water": {"ColorBlue"};
+        case "air": {"ColorCIV"};
+        default {"ColorBlack"};
+    };
+
+    private _dots = [[_pos,_rad],_type,_patrolLength] call NWG_DOTS_GenerateSimplePatrol;
+    if (_dots isEqualTo false) exitWith {"No dots found"};
+
+    call NWG_fnc_testClearMap;
+    {[_x,(format ["test_%1",_forEachIndex]),_color] call NWG_fnc_testPlaceMarker} forEach _dots;
+};
+
+//================================================================================================================
+//================================================================================================================
 //Area spawn points search
-// [0,150] call NWG_DOTS_MarkupArea_Test
-NWG_DOTS_MarkupArea_Test = {
+// [0,150] call NWG_DOTS_AreaSpawnsearch_Test
+NWG_DOTS_AreaSpawnsearch_Test = {
     params ["_minRad","_maxRad"];
 
     call NWG_fnc_testClearMap;
-    private _dots = [(getPosWorld player),_minRad,_maxRad] call NWG_DOTS_MarkupArea;
+    private _dots = [(getPosWorld player),_minRad,_maxRad] call NWG_DOTS_AreaSpawnsearch;
     _dots params ["_plains","_roads","_water"];
     {[_x,(format ["testP_%1",_forEachIndex]),"ColorGreen"] call NWG_fnc_testPlaceMarker} forEach _plains;
     {[_x,(format ["testR_%1",_forEachIndex]),"ColorRed"] call NWG_fnc_testPlaceMarker} forEach _roads;
