@@ -290,10 +290,10 @@ NWG_SPWN_GetOriginalCrew = {
        (_x != _vehCfg && { round getNumber (_x >> "hasGunner") > 0 }))
     } count ([_this, configNull] call BIS_fnc_getTurrets);
 
-    private _origCrew = [];
-    _origCrew resize _crewCount;
     //return
-    _origCrew apply {_crewUnit}
+    private _result = [];
+    _result resize _crewCount;
+    _result apply {_crewUnit}
 };
 
 NWG_SPWN_GetVehicleAppearance = {

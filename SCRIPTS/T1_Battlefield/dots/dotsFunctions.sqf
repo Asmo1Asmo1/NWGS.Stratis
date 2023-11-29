@@ -43,6 +43,18 @@ NWG_fnc_dtsFindIndexOfFarthest = {
     _this call NWG_DOTS_FindIndexOfFarthest
 };
 
+//Generates a circle of dots
+//params:
+//_pos: center of the circle
+//_rad: radius of the circle
+//_count: number of dots to generate
+//returns:
+//array of positions (z is always 0)
+NWG_fnc_dtsGenerateDotsCircle = {
+    //params ["_pos","_rad","_count"];
+    _this call NWG_DOTS_GenerateDotsCircle
+};
+
 //Generates a set of random dots inside a circle
 //params:
 //_pos: center of the circle

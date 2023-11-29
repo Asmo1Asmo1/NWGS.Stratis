@@ -10,6 +10,10 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
     ["TRIGGER_INF_BUILDINGS_DYNAMIC_SIMULATION",false],//If true - infantry spawned in buildings will act only when players are nearby
     ["TRIGGER_INF_BUILDINGS_DISABLE_PATH",false],//If true - infantry spawned in buildings will not leave their positions, becoming static enemies
     ["WAYPOINT_RADIUS",25],//Default radius for any waypoint-related logic, the more - the easier for big vehicles and complicated terrains
+
+    ["PARADROP_RADIUS",3000],//Radius for paradrop vehicle to spawn, fly by and despawn
+    ["PARADROP_HEIGHT",200],//Height of paradropping
+    ["PARADROP_TIMEOUT",90],//Timeout to auto-cancel paradrop in case of an error
     ["",0]
 ];
 
@@ -720,3 +724,127 @@ NWG_DSPAWN_SendToPatrol = {
 //================================================================================================================
 //================================================================================================================
 //Paradrop
+NWG_DSPAWN_currentlyParadropping = [];
+NWG_DSPAWN_ImitateParadrop = {
+    params ["_object","_paradropBy"];
+
+    //Get points to spawn paradropping vehicle
+    private _paradropRadius = NWG_DSPAWN_Settings get "PARADROP_RADIUS";
+    private _paradropHeight = NWG_DSPAWN_Settings get "PARADROP_HEIGHT";
+    private _paradropPoints = [(getPosATL _object),_paradropRadius,2] call NWG_fnc_dtsGenerateDotsCircle;
+    _paradropPoints = _paradropPoints call NWG_fnc_arrayShuffle;
+    {_x set [2,_paradropHeight]} forEach _paradropPoints;
+    _paradropPoints params ["_paraFrom","_paraTo"];
+
+    //Spawn paradrop group
+    private _groupDescr = [["AIR","MOT","PLANE"],1,[_paradropBy],(_paradropBy call NWG_fnc_spwnGetOriginalCrew)];
+    private _spawnResult = [_groupDescr,_paraFrom,(_paraFrom getDir _paraTo),false,civilian] call NWG_DSPAWN_SpawnVehicledGroup;
+    if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) exitWith {
+        (format ["NWG_DSPAWN_ImitateParadrop: Could not spawn paradrop group '%1'",_groupDescr]) call NWG_fnc_logError;
+        _object call NWG_fnc_spwnRevealObject;
+    };
+    _spawnResult params ["_paradropGroup","_paradropVehicle"];
+
+    //Set paradrop group behaviour
+    _paradropGroup setBehaviourStrong "CARELESS";
+    _paradropGroup setCombatBehaviour "CARELESS";
+    _paradropVehicle allowDamage false;
+    _paradropVehicle flyInHeight _paradropHeight;
+    {_x allowDamage false} forEach (units _paradropGroup);
+
+    //Set paradrop group destination
+    private _objectPos = getPosATL _object;
+    private _wp1 = _paradropGroup addWaypoint [[(_objectPos#0),(_objectPos#1),_paradropHeight],-1];
+    _wp1 setWaypointType "MOVE";
+    _wp1 setWaypointCompletionRadius 25;
+    private _wp2 = _paradropGroup addWaypoint [_paraTo,-1];
+    _wp2 setWaypointType "MOVE";
+    _wp2 setWaypointCompletionRadius 50;
+    _wp2 setWaypointStatements ["true","if (local this) then {this call NWG_DSPAWN_DeleteParadropGroup}"];
+
+    //Disable collisions to prevent accidental damage
+    _paradropVehicle disableCollisionWith _object;
+    NWG_DSPAWN_currentlyParadropping = NWG_DSPAWN_currentlyParadropping select {alive _x};
+    {_paradropVehicle disableCollisionWith _x} forEach NWG_DSPAWN_currentlyParadropping;
+    NWG_DSPAWN_currentlyParadropping pushBackUnique _paradropVehicle;
+
+    //Start paradrop
+    [_object,_paradropVehicle,_paradropGroup] spawn {
+        params ["_object","_paradropVehicle","_paradropGroup"];
+
+        private _timeOut = time + (NWG_DSPAWN_Settings get "PARADROP_TIMEOUT");
+        private _cancel = {
+            _object call NWG_fnc_spwnRevealObject;
+            if (!isNull _paradropGroup) then {(leader _paradropGroup) call NWG_DSPAWN_DeleteParadropGroup};
+        };
+
+        //Wait for paradrop vehicle to get close
+        waitUntil {
+            sleep 0.1;
+            ((_paradropVehicle distance2D _object) < 30) || {!(alive _paradropVehicle) || {time > _timeOut}}
+        };
+        if (!(alive _paradropVehicle) || {time > _timeOut}) exitWith _cancel;
+
+        //Wait for paradrop vehicle to leave the area
+        waitUntil {
+            sleep 0.1;
+            ((_paradropVehicle distance2D _object) > 35) || {!(alive _paradropVehicle) || {time > _timeOut}}
+        };
+        if (!(alive _paradropVehicle) || {time > _timeOut}) exitWith _cancel;
+
+        //Move vehicle to the sky
+        private _pos = getPosATL _object;
+        _pos set [2,(NWG_DSPAWN_Settings get "PARADROP_HEIGHT")];
+        _object setPosATL _pos;
+
+        //Deploy the parachute
+        private _para = createVehicle ["B_parachute_02_F",_object,[],0,"FLY"];
+        _para setDir (getDir _object);
+        _para setPosATL (getPosATL _object);
+        _object attachTo [_para,[0,2,0]];
+        _object call NWG_fnc_spwnRevealObject;
+        _para setVelocity [0,0,-100];
+
+        //Wait for landing
+        private _paraVel = velocity _para;
+        waitUntil {
+            sleep 0.1;
+            if (!(alive _object) || {!(alive _para) || {((getPos _object)#2) < 3}}) exitWith {true};
+
+            //Fix parachute drifting
+            _paraVel = velocity _para;
+            if ((_paraVel#0) != 0 || {(_paraVel#1) != 0}) then {_para setVelocity [0,0,((_paraVel#2)*1.2)]};
+
+            //Go to next iteration
+            false
+        };
+
+        //Check if eliminated mid-air
+        if (!(alive _object)) exitWith {
+            if (!isNull _object) then {detach _object};
+            deleteVehicle _para;
+        };
+
+        //Land
+        private _vel = velocity _object;
+        detach _object;
+        _object disableCollisionWith _para;
+        _object setVelocity _vel;
+
+        //Delete parachute
+        sleep 3;
+        deleteVehicle _para;
+    };
+};
+
+NWG_DSPAWN_DeleteParadropGroup = {
+    // private _groupLeader = _this;
+    private _group = group _this;
+    private _vehicle = vehicle _this;
+
+    NWG_DSPAWN_currentlyParadropping deleteAt (NWG_DSPAWN_currentlyParadropping find _vehicle);
+    for "_i" from ((count (waypoints _group)) - 1) to 0 step -1 do {deleteWaypoint [_group, _i]};
+    {_vehicle deleteVehicleCrew _x} forEach (crew _vehicle);
+    deleteVehicle _vehicle;
+    deleteGroup _group;
+};
