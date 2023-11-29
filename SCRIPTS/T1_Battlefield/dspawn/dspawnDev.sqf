@@ -110,9 +110,8 @@ NWG_DSPAWN_Dev_Dump = {
 //================================================================================================================
 //TAGs system
 NWG_DSPAWN_Dev_GenerateTags = {
-    // private _group = _this;
-
-    private _grpVehicle = vehicle (leader _this);
+    private _group = _this;
+    private _grpVehicle = vehicle (leader _group);
     private _simulationType = tolower (getText(configFile >> "CfgVehicles" >> (typeOf _grpVehicle) >> "simulation"));
 
     //Prime tags -
@@ -149,8 +148,11 @@ NWG_DSPAWN_Dev_GenerateTags = {
     };
 
     //Weapon tags -
-    //I have not a slightest idea on how to automatically determinate that
-    _tags pushBack "REG";
+    if ("INF" in _tags) then {
+        _tags append ([_group,objNull] call NWG_DSPAWN_Dev_DefineWeaponTagForGroup);
+    } else {
+        _tags append ([_group,_grpVehicle] call NWG_DSPAWN_Dev_DefineWeaponTagForGroup);
+    };
 
     //Vehicle logic -
     if ("VEH" in _tags) then {
@@ -191,6 +193,80 @@ NWG_DSPAWN_Dev_GetVehicleWeapons = {
 
     //return
     _weapons
+};
+
+NWG_DSPAWN_Dev_DefineWeaponTagForGroup = {
+    params ["_group",["_grpVehicle",objNull]];
+
+    //Check vehicle for weapon tag
+    private _vehTag = if (!isNull _grpVehicle)
+        then {_grpVehicle call NWG_DSPAWN_Dev_DefineWeaponTagForObject}
+        else {"REG"};
+    //return if vehicle tag is not REG
+    if (_vehTag isNotEqualTo "REG") exitWith {_vehTag splitString "|"};//Will turn "AA|AT" into ["AA","AT"] and also work with single tag
+
+    //Check every unit for weapon tag
+    private _unitTags = (units _group) apply {_x call NWG_DSPAWN_Dev_DefineWeaponTagForObject};
+    private _thresholdCount = round ((count _unitTags)*0.5);//50% of units must have the same tag
+    //return
+    switch (true) do {
+        case (({_x isEqualTo "AA"} count _unitTags) >= _thresholdCount): {["AA"]};
+        case (({_x isEqualTo "AT"} count _unitTags) >= _thresholdCount): {["AT"]};
+        default {["REG"]};
+    };
+};
+
+NWG_DSPAWN_Dev_aaSigns = [" AA","AA ","air-to-air","surface-to-air"];
+NWG_DSPAWN_Dev_atSigns = [" AT","AT ","air-to-surface","HEAT","APFSDS"];
+NWG_DSPAWN_Dev_magToWeaponTagCache = createHashMap;//Config manipulations are EXTREMELY slow, cache needed (4638/10k VS 10k/10k)
+NWG_DSPAWN_Dev_DefineWeaponTagForObject = {
+    // private _object = _this;
+
+    //Get all the magazines
+    private _mags = if (_this isKindOf "Man")
+        then {magazines _this}
+        else {(magazinesAllTurrets _this) apply {_x#0}};
+    _mags = _mags arrayIntersect _mags;//Remove duplicates
+
+    //Check for AT/AG signs in magazine descriptions
+    private ["_cached","_config","_fullDescription"];
+    _mags = _mags apply {
+        _cached = NWG_DSPAWN_Dev_magToWeaponTagCache get _x;
+        if (!isNil "_cached") then {continueWith _cached};
+
+        _config = configFile >> "CfgMagazines" >> _x;
+        if (!isClass _config) then {
+            NWG_DSPAWN_Dev_magToWeaponTagCache set [_x,"REG"];
+            continueWith "REG";
+        };
+
+        _fullDescription = [
+            (getText (_config >> "description")),
+            (getText (_config >> "descriptionShort")),
+            (getText (_config >> "displayName")),
+            (getText (_config >> "displayNameShort"))
+        ] joinString " ";
+
+        _cached = switch (true) do {
+            case ((NWG_DSPAWN_Dev_aaSigns findIf {_x in _fullDescription}) != -1): {"AA"};
+            case ((NWG_DSPAWN_Dev_atSigns findIf {_x in _fullDescription}) != -1): {"AT"};
+            default {"REG"};
+        };
+
+        NWG_DSPAWN_Dev_magToWeaponTagCache set [_x,_cached];
+        _cached
+    };
+
+    private _hasAA = "AA" in _mags;
+    private _hasAT = "AT" in _mags;
+
+    //return
+    switch (true) do {
+        case (_hasAT && _hasAA): {"AA|AT"};
+        case (_hasAA): {"AA"};
+        case (_hasAT): {"AT"};
+        default {"REG"};
+    }
 };
 
 //================================================================================================================
