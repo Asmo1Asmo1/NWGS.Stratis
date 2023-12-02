@@ -30,9 +30,57 @@ NWG_DSPAWN_TRIGGER_FindOccupiableBuildings_Test = {
 //================================================================================================================
 //================================================================================================================
 //Catalogue read
-// call NWG_DSPAWN_GetCatalogueValues_Test
-NWG_DSPAWN_GetCatalogueValues_Test = {
-    ["NATO",[ ["VEH"],["MEC"],[1] ] ] call NWG_DSPAWN_GetCatalogueValues
+// call NWG_DSPAWN_GetCataloguePage_Test
+NWG_DSPAWN_GetCataloguePage_Test = {
+    [
+        (("NATO" call NWG_DSPAWN_GetCataloguePage) isEqualType []),
+        ((NWG_DSPAWN_catalogue getOrDefault ["NATO",false]) isEqualType [])
+    ]
+};
+
+//call NWG_DSPAWN_FilterGroups_Test
+//expected: array of booleans that are all true
+NWG_DSPAWN_FilterGroups_Test = {
+    private _groupsContainer = [
+        [["tag1","tag2"], 1],
+        [["tag2","tag3"], 2],
+        [["tag1","tag3"], 3]
+    ];
+
+    private _pass = [];
+    private ["_filter","_result"];
+
+    // Test 1: No filter
+    _result = [_groupsContainer] call NWG_DSPAWN_FilterGroups;
+    _pass pushBack (_result isEqualTo _groupsContainer); // Expecting no change
+
+    // Test 2: Empty filter
+    _filter = [[],[],[]];
+    _result = [_groupsContainer,_filter] call NWG_DSPAWN_FilterGroups;
+    _pass pushBack (_result isEqualTo _groupsContainer); // Expecting no change
+
+    // Test 3: Filter by tag whitelist
+    private _filter = [["tag1"],[],[]];
+    private _result = [_groupsContainer,_filter] call NWG_DSPAWN_FilterGroups;
+    _pass pushBack ((count _result) == 2); // Expecting 2 groups with "tag1"
+
+    // Test 4: Filter by tag blacklist
+    _filter = [[],["tag2"],[]];
+    _result = [_groupsContainer,_filter] call NWG_DSPAWN_FilterGroups;
+    _pass pushBack ((count _result) == 1); // Expecting 1 group without "tag2"
+
+    // Test 5: Filter by tier whitelist
+    _filter = [[],[],[1,2]];
+    _result = [_groupsContainer,_filter] call NWG_DSPAWN_FilterGroups;
+    _pass pushBack ((count _result) == 2); // Expecting 2 groups
+
+    // Test 6: Filter by combination
+    _filter = [["tag1"],["tag2"],[3]];
+    _result = [_groupsContainer,_filter] call NWG_DSPAWN_FilterGroups;
+    _pass pushBack ((count _result) == 1); // Expecting 1 group with "tag1", without "tag2" and with tier 3
+
+    //return
+    _pass
 };
 
 //================================================================================================================
