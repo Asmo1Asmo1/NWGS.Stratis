@@ -441,7 +441,19 @@ NWG_DSPAWN_FilterGroups = {
 
 //================================================================================================================
 //================================================================================================================
-//String array
+//Group description pre-spawn processing
+NWG_DSPAWN_PrepareGroupForSpawn = {
+    params ["_groupDescr","_passengersContainer"];
+    _groupDescr = _groupDescr + [];//Shallow copy to avoid modifying the original
+    private _unitsDescr = _groupDescr#DESCR_UNITS;
+    _unitsDescr = _unitsDescr + [];//Shallow copy to avoid modifying the original
+    _unitsDescr = _unitsDescr call NWG_DSPAWN_UnCompactStringArray;
+    _unitsDescr = [_unitsDescr,_passengersContainer] call NWG_DSPAWN_FillWithPassengers;
+    _groupDescr set [DESCR_UNITS,_unitsDescr];
+    //return
+    _groupDescr
+};
+
 NWG_DSPAWN_UnCompactStringArray = {
     // private _array = _this;
     private _result = [];
@@ -463,9 +475,25 @@ NWG_DSPAWN_UnCompactStringArray = {
     _this
 };
 
-//================================================================================================================
-//================================================================================================================
-//Passengers
+NWG_DSPAWN_FillWithPassengers = {
+    params ["_unitsDescr","_passengersContainer"];
+
+    private _maxCount = {_x isEqualTo "RANDOM"} count _unitsDescr;
+    if (_maxCount == 0) exitWith {_unitsDescr};
+    private _result = _unitsDescr - ["RANDOM"];
+
+    private _count = if (_maxCount < 3)
+        then {round (random _maxCount)}//0-2
+        else {_maxCount - (round (random (_maxCount*0.33)))};//66%-100%
+    if (_count > 0) then {
+        _result append ([_passengersContainer,_count] call NWG_DSPAWN_GeneratePassengers);
+    };
+
+    _unitsDescr resize 0;
+    _unitsDescr append _result;
+    _unitsDescr
+};
+
 NWG_DSPAWN_GeneratePassengers = {
     params ["_passengersContainer","_count"];
 
@@ -501,40 +529,6 @@ NWG_DSPAWN_GeneratePassengers = {
 
     //return
     _result
-};
-
-NWG_DSPAWN_FillWithPassengers = {
-    params ["_unitsDescr","_passengersContainer"];
-
-    private _maxCount = {_x isEqualTo "RANDOM"} count _unitsDescr;
-    if (_maxCount == 0) exitWith {_unitsDescr};
-    private _result = _unitsDescr - ["RANDOM"];
-
-    private _count = if (_maxCount < 3)
-        then {round (random _maxCount)}//0-2
-        else {_maxCount - (round (random (_maxCount*0.33)))};//66%-100%
-    if (_count > 0) then {
-        _result append ([_passengersContainer,_count] call NWG_DSPAWN_GeneratePassengers);
-    };
-
-    _unitsDescr resize 0;
-    _unitsDescr append _result;
-    _unitsDescr
-};
-
-//================================================================================================================
-//================================================================================================================
-//Group description processing
-NWG_DSPAWN_PrepareGroupForSpawn = {
-    params ["_groupDescr","_passengersContainer"];
-    _groupDescr = _groupDescr + [];//Shallow copy to avoid modifying the original
-    private _unitsDescr = _groupDescr#DESCR_UNITS;
-    _unitsDescr = _unitsDescr + [];//Shallow copy to avoid modifying the original
-    _unitsDescr = _unitsDescr call NWG_DSPAWN_UnCompactStringArray;
-    _unitsDescr = [_unitsDescr,_passengersContainer] call NWG_DSPAWN_FillWithPassengers;
-    _groupDescr set [DESCR_UNITS,_unitsDescr];
-    //return
-    _groupDescr
 };
 
 //================================================================================================================
@@ -615,7 +609,7 @@ NWG_DSPAWN_SpawnGroupFinalize = {
 
 //================================================================================================================
 //================================================================================================================
-//Additional code helpers
+//Additional code post-spawn helpers
 NWG_DSPAWN_AC_AttachTurret = {
     params ["_group","_vehicle","_NaN","_turretClassname","_attachToValues",["_gunnerClassname","DEFAULT"]];
     _attachToValues params ["_offset","_dirAndUp"];
