@@ -692,6 +692,62 @@ NWG_DSPAWN_SendToPatrol = {
 //================================================================================================================
 //================================================================================================================
 //Attack logic
+NWG_DSPAWN_SendToAttack = {
+    params ["_group","_attackPos"];
+
+    //Get tags
+    private _tags = _group call NWG_DSPAWN_GetTags;
+    if (_tags isEqualTo []) then {_tags = ["INF"]};//Default to INF
+
+    //Set combat behaviour
+    _group setCombatMode "RED";
+    _group setSpeedMode "FULL";
+    _group setBehaviourStrong "AWARE";
+
+    //Delete old waypoints (if any)
+    for "_i" from ((count (waypoints _group)) - 1) to 0 step -1 do {
+        deleteWaypoint [_group, _i];
+    };
+
+    //Logic selection
+    private _attackLogic = switch (true) do {
+        case ("INF" in _tags): {NWG_DSPAWN_InfAttackLogic};
+        case ("VEH" in _tags): {NWG_DSPAWN_VehAttackLogic};
+        case ("ARM" in _tags): {NWG_DSPAWN_VehAttackLogic};
+        case ("AIR" in _tags): {NWG_DSPAWN_AirAttackLogic};
+        case ("BOAT" in _tags): {NWG_DSPAWN_BoatAttackLogic};
+        default {
+            (format ["NWG_DSPAWN_SendToAttack: Tags '%1' invalid, fallback to INF",_tags]) call NWG_fnc_logError;
+            NWG_DSPAWN_InfAttackLogic
+        };
+    };
+
+    //Run attack logic
+    [_group,_tags,_attackPos] call _attackLogic;
+};
+
+/*- Attack logic for INF*/
+NWG_DSPAWN_InfAttackLogic = {
+    //TODO
+    systemChat "Infantry attack logic not implemented yet";
+};
+/*- Attack logic for VEH & ARM*/
+NWG_DSPAWN_VehAttackLogic = {
+    //TODO
+    systemChat "Vehicle attack logic not implemented yet";
+};
+/*- Attack logic for AIR*/
+NWG_DSPAWN_AirAttackLogic = {
+    //TODO
+    systemChat "Air attack logic not implemented yet";
+};
+/*- Attack logic for BOAT*/
+NWG_DSPAWN_BoatAttackLogic = {
+    //TODO
+    systemChat "Boat attack logic not implemented yet";
+};
+
+/*Utils*/
 
 //================================================================================================================
 //================================================================================================================
