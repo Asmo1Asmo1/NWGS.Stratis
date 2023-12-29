@@ -773,17 +773,17 @@ NWG_DSPAWN_BoatAttackLogic = {
 NWG_DSPAWN_CheckThePosition = {
     params ["_group","_attackPos","_radius",["_type","ground"]];
 
-    //First check point
-    private _wp1 = [_attackPos,_radius,_type] call NWG_fnc_dtsFindDotForWaypoint;
-    if (_wp1 isNotEqualTo false) then {
-        [_group,_wp1] call NWG_DSPAWN_AddWaypoint;
-    };
+    private _checkRoute = [
+        ([_attackPos,_radius,_type] call NWG_fnc_dtsFindDotForWaypoint),
+        ([_attackPos,(_radius/2),_type] call NWG_fnc_dtsFindDotForWaypoint)
+    ] select {_x isNotEqualTo false};
 
-    //Second check point
-    private _wp2 = [_attackPos,(_radius/2),_type] call NWG_fnc_dtsFindDotForWaypoint;
-    if (_wp2 isNotEqualTo false) then {
-        _wp2 = [_group,_wp2,"SAD"] call NWG_DSPAWN_AddWaypoint;
-        _wp2 setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_ReturnToPatrol}"];
+    if ((count _checkRoute) == 2) then {
+        [_group,(_checkRoute deleteAt 0)] call NWG_DSPAWN_AddWaypoint;
+    };
+    if ((count _checkRoute) == 1) then {
+        private _finalWp = [_group,(_checkRoute deleteAt 0),"SAD"] call NWG_DSPAWN_AddWaypoint;
+        _finalWp setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_ReturnToPatrol}"];
     };
 };
 
@@ -800,7 +800,7 @@ NWG_DSPAWN_ReturnToPatrol = {
         [_group,_patrolRoute] call NWG_DSPAWN_SendToPatrol;
     };
 
-    //Generate a new patrol
+    //Generate a new patrol if there is no saved one
     if (NWG_DSPAWN_TRIGGER_lastPopulatedTrigger isEqualTo []) exitWith {};
     private _trigger = NWG_DSPAWN_TRIGGER_lastPopulatedTrigger;
     private _tags = _group call NWG_DSPAWN_GetTags;
