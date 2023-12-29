@@ -14,6 +14,16 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
     ["PARADROP_RADIUS",3000],//Radius for paradrop vehicle to spawn, fly by and despawn
     ["PARADROP_HEIGHT",200],//Height of paradropping
     ["PARADROP_TIMEOUT",90],//Timeout to auto-cancel paradrop in case of an error
+
+    ["ATTACK_INF_ATTACK_RADIUS",100],//Radius for INF group to 'attack' the position
+    ["ATTACK_VEH_UNLOAD_RADIUS",150],//Radius for VEH group to unload passengers
+    ["ATTACK_VEH_ATTACK_RADIUS",100],//Radius for VEH group to 'attack' the position
+    ["ATTACK_AIR_UNLOAD_RADIUS",150],//Radius for AIR group to unload passengers
+    ["ATTACK_AIR_ATTACK_RADIUS",200],//Radius for AIR group to 'attack' the position
+    ["ATTACK_AIR_DESPAWN_RADIUS",3000],//Radius for AIR vehicle to despawn after unload
+    ["ATTACK_BOAT_UNLOAD_RADIUS",150],//Radius for BOAT group to unload passengers
+    ["ATTACK_BOAT_ATTACK_RADIUS",100],//Radius for BOAT group to 'attack' the position
+
     ["",0]
 ];
 
@@ -32,8 +42,10 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
 #define G_INDEX_AIR 3
 #define G_INDEX_BOAT 4
 
+NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
 NWG_DSPAWN_TRIGGER_PopulateTrigger = {
     params ["_trigger","_groupsCount","_faction",["_filter",[]],["_side",west]];
+    NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
 
     //Generate trigger map
     private _spawnMap = _trigger call NWG_fnc_dtsMarkupTrigger;//[_plains,_roads,_water,_roadsAway,_locations,_air]
@@ -251,6 +263,9 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
     _resultCount = [G_INDEX_INF,SP_INDEX_GROUND,_targetCount,3] call _spawnPatrols;
     _totalResultCount = _totalResultCount + _resultCount;
     _population set [G_INDEX_INF,0];
+
+    //Cache last populated trigger
+    NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = _trigger;
 
     //return
     _totalResultCount
@@ -662,18 +677,21 @@ NWG_DSPAWN_AddWaypoint = {
     _wp
 };
 
+NWG_DSPAWN_ClearWaypoints = {
+    // private _group = _this;
+    for "_i" from ((count (waypoints _this)) - 1) to 0 step -1 do {
+        deleteWaypoint [_this, _i];
+    };
+};
+
 //================================================================================================================
 //================================================================================================================
 //Patrol logic
 NWG_DSPAWN_SendToPatrol = {
     params ["_group","_patrolRoute"];
 
-    //Delete current waypoints (if any)
-    for "_i" from ((count (waypoints _group)) - 1) to 0 step -1 do {
-        deleteWaypoint [_group, _i];
-    };
-
     //Add new patrol route
+    _group call NWG_DSPAWN_ClearWaypoints;
     {[_group,_x] call NWG_DSPAWN_AddWaypoint} forEach _patrolRoute;
 
     //If not a 'standing patrol'
@@ -695,25 +713,23 @@ NWG_DSPAWN_SendToPatrol = {
 NWG_DSPAWN_SendToAttack = {
     params ["_group","_attackPos"];
 
-    //Get tags
-    private _tags = _group call NWG_DSPAWN_GetTags;
-    if (_tags isEqualTo []) then {_tags = ["INF"]};//Default to INF
-
     //Set combat behaviour
     _group setCombatMode "RED";
     _group setSpeedMode "FULL";
     _group setBehaviourStrong "AWARE";
 
-    //Delete old waypoints (if any)
-    for "_i" from ((count (waypoints _group)) - 1) to 0 step -1 do {
-        deleteWaypoint [_group, _i];
-    };
+    //Clear waypoints
+    _group call NWG_DSPAWN_ClearWaypoints;
+
+    //Get tags
+    private _tags = _group call NWG_DSPAWN_GetTags;
+    if (_tags isEqualTo []) then {_tags = ["INF"]};//Default to INF
 
     //Logic selection
     private _attackLogic = switch (true) do {
         case ("INF" in _tags): {NWG_DSPAWN_InfAttackLogic};
         case ("VEH" in _tags): {NWG_DSPAWN_VehAttackLogic};
-        case ("ARM" in _tags): {NWG_DSPAWN_VehAttackLogic};
+        case ("ARM" in _tags): {NWG_DSPAWN_VehAttackLogic};//Just reuse VEH logic
         case ("AIR" in _tags): {NWG_DSPAWN_AirAttackLogic};
         case ("BOAT" in _tags): {NWG_DSPAWN_BoatAttackLogic};
         default {
@@ -723,24 +739,30 @@ NWG_DSPAWN_SendToAttack = {
     };
 
     //Run attack logic
-    [_group,_tags,_attackPos] call _attackLogic;
+    [_group,_attackPos,_tags] call _attackLogic;
 };
 
 /*- Attack logic for INF*/
 NWG_DSPAWN_InfAttackLogic = {
-    //TODO
-    systemChat "Infantry attack logic not implemented yet";
+    params ["_group","_attackPos"/*,"_tags"*/];
+
+    //Just search around the given position
+    private _radius = NWG_DSPAWN_Settings get "ATTACK_INF_ATTACK_RADIUS";
+    [_group,_attackPos,_radius] call NWG_DSPAWN_CheckThePosition;
 };
+
 /*- Attack logic for VEH & ARM*/
 NWG_DSPAWN_VehAttackLogic = {
     //TODO
     systemChat "Vehicle attack logic not implemented yet";
 };
+
 /*- Attack logic for AIR*/
 NWG_DSPAWN_AirAttackLogic = {
     //TODO
     systemChat "Air attack logic not implemented yet";
 };
+
 /*- Attack logic for BOAT*/
 NWG_DSPAWN_BoatAttackLogic = {
     //TODO
@@ -748,6 +770,52 @@ NWG_DSPAWN_BoatAttackLogic = {
 };
 
 /*Utils*/
+NWG_DSPAWN_CheckThePosition = {
+    params ["_group","_attackPos","_radius",["_type","ground"]];
+
+    //First check point
+    private _wp1 = [_attackPos,_radius,_type] call NWG_fnc_dtsFindDotForWaypoint;
+    if (_wp1 isNotEqualTo false) then {
+        [_group,_wp1] call NWG_DSPAWN_AddWaypoint;
+    };
+
+    //Second check point
+    private _wp2 = [_attackPos,(_radius/2),_type] call NWG_fnc_dtsFindDotForWaypoint;
+    if (_wp2 isNotEqualTo false) then {
+        _wp2 = [_group,_wp2,"SAD"] call NWG_DSPAWN_AddWaypoint;
+        _wp2 setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_ReturnToPatrol}"];
+    };
+};
+
+NWG_DSPAWN_ReturnToPatrol = {
+    // private _groupLeader = _this;
+    private _group = group _this;
+
+    //Clear waypoints
+    _group call NWG_DSPAWN_ClearWaypoints;
+
+    //Check if there is a saved patrol route for this group
+    private _patrolRoute = _group getVariable ["NWG_DSPAWN_patrolRoute",[]];
+    if (_patrolRoute isNotEqualTo []) exitWith {
+        [_group,_patrolRoute] call NWG_DSPAWN_SendToPatrol;
+    };
+
+    //Generate a new patrol
+    if (NWG_DSPAWN_TRIGGER_lastPopulatedTrigger isEqualTo []) exitWith {};
+    private _trigger = NWG_DSPAWN_TRIGGER_lastPopulatedTrigger;
+    private _tags = _group call NWG_DSPAWN_GetTags;
+    if (_tags isEqualTo []) then {_tags = ["INF"]};//Default to INF
+    private _type = switch (true) do {
+        case ("AIR" in _tags): {"air"};
+        case ("BOAT" in _tags): {"water"};
+        default {"ground"};
+    };
+    _patrolRoute = [_trigger,_type,3] call NWG_fnc_dtsGenerateSimplePatrol;
+    if (_patrolRoute isEqualTo []) exitWith {};//No patrol route generated
+
+    //Send group to patrol
+    [_group,_patrolRoute] call NWG_DSPAWN_SendToPatrol;
+};
 
 //================================================================================================================
 //================================================================================================================
@@ -868,10 +936,10 @@ NWG_DSPAWN_ImitateParadrop = {
 NWG_DSPAWN_DeleteParadropGroup = {
     // private _groupLeader = _this;
     private _group = group _this;
-    private _vehicle = vehicle _this;
+    _group call NWG_DSPAWN_ClearWaypoints;
 
+    private _vehicle = vehicle _this;
     NWG_DSPAWN_currentlyParadropping deleteAt (NWG_DSPAWN_currentlyParadropping find _vehicle);
-    for "_i" from ((count (waypoints _group)) - 1) to 0 step -1 do {deleteWaypoint [_group, _i]};
     {_vehicle deleteVehicleCrew _x} forEach (crew _vehicle);
     deleteVehicle _vehicle;
     deleteGroup _group;

@@ -9,6 +9,30 @@ NWG_fnc_dtsMarkupTrigger = {
     _this call NWG_DOTS_MarkupTrigger
 };
 
+//Returns a position for a waypoint
+//params:
+//_pos: position to search around
+//_rad: radius to search
+//_type: type of waypoint, can be of "ground"|"water"|"shore"|"air"
+//returns:
+//position for a waypoint or 'false' if no position was found
+NWG_fnc_dtsFindDotForWaypoint = {
+    //params ["_pos","_rad","_type"];
+    _this call NWG_DOTS_FindDotForWaypoint
+};
+
+//Generates a simple patrol route based on the trigger area
+//params:
+//_trigger: trigger area ([_triggerPos,_triggerRad])
+//_type: type of patrol, can be of "ground"|"water"|"air"
+//_patrolLength: length of the patrol route to generate
+//returns:
+//array of positions
+NWG_fnc_dtsGenerateSimplePatrol = {
+    //params ["_trigger","_type","_patrolLength"];
+    _this call NWG_DOTS_GenerateSimplePatrol
+};
+
 //Markups an area with dots
 //params:
 //_pos: center of the area

@@ -146,7 +146,7 @@ NWG_DOTS_GenerateSimplePatrol = {
     params ["_trigger","_type","_patrolLength"];
     _trigger params ["_triggerPos","_triggerRad"];
 
-    //Get the initial array of dots
+    //Generate the initial array of dots
     private _maxCount = _patrolLength max 8;
     private _maxRad = if (_type isEqualTo "air")
         then {(_triggerRad + (NWG_DOTS_Settings get "TRIGGER_AIR_RADIUS"))}

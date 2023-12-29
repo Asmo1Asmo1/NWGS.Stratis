@@ -320,6 +320,21 @@ NWG_DSPAWN_PATROL_TEST_All = {
 //================================================================================================================
 //================================================================================================================
 //Attack logic
+//Requires group to be placed in editor
+//note: keep 'test1 call NWG_DSPAWN_GetTags' in 'watch' to see tags
+// test1 call NWG_DSPAWN_ATTACKLOGIC_TEST_AnyGroup
+NWG_DSPAWN_ATTACKLOGIC_TEST_AnyGroup = {
+    private _group = _this;
+    private _attackPos = getPosATL player;
+    private _tags = _group call NWG_DSPAWN_Dev_GenerateTags;
+    [_group,_tags] call NWG_DSPAWN_SetTags;
+
+    //Compose trigger to patrol around after attack
+    private _trigger = [_attackPos,200];
+    NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = _trigger;
+
+    [_group,_attackPos] call NWG_DSPAWN_SendToAttack;
+};
 
 //================================================================================================================
 //================================================================================================================
