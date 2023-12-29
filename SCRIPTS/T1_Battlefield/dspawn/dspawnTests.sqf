@@ -216,7 +216,7 @@ NWG_DSPAWN_PATROL_TEST_GeneratePatrol = {
     private _result = [_dot1,_dot2,_dot3];
 
     if (_isAirPatrol) then {
-        private _airHeight = NWG_DOTS_Settings get "TRIGGER_AIR_HEIGHT";//Dirty hack
+        private _airHeight = NWG_DOTS_Settings get "AREA_AIR_HEIGHT";//Dirty hack
         {(_x set [2,(selectRandom _airHeight)])} forEach _result;
     };
 
