@@ -713,6 +713,9 @@ NWG_DSPAWN_SendToPatrol = {
 NWG_DSPAWN_SendToAttack = {
     params ["_group","_attackPos"];
 
+    //Check if anyone is alive
+    if (({alive _x} count (units _group)) == 0) exitWith {};
+
     //Set combat behaviour
     _group setCombatMode "RED";
     _group setSpeedMode "FULL";
@@ -746,15 +749,48 @@ NWG_DSPAWN_SendToAttack = {
 NWG_DSPAWN_InfAttackLogic = {
     params ["_group","_attackPos"/*,"_tags"*/];
 
-    //Just search around the given position
-    private _radius = NWG_DSPAWN_Settings get "ATTACK_INF_ATTACK_RADIUS";
-    [_group,_attackPos,_radius] call NWG_DSPAWN_CheckThePosition;
+    private _attackRadius = NWG_DSPAWN_Settings get "ATTACK_INF_ATTACK_RADIUS";
+    [_group,_attackPos,_attackRadius] call NWG_DSPAWN_CheckThePosition;
 };
 
 /*- Attack logic for VEH & ARM*/
 NWG_DSPAWN_VehAttackLogic = {
-    //TODO
-    systemChat "Vehicle attack logic not implemented yet";
+    params ["_group","_attackPos","_tags"];
+
+    private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
+    if (isNull _grpVehicle) exitWith {_this call NWG_DSPAWN_InfAttackLogic};//Fallback to INF
+
+    private _subType = if ("MEC" in _tags) then {"MEC"} else {"MOT"};
+    private _unloadRadius = NWG_DSPAWN_Settings get "ATTACK_VEH_UNLOAD_RADIUS";
+    private _attackRadius = NWG_DSPAWN_Settings get "ATTACK_VEH_ATTACK_RADIUS";
+
+    //Attack with vehicle support
+    if (_subType isEqualTo "MEC") exitWith {
+        //Separate passengers from vehicle if any
+        private _grpPassengers = [_group,_grpVehicle] call NWG_DSPAWN_GetGroupPassengers;
+        if ((count _grpPassengers) > 0) then {
+            private _unloadWp = [_attackPos,_unloadRadius,"ground"] call NWG_fnc_dtsFindDotForWaypoint;
+            if (_unloadWp isEqualTo false) exitWith {};
+            _unloadWp = [_group,_unloadWp] call NWG_DSPAWN_AddWaypoint;
+            _unloadWp setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_UnloadPassengers}"];
+        };
+
+        //Send to attack
+        [_group,_attackPos,_attackRadius] call NWG_DSPAWN_CheckThePosition;
+    };
+
+    //Abandon vehicle and attack on foot
+    if (_subType isEqualTo "MOT") exitWith {
+        //Abandon vehicle
+        private _abandonWp = [_attackPos,_unloadRadius,"ground"] call NWG_fnc_dtsFindDotForWaypoint;
+        if (_abandonWp isNotEqualTo false) then {
+            _abandonWp = [_group,_abandonWp] call NWG_DSPAWN_AddWaypoint;
+            _abandonWp setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_AbandonVehicle}"];
+        };
+
+        //Send to attack
+        [_group,_attackPos,_attackRadius] call NWG_DSPAWN_CheckThePosition;
+    };
 };
 
 /*- Attack logic for AIR*/
@@ -791,30 +827,107 @@ NWG_DSPAWN_ReturnToPatrol = {
     // private _groupLeader = _this;
     private _group = group _this;
 
-    //Clear waypoints
+    //Clear current waypoints
     _group call NWG_DSPAWN_ClearWaypoints;
 
-    //Check if there is a saved patrol route for this group
+    //Get or generate the patrol route
     private _patrolRoute = _group getVariable ["NWG_DSPAWN_patrolRoute",[]];
-    if (_patrolRoute isNotEqualTo []) exitWith {
-        [_group,_patrolRoute] call NWG_DSPAWN_SendToPatrol;
+    if (_patrolRoute isEqualTo []) then {
+        private _trigger = NWG_DSPAWN_TRIGGER_lastPopulatedTrigger;
+        if (_trigger isEqualTo []) exitWith {};
+        private _tags = _group call NWG_DSPAWN_GetTags;
+        if (_tags isEqualTo []) then {_tags = ["INF"]};//Default to INF
+        private _type = switch (true) do {
+            case ("AIR" in _tags): {"air"};
+            case ("BOAT" in _tags): {"water"};
+            default {"ground"};
+        };
+        _patrolRoute = [_trigger,_type,3] call NWG_fnc_dtsGenerateSimplePatrol;
+        _group setVariable ["NWG_DSPAWN_patrolRoute",_patrolRoute];
     };
+    if (_patrolRoute isEqualTo []) exitWith {};//No patrol route found/generated
 
-    //Generate a new patrol if there is no saved one
-    if (NWG_DSPAWN_TRIGGER_lastPopulatedTrigger isEqualTo []) exitWith {};
-    private _trigger = NWG_DSPAWN_TRIGGER_lastPopulatedTrigger;
-    private _tags = _group call NWG_DSPAWN_GetTags;
-    if (_tags isEqualTo []) then {_tags = ["INF"]};//Default to INF
-    private _type = switch (true) do {
-        case ("AIR" in _tags): {"air"};
-        case ("BOAT" in _tags): {"water"};
-        default {"ground"};
+    //Get group vehicle to return to
+    private _grpVehicle = _group getVariable ["NWG_DSPAWN_abandonedVehicle",(_group call NWG_DSPAWN_GetGroupVehicle)];
+    if (!isNull _grpVehicle && {alive _grpVehicle}) then {
+        private _units = (units _group) select {alive _x};
+        private _crew = (crew _grpVehicle) select {alive _x};
+        //Check that there is someone to board
+        private _toBoard = _units - _crew;
+        if ((count _toBoard) == 0) exitWith {};//No one to board
+        //Check that vehicle is not occupied by someone else
+        if ((_crew findIf {!(_x in _units)}) != -1) exitWith {};//Vehicle is occupied by someone else
+
+        _group addVehicle _grpVehicle;
+        _toBoard allowGetIn true;
+        _toBoard orderGetIn true;
     };
-    _patrolRoute = [_trigger,_type,3] call NWG_fnc_dtsGenerateSimplePatrol;
-    if (_patrolRoute isEqualTo []) exitWith {};//No patrol route generated
 
     //Send group to patrol
     [_group,_patrolRoute] call NWG_DSPAWN_SendToPatrol;
+};
+
+NWG_DSPAWN_GetGroupVehicle = {
+    // private _group = _this;
+
+    //Try the vehicle of the group leader
+    private _result = vehicle (leader _this);
+    if (alive _result && {_result call NWG_fnc_ocIsVehicle}) exitWith {_result};
+
+    //Try the vehicle of any other group member
+    _result = ((units _this) apply {vehicle _x}) select {alive _x && {_x call NWG_fnc_ocIsVehicle}};
+    if ((count _result) > 0) exitWith {(_result select 0)};
+
+    //Else return null
+    objNull
+};
+
+NWG_DSPAWN_GetGroupPassengers = {
+    params ["_group","_grpVehicle"];
+
+    //return
+    ((((fullCrew [_grpVehicle,"",false])
+        select {(_x#2) >= 0})
+        apply {_x#0})
+        select {alive _x && {(group _x) isEqualTo _group}})
+};
+
+NWG_DSPAWN_AbandonVehicle = {
+    // private _groupLeader = _this;
+    private _group = group _this;
+    private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
+    if (isNull _grpVehicle) exitWith {};
+
+    _group leaveVehicle _grpVehicle;
+
+    private _toDisembark = ((crew _grpVehicle) arrayIntersect (units _group)) select {alive _x};
+    if ((count _toDisembark) > 5) then {
+        //Leave with a delay to decrease stupidness (fix large groups getting stuck in the air)
+        [_toDisembark,_grpVehicle] spawn {
+            params ["_toDisembark","_grpVehicle"];
+            {_x moveOut _grpVehicle; unassignVehicle _x; sleep ((random 0.3)+0.1)} forEach _toDisembark;
+        };
+    } else {
+        //Leave immediately
+        {_x moveOut _grpVehicle; unassignVehicle _x} forEach _toDisembark;
+    };
+
+    _grpVehicle engineOn false;
+    _group setVariable ["NWG_DSPAWN_abandonedVehicle",_grpVehicle];
+};
+
+NWG_DSPAWN_UnloadPassengers = {
+    // private _groupLeader = _this;
+    private _group = group _this;
+    private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
+    if (isNull _grpVehicle) exitWith {};
+
+    private _passengers = [_group,_grpVehicle] call NWG_DSPAWN_GetGroupPassengers;
+    if ((count _passengers) == 0) exitWith {};
+
+    _passengers orderGetIn false;
+    {_x moveOut _grpVehicle; unassignVehicle _x} forEach _passengers;
+    _passengers allowGetIn false;
 };
 
 //================================================================================================================
