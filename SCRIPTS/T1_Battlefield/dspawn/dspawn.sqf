@@ -801,8 +801,30 @@ NWG_DSPAWN_AirAttackLogic = {
 
 /*- Attack logic for BOAT*/
 NWG_DSPAWN_BoatAttackLogic = {
-    //TODO
-    systemChat "Boat attack logic not implemented yet";
+    params ["_group","_attackPos","_tags"];
+
+    private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
+    if (isNull _grpVehicle) exitWith {_this call NWG_DSPAWN_InfAttackLogic};//Fallback to INF
+
+    private _subType = if ("MEC" in _tags) then {"MEC"} else {"MOT"};
+    private _unloadRadius = NWG_DSPAWN_Settings get "ATTACK_BOAT_UNLOAD_RADIUS";
+    private _attackRadius = NWG_DSPAWN_Settings get "ATTACK_BOAT_ATTACK_RADIUS";
+
+    //Gunboat attack
+    if (_subType isEqualTo "MEC") exitWith {
+        [_group,_attackPos,_attackRadius,"water"] call NWG_DSPAWN_CheckThePosition;
+    };
+
+    //Abandon the boat ashore and attack on foot
+    if (_subType isEqualTo "MOT") exitWith {
+        private _abandonWp = [_attackPos,_unloadRadius,"shore"] call NWG_fnc_dtsFindDotForWaypoint;
+        if (_abandonWp isNotEqualTo false) then {
+            _abandonWp = [_group,_abandonWp] call NWG_DSPAWN_AddWaypoint;
+            _abandonWp setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_AbandonVehicle}"];
+        };
+
+        [_group,_attackPos,_attackRadius,"ground"] call NWG_DSPAWN_CheckThePosition;
+    };
 };
 
 /*Utils*/
@@ -814,10 +836,10 @@ NWG_DSPAWN_CheckThePosition = {
         ([_attackPos,(_radius/2),_type] call NWG_fnc_dtsFindDotForWaypoint)
     ] select {_x isNotEqualTo false};
 
-    if ((count _checkRoute) == 2) then {
+    if ((count _checkRoute) >= 2) then {
         [_group,(_checkRoute deleteAt 0)] call NWG_DSPAWN_AddWaypoint;
     };
-    if ((count _checkRoute) == 1) then {
+    if ((count _checkRoute) >= 1) then {
         private _finalWp = [_group,(_checkRoute deleteAt 0),"SAD"] call NWG_DSPAWN_AddWaypoint;
         _finalWp setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_ReturnToPatrol}"];
     };
