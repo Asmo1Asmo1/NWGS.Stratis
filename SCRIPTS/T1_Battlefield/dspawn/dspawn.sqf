@@ -670,7 +670,7 @@ NWG_DSPAWN_AddWaypoint = {
     params ["_group","_pos",["_type","MOVE"]];
 
     if (!surfaceIsWater _pos) then {_pos = ATLToASL _pos};
-    private _wp = _group addWaypoint [_pos,-1];
+    private _wp = _group addWaypoint [_pos,0];
     _wp setWaypointType _type;
     _wp setWaypointCompletionRadius (NWG_DSPAWN_Settings get "WAYPOINT_RADIUS");
     //return
@@ -847,18 +847,18 @@ NWG_DSPAWN_ReturnToPatrol = {
     };
     if (_patrolRoute isEqualTo []) exitWith {};//No patrol route found/generated
 
-    //Get group vehicle to return to
-    private _grpVehicle = _group getVariable ["NWG_DSPAWN_abandonedVehicle",(_group call NWG_DSPAWN_GetGroupVehicle)];
-    if (!isNull _grpVehicle && {alive _grpVehicle}) then {
+    //Get back into abandoned vehicle if any
+    private _abandonedVeh = _group getVariable ["NWG_DSPAWN_abandonedVehicle",objNull];
+    if (!isNull _abandonedVeh && {alive _abandonedVeh}) then {
         private _units = (units _group) select {alive _x};
-        private _crew = (crew _grpVehicle) select {alive _x};
+        private _crew = (crew _abandonedVeh) select {alive _x};
         //Check that there is someone to board
         private _toBoard = _units - _crew;
         if ((count _toBoard) == 0) exitWith {};//No one to board
         //Check that vehicle is not occupied by someone else
-        if ((_crew findIf {!(_x in _units)}) != -1) exitWith {};//Vehicle is occupied by someone else
+        if (_crew isNotEqualTo [] && {(_crew findIf {_x in _units}) == -1}) exitWith {};//Vehicle is occupied by someone else
 
-        _group addVehicle _grpVehicle;
+        _group addVehicle _abandonedVeh;
         _toBoard allowGetIn true;
         _toBoard orderGetIn true;
     };

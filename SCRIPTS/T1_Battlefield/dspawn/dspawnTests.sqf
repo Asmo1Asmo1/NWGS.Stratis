@@ -336,6 +336,16 @@ NWG_DSPAWN_ATTACKLOGIC_TEST_AnyGroup = {
     [_group,_attackPos] call NWG_DSPAWN_SendToAttack;
 };
 
+//call NWG_DSPAWN_ATTACKLOGIC_TEST_AnyGroup_AutoAssignTest1
+NWG_DSPAWN_ATTACKLOGIC_TEST_AnyGroup_AutoAssignTest1 = {
+    private _group = if (!isNil "test1" && {!isNull test1 && {test1 isEqualType grpNull}})
+        then {test1}
+        else {((groups west) select {(group player) isNotEqualTo _x}) select 0};
+
+    test1 = _group;
+    _group call NWG_DSPAWN_ATTACKLOGIC_TEST_AnyGroup
+};
+
 //================================================================================================================
 //================================================================================================================
 //Paradrop
