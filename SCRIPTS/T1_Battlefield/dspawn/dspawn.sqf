@@ -731,6 +731,7 @@ NWG_DSPAWN_SendToAttack = {
     //Logic selection
     private _attackLogic = switch (true) do {
         case ("INF" in _tags): {NWG_DSPAWN_InfAttackLogic};
+        case (!alive (_group call NWG_DSPAWN_GetGroupVehicle)): {NWG_DSPAWN_InfAttackLogic};//Fallback to INF (also checks for NULL)
         case ("VEH" in _tags): {NWG_DSPAWN_VehAttackLogic};
         case ("ARM" in _tags): {NWG_DSPAWN_VehAttackLogic};//Just reuse VEH logic
         case ("AIR" in _tags): {NWG_DSPAWN_AirAttackLogic};
@@ -748,7 +749,6 @@ NWG_DSPAWN_SendToAttack = {
 /*- Attack logic for INF*/
 NWG_DSPAWN_InfAttackLogic = {
     params ["_group","_attackPos"/*,"_tags"*/];
-
     private _attackRadius = NWG_DSPAWN_Settings get "ATTACK_INF_ATTACK_RADIUS";
     [_group,_attackPos,_attackRadius] call NWG_DSPAWN_CheckThePosition;
 };
@@ -756,17 +756,12 @@ NWG_DSPAWN_InfAttackLogic = {
 /*- Attack logic for VEH & ARM*/
 NWG_DSPAWN_VehAttackLogic = {
     params ["_group","_attackPos","_tags"];
-
-    private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
-    if (isNull _grpVehicle) exitWith {_this call NWG_DSPAWN_InfAttackLogic};//Fallback to INF
-
-    private _subType = if ("MEC" in _tags) then {"MEC"} else {"MOT"};
     private _unloadRadius = NWG_DSPAWN_Settings get "ATTACK_VEH_UNLOAD_RADIUS";
     private _attackRadius = NWG_DSPAWN_Settings get "ATTACK_VEH_ATTACK_RADIUS";
 
     //Attack with vehicle support
-    if (_subType isEqualTo "MEC") exitWith {
-        //Separate passengers from vehicle if any
+    if ("MEC" in _tags) exitWith {
+        private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
         private _grpPassengers = [_group,_grpVehicle] call NWG_DSPAWN_GetGroupPassengers;
         if ((count _grpPassengers) > 0) then {
             private _unloadWp = [_attackPos,_unloadRadius,"ground"] call NWG_fnc_dtsFindDotForWaypoint;
@@ -775,22 +770,23 @@ NWG_DSPAWN_VehAttackLogic = {
             _unloadWp setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_UnloadPassengers}"];
         };
 
-        //Send to attack
         [_group,_attackPos,_attackRadius] call NWG_DSPAWN_CheckThePosition;
     };
 
     //Abandon vehicle and attack on foot
-    if (_subType isEqualTo "MOT") exitWith {
-        //Abandon vehicle
+    if ("MOT" in _tags) exitWith {
         private _abandonWp = [_attackPos,_unloadRadius,"ground"] call NWG_fnc_dtsFindDotForWaypoint;
         if (_abandonWp isNotEqualTo false) then {
             _abandonWp = [_group,_abandonWp] call NWG_DSPAWN_AddWaypoint;
             _abandonWp setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_AbandonVehicle}"];
         };
 
-        //Send to attack
         [_group,_attackPos,_attackRadius] call NWG_DSPAWN_CheckThePosition;
     };
+
+    //Fallback to INF
+    (format ["NWG_DSPAWN_VehAttackLogic: Tags '%1' invalid, fallback to INF",_tags]) call NWG_fnc_logError;
+    _this call NWG_DSPAWN_InfAttackLogic;
 };
 
 /*- Attack logic for AIR*/
@@ -802,21 +798,16 @@ NWG_DSPAWN_AirAttackLogic = {
 /*- Attack logic for BOAT*/
 NWG_DSPAWN_BoatAttackLogic = {
     params ["_group","_attackPos","_tags"];
-
-    private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
-    if (isNull _grpVehicle) exitWith {_this call NWG_DSPAWN_InfAttackLogic};//Fallback to INF
-
-    private _subType = if ("MEC" in _tags) then {"MEC"} else {"MOT"};
     private _unloadRadius = NWG_DSPAWN_Settings get "ATTACK_BOAT_UNLOAD_RADIUS";
     private _attackRadius = NWG_DSPAWN_Settings get "ATTACK_BOAT_ATTACK_RADIUS";
 
-    //Gunboat attack
-    if (_subType isEqualTo "MEC") exitWith {
+    //Gunboat attack from water
+    if ("MEC" in _tags) exitWith {
         [_group,_attackPos,_attackRadius,"water"] call NWG_DSPAWN_CheckThePosition;
     };
 
     //Abandon the boat ashore and attack on foot
-    if (_subType isEqualTo "MOT") exitWith {
+    if ("MOT" in _tags) exitWith {
         private _abandonWp = [_attackPos,_unloadRadius,"shore"] call NWG_fnc_dtsFindDotForWaypoint;
         if (_abandonWp isNotEqualTo false) then {
             _abandonWp = [_group,_abandonWp] call NWG_DSPAWN_AddWaypoint;
@@ -825,6 +816,10 @@ NWG_DSPAWN_BoatAttackLogic = {
 
         [_group,_attackPos,_attackRadius,"ground"] call NWG_DSPAWN_CheckThePosition;
     };
+
+    //Fallback to INF
+    (format ["NWG_DSPAWN_BoatAttackLogic: Tags '%1' invalid, fallback to INF",_tags]) call NWG_fnc_logError;
+    _this call NWG_DSPAWN_InfAttackLogic;
 };
 
 /*Utils*/
@@ -906,6 +901,8 @@ NWG_DSPAWN_GetGroupVehicle = {
 
 NWG_DSPAWN_GetGroupPassengers = {
     params ["_group","_grpVehicle"];
+
+    if (isNull _grpVehicle || {!alive _grpVehicle}) exitWith {[]};
 
     //return
     ((((fullCrew [_grpVehicle,"",false])
