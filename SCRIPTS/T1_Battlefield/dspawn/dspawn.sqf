@@ -20,7 +20,7 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
     ["ATTACK_VEH_ATTACK_RADIUS",100],//Radius for VEH group to 'attack' the position
     ["ATTACK_AIR_UNLOAD_RADIUS",150],//Radius for AIR group to unload passengers
     ["ATTACK_AIR_ATTACK_RADIUS",200],//Radius for AIR group to 'attack' the position
-    ["ATTACK_AIR_DESPAWN_RADIUS",3000],//Radius for AIR vehicle to despawn after unload
+    ["ATTACK_AIR_DESPAWN_RADIUS",5000],//Radius for AIR vehicle to despawn after unload
     ["ATTACK_BOAT_UNLOAD_RADIUS",150],//Radius for BOAT group to unload passengers
     ["ATTACK_BOAT_ATTACK_RADIUS",100],//Radius for BOAT group to 'attack' the position
 
@@ -791,8 +791,48 @@ NWG_DSPAWN_VehAttackLogic = {
 
 /*- Attack logic for AIR*/
 NWG_DSPAWN_AirAttackLogic = {
-    //TODO
-    systemChat "Air attack logic not implemented yet";
+    params ["_group","_attackPos","_tags"];
+    private _unloadRadius = NWG_DSPAWN_Settings get "ATTACK_AIR_UNLOAD_RADIUS";
+    private _attackRadius = NWG_DSPAWN_Settings get "ATTACK_AIR_ATTACK_RADIUS";
+    private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
+    private _grpPassengers = [_group,_grpVehicle] call NWG_DSPAWN_GetGroupPassengers;
+
+    //Unload passengers if any
+    if ((count _grpPassengers) > 0) then {
+        private _unloadMethod = switch (true) do {
+            case ("LAND+" in _tags && {"PARA+" in _tags}): {selectRandom ["LAND","PARA"]};
+            case ("LAND+" in _tags): {"LAND"};
+            case ("PARA+" in _tags): {"PARA"};
+            default {""};
+        };
+        if (_unloadMethod isEqualTo "") exitWith {};
+
+        private _unloadWp = [_attackPos,_unloadRadius,"ground"] call NWG_fnc_dtsFindDotForWaypoint;
+        if (_unloadWp isEqualTo false) exitWith {};
+
+        _group setVariable ["NWG_DSPAWN_attackPos",_attackPos];//Save for later use in NWG_DSPAWN_UnloadAirPassengers
+        _unloadWp = [_group,_unloadWp] call NWG_DSPAWN_AddWaypoint;
+        _unloadWp setWaypointStatements ["true", (format ["if (local this) then {[this,'%1'] call NWG_DSPAWN_UnloadAirPassengers}",_unloadMethod])];
+    };
+
+    //Attack the given position
+    if ("MEC" in _tags) exitWith {
+        [_group,_attackPos,_attackRadius,"air"] call NWG_DSPAWN_CheckThePosition;
+    };
+
+    //Flee from combat after passengers are unloaded
+    if ("MOT" in _tags) exitWith {
+        {_x setCombatBehaviour "CARELESS"} forEach ((units _group) - _grpPassengers);
+        private _despawnRadius = NWG_DSPAWN_Settings get "ATTACK_AIR_DESPAWN_RADIUS";
+        private _fleeWp = [_attackPos,_despawnRadius,"air"] call NWG_fnc_dtsFindDotForWaypoint;
+        if (_fleeWp isEqualTo false) exitWith {};
+        _fleeWp = [_group,_fleeWp] call NWG_DSPAWN_AddWaypoint;
+        _fleeWp setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_DeleteAirMotGroup}"];
+    };
+
+    //Fallback to INF
+    (format ["NWG_DSPAWN_AirAttackLogic: Tags '%1' invalid, fallback to INF",_tags]) call NWG_fnc_logError;
+    _this call NWG_DSPAWN_InfAttackLogic;
 };
 
 /*- Attack logic for BOAT*/
@@ -947,6 +987,98 @@ NWG_DSPAWN_UnloadPassengers = {
     _passengers orderGetIn false;
     {_x moveOut _grpVehicle; unassignVehicle _x} forEach _passengers;
     _passengers allowGetIn false;
+};
+
+NWG_DSPAWN_UnloadAirPassengers = {
+    params ["_groupLeader","_unloadMethod"];
+    private _group = group _groupLeader;
+    private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
+    if (isNull _grpVehicle) exitWith {};//Is the vehicle destroyed?
+    private _grpPassengers = [_group,_grpVehicle] call NWG_DSPAWN_GetGroupPassengers;
+    if ((count _grpPassengers) == 0) exitWith {};//Did they die along the way?
+    private _attackPos = _group getVariable "NWG_DSPAWN_attackPos";//Load previously saved attack position
+    if (isNil "_attackPos") exitWith {
+        (format ["NWG_DSPAWN_UnloadAirPassengers: Group '%1' has no attack position",_group]) call NWG_fnc_logError;
+    };
+
+    private _secondaryGroup = createGroup [(side _group),/*delete when empty:*/true];
+    _grpPassengers joinSilent _secondaryGroup;
+    //TODO: Add tags to secondary group
+
+    [_group,_secondaryGroup,_grpVehicle,_unloadMethod,_attackPos] spawn {
+        params ["_group","_secondaryGroup","_grpVehicle","_unloadMethod","_attackPos"];
+        private _abortCondition = {isNull _group || {isNull _secondaryGroup || {!alive _grpVehicle}}};
+        if (call _abortCondition) exitWith {};
+
+        switch (_unloadMethod) do {
+            case "LAND": {
+                //Land
+                _grpVehicle land "LAND";
+                waitUntil {
+                    sleep 1;
+                    if (call _abortCondition) exitWith {true};
+                    ((getPos _grpVehicle)#2) < 1
+                };
+                if (call _abortCondition) exitWith {};
+
+                //Unload passengers
+                {_x moveOut _grpVehicle; unassignVehicle _x} forEach ((units _secondaryGroup) select {alive _x});
+                _secondaryGroup leaveVehicle _grpVehicle;
+            };
+            case "PARA": {
+                //Paradrop
+                {
+                    sleep ((random 1) + 0.25);
+                    if (call _abortCondition) exitWith {};
+                    if (!alive _x) then {continue};
+                    removeBackpack _x;
+                    _x addBackpack "B_parachute";
+                    _x disableCollisionWith _grpVehicle;
+                    _x moveOut _grpVehicle;
+                    unassignVehicle _x;
+                    _x setVelocity [-20,-15,-15];
+                } forEach ((units _secondaryGroup) select {alive _x});
+                if (call _abortCondition) exitWith {};
+                _secondaryGroup leaveVehicle _grpVehicle;
+            };
+            default {
+                (format ["NWG_DSPAWN_UnloadAirPassengers: Invalid unload method '%1'",_unloadMethod]) call NWG_fnc_logError;
+            };
+        };
+        if (call _abortCondition) exitWith {};
+
+        //Fix pilots stucking in one place
+        _group leaveVehicle _grpVehicle;
+        {_x disableCollisionWith _grpVehicle; _x moveOut _grpVehicle} forEach ((units _group) select {alive _x});
+        _grpVehicle engineOn true;
+        _group addVehicle _grpVehicle;
+        {_x moveInAny _grpVehicle} forEach ((units _group) select {alive _x});
+
+        //Send secondary group to attack
+        [_secondaryGroup,_attackPos] call NWG_DSPAWN_SendToAttack;
+    };
+};
+
+NWG_DSPAWN_DeleteAirMotGroup = {
+    // private _groupLeader = _this;
+    private _group = group _this;
+    private _vehicle = _group call NWG_DSPAWN_GetGroupVehicle;
+    _group call NWG_DSPAWN_ClearWaypoints;
+
+    //Delete units
+    {
+        if ((vehicle _x) isNotEqualTo _x)
+            then {(vehicle _x) deleteVehicleCrew _x}
+            else {deleteVehicle _x};
+    } forEach (units _group);
+
+    //Delete vehicle
+    if (!isNull _vehicle && {alive _vehicle}) then {
+        deleteVehicle _vehicle;
+    };
+
+    //Delete group
+    deleteGroup _group;
 };
 
 //================================================================================================================
