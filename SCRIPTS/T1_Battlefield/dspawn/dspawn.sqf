@@ -612,7 +612,7 @@ NWG_DSPAWN_SpawnGroupFinalize = {
     //Save tags
     private _tags = _groupDescr#DESCR_TAGS;
     private _group = _spawnResult#0;
-    _group setVariable ["NWG_DSPAWN_tags",_tags];
+    [_group,_tags] call NWG_DSPAWN_TAGs_SetTags;
 
     //Set initial behaviour
     _group setCombatMode "RED";
@@ -652,15 +652,194 @@ NWG_DSPAWN_AC_AttachTurret = {
 //================================================================================================================
 //================================================================================================================
 //TAGs system
-NWG_DSPAWN_GetTags = {
+NWG_DSPAWN_TAGs_GetTags = {
     // private _group = _this;
+    private _tags = _this getVariable "NWG_DSPAWN_tags";
+    if (isNil "_tags") exitWith {[]};//No tags were ever defined for this group - probably spawned by other script
+
+    private _curFingerprint = _this getVariable ["NWG_DSPAWN_fingerprint",""];
+    private _newFingerprint = [_this] call NWG_DSPAWN_TAGs_GenerateFingerprint;
+    if (_curFingerprint isEqualTo _newFingerprint) exitWith {_tags};//Tags are up to date
+
+    //Tags are outdated - regenerate
+    _tags = [_this] call NWG_DSPAWN_TAGs_GenerateTags;
+    [_this,_tags,_newFingerprint] call NWG_DSPAWN_TAGs_SetTags;
+
     //return
-    _this getVariable ["NWG_DSPAWN_tags",[]]
+    _tags
 };
 
-NWG_DSPAWN_SetTags = {
-    params ["_group","_tags"];
+NWG_DSPAWN_TAGs_SetTags = {
+    params ["_group","_tags",["_fingerPrint","AUTO"]];
+    if (_fingerPrint isEqualTo "AUTO") then {_fingerPrint = [_group] call NWG_DSPAWN_TAGs_GenerateFingerprint};
+
     _group setVariable ["NWG_DSPAWN_tags",_tags];
+    _group setVariable ["NWG_DSPAWN_fingerprint",_fingerPrint];
+};
+
+NWG_DSPAWN_TAGs_GenerateFingerprint = {
+    params ["_group",["_grpVehicle","AUTO"]];
+    if (_grpVehicle isEqualTo "AUTO") then {_grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle};
+
+    //return
+    format ["%1_%2",(typeOf _grpVehicle),({alive _x} count (units _group))]
+};
+
+NWG_DSPAWN_TAGs_GenerateTags = {
+    params ["_group",["_grpVehicle","AUTO"]];
+    if (_grpVehicle isEqualTo "AUTO") then {_grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle};
+    private _tags = [];
+    private _vehicleSimulationType = "";
+
+    //Prime tags -
+    private _primeTag = if (!isNull _grpVehicle && {alive _grpVehicle && {_grpVehicle call NWG_fnc_ocIsVehicle}}) then {
+        _vehicleSimulationType = tolower (getText(configFile >> "CfgVehicles" >> (typeOf _grpVehicle) >> "simulation"));
+        switch (_vehicleSimulationType) do {
+            case "carx":    {"VEH"};
+            case "tankx":   {"ARM"};
+            case "airplanex";
+            case "helicopterrtd";
+            case "helicopterx": {"AIR"};
+            case "shipx":   {"BOAT"};
+            case "soldier": {"INF"};//Just in case
+            default         {"VEH"};
+        }
+    } else {"INF"};//Fallback to infantry if no vehicle/destructed/invalid/etc
+    _tags pushBack _primeTag;
+
+    //Vehicle tags -
+    if (_primeTag isNotEqualTo "INF") then {
+        if ((count (_grpVehicle call NWG_DSPAWN_TAGs_GetVehicleWeapons)) > 0 ||
+           {(count (_grpVehicle call NWG_fnc_spwnGetVehiclePylons)) > 0})
+            then {_tags pushBack "MEC"}
+            else {_tags pushBack "MOT"};
+    };
+
+    //Air tags -
+    if (_primeTag isEqualTo "AIR") then {
+        switch (_vehicleSimulationType) do {
+            case "airplanex": {_tags pushBack "PLANE"};
+            case "helicopterrtd";
+            case "helicopterx": {_tags pushBack "HELI"};
+        };
+    };
+
+    //UAV tags -
+    if (_primeTag isNotEqualTo "INF" && {unitIsUAV _grpVehicle}) then {
+        _tags pushBack "UAV";
+    };
+
+    //Weapon tags -
+    if (_primeTag isEqualTo "INF") then {
+        _tags append ([_group] call NWG_DSPAWN_TAGs_DefineWeaponTagForGroup);
+    } else {
+        _tags append ([_group,_grpVehicle] call NWG_DSPAWN_TAGs_DefineWeaponTagForGroup);
+    };
+
+    //Vehicle logic -
+    if (_primeTag isEqualTo "VEH") then {
+        //If vehicle is light enough - it can be paradropped
+        if ((getMass _grpVehicle) < 10000) then {_tags pushBack "PARADROPPABLE+"};
+    };
+
+    //Air logic -
+    if (_primeTag isEqualTo "AIR") then {
+        //If there can be passengers - vehicle can disembark them
+        if ((count (fullCrew [_grpVehicle,"cargo",true])) > 0) then {
+            if ("HELI" in _tags) then {_tags pushBack "LAND+"};//Helicopters can do landing
+            _tags pushBack "PARA+";//And all aircrafts can at least do paradrop
+        };
+
+        //If there are pylons - vehicle can do airstrike
+        if ((count (getPylonMagazines _grpVehicle)) > 0) then {_tags pushBack "AIRSTRIKE+"};
+    };
+
+    //return
+    _tags
+};
+
+NWG_DSPAWN_TAGs_notWeapon = ["Horn","Laserdesignator","CMFlareLauncher","SmokeLauncher"];
+NWG_DSPAWN_TAGs_GetVehicleWeapons = {
+    // private _vehicle = _this;
+
+    private _result = (fullCrew [_this,"",true]) apply {_x#3};//Get all turrets
+    _result = _result apply {_this weaponsTurret _x};//Get all weapons of all turrets
+    _result = flatten _result;//Unwrap subarrays
+    _result = _result arrayIntersect _result;//Remove duplicates
+    private _cur = "";
+    _result = _result select {_cur = _x; (NWG_DSPAWN_TAGs_notWeapon findIf {_x in _cur}) == -1};//Filter
+
+    //return
+    _result
+};
+
+NWG_DSPAWN_TAGs_DefineWeaponTagForGroup = {
+    params ["_group",["_grpVehicle",objNull]];
+
+    //Check vehicle for weapon tag (1st priority)
+    private _vehTag = if (alive _grpVehicle)
+        then {_grpVehicle call NWG_DSPAWN_TAGs_DefineWeaponTagForObject}
+        else {"REG"};
+    //return if vehicle tag is not REG - group entire tag is defined by its vehicle then
+    if (_vehTag isNotEqualTo "REG") exitWith {_vehTag splitString "|"};//"AA|AT" => ["AA","AT"] and "AA" => ["AA"]
+
+    //Check every unit for weapon tag (2nd priority)
+    private _unitTags = ((units _group) select {alive _x}) apply {_x call NWG_DSPAWN_TAGs_DefineWeaponTagForObject};
+    private _thresholdCount = round ((count _unitTags)*0.5);//50% of units must have the same tag
+    //return
+    switch (true) do {
+        case ((count _unitTags) == 0): {["REG"]};//No units alive, fallback to REG
+        case (({_x isEqualTo "AA"} count _unitTags) >= _thresholdCount): {["AA"]};
+        case (({_x isEqualTo "AT"} count _unitTags) >= _thresholdCount): {["AT"]};
+        default {["REG"]};
+    }
+};
+
+NWG_DSPAWN_TAGs_aaSigns = [" AA","AA ","air-to-air","surface-to-air"];
+NWG_DSPAWN_TAGs_atSigns = [" AT","AT ","air-to-surface","HEAT","APFSDS"];
+NWG_DSPAWN_TAGs_magToWeaponTagCache = createHashMap;//Config manipulations are EXTREMELY slow, cache needed (4638/10k VS 10k/10k in tests)
+NWG_DSPAWN_TAGs_DefineWeaponTagForObject = {
+    // private _object = _this;
+
+    //Get all the magazines
+    private _mags = if (_this isKindOf "Man")
+        then {magazines _this}
+        else {(magazinesAllTurrets _this) apply {_x#0}};
+    _mags = _mags arrayIntersect _mags;//Remove duplicates
+
+    //Check for AT/AA signs in magazine descriptions
+    private ["_cached","_config","_fullDescription"];
+    _mags = _mags apply {
+        _cached = NWG_DSPAWN_TAGs_magToWeaponTagCache get _x;
+        if (!isNil "_cached") then {continueWith _cached};
+
+        _config = configFile >> "CfgMagazines" >> _x;
+        if (!isClass _config) then {
+            NWG_DSPAWN_TAGs_magToWeaponTagCache set [_x,"REG"];
+            continueWith "REG";
+        };
+
+        _fullDescription = [
+            (getText (_config >> "description")),
+            (getText (_config >> "descriptionShort")),
+            (getText (_config >> "displayName")),
+            (getText (_config >> "displayNameShort"))
+        ] joinString " ";
+
+        _cached = switch (true) do {
+            case ((NWG_DSPAWN_TAGs_aaSigns findIf {_x in _fullDescription}) != -1): {"AA"};
+            case ((NWG_DSPAWN_TAGs_atSigns findIf {_x in _fullDescription}) != -1): {"AT"};
+            default {"REG"};
+        };
+
+        NWG_DSPAWN_TAGs_magToWeaponTagCache set [_x,_cached];
+        _cached
+    };
+
+    //return
+    if ("AA" in _mags)
+        then {if ("AT" in _mags) then {"AA|AT"} else {"AA"}}
+        else {if ("AT" in _mags) then {"AT"} else {"REG"}}
 };
 
 //================================================================================================================
@@ -725,7 +904,7 @@ NWG_DSPAWN_SendToAttack = {
     _group call NWG_DSPAWN_ClearWaypoints;
 
     //Get tags
-    private _tags = _group call NWG_DSPAWN_GetTags;
+    private _tags = _group call NWG_DSPAWN_TAGs_GetTags;
     if (_tags isEqualTo []) then {_tags = ["INF"]};//Default to INF
 
     //Logic selection
@@ -892,7 +1071,7 @@ NWG_DSPAWN_ReturnToPatrol = {
     if (_patrolRoute isEqualTo []) then {
         private _trigger = NWG_DSPAWN_TRIGGER_lastPopulatedTrigger;
         if (_trigger isEqualTo []) exitWith {};
-        private _tags = _group call NWG_DSPAWN_GetTags;
+        private _tags = _group call NWG_DSPAWN_TAGs_GetTags;
         if (_tags isEqualTo []) then {_tags = ["INF"]};//Default to INF
         private _type = switch (true) do {
             case ("AIR" in _tags): {"air"};
@@ -926,14 +1105,16 @@ NWG_DSPAWN_ReturnToPatrol = {
 
 NWG_DSPAWN_GetGroupVehicle = {
     // private _group = _this;
+    if (isNull _this) exitWith {objNull};
 
     //Try the vehicle of the group leader
     private _result = vehicle (leader _this);
     if (alive _result && {_result call NWG_fnc_ocIsVehicle}) exitWith {_result};
 
     //Try the vehicle of any other group member
-    _result = ((units _this) apply {vehicle _x}) select {alive _x && {_x call NWG_fnc_ocIsVehicle}};
-    if ((count _result) > 0) exitWith {(_result select 0)};
+    _result = ((units _this) select {alive _x}) apply {vehicle _x};
+    private _i = _result findIf {alive _x && {_x call NWG_fnc_ocIsVehicle}};
+    if (_i != -1) exitWith {_result#_i};
 
     //Else return null
     objNull
@@ -1003,7 +1184,12 @@ NWG_DSPAWN_UnloadAirPassengers = {
 
     private _secondaryGroup = createGroup [(side _group),/*delete when empty:*/true];
     _grpPassengers joinSilent _secondaryGroup;
-    //TODO: Add tags to secondary group
+
+    //Add tags to secondary group manually
+    [_secondaryGroup,
+        ([_secondaryGroup,objNull] call NWG_DSPAWN_TAGs_GenerateTags),
+        ([_secondaryGroup,objNull] call NWG_DSPAWN_TAGs_GenerateFingerprint)
+    ] call NWG_DSPAWN_TAGs_SetTags;
 
     [_group,_secondaryGroup,_grpVehicle,_unloadMethod,_attackPos] spawn {
         params ["_group","_secondaryGroup","_grpVehicle","_unloadMethod","_attackPos"];
