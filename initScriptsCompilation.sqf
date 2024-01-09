@@ -36,6 +36,7 @@ NWG_fnc_compile = {
 //T0_Core
 //commonFunctions
 _commonFunctions pushBack ("SCRIPTS\T0_Core\commonFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_commonFunctions pushBack ("SCRIPTS\T0_Core\commonTestFunctions.sqf" call NWG_fnc_compile)};
 
 //T1_Battlefield
 //dots
