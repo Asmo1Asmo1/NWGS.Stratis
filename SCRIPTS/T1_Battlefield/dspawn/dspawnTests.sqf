@@ -349,3 +349,10 @@ NWG_DSPAWN_ATTACKLOGIC_TEST_AnyGroup_AutoAssignTest1 = {
 //================================================================================================================
 //================================================================================================================
 //Paradrop
+// [test1,"B_T_VTOL_01_vehicle_F"] call NWG_DSPAWN_ImitateParadrop_Test
+NWG_DSPAWN_ImitateParadrop_Test = {
+    params ["_object","_paradropBy"];
+
+    _object call NWG_fnc_spwnHideObject;
+    _this call NWG_DSPAWN_ImitateParadrop;
+};
