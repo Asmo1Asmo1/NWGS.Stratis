@@ -20,12 +20,14 @@ NWG_DOTS_MarkupTrigger_Test = {
 //================================================================================================================
 //================================================================================================================
 //Reinforcements markup
-// call NWG_DOTS_MarkupReinforcement_Test
+// [] call NWG_DOTS_MarkupReinforcement_Test
+// [true,true,true,true] call NWG_DOTS_MarkupReinforcement_Test
 NWG_DOTS_MarkupReinforcement_Test = {
+    // params [["_doInf",true],["_doVeh",true],["_doBoat",true],["_doAir",true]];
     private _pos = getPosATL player;
 
     call NWG_fnc_testClearMap;
-    (_pos call NWG_DOTS_MarkupReinforcement) params ["_infPlains","_infRoads","_vehPlains","_vehRoads","_boats","_air"];
+    (([_pos]+_this) call NWG_DOTS_MarkupReinforcement) params ["_infPlains","_infRoads","_vehPlains","_vehRoads","_boats","_air"];
 
     {[_x,(format ["testIP_%1",_forEachIndex]),"ColorGreen"] call NWG_fnc_testPlaceMarker} forEach _infPlains;
     {[_x,(format ["testIR_%1",_forEachIndex]),"ColorOrange"] call NWG_fnc_testPlaceMarker} forEach _infRoads;
@@ -223,27 +225,4 @@ NWG_DOTS_GenerateDottedArea_Test = {
     {[_x,(format ["test_%1",_forEachIndex])] call NWG_fnc_testPlaceMarker} forEach _dots;
 
     _dots
-};
-
-//================================================================================================================
-//================================================================================================================
-//Test utils
-
-NWG_fnc_testClearMap =
-{
-    //do
-    {
-        deleteMarker _x;
-    } forEach allMapMarkers;
-};
-
-NWG_fnc_testPlaceMarker =
-{
-    params ["_pos","_name",["_color","ColorRed"],["_text",""]];
-
-    private _marker = createMarkerLocal [_name,_pos];
-    _marker setMarkerShapeLocal "icon";
-    _marker setMarkerTypeLocal "mil_dot";
-    _marker setMarkerColorLocal _color;
-    _marker setMarkerTextLocal _text;
 };

@@ -12,7 +12,7 @@ NWG_DOTS_Settings = createHashMapFromArray [
     ["TRIGGER_AIR_RADIUS",200],//(Max) radius outside trigger to markup air spawn points
 
     ["REINF_SPAWNSEARCH_SETTINGS_MULTIPLIER",5],//Multiplier for AREA_SPAWNSEARCH settings for reinforcement markup, keep it >1 - it does not need to be so precise as trigger search
-    ["REINF_SHORECHECK_RADIUS",100],//Radius to check if there are shores around given position to decide whether or not calculate water positions
+    ["REINF_SHORECHECK_RADIUS",150],//Radius to check if there are shores around given position to decide whether or not calculate water positions
     ["REINF_INFANTRY_RADIUS",[500,700]],//Min-Max radius of the infantry spawn
     ["REINF_VEHICLE_RADIUS",[1000,1200]],//Min-Max radius of the vehicle spawn
     ["REINF_AIR_RADIUS",[3000,4000]],//Min-Max radius of the air spawn
@@ -31,7 +31,7 @@ NWG_DOTS_MarkupTrigger = {
 
     //Markup trigger area
     private _settingsMultiplier = NWG_DOTS_Settings get "TRIGGER_SPAWNSEARCH_SETTINGS_MULTIPLIER";
-    ([_triggerPos,0,_triggerRad,true,_settingsMultiplier] call NWG_DOTS_AreaSpawnsearch) params ["_plains","_roads","_water"];
+    ([_triggerPos,0,_triggerRad,true,true,true,_settingsMultiplier] call NWG_DOTS_AreaSpawnsearch) params ["_plains","_roads","_water"];
 
     //Outside roads
     private _roadsAway = [];
@@ -71,44 +71,51 @@ NWG_DOTS_MarkupTrigger = {
 //================================================================================================================
 //Reinforcements markup
 NWG_DOTS_MarkupReinforcement = {
-    private _pos = _this;
+    params ["_pos",["_doInf",true],["_doVeh",true],["_doBoat",true],["_doAir",true]];
     private _settingsMultiplier = NWG_DOTS_Settings get "REINF_SPAWNSEARCH_SETTINGS_MULTIPLIER";
+    private _players = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
+    private _minDist = NWG_DOTS_Settings get "REINF_TO_PLAYER_MIN_DISTANCE";
+    private _distToPlayersCheck = {(_players findIf {(_x distance2D _this) < _minDist}) == -1};
 
     //Calculate INF spawn radius
-    private _infRad = (NWG_DOTS_Settings get "REINF_INFANTRY_RADIUS");
-    ([_pos,(_infRad#0),(_infRad#1),false,_settingsMultiplier] call NWG_DOTS_AreaSpawnsearch) params ["_infPlains","_infRoads"];
+    private _infPlains = [];
+    private _infRoads = [];
+    if (_doInf) then {
+        (NWG_DOTS_Settings get "REINF_INFANTRY_RADIUS") params ["_minRad","_maxRad"];
+        private _points = [_pos,_minRad,_maxRad,true,true,false,_settingsMultiplier] call NWG_DOTS_AreaSpawnsearch;
+        _infPlains = (_points#0) select {_x call _distToPlayersCheck};
+        _infRoads = (_points#1) select {_x call _distToPlayersCheck};
+    };
 
-    //Calculate VEH spawn radius (with BOAT if there are shores)
-    private _vehRad = (NWG_DOTS_Settings get "REINF_VEHICLE_RADIUS");
-    private _isShoresAround = (count ([_pos,(NWG_DOTS_Settings get "REINF_SHORECHECK_RADIUS")] call NWG_DOTS_FindShores)) > 0;
-    ([_pos,(_vehRad#0),(_vehRad#1),_isShoresAround,_settingsMultiplier] call NWG_DOTS_AreaSpawnsearch) params ["_vehPlains","_vehRoads","_boats"];
+    //Calculate VEH and BOAT spawn radius
+    private _vehPlains = [];
+    private _vehRoads = [];
+    private _boats = [];
+    if (_doBoat) then {
+        //Recheck and do BOAT markup only if there are shores around given position
+        _doBoat = (count ([_pos,(NWG_DOTS_Settings get "REINF_SHORECHECK_RADIUS")] call NWG_DOTS_FindShores)) > 0;
+    };
+    if (_doVeh || _doBoat) then {
+        (NWG_DOTS_Settings get "REINF_VEHICLE_RADIUS") params ["_minRad","_maxRad"];
+        private _points = [_pos,_minRad,_maxRad,_doVeh,_doVeh,_doBoat,_settingsMultiplier] call NWG_DOTS_AreaSpawnsearch;
+        _vehPlains = (_points#0) select {_x call _distToPlayersCheck};
+        _vehRoads = (_points#1) select {_x call _distToPlayersCheck};
+        _boats = (_points#2) select {_x call _distToPlayersCheck};
+    };
 
     //Calculate AIR spawn radius
-    (NWG_DOTS_Settings get "REINF_AIR_RADIUS") params ["_minAirRad","_maxAirRad"];
-    private _airRad = (random (_maxAirRad - _minAirRad)) + _minAirRad;
-    private _air = [_pos,_airRad,(NWG_DOTS_Settings get "REINF_AIR_COUNT")] call NWG_DOTS_GenerateDotsCircle;
-    private _airHeight = NWG_DOTS_Settings get "AREA_AIR_HEIGHT";
-    {(_x set [2,(selectRandom _airHeight)])} forEach _air;
-
-    //Result
-    private _result = [_infPlains,_infRoads,_vehPlains,_vehRoads,_boats,_air];
-
-    //Filter by min distance to players
-    private _players = call NWG_fnc_getPlayerVehiclesAll;
-    private _minDist = NWG_DOTS_Settings get "REINF_TO_PLAYER_MIN_DISTANCE";
-    private ["_curArray","_curDot"];
-    //do
-    {
-        _curArray = _x;
-        //do
-        {
-            _curDot = _x;
-            if ((_players findIf {(_x distance2D _curDot) < _minDist}) != -1) then {_curArray deleteAt _forEachIndex};
-        } forEachReversed _curArray; //_infPlains
-    } forEach _result; //[_infPlains,_infRoads,_vehPlains,_vehRoads,_boats,_air]
+    private _air = [];
+    if (_doAir) then {
+        (NWG_DOTS_Settings get "REINF_AIR_RADIUS") params ["_minRad","_maxRad"];
+        private _rad = (random (_maxRad - _minRad)) + _minRad;
+        private _count = NWG_DOTS_Settings get "REINF_AIR_COUNT";
+        _air = ([_pos,_rad,_count] call NWG_DOTS_GenerateDotsCircle) select {_x call _distToPlayersCheck};
+        private _height = NWG_DOTS_Settings get "AREA_AIR_HEIGHT";
+        {(_x set [2,(selectRandom _height)])} forEach _air;
+    };
 
     //return
-    _result
+    [_infPlains,_infRoads,_vehPlains,_vehRoads,_boats,_air]
 };
 
 //Helper for reinforcements attack logic
@@ -146,7 +153,7 @@ NWG_DOTS_GenerateSimplePatrol = {
     params ["_trigger","_type","_patrolLength"];
     _trigger params ["_triggerPos","_triggerRad"];
 
-    //Get the initial array of dots
+    //Generate the initial array of dots
     private _maxCount = _patrolLength max 8;
     private _maxRad = if (_type isEqualTo "air")
         then {(_triggerRad + (NWG_DOTS_Settings get "TRIGGER_AIR_RADIUS"))}
@@ -202,7 +209,7 @@ NWG_DOTS_GenerateSimplePatrol = {
 //================================================================================================================
 //Area spawn points search
 NWG_DOTS_AreaSpawnsearch = {
-    params ["_pos","_minRad","_maxRad",["_doWater",true],["_settingsMultiplier",1]];
+    params ["_pos","_minRad","_maxRad",["_doPlains",true],["_doRoads",true],["_doWater",true],["_settingsMultiplier",1]];
 
     private _searchStep = (NWG_DOTS_Settings get "AREA_SPAWNSEARCH_DENSITY") * _settingsMultiplier;
     private _subSearchRad = (NWG_DOTS_Settings get "AREA_SPAWNSEARCH_SUBRAD") * _settingsMultiplier;
@@ -212,7 +219,7 @@ NWG_DOTS_AreaSpawnsearch = {
     private _dots = [_pos,_minRad,_maxRad,_searchStep] call NWG_DOTS_GenerateDottedArea;
 
     //Search for plains, roads and water around each dot
-    private _result = [_dots,_subSearchRad,_subSearchStep,_doWater] call NWG_DOTS_FindPlainsRoadsWaterAroundDots;
+    private _result = [_dots,_subSearchRad,_subSearchStep,_doPlains,_doRoads,_doWater] call NWG_DOTS_FindPlainsRoadsWaterAroundDots;
 
     //return [_plains,_roads,_water]
     _result
@@ -407,42 +414,46 @@ NWG_DOTS_IsPlainSurfaceAt = {
 };
 
 NWG_DOTS_FindPlainsRoadsWaterAroundDots = {
-    params ["_dots","_searchRad","_searchStep",["_doWater",true]];
+    params ["_dots","_searchRad","_searchStep",["_doPlains",true],["_doRoads",true],["_doWater",true]];
 
     private _plains = [];
     private _roads = [];
     private _water = [];
-    private "_dot";
 
+    private _planesDelegate = if (_doPlains) then {{
+        if (!(_this call NWG_DOTS_IsPlainSurfaceAt)) exitWith {};
+        _plains pushBack _this;
+        breakTo "foreach_dots";
+    }} else {{}};
+
+    private _roadsDelegate = if (_doRoads) then {{
+        _this = getPosWorld (roadAt _this);
+        _this set [2,0];
+        _roads pushBack _this;
+        breakTo "foreach_dots";
+    }} else {{}};
+
+    private _waterDelegate = if (_doWater) then {{
+        if (((ASLToATL _this)#2) < 5) exitWith {};//Water depth check
+        if (!(_this call NWG_DOTS_IsPlainSurfaceAt)) exitWith {};
+        _water pushBack _this;
+        breakTo "foreach_dots";
+    }} else {{}};
+
+    private "_dot";
     //do
     {
         scopeName "foreach_dots";
-
         for "_r" from 0 to _searchRad step _searchStep do {
             _dot = _x getPos [_r,(random 360)];
             _dot set [2,0];
 
-            if (surfaceIsWater _dot) then {
-                if (!_doWater) then { continue };
-                if (((ASLToATL _dot)#2) < 5) then { continue };//Depth check
-                if (!(_dot call NWG_DOTS_IsPlainSurfaceAt)) then { continue };
-                _water pushBack _dot;
-                breakTo "foreach_dots";
-            };
-
-            if (isOnRoad _dot) then {
-                _dot = getPosWorld (roadAt _dot);
-                _dot set [2,0];
-                _roads pushBack _dot;
-                breakTo "foreach_dots";
-            };
-
-            if (_dot call NWG_DOTS_IsPlainSurfaceAt) then {
-                _plains pushBack _dot;
-                breakTo "foreach_dots";
+            switch (true) do {
+                case (surfaceIsWater _dot): {_dot call _waterDelegate};
+                case (isOnRoad _dot): {_dot call _roadsDelegate};
+                default {_dot call _planesDelegate};
             };
         };
-
     } forEach _dots;
 
     //return

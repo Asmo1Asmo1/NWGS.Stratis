@@ -25,3 +25,8 @@
 #define PASSENGERS_CONTAINER 0
 #define PARADROP_CONTAINER 1
 #define GROUPS_CONTAINER 2
+
+//Spawn result structure
+#define SPAWN_RESULT_GROUP 0
+#define SPAWN_RESULT_VEHICLE 1
+#define SPAWN_RESULT_UNITS 2

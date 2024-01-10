@@ -29,10 +29,67 @@ NWG_DSPAWN_TRIGGER_FindOccupiableBuildings_Test = {
 
 //================================================================================================================
 //================================================================================================================
+//Send reinforcements
+// 20 call NWG_DSPAWN_REINF_SendReinforcements_Test_Any
+NWG_DSPAWN_REINF_SendReinforcements_Test_Any = {
+    // private _groupsCount = _this;
+    [(getPosATL player),_this,"NATO"] call NWG_DSPAWN_REINF_SendReinforcements
+};
+
+//================================================================================================================
+//================================================================================================================
 //Catalogue read
-// call NWG_DSPAWN_GetCatalogueValues_Test
-NWG_DSPAWN_GetCatalogueValues_Test = {
-    ["NATO",[ ["VEH"],["MEC"],[1] ] ] call NWG_DSPAWN_GetCatalogueValues
+// call NWG_DSPAWN_GetCataloguePage_Test
+NWG_DSPAWN_GetCataloguePage_Test = {
+    [
+        (("NATO" call NWG_DSPAWN_GetCataloguePage) isEqualType []),
+        ((NWG_DSPAWN_catalogue getOrDefault ["NATO",false]) isEqualType [])
+    ]
+};
+
+//call NWG_DSPAWN_FilterGroups_Test
+//expected: array of booleans that are all true
+NWG_DSPAWN_FilterGroups_Test = {
+    private _groupsContainer = [
+        [["tag1","tag2"], 1],
+        [["tag2","tag3"], 2],
+        [["tag1","tag3"], 3]
+    ];
+
+    private _pass = [];
+    private ["_filter","_result"];
+
+    // Test 1: No filter
+    _result = [_groupsContainer] call NWG_DSPAWN_FilterGroups;
+    _pass pushBack (_result isEqualTo _groupsContainer); // Expecting no change
+
+    // Test 2: Empty filter
+    _filter = [[],[],[]];
+    _result = [_groupsContainer,_filter] call NWG_DSPAWN_FilterGroups;
+    _pass pushBack (_result isEqualTo _groupsContainer); // Expecting no change
+
+    // Test 3: Filter by tag whitelist
+    private _filter = [["tag1"],[],[]];
+    private _result = [_groupsContainer,_filter] call NWG_DSPAWN_FilterGroups;
+    _pass pushBack ((count _result) == 2); // Expecting 2 groups with "tag1"
+
+    // Test 4: Filter by tag blacklist
+    _filter = [[],["tag2"],[]];
+    _result = [_groupsContainer,_filter] call NWG_DSPAWN_FilterGroups;
+    _pass pushBack ((count _result) == 1); // Expecting 1 group without "tag2"
+
+    // Test 5: Filter by tier whitelist
+    _filter = [[],[],[1,2]];
+    _result = [_groupsContainer,_filter] call NWG_DSPAWN_FilterGroups;
+    _pass pushBack ((count _result) == 2); // Expecting 2 groups
+
+    // Test 6: Filter by combination
+    _filter = [["tag1"],["tag2"],[3]];
+    _result = [_groupsContainer,_filter] call NWG_DSPAWN_FilterGroups;
+    _pass pushBack ((count _result) == 1); // Expecting 1 group with "tag1", without "tag2" and with tier 3
+
+    //return
+    _pass
 };
 
 //================================================================================================================
@@ -168,7 +225,7 @@ NWG_DSPAWN_PATROL_TEST_GeneratePatrol = {
     private _result = [_dot1,_dot2,_dot3];
 
     if (_isAirPatrol) then {
-        private _airHeight = NWG_DOTS_Settings get "TRIGGER_AIR_HEIGHT";//Dirty hack
+        private _airHeight = NWG_DOTS_Settings get "AREA_AIR_HEIGHT";//Dirty hack
         {(_x set [2,(selectRandom _airHeight)])} forEach _result;
     };
 
@@ -272,30 +329,39 @@ NWG_DSPAWN_PATROL_TEST_All = {
 //================================================================================================================
 //================================================================================================================
 //Attack logic
+//Requires group to be placed in editor
+//note: keep 'test1 call NWG_DSPAWN_TAGs_GetTags' in 'watch' to see tags
+// test1 call NWG_DSPAWN_ATTACKLOGIC_TEST_AnyGroup
+NWG_DSPAWN_ATTACKLOGIC_TEST_AnyGroup = {
+    private _group = _this;
+    private _attackPos = getPosATL player;
+    private _tags = [_group] call NWG_DSPAWN_TAGs_GenerateTags;
+    [_group,_tags] call NWG_DSPAWN_TAGs_SetTags;
+
+    //Compose trigger to patrol around after attack
+    private _trigger = [_attackPos,200];
+    NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = _trigger;
+
+    [_group,_attackPos] call NWG_DSPAWN_SendToAttack;
+};
+
+//call NWG_DSPAWN_ATTACKLOGIC_TEST_AnyGroup_AutoAssignTest1
+NWG_DSPAWN_ATTACKLOGIC_TEST_AnyGroup_AutoAssignTest1 = {
+    private _group = if (!isNil "test1" && {!isNull test1 && {test1 isEqualType grpNull}})
+        then {test1}
+        else {((groups west) select {(group player) isNotEqualTo _x}) select 0};
+
+    test1 = _group;
+    _group call NWG_DSPAWN_ATTACKLOGIC_TEST_AnyGroup
+};
 
 //================================================================================================================
 //================================================================================================================
 //Paradrop
+// [test1,"B_T_VTOL_01_vehicle_F"] call NWG_DSPAWN_ImitateParadrop_Test
+NWG_DSPAWN_ImitateParadrop_Test = {
+    params ["_object","_paradropBy"];
 
-//================================================================================================================
-//================================================================================================================
-//Test utils
-
-NWG_fnc_testClearMap =
-{
-    //do
-    {
-        deleteMarker _x;
-    } forEach allMapMarkers;
-};
-
-NWG_fnc_testPlaceMarker =
-{
-    params ["_pos","_name",["_color","ColorRed"],["_text",""]];
-
-    private _marker = createMarkerLocal [_name,_pos];
-    _marker setMarkerShapeLocal "icon";
-    _marker setMarkerTypeLocal "mil_dot";
-    _marker setMarkerColorLocal _color;
-    _marker setMarkerTextLocal _text;
+    _object call NWG_fnc_spwnHideObject;
+    _this call NWG_DSPAWN_ImitateParadrop;
 };

@@ -29,10 +29,10 @@ NWG_DSPAWN_Dev_EasyGather = {
 
 NWG_DSPAWN_Dev_Gather = {
     private _group = _this;
-    private _grpVehicle = vehicle (leader _group);
+    private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
 
     //Gather group tags
-    private _tags = _group call NWG_DSPAWN_Dev_GenerateTags;
+    private _tags = [_group,_grpVehicle] call NWG_DSPAWN_TAGs_GenerateTags;
 
     //Gather default group tier
     private _tier = 1;
@@ -104,93 +104,6 @@ NWG_DSPAWN_Dev_Dump = {
 
     //Dump to output console
     _this
-};
-
-//================================================================================================================
-//================================================================================================================
-//TAGs system
-NWG_DSPAWN_Dev_GenerateTags = {
-    // private _group = _this;
-
-    private _grpVehicle = vehicle (leader _this);
-    private _simulationType = tolower (getText(configFile >> "CfgVehicles" >> (typeOf _grpVehicle) >> "simulation"));
-
-    //Prime tags -
-    private _tags = switch (_simulationType) do {
-        case "soldier": {["INF"]};
-        case "carx":    {["VEH"]};
-        case "tankx":   {["ARM"]};
-        case "airplanex";
-        case "helicopterrtd";
-        case "helicopterx": {["AIR"]};
-        case "shipx":   {["BOAT"]};
-        default         {["VEH"]};
-    };
-
-    //Vehicle tags -
-    if (!("INF" in _tags)) then {
-        if ((count (_grpVehicle call NWG_DSPAWN_Dev_GetVehicleWeapons)) > 0 || {(count (_grpVehicle call NWG_fnc_spwnGetVehiclePylons)) > 0})
-            then {_tags pushBack "MEC"}
-            else {_tags pushBack "MOT"};
-    };
-
-    //Air tags -
-    if ("AIR" in _tags) then {
-        switch (_simulationType) do {
-            case "airplanex": {_tags pushBack "PLANE"};
-            case "helicopterrtd";
-            case "helicopterx": {_tags pushBack "HELI"};
-        };
-    };
-
-    //UAV tags -
-    if (!("INF" in _tags) && {unitIsUAV _grpVehicle}) then {
-        _tags pushBack "UAV";
-    };
-
-    //Weapon tags -
-    //I have not a slightest idea on how to automatically determinate that
-    _tags pushBack "REG";
-
-    //Vehicle logic -
-    if ("VEH" in _tags) then {
-        //If vehicle is light enough - it can be paradropped
-        if  ((getMass _grpVehicle) < 10000) then {_tags pushBack "PARADROPPABLE+"};
-    };
-
-    //Air logic -
-    if ("AIR" in _tags) then {
-        //If there can be passengers - vehicle can disembark them
-        if ((count (fullCrew [_grpVehicle,"cargo",true])) > 0) then {
-            if ("HELI" in _tags) then {_tags pushBack "LAND+"};
-            _tags pushBack "PARA+";
-        };
-
-        //If there are pylons - vehicle can do airstrike
-        if ((count (getPylonMagazines _grpVehicle)) > 0) then {_tags pushBack "AIRSTRIKE+"};
-    };
-
-    //return
-    _tags
-};
-
-NWG_DSPAWN_Dev_notWeapon = ["Horn","Laserdesignator","CMFlareLauncher","SmokeLauncher"];
-NWG_DSPAWN_Dev_GetVehicleWeapons = {
-    // private _vehicle = _this;
-    private _weaponName = "";
-    private _weapons = [];
-
-    //do
-    {
-        //do
-        {
-            _weaponName = _x;
-            if ((NWG_DSPAWN_Dev_notWeapon findIf {_x in _weaponName}) == -1) then {_weapons pushBackUnique _weaponName};
-        } forEach (_this weaponsTurret _x);//Foreach weapons of the turret
-    } forEach ((fullCrew [_this,"",true]) apply {_x#3});//Foreach turrets of the vehicle
-
-    //return
-    _weapons
 };
 
 //================================================================================================================

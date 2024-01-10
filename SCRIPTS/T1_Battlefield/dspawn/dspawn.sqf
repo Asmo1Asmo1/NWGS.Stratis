@@ -10,6 +10,22 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
     ["TRIGGER_INF_BUILDINGS_DYNAMIC_SIMULATION",false],//If true - infantry spawned in buildings will act only when players are nearby
     ["TRIGGER_INF_BUILDINGS_DISABLE_PATH",false],//If true - infantry spawned in buildings will not leave their positions, becoming static enemies
     ["WAYPOINT_RADIUS",25],//Default radius for any waypoint-related logic, the more - the easier for big vehicles and complicated terrains
+
+    ["PARADROP_RADIUS",3000],//Radius for paradrop vehicle to spawn, fly by and despawn
+    ["PARADROP_HEIGHT",200],//Height of paradropping
+    ["PARADROP_TIMEOUT",90],//Timeout to auto-cancel paradrop in case of an error
+
+    ["ATTACK_INF_ATTACK_RADIUS",100],//Radius for INF group to 'attack' the position
+    ["ATTACK_VEH_UNLOAD_RADIUS",150],//Radius for VEH group to unload passengers
+    ["ATTACK_VEH_ATTACK_RADIUS",100],//Radius for VEH group to 'attack' the position
+    ["ATTACK_AIR_UNLOAD_RADIUS",150],//Radius for AIR group to unload passengers
+    ["ATTACK_AIR_ATTACK_RADIUS",200],//Radius for AIR group to 'attack' the position
+    ["ATTACK_AIR_DESPAWN_RADIUS",5000],//Radius for AIR vehicle to despawn after unload
+    ["ATTACK_BOAT_UNLOAD_RADIUS",150],//Radius for BOAT group to unload passengers
+    ["ATTACK_BOAT_ATTACK_RADIUS",150],//Radius for BOAT group to 'attack' the position
+    ["ATTACK_PARADROPS_MAX",1],//Max number of vehicle paradrops per reinforcement
+    ["ATTACK_PARADROPS_CHANCE",0.5],//Chance of vehicle group being paradropped (keep 0-1)
+
     ["",0]
 ];
 
@@ -28,8 +44,10 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
 #define G_INDEX_AIR 3
 #define G_INDEX_BOAT 4
 
+NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
 NWG_DSPAWN_TRIGGER_PopulateTrigger = {
     params ["_trigger","_groupsCount","_faction",["_filter",[]],["_side",west]];
+    NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
 
     //Generate trigger map
     private _spawnMap = _trigger call NWG_fnc_dtsMarkupTrigger;//[_plains,_roads,_water,_roadsAway,_locations,_air]
@@ -55,13 +73,17 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
     };
 
     //Get catalogue values for spawn
-    private _catalogueValues = [_faction,_filter] call NWG_DSPAWN_GetCatalogueValues;
-    if (_catalogueValues isEqualTo false) exitWith {
-        (format ["NWG_DSPAWN_TRIGGER_PopulateTrigger: Could not load catalogue values for faction '%1' and filter '%2'",_faction,_filter]) call NWG_fnc_logError;
+    private _page = _faction call NWG_DSPAWN_GetCataloguePage;
+    if (_page isEqualTo false) exitWith {
+        (format ["NWG_DSPAWN_TRIGGER_PopulateTrigger: Could not load catalogue page for faction '%1'",_faction]) call NWG_fnc_logError;
         false
     };
-    private _passengersContainer = _catalogueValues#0;
-    private _groupsContainer = _catalogueValues#2;
+    private _passengersContainer = _page#PASSENGERS_CONTAINER;
+    private _groupsContainer = [(_page#GROUPS_CONTAINER),_filter] call NWG_DSPAWN_FilterGroups;
+    if ((count _groupsContainer) == 0) then {
+        (format ["NWG_DSPAWN_TRIGGER_PopulateTrigger: Filter '%1' for faction '%2' resulted in ZERO groups. Fallback to original container",_filter,_faction]) call NWG_fnc_logError;
+        _groupsContainer = (_page#GROUPS_CONTAINER);
+    };
     private _groups = [
         ((_groupsContainer select {"INF" in (_x#DESCR_TAGS)}) call NWG_fnc_arrayShuffle),
         ((_groupsContainer select {"VEH" in (_x#DESCR_TAGS)}) call NWG_fnc_arrayShuffle),
@@ -73,12 +95,12 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
 
     //Prepare scripts
     private _getNext = {
-        params ["_index","_array","_pointersArray"];
-        private _pointer = _pointersArray#_index;
+        params ["_index","_array","_pointers"];
+        private _pointer = _pointers#_index;
         private _result = (_array#_index)#_pointer;
         _pointer = _pointer + 1;
         if (_pointer >= (count (_array#_index))) then {_pointer = 0};
-        _pointersArray set [_index,_pointer];
+        _pointers set [_index,_pointer];
         //return
         _result
     };
@@ -133,7 +155,7 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
             _groupToSpawn = [_groupToSpawn,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
             _spawnResult = call _spawnSelected;
             if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) then {continue};
-            [(_spawnResult#0),_patrolRoute] call NWG_DSPAWN_SendToPatrol;
+            [(_spawnResult#SPAWN_RESULT_GROUP),_patrolRoute] call NWG_DSPAWN_SendToPatrol;
             _resultCount = _resultCount + 1;
         };
 
@@ -203,7 +225,7 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
             _groupToSpawn = [_groupToSpawn,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
             private _spawnResult = [_groupToSpawn,(_patrolRoute#0)] call NWG_DSPAWN_SpawnInfantryGroup;
             if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) then {continue};
-            [(_spawnResult#0),_patrolRoute] call NWG_DSPAWN_SendToPatrol;
+            [(_spawnResult#SPAWN_RESULT_GROUP),_patrolRoute] call NWG_DSPAWN_SendToPatrol;
             _resultCount = _resultCount + 1;
         };
         _totalResultCount = _totalResultCount + _resultCount;
@@ -232,8 +254,8 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
             private _spawnResult = [_groupToSpawn,_x] call NWG_DSPAWN_SpawnInfantryGroupInBuilding;
             if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) then {continue};
             _resultCount = _resultCount + 1;
-            (_spawnResult#0) call _dynamicIfNeeded;
-            (_spawnResult#0) call _disablePathIfNeeded;
+            (_spawnResult#SPAWN_RESULT_GROUP) call _dynamicIfNeeded;
+            (_spawnResult#SPAWN_RESULT_GROUP) call _disablePathIfNeeded;
         } forEach _buildings;
         _totalResultCount = _totalResultCount + _resultCount;
         _population set [G_INDEX_INF,((_population#G_INDEX_INF)-_resultCount)];
@@ -243,6 +265,9 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
     _resultCount = [G_INDEX_INF,SP_INDEX_GROUND,_targetCount,3] call _spawnPatrols;
     _totalResultCount = _totalResultCount + _resultCount;
     _population set [G_INDEX_INF,0];
+
+    //Cache last populated trigger
+    NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = _trigger;
 
     //return
     _totalResultCount
@@ -331,6 +356,128 @@ NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
 
 //================================================================================================================
 //================================================================================================================
+//Send reinforcements
+NWG_DSPAWN_REINF_SendReinforcements = {
+    params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west]];
+
+    //Prepare spawn point picking (with lazy evaluation)
+    private _spawnMap = [nil,nil,nil,nil];
+    private _spawnMapPointers = [0,0,0,0];
+    private _lazyGet = {
+        params ["_index","_markupArgs","_markupResultIndexes"];
+
+        private _spawnArray = _spawnMap select _index;
+        if (isNil "_spawnArray") then {
+            private _points = _markupArgs call NWG_fnc_dtsMarkupReinforcement;
+            _spawnArray = [];
+            {_spawnArray append ((_points select _x) call NWG_fnc_arrayShuffle)} forEach _markupResultIndexes;
+            _spawnMap set [_index,_spawnArray];
+        };
+        if ((count _spawnArray) == 0) exitWith {false};//No points to spawn
+
+        private _pointer = _spawnMapPointers select _index;
+        private _result = _spawnArray select _pointer;
+        _pointer = _pointer + 1;
+        if (_pointer >= (count _spawnArray)) then {_pointer = 0};
+        _spawnMapPointers set [_index,_pointer];
+
+        //return
+        _result
+    };
+    private _getSpawnPoint = {
+        // private _type = _this;
+        switch (_this) do {
+            case "INF": {[0,[_attackPos,true,false,false,false],[0,1]] call _lazyGet};
+            case "VEH": {[1,[_attackPos,false,true,false,false],[3,2]] call _lazyGet};
+            case "BOAT":{[2,[_attackPos,false,false,true,false],[4]] call _lazyGet};
+            case "AIR": {[3,[_attackPos,false,false,false,true],[5]] call _lazyGet};
+        }
+    };
+
+    //Get catalogue values for spawn
+    private _page = _faction call NWG_DSPAWN_GetCataloguePage;
+    if (_page isEqualTo false) exitWith {
+        (format ["NWG_DSPAWN_REINF_SendReinforcements: Could not load catalogue page for faction '%1'",_faction]) call NWG_fnc_logError;
+        false
+    };
+    private _passengersContainer = _page#PASSENGERS_CONTAINER;
+    private _paradropContainer = _page#PARADROP_CONTAINER;
+    private _groupsContainer = [(_page#GROUPS_CONTAINER),_filter] call NWG_DSPAWN_FilterGroups;
+    if ((count _groupsContainer) == 0) then {
+        (format ["NWG_DSPAWN_REINF_SendReinforcements: Filter '%1' for faction '%2' resulted in ZERO groups. Fallback to original container",_filter,_faction]) call NWG_fnc_logError;
+        _groupsContainer = (_page#GROUPS_CONTAINER);
+    };
+
+    //Prepare scripts
+    private _trySpawnInfGroup = {
+        private _groupDescr = _this;
+        private _spawnPoint = "INF" call _getSpawnPoint;
+        if (_spawnPoint isEqualTo false) exitWith {false};
+        private _groupToSpawn = [_groupDescr,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
+        private _spawnResult = [_groupToSpawn,_spawnPoint,_side] call NWG_DSPAWN_SpawnInfantryGroup;
+        if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) exitWith {false};
+        [(_spawnResult#SPAWN_RESULT_GROUP),_attackPos] call NWG_DSPAWN_SendToAttack;
+        true
+    };
+    private _tryParadropVehGroup = {
+        params ["_groupDescr","_spawnPointType"];
+        private _spawnPoint = _spawnPointType call _getSpawnPoint;
+        if (_spawnPoint isEqualTo false) exitWith {false};
+        private _groupToSpawn = [_groupDescr,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
+        private _spawnResult = [_groupToSpawn,_spawnPoint,(_spawnPoint getDir _attackPos),true,_side] call NWG_DSPAWN_SpawnVehicledGroup;
+        if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) exitWith {false};
+        [(_spawnResult#SPAWN_RESULT_VEHICLE),(selectRandom _paradropContainer)] call NWG_DSPAWN_ImitateParadrop;
+        [(_spawnResult#SPAWN_RESULT_GROUP),_attackPos] call NWG_DSPAWN_SendToAttack;
+        true
+    };
+    private _trySpawnVehGroup = {
+        params ["_groupDescr","_spawnPointType"];
+        private _spawnPoint = _spawnPointType call _getSpawnPoint;
+        if (_spawnPoint isEqualTo false) exitWith {};
+        private _groupToSpawn = [_groupDescr,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
+        private _spawnResult = [_groupToSpawn,_spawnPoint,(_spawnPoint getDir _attackPos),false,_side] call NWG_DSPAWN_SpawnVehicledGroup;
+        if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) exitWith {};
+        [(_spawnResult#SPAWN_RESULT_GROUP),_attackPos] call NWG_DSPAWN_SendToAttack;
+        true
+    };
+
+    //Start spawning
+    private _resultCount = 0;
+    private _attemptsCount = 0;
+    private _paradropsLeft = NWG_DSPAWN_Settings get "ATTACK_PARADROPS_MAX";
+    private _isParadropAllowed = {
+        _paradropContainer isNotEqualTo [] && {_paradropsLeft > 0 && {(random 1) <= (NWG_DSPAWN_Settings get "ATTACK_PARADROPS_CHANCE")}}
+    };
+
+    while {_resultCount < _groupsCount && {_attemptsCount < 100}} do {
+        _attemptsCount = _attemptsCount + 1;
+        if (_attemptsCount in [50,75,90]) then {(format ["NWG_DSPAWN_REINF_SendReinforcements: Too many attempts for '%1':'%2' at '%3'",_faction,_filter,_attackPos]) call NWG_fnc_logError};
+
+        private _groupDescr = [_groupsContainer,"NWG_DSPAWN_REINF_SendReinforcements"] call NWG_fnc_selectRandomGuaranteed;
+        switch (true) do {
+            case ("INF" in (_groupDescr#DESCR_TAGS)): {if (_groupDescr call _trySpawnInfGroup) then {_resultCount = _resultCount + 1}};
+            case ("ARM" in (_groupDescr#DESCR_TAGS)): {if ([_groupDescr,"VEH"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1}};
+            case ("AIR" in (_groupDescr#DESCR_TAGS)): {if ([_groupDescr,"AIR"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1}};
+            case ("VEH" in (_groupDescr#DESCR_TAGS)): {
+                if ((call _isParadropAllowed) && {[_groupDescr,"INF"] call _tryParadropVehGroup}) exitWith {_resultCount = _resultCount + 1; _paradropsLeft = _paradropsLeft - 1};
+                if ([_groupDescr,"VEH"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1};
+            };
+            case ("BOAT" in (_groupDescr#DESCR_TAGS)): {
+                if ((call _isParadropAllowed) && {[_groupDescr,"BOAT"] call _tryParadropVehGroup}) exitWith {_resultCount = _resultCount + 1; _paradropsLeft = _paradropsLeft - 1};
+                if ([_groupDescr,"BOAT"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1};
+            };
+            default {
+                (format ["NWG_DSPAWN_REINF_SendReinforcements: Invalid group tags '%1':'%2'",_faction,_groupDescr]) call NWG_fnc_logError;
+            };
+        };
+    };
+
+    //return
+    _resultCount
+};
+
+//================================================================================================================
+//================================================================================================================
 //Catalogue read
 NWG_DSPAWN_catalogue = createHashMap;
 NWG_DSPAWN_GetCataloguePage = {
@@ -379,87 +526,73 @@ NWG_DSPAWN_GetCataloguePage = {
     _valid = _groupsContainer isEqualTypeAll [];
     if (!_valid) exitWith {"NWG_DSPAWN_GetCataloguePage: Invalid groups container format '%1', must be [[_group1],[_group2],[_group3],...]" call _abort};
 
+    //Expand groups (multiply by spawn chance (tier))
+    private _expanded = [];
+    //do
+    {
+        switch (_x#DESCR_TIER) do {
+            case (1): {
+                _expanded pushBack _x;
+                _expanded pushBack _x;
+                _expanded pushBack _x;
+            };
+            case (2): {
+                _expanded pushBack _x;
+                _expanded pushBack _x;
+            };
+            case (3): {
+                _expanded pushBack _x;
+            };
+            default {
+                (format ["NWG_DSPAWN_GetCataloguePage: Invalid group tier '%1':'%2'",_pageName,_x]) call NWG_fnc_logError;
+            };
+        };
+    } forEach _groupsContainer;/*foreach groupDescr in _groupsContainer*/
+    _groupsContainer resize 0;
+    _groupsContainer append _expanded;
+
     //Save and return
     NWG_DSPAWN_catalogue set [_this,_page];
     _page
 };
 
-NWG_DSPAWN_gcv_previousRequest = [];
-NWG_DSPAWN_gcv_previousResult = [];
-NWG_DSPAWN_GetCatalogueValues = {
-    params ["_pageName",["_filter",[]]];
+NWG_DSPAWN_FilterGroups = {
+    params ["_groupsContainer",["_filter",[]]];
+    if (_filter isEqualTo []) exitWith {_groupsContainer};
 
-    //Check cache
-    if (_this isEqualTo NWG_DSPAWN_gcv_previousRequest) exitWith {NWG_DSPAWN_gcv_previousResult};
-
-    //Get the page
-    private _page = _pageName call NWG_DSPAWN_GetCataloguePage;
-    if (_page isEqualTo false) exitWith {false};//Could not load the page for whatever reason (logged internally)
-    _page params ["_passengersContainer","_paradropContainer","_groupsContainer"];
-
-    //While passengers and paradrop are provided AS IS, groups are filtered and processed with spawn chance based on their tier
-    //Unpack filter
     _filter params [["_tagsWhiteList",[]],["_tagsBlackList",[]],["_tierWhiteList",[]]];
+    if (_tagsWhiteList isEqualTo [] && {_tagsBlackList isEqualTo [] && {_tierWhiteList isEqualTo []}}) exitWith {_groupsContainer};
 
-    //Check if filter is empty
-    private _filteredGroups = if (_tagsWhiteList isEqualTo [] && {_tagsBlackList isEqualTo [] && {_tierWhiteList isEqualTo []}}) then {
-        _groupsContainer
-    } else {
-        //Prepare filtering functions
-        private _tagsfilterW = if (_tagsWhiteList isNotEqualTo [])
-            then {{(count ((_this#DESCR_TAGS) arrayIntersect _tagsWhiteList)) > 0}}
-            else {{true}};
-        private _tagsFilterB = if (_tagsBlackList isNotEqualTo [])
-            then {{(count ((_this#DESCR_TAGS) arrayIntersect _tagsBlackList)) == 0}}
-            else {{true}};
-        private _tierFilter = if (_tierWhiteList isNotEqualTo [])
-            then {{(_this#DESCR_TIER) in _tierWhiteList}}
-            else {{true}};
+    //Prepare filtering functions
+    private _tagsfilterW = if (_tagsWhiteList isNotEqualTo [])
+        then {{(count ((_this#DESCR_TAGS) arrayIntersect _tagsWhiteList)) > 0}}
+        else {{true}};
+    private _tagsFilterB = if (_tagsBlackList isNotEqualTo [])
+        then {{(count ((_this#DESCR_TAGS) arrayIntersect _tagsBlackList)) == 0}}
+        else {{true}};
+    private _tierFilter = if (_tierWhiteList isNotEqualTo [])
+        then {{(_this#DESCR_TIER) in _tierWhiteList}}
+        else {{true}};
 
-        //Filter groups
-        _groupsContainer select {(_x call _tagsfilterW) && {(_x call _tagsFilterB) && {(_x call _tierFilter)}}}
-    };
-
-    if ((count _filteredGroups) == 0) exitWith {
-        (format ["NWG_DSPAWN_GetCatalogueValues: Could not find any group at page '%1' that matches filter '%2'",_pageName,_filter]) call NWG_fnc_logError;
-        NWG_DSPAWN_gcv_previousRequest = _this;
-        NWG_DSPAWN_gcv_previousResult = [];
-        false
-    };
-
-    //Multiply by spawn chance (tier)
-    private _resultGroups = [];
-    //do
-    {
-        switch (_x#DESCR_TIER) do {
-            case (1): {
-                _resultGroups pushBack _x;
-                _resultGroups pushBack _x;
-                _resultGroups pushBack _x;
-            };
-            case (2): {
-                _resultGroups pushBack _x;
-                _resultGroups pushBack _x;
-            };
-            case (3): {
-                _resultGroups pushBack _x;
-            };
-            default {
-                (format ["NWG_DSPAWN_GetCatalogueValues: Invalid group tier '%1':'%2'",_pageName,_x]) call NWG_fnc_logError;
-            };
-        };
-    } forEach _filteredGroups;
-
-    //Cache and return
-    private _result = [_passengersContainer,_paradropContainer,_resultGroups];
-    NWG_DSPAWN_gcv_previousRequest = _this;
-    NWG_DSPAWN_gcv_previousResult = _result;
-    _result
+    //return
+    _groupsContainer select {(_x call _tagsfilterW) && {(_x call _tagsFilterB) && {(_x call _tierFilter)}}}
 };
 
 //================================================================================================================
 //================================================================================================================
-//String array
+//Group description pre-spawn processing
+NWG_DSPAWN_PrepareGroupForSpawn = {
+    params ["_groupDescr","_passengersContainer"];
+    _groupDescr = _groupDescr + [];//Shallow copy to avoid modifying the original
+    private _unitsDescr = _groupDescr#DESCR_UNITS;
+    _unitsDescr = _unitsDescr + [];//Shallow copy to avoid modifying the original
+    _unitsDescr = _unitsDescr call NWG_DSPAWN_UnCompactStringArray;
+    _unitsDescr = [_unitsDescr,_passengersContainer] call NWG_DSPAWN_FillWithPassengers;
+    _groupDescr set [DESCR_UNITS,_unitsDescr];
+    //return
+    _groupDescr
+};
+
 NWG_DSPAWN_UnCompactStringArray = {
     // private _array = _this;
     private _result = [];
@@ -481,9 +614,25 @@ NWG_DSPAWN_UnCompactStringArray = {
     _this
 };
 
-//================================================================================================================
-//================================================================================================================
-//Passengers
+NWG_DSPAWN_FillWithPassengers = {
+    params ["_unitsDescr","_passengersContainer"];
+
+    private _maxCount = {_x isEqualTo "RANDOM"} count _unitsDescr;
+    if (_maxCount == 0) exitWith {_unitsDescr};
+    private _result = _unitsDescr - ["RANDOM"];
+
+    private _count = if (_maxCount < 3)
+        then {round (random _maxCount)}//0-2
+        else {_maxCount - (round (random (_maxCount*0.33)))};//66%-100%
+    if (_count > 0) then {
+        _result append ([_passengersContainer,_count] call NWG_DSPAWN_GeneratePassengers);
+    };
+
+    _unitsDescr resize 0;
+    _unitsDescr append _result;
+    _unitsDescr
+};
+
 NWG_DSPAWN_GeneratePassengers = {
     params ["_passengersContainer","_count"];
 
@@ -519,40 +668,6 @@ NWG_DSPAWN_GeneratePassengers = {
 
     //return
     _result
-};
-
-NWG_DSPAWN_FillWithPassengers = {
-    params ["_unitsDescr","_passengersContainer"];
-
-    private _maxCount = {_x isEqualTo "RANDOM"} count _unitsDescr;
-    if (_maxCount == 0) exitWith {_unitsDescr};
-    private _result = _unitsDescr - ["RANDOM"];
-
-    private _count = if (_maxCount < 3)
-        then {round (random _maxCount)}//0-2
-        else {_maxCount - (round (random (_maxCount*0.33)))};//66%-100%
-    if (_count > 0) then {
-        _result append ([_passengersContainer,_count] call NWG_DSPAWN_GeneratePassengers);
-    };
-
-    _unitsDescr resize 0;
-    _unitsDescr append _result;
-    _unitsDescr
-};
-
-//================================================================================================================
-//================================================================================================================
-//Group description processing
-NWG_DSPAWN_PrepareGroupForSpawn = {
-    params ["_groupDescr","_passengersContainer"];
-    _groupDescr = _groupDescr + [];//Shallow copy to avoid modifying the original
-    private _unitsDescr = _groupDescr#DESCR_UNITS;
-    _unitsDescr = _unitsDescr + [];//Shallow copy to avoid modifying the original
-    _unitsDescr = _unitsDescr call NWG_DSPAWN_UnCompactStringArray;
-    _unitsDescr = [_unitsDescr,_passengersContainer] call NWG_DSPAWN_FillWithPassengers;
-    _groupDescr set [DESCR_UNITS,_unitsDescr];
-    //return
-    _groupDescr
 };
 
 //================================================================================================================
@@ -620,8 +735,8 @@ NWG_DSPAWN_SpawnGroupFinalize = {
 
     //Save tags
     private _tags = _groupDescr#DESCR_TAGS;
-    private _group = _spawnResult#0;
-    _group setVariable ["NWG_DSPAWN_tags",_tags];
+    private _group = _spawnResult#SPAWN_RESULT_GROUP;
+    [_group,_tags] call NWG_DSPAWN_TAGs_SetTags;
 
     //Set initial behaviour
     _group setCombatMode "RED";
@@ -633,7 +748,7 @@ NWG_DSPAWN_SpawnGroupFinalize = {
 
 //================================================================================================================
 //================================================================================================================
-//Additional code helpers
+//Additional code post-spawn helpers
 NWG_DSPAWN_AC_AttachTurret = {
     params ["_group","_vehicle","_NaN","_turretClassname","_attachToValues",["_gunnerClassname","DEFAULT"]];
     _attachToValues params ["_offset","_dirAndUp"];
@@ -661,15 +776,194 @@ NWG_DSPAWN_AC_AttachTurret = {
 //================================================================================================================
 //================================================================================================================
 //TAGs system
-NWG_DSPAWN_GetTags = {
+NWG_DSPAWN_TAGs_GetTags = {
     // private _group = _this;
+    private _tags = _this getVariable "NWG_DSPAWN_tags";
+    if (isNil "_tags") exitWith {[]};//No tags were ever defined for this group - probably spawned by other script
+
+    private _curFingerprint = _this getVariable ["NWG_DSPAWN_fingerprint",""];
+    private _newFingerprint = [_this] call NWG_DSPAWN_TAGs_GenerateFingerprint;
+    if (_curFingerprint isEqualTo _newFingerprint) exitWith {_tags};//Tags are up to date
+
+    //Tags are outdated - regenerate
+    _tags = [_this] call NWG_DSPAWN_TAGs_GenerateTags;
+    [_this,_tags,_newFingerprint] call NWG_DSPAWN_TAGs_SetTags;
+
     //return
-    _this getVariable ["NWG_DSPAWN_tags",[]]
+    _tags
 };
 
-NWG_DSPAWN_SetTags = {
-    params ["_group","_tags"];
+NWG_DSPAWN_TAGs_SetTags = {
+    params ["_group","_tags",["_fingerPrint","AUTO"]];
+    if (_fingerPrint isEqualTo "AUTO") then {_fingerPrint = [_group] call NWG_DSPAWN_TAGs_GenerateFingerprint};
+
     _group setVariable ["NWG_DSPAWN_tags",_tags];
+    _group setVariable ["NWG_DSPAWN_fingerprint",_fingerPrint];
+};
+
+NWG_DSPAWN_TAGs_GenerateFingerprint = {
+    params ["_group",["_grpVehicle","AUTO"]];
+    if (_grpVehicle isEqualTo "AUTO") then {_grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle};
+
+    //return
+    format ["%1_%2",(typeOf _grpVehicle),({alive _x} count (units _group))]
+};
+
+NWG_DSPAWN_TAGs_GenerateTags = {
+    params ["_group",["_grpVehicle","AUTO"]];
+    if (_grpVehicle isEqualTo "AUTO") then {_grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle};
+    private _tags = [];
+    private _vehicleSimulationType = "";
+
+    //Prime tags -
+    private _primeTag = if (!isNull _grpVehicle && {alive _grpVehicle && {_grpVehicle call NWG_fnc_ocIsVehicle}}) then {
+        _vehicleSimulationType = tolower (getText(configFile >> "CfgVehicles" >> (typeOf _grpVehicle) >> "simulation"));
+        switch (_vehicleSimulationType) do {
+            case "carx":    {"VEH"};
+            case "tankx":   {"ARM"};
+            case "airplanex";
+            case "helicopterrtd";
+            case "helicopterx": {"AIR"};
+            case "shipx":   {"BOAT"};
+            case "soldier": {"INF"};//Just in case
+            default         {"VEH"};
+        }
+    } else {"INF"};//Fallback to infantry if no vehicle/destructed/invalid/etc
+    _tags pushBack _primeTag;
+
+    //Vehicle tags -
+    if (_primeTag isNotEqualTo "INF") then {
+        if ((count (_grpVehicle call NWG_DSPAWN_TAGs_GetVehicleWeapons)) > 0 ||
+           {(count (_grpVehicle call NWG_fnc_spwnGetVehiclePylons)) > 0})
+            then {_tags pushBack "MEC"}
+            else {_tags pushBack "MOT"};
+    };
+
+    //Air tags -
+    if (_primeTag isEqualTo "AIR") then {
+        switch (_vehicleSimulationType) do {
+            case "airplanex": {_tags pushBack "PLANE"};
+            case "helicopterrtd";
+            case "helicopterx": {_tags pushBack "HELI"};
+        };
+    };
+
+    //UAV tags -
+    if (_primeTag isNotEqualTo "INF" && {unitIsUAV _grpVehicle}) then {
+        _tags pushBack "UAV";
+    };
+
+    //Weapon tags -
+    if (_primeTag isEqualTo "INF") then {
+        _tags append ([_group] call NWG_DSPAWN_TAGs_DefineWeaponTagForGroup);
+    } else {
+        _tags append ([_group,_grpVehicle] call NWG_DSPAWN_TAGs_DefineWeaponTagForGroup);
+    };
+
+    //Vehicle logic -
+    if (_primeTag isEqualTo "VEH") then {
+        //If vehicle is light enough - it can be paradropped
+        if ((getMass _grpVehicle) < 10000) then {_tags pushBack "PARADROPPABLE+"};
+    };
+
+    //Air logic -
+    if (_primeTag isEqualTo "AIR") then {
+        //If there can be passengers - vehicle can disembark them
+        if ((count (fullCrew [_grpVehicle,"cargo",true])) > 0) then {
+            if ("HELI" in _tags) then {_tags pushBack "LAND+"};//Helicopters can do landing
+            _tags pushBack "PARA+";//And all aircrafts can at least do paradrop
+        };
+
+        //If there are pylons - vehicle can do airstrike
+        if ((count (getPylonMagazines _grpVehicle)) > 0) then {_tags pushBack "AIRSTRIKE+"};
+    };
+
+    //return
+    _tags
+};
+
+NWG_DSPAWN_TAGs_notWeapon = ["Horn","Laserdesignator","CMFlareLauncher","SmokeLauncher"];
+NWG_DSPAWN_TAGs_GetVehicleWeapons = {
+    // private _vehicle = _this;
+
+    private _result = (fullCrew [_this,"",true]) apply {_x#3};//Get all turrets
+    _result = _result apply {_this weaponsTurret _x};//Get all weapons of all turrets
+    _result = flatten _result;//Unwrap subarrays
+    _result = _result arrayIntersect _result;//Remove duplicates
+    private _cur = "";
+    _result = _result select {_cur = _x; (NWG_DSPAWN_TAGs_notWeapon findIf {_x in _cur}) == -1};//Filter
+
+    //return
+    _result
+};
+
+NWG_DSPAWN_TAGs_DefineWeaponTagForGroup = {
+    params ["_group",["_grpVehicle",objNull]];
+
+    //Check vehicle for weapon tag (1st priority)
+    private _vehTag = if (alive _grpVehicle)
+        then {_grpVehicle call NWG_DSPAWN_TAGs_DefineWeaponTagForObject}
+        else {"REG"};
+    //return if vehicle tag is not REG - group entire tag is defined by its vehicle then
+    if (_vehTag isNotEqualTo "REG") exitWith {_vehTag splitString "|"};//"AA|AT" => ["AA","AT"] and "AA" => ["AA"]
+
+    //Check every unit for weapon tag (2nd priority)
+    private _unitTags = ((units _group) select {alive _x}) apply {_x call NWG_DSPAWN_TAGs_DefineWeaponTagForObject};
+    private _thresholdCount = round ((count _unitTags)*0.5);//50% of units must have the same tag
+    //return
+    switch (true) do {
+        case ((count _unitTags) == 0): {["REG"]};//No units alive, fallback to REG
+        case (({_x isEqualTo "AA"} count _unitTags) >= _thresholdCount): {["AA"]};
+        case (({_x isEqualTo "AT"} count _unitTags) >= _thresholdCount): {["AT"]};
+        default {["REG"]};
+    }
+};
+
+NWG_DSPAWN_TAGs_aaSigns = [" AA","AA ","air-to-air","surface-to-air"];
+NWG_DSPAWN_TAGs_atSigns = [" AT","AT ","air-to-surface","HEAT","APFSDS"];
+NWG_DSPAWN_TAGs_magToWeaponTagCache = createHashMap;//Config manipulations are EXTREMELY slow, cache needed (4638/10k VS 10k/10k in tests)
+NWG_DSPAWN_TAGs_DefineWeaponTagForObject = {
+    // private _object = _this;
+
+    //Get all the magazines
+    private _mags = if (_this isKindOf "Man")
+        then {magazines _this}
+        else {(magazinesAllTurrets _this) apply {_x#0}};
+    _mags = _mags arrayIntersect _mags;//Remove duplicates
+
+    //Check for AT/AA signs in magazine descriptions
+    private ["_cached","_config","_fullDescription"];
+    _mags = _mags apply {
+        _cached = NWG_DSPAWN_TAGs_magToWeaponTagCache get _x;
+        if (!isNil "_cached") then {continueWith _cached};
+
+        _config = configFile >> "CfgMagazines" >> _x;
+        if (!isClass _config) then {
+            NWG_DSPAWN_TAGs_magToWeaponTagCache set [_x,"REG"];
+            continueWith "REG";
+        };
+
+        _fullDescription = [
+            (getText (_config >> "description")),
+            (getText (_config >> "descriptionShort")),
+            (getText (_config >> "displayName")),
+            (getText (_config >> "displayNameShort"))
+        ] joinString " ";
+
+        _cached = switch (true) do {
+            case ((NWG_DSPAWN_TAGs_aaSigns findIf {_x in _fullDescription}) != -1): {"AA"};
+            case ((NWG_DSPAWN_TAGs_atSigns findIf {_x in _fullDescription}) != -1): {"AT"};
+            default {"REG"};
+        };
+
+        NWG_DSPAWN_TAGs_magToWeaponTagCache set [_x,_cached];
+        _cached
+    };
+
+    //return
+    if ("AA" in _mags)
+        then {if ("AT" in _mags) then {"AA|AT"} else {"AA"}}
+        else {if ("AT" in _mags) then {"AT"} else {"REG"}}
 };
 
 //================================================================================================================
@@ -679,11 +973,18 @@ NWG_DSPAWN_AddWaypoint = {
     params ["_group","_pos",["_type","MOVE"]];
 
     if (!surfaceIsWater _pos) then {_pos = ATLToASL _pos};
-    private _wp = _group addWaypoint [_pos,-1];
+    private _wp = _group addWaypoint [_pos,0];
     _wp setWaypointType _type;
     _wp setWaypointCompletionRadius (NWG_DSPAWN_Settings get "WAYPOINT_RADIUS");
     //return
     _wp
+};
+
+NWG_DSPAWN_ClearWaypoints = {
+    // private _group = _this;
+    for "_i" from ((count (waypoints _this)) - 1) to 0 step -1 do {
+        deleteWaypoint [_this, _i];
+    };
 };
 
 //================================================================================================================
@@ -692,12 +993,8 @@ NWG_DSPAWN_AddWaypoint = {
 NWG_DSPAWN_SendToPatrol = {
     params ["_group","_patrolRoute"];
 
-    //Delete current waypoints (if any)
-    for "_i" from ((count (waypoints _group)) - 1) to 0 step -1 do {
-        deleteWaypoint [_group, _i];
-    };
-
     //Add new patrol route
+    _group call NWG_DSPAWN_ClearWaypoints;
     {[_group,_x] call NWG_DSPAWN_AddWaypoint} forEach _patrolRoute;
 
     //If not a 'standing patrol'
@@ -716,7 +1013,508 @@ NWG_DSPAWN_SendToPatrol = {
 //================================================================================================================
 //================================================================================================================
 //Attack logic
+NWG_DSPAWN_SendToAttack = {
+    params ["_group","_attackPos"];
+
+    //Check if anyone is alive
+    if (({alive _x} count (units _group)) == 0) exitWith {};
+
+    //Set combat behaviour
+    _group setCombatMode "RED";
+    _group setSpeedMode "FULL";
+    _group setBehaviourStrong "AWARE";
+
+    //Clear waypoints
+    _group call NWG_DSPAWN_ClearWaypoints;
+
+    //Get tags
+    private _tags = _group call NWG_DSPAWN_TAGs_GetTags;
+    if (_tags isEqualTo []) then {_tags = ["INF"]};//Default to INF
+
+    //Logic selection
+    private _attackLogic = switch (true) do {
+        case ("INF" in _tags): {NWG_DSPAWN_InfAttackLogic};
+        case (!alive (_group call NWG_DSPAWN_GetGroupVehicle)): {NWG_DSPAWN_InfAttackLogic};//Fallback to INF (also checks for NULL)
+        case ("VEH" in _tags): {NWG_DSPAWN_VehAttackLogic};
+        case ("ARM" in _tags): {NWG_DSPAWN_VehAttackLogic};//Just reuse VEH logic
+        case ("AIR" in _tags): {NWG_DSPAWN_AirAttackLogic};
+        case ("BOAT" in _tags): {NWG_DSPAWN_BoatAttackLogic};
+        default {
+            (format ["NWG_DSPAWN_SendToAttack: Tags '%1' invalid, fallback to INF",_tags]) call NWG_fnc_logError;
+            NWG_DSPAWN_InfAttackLogic
+        };
+    };
+
+    //Run attack logic
+    [_group,_attackPos,_tags] call _attackLogic;
+};
+
+/*- Attack logic for INF*/
+NWG_DSPAWN_InfAttackLogic = {
+    params ["_group","_attackPos"/*,"_tags"*/];
+    private _attackRadius = NWG_DSPAWN_Settings get "ATTACK_INF_ATTACK_RADIUS";
+    [_group,_attackPos,_attackRadius] call NWG_DSPAWN_CheckThePosition;
+};
+
+/*- Attack logic for VEH & ARM*/
+NWG_DSPAWN_VehAttackLogic = {
+    params ["_group","_attackPos","_tags"];
+    private _unloadRadius = NWG_DSPAWN_Settings get "ATTACK_VEH_UNLOAD_RADIUS";
+    private _attackRadius = NWG_DSPAWN_Settings get "ATTACK_VEH_ATTACK_RADIUS";
+
+    //Attack with vehicle support
+    if ("MEC" in _tags) exitWith {
+        private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
+        private _grpPassengers = [_group,_grpVehicle] call NWG_DSPAWN_GetGroupPassengers;
+        if ((count _grpPassengers) > 0) then {
+            private _unloadWp = [_attackPos,_unloadRadius,"ground"] call NWG_fnc_dtsFindDotForWaypoint;
+            if (_unloadWp isEqualTo false) exitWith {};
+            _unloadWp = [_group,_unloadWp] call NWG_DSPAWN_AddWaypoint;
+            _unloadWp setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_UnloadPassengers}"];
+        };
+
+        [_group,_attackPos,_attackRadius] call NWG_DSPAWN_CheckThePosition;
+    };
+
+    //Abandon vehicle and attack on foot
+    if ("MOT" in _tags) exitWith {
+        private _abandonWp = [_attackPos,_unloadRadius,"ground"] call NWG_fnc_dtsFindDotForWaypoint;
+        if (_abandonWp isNotEqualTo false) then {
+            _abandonWp = [_group,_abandonWp] call NWG_DSPAWN_AddWaypoint;
+            _abandonWp setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_AbandonVehicle}"];
+        };
+
+        [_group,_attackPos,_attackRadius] call NWG_DSPAWN_CheckThePosition;
+    };
+
+    //Fallback to INF
+    (format ["NWG_DSPAWN_VehAttackLogic: Tags '%1' invalid, fallback to INF",_tags]) call NWG_fnc_logError;
+    _this call NWG_DSPAWN_InfAttackLogic;
+};
+
+/*- Attack logic for AIR*/
+NWG_DSPAWN_AirAttackLogic = {
+    params ["_group","_attackPos","_tags"];
+    private _unloadRadius = NWG_DSPAWN_Settings get "ATTACK_AIR_UNLOAD_RADIUS";
+    private _attackRadius = NWG_DSPAWN_Settings get "ATTACK_AIR_ATTACK_RADIUS";
+    private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
+    private _grpPassengers = [_group,_grpVehicle] call NWG_DSPAWN_GetGroupPassengers;
+
+    //Unload passengers if any
+    if ((count _grpPassengers) > 0) then {
+        private _unloadMethod = switch (true) do {
+            case ("LAND+" in _tags && {"PARA+" in _tags}): {selectRandom ["LAND","PARA"]};
+            case ("LAND+" in _tags): {"LAND"};
+            case ("PARA+" in _tags): {"PARA"};
+            default {""};
+        };
+        if (_unloadMethod isEqualTo "") exitWith {};
+
+        private _unloadWp = [_attackPos,_unloadRadius,"ground"] call NWG_fnc_dtsFindDotForWaypoint;
+        if (_unloadWp isEqualTo false) exitWith {};
+
+        _group setVariable ["NWG_DSPAWN_attackPos",_attackPos];//Save for later use in NWG_DSPAWN_UnloadAirPassengers
+        _unloadWp = [_group,_unloadWp] call NWG_DSPAWN_AddWaypoint;
+        _unloadWp setWaypointStatements ["true", (format ["if (local this) then {[this,'%1'] call NWG_DSPAWN_UnloadAirPassengers}",_unloadMethod])];
+    };
+
+    //Attack the given position
+    if ("MEC" in _tags) exitWith {
+        [_group,_attackPos,_attackRadius,"air"] call NWG_DSPAWN_CheckThePosition;
+    };
+
+    //Flee from combat after passengers are unloaded
+    if ("MOT" in _tags) exitWith {
+        {_x setCombatBehaviour "CARELESS"} forEach ((units _group) - _grpPassengers);
+        private _despawnRadius = NWG_DSPAWN_Settings get "ATTACK_AIR_DESPAWN_RADIUS";
+        private _fleeWp = [_attackPos,_despawnRadius,"air"] call NWG_fnc_dtsFindDotForWaypoint;
+        if (_fleeWp isEqualTo false) exitWith {};
+        _fleeWp = [_group,_fleeWp] call NWG_DSPAWN_AddWaypoint;
+        _fleeWp setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_DeleteAirMotGroup}"];
+    };
+
+    //Fallback to INF
+    (format ["NWG_DSPAWN_AirAttackLogic: Tags '%1' invalid, fallback to INF",_tags]) call NWG_fnc_logError;
+    _this call NWG_DSPAWN_InfAttackLogic;
+};
+
+/*- Attack logic for BOAT*/
+NWG_DSPAWN_BoatAttackLogic = {
+    params ["_group","_attackPos","_tags"];
+    private _unloadRadius = NWG_DSPAWN_Settings get "ATTACK_BOAT_UNLOAD_RADIUS";
+    private _attackRadius = NWG_DSPAWN_Settings get "ATTACK_BOAT_ATTACK_RADIUS";
+
+    //Gunboat attack from water
+    if ("MEC" in _tags) exitWith {
+        [_group,_attackPos,_attackRadius,"water"] call NWG_DSPAWN_CheckThePosition;
+    };
+
+    //Abandon the boat ashore and attack on foot
+    if ("MOT" in _tags) exitWith {
+        private _abandonWp = [_attackPos,_unloadRadius,"shore"] call NWG_fnc_dtsFindDotForWaypoint;
+        if (_abandonWp isNotEqualTo false) then {
+            _abandonWp = [_group,_abandonWp] call NWG_DSPAWN_AddWaypoint;
+            _abandonWp setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_AbandonVehicle}"];
+        };
+
+        [_group,_attackPos,_attackRadius,"ground"] call NWG_DSPAWN_CheckThePosition;
+    };
+
+    //Fallback to INF
+    (format ["NWG_DSPAWN_BoatAttackLogic: Tags '%1' invalid, fallback to INF",_tags]) call NWG_fnc_logError;
+    _this call NWG_DSPAWN_InfAttackLogic;
+};
+
+/*Utils*/
+NWG_DSPAWN_CheckThePosition = {
+    params ["_group","_attackPos","_radius",["_type","ground"]];
+
+    private _checkRoute = [
+        ([_attackPos,_radius,_type] call NWG_fnc_dtsFindDotForWaypoint),
+        ([_attackPos,(_radius/2),_type] call NWG_fnc_dtsFindDotForWaypoint)
+    ] select {_x isNotEqualTo false};
+
+    if ((count _checkRoute) >= 2) then {
+        [_group,(_checkRoute deleteAt 0)] call NWG_DSPAWN_AddWaypoint;
+    };
+    if ((count _checkRoute) >= 1) then {
+        private _finalWp = [_group,(_checkRoute deleteAt 0),"SAD"] call NWG_DSPAWN_AddWaypoint;
+        _finalWp setWaypointStatements ["true", "if (local this) then {this call NWG_DSPAWN_ReturnToPatrol}"];
+    };
+};
+
+NWG_DSPAWN_ReturnToPatrol = {
+    // private _groupLeader = _this;
+    private _group = group _this;
+
+    //Clear current waypoints
+    _group call NWG_DSPAWN_ClearWaypoints;
+
+    //Get or generate the patrol route
+    private _patrolRoute = _group getVariable ["NWG_DSPAWN_patrolRoute",[]];
+    if (_patrolRoute isEqualTo []) then {
+        private _trigger = NWG_DSPAWN_TRIGGER_lastPopulatedTrigger;
+        if (_trigger isEqualTo []) exitWith {};
+        private _tags = _group call NWG_DSPAWN_TAGs_GetTags;
+        if (_tags isEqualTo []) then {_tags = ["INF"]};//Default to INF
+        private _type = switch (true) do {
+            case ("AIR" in _tags): {"air"};
+            case ("BOAT" in _tags): {"water"};
+            default {"ground"};
+        };
+        _patrolRoute = [_trigger,_type,3] call NWG_fnc_dtsGenerateSimplePatrol;
+        _group setVariable ["NWG_DSPAWN_patrolRoute",_patrolRoute];
+    };
+    if (_patrolRoute isEqualTo []) exitWith {};//No patrol route found/generated
+
+    //Get back into abandoned vehicle if any
+    private _abandonedVeh = _group getVariable ["NWG_DSPAWN_abandonedVehicle",objNull];
+    if (!isNull _abandonedVeh && {alive _abandonedVeh}) then {
+        private _units = (units _group) select {alive _x};
+        private _crew = (crew _abandonedVeh) select {alive _x};
+        //Check that there is someone to board
+        private _toBoard = _units - _crew;
+        if ((count _toBoard) == 0) exitWith {};//No one to board
+        //Check that vehicle is not occupied by someone else
+        if (_crew isNotEqualTo [] && {(_crew findIf {_x in _units}) == -1}) exitWith {};//Vehicle is occupied by someone else
+
+        _group addVehicle _abandonedVeh;
+        _toBoard allowGetIn true;
+        _toBoard orderGetIn true;
+    };
+
+    //Send group to patrol
+    [_group,_patrolRoute] call NWG_DSPAWN_SendToPatrol;
+};
+
+NWG_DSPAWN_GetGroupVehicle = {
+    // private _group = _this;
+    if (isNull _this) exitWith {objNull};
+
+    //Try the vehicle of the group leader
+    private _result = vehicle (leader _this);
+    if (alive _result && {_result call NWG_fnc_ocIsVehicle}) exitWith {_result};
+
+    //Try the vehicle of any other group member
+    _result = ((units _this) select {alive _x}) apply {vehicle _x};
+    private _i = _result findIf {alive _x && {_x call NWG_fnc_ocIsVehicle}};
+    if (_i != -1) exitWith {_result#_i};
+
+    //Else return null
+    objNull
+};
+
+NWG_DSPAWN_GetGroupPassengers = {
+    params ["_group","_grpVehicle"];
+
+    if (isNull _grpVehicle || {!alive _grpVehicle}) exitWith {[]};
+
+    //return
+    ((((fullCrew [_grpVehicle,"",false])
+        select {(_x#2) >= 0})
+        apply {_x#0})
+        select {alive _x && {(group _x) isEqualTo _group}})
+};
+
+NWG_DSPAWN_AbandonVehicle = {
+    // private _groupLeader = _this;
+    private _group = group _this;
+    private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
+    if (isNull _grpVehicle) exitWith {};
+
+    _group leaveVehicle _grpVehicle;
+
+    private _toDisembark = ((crew _grpVehicle) arrayIntersect (units _group)) select {alive _x};
+    if ((count _toDisembark) > 5) then {
+        //Leave with a delay to decrease stupidness (fix large groups getting stuck in the air)
+        [_toDisembark,_grpVehicle] spawn {
+            params ["_toDisembark","_grpVehicle"];
+            {_x moveOut _grpVehicle; unassignVehicle _x; sleep ((random 0.3)+0.1)} forEach _toDisembark;
+        };
+    } else {
+        //Leave immediately
+        {_x moveOut _grpVehicle; unassignVehicle _x} forEach _toDisembark;
+    };
+
+    _grpVehicle engineOn false;
+    _group setVariable ["NWG_DSPAWN_abandonedVehicle",_grpVehicle];
+};
+
+NWG_DSPAWN_UnloadPassengers = {
+    // private _groupLeader = _this;
+    private _group = group _this;
+    private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
+    if (isNull _grpVehicle) exitWith {};
+
+    private _passengers = [_group,_grpVehicle] call NWG_DSPAWN_GetGroupPassengers;
+    if ((count _passengers) == 0) exitWith {};
+
+    _passengers orderGetIn false;
+    {_x moveOut _grpVehicle; unassignVehicle _x} forEach _passengers;
+    _passengers allowGetIn false;
+};
+
+NWG_DSPAWN_UnloadAirPassengers = {
+    params ["_groupLeader","_unloadMethod"];
+    private _group = group _groupLeader;
+    private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
+    if (isNull _grpVehicle) exitWith {};//Is the vehicle destroyed?
+    private _grpPassengers = [_group,_grpVehicle] call NWG_DSPAWN_GetGroupPassengers;
+    if ((count _grpPassengers) == 0) exitWith {};//Did they die along the way?
+    private _attackPos = _group getVariable "NWG_DSPAWN_attackPos";//Load previously saved attack position
+    if (isNil "_attackPos") exitWith {
+        (format ["NWG_DSPAWN_UnloadAirPassengers: Group '%1' has no attack position",_group]) call NWG_fnc_logError;
+    };
+
+    private _secondaryGroup = createGroup [(side _group),/*delete when empty:*/true];
+    _grpPassengers joinSilent _secondaryGroup;
+
+    //Add tags to secondary group manually
+    [_secondaryGroup,
+        ([_secondaryGroup,objNull] call NWG_DSPAWN_TAGs_GenerateTags),
+        ([_secondaryGroup,objNull] call NWG_DSPAWN_TAGs_GenerateFingerprint)
+    ] call NWG_DSPAWN_TAGs_SetTags;
+
+    [_group,_secondaryGroup,_grpVehicle,_unloadMethod,_attackPos] spawn {
+        params ["_group","_secondaryGroup","_grpVehicle","_unloadMethod","_attackPos"];
+        private _abortCondition = {isNull _group || {isNull _secondaryGroup || {!alive _grpVehicle}}};
+        if (call _abortCondition) exitWith {};
+
+        switch (_unloadMethod) do {
+            case "LAND": {
+                //Land
+                _grpVehicle land "LAND";
+                waitUntil {
+                    sleep 1;
+                    if (call _abortCondition) exitWith {true};
+                    ((getPos _grpVehicle)#2) < 1
+                };
+                if (call _abortCondition) exitWith {};
+
+                //Unload passengers
+                {_x moveOut _grpVehicle; unassignVehicle _x} forEach ((units _secondaryGroup) select {alive _x});
+                _secondaryGroup leaveVehicle _grpVehicle;
+            };
+            case "PARA": {
+                //Paradrop
+                {
+                    sleep ((random 1) + 0.25);
+                    if (call _abortCondition) exitWith {};
+                    if (!alive _x) then {continue};
+                    removeBackpack _x;
+                    _x addBackpack "B_parachute";
+                    _x disableCollisionWith _grpVehicle;
+                    _x moveOut _grpVehicle;
+                    unassignVehicle _x;
+                    _x setVelocity [-20,-15,-15];
+                } forEach ((units _secondaryGroup) select {alive _x});
+                if (call _abortCondition) exitWith {};
+                _secondaryGroup leaveVehicle _grpVehicle;
+            };
+            default {
+                (format ["NWG_DSPAWN_UnloadAirPassengers: Invalid unload method '%1'",_unloadMethod]) call NWG_fnc_logError;
+            };
+        };
+        if (call _abortCondition) exitWith {};
+
+        //Fix pilots stucking in one place
+        _group leaveVehicle _grpVehicle;
+        {_x disableCollisionWith _grpVehicle; _x moveOut _grpVehicle} forEach ((units _group) select {alive _x});
+        _grpVehicle engineOn true;
+        _group addVehicle _grpVehicle;
+        {_x moveInAny _grpVehicle} forEach ((units _group) select {alive _x});
+
+        //Send secondary group to attack
+        [_secondaryGroup,_attackPos] call NWG_DSPAWN_SendToAttack;
+    };
+};
+
+NWG_DSPAWN_DeleteAirMotGroup = {
+    // private _groupLeader = _this;
+    private _group = group _this;
+    private _vehicle = _group call NWG_DSPAWN_GetGroupVehicle;
+    _group call NWG_DSPAWN_ClearWaypoints;
+
+    //Delete units
+    {
+        if ((vehicle _x) isNotEqualTo _x)
+            then {(vehicle _x) deleteVehicleCrew _x}
+            else {deleteVehicle _x};
+    } forEach (units _group);
+
+    //Delete vehicle
+    if (!isNull _vehicle && {alive _vehicle}) then {
+        deleteVehicle _vehicle;
+    };
+
+    //Delete group
+    deleteGroup _group;
+};
 
 //================================================================================================================
 //================================================================================================================
 //Paradrop
+NWG_DSPAWN_currentlyParadropping = [];
+NWG_DSPAWN_ImitateParadrop = {
+    params ["_object","_paradropBy"];
+
+    //Get points to spawn paradropping vehicle
+    private _paradropRadius = NWG_DSPAWN_Settings get "PARADROP_RADIUS";
+    private _paradropHeight = NWG_DSPAWN_Settings get "PARADROP_HEIGHT";
+    private _paradropPoints = [(getPosATL _object),_paradropRadius,2] call NWG_fnc_dtsGenerateDotsCircle;
+    _paradropPoints = _paradropPoints call NWG_fnc_arrayShuffle;
+    {_x set [2,_paradropHeight]} forEach _paradropPoints;
+    _paradropPoints params ["_paraFrom","_paraTo"];
+
+    //Spawn paradrop group
+    private _groupDescr = [["AIR","MOT","PLANE"],1,[_paradropBy],(_paradropBy call NWG_fnc_spwnGetOriginalCrew)];
+    private _spawnResult = [_groupDescr,_paraFrom,(_paraFrom getDir _paraTo),false,civilian] call NWG_DSPAWN_SpawnVehicledGroup;
+    if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) exitWith {
+        (format ["NWG_DSPAWN_ImitateParadrop: Could not spawn paradrop group '%1'",_groupDescr]) call NWG_fnc_logError;
+        _object call NWG_fnc_spwnRevealObject;
+    };
+    _spawnResult params ["_paradropGroup","_paradropVehicle"];
+
+    //Set paradrop group behaviour
+    _paradropGroup setBehaviourStrong "CARELESS";
+    _paradropGroup setCombatBehaviour "CARELESS";
+    _paradropVehicle allowDamage false;
+    _paradropVehicle flyInHeight _paradropHeight;
+    {_x allowDamage false} forEach (units _paradropGroup);
+
+    //Set paradrop group destination
+    private _objectPos = getPosATL _object;
+    private _wp1 = _paradropGroup addWaypoint [[(_objectPos#0),(_objectPos#1),_paradropHeight],-1];
+    _wp1 setWaypointType "MOVE";
+    _wp1 setWaypointCompletionRadius 25;
+    private _wp2 = _paradropGroup addWaypoint [_paraTo,-1];
+    _wp2 setWaypointType "MOVE";
+    _wp2 setWaypointCompletionRadius 50;
+    _wp2 setWaypointStatements ["true","if (local this) then {this call NWG_DSPAWN_DeleteParadropGroup}"];
+
+    //Disable collisions to prevent accidental damage
+    _paradropVehicle disableCollisionWith _object;
+    NWG_DSPAWN_currentlyParadropping = NWG_DSPAWN_currentlyParadropping select {alive _x};
+    {_paradropVehicle disableCollisionWith _x} forEach NWG_DSPAWN_currentlyParadropping;
+    NWG_DSPAWN_currentlyParadropping pushBackUnique _paradropVehicle;
+
+    //Start paradrop
+    [_object,_paradropVehicle,_paradropGroup] spawn {
+        params ["_object","_paradropVehicle","_paradropGroup"];
+
+        private _timeOut = time + (NWG_DSPAWN_Settings get "PARADROP_TIMEOUT");
+        private _cancel = {
+            _object call NWG_fnc_spwnRevealObject;
+            if (!isNull _paradropGroup) then {(leader _paradropGroup) call NWG_DSPAWN_DeleteParadropGroup};
+        };
+
+        //Wait for paradrop vehicle to get close
+        waitUntil {
+            sleep 0.1;
+            ((_paradropVehicle distance2D _object) < 30) || {!(alive _paradropVehicle) || {time > _timeOut}}
+        };
+        if (!(alive _paradropVehicle) || {time > _timeOut}) exitWith _cancel;
+
+        //Wait for paradrop vehicle to leave the area
+        waitUntil {
+            sleep 0.1;
+            ((_paradropVehicle distance2D _object) > 35) || {!(alive _paradropVehicle) || {time > _timeOut}}
+        };
+        if (!(alive _paradropVehicle) || {time > _timeOut}) exitWith _cancel;
+
+        //Move vehicle to the sky
+        private _pos = getPosATL _object;
+        _pos set [2,(NWG_DSPAWN_Settings get "PARADROP_HEIGHT")];
+        _object setPosATL _pos;
+
+        //Deploy the parachute
+        private _para = createVehicle ["B_parachute_02_F",_object,[],0,"FLY"];
+        _para setDir (getDir _object);
+        _para setPosATL (getPosATL _object);
+        _object attachTo [_para,[0,2,0]];
+        _object call NWG_fnc_spwnRevealObject;
+        _para setVelocity [0,0,-100];
+
+        //Wait for landing
+        private _paraVel = velocity _para;
+        waitUntil {
+            sleep 0.1;
+            if (!(alive _object) || {!(alive _para) || {((getPos _object)#2) < 3}}) exitWith {true};
+
+            //Fix parachute drifting
+            _paraVel = velocity _para;
+            if ((_paraVel#0) != 0 || {(_paraVel#1) != 0}) then {_para setVelocity [0,0,((_paraVel#2)*1.2)]};
+
+            //Go to next iteration
+            false
+        };
+
+        //Check if eliminated mid-air
+        if (!(alive _object)) exitWith {
+            if (!isNull _object) then {detach _object};
+            deleteVehicle _para;
+        };
+
+        //Land
+        private _vel = velocity _object;
+        detach _object;
+        _object disableCollisionWith _para;
+        _object setVelocity _vel;
+
+        //Delete parachute
+        sleep 3;
+        deleteVehicle _para;
+    };
+};
+
+NWG_DSPAWN_DeleteParadropGroup = {
+    // private _groupLeader = _this;
+    private _group = group _this;
+    _group call NWG_DSPAWN_ClearWaypoints;
+
+    private _vehicle = vehicle _this;
+    NWG_DSPAWN_currentlyParadropping deleteAt (NWG_DSPAWN_currentlyParadropping find _vehicle);
+    {_vehicle deleteVehicleCrew _x} forEach (crew _vehicle);
+    deleteVehicle _vehicle;
+    deleteGroup _group;
+};
