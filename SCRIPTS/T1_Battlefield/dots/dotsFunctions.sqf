@@ -38,10 +38,14 @@ NWG_fnc_dtsGenerateSimplePatrol = {
 //_pos: center of the area
 //_minRad: radius from center
 //_maxRad: maximum radius
+//_doPlains: (optional) should plains be marked
+//_doRoads: (optional) should roads be marked
+//_doWater: (optional) should water be marked
+//_settingsMultiplier: (optional) multiplier for the default settings (default: 1) (higher values will result in less dots but faster execution)
 //returns:
 //array of positions (z is always 0) [_plains,_roads,_water]
 NWG_fnc_dtsMarkupArea = {
-    //params ["_pos","_minRad","_maxRad"];
+    // params ["_pos","_minRad","_maxRad",["_doPlains",true],["_doRoads",true],["_doWater",true],["_settingsMultiplier",1]];
     _this call NWG_DOTS_AreaSpawnsearch
 };
 

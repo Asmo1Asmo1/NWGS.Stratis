@@ -135,12 +135,10 @@ NWG_fnc_getPlayersAll =
     (allPlayers - (entities "HeadlessClient_F")) //0.0011
 };
 
-//Returns array of all vehicles of players
+//Returns an array of unique objects - unit if a player is on foot, vehicle if inside the vehicle
 //params: none
-//returns: array of vehicles
-//note: includes 'isKindOf "Man"' vehicles as well (players themselves)
-//note: returns array of uniqe objects
-NWG_fnc_getPlayerVehiclesAll =
+//returns: array of objects
+NWG_fnc_getPlayersAndOrPlayedVehiclesAll =
 {
     private _result = (((call NWG_fnc_getPlayersAll) apply {vehicle _x}) select {alive _x});
     _result arrayIntersect _result//Remove duplicates and return
