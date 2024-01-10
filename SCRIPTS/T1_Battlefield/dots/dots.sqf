@@ -212,7 +212,7 @@ NWG_DOTS_AreaSpawnsearch = {
     private _dots = [_pos,_minRad,_maxRad,_searchStep] call NWG_DOTS_GenerateDottedArea;
 
     //Search for plains, roads and water around each dot
-    private _result = [_dots,_subSearchRad,_subSearchStep,_doWater] call NWG_DOTS_FindPlainsRoadsWaterAroundDots;
+    private _result = [_dots,_subSearchRad,_subSearchStep,true,true,_doWater] call NWG_DOTS_FindPlainsRoadsWaterAroundDots;
 
     //return [_plains,_roads,_water]
     _result
@@ -407,42 +407,46 @@ NWG_DOTS_IsPlainSurfaceAt = {
 };
 
 NWG_DOTS_FindPlainsRoadsWaterAroundDots = {
-    params ["_dots","_searchRad","_searchStep",["_doWater",true]];
+    params ["_dots","_searchRad","_searchStep",["_doRoads",true],["_doPlains",true],["_doWater",true]];
 
     private _plains = [];
     private _roads = [];
     private _water = [];
-    private "_dot";
 
+    private _roadsDelegate = if (_doRoads) then {{
+        _this = getPosWorld (roadAt _this);
+        _this set [2,0];
+        _roads pushBack _this;
+        breakTo "foreach_dots";
+    }} else {{}};
+
+    private _planesDelegate = if (_doPlains) then {{
+        if (!(_this call NWG_DOTS_IsPlainSurfaceAt)) exitWith {};
+        _plains pushBack _this;
+        breakTo "foreach_dots";
+    }} else {{}};
+
+    private _waterDelegate = if (_doWater) then {{
+        if (((ASLToATL _this)#2) < 5) exitWith {};//Water depth check
+        if (!(_this call NWG_DOTS_IsPlainSurfaceAt)) exitWith {};
+        _water pushBack _this;
+        breakTo "foreach_dots";
+    }} else {{}};
+
+    private "_dot";
     //do
     {
         scopeName "foreach_dots";
-
         for "_r" from 0 to _searchRad step _searchStep do {
             _dot = _x getPos [_r,(random 360)];
             _dot set [2,0];
 
-            if (surfaceIsWater _dot) then {
-                if (!_doWater) then { continue };
-                if (((ASLToATL _dot)#2) < 5) then { continue };//Depth check
-                if (!(_dot call NWG_DOTS_IsPlainSurfaceAt)) then { continue };
-                _water pushBack _dot;
-                breakTo "foreach_dots";
-            };
-
-            if (isOnRoad _dot) then {
-                _dot = getPosWorld (roadAt _dot);
-                _dot set [2,0];
-                _roads pushBack _dot;
-                breakTo "foreach_dots";
-            };
-
-            if (_dot call NWG_DOTS_IsPlainSurfaceAt) then {
-                _plains pushBack _dot;
-                breakTo "foreach_dots";
+            switch (true) do {
+                case (surfaceIsWater _dot): {_dot call _waterDelegate};
+                case (isOnRoad _dot): {_dot call _roadsDelegate};
+                default {_dot call _planesDelegate};
             };
         };
-
     } forEach _dots;
 
     //return
