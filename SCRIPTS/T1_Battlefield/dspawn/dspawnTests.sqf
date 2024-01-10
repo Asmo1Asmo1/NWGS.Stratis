@@ -29,6 +29,15 @@ NWG_DSPAWN_TRIGGER_FindOccupiableBuildings_Test = {
 
 //================================================================================================================
 //================================================================================================================
+//Send reinforcements
+// 20 call NWG_DSPAWN_REINF_SendReinforcements_Test_Any
+NWG_DSPAWN_REINF_SendReinforcements_Test_Any = {
+    // private _groupsCount = _this;
+    [(getPosATL player),_this,"NATO"] call NWG_DSPAWN_REINF_SendReinforcements
+};
+
+//================================================================================================================
+//================================================================================================================
 //Catalogue read
 // call NWG_DSPAWN_GetCataloguePage_Test
 NWG_DSPAWN_GetCataloguePage_Test = {

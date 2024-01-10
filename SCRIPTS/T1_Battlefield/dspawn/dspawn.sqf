@@ -22,7 +22,9 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
     ["ATTACK_AIR_ATTACK_RADIUS",200],//Radius for AIR group to 'attack' the position
     ["ATTACK_AIR_DESPAWN_RADIUS",5000],//Radius for AIR vehicle to despawn after unload
     ["ATTACK_BOAT_UNLOAD_RADIUS",150],//Radius for BOAT group to unload passengers
-    ["ATTACK_BOAT_ATTACK_RADIUS",100],//Radius for BOAT group to 'attack' the position
+    ["ATTACK_BOAT_ATTACK_RADIUS",150],//Radius for BOAT group to 'attack' the position
+    ["ATTACK_PARADROPS_MAX",1],//Max number of vehicle paradrops per reinforcement
+    ["ATTACK_PARADROPS_CHANCE",0.5],//Chance of vehicle group being paradropped (keep 0-1)
 
     ["",0]
 ];
@@ -153,7 +155,7 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
             _groupToSpawn = [_groupToSpawn,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
             _spawnResult = call _spawnSelected;
             if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) then {continue};
-            [(_spawnResult#0),_patrolRoute] call NWG_DSPAWN_SendToPatrol;
+            [(_spawnResult#SPAWN_RESULT_GROUP),_patrolRoute] call NWG_DSPAWN_SendToPatrol;
             _resultCount = _resultCount + 1;
         };
 
@@ -223,7 +225,7 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
             _groupToSpawn = [_groupToSpawn,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
             private _spawnResult = [_groupToSpawn,(_patrolRoute#0)] call NWG_DSPAWN_SpawnInfantryGroup;
             if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) then {continue};
-            [(_spawnResult#0),_patrolRoute] call NWG_DSPAWN_SendToPatrol;
+            [(_spawnResult#SPAWN_RESULT_GROUP),_patrolRoute] call NWG_DSPAWN_SendToPatrol;
             _resultCount = _resultCount + 1;
         };
         _totalResultCount = _totalResultCount + _resultCount;
@@ -252,8 +254,8 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
             private _spawnResult = [_groupToSpawn,_x] call NWG_DSPAWN_SpawnInfantryGroupInBuilding;
             if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) then {continue};
             _resultCount = _resultCount + 1;
-            (_spawnResult#0) call _dynamicIfNeeded;
-            (_spawnResult#0) call _disablePathIfNeeded;
+            (_spawnResult#SPAWN_RESULT_GROUP) call _dynamicIfNeeded;
+            (_spawnResult#SPAWN_RESULT_GROUP) call _disablePathIfNeeded;
         } forEach _buildings;
         _totalResultCount = _totalResultCount + _resultCount;
         _population set [G_INDEX_INF,((_population#G_INDEX_INF)-_resultCount)];
@@ -350,6 +352,128 @@ NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
             default {true};
         };
     };
+};
+
+//================================================================================================================
+//================================================================================================================
+//Send reinforcements
+NWG_DSPAWN_REINF_SendReinforcements = {
+    params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west]];
+
+    //Prepare spawn point picking (with lazy evaluation)
+    private _spawnMap = [nil,nil,nil,nil];
+    private _spawnMapPointers = [0,0,0,0];
+    private _lazyGet = {
+        params ["_index","_markupArgs","_markupResultIndexes"];
+
+        private _spawnArray = _spawnMap select _index;
+        if (isNil "_spawnArray") then {
+            private _points = _markupArgs call NWG_fnc_dtsMarkupReinforcement;
+            _spawnArray = [];
+            {_spawnArray append ((_points select _x) call NWG_fnc_arrayShuffle)} forEach _markupResultIndexes;
+            _spawnMap set [_index,_spawnArray];
+        };
+        if ((count _spawnArray) == 0) exitWith {false};//No points to spawn
+
+        private _pointer = _spawnMapPointers select _index;
+        private _result = _spawnArray select _pointer;
+        _pointer = _pointer + 1;
+        if (_pointer >= (count _spawnArray)) then {_pointer = 0};
+        _spawnMapPointers set [_index,_pointer];
+
+        //return
+        _result
+    };
+    private _getSpawnPoint = {
+        // private _type = _this;
+        switch (_this) do {
+            case "INF": {[0,[_attackPos,true,false,false,false],[0,1]] call _lazyGet};
+            case "VEH": {[1,[_attackPos,false,true,false,false],[3,2]] call _lazyGet};
+            case "BOAT":{[2,[_attackPos,false,false,true,false],[4]] call _lazyGet};
+            case "AIR": {[3,[_attackPos,false,false,false,true],[5]] call _lazyGet};
+        }
+    };
+
+    //Get catalogue values for spawn
+    private _page = _faction call NWG_DSPAWN_GetCataloguePage;
+    if (_page isEqualTo false) exitWith {
+        (format ["NWG_DSPAWN_REINF_SendReinforcements: Could not load catalogue page for faction '%1'",_faction]) call NWG_fnc_logError;
+        false
+    };
+    private _passengersContainer = _page#PASSENGERS_CONTAINER;
+    private _paradropContainer = _page#PARADROP_CONTAINER;
+    private _groupsContainer = [(_page#GROUPS_CONTAINER),_filter] call NWG_DSPAWN_FilterGroups;
+    if ((count _groupsContainer) == 0) then {
+        (format ["NWG_DSPAWN_REINF_SendReinforcements: Filter '%1' for faction '%2' resulted in ZERO groups. Fallback to original container",_filter,_faction]) call NWG_fnc_logError;
+        _groupsContainer = (_page#GROUPS_CONTAINER);
+    };
+
+    //Prepare scripts
+    private _trySpawnInfGroup = {
+        private _groupDescr = _this;
+        private _spawnPoint = "INF" call _getSpawnPoint;
+        if (_spawnPoint isEqualTo false) exitWith {false};
+        private _groupToSpawn = [_groupDescr,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
+        private _spawnResult = [_groupToSpawn,_spawnPoint,_side] call NWG_DSPAWN_SpawnInfantryGroup;
+        if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) exitWith {false};
+        [(_spawnResult#SPAWN_RESULT_GROUP),_attackPos] call NWG_DSPAWN_SendToAttack;
+        true
+    };
+    private _tryParadropVehGroup = {
+        params ["_groupDescr","_spawnPointType"];
+        private _spawnPoint = _spawnPointType call _getSpawnPoint;
+        if (_spawnPoint isEqualTo false) exitWith {false};
+        private _groupToSpawn = [_groupDescr,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
+        private _spawnResult = [_groupToSpawn,_spawnPoint,(_spawnPoint getDir _attackPos),true,_side] call NWG_DSPAWN_SpawnVehicledGroup;
+        if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) exitWith {false};
+        [(_spawnResult#SPAWN_RESULT_VEHICLE),(selectRandom _paradropContainer)] call NWG_DSPAWN_ImitateParadrop;
+        [(_spawnResult#SPAWN_RESULT_GROUP),_attackPos] call NWG_DSPAWN_SendToAttack;
+        true
+    };
+    private _trySpawnVehGroup = {
+        params ["_groupDescr","_spawnPointType"];
+        private _spawnPoint = _spawnPointType call _getSpawnPoint;
+        if (_spawnPoint isEqualTo false) exitWith {};
+        private _groupToSpawn = [_groupDescr,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
+        private _spawnResult = [_groupToSpawn,_spawnPoint,(_spawnPoint getDir _attackPos),false,_side] call NWG_DSPAWN_SpawnVehicledGroup;
+        if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) exitWith {};
+        [(_spawnResult#SPAWN_RESULT_GROUP),_attackPos] call NWG_DSPAWN_SendToAttack;
+        true
+    };
+
+    //Start spawning
+    private _resultCount = 0;
+    private _attemptsCount = 0;
+    private _paradropsLeft = NWG_DSPAWN_Settings get "ATTACK_PARADROPS_MAX";
+    private _isParadropAllowed = {
+        _paradropContainer isNotEqualTo [] && {_paradropsLeft > 0 && {(random 1) <= (NWG_DSPAWN_Settings get "ATTACK_PARADROPS_CHANCE")}}
+    };
+
+    while {_resultCount < _groupsCount && {_attemptsCount < 100}} do {
+        _attemptsCount = _attemptsCount + 1;
+        if (_attemptsCount in [50,75,90]) then {(format ["NWG_DSPAWN_REINF_SendReinforcements: Too many attempts for '%1':'%2' at '%3'",_faction,_filter,_attackPos]) call NWG_fnc_logError};
+
+        private _groupDescr = [_groupsContainer,"NWG_DSPAWN_REINF_SendReinforcements"] call NWG_fnc_selectRandomGuaranteed;
+        switch (true) do {
+            case ("INF" in (_groupDescr#DESCR_TAGS)): {if (_groupDescr call _trySpawnInfGroup) then {_resultCount = _resultCount + 1}};
+            case ("ARM" in (_groupDescr#DESCR_TAGS)): {if ([_groupDescr,"VEH"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1}};
+            case ("AIR" in (_groupDescr#DESCR_TAGS)): {if ([_groupDescr,"AIR"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1}};
+            case ("VEH" in (_groupDescr#DESCR_TAGS)): {
+                if ((call _isParadropAllowed) && {[_groupDescr,"INF"] call _tryParadropVehGroup}) exitWith {_resultCount = _resultCount + 1; _paradropsLeft = _paradropsLeft - 1};
+                if ([_groupDescr,"VEH"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1};
+            };
+            case ("BOAT" in (_groupDescr#DESCR_TAGS)): {
+                if ((call _isParadropAllowed) && {[_groupDescr,"BOAT"] call _tryParadropVehGroup}) exitWith {_resultCount = _resultCount + 1; _paradropsLeft = _paradropsLeft - 1};
+                if ([_groupDescr,"BOAT"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1};
+            };
+            default {
+                (format ["NWG_DSPAWN_REINF_SendReinforcements: Invalid group tags '%1':'%2'",_faction,_groupDescr]) call NWG_fnc_logError;
+            };
+        };
+    };
+
+    //return
+    _resultCount
 };
 
 //================================================================================================================
@@ -611,7 +735,7 @@ NWG_DSPAWN_SpawnGroupFinalize = {
 
     //Save tags
     private _tags = _groupDescr#DESCR_TAGS;
-    private _group = _spawnResult#0;
+    private _group = _spawnResult#SPAWN_RESULT_GROUP;
     [_group,_tags] call NWG_DSPAWN_TAGs_SetTags;
 
     //Set initial behaviour
