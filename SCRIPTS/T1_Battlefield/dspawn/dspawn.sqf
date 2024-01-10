@@ -343,14 +343,22 @@ NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
     // private _trigger = _this;
     params ["_triggerPos","_triggerRad"];
 
+    private _isBuildingOccupied = {
+        // private _building = _this;
+        private _occupiedBuildings = "OccupiedBuildings" call NWG_fnc_shGetState;
+        if (isNil "_occupiedBuildings") exitWith {false};//There are no occupied buildings yet
+        //else
+        _this in _occupiedBuildings
+    };
+
     //return
     (_triggerPos nearObjects _triggerRad) select {
         switch (true) do {
             case (!(_x call NWG_fnc_ocIsBuilding)): {false};
             case ((count (_x buildingPos -1)) < 4): {false};
-            case (_x call NWG_STHLD_IsBuildingOccupied): {false};
+            case (_x call _isBuildingOccupied): {false};
             default {true};
-        };
+        }
     };
 };
 
@@ -724,7 +732,13 @@ NWG_DSPAWN_SpawnInfantryGroupInBuilding = {
     private _group = group (_units#0);
 
     //Mark building as occupied
-    _building call NWG_fnc_shMarkBuildingOccupied;
+    private _occupiedBuildings = "OccupiedBuildings" call NWG_fnc_shGetState;
+    if (isNil "_occupiedBuildings") then {
+        _occupiedBuildings = [_building];
+        ["OccupiedBuildings",_occupiedBuildings] call NWG_fnc_shSetState;
+    } else {
+        _occupiedBuildings pushBackUnique _building;
+    };
 
     //return
     ([_groupDescr,[_group,false,_units]] call NWG_DSPAWN_SpawnGroupFinalize)
