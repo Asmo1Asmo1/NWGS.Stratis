@@ -446,7 +446,11 @@ NWG_DSPAWN_REINF_SendReinforcements = {
     private _attemptsCount = 0;
     private _paradropsLeft = NWG_DSPAWN_Settings get "ATTACK_PARADROPS_MAX";
     private _isParadropAllowed = {
-        _paradropContainer isNotEqualTo [] && {_paradropsLeft > 0 && {(random 1) <= (NWG_DSPAWN_Settings get "ATTACK_PARADROPS_CHANCE")}}
+        // _groupDescr = _this;
+        _paradropsLeft > 0 &&
+        {_paradropContainer isNotEqualTo [] &&
+        {"PARADROPPABLE+" in (_this#DESCR_TAGS) &&
+        {(random 1) <= (NWG_DSPAWN_Settings get "ATTACK_PARADROPS_CHANCE")}}}
     };
 
     while {_resultCount < _groupsCount && {_attemptsCount < 100}} do {
@@ -459,11 +463,11 @@ NWG_DSPAWN_REINF_SendReinforcements = {
             case ("ARM" in (_groupDescr#DESCR_TAGS)): {if ([_groupDescr,"VEH"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1}};
             case ("AIR" in (_groupDescr#DESCR_TAGS)): {if ([_groupDescr,"AIR"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1}};
             case ("VEH" in (_groupDescr#DESCR_TAGS)): {
-                if ((call _isParadropAllowed) && {[_groupDescr,"INF"] call _tryParadropVehGroup}) exitWith {_resultCount = _resultCount + 1; _paradropsLeft = _paradropsLeft - 1};
+                if ((_groupDescr call _isParadropAllowed) && {[_groupDescr,"INF"] call _tryParadropVehGroup}) exitWith {_resultCount = _resultCount + 1; _paradropsLeft = _paradropsLeft - 1};
                 if ([_groupDescr,"VEH"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1};
             };
             case ("BOAT" in (_groupDescr#DESCR_TAGS)): {
-                if ((call _isParadropAllowed) && {[_groupDescr,"BOAT"] call _tryParadropVehGroup}) exitWith {_resultCount = _resultCount + 1; _paradropsLeft = _paradropsLeft - 1};
+                if ((_groupDescr call _isParadropAllowed) && {[_groupDescr,"BOAT"] call _tryParadropVehGroup}) exitWith {_resultCount = _resultCount + 1; _paradropsLeft = _paradropsLeft - 1};
                 if ([_groupDescr,"BOAT"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1};
             };
             default {
