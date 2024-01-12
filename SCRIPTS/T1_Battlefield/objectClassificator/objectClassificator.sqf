@@ -1,3 +1,5 @@
+#include "objectClassificatorDefines.h"
+
 //================================================================================================================
 //Settings
 #define BUILDINGS_CATALOGUE_ADDRESS "DATASETS\Server\ObjectClassificator\Buildings.sqf"
@@ -23,7 +25,7 @@ private _Init = {
         //Compile and check validity
         private _rawCatalogue = call (_catalogueAddress call NWG_fnc_compile);
         if (isNil "_rawCatalogue" || {!(_rawCatalogue isEqualType [])}) exitWith {
-            [(format ["NWG_OBCL_Init: Catalogue '%1' is invalid",_catalogueAddress]),__FILE__,__LINE__] call NWG_fnc_logError;
+            (format ["NWG_OBCL_Init: Catalogue '%1' is invalid",_catalogueAddress]) call NWG_fnc_logError;
         };
 
         //Rearrange catalogue
@@ -33,11 +35,11 @@ private _Init = {
 
             //Check validity
             if (isNil "_category" || {!(_category isEqualType "")}) then {
-                [(format ["NWG_OBCL_Init: Category '%1' of catalogue '%2' at index %3 is invalid",_catalogueAddress,_category,_i]),__FILE__,__LINE__] call NWG_fnc_logError;
+                (format ["NWG_OBCL_Init: Category '%1' of catalogue '%2' at index %3 is invalid",_catalogueAddress,_category,_i]) call NWG_fnc_logError;
                 continue;
             };
             if (isNil "_entries" || {!(_entries isEqualType [])}) then {
-                [(format ["NWG_OBCL_Init: Entries '%1' of catalogue '%2' at index %3 are invalid",_catalogueAddress,_entries,(_i+1)]),__FILE__,__LINE__] call NWG_fnc_logError;
+                (format ["NWG_OBCL_Init: Entries '%1' of catalogue '%2' at index %3 are invalid",_catalogueAddress,_entries,(_i+1)]) call NWG_fnc_logError;
                 continue;
             };
 
@@ -66,7 +68,7 @@ private _Init = {
     private _arg = switch (true) do {\
         case (ARG isEqualType objNull): {typeOf ARG};\
         case (ARG isEqualType ""): {ARG};\
-        default {[(format ["NWG_OBCL: Unexpected argument '%1'",ARG]),__FILE__,__LINE__] call NWG_fnc_logError; ""};\
+        default {(format ["NWG_OBCL: Unexpected argument '%1'",ARG]) call NWG_fnc_logError; ""};\
     };\
     private _i = CATALOGUE findIf {_arg in (_x select FLATTENED)}\
 
@@ -85,7 +87,7 @@ private _Init = {
     _result\
 
 NWG_OBCL_IsBuilding = {
-    //return
+    //private _objectOrClassname = _this;
     ((_this call NWG_OBCL_GetBuildingCategory) isNotEqualTo "")
 };
 
@@ -100,7 +102,7 @@ NWG_OBCL_GetSameBuildings = {
 };
 
 NWG_OBCL_IsFurniture = {
-    //return
+    //private _objectOrClassname = _this;
     ((_this call NWG_OBCL_GetFurnitureCategory) isNotEqualTo "")
 };
 
@@ -115,7 +117,12 @@ NWG_OBCL_GetSameFurniture = {
 };
 
 //================================================================================================================
-//Vehicle methods
+//Object methods
+NWG_OBCL_IsUnit = {
+    // private _object = _this;
+    _this isKindOf "Man"
+};
+
 NWG_OBCL_IsVehicle = {
     // private _object = _this;
     (_this isKindOf "Car"        ||
@@ -123,6 +130,37 @@ NWG_OBCL_IsVehicle = {
     {_this isKindOf "Helicopter" ||
     {_this isKindOf "Plane"      ||
     {_this isKindOf "Ship"}}}})
+};
+
+NWG_OBCL_IsTurret = {
+    // private _object = _this;
+    _this isKindOf "StaticWeapon"
+};
+
+NWG_OBCL_IsMine = {
+    // private _object = _this;
+    _this isKindOf "TimeBombCore"
+};
+
+//================================================================================================================
+//Hub method
+NWG_OBCL_GetObjectType = {
+    // private _object = _this;
+    if (!(_this isEqualType objNull)) exitWith {
+        (format ["NWG_OBCL_GetObjectType: Unexpected argument '%1'",_this]) call NWG_fnc_logError;
+        ""
+    };
+
+    //Order is defined on probability of occurence and execution speed
+    switch (true) do {
+        case (_this call NWG_OBCL_IsUnit):     {TYPE_UNIT};
+        case (_this call NWG_OBCL_IsTurret):   {TYPE_TRRT};
+        case (_this call NWG_OBCL_IsMine):     {TYPE_MINE};
+        case (_this call NWG_OBCL_IsVehicle):  {TYPE_VEHC};
+        case (_this call NWG_OBCL_IsBuilding): {TYPE_BLDG};
+        case (_this call NWG_OBCL_IsFurniture):{TYPE_FURN};
+        default {TYPE_DECO};
+    }
 };
 
 //================================================================================================================
