@@ -1,4 +1,4 @@
-#include "objectClassificatorDefines.h"
+#include "..\..\globalDefines.h"
 
 //================================================================================================================
 //Settings
@@ -153,13 +153,13 @@ NWG_OBCL_GetObjectType = {
 
     //Order is defined on probability of occurence and execution speed
     switch (true) do {
-        case (_this call NWG_OBCL_IsUnit):     {TYPE_UNIT};
-        case (_this call NWG_OBCL_IsTurret):   {TYPE_TRRT};
-        case (_this call NWG_OBCL_IsMine):     {TYPE_MINE};
-        case (_this call NWG_OBCL_IsVehicle):  {TYPE_VEHC};
-        case (_this call NWG_OBCL_IsBuilding): {TYPE_BLDG};
-        case (_this call NWG_OBCL_IsFurniture):{TYPE_FURN};
-        default {TYPE_DECO};
+        case (_this call NWG_OBCL_IsUnit):     {OBJ_TYPE_UNIT};
+        case (_this call NWG_OBCL_IsTurret):   {OBJ_TYPE_TRRT};
+        case (_this call NWG_OBCL_IsMine):     {OBJ_TYPE_MINE};
+        case (_this call NWG_OBCL_IsVehicle):  {OBJ_TYPE_VEHC};
+        case (_this call NWG_OBCL_IsBuilding): {OBJ_TYPE_BLDG};
+        case (_this call NWG_OBCL_IsFurniture):{OBJ_TYPE_FURN};
+        default {OBJ_TYPE_DECO};
     }
 };
 

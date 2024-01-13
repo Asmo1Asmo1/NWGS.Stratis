@@ -43,3 +43,18 @@ NWG_fnc_ocIsVehicle = {
     // private _object = _this;
     _this call NWG_OBCL_IsVehicle
 };
+
+//Check if object is unit
+// _object: Object
+// Returns: Boolean
+NWG_fnc_ocIsUnit = {
+    // private _object = _this;
+    _this call NWG_OBCL_IsUnit
+};
+
+//Gets the NWG type of the object
+// Returns: String of "BLDG"|"FURN"|"DECO"|"UNIT"|"VEHC"|"TRRT"|"MINE" or "" if the argument is not an object
+NWG_fnc_ocGetObjectType = {
+    // private _object = _this;
+    _this call NWG_OBCL_GetObjectType
+};

@@ -63,6 +63,8 @@ if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\spawner\
 //stateHolder
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\stateHolder\stateHolder.sqf" call NWG_fnc_compile);
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\stateHolder\stateHolderFunctions.sqf" call NWG_fnc_compile);
+//undertaker
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\undertaker\undertaker.sqf" call NWG_fnc_compile);
 
 //T2_UserInteraction
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepack.sqf" call NWG_fnc_compile);
