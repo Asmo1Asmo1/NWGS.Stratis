@@ -8,4 +8,4 @@
 #define OBJ_TYPE_MINE  "MINE"  // Mine
 
 //Server events
-#define EVENT_ON_OBJECT_KILLED "OnObjectKilled"  //Called by 'undertaker' subsystem when an object is killed
+#define EVENT_ON_OBJECT_KILLED "OnObjectKilled" //Called by 'undertaker' subsystem when an object is killed. params ["_obj","_objType","_actualKiller","_isPlayerKiller"];
