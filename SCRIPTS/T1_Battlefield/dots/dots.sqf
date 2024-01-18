@@ -130,7 +130,7 @@ NWG_DOTS_FindDotForWaypoint = {
         case "shore":  { {[_pos,(_rad+(_this*10))] call NWG_DOTS_FindShores} };
         case "air":    { {[_pos,(_rad+(_this*10)),3] call NWG_DOTS_GenerateDotsCircle} };
         default {
-            format ["NWG_DOTS_FindDotForWaypoint: Unknown type '%1'",_type] call NWG_fnc_logError;
+            (format ["NWG_DOTS_FindDotForWaypoint: Unknown type '%1'",_type]) call NWG_fnc_logError;
             {[_pos,(_rad+(_this*10)),3] call NWG_DOTS_GenerateDotsCircle}
         };
     };
@@ -168,7 +168,7 @@ NWG_DOTS_GenerateSimplePatrol = {
         case "water":  { _dots select {surfaceIsWater _x} };
         case "air":    { _dots };
         default {
-            format ["NWG_DOTS_GenerateSimplePatrol: Unknown type '%1'",_type] call NWG_fnc_logError;
+            (format ["NWG_DOTS_GenerateSimplePatrol: Unknown type '%1'",_type]) call NWG_fnc_logError;
             _dots
         };
     };

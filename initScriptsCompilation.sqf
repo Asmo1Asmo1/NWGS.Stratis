@@ -69,6 +69,8 @@ _serverModules pushBack ("SCRIPTS\T1_Battlefield\stateHolder\stateHolder.sqf" ca
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\stateHolder\stateHolderFunctions.sqf" call NWG_fnc_compile);
 //undertaker
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\undertaker\undertaker.sqf" call NWG_fnc_compile);
+//yellowKing
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKing.sqf" call NWG_fnc_compile);
 
 //T2_UserInteraction
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepack.sqf" call NWG_fnc_compile);
