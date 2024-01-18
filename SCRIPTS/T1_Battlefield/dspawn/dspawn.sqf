@@ -1,3 +1,4 @@
+#include "..\..\globalDefines.h"
 #include "dspawnDefines.h"
 
 //================================================================================================================
@@ -15,14 +16,14 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
     ["PARADROP_HEIGHT",200],//Height of paradropping
     ["PARADROP_TIMEOUT",90],//Timeout to auto-cancel paradrop in case of an error
 
-    ["ATTACK_INF_ATTACK_RADIUS",100],//Radius for INF group to 'attack' the position
-    ["ATTACK_VEH_UNLOAD_RADIUS",150],//Radius for VEH group to unload passengers
-    ["ATTACK_VEH_ATTACK_RADIUS",100],//Radius for VEH group to 'attack' the position
-    ["ATTACK_AIR_UNLOAD_RADIUS",150],//Radius for AIR group to unload passengers
-    ["ATTACK_AIR_ATTACK_RADIUS",200],//Radius for AIR group to 'attack' the position
+    ["ATTACK_INF_ATTACK_RADIUS",200],//Radius for INF group to 'attack' the position
+    ["ATTACK_VEH_UNLOAD_RADIUS",300],//Radius for VEH group to unload passengers
+    ["ATTACK_VEH_ATTACK_RADIUS",200],//Radius for VEH group to 'attack' the position
+    ["ATTACK_AIR_UNLOAD_RADIUS",300],//Radius for AIR group to unload passengers
+    ["ATTACK_AIR_ATTACK_RADIUS",400],//Radius for AIR group to 'attack' the position
     ["ATTACK_AIR_DESPAWN_RADIUS",5000],//Radius for AIR vehicle to despawn after unload
-    ["ATTACK_BOAT_UNLOAD_RADIUS",150],//Radius for BOAT group to unload passengers
-    ["ATTACK_BOAT_ATTACK_RADIUS",150],//Radius for BOAT group to 'attack' the position
+    ["ATTACK_BOAT_UNLOAD_RADIUS",300],//Radius for BOAT group to unload passengers
+    ["ATTACK_BOAT_ATTACK_RADIUS",200],//Radius for BOAT group to 'attack' the position
     ["ATTACK_PARADROPS_MAX",1],//Max number of vehicle paradrops per reinforcement
     ["ATTACK_PARADROPS_CHANCE",0.5],//Chance of vehicle group being paradropped (keep 0-1)
 
@@ -345,7 +346,7 @@ NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
 
     private _isBuildingOccupied = {
         // private _building = _this;
-        private _occupiedBuildings = "OccupiedBuildings" call NWG_fnc_shGetState;
+        private _occupiedBuildings = BST_OCCUPIED_BUILDINGS call NWG_fnc_shGetState;
         if (isNil "_occupiedBuildings") exitWith {false};//There are no occupied buildings yet
         //else
         _this in _occupiedBuildings
@@ -732,10 +733,10 @@ NWG_DSPAWN_SpawnInfantryGroupInBuilding = {
     private _group = group (_units#0);
 
     //Mark building as occupied
-    private _occupiedBuildings = "OccupiedBuildings" call NWG_fnc_shGetState;
+    private _occupiedBuildings = BST_OCCUPIED_BUILDINGS call NWG_fnc_shGetState;
     if (isNil "_occupiedBuildings") then {
         _occupiedBuildings = [_building];
-        ["OccupiedBuildings",_occupiedBuildings] call NWG_fnc_shSetState;
+        [BST_OCCUPIED_BUILDINGS,_occupiedBuildings] call NWG_fnc_shSetState;
     } else {
         _occupiedBuildings pushBackUnique _building;
     };
@@ -1009,7 +1010,7 @@ NWG_DSPAWN_ClearWaypoints = {
 //================================================================================================================
 //Patrol logic
 NWG_DSPAWN_SendToPatrol = {
-    params ["_group","_patrolRoute"];
+    params ["_group","_patrolRoute",["_allowSafePatrol",true]];
 
     //Add new patrol route
     _group call NWG_DSPAWN_ClearWaypoints;
@@ -1020,8 +1021,10 @@ NWG_DSPAWN_SendToPatrol = {
         //Add cycle (repeat)
         [_group,(_patrolRoute#0),"CYCLE"] call NWG_DSPAWN_AddWaypoint;
         //Set 'slow patrolling' behaviour
-        _group setSpeedMode "LIMITED";
-        _group setBehaviourStrong "SAFE";
+        if (_allowSafePatrol) then {
+            _group setSpeedMode "LIMITED";
+            _group setBehaviourStrong "SAFE";
+        };
     };
 
     //Save patrol route for future logic
@@ -1242,7 +1245,7 @@ NWG_DSPAWN_ReturnToPatrol = {
     };
 
     //Send group to patrol
-    [_group,_patrolRoute] call NWG_DSPAWN_SendToPatrol;
+    [_group,_patrolRoute,false] call NWG_DSPAWN_SendToPatrol;
 };
 
 NWG_DSPAWN_GetGroupVehicle = {

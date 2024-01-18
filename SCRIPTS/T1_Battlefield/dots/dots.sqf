@@ -12,7 +12,7 @@ NWG_DOTS_Settings = createHashMapFromArray [
     ["TRIGGER_AIR_RADIUS",200],//(Max) radius outside trigger to markup air spawn points
 
     ["REINF_SPAWNSEARCH_SETTINGS_MULTIPLIER",5],//Multiplier for AREA_SPAWNSEARCH settings for reinforcement markup, keep it >1 - it does not need to be so precise as trigger search
-    ["REINF_SHORECHECK_RADIUS",150],//Radius to check if there are shores around given position to decide whether or not calculate water positions
+    ["REINF_SHORECHECK_RADIUS",300],//Radius to check if there are shores around given position to decide whether or not calculate water positions
     ["REINF_INFANTRY_RADIUS",[500,700]],//Min-Max radius of the infantry spawn
     ["REINF_VEHICLE_RADIUS",[1000,1200]],//Min-Max radius of the vehicle spawn
     ["REINF_AIR_RADIUS",[3000,4000]],//Min-Max radius of the air spawn
@@ -130,7 +130,7 @@ NWG_DOTS_FindDotForWaypoint = {
         case "shore":  { {[_pos,(_rad+(_this*10))] call NWG_DOTS_FindShores} };
         case "air":    { {[_pos,(_rad+(_this*10)),3] call NWG_DOTS_GenerateDotsCircle} };
         default {
-            format ["NWG_DOTS_FindDotForWaypoint: Unknown type '%1'",_type] call NWG_fnc_logError;
+            (format ["NWG_DOTS_FindDotForWaypoint: Unknown type '%1'",_type]) call NWG_fnc_logError;
             {[_pos,(_rad+(_this*10)),3] call NWG_DOTS_GenerateDotsCircle}
         };
     };
@@ -168,7 +168,7 @@ NWG_DOTS_GenerateSimplePatrol = {
         case "water":  { _dots select {surfaceIsWater _x} };
         case "air":    { _dots };
         default {
-            format ["NWG_DOTS_GenerateSimplePatrol: Unknown type '%1'",_type] call NWG_fnc_logError;
+            (format ["NWG_DOTS_GenerateSimplePatrol: Unknown type '%1'",_type]) call NWG_fnc_logError;
             _dots
         };
     };

@@ -1,6 +1,5 @@
 /*
-Known states:
-"OccupiedBuildings" - array of buildings occupied by spawned units
+Check globalDefines for a list of known states
 */
 
 //Returns the saved state of the mission
