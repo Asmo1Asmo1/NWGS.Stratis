@@ -1,26 +1,20 @@
 /*
     Annotation:
-    This is a 'state' module meaning its only purpose is to store values and share them with any other module on request.
+    This is a 'state' module that does not contain any logic
+    It's purpose is to share data across Battlefield sub-systems
+    note: The states are cleared on mission end
 */
 
-//================================================================================================================
-//================================================================================================================
-//States
-NWG_STHLD_States = createHashMapFromArray [
-    ["OccupiedBuildings",[]],
-    ["",0]
-];
+NWG_STHLD_States = createHashMap;
 
-//================================================================================================================
-//================================================================================================================
-//Occupied Buildings
-NWG_STHLD_IsBuildingOccupied = {
-    //private _building = _this;
-    //return
-    (_this in (NWG_STHLD_States get "OccupiedBuildings"))
+NWG_STHLD_GetState = {
+    // private _state = _this;
+    NWG_STHLD_States get _this
 };
 
-NWG_STHLD_MarkBuildingOccupied = {
-    //private _building = _this;
-    (NWG_STHLD_States get "OccupiedBuildings") pushBackUnique _this;
+NWG_STHLD_SetState = {
+    params ["_state","_value"];
+    NWG_STHLD_States set [_state,_value];
 };
+
+//TODO: Add states clear on mission end

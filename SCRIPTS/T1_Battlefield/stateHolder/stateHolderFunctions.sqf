@@ -1,16 +1,20 @@
-// Checks if building was reported to be occupied by any module
-// params: building - object
-// returns: bool
-NWG_fnc_shIsBuildingOccupied = {
-    // private _building = _this;
-    // return
-    _this call NWG_STHLD_IsBuildingOccupied
+/*
+Check globalDefines for a list of known states
+*/
+
+//Returns the saved state of the mission
+// params: state - string key
+// returns: anything set before or nil if not set
+NWG_fnc_shGetState = {
+    // private _sate = _this;
+    _this call NWG_STHLD_GetState
 };
 
-// Marks building as occupied by any module
-// params: building - object
-// returns: void
-NWG_fnc_shMarkBuildingOccupied = {
-    // private _building = _this;
-    _this call NWG_STHLD_MarkBuildingOccupied;
+//Saves the state for the mission
+// params:
+//  state - string key
+//  value - anything
+NWG_fnc_shSetState = {
+    params ["_state","_value"];
+    _this call NWG_STHLD_SetState;
 };

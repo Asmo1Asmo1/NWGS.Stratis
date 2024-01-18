@@ -36,6 +36,11 @@ NWG_fnc_compile = {
 //T0_Core
 //commonFunctions
 _commonFunctions pushBack ("SCRIPTS\T0_Core\commonFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_commonFunctions pushBack ("SCRIPTS\T0_Core\commonTestFunctions.sqf" call NWG_fnc_compile)};
+//eventSystem
+_serverModules pushBack ("SCRIPTS\T0_Core\eventSystem\eventSystem.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T0_Core\eventSystem\eventSystem.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T0_Core\eventSystem\eventSystemFunctions.sqf" call NWG_fnc_compile);
 
 //T1_Battlefield
 //dots
@@ -47,6 +52,10 @@ _serverModules pushBack ("SCRIPTS\T1_Battlefield\dspawn\dspawn.sqf" call NWG_fnc
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\dspawn\dspawnFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\dspawn\dspawnTests.sqf" call NWG_fnc_compile)};
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\dspawn\dspawnDev.sqf" call NWG_fnc_compile)};
+//garbageCollector
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\garbageCollector\GCServerSide.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T1_Battlefield\garbageCollector\GCClientSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T1_Battlefield\garbageCollector\GCFunctions.sqf" call NWG_fnc_compile);
 //objectClassificator
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\objectClassificator\objectClassificator.sqf" call NWG_fnc_compile);
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\objectClassificator\objectClassificatorFunctions.sqf" call NWG_fnc_compile);
@@ -58,6 +67,10 @@ if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\spawner\
 //stateHolder
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\stateHolder\stateHolder.sqf" call NWG_fnc_compile);
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\stateHolder\stateHolderFunctions.sqf" call NWG_fnc_compile);
+//undertaker
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\undertaker\undertaker.sqf" call NWG_fnc_compile);
+//yellowKing
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKing.sqf" call NWG_fnc_compile);
 
 //T2_UserInteraction
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepack.sqf" call NWG_fnc_compile);

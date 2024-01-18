@@ -83,6 +83,17 @@ NWG_fnc_spwnSpawnUnitsIntoBuilding = {
     //returns _units (array)
 };
 
+//Get the vehicle original crew from config
+//params:
+//_classname - classname of the vehicle
+//returns:
+//array of original crew
+NWG_fnc_spwnGetOriginalCrew = {
+    //private _classname = _this;
+    _this call NWG_SPWN_GetOriginalCrew
+    //returns _crew (array)
+};
+
 //Get appearance of the vehicle
 //params:
 //_vehicle - vehicle to get appearance of
