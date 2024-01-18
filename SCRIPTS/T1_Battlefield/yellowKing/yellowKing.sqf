@@ -10,7 +10,7 @@ NWG_YK_Settings = createHashMapFromArray [
     ["REACTION_IMMEDIATE_ON_KILLCOUNT",25],//Number of kills to immediately react to (skips all the wait remaining)
     ["REACT_TO_PLAYERS_ONLY",false],//Should we handle kills made by AI units and players or players only
 
-    ["SHOW_DEBUG_MESSAGE",true],//Show debug message in systemChat
+    ["SHOW_DEBUG_MESSAGE",false],//Show debug message in systemChat
 
     ["",0]
 ];
@@ -84,6 +84,7 @@ NWG_YK_React = {
     //Get the difficulty settings
     (call NWG_YK_GetDifficulty) params [
         "_ignoreChance",
+        "_huntCount",
         "_reinfChance",
         "_reinfCount"
     ];
@@ -103,7 +104,7 @@ NWG_YK_React = {
         private _dice = [];
 
         //Fill the dice
-        if ([_hunters,_targetType] call NWG_YK_HUNT_DoWeHaveHunterFor) then {_dice pushBack "HUNT"};
+        if (_huntCount > 0 && {[_hunters,_targetType] call NWG_YK_HUNT_DoWeHaveHunterFor}) then {_dice pushBack "HUNT"};
         if (_reinfCount > 0 && {(random 1) <= _reinfChance}) then {_dice pushBack "REINF"};
         if (_dice isEqualTo []) then {continue};//There's nothing we can do napoleon meme
 
@@ -111,6 +112,7 @@ NWG_YK_React = {
         switch (selectRandom _dice) do {
             case "HUNT": {
                 [_hunters,_target,_targetType] call NWG_YK_HUNT_SendHunterFor;
+                _huntCount = _huntCount - 1;
                 if (NWG_YK_Settings get "SHOW_DEBUG_MESSAGE") then {systemChat (format ["NWG_YK: Sending hunter for %1",name _target])};
             };
             case "REINF": {
@@ -135,11 +137,11 @@ NWG_YK_React = {
 NWG_YK_difficultyCurve = [0,1,0,1,2,1,2,0,1,1,2,0,1,2,2,1,0];
 NWG_YK_difficultySettings = [
     //Easy
-    [/*_ingoreChance*/0.7,/*_reinfChance*/0.2,/*_reinfCount*/1],
+    [/*_ingoreChance*/0.6,/*_huntCount*/2,/*_reinfChance*/0.2,/*_reinfCount*/1],
     //Medium
-    [/*_ingoreChance*/0.4,/*_reinfChance*/0.5,/*_reinfCount*/1],
+    [/*_ingoreChance*/0.3,/*_huntCount*/3,/*_reinfChance*/0.5,/*_reinfCount*/1],
     //Hard
-    [/*_ingoreChance*/0.1,/*_reinfChance*/0.8,/*_reinfCount*/2]
+    [/*_ingoreChance*/0.1,/*_huntCount*/4,/*_reinfChance*/0.8,/*_reinfCount*/2]
 ];
 NWG_YK_GetDifficulty = {
     private _diff = NWG_YK_difficultyCurve deleteAt 0;
