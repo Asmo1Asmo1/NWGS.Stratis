@@ -16,14 +16,14 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
     ["PARADROP_HEIGHT",200],//Height of paradropping
     ["PARADROP_TIMEOUT",90],//Timeout to auto-cancel paradrop in case of an error
 
-    ["ATTACK_INF_ATTACK_RADIUS",100],//Radius for INF group to 'attack' the position
-    ["ATTACK_VEH_UNLOAD_RADIUS",150],//Radius for VEH group to unload passengers
-    ["ATTACK_VEH_ATTACK_RADIUS",100],//Radius for VEH group to 'attack' the position
-    ["ATTACK_AIR_UNLOAD_RADIUS",150],//Radius for AIR group to unload passengers
-    ["ATTACK_AIR_ATTACK_RADIUS",200],//Radius for AIR group to 'attack' the position
+    ["ATTACK_INF_ATTACK_RADIUS",200],//Radius for INF group to 'attack' the position
+    ["ATTACK_VEH_UNLOAD_RADIUS",300],//Radius for VEH group to unload passengers
+    ["ATTACK_VEH_ATTACK_RADIUS",200],//Radius for VEH group to 'attack' the position
+    ["ATTACK_AIR_UNLOAD_RADIUS",300],//Radius for AIR group to unload passengers
+    ["ATTACK_AIR_ATTACK_RADIUS",400],//Radius for AIR group to 'attack' the position
     ["ATTACK_AIR_DESPAWN_RADIUS",5000],//Radius for AIR vehicle to despawn after unload
-    ["ATTACK_BOAT_UNLOAD_RADIUS",150],//Radius for BOAT group to unload passengers
-    ["ATTACK_BOAT_ATTACK_RADIUS",150],//Radius for BOAT group to 'attack' the position
+    ["ATTACK_BOAT_UNLOAD_RADIUS",300],//Radius for BOAT group to unload passengers
+    ["ATTACK_BOAT_ATTACK_RADIUS",200],//Radius for BOAT group to 'attack' the position
     ["ATTACK_PARADROPS_MAX",1],//Max number of vehicle paradrops per reinforcement
     ["ATTACK_PARADROPS_CHANCE",0.5],//Chance of vehicle group being paradropped (keep 0-1)
 
