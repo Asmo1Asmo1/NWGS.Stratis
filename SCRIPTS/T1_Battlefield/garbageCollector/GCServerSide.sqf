@@ -93,14 +93,14 @@ NWG_GC_DeleteUnit = {
 };
 
 NWG_GC_delayedUnitsQueue = [];
-NWG_GC_delayedUnitsHandler = scriptNull;
+NWG_GC_delayedUnitsHandle = scriptNull;
 NWG_GC_DeleteUnitAfterDelay = {
     // private _unit = _this;
     if (isNull _this) exitWith {};
 
     NWG_GC_delayedUnitsQueue pushBack [(time + (NWG_GC_Settings get "PLAYER_DELETION_DELAY")), _this];
-    if (isNull NWG_GC_delayedUnitsHandler || {scriptDone NWG_GC_delayedUnitsHandler}) then {
-        NWG_GC_delayedUnitsHandler = [] spawn NWG_GC_DeleteUnitAfterDelay_Core;
+    if (isNull NWG_GC_delayedUnitsHandle || {scriptDone NWG_GC_delayedUnitsHandle}) then {
+        NWG_GC_delayedUnitsHandle = [] spawn NWG_GC_DeleteUnitAfterDelay_Core;
     };
 };
 NWG_GC_DeleteUnitAfterDelay_Core = {
@@ -168,7 +168,7 @@ NWG_GC_OnObjectKilled = {
         //Check if any player saw it die
         private _players = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
         private _distance = NWG_GC_Settings get "IMMEDIATE_DELETE_IF_PLAYER_DISTANCE";
-        _immediateDelete = (_players findIf {(_x distance2D _object) <= _distance}) != -1;
+        _immediateDelete = (_players findIf {(_x distance2D _object) <= _distance}) == -1;
     };
 
     if (_immediateDelete) exitWith {
