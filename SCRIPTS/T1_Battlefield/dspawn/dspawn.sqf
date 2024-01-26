@@ -599,32 +599,11 @@ NWG_DSPAWN_PrepareGroupForSpawn = {
     _groupDescr = _groupDescr + [];//Shallow copy to avoid modifying the original
     private _unitsDescr = _groupDescr#DESCR_UNITS;
     _unitsDescr = _unitsDescr + [];//Shallow copy to avoid modifying the original
-    _unitsDescr = _unitsDescr call NWG_DSPAWN_UnCompactStringArray;
+    _unitsDescr = _unitsDescr call NWG_fnc_unCompactStringArray;
     _unitsDescr = [_unitsDescr,_passengersContainer] call NWG_DSPAWN_FillWithPassengers;
     _groupDescr set [DESCR_UNITS,_unitsDescr];
     //return
     _groupDescr
-};
-
-NWG_DSPAWN_UnCompactStringArray = {
-    // private _array = _this;
-    private _result = [];
-    private _count = 1;
-
-    //do
-    {
-        if (_x isEqualType 0) then {
-            _count = _x;
-        } else {
-            for "_i" from 1 to _count do {_result pushBack _x};
-            _count = 1;
-        };
-    } forEach _this;
-
-    //return
-    _this resize 0;
-    _this append _result;
-    _this
 };
 
 NWG_DSPAWN_FillWithPassengers = {
@@ -786,8 +765,7 @@ NWG_DSPAWN_AC_AttachTurret = {
         _gunner = gunner _turret;
         if ((side _gunner) isNotEqualTo (side _group)) then {[_gunner] joinSilent _group};
     } else {
-        _gunner = ([[_gunnerClassname],"_NaN",(side _group)] call NWG_fnc_spwnPrespawnUnits)#0;
-        _gunner call NWG_fnc_spwnRevealObject;
+        _gunner = ([[_gunnerClassname],nil,_group] call NWG_fnc_spwnPrespawnUnits) param [0,objNull];
         _gunner moveInAny _turret;
     };
 };

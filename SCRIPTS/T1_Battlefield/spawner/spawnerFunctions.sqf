@@ -14,20 +14,6 @@ NWG_fnc_spwnPrespawnVehicle = {
     //returns _vehicle
 };
 
-//Spawn the group of units in a safe place and hide them globally
-//params:
-//_classnames - array of classnames of the units
-//_NaN - not used
-//_side - [optional] side of the units (west by default)
-//returns:
-//array of spawned units
-//note: The result units will remain in a 'safe spot' and hidden globally
-NWG_fnc_spwnPrespawnUnits = {
-    //params ["_classnames","_NaN",["_side",west]];
-    _this call NWG_SPWN_PrespawnUnits
-    //returns _units (array)
-};
-
 //Spawn the vehicle around given position
 //params:
 //_classname - classname of the vehicle
@@ -44,15 +30,45 @@ NWG_fnc_spwnSpawnVehicleAround = {
     //returns _vehicle
 };
 
+//Spawn the vehicle at the given position ASL
+//params:
+//_classname - classname of the vehicle
+//_pos - position ASL to spawn at
+//_dir - direction for the vehicle to face
+//_appearance - [optional] appearance of the vehicle
+//_pylons - [optional] pylons of the vehicle
+//_deferReveal - [optional] if true, vehicle will remain hidden globally after spawn
+//returns:
+//spawned vehicle
+NWG_fnc_spwnSpawnVehicleExact = {
+    //params ["_classname","_pos","_dir",["_appearance",false],["_pylons",false],["_deferReveal",false]];
+    _this call NWG_SPWN_SpawnVehicleExact
+    //returns _vehicle
+};
+
+//Spawn the group of units in a safe place and hide them globally
+//params:
+//_classnames - array of classnames of the units
+//_NaN - not used
+//_sideOrGroup - [optional] side of the units (west by default) or existing group to spawn into
+//returns:
+//array of spawned units
+//note: The result units will remain in a 'safe spot' but not hidden globally
+NWG_fnc_spwnPrespawnUnits = {
+    //params ["_classnames","_NaN",["_sideOrGroup",west]];
+    _this call NWG_SPWN_PrespawnUnits
+    //returns _units (array)
+};
+
 //Spawn the group of units around given position
 //params:
 //_classnames - array of classnames of the units
 //_pos - position to spawn around
-//_side - [optional] side of the units
+//_sideOrGroup - [optional] side of the units (west by default) or existing group to spawn into
 //returns:
 //array of spawned units
 NWG_fnc_spwnSpawnUnitsAround = {
-    //params ["_classnames","_pos",["_side",west]];
+    //params ["_classnames","_pos",["_sideOrGroup",west]];
     _this call NWG_SPWN_SpawnUnitsAround
     //returns _units (array)
 };
@@ -61,11 +77,11 @@ NWG_fnc_spwnSpawnUnitsAround = {
 //params:
 //_classnames - array of classnames of the units
 //_vehicle - vehicle to spawn into
-//_side - [optional] side of the units
+//_sideOrGroup - [optional] side of the units (west by default) or existing group to spawn into
 //returns:
 //array of spawned units
 NWG_fnc_spwnSpawnUnitsIntoVehicle = {
-    //params ["_classnames","_vehicle",["_side",west]];
+    //params ["_classnames","_vehicle",["_sideOrGroup",west]];
     _this call NWG_SPWN_SpawnUnitsIntoVehicle
     //returns _units (array)
 };
@@ -74,12 +90,29 @@ NWG_fnc_spwnSpawnUnitsIntoVehicle = {
 //params:
 //_classnames - array of classnames of the units
 //_building - building to spawn into
-//_side - [optional] side of the units
+//_sideOrGroup - [optional] side of the units (west by default) or existing group to spawn into
 //returns:
 //array of spawned units
 NWG_fnc_spwnSpawnUnitsIntoBuilding = {
-    //params ["_classnames","_building",["_side",west]];
+    //params ["_classnames","_building",["_sideOrGroup",west]];
     _this call NWG_SPWN_SpawnUnitsIntoBuilding
+    //returns _units (array)
+};
+
+//Spawn the group of units at exact positions ASL
+//params:
+//_data - array of [classname,position,direction,stance(optional)] records, where
+//  classname - classname of the unit
+//  position - position ASL to spawn at
+//  direction - direction for the unit to face
+//  stance - [optional] stance of the unit 1 - UP 2 - MIDDLE 3 - DOWN
+//_sideOrGroup - [optional] side of the units (west by default) or existing group to spawn into
+//_tryShufflePositions - [optional] if true, will try placing units around given positions with collision check
+//returns:
+//array of spawned units
+NWG_fnc_spwnSpawnUnitsExact = {
+    //params ["_data",["_sideOrGroup",west],["_tryShufflePositions",false]];
+    _this call NWG_SPWN_SpawnUnitsExact
     //returns _units (array)
 };
 

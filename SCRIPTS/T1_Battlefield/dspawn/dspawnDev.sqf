@@ -38,7 +38,7 @@ NWG_DSPAWN_Dev_Gather = {
     private _tier = 1;
 
     //Gather group's units
-    private _unitsDescr = ((units _group) apply {typeOf _x}) call NWG_DSPAWN_Dev_CompactStringArray;
+    private _unitsDescr = ((units _group) apply {typeOf _x}) call NWG_fnc_compactStringArray;
 
     //Exit if group is infantry (no vehicle)
     if ("INF" in _tags) exitWith {
@@ -103,32 +103,6 @@ NWG_DSPAWN_Dev_Dump = {
     copyToClipboard (_lines joinString (toString [13,10]));//Copy with 'new line' separator
 
     //Dump to output console
-    _this
-};
-
-//================================================================================================================
-//================================================================================================================
-//String array
-NWG_DSPAWN_Dev_CompactStringArray = {
-    // private _array = _this;
-    private _result = [];
-    private _i = -1;
-
-    //do
-    {
-        _i = _result find _x;
-        if (_i == -1) then {
-            _result pushBack 1;
-            _result pushBack _x;
-        } else {
-            _result set [(_i-1),((_result#(_i-1))+1)];
-        };
-    } forEach _this;
-
-    _this resize 0;
-    _this append (_result - [1]);
-
-    //return
     _this
 };
 

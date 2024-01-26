@@ -94,22 +94,6 @@ NWG_DSPAWN_FilterGroups_Test = {
 
 //================================================================================================================
 //================================================================================================================
-//String array
-
-// call NWG_DSPAWN_Dev_CompactStringArray_Test
-NWG_DSPAWN_Dev_CompactStringArray_Test = {
-    ["aaa","bbb","aaa","ccc","ccc","ccc"] call NWG_DSPAWN_Dev_CompactStringArray
-    //expected: [2,"aaa","bbb",3,"ccc"]
-};
-
-// call NWG_DSPAWN_UnCompactStringArray_Test
-NWG_DSPAWN_UnCompactStringArray_Test = {
-    [2,"aaa","bbb",3,"ccc"] call NWG_DSPAWN_UnCompactStringArray
-    //expected: ["aaa","aaa","bbb","ccc","ccc","ccc"]
-};
-
-//================================================================================================================
-//================================================================================================================
 //Passengers
 // 6 call NWG_DSPAWN_GeneratePassengers_Test
 NWG_DSPAWN_GeneratePassengers_Test = {

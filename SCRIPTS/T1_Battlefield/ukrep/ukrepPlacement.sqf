@@ -1,0 +1,207 @@
+#include "..\..\globalDefines.h"
+#include "ukrepDefines.h"
+
+/*
+    Annotation:
+    This module places object compositions (ukreps) according to blueprints and rules.
+*/
+
+//================================================================================================================
+//================================================================================================================
+//Settings
+NWG_UKREP_Settings = createHashMapFromArray [
+    ["OPTIMIZE_OBJECTS_ON_CREATE",true],//If set to true, script will validate and modify the original object payload for buildings/furniture/decor
+
+    ["DEFAULT_GROUP_SIDE",west],//If group rules not provided - place under this side
+    ["DEFAULT_GROUP_DYNASIM",true],//If group rules not provided - place with this dynamic simulation setting
+    ["DEFAULT_GROUP_TRYSHUFFLE",true],//If group rules not provided - place with this shuffle setting
+
+    ["",0]
+];
+
+//================================================================================================================
+//================================================================================================================
+//Blueprint catalog get
+//TODO
+
+//================================================================================================================
+//================================================================================================================
+//FRACTAL placement
+NWG_UKREP_FRACTAL_PlaceFractalABS = {
+    params ["_blueprint",["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
+    //TODO
+};
+
+NWG_UKREP_FRACTAL_PlaceFractalREL = {
+    params ["_blueprint","_pos","_dir",["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
+    //TODO
+};
+
+//================================================================================================================
+//================================================================================================================
+//Placement
+NWG_UKREP_PlaceABS = {
+    params ["_blueprint",["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
+    //TODO
+};
+
+NWG_UKREP_PlaceREL_Position = {
+    params ["_blueprint","_pos","_dir",["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
+    //TODO
+};
+
+NWG_UKREP_PlaceREL_Object = {
+    params ["_blueprint","_object",["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
+    //TODO
+};
+
+//================================================================================================================
+//================================================================================================================
+//Blueprint manipulation
+NWG_UKREP_AdaptToTerrain = {
+    //TODO
+};
+
+NWG_UKREP_BP_RELtoABS = {
+    //TODO
+};
+
+NWG_UKREP_BP_ApplyChances = {
+    //TODO
+};
+
+NWG_UKREP_BP_ApplyFaction = {
+    //TODO
+};
+
+//================================================================================================================
+//================================================================================================================
+//Placement CORE
+//Note: at this point we expect the blueprint to be in absolute coordinates ASL, insides unpacked into single-dimension array and protected from modification of the original blueprint
+NWG_UKREP_PlacementCore = {
+    params ["_blueprint",["_groupRules",[]]];
+
+    /*Sort into groups*/
+    _blueprint = _blueprint select INSIDE;
+    private _hlprs = _blueprint select {(_x#BP_OBJTYPE) isEqualTo "HELP"};        _blueprint = _blueprint - _hlprs;
+    private _bldgs = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_BLDG}; _blueprint = _blueprint - _bldgs;
+    private _furns = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_FURN}; _blueprint = _blueprint - _furns;
+    private _decos = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_DECO}; _blueprint = _blueprint - _decos;
+    private _units = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_UNIT}; _blueprint = _blueprint - _units;
+    private _vehcs = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_VEHC}; _blueprint = _blueprint - _vehcs;
+    private _trrts = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_TRRT}; _blueprint = _blueprint - _trrts;
+    private _mines = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_MINE};
+
+    /*Place HELP - helper modules*/
+    if ((count _hlprs) > 0) then {
+        private _hlprsGroup = group (missionNamespace getvariable ["BIS_functions_mainscope",objnull]);
+        if (isNull _hlprsGroup) exitWith {};//Failed to obtain
+        {
+            private _helper = _hlprsGroup createUnit [(_x#BP_CLASSNAME),(_x#BP_POS),[],0,"CAN_COLLIDE"];
+            _helper setDir (_x#BP_DIR);
+            _helper setPosASL (_x#BP_POS);
+            {_helper setVariable _x} forEach (_x#BP_PAYLOAD);
+        } forEach _hlprs;
+        _hlprs resize 0;//Clear
+    };
+
+    /*Place regular objects (BLDG,FURN,DECO) - buildings, furniture, decor*/
+    _bldgs = _bldgs apply {_x call NWG_UKREP_CreateObject};
+    _furns = _furns apply {_x call NWG_UKREP_CreateObject};
+    _decos = _decos apply {_x call NWG_UKREP_CreateObject};
+
+    /*Prepare the group to include units into with lazy evaluation*/
+    private _placementGroup = grpNull;
+    private _getGroup = {
+        if (!isNull _placementGroup) exitWith {_placementGroup};
+        _placementGroup = createGroup [
+            (_groupRules param [GRP_RULES_SIDE,(NWG_UKREP_Settings get "DEFAULT_GROUP_SIDE")]),
+            /*delete when empty:*/true
+        ];
+        _placementGroup
+    };
+
+    /*Place UNIT - units*/
+    if ((count _units) > 0) then {
+        private _tryShufflePositions = _groupRules param [GRP_RULES_TRYSHUFFLE,(NWG_UKREP_Settings get "DEFAULT_GROUP_TRYSHUFFLE")];
+        _units = _units apply {[(_x#BP_CLASSNAME),(_x#BP_POS),(_x#BP_DIR),(_x#BP_PAYLOAD)]};//Repack into func argument
+        _units = [_units,(call _getGroup),_tryShufflePositions] call NWG_fnc_spwnSpawnUnitsExact;
+        {_x disableAI "PATH"} forEach _units;//Disable pathfinding for all units
+    };
+
+    /*Place VEHC - vehicles*/
+    _vehcs = _vehcs apply {
+        (_x#BP_PAYLOAD) params [["_crew",[]],["_appearance",false],["_pylons",false]];
+        private _vehicle = [(_x#BP_CLASSNAME),(_x#BP_POS),(_x#BP_DIR),_appearance,_pylons] call NWG_fnc_spwnSpawnVehicleExact;
+        if ((count _crew) > 0) then {[(_crew call NWG_fnc_unCompactStringArray),_vehicle,(call _getGroup)] call NWG_fnc_spwnSpawnUnitsIntoVehicle};
+        _vehicle
+    };
+
+    /*Place TRRT - turrets*/
+    _trrts = _trrts apply {
+        private _crew = _x param [BP_PAYLOAD,[]];
+        private _turret = [(_x#BP_CLASSNAME),(_x#BP_POS),(_x#BP_DIR)] call NWG_fnc_spwnSpawnVehicleExact;
+        if ((count _crew) > 0) then {[(_crew call NWG_fnc_unCompactStringArray),_turret,(call _getGroup)] call NWG_fnc_spwnSpawnUnitsIntoVehicle};
+        _turret
+    };
+
+    /*Finalize group*/
+    if (!isNull _placementGroup) then {
+        private _dynaSim = _groupRules param [GRP_RULES_DYNASIM,(NWG_UKREP_Settings get "DEFAULT_GROUP_DYNASIM")];
+        _placementGroup enableDynamicSimulation _dynaSim;
+    };
+
+    /*Place MINE - mines*/
+    if ((count _mines) > 0) then {
+        private _minesDirs = [];//Fix for mines direction in MP
+        _mines = _mines apply {
+            private _pos = if ((_x#BP_CLASSNAME) isEqualTo "APERSTripMine")
+                then {(_x#BP_POS) vectorAdd [0,0,0.1]}
+                else {(_x#BP_POS)};//Fix for APERSTripMine
+
+            private _mine = createMine [(_x#BP_CLASSNAME),(ASLToAGL _pos),[],0];
+            _mine enableDynamicSimulation true;//Always true
+            _mine setDir (_x#BP_DIR);
+
+            _minesDirs pushBack (_x#BP_DIR);
+            _mine
+        };
+        [_mines,_minesDirs] call NWG_fnc_ukrpMinesRotateAndAdapt;
+        [_mines,_minesDirs] remoteExec ["NWG_fnc_ukrpMinesRotateAndAdapt",-2];//Fix for mines direction in MP
+    };
+
+    //return
+    [_bldgs,_furns,_decos,_units,_vehcs,_trrts,_mines]
+};
+
+NWG_UKREP_CreateObject = {
+    // params ["_objType","_classname","_pos","_posOffset","_dir","_dirOffset","_payload","_inside"];
+    private _classname = _this#BP_CLASSNAME;
+    private _pos = _this#BP_POS;
+    private _dir = _this#BP_DIR;
+    (_this#BP_PAYLOAD) params [["_canSimple",false],["_isSimple",false],["_isSimOn",false],["_isDynaSimOn",false],["_isDmgAllowed",false],["_isInteractable",false]];
+
+    //Optimize settings
+    if (NWG_UKREP_Settings get "OPTIMIZE_OBJECTS_ON_CREATE") then {
+        if (_canSimple && !_isInteractable) then {_isSimple = true};
+        if (!_isInteractable) then {_isSimOn = false; _isDynaSimOn = false};
+        if (_isSimOn && !_isDynaSimOn) then {_isDynaSimOn = true};
+    };
+
+    //Create
+    private _obj = if (_isSimple)
+        then {createSimpleObject [_classname,_pos]}
+        else {createVehicle [_classname,(ASLToATL _pos),[],0,"CAN_COLLIDE"]};
+    _obj setDir _dir;
+    _obj setPosASL _pos;//Fix postion distortion after setDir for certain objects (buildings especially)
+
+    //Apply settings
+    if (!_isSimple) then {
+        _obj enableSimulation _isSimOn;
+        _obj enableDynamicSimulation _isDynaSimOn;
+        _obj allowDamage _isDmgAllowed;
+    };
+
+    //return
+    _obj
+};
