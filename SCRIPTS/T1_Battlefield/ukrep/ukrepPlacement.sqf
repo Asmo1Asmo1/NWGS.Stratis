@@ -58,12 +58,62 @@ NWG_UKREP_PlaceREL_Object = {
 //================================================================================================================
 //================================================================================================================
 //Blueprint manipulation
-NWG_UKREP_AdaptToTerrain = {
-    //TODO
-};
-
 NWG_UKREP_BP_RELtoABS = {
-    //TODO
+    params ["_blueprint","_placementPos","_placementDir","_adaptToGround","_skipAdaptRoot"];
+
+    private _result = [];
+    private _recursiveRELtoABS = {
+        params ["_rootPos","_rootOrigDir","_rootCurDir","_adapt","_records"];
+
+        //Prepare variables
+        private _a = if (_rootCurDir >= _rootOrigDir)
+            then {((360-_rootCurDir)+_rootOrigDir)}
+            else {(360-((360-_rootOrigDir)+_rootCurDir))};
+        private _sin = if (_a == 180 || {_a == 360}) then {0} else {sin _a};//Fix SQF sin/cos bug
+        private _cos = if (_a == 90  || {_a == 270}) then {0} else {cos _a};//Fix SQF sin/cos bug
+
+        //Process records
+        {
+            //Calculate ABS position
+            private _posOffset = _x#BP_POSOFFSET;
+            private _dX = ((_posOffset#0)*_cos)-((_posOffset#1)*_sin);
+            private _dY = ((_posOffset#1)*_cos)+((_posOffset#0)*_sin);
+            private _absPos = [
+                ((_rootPos#0)+_dX),
+                ((_rootPos#1)+_dY),
+                ((_rootPos#2)+(_posOffset#2))
+            ];
+            if (_adapt) then {
+                if (_skipAdaptRoot && {_forEachIndex == 0}) exitWith {};//Skip root adaptation
+                _absPos set [2,0];
+                _absPos = ATLToASL _absPos;
+            };
+            _x set [BP_POS,_absPos];
+
+            //Calculate ABS direction
+            private _origDir   = _x#BP_DIR;//Save for later
+            private _dirOffset = _x#BP_DIROFFSET;
+            private _absDir = (_rootCurDir + _dirOffset);
+            _x set [BP_DIR,_absDir];
+
+            //Check if we need to go deeper (and save in both cases)
+            private _inside = _x param [BP_INSIDE,[]];
+            if ((count _inside) > 0) then {
+                _x resize BP_INSIDE;
+                _result pushBack _x;
+                [_absPos,_origDir,_absDir,false,_inside] call _recursiveRELtoABS;
+            } else {
+                _result pushBack _x;
+            };
+        } forEach _records;
+    };
+
+    [_placementPos,((_blueprint#0)#BP_DIR),_placementDir,_adaptToGround,_blueprint] call _recursiveRELtoABS;
+    _blueprint resize 0;
+    _blueprint append _result;
+
+    //return
+    _blueprint
 };
 
 NWG_UKREP_BP_ApplyChances = {
@@ -82,7 +132,6 @@ NWG_UKREP_PlacementCore = {
     params ["_blueprint",["_groupRules",[]]];
 
     /*Sort into groups*/
-    _blueprint = _blueprint select INSIDE;
     private _hlprs = _blueprint select {(_x#BP_OBJTYPE) isEqualTo "HELP"};        _blueprint = _blueprint - _hlprs;
     private _bldgs = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_BLDG}; _blueprint = _blueprint - _bldgs;
     private _furns = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_FURN}; _blueprint = _blueprint - _furns;

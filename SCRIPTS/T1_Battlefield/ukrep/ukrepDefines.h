@@ -31,3 +31,4 @@
 //Group rules
 #define GRP_RULES_SIDE 0
 #define GRP_RULES_DYNASIM 1
+#define GRP_RULES_TRYSHUFFLE 2
