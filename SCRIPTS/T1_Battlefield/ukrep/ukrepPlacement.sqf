@@ -117,7 +117,47 @@ NWG_UKREP_BP_RELtoABS = {
 };
 
 NWG_UKREP_BP_ApplyChances = {
-    //TODO
+    params ["_blueprint",["_chances",[]]];
+    if (_chances isEqualTo []) exitWith {_blueprint};//Nothing to do
+
+    private _toRemove = [];
+    {
+        private _chance = _chances param [_forEachIndex,1];
+        if (_chance isEqualTo 1) then {continue};//Skip 100% chance
+
+        private _affectedObjects = _blueprint select {(_x#BP_OBJTYPE) isEqualTo _x};
+        if ((count _affectedObjects) == 0) then {continue};//Skip if no objects of this type
+
+        private _targetCount = if (_chance isEqualType []) then {
+            //Min and max count
+            _chance params ["_min","_max"];
+            (floor (random (_max-_min+1))) + _min
+        } else {
+            //Percentage
+            round ((count _affectedObjects) * _chance)
+        };
+        if ((count _affectedObjects) <= _targetCount) then {continue};//Skip if no objects to remove
+
+        _affectedObjects = _affectedObjects call NWG_fnc_arrayShuffle;
+        _toRemove append (_affectedObjects select [_targetCount]);
+    } forEach [
+        OBJ_TYPE_BLDG,
+        OBJ_TYPE_FURN,
+        OBJ_TYPE_DECO,
+        OBJ_TYPE_UNIT,
+        OBJ_TYPE_VEHC,
+        OBJ_TYPE_TRRT,
+        OBJ_TYPE_MINE
+    ];
+
+    if ((count _toRemove) > 0) then {
+        private _temp = _blueprint - _toRemove;
+        _blueprint resize 0;
+        _blueprint append _temp;
+    };
+
+    //return
+    _blueprint
 };
 
 NWG_UKREP_BP_ApplyFaction = {
