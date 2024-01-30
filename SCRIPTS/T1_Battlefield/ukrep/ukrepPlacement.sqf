@@ -10,6 +10,9 @@
 //================================================================================================================
 //Settings
 NWG_UKREP_Settings = createHashMapFromArray [
+    ["BLUEPRINTS_CATALOGUE_ADDRESS","DATASETS\Server\Ukrep\Blueprints"],//Address of the catalogue for blueprints
+    ["FACTIONS_CATALOGUE_ADDRESS","DATASETS\Server\Ukrep\Factions"],//Address of the catalogue for factions
+
     ["OPTIMIZE_OBJECTS_ON_CREATE",true],//If set to true, script will validate and modify the original object payload for buildings/furniture/decor
 
     ["DEFAULT_GROUP_SIDE",west],//If group rules not provided - place under this side
@@ -161,7 +164,31 @@ NWG_UKREP_BP_ApplyChances = {
 };
 
 NWG_UKREP_BP_ApplyFaction = {
-    //TODO
+    params ["_blueprint",["_faction",""]];
+    if (_faction isEqualTo "") exitWith {_blueprint};//Nothing to do
+
+    private _factionPage = createHashMap;//TODO: Replace with an actual catalogue get
+    if (_factionPage isEqualTo false) exitWith {_blueprint};//Error
+
+    private _toReplace = _blueprint select {(_x#BP_CLASSNAME) in _factionPage};
+    if ((count _toReplace) == 0) exitWith {_blueprint};//Nothing to do
+
+    private _replacement = [];
+    {
+        _replacement = _factionPage get (_x#BP_CLASSNAME);
+        _replacement = if ((count _replacement) > 1)
+            then {[_replacement,(format ["NWG_UKREP_BP_ApplyFaction_",(_x#BP_CLASSNAME)])] call NWG_fnc_selectRandomGuaranteed}
+            else {_replacement#0};
+        if (_replacement isEqualType []) then {
+            _x set [BP_CLASSNAME,_replacement#0];
+            _x set [BP_PAYLOAD,_replacement#1];
+        } else {
+            _x set [BP_CLASSNAME,_replacement];
+        };
+    } forEach _toReplace;
+
+    //return
+    _blueprint
 };
 
 //================================================================================================================

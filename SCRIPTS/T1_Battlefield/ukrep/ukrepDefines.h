@@ -8,7 +8,7 @@
 #define BP_TITLE_RADIUS 4
 #define BP_TITLE_UNUSED2 5
 #define BP_TITLE_PAYLOAD 6
-#define BP_TITLE_INSIDE 7
+#define BP_TITLE_BLUEPRINT 7
 
 // ObjType	ClassName	Position	PosOffset	Direction	DirOffset	Payload	Inside
 #define BP_OBJTYPE 0
