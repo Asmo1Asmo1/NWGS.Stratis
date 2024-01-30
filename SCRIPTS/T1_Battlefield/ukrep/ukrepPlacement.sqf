@@ -45,17 +45,39 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
 //Placement
 NWG_UKREP_PlaceABS = {
     params ["_blueprint",["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
-    //TODO
+
+    _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
+    _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
+    private _result = [_blueprint,_groupRules] call NWG_UKREP_PlacementCore;
+
+    //return
+    _result
 };
 
 NWG_UKREP_PlaceREL_Position = {
-    params ["_blueprint","_pos","_dir",["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
-    //TODO
+    params ["_blueprint","_pos","_dir",["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",false]];
+
+    _blueprint = [_blueprint,_pos,_dir,_adaptToGround,/*skip root:*/false] call NWG_UKREP_BP_RELtoABS;
+    _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
+    _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
+    private _result = [_blueprint,_groupRules] call NWG_UKREP_PlacementCore;
+
+    //return
+    _result
 };
 
 NWG_UKREP_PlaceREL_Object = {
-    params ["_blueprint","_object",["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
-    //TODO
+    params ["_blueprint","_object",["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",false]];
+
+    private _pos = getPosASL _object;
+    private _dir = getDir _object;
+    _blueprint = [_blueprint,_pos,_dir,_adaptToGround,/*skip root:*/true] call NWG_UKREP_BP_RELtoABS;
+    _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
+    _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
+    private _result = [_blueprint,_groupRules] call NWG_UKREP_PlacementCore;
+
+    //return
+    _result
 };
 
 //================================================================================================================
