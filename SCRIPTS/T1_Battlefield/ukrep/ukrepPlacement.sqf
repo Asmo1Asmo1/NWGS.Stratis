@@ -51,6 +51,38 @@ NWG_UKREP_GetFactionsPage = {
     [_this,NWG_UKREP_factions,(NWG_UKREP_Settings get "FACTIONS_CATALOGUE_ADDRESS")] call NWG_UKREP_GetCataloguePage
 };
 
+NWG_UKREP_GetBlueprintsABS = {
+    params ["_pageName",["_blueprintName",""],["_blueprintPos",[]]];
+    private _page = _pageName call NWG_UKREP_GetBlueprintsPage;
+    if (_page isEqualTo false) exitWith {[]};
+
+    private _nameFilter = if (_blueprintName isNotEqualTo "")
+        then {{_blueprintName in (_x#BPCONTAINER_NAME)}}
+        else {{true}};
+    private _posFilter = if (_blueprintPos isNotEqualTo [])
+        then {{((_blueprintPos#0) distance2D (_x#BPCONTAINER_POS)) <= (_blueprintPos#1)}}
+        else {{true}};
+
+    //return
+    _page select {(_x#BPCONTAINER_TYPE) isEqualTo "ABS" && {_x call _nameFilter && {_x call _posFilter}}}
+};
+
+NWG_UKREP_GetBlueprintsREL = {
+    params ["_pageName",["_blueprintName",""],["_blueprintRoot",[]]];
+    private _page = _pageName call NWG_UKREP_GetBlueprintsPage;
+    if (_page isEqualTo false) exitWith {[]};
+
+    private _nameFilter = if (_blueprintName isNotEqualTo "")
+        then {{_blueprintName in (_x#BPCONTAINER_NAME)}}
+        else {{true}};
+    private _rootFilter = if (_blueprintRoot isNotEqualTo [])
+        then {{(((_x#BPCONTAINER_BLUEPRINT)#0)#BP_CLASSNAME) in _blueprintRoot}}
+        else {{true}};
+
+    //return
+    _page select {(_x#BPCONTAINER_TYPE) isEqualTo "REL" && {_x call _nameFilter && {_x call _rootFilter}}}
+};
+
 //================================================================================================================
 //================================================================================================================
 //FRACTAL placement
@@ -93,9 +125,8 @@ NWG_UKREP_PlaceREL_Position = {
 NWG_UKREP_PlaceREL_Object = {
     params ["_blueprint","_object",["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",false]];
 
-    private _pos = getPosASL _object;
-    private _dir = getDir _object;
-    _blueprint = [_blueprint,_pos,_dir,_adaptToGround,/*skip root:*/true] call NWG_UKREP_BP_RELtoABS;
+    _blueprint = [_blueprint,(getPosASL _object),(getDir _object),_adaptToGround,/*skip root:*/true] call NWG_UKREP_BP_RELtoABS;
+    _blueprint deleteAt 0;//Remove root from blueprint (already placed)
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
     _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
     private _result = [_blueprint,_groupRules] call NWG_UKREP_PlacementCore;

@@ -1,14 +1,14 @@
 //Ukrep blueprint structure
 
 // UkrepType	UkrepName	ABSPos	[0,0,0]	Radius	0	Payload	Inside
-#define BP_TITLE_TYPE 0
-#define BP_TITLE_NAME 1
-#define BP_TITLE_POS 2
-#define BP_TITLE_UNUSED1 3
-#define BP_TITLE_RADIUS 4
-#define BP_TITLE_UNUSED2 5
-#define BP_TITLE_PAYLOAD 6
-#define BP_TITLE_BLUEPRINT 7
+#define BPCONTAINER_TYPE 0
+#define BPCONTAINER_NAME 1
+#define BPCONTAINER_POS 2
+#define BPCONTAINER_UNUSED1 3
+#define BPCONTAINER_RADIUS 4
+#define BPCONTAINER_UNUSED2 5
+#define BPCONTAINER_PAYLOAD 6
+#define BPCONTAINER_BLUEPRINT 7
 
 // ObjType	ClassName	Position	PosOffset	Direction	DirOffset	Payload	Inside
 #define BP_OBJTYPE 0
