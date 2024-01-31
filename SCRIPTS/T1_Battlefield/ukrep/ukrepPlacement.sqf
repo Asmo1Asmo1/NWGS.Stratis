@@ -25,7 +25,31 @@ NWG_UKREP_Settings = createHashMapFromArray [
 //================================================================================================================
 //================================================================================================================
 //Blueprint catalog get
-//TODO
+NWG_UKREP_blueprints = createHashMap;
+NWG_UKREP_factions = createHashMap;
+NWG_UKREP_GetCataloguePage = {
+    params ["_pageName","_cache","_catalogueAddress"];
+    if (_pageName in _cache) exitWith {_cache get _pageName};//Already loaded
+
+    private _page = call ((format["%1\%2.sqf",_catalogueAddress,_pageName]) call NWG_fnc_compile);
+    if (isNil "_page") then {
+        (format ["NWG_UKREP_GetCataloguePage: Could not load the catalogue page '%1'",_pageName]) call NWG_fnc_logError;
+        _page = false;
+    };
+
+    _cache set [_this,_page];
+    _page
+};
+
+NWG_UKREP_GetBlueprintsPage = {
+    // private _pageName = _this;
+    [_this,NWG_UKREP_blueprints,(NWG_UKREP_Settings get "BLUEPRINTS_CATALOGUE_ADDRESS")] call NWG_UKREP_GetCataloguePage
+};
+
+NWG_UKREP_GetFactionsPage = {
+    // private _pageName = _this;
+    [_this,NWG_UKREP_factions,(NWG_UKREP_Settings get "FACTIONS_CATALOGUE_ADDRESS")] call NWG_UKREP_GetCataloguePage
+};
 
 //================================================================================================================
 //================================================================================================================
@@ -42,7 +66,7 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
 
 //================================================================================================================
 //================================================================================================================
-//Placement
+//Placement (mid-level)
 NWG_UKREP_PlaceABS = {
     params ["_blueprint",["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
 
@@ -189,7 +213,7 @@ NWG_UKREP_BP_ApplyFaction = {
     params ["_blueprint",["_faction",""]];
     if (_faction isEqualTo "") exitWith {_blueprint};//Nothing to do
 
-    private _factionPage = createHashMap;//TODO: Replace with an actual catalogue get
+    private _factionPage = _faction call NWG_UKREP_GetFactionsPage;
     if (_factionPage isEqualTo false) exitWith {_blueprint};//Error
 
     private _toReplace = _blueprint select {(_x#BP_CLASSNAME) in _factionPage};
@@ -202,8 +226,8 @@ NWG_UKREP_BP_ApplyFaction = {
             then {[_replacement,(format ["NWG_UKREP_BP_ApplyFaction_",(_x#BP_CLASSNAME)])] call NWG_fnc_selectRandomGuaranteed}
             else {_replacement#0};
         if (_replacement isEqualType []) then {
-            _x set [BP_CLASSNAME,_replacement#0];
-            _x set [BP_PAYLOAD,_replacement#1];
+            _x set [BP_CLASSNAME,(_replacement#0)];
+            _x set [BP_PAYLOAD,(_replacement#1)];
         } else {
             _x set [BP_CLASSNAME,_replacement];
         };
