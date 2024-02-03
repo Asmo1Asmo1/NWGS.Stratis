@@ -19,6 +19,8 @@
 #define BP_DIROFFSET 5
 #define BP_PAYLOAD 6
 #define BP_INSIDE 7
+/*Used internally during gathering:*/
+#define BP_ORIGOBJECT 8
 
 //Payloads
 #define P_OBJ_CAN_SIMPLE 0

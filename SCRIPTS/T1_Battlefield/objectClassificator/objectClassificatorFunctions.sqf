@@ -54,6 +54,7 @@ NWG_fnc_ocIsUnit = {
 
 //Gets the NWG type of the object
 // Returns: String of "BLDG"|"FURN"|"DECO"|"UNIT"|"VEHC"|"TRRT"|"MINE" or "" if the argument is not an object
+// Return strings are defined in globalDefines.h
 NWG_fnc_ocGetObjectType = {
     // private _object = _this;
     _this call NWG_OBCL_GetObjectType
