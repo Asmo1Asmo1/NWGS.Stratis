@@ -82,9 +82,73 @@ if (NWG_UKREP_GATHER_Settings get "DISABLE_PLACEHOLDER_UNITS_ON_START") then {
 
 //================================================================================================================
 //Gather ABS composition
+NWG_UKREP_GatherUkrepABS = {
+    private _radius = _this;
+
+    private _objects = _radius call NWG_UKREP_GatherObjectsAround;//Gather objects around player
+    [_objects] call NWG_UKREP_MarkObjectsOnMap;//Mark them on map
+
+    //Calculate position and radius (inlined)
+    private _coords = _objects apply {getPosASL _x};
+    private _bpPos = _coords call NWG_fnc_dtsFindMidpoint;
+    private _bpRad = 0;
+    {_bpRad = _bpRad max (_bpPos distance2D _x)} forEach _coords;
+
+    private _blueprint = _objects call NWG_UKREP_PackIntoRecords;//Pack into records
+    _blueprint = _blueprint call NWG_UKREP_Sort;//Sort
+
+    //Pack into full blueprint
+    private _fullBlueprint = [
+        /*BPCONTAINER_TYPE*/"ABS",
+        /*BPCONTAINER_NAME*/"UKREPNAME",
+        /*BPCONTAINER_POS*/_bpPos,
+        /*BPCONTAINER_UNUSED1*/0,
+        /*BPCONTAINER_RADIUS*/_bpRad,
+        /*BPCONTAINER_UNUSED2*/0,
+        /*BPCONTAINER_PAYLOAD*/[],
+        /*BPCONTAINER_BLUEPRINT*/_blueprint
+    ];
+    _fullBlueprint call NWG_UKREP_Dump;//Dump to RPT
+};
 
 //================================================================================================================
 //Gather REL composition
+NWG_UKREP_GatherUkrepREL = {
+    private _radius = _this;
+
+    private _objects = _radius call NWG_UKREP_GatherObjectsAround;//Gather objects around player
+    private _rootObj = _objects call NWG_UKREP_FindRoot;//Find root object
+    if (isNull _rootObj) exitWith {"NWG_UKREP_GatherUkrepREL: Root object not found!"};
+    _objects = _objects - [_rootObj];//Remove root object from the list
+    [_objects,_rootObj] call NWG_UKREP_MarkObjectsOnMap;//Mark them on map
+
+    //Calculate radius (inlined)
+    private _bpRad = 0;
+    {_bpRad = _bpRad max (_rootObj distance2D _x)} forEach _objects;
+
+    _objects = [_rootObj] + _objects;//Put root object first
+    private _blueprint = _objects call NWG_UKREP_PackIntoRecords;//Pack into records
+    _blueprint = _blueprint call NWG_UKREP_ABStoREL;//Convert to REL
+
+    //Sort root and the rest separately
+    private _roots = [_blueprint deleteAt 0];
+    _roots = _roots call NWG_UKREP_Sort;
+    _blueprint = _blueprint call NWG_UKREP_Sort;
+    _blueprint = _roots + _blueprint;//Put root object first
+
+    //Pack into full blueprint
+    private _fullBlueprint = [
+        /*BPCONTAINER_TYPE*/"REL",
+        /*BPCONTAINER_NAME*/"UKREPNAME",
+        /*BPCONTAINER_POS*/0,
+        /*BPCONTAINER_UNUSED1*/0,
+        /*BPCONTAINER_RADIUS*/_bpRad,
+        /*BPCONTAINER_UNUSED2*/0,
+        /*BPCONTAINER_PAYLOAD*/[],
+        /*BPCONTAINER_BLUEPRINT*/_blueprint
+    ];
+    _fullBlueprint call NWG_UKREP_Dump;//Dump to RPT
+};
 
 //================================================================================================================
 //Gathering utilities
@@ -147,25 +211,6 @@ NWG_UKREP_MarkObjectsOnMap = {
         [_rootObj,"ukrepObj_root","ColorBlue"] call NWG_fnc_testPlaceMarker;
     };
     {[_x,(format ["ukrepObj_%1",_forEachIndex]),"ColorRed"] call NWG_fnc_testPlaceMarker} forEach _objects;
-};
-
-NWG_UKREP_CalculatePosAndRadABS = {
-    // private _objects = _this;
-    private _coords = _this apply {getPosASL _x};
-    private _midPoint = _coords call NWG_fnc_dtsFindMidpoint;
-    private _radius = 0;
-    {_radius = _radius max (_midPoint distance2D _x)} forEach _coords;
-
-    //return
-    [_midPoint,_radius]
-};
-
-NWG_UKREP_CalculateRadREL = {
-    params ["_objects","_rootObj"];
-    private _radius = 0;
-    {_radius = _radius max (_rootObj distance2D _x)} forEach _objects;
-    //return
-    _radius
 };
 
 NWG_UKREP_PackIntoRecords = {
@@ -295,18 +340,18 @@ NWG_UKREP_IsInteractable = {
 };
 
 NWG_UKREP_ABStoREL = {
-    private _objects = _this;
+    private _records = _this;
 
     //Separate
-    private _roots  = [_objects deleteAt 0];
+    private _roots  = [_records deleteAt 0];
     private _bldgs = []; private _furns = []; private _decos = [];
     {
         switch ((_x#BP_OBJTYPE)) do {
-            case OBJ_TYPE_BLDG: {_bldgs pushBack (_objects deleteAt _forEachIndex)};
-            case OBJ_TYPE_FURN: {_furns pushBack (_objects deleteAt _forEachIndex)};
-            case OBJ_TYPE_DECO: {_decos pushBack (_objects deleteAt _forEachIndex)};
+            case OBJ_TYPE_BLDG: {_bldgs pushBack (_records deleteAt _forEachIndex)};
+            case OBJ_TYPE_FURN: {_furns pushBack (_records deleteAt _forEachIndex)};
+            case OBJ_TYPE_DECO: {_decos pushBack (_records deleteAt _forEachIndex)};
         }
-    } forEachReversed _objects;
+    } forEachReversed _records;
 
     //Prepare the script
     private _ABStoREL = {
@@ -340,14 +385,14 @@ NWG_UKREP_ABStoREL = {
     _decos append _temp;
 
     //Check each objects in hierarchy and append them back to the list
-    [_decos,_objects] call _ABStoREL; _objects append _decos; _decos resize 0;
-    [_furns,_objects] call _ABStoREL; _objects append _furns; _furns resize 0;
-    [_bldgs,_objects,true] call _ABStoREL; _objects append _bldgs; _bldgs resize 0;
-    [_roots,_objects] call _ABStoREL; _objects append _roots; _roots resize 0;
-    reverse _objects;//Reverse to keep the root object first
+    [_decos,_records] call _ABStoREL; _records append _decos; _decos resize 0;
+    [_furns,_records] call _ABStoREL; _records append _furns; _furns resize 0;
+    [_bldgs,_records,true] call _ABStoREL; _records append _bldgs; _bldgs resize 0;
+    [_roots,_records] call _ABStoREL; _records append _roots; _roots resize 0;
+    reverse _records;//Reverse to keep the root object first
 
     //return
-    _objects
+    _records
 };
 
 //This implementation relies solely on raycasting and check if _objectA is above _objectB - good enough
@@ -362,8 +407,7 @@ NWG_UKREP_IsInside = {
 
 NWG_UKREP_sortOrder = [OBJ_TYPE_BLDG,OBJ_TYPE_FURN,OBJ_TYPE_DECO,OBJ_TYPE_UNIT,OBJ_TYPE_VEHC,OBJ_TYPE_TRRT,OBJ_TYPE_MINE];
 NWG_UKREP_Sort = {
-    private _objects = _this;
-    private _roots = [_objects deleteAt 0];
+    private _records = _this;
 
     private _recursiveSort = {
         private _records = _this;
@@ -375,19 +419,10 @@ NWG_UKREP_Sort = {
         _records append (_sorted apply {_x#2});//Repack back
         {(_x#BP_INSIDE) call _recursiveSort} forEach _records;//Sort nested
     };
-
-    //Sort roots and other objects separately
-    _roots call _recursiveSort;
-    _objects call _recursiveSort;
-
-    //Combine
-    private _temp = [];
-    _temp append _roots; _roots resize 0;
-    _temp append _objects; _objects resize 0;
-    _objects append _temp; _temp resize 0;
+    _records call _recursiveSort;
 
     //return
-    _objects
+    _records
 };
 
 NWG_UKREP_Dump = {
@@ -437,5 +472,5 @@ NWG_UKREP_Dump = {
     copyToClipboard (_lines joinString (toString [13,10]));//Copy with 'new line' separator
 
     //Dump to output console as is
-    _fullBlueprint
+    _lines
 };
