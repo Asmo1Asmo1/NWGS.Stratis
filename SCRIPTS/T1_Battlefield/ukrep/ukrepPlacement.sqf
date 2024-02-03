@@ -276,14 +276,21 @@ NWG_UKREP_PlacementCore = {
     params ["_blueprint",["_groupRules",[]]];
 
     /*Sort into groups*/
-    private _hlprs = _blueprint select {(_x#BP_OBJTYPE) isEqualTo "HELP"};        _blueprint = _blueprint - _hlprs;
-    private _bldgs = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_BLDG}; _blueprint = _blueprint - _bldgs;
-    private _furns = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_FURN}; _blueprint = _blueprint - _furns;
-    private _decos = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_DECO}; _blueprint = _blueprint - _decos;
-    private _units = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_UNIT}; _blueprint = _blueprint - _units;
-    private _vehcs = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_VEHC}; _blueprint = _blueprint - _vehcs;
-    private _trrts = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_TRRT}; _blueprint = _blueprint - _trrts;
-    private _mines = _blueprint select {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_MINE};
+    private _hlprs = []; private _bldgs = []; private _furns = []; private _decos = [];
+    private _units = []; private _vehcs = []; private _trrts = []; private _mines = [];
+    {
+        switch (_x#BP_OBJTYPE) do {
+            case "HELP": {_hlprs pushBack _x};
+            case OBJ_TYPE_BLDG: {_bldgs pushBack _x};
+            case OBJ_TYPE_FURN: {_furns pushBack _x};
+            case OBJ_TYPE_DECO: {_decos pushBack _x};
+            case OBJ_TYPE_UNIT: {_units pushBack _x};
+            case OBJ_TYPE_VEHC: {_vehcs pushBack _x};
+            case OBJ_TYPE_TRRT: {_trrts pushBack _x};
+            case OBJ_TYPE_MINE: {_mines pushBack _x};
+        };
+    } forEach _blueprint;
+    _blueprint resize 0;//Clear
 
     /*Place HELP - helper modules*/
     if ((count _hlprs) > 0) then {
