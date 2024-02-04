@@ -177,7 +177,6 @@ NWG_UKREP_PlaceREL_Position = {
 
 NWG_UKREP_PlaceREL_Object = {
     params ["_blueprint","_object",["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",true]];
-
     _blueprint = [_blueprint,(getPosASL _object),(getDir _object),_adaptToGround,/*skip root:*/true] call NWG_UKREP_BP_RELtoABS;
     _blueprint deleteAt 0;//Remove root from blueprint (already placed)
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
@@ -252,7 +251,8 @@ NWG_UKREP_BP_ApplyChances = {
         private _chance = _chances param [_forEachIndex,1];
         if (_chance isEqualTo 1) then {continue};//Skip 100% chance
 
-        private _affectedObjects = _blueprint select {(_x#BP_OBJTYPE) isEqualTo _x};
+        private _curType = _x;
+        private _affectedObjects = _blueprint select {(_x#BP_OBJTYPE) isEqualTo _curType};
         if ((count _affectedObjects) == 0) then {continue};//Skip if no objects of this type
 
         private _targetCount = if (_chance isEqualType []) then {
