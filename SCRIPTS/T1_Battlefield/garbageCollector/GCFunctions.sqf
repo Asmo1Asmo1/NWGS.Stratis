@@ -1,4 +1,15 @@
 //=============================================================================
+/*Server -> GC*/
+//Deletes the entire mission, leaves only original objects and markers
+//note: it is better to use 'spawn' to call this function for it may be slow (a lot of objects to delete)
+//params:
+// _callback: (optional) the code to call after the mission is deleted
+NWG_fnc_gcDeleteMission = {
+    // params [["_callback",{}]];
+    _this call NWG_GC_DeleteMission
+};
+
+//=============================================================================
 /*Server -> Units*/
 
 //Forces the client to delete all user defined markers

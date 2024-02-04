@@ -1,6 +1,6 @@
 [
     /*Test landbunker ABS*/
-    ["ABS","UKREPNAME",[1803.19,5570.65,0],0,16.0322,0,[],[
+    ["ABS","BUNKER",[1803.19,5570.65,0],0,16.0322,0,[],[
         ["BLDG","Land_BagBunker_Tower_F",[1809.96,5570.1,5.5],0,2.538,0,[false,false,true,false,true,false]],
         ["BLDG","Land_Cargo_Patrol_V3_F",[1810.71,5584.7,5.5],0,270,0,[false,false,true,false,true,true]],
         ["BLDG","Land_Cargo_Patrol_V3_F",[1796.18,5574.69,5.5],0,0,0,[false,false,true,false,true,true]],
@@ -38,7 +38,7 @@
         ["MINE","TrainingMine_01_F",[1802.99,5559.74,5.50021],0,0,0,0]]],
 
     /*Test landbunker REL*/
-    ["REL","UKREPNAME",0,0,19.1667,0,[],[
+    ["REL","BUNKER",0,0,19.1667,0,[],[
         ["BLDG","Land_BagBunker_Tower_F",0,[0,0,0],2.538,0,[false,false,true,false,true,false],[
             ["DECO","Land_PortableGenerator_01_black_F",0,[0.284424,2.30762,2.779],213.695,211.157,[true,false,true,false,true,false]],
             ["UNIT","B_Soldier_VR_F",0,[-0.640991,1.56201,2.78144],32.1783,29.6403,2]]],
@@ -73,5 +73,5 @@
         ["MINE","APERSBoundingMine",0,[-9.85559,-11.6309,-0.100053],0,-2.538,0],
         ["MINE","APERSTripMine",0,[-9.67957,-9.8877,-0.0912571],0,-2.538,0],
         ["MINE","SLAMDirectionalMine",0,[-5.10327,-10.9858,-0.0013361],0,-2.538,0],
-        ["MINE","TrainingMine_01_F",0,[-6.96167,-10.3579,0.000205994],0,-2.538,0]]],
+        ["MINE","TrainingMine_01_F",0,[-6.96167,-10.3579,0.000205994],0,-2.538,0]]]
 ]

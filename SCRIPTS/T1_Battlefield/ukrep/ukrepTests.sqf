@@ -1,3 +1,4 @@
+// call NWG_UKREP_VectorMathTest
 NWG_UKREP_VectorMathTest = {
     //Determine if previous algorithm and new one give exact same results
     private _rootPos = [0.3428,0.1775,0.1693];
@@ -19,4 +20,29 @@ NWG_UKREP_VectorMathTest = {
 
     //return
     [(_oldOffset isEqualTo _newOffset),(_oldPos isEqualTo _newPos)]
+};
+
+//================================================================================================================
+//================================================================================================================
+//Test utils
+NWG_UKREP_TEST_placedObjects = [];
+NWG_UKREP_TEST_Clear = {
+    if (NWG_UKREP_TEST_placedObjects isNotEqualTo [])
+        then {[] call NWG_fnc_gcDeleteMission};
+    NWG_UKREP_TEST_placedObjects resize 0;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Public placement
+// call NWG_UKREP_PUBLIC_PlaceABS_Test
+NWG_UKREP_PUBLIC_PlaceABS_Test = {
+    call NWG_UKREP_TEST_Clear;
+    // NWG_UKREP_PUBLIC_PlaceABS = {
+    // params ["_cataloguePage",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
+    private _cataloguePage = "testUkrep";
+    private _blueprintName = "BUNKER";
+    private _result = [_cataloguePage,_blueprintName] call NWG_UKREP_PUBLIC_PlaceABS;
+    NWG_UKREP_TEST_placedObjects = _result;
+    _result
 };

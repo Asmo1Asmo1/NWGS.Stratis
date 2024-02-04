@@ -37,7 +37,7 @@ NWG_UKREP_GetCataloguePage = {
         _page = false;
     };
 
-    _cache set [_this,_page];
+    _cache set [_pageName,_page];
     _page
 };
 
@@ -57,10 +57,10 @@ NWG_UKREP_GetBlueprintsABS = {
     if (_page isEqualTo false) exitWith {[]};
 
     private _nameFilter = if (_blueprintName isNotEqualTo "")
-        then {{_blueprintName in (_x#BPCONTAINER_NAME)}}
+        then {{_blueprintName in (_this#BPCONTAINER_NAME)}}
         else {{true}};
     private _posFilter = if (_blueprintPos isNotEqualTo [])
-        then {{((_blueprintPos#0) distance2D (_x#BPCONTAINER_POS)) <= (_blueprintPos#1)}}
+        then {{((_blueprintPos#0) distance2D (_this#BPCONTAINER_POS)) <= (_blueprintPos#1)}}
         else {{true}};
 
     //return
@@ -73,10 +73,10 @@ NWG_UKREP_GetBlueprintsREL = {
     if (_page isEqualTo false) exitWith {[]};
 
     private _nameFilter = if (_blueprintName isNotEqualTo "")
-        then {{_blueprintName in (_x#BPCONTAINER_NAME)}}
+        then {{_blueprintName in (_this#BPCONTAINER_NAME)}}
         else {{true}};
     private _rootFilter = if (_blueprintRoot isNotEqualTo [])
-        then {{(((_x#BPCONTAINER_BLUEPRINT)#0)#BP_CLASSNAME) in _blueprintRoot}}
+        then {{(((_this#BPCONTAINER_BLUEPRINT)#0)#BP_CLASSNAME) in _blueprintRoot}}
         else {{true}};
 
     //return
@@ -98,28 +98,40 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
 
 //================================================================================================================
 //================================================================================================================
+//Public placement
+NWG_UKREP_PUBLIC_PlaceABS = {
+    params ["_cataloguePage",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
+    private _blueprints = [_cataloguePage,_blueprintName,_blueprintPos] call NWG_UKREP_GetBlueprintsABS;
+    if ((count _blueprints) == 0) exitWith {
+        (format ["NWG_UKREP_PUBLIC_PlaceABS: Could not find the blueprint matching the %1:%2:%3",_cataloguePage,_blueprintName,_blueprintPos]) call NWG_fnc_logError;
+        false//Error
+    };
+    private _blueprint = [_blueprints,"NWG_UKREP_PUBLIC_PlaceABS"] call NWG_fnc_selectRandomGuaranteed;
+    _blueprint = _blueprint#BPCONTAINER_BLUEPRINT;
+    _blueprint = +_blueprint;//Clone
+
+    //return
+    [_blueprint,_chances,_faction,_groupRules] call NWG_UKREP_PlaceABS
+};
+
+//================================================================================================================
+//================================================================================================================
 //Placement (mid-level)
 NWG_UKREP_PlaceABS = {
     params ["_blueprint",["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
-
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
     _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
-    private _result = [_blueprint,_groupRules] call NWG_UKREP_PlacementCore;
-
     //return
-    _result
+    [_blueprint,_groupRules] call NWG_UKREP_PlacementCore
 };
 
 NWG_UKREP_PlaceREL_Position = {
     params ["_blueprint","_pos","_dir",["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",false]];
-
     _blueprint = [_blueprint,_pos,_dir,_adaptToGround,/*skip root:*/false] call NWG_UKREP_BP_RELtoABS;
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
     _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
-    private _result = [_blueprint,_groupRules] call NWG_UKREP_PlacementCore;
-
     //return
-    _result
+    [_blueprint,_groupRules] call NWG_UKREP_PlacementCore
 };
 
 NWG_UKREP_PlaceREL_Object = {
@@ -129,10 +141,8 @@ NWG_UKREP_PlaceREL_Object = {
     _blueprint deleteAt 0;//Remove root from blueprint (already placed)
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
     _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
-    private _result = [_blueprint,_groupRules] call NWG_UKREP_PlacementCore;
-
     //return
-    _result
+    [_blueprint,_groupRules] call NWG_UKREP_PlacementCore
 };
 
 //================================================================================================================
