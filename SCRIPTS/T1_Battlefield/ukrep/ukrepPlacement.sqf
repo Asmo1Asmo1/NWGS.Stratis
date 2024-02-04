@@ -128,6 +128,33 @@ NWG_UKREP_PUBLIC_PlaceREL_Position = {
     //return
     [_blueprint,_pos,_dir,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PlaceREL_Position
 };
+
+NWG_UKREP_PUBLIC_PlaceREL_Object = {
+    params ["_cataloguePage","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",true]];
+    if (_objectType isEqualTo "") then {_objectType = _object call NWG_fnc_getObjectType};
+    private _rootObjFilter = switch (_objectType) do {
+        case OBJ_TYPE_BLDG: {_object call NWG_fnc_ocGetSameBuildings};
+        case OBJ_TYPE_FURN: {_object call NWG_fnc_ocGetSameFurniture};
+        default {[(typeOf _object)]};
+    };
+    if (_rootObjFilter isEqualTo []) exitWith {
+        (format ["NWG_UKREP_PUBLIC_PlaceREL_Object: Could not find the root object filter for the object %1:%2:%3",_objectType,_object,(typeOf _object)]) call NWG_fnc_logError;
+        false//Error
+    };
+
+    private _blueprints = [_cataloguePage,_blueprintName,_rootObjFilter] call NWG_UKREP_GetBlueprintsREL;
+    if ((count _blueprints) == 0) exitWith {
+        (format ["NWG_UKREP_PUBLIC_PlaceREL_Object: Could not find the blueprint matching the %1:%2:%3",_cataloguePage,_blueprintName,_rootObjFilter]) call NWG_fnc_logError;
+        false//Error
+    };
+    private _blueprint = [_blueprints,"NWG_UKREP_PUBLIC_PlaceREL_Object"] call NWG_fnc_selectRandomGuaranteed;
+    _blueprint = _blueprint#BPCONTAINER_BLUEPRINT;
+    _blueprint = +_blueprint;//Clone
+
+    //return
+    [_blueprint,_object,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PlaceREL_Object
+};
+
 //================================================================================================================
 //================================================================================================================
 //Placement (mid-level)
@@ -140,7 +167,7 @@ NWG_UKREP_PlaceABS = {
 };
 
 NWG_UKREP_PlaceREL_Position = {
-    params ["_blueprint","_pos","_dir",["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",false]];
+    params ["_blueprint","_pos","_dir",["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",true]];
     _blueprint = [_blueprint,_pos,_dir,_adaptToGround,/*skip root:*/false] call NWG_UKREP_BP_RELtoABS;
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
     _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
@@ -149,7 +176,7 @@ NWG_UKREP_PlaceREL_Position = {
 };
 
 NWG_UKREP_PlaceREL_Object = {
-    params ["_blueprint","_object",["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",false]];
+    params ["_blueprint","_object",["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",true]];
 
     _blueprint = [_blueprint,(getPosASL _object),(getDir _object),_adaptToGround,/*skip root:*/true] call NWG_UKREP_BP_RELtoABS;
     _blueprint deleteAt 0;//Remove root from blueprint (already placed)

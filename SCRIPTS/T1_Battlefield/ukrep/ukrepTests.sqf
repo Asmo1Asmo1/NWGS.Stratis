@@ -60,3 +60,16 @@ NWG_UKREP_PUBLIC_PlaceREL_Position_Test = {
     NWG_UKREP_TEST_placedObjects = _result;
     _result
 };
+
+// test1 call NWG_UKREP_PUBLIC_PlaceREL_Object_Test
+NWG_UKREP_PUBLIC_PlaceREL_Object_Test = {
+    private _object = _this;
+    call NWG_UKREP_TEST_Clear;
+    // NWG_UKREP_PUBLIC_PlaceREL_Object = {
+    // params ["_cataloguePage","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",true]];
+    private _cataloguePage = "testUkrep";
+    private _blueprintName = "BUNKER";
+    private _result = [_cataloguePage,_object,"",_blueprintName] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+    NWG_UKREP_TEST_placedObjects = _result;
+    _result
+};
