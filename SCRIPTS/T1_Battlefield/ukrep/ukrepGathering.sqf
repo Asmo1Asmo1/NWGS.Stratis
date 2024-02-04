@@ -131,10 +131,11 @@ NWG_UKREP_GatherUkrepREL = {
     _blueprint = _blueprint call NWG_UKREP_ABStoREL;//Convert to REL
 
     //Sort root and the rest separately
-    private _roots = [_blueprint deleteAt 0];
-    _roots = _roots call NWG_UKREP_Sort;
+    //Root is one, of course, but it can have nested objects that should be sorted
+    _rootObj = [_blueprint deleteAt 0];
+    _rootObj = _rootObj call NWG_UKREP_Sort;
     _blueprint = _blueprint call NWG_UKREP_Sort;
-    _blueprint = _roots + _blueprint;//Put root object first
+    _blueprint = _rootObj + _blueprint;//Put root object first
 
     //Pack into full blueprint
     private _fullBlueprint = [
@@ -166,6 +167,7 @@ NWG_UKREP_excludeFromGathering = [
     "HoneyBee",
     "Mosquito",
     "HouseFly",
+    "FxWindGrass1",
     "FxWindGrass2",
     "FxWindPollen1",
     "ModuleCurator_F",
@@ -243,11 +245,11 @@ NWG_UKREP_PackIntoRecords = {
             /*BP_OBJTYPE*/_type,
             /*BP_CLASSNAME*/_c,
             /*BP_POS*/(getPosASL _x),
-            /*BP_POSOFFSET*/0
+            /*BP_POSOFFSET*/0,
             /*BP_DIR*/(getDir _x),
-            /*BP_DIROFFSET*/0
+            /*BP_DIROFFSET*/0,
             /*BP_PAYLOAD*/_payload,
-            /*BP_INSIDE*/[]
+            /*BP_INSIDE*/[],
             /*BP_ORIGOBJECT*/_x
         ]
     }
@@ -289,7 +291,7 @@ NWG_UKREP_GetObjectPayload = {
             private _crew = ((crew _object) apply {typeOf _x}) call NWG_fnc_compactStringArray;
 
             //Create default second vehicle to compare its appearance and pylons with original
-            private _defaultVehicle = createVehicle [_vehClassname, (ASLToATL [120,120,1000])];
+            private _defaultVehicle = createVehicle [(typeOf _object), (ASLToATL [120,120,1000])];
 
             //Gather appearance info
             private _vehicleAppearance = _object call NWG_fnc_spwnGetVehicleAppearance;
@@ -354,42 +356,50 @@ NWG_UKREP_ABStoREL = {
     } forEachReversed _records;
 
     //Prepare the script
+    //This script iterates through childs and moves them to the parent's 'nested' array if they are inside it
+    //As a result _childObjects may be emptied by the end of the script with all the children moved to respective parents
     private _ABStoREL = {
-        params ["_parentObjects","_childObjects",["_isBuilding",false]];
+        params ["_parentObjects","_childObjects",["_isParentBuilding",false],["_isFinalConversion",false]];
         if ((count _parentObjects) == 0 || {(count _childObjects) == 0}) exitWith {};
+
         private ["_parent","_child"];
         {
             _parent = _x;
             {
                 _child = _x;
-                if ([(_child#BP_ORIGOBJECT),(_parent#BP_ORIGOBJECT),_isBuilding] call NWG_UKREP_IsInside) then {
+                if (_isFinalConversion || {[(_child#BP_ORIGOBJECT),(_parent#BP_ORIGOBJECT),_isParentBuilding] call NWG_UKREP_IsInside}) then {
                     _child set [BP_POSOFFSET,((_child#BP_POS) vectorDiff (_parent#BP_POS))];
                     _child set [BP_DIROFFSET,((_child#BP_DIR) - (_parent#BP_DIR))];
+                    _child set [BP_POS,0];
                     (_parent#BP_INSIDE) pushBack (_childObjects deleteAt _forEachIndex)
                 };
             } forEachReversed _childObjects;
-            if ((count _childObjects) == 0) exitWith {};
+            if ((count _childObjects) == 0) exitWith {};//All the children are moved
         } forEach _parentObjects;
     };
 
     //Check each decoration against other decorations
     private _temp = [];
     private _cur = [];
-    while ((count _decos) > 0) do {
+    while {(count _decos) > 0} do {
         _cur pushBack (_decos deleteAt ((count _decos)-1));
         [_cur,_decos] call _ABStoREL;
         [_decos,_cur] call _ABStoREL;
         if ((count _cur) > 0)
             then {_temp pushBack (_cur deleteAt 0)};
     };
-    _decos append _temp;
+    _decos append _temp; _temp resize 0; _cur resize 0;
 
-    //Check each objects in hierarchy and append them back to the list
-    [_decos,_records] call _ABStoREL; _records append _decos; _decos resize 0;
-    [_furns,_records] call _ABStoREL; _records append _furns; _furns resize 0;
+    //Check all the objects in hierarchy and append them back to the list
+    [_decos,_records]      call _ABStoREL; _records append _decos; _decos resize 0;
+    [_furns,_records]      call _ABStoREL; _records append _furns; _furns resize 0;
     [_bldgs,_records,true] call _ABStoREL; _records append _bldgs; _bldgs resize 0;
-    [_roots,_records] call _ABStoREL; _records append _roots; _roots resize 0;
-    reverse _records;//Reverse to keep the root object first
+    [_roots,_records]      call _ABStoREL; _records append _roots;
+
+    //Final conversion - calculate offsets of all the 'outside' objects in comparison to the root (will also place root first)
+    _temp = ["","",((_roots#0)#BP_POS),0,((_roots#0)#BP_DIR),0,[],[]];
+    [[_temp],_records,false,true] call _ABStoREL;
+    _records append (_temp#BP_INSIDE); _temp resize 0; _roots resize 0;
 
     //return
     _records
@@ -407,22 +417,26 @@ NWG_UKREP_IsInside = {
 
 NWG_UKREP_sortOrder = [OBJ_TYPE_BLDG,OBJ_TYPE_FURN,OBJ_TYPE_DECO,OBJ_TYPE_UNIT,OBJ_TYPE_VEHC,OBJ_TYPE_TRRT,OBJ_TYPE_MINE];
 NWG_UKREP_Sort = {
-    private _records = _this;
+    // private _records = _this;
 
     private _recursiveSort = {
         private _records = _this;
-        if ((count _records) <= 1) exitWith {};
 
-        private _sorted = _records apply {[(_sortOrder find (_x#BP_OBJTYPE)),(_x#BP_CLASSNAME),_x]};//Repack for sorting
-        _sorted sort true;//Sort
-        _records resize 0;
-        _records append (_sorted apply {_x#2});//Repack back
-        {(_x#BP_INSIDE) call _recursiveSort} forEach _records;//Sort nested
+        //Sort current level
+        if ((count _records) > 1) then {
+            private _sorted = _records apply {[(NWG_UKREP_sortOrder find (_x#BP_OBJTYPE)),(_x#BP_CLASSNAME),_x]};//Repack for sorting
+            _sorted sort true;//Sort
+            _records resize 0;
+            _records append (_sorted apply {_x#2});//Repack back
+        };
+
+        //Sort nested
+        {(_x#BP_INSIDE) call _recursiveSort} forEach _records;
     };
-    _records call _recursiveSort;
+    _this call _recursiveSort;
 
     //return
-    _records
+    _this
 };
 
 NWG_UKREP_Dump = {
@@ -445,8 +459,8 @@ NWG_UKREP_Dump = {
 
             _lines pushBack (format ["%1[%2,%3,%4,%5,%6,%7,%8%9",
                 _prefix,
-                (_x#BP_OBJTYPE),
-                (_x#BP_CLASSNAME),
+                (str (_x#BP_OBJTYPE)),
+                (str (_x#BP_CLASSNAME)),
                 (_x#BP_POS),
                 (_x#BP_POSOFFSET),
                 (_x#BP_DIR),
@@ -456,12 +470,12 @@ NWG_UKREP_Dump = {
             ]);
 
             if (_hasInside) then {
-                private _nextSuffix = if (_isLast) then {"]]"+_suffix} else {"]],"}
+                private _nextSuffix = if (_isLast) then {"]]"+_suffix} else {"]],"};
                 [(_x#BP_INSIDE),(_prefix+_tab),_nextSuffix] call _recursiveLinesFill;
             };
         } forEach _records;
     };
-    [_fullBlueprint,_tab,""] call _recursiveLinesFill;
+    [[_fullBlueprint],_tab,""] call _recursiveLinesFill;
 
     //Dump to RPT
     diag_log text "==========[UKREP GATHERED DATA]===========";
@@ -474,3 +488,40 @@ NWG_UKREP_Dump = {
     //Dump to output console as is
     _lines
 };
+
+    ["REL","UKREPNAME",0,0,19.1667,0,[],[
+        ["BLDG","Land_BagBunker_Tower_F",0,[0,0,0],2.538,0,[false,false,true,false,true,false],[
+            ["DECO","Land_PortableGenerator_01_black_F",0,[0.284424,2.30762,2.779],213.695,211.157,[true,false,true,false,true,false]],
+            ["UNIT","B_Soldier_VR_F",0,[-0.640991,1.56201,2.78144],32.1783,29.6403,2]]],
+        ["BLDG","Land_Cargo_Patrol_V3_F",0,[0.751831,14.6011,4.76837e-007],270,267.462,[false,false,true,false,true,true],[
+            ["MINE","APERSMine",0,[1.14905,-1.67627,4.32116],0,-270,0],
+            ["MINE","APERSTripMine",0,[1.72949,-0.957031,4.25278],269.574,-0.426361,0]]],
+        ["BLDG","Land_Cargo_Patrol_V3_F",0,[-13.7765,4.58887,4.76837e-007],0,-2.538,[false,false,true,false,true,true],[
+            ["DECO","Land_PortableCabinet_01_4drawers_black_F",0,[-2.41797,0.640625,4.13905],281.546,281.546,[true,false,true,false,true,true],[
+                ["DECO","Land_File1_F",0,[-0.0919189,-0.0200195,0.828816],159.763,-121.783,[true,false,true,false,true,false]]]],
+            ["DECO","Land_PortableCabinet_01_4drawers_black_F",0,[-2.58643,1.64795,4.13905],272.151,272.151,[true,false,true,false,true,true]],
+            ["TRRT","B_GMG_01_high_F",0,[1.06506,-0.821777,4.33123],181.102,181.102,["B_Soldier_VR_F"]]]],
+        ["FURN","Land_CampingTable_F",0,[-0.381958,2.57275,-0.00259209],359.998,357.46,[true,false,true,false,true,false],[
+            ["DECO","Land_Computer_01_black_F",0,[0.672119,-0.121094,0.813634],0.00494434,-359.993,[true,false,true,false,true,false]],
+            ["DECO","Land_Laptop_03_black_F",0,[-0.322632,0.00195313,0.813633],334.943,-25.0556,[true,false,true,false,true,false]]]],
+        ["DECO","Land_CncBarrier_F",0,[-17.6163,-4.66992,0],225.329,222.791,[false,false,true,false,true,false]],
+        ["DECO","Land_CncBarrier_F",0,[-15.3342,-5.66992,0],181.326,178.788,[false,false,true,false,true,false]],
+        ["DECO","Land_CncBarrier_F",0,[0.837646,-6.25391,0],181.185,178.647,[false,false,true,false,true,false]],
+        ["DECO","Land_CncBarrier_F",0,[3.12073,-5.396,0],138.856,136.318,[false,false,true,false,true,false]],
+        ["DECO","Land_CncBarrier_F",0,[4.13452,-3.12793,0],90.833,88.295,[false,false,true,false,true,false]],
+        ["DECO","Land_CncBarrier_F",0,[-12.6936,-5.71094,0],181.108,178.57,[false,false,true,false,true,false]],
+        ["DECO","Land_CncBarrier_F",0,[-1.8031,-6.2168,0],181.409,178.871,[false,false,true,false,true,false]],
+        ["DECO","Land_CncBarrier_F",0,[-18.4803,-2.38623,0],273.344,270.806,[false,false,true,false,true,false]],
+        ["DECO","Land_PortableGenerator_01_F",0,[3.51221,1.72314,-0.000999928],271.873,269.335,[true,false,true,false,true,false]],
+        ["DECO","RoadBarrier_F",0,[-1.57263,-8.07764,-0.00399303],184.508,181.97,[true,false,true,false,true,false]],
+        ["DECO","RoadBarrier_F",0,[-12.9766,-7.7627,-0.00399303],177.313,174.775,[true,false,true,false,true,false]],
+        ["UNIT","B_Soldier_VR_F",0,[-6.92554,1.97119,0.00143909],182.167,179.629,0],
+        ["UNIT","B_Soldier_VR_F",0,[-0.212158,1.43604,0.00143909],0,-2.538,0],
+        ["VEHC","B_G_Quadbike_01_F",0,[-11.1637,11.8916,0.0125246],102.77,100.232,[["B_Soldier_VR_F"],[["Guerrilla_02",1],[]],false]],
+        ["VEHC","B_T_Quadbike_01_F",0,[-10.9778,15.7114,0.0123229],85.8734,83.3354,[[]]],
+        ["TRRT","B_G_Mortar_01_F",0,[-15.0779,-2.73389,0.036881],147.218,144.68,["B_Soldier_VR_F"]],
+        ["TRRT","B_HMG_01_high_F",0,[-12.7112,-3.63135,-0.0121183],183.271,180.733,[]],
+        ["MINE","APERSBoundingMine",0,[-9.85559,-11.6309,-0.100053],0,-2.538,0],
+        ["MINE","APERSTripMine",0,[-9.67957,-9.8877,-0.0912571],0,-2.538,0],
+        ["MINE","SLAMDirectionalMine",0,[-5.10327,-10.9858,-0.0013361],0,-2.538,0],
+        ["MINE","TrainingMine_01_F",0,[-6.96167,-10.3579,0.000205994],0,-2.538,0]]]

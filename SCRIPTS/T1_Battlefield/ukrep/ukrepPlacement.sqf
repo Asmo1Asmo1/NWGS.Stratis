@@ -158,11 +158,7 @@ NWG_UKREP_BP_RELtoABS = {
             private _posOffset = _x#BP_POSOFFSET;
             private _dX = ((_posOffset#0)*_cos)-((_posOffset#1)*_sin);
             private _dY = ((_posOffset#1)*_cos)+((_posOffset#0)*_sin);
-            private _absPos = [
-                ((_rootPos#0)+_dX),
-                ((_rootPos#1)+_dY),
-                ((_rootPos#2)+(_posOffset#2))
-            ];
+            private _absPos = _rootPos vectorAdd [_dX,_dY,(_posOffset#2)];
             if (_adapt) then {
                 if (_skipAdaptRoot && {_forEachIndex == 0}) exitWith {};//Skip root adaptation
                 _absPos set [2,0];

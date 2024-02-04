@@ -67,6 +67,11 @@ if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\spawner\
 //stateHolder
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\stateHolder\stateHolder.sqf" call NWG_fnc_compile);
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\stateHolder\stateHolderFunctions.sqf" call NWG_fnc_compile);
+//ukrep
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\ukrep\ukrepPlacement.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T1_Battlefield\ukrep\ukrepFunctionsClient.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\ukrep\ukrepGathering.sqf" call NWG_fnc_compile)};
+if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\ukrep\ukrepTests.sqf" call NWG_fnc_compile)};
 //undertaker
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\undertaker\undertaker.sqf" call NWG_fnc_compile);
 //yellowKing
