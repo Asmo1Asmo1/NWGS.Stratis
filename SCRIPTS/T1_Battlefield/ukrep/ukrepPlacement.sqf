@@ -87,12 +87,12 @@ NWG_UKREP_GetBlueprintsREL = {
 //================================================================================================================
 //FRACTAL placement
 NWG_UKREP_FRACTAL_PlaceFractalABS = {
-    params ["_blueprint",["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
+    params ["_blueprint",["_chances",[]],["_faction",""],["_groupRules",[]]];
     //TODO
 };
 
 NWG_UKREP_FRACTAL_PlaceFractalREL = {
-    params ["_blueprint","_pos","_dir",["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
+    params ["_blueprint","_pos","_dir",["_chances",[]],["_faction",""],["_groupRules",[]]];
     //TODO
 };
 
@@ -100,7 +100,7 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
 //================================================================================================================
 //Public placement
 NWG_UKREP_PUBLIC_PlaceABS = {
-    params ["_cataloguePage",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
+    params ["_cataloguePage",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction",""],["_groupRules",[]]];
     private _blueprints = [_cataloguePage,_blueprintName,_blueprintPos] call NWG_UKREP_GetBlueprintsABS;
     if ((count _blueprints) == 0) exitWith {
         (format ["NWG_UKREP_PUBLIC_PlaceABS: Could not find the blueprint matching the %1:%2:%3",_cataloguePage,_blueprintName,_blueprintPos]) call NWG_fnc_logError;
@@ -115,7 +115,7 @@ NWG_UKREP_PUBLIC_PlaceABS = {
 };
 
 NWG_UKREP_PUBLIC_PlaceREL_Position = {
-    params ["_cataloguePage","_pos","_dir",["_blueprintName",""],["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",true]];
+    params ["_cataloguePage","_pos","_dir",["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
     private _blueprints = [_cataloguePage,_blueprintName] call NWG_UKREP_GetBlueprintsREL;
     if ((count _blueprints) == 0) exitWith {
         (format ["NWG_UKREP_PUBLIC_PlaceREL_Position: Could not find the blueprint matching the %1:%2",_cataloguePage,_blueprintName]) call NWG_fnc_logError;
@@ -130,7 +130,7 @@ NWG_UKREP_PUBLIC_PlaceREL_Position = {
 };
 
 NWG_UKREP_PUBLIC_PlaceREL_Object = {
-    params ["_cataloguePage","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",true]];
+    params ["_cataloguePage","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
     if (_objectType isEqualTo "") then {_objectType = _object call NWG_fnc_getObjectType};
     private _rootObjFilter = switch (_objectType) do {
         case OBJ_TYPE_BLDG: {_object call NWG_fnc_ocGetSameBuildings};
@@ -159,7 +159,7 @@ NWG_UKREP_PUBLIC_PlaceREL_Object = {
 //================================================================================================================
 //Placement (mid-level)
 NWG_UKREP_PlaceABS = {
-    params ["_blueprint",["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
+    params ["_blueprint",["_chances",[]],["_faction",""],["_groupRules",[]]];
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
     _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
     //return
@@ -167,7 +167,7 @@ NWG_UKREP_PlaceABS = {
 };
 
 NWG_UKREP_PlaceREL_Position = {
-    params ["_blueprint","_pos","_dir",["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",true]];
+    params ["_blueprint","_pos","_dir",["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
     _blueprint = [_blueprint,_pos,_dir,_adaptToGround,/*skip root:*/false] call NWG_UKREP_BP_RELtoABS;
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
     _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
@@ -176,7 +176,7 @@ NWG_UKREP_PlaceREL_Position = {
 };
 
 NWG_UKREP_PlaceREL_Object = {
-    params ["_blueprint","_object",["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",true]];
+    params ["_blueprint","_object",["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
     _blueprint = [_blueprint,(getPosASL _object),(getDir _object),_adaptToGround,/*skip root:*/true] call NWG_UKREP_BP_RELtoABS;
     _blueprint deleteAt 0;//Remove root from blueprint (already placed)
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
@@ -294,22 +294,43 @@ NWG_UKREP_BP_ApplyFaction = {
     private _factionPage = _faction call NWG_UKREP_GetFactionsPage;
     if (_factionPage isEqualTo false) exitWith {_blueprint};//Error
 
-    private _toReplace = _blueprint select {(_x#BP_CLASSNAME) in _factionPage};
-    if ((count _toReplace) == 0) exitWith {_blueprint};//Nothing to do
-
-    private _replacement = [];
+    private ["_classname","_crew","_replacement"];
     {
-        _replacement = _factionPage get (_x#BP_CLASSNAME);
-        _replacement = if ((count _replacement) > 1)
-            then {[_replacement,(format ["NWG_UKREP_BP_ApplyFaction_",(_x#BP_CLASSNAME)])] call NWG_fnc_selectRandomGuaranteed}
-            else {_replacement#0};
-        if (_replacement isEqualType []) then {
-            _x set [BP_CLASSNAME,(_replacement#0)];
-            _x set [BP_PAYLOAD,(_replacement#1)];
-        } else {
-            _x set [BP_CLASSNAME,_replacement];
+        _classname = _x#BP_CLASSNAME;
+
+        //Replace classname and payload
+        if (_classname in _factionPage) then {
+            _replacement = _factionPage get _classname;
+            _replacement = if ((count _replacement) > 1)
+                then {[_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_classname])] call NWG_fnc_selectRandomGuaranteed}
+                else {_replacement#0};
+            if (_replacement isEqualType []) then {
+                _x set [BP_CLASSNAME,(_replacement#0)];
+                _x set [BP_PAYLOAD,(_replacement#1)];
+            } else {
+                _x set [BP_CLASSNAME,_replacement];
+            };
+            continue;
         };
-    } forEach _toReplace;
+
+        //Replace crew of the vehicle or turret
+        if ((_x#BP_OBJTYPE) in [OBJ_TYPE_VEHC,OBJ_TYPE_TRRT]) then {
+            _crew = if ((_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_VEHC)
+                then {(_x param [BP_PAYLOAD,[]]) param [0,[]]}
+                else {(_x param [BP_PAYLOAD,[]])};
+            //do
+            {
+                if !(_x isEqualType "")  then {continue};
+                if !(_x in _factionPage) then {continue};
+                _replacement = _factionPage get _x;
+                _replacement = if ((count _replacement) > 1)
+                    then {[_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_x])] call NWG_fnc_selectRandomGuaranteed}
+                    else {_replacement#0};
+                _replacement = if (_replacement isEqualType []) then {_replacement#0} else {_replacement};
+                _crew set [_forEachIndex,_replacement];//Yes, this is legal
+            } forEach _crew;
+        };
+    } forEach _blueprint;
 
     //return
     _blueprint

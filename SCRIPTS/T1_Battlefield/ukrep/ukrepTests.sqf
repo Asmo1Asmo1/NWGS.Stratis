@@ -39,7 +39,7 @@ NWG_UKREP_TEST_Clear = {
 NWG_UKREP_PUBLIC_PlaceABS_Test = {
     call NWG_UKREP_TEST_Clear;
     // NWG_UKREP_PUBLIC_PlaceABS = {
-    // params ["_cataloguePage",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
+    // params ["_cataloguePage",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction",""],["_groupRules",[]]];
     private _cataloguePage = "testUkrep";
     private _blueprintName = "BUNKER";
     private _result = [_cataloguePage,_blueprintName] call NWG_UKREP_PUBLIC_PlaceABS;
@@ -51,10 +51,22 @@ NWG_UKREP_PUBLIC_PlaceABS_Test = {
 NWG_UKREP_PUBLIC_PlaceABS_TestChances = {
     call NWG_UKREP_TEST_Clear;
     // NWG_UKREP_PUBLIC_PlaceABS = {
-    // params ["_cataloguePage",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction","NATO"],["_groupRules",[]]];
+    // params ["_cataloguePage",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction",""],["_groupRules",[]]];
     private _cataloguePage = "testUkrep";
     private _blueprintName = "BUNKER";
     private _result = [_cataloguePage,_blueprintName,[],[0.5,0.5,0.5,0.5,0.5,0.5,0.5]] call NWG_UKREP_PUBLIC_PlaceABS;
+    NWG_UKREP_TEST_placedObjects = _result;
+    _result
+};
+
+// call NWG_UKREP_PUBLIC_PlaceABS_TestFaction
+NWG_UKREP_PUBLIC_PlaceABS_TestFaction = {
+    call NWG_UKREP_TEST_Clear;
+    // NWG_UKREP_PUBLIC_PlaceABS = {
+    // params ["_cataloguePage",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction",""],["_groupRules",[]]];
+    private _cataloguePage = "testUkrep";
+    private _blueprintName = "BUNKER";
+    private _result = [_cataloguePage,_blueprintName,[],[],"NATO"] call NWG_UKREP_PUBLIC_PlaceABS;
     NWG_UKREP_TEST_placedObjects = _result;
     _result
 };
@@ -63,7 +75,7 @@ NWG_UKREP_PUBLIC_PlaceABS_TestChances = {
 NWG_UKREP_PUBLIC_PlaceREL_Position_Test = {
     call NWG_UKREP_TEST_Clear;
     // NWG_UKREP_PUBLIC_PlaceREL_Position = {
-    // params ["_cataloguePage","_pos","_dir",["_blueprintName",""],["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",true]];
+    // params ["_cataloguePage","_pos","_dir",["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
     private _cataloguePage = "testUkrep";
     private _blueprintName = "BUNKER";
     private _pos = getPosATL player;
@@ -78,7 +90,7 @@ NWG_UKREP_PUBLIC_PlaceREL_Object_Test = {
     private _object = _this;
     call NWG_UKREP_TEST_Clear;
     // NWG_UKREP_PUBLIC_PlaceREL_Object = {
-    // params ["_cataloguePage","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",true]];
+    // params ["_cataloguePage","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
     private _cataloguePage = "testUkrep";
     private _blueprintName = "BUNKER";
     private _result = [_cataloguePage,_object,"",_blueprintName] call NWG_UKREP_PUBLIC_PlaceREL_Object;
