@@ -46,3 +46,17 @@ NWG_UKREP_PUBLIC_PlaceABS_Test = {
     NWG_UKREP_TEST_placedObjects = _result;
     _result
 };
+
+// call NWG_UKREP_PUBLIC_PlaceREL_Position_Test
+NWG_UKREP_PUBLIC_PlaceREL_Position_Test = {
+    call NWG_UKREP_TEST_Clear;
+    // NWG_UKREP_PUBLIC_PlaceREL_Position = {
+    // params ["_cataloguePage","_pos","_dir",["_blueprintName",""],["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",true]];
+    private _cataloguePage = "testUkrep";
+    private _blueprintName = "BUNKER";
+    private _pos = getPosATL player;
+    private _dir = getDir player;
+    private _result = [_cataloguePage,_pos,_dir,_blueprintName] call NWG_UKREP_PUBLIC_PlaceREL_Position;
+    NWG_UKREP_TEST_placedObjects = _result;
+    _result
+};

@@ -114,6 +114,20 @@ NWG_UKREP_PUBLIC_PlaceABS = {
     [_blueprint,_chances,_faction,_groupRules] call NWG_UKREP_PlaceABS
 };
 
+NWG_UKREP_PUBLIC_PlaceREL_Position = {
+    params ["_cataloguePage","_pos","_dir",["_blueprintName",""],["_chances",[]],["_faction","NATO"],["_groupRules",[]],["_adaptToGround",true]];
+    private _blueprints = [_cataloguePage,_blueprintName] call NWG_UKREP_GetBlueprintsREL;
+    if ((count _blueprints) == 0) exitWith {
+        (format ["NWG_UKREP_PUBLIC_PlaceREL_Position: Could not find the blueprint matching the %1:%2",_cataloguePage,_blueprintName]) call NWG_fnc_logError;
+        false//Error
+    };
+    private _blueprint = [_blueprints,"NWG_UKREP_PUBLIC_PlaceREL_Position"] call NWG_fnc_selectRandomGuaranteed;
+    _blueprint = _blueprint#BPCONTAINER_BLUEPRINT;
+    _blueprint = +_blueprint;//Clone
+
+    //return
+    [_blueprint,_pos,_dir,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PlaceREL_Position
+};
 //================================================================================================================
 //================================================================================================================
 //Placement (mid-level)
