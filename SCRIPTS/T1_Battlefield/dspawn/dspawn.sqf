@@ -343,23 +343,14 @@ NWG_DSPAWN_TRIGGER_CalculatePopulationDistribution = {
 NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
     // private _trigger = _this;
     params ["_triggerPos","_triggerRad"];
-
-    private _isBuildingOccupied = {
-        // private _building = _this;
-        private _occupiedBuildings = BST_OCCUPIED_BUILDINGS call NWG_fnc_shGetState;
-        if (isNil "_occupiedBuildings") exitWith {false};//There are no occupied buildings yet
-        //else
-        _this in _occupiedBuildings
-    };
+    private _occupiedBuildings = BST_OCCUPIED_BUILDINGS call NWG_fnc_shGetState;
+    private _isOccupied = if (isNil "_occupiedBuildings") then {{false}} else {{_x in _occupiedBuildings}};
 
     //return
     (_triggerPos nearObjects _triggerRad) select {
-        switch (true) do {
-            case (!(_x call NWG_fnc_ocIsBuilding)): {false};
-            case ((count (_x buildingPos -1)) < 4): {false};
-            case (_x call _isBuildingOccupied): {false};
-            default {true};
-        }
+        ((count (_x buildingPos -1)) >= 4) && {
+        (_x call NWG_fnc_ocIsBuilding) && {
+        !(_x call _isOccupied)}}
     };
 };
 
