@@ -21,6 +21,7 @@
 #define BP_INSIDE 7
 /*Used internally during gathering:*/
 #define BP_ORIGOBJECT 8
+#define BP_INSIDE_OF 9
 
 //Payloads
 #define P_OBJ_CAN_SIMPLE 0

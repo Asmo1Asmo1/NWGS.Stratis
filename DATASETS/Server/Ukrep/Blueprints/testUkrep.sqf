@@ -38,21 +38,21 @@
         ["MINE","TrainingMine_01_F",[1802.99,5559.74,5.50021],0,0,0,0]]],
 
     /*Test landbunker REL*/
-    ["REL","BUNKER",0,0,19.1667,0,[],[
+    ["REL","BUNKER",0,0,19.1709,0,[],[
         ["BLDG","Land_BagBunker_Tower_F",0,[0,0,0],2.538,0,[false,false,true,false,true,false],[
-            ["DECO","Land_PortableGenerator_01_black_F",0,[0.284424,2.30762,2.779],213.695,211.157,[true,false,true,false,true,false]],
+            ["DECO","Land_PortableGenerator_01_black_F",0,[0.284424,2.30762,2.779],213.697,211.159,[true,false,true,false,true,false]],
             ["UNIT","B_Soldier_VR_F",0,[-0.640991,1.56201,2.78144],32.1783,29.6403,2]]],
         ["BLDG","Land_Cargo_Patrol_V3_F",0,[0.751831,14.6011,4.76837e-007],270,267.462,[false,false,true,false,true,true],[
             ["MINE","APERSMine",0,[1.14905,-1.67627,4.32116],0,-270,0],
             ["MINE","APERSTripMine",0,[1.72949,-0.957031,4.25278],269.574,-0.426361,0]]],
         ["BLDG","Land_Cargo_Patrol_V3_F",0,[-13.7765,4.58887,4.76837e-007],0,-2.538,[false,false,true,false,true,true],[
             ["DECO","Land_PortableCabinet_01_4drawers_black_F",0,[-2.41797,0.640625,4.13905],281.546,281.546,[true,false,true,false,true,true],[
-                ["DECO","Land_File1_F",0,[-0.0919189,-0.0200195,0.828816],159.763,-121.783,[true,false,true,false,true,false]]]],
+                ["DECO","Land_File1_F",0,[-0.0917969,-0.0205078,0.828817],159.763,-121.783,[true,false,true,false,true,false]]]],
             ["DECO","Land_PortableCabinet_01_4drawers_black_F",0,[-2.58643,1.64795,4.13905],272.151,272.151,[true,false,true,false,true,true]],
-            ["TRRT","B_GMG_01_high_F",0,[1.06506,-0.821777,4.33123],181.102,181.102,["B_Soldier_VR_F"]]]],
-        ["FURN","Land_CampingTable_F",0,[-0.381958,2.57275,-0.00259209],359.998,357.46,[true,false,true,false,true,false],[
-            ["DECO","Land_Computer_01_black_F",0,[0.672119,-0.121094,0.813634],0.00494434,-359.993,[true,false,true,false,true,false]],
-            ["DECO","Land_Laptop_03_black_F",0,[-0.322632,0.00195313,0.813633],334.943,-25.0556,[true,false,true,false,true,false]]]],
+            ["TRRT","B_GMG_01_high_F",0,[1.06506,-0.821777,4.33123],181.101,181.101,["B_Soldier_VR_F"]]]],
+        ["FURN","Land_CampingTable_F",0,[-0.381958,2.57275,-0.00259352],359.999,357.461,[true,false,true,false,true,false],[
+            ["DECO","Land_Computer_01_black_F",0,[0.672119,-0.121094,0.813609],0.00741596,-359.992,[true,false,true,false,true,false]],
+            ["DECO","Land_Laptop_03_black_F",0,[-0.322632,0.00195313,0.813643],334.933,-25.0655,[true,false,true,false,true,false]]]],
         ["DECO","Land_CncBarrier_F",0,[-17.6163,-4.66992,0],225.329,222.791,[false,false,true,false,true,false]],
         ["DECO","Land_CncBarrier_F",0,[-15.3342,-5.66992,0],181.326,178.788,[false,false,true,false,true,false]],
         ["DECO","Land_CncBarrier_F",0,[0.837646,-6.25391,0],181.185,178.647,[false,false,true,false,true,false]],
@@ -62,13 +62,13 @@
         ["DECO","Land_CncBarrier_F",0,[-1.8031,-6.2168,0],181.409,178.871,[false,false,true,false,true,false]],
         ["DECO","Land_CncBarrier_F",0,[-18.4803,-2.38623,0],273.344,270.806,[false,false,true,false,true,false]],
         ["DECO","Land_PortableGenerator_01_F",0,[3.51221,1.72314,-0.000999928],271.873,269.335,[true,false,true,false,true,false]],
-        ["DECO","RoadBarrier_F",0,[-1.57263,-8.07764,-0.00399303],184.508,181.97,[true,false,true,false,true,false]],
-        ["DECO","RoadBarrier_F",0,[-12.9766,-7.7627,-0.00399303],177.313,174.775,[true,false,true,false,true,false]],
+        ["DECO","RoadBarrier_F",0,[-1.57263,-8.07764,-0.00398731],184.508,181.97,[true,false,true,false,true,false]],
+        ["DECO","RoadBarrier_F",0,[-12.9766,-7.7627,-0.0039835],177.321,174.783,[true,false,true,false,true,false]],
         ["UNIT","B_Soldier_VR_F",0,[-6.92554,1.97119,0.00143909],182.167,179.629,0],
         ["UNIT","B_Soldier_VR_F",0,[-0.212158,1.43604,0.00143909],0,-2.538,0],
-        ["VEHC","B_G_Quadbike_01_F",0,[-11.1637,11.8916,0.0125246],102.77,100.232,[["B_Soldier_VR_F"],[["Guerrilla_02",1],[]],false]],
-        ["VEHC","B_T_Quadbike_01_F",0,[-10.9778,15.7114,0.0123229],85.8734,83.3354,[[]]],
-        ["TRRT","B_G_Mortar_01_F",0,[-15.0779,-2.73389,0.036881],147.218,144.68,["B_Soldier_VR_F"]],
+        ["VEHC","B_G_Quadbike_01_F",0,[-11.1715,11.8936,0.0124421],102.769,100.231,[["B_Soldier_VR_F"]]],
+        ["VEHC","B_T_Quadbike_01_F",0,[-10.9858,15.7109,0.012435],85.8725,83.3345,[[]]],
+        ["TRRT","B_G_Mortar_01_F",0,[-15.0779,-2.73389,0.0368876],147.218,144.68,["B_Soldier_VR_F"]],
         ["TRRT","B_HMG_01_high_F",0,[-12.7112,-3.63135,-0.0121183],183.271,180.733,[]],
         ["MINE","APERSBoundingMine",0,[-9.85559,-11.6309,-0.100053],0,-2.538,0],
         ["MINE","APERSTripMine",0,[-9.67957,-9.8877,-0.0912571],0,-2.538,0],

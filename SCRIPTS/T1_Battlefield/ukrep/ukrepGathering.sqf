@@ -344,6 +344,11 @@ NWG_UKREP_IsInteractable = {
 NWG_UKREP_ABStoREL = {
     private _records = _this;
 
+    //Fill the 'insideOf' arrays of each object
+    {
+        _x set [BP_INSIDE_OF,((_x#BP_ORIGOBJECT) call NWG_UKREP_GetIsInsideOf)];
+    } forEach _records;
+
     //Separate
     private _roots  = [_records deleteAt 0];
     private _bldgs = []; private _furns = []; private _decos = [];
@@ -359,15 +364,22 @@ NWG_UKREP_ABStoREL = {
     //This script iterates through childs and moves them to the parent's 'nested' array if they are inside it
     //As a result _childObjects may be emptied by the end of the script with all the children moved to respective parents
     private _ABStoREL = {
-        params ["_parentObjects","_childObjects",["_isParentBuilding",false],["_isFinalConversion",false]];
+        params ["_parentObjects","_childObjects","_insideCheckType"];
         if ((count _parentObjects) == 0 || {(count _childObjects) == 0}) exitWith {};
 
         private ["_parent","_child"];
+        private _insideCheck = switch (_insideCheckType) do {
+            case -1: {{true}};
+            case 0:  {{(_parent#BP_ORIGOBJECT) in (_child#BP_INSIDE_OF)}};
+            case 1:  {{(_parent#BP_ORIGOBJECT) isEqualTo ((_child#BP_INSIDE_OF) param [0,objNull])}};
+        };
+        //forEach parent
         {
             _parent = _x;
+            //forEachReversed child
             {
                 _child = _x;
-                if (_isFinalConversion || {[(_child#BP_ORIGOBJECT),(_parent#BP_ORIGOBJECT),_isParentBuilding] call NWG_UKREP_IsInside}) then {
+                if (call _insideCheck) then {
                     _child set [BP_POSOFFSET,((_child#BP_POS) vectorDiff (_parent#BP_POS))];
                     _child set [BP_DIROFFSET,((_child#BP_DIR) - (_parent#BP_DIR))];
                     _child set [BP_POS,0];
@@ -378,41 +390,48 @@ NWG_UKREP_ABStoREL = {
         } forEach _parentObjects;
     };
 
-    //Check each decoration against other decorations
+    //Check each decoration against other decorations and vice versa
     private _temp = [];
     private _cur = [];
     while {(count _decos) > 0} do {
         _cur pushBack (_decos deleteAt ((count _decos)-1));
-        [_cur,_decos] call _ABStoREL;
-        [_decos,_cur] call _ABStoREL;
+        [_cur,_decos,1] call _ABStoREL;
+        [_decos,_cur,1] call _ABStoREL;
         if ((count _cur) > 0)
             then {_temp pushBack (_cur deleteAt 0)};
     };
     _decos append _temp; _temp resize 0; _cur resize 0;
 
-    //Check all the objects in hierarchy and append them back to the list
-    [_decos,_records]      call _ABStoREL; _records append _decos; _decos resize 0;
-    [_furns,_records]      call _ABStoREL; _records append _furns; _furns resize 0;
-    [_bldgs,_records,true] call _ABStoREL; _records append _bldgs; _bldgs resize 0;
-    [_roots,_records]      call _ABStoREL; _records append _roots;
+    //Check all the objects and append them back to the list
+    [_decos,_records,1] call _ABStoREL; _records append _decos; _decos resize 0;
+    [_furns,_records,1] call _ABStoREL; _records append _furns; _furns resize 0;
+    [_bldgs,_records,0] call _ABStoREL; _records append _bldgs; _bldgs resize 0;
 
-    //Final conversion - calculate offsets of all the 'outside' objects in comparison to the root (will also place root first)
+    //Check remaining objects against root
+    private _checkTypeForRoot = if (((_roots#0)#BP_OBJTYPE) isEqualTo OBJ_TYPE_BLDG) then {0} else {1};
+    [_roots,_records,_checkTypeForRoot] call _ABStoREL; _records append _roots;
+
+    //Final conversion - calculate offsets of all the 'outside' objects in comparison to the root
+    //will also place root first because 'forEachReversed' is used
     _temp = ["","",((_roots#0)#BP_POS),0,((_roots#0)#BP_DIR),0,[],[]];
-    [[_temp],_records,false,true] call _ABStoREL;
+    [[_temp],_records,-1] call _ABStoREL;
     _records append (_temp#BP_INSIDE); _temp resize 0; _roots resize 0;
 
     //return
     _records
 };
 
-//This implementation relies solely on raycasting and check if _objectA is above _objectB - good enough
-NWG_UKREP_IsInside = {
-    params ["_objectA","_objectB",["_isBuilding",false]];
-    private _raycastFrom = getPosWorld _objectA;
+//This implementation returns all/one the objects below _object - just good enough for our use case where this would mean that object is 'inside'
+//Returns array of unique objects in order 'top to bottom' (file on the table inside the house -> [table,house])
+NWG_UKREP_GetIsInsideOf = {
+    params ["_object",["_limit",-1]];
+    private _raycastFrom = getPosWorld _object;
     private _raycastTo = _raycastFrom vectorAdd [0,0,-50];
-    private _limit = if (_isBuilding) then {-1} else {1};//-1 for buildings, 1 for everything else
+    private _result = (flatten (lineIntersectsSurfaces [_raycastFrom,_raycastTo,_object,objNull,true,_limit,"FIRE","VIEW",true]));//Get raycast result
+    _result = _result select {_x isEqualType objNull && {!isNull _x && {!(_x isEqualTo _object)}}};//Filter objects only
+    _result = _result arrayIntersect _result;//Remove duplicates
     //return
-    _objectB in (flatten (lineIntersectsSurfaces [_raycastFrom,_raycastTo,_objectA,objNull,true,_limit,"FIRE","VIEW",true]))
+    _result
 };
 
 NWG_UKREP_sortOrder = [OBJ_TYPE_BLDG,OBJ_TYPE_FURN,OBJ_TYPE_DECO,OBJ_TYPE_UNIT,OBJ_TYPE_VEHC,OBJ_TYPE_TRRT,OBJ_TYPE_MINE];
@@ -488,40 +507,3 @@ NWG_UKREP_Dump = {
     //Dump to output console as is
     _lines
 };
-
-    ["REL","UKREPNAME",0,0,19.1667,0,[],[
-        ["BLDG","Land_BagBunker_Tower_F",0,[0,0,0],2.538,0,[false,false,true,false,true,false],[
-            ["DECO","Land_PortableGenerator_01_black_F",0,[0.284424,2.30762,2.779],213.695,211.157,[true,false,true,false,true,false]],
-            ["UNIT","B_Soldier_VR_F",0,[-0.640991,1.56201,2.78144],32.1783,29.6403,2]]],
-        ["BLDG","Land_Cargo_Patrol_V3_F",0,[0.751831,14.6011,4.76837e-007],270,267.462,[false,false,true,false,true,true],[
-            ["MINE","APERSMine",0,[1.14905,-1.67627,4.32116],0,-270,0],
-            ["MINE","APERSTripMine",0,[1.72949,-0.957031,4.25278],269.574,-0.426361,0]]],
-        ["BLDG","Land_Cargo_Patrol_V3_F",0,[-13.7765,4.58887,4.76837e-007],0,-2.538,[false,false,true,false,true,true],[
-            ["DECO","Land_PortableCabinet_01_4drawers_black_F",0,[-2.41797,0.640625,4.13905],281.546,281.546,[true,false,true,false,true,true],[
-                ["DECO","Land_File1_F",0,[-0.0919189,-0.0200195,0.828816],159.763,-121.783,[true,false,true,false,true,false]]]],
-            ["DECO","Land_PortableCabinet_01_4drawers_black_F",0,[-2.58643,1.64795,4.13905],272.151,272.151,[true,false,true,false,true,true]],
-            ["TRRT","B_GMG_01_high_F",0,[1.06506,-0.821777,4.33123],181.102,181.102,["B_Soldier_VR_F"]]]],
-        ["FURN","Land_CampingTable_F",0,[-0.381958,2.57275,-0.00259209],359.998,357.46,[true,false,true,false,true,false],[
-            ["DECO","Land_Computer_01_black_F",0,[0.672119,-0.121094,0.813634],0.00494434,-359.993,[true,false,true,false,true,false]],
-            ["DECO","Land_Laptop_03_black_F",0,[-0.322632,0.00195313,0.813633],334.943,-25.0556,[true,false,true,false,true,false]]]],
-        ["DECO","Land_CncBarrier_F",0,[-17.6163,-4.66992,0],225.329,222.791,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",0,[-15.3342,-5.66992,0],181.326,178.788,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",0,[0.837646,-6.25391,0],181.185,178.647,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",0,[3.12073,-5.396,0],138.856,136.318,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",0,[4.13452,-3.12793,0],90.833,88.295,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",0,[-12.6936,-5.71094,0],181.108,178.57,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",0,[-1.8031,-6.2168,0],181.409,178.871,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",0,[-18.4803,-2.38623,0],273.344,270.806,[false,false,true,false,true,false]],
-        ["DECO","Land_PortableGenerator_01_F",0,[3.51221,1.72314,-0.000999928],271.873,269.335,[true,false,true,false,true,false]],
-        ["DECO","RoadBarrier_F",0,[-1.57263,-8.07764,-0.00399303],184.508,181.97,[true,false,true,false,true,false]],
-        ["DECO","RoadBarrier_F",0,[-12.9766,-7.7627,-0.00399303],177.313,174.775,[true,false,true,false,true,false]],
-        ["UNIT","B_Soldier_VR_F",0,[-6.92554,1.97119,0.00143909],182.167,179.629,0],
-        ["UNIT","B_Soldier_VR_F",0,[-0.212158,1.43604,0.00143909],0,-2.538,0],
-        ["VEHC","B_G_Quadbike_01_F",0,[-11.1637,11.8916,0.0125246],102.77,100.232,[["B_Soldier_VR_F"],[["Guerrilla_02",1],[]],false]],
-        ["VEHC","B_T_Quadbike_01_F",0,[-10.9778,15.7114,0.0123229],85.8734,83.3354,[[]]],
-        ["TRRT","B_G_Mortar_01_F",0,[-15.0779,-2.73389,0.036881],147.218,144.68,["B_Soldier_VR_F"]],
-        ["TRRT","B_HMG_01_high_F",0,[-12.7112,-3.63135,-0.0121183],183.271,180.733,[]],
-        ["MINE","APERSBoundingMine",0,[-9.85559,-11.6309,-0.100053],0,-2.538,0],
-        ["MINE","APERSTripMine",0,[-9.67957,-9.8877,-0.0912571],0,-2.538,0],
-        ["MINE","SLAMDirectionalMine",0,[-5.10327,-10.9858,-0.0013361],0,-2.538,0],
-        ["MINE","TrainingMine_01_F",0,[-6.96167,-10.3579,0.000205994],0,-2.538,0]]]
