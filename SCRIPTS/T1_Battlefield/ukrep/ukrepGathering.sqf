@@ -344,7 +344,7 @@ NWG_UKREP_IsInteractable = {
 NWG_UKREP_ABStoREL = {
     private _records = _this;
 
-    //Fill the 'insideOf' arrays of each object
+    //Fill the 'insideOf' arrays for each object
     {
         _x set [BP_INSIDE_OF,((_x#BP_ORIGOBJECT) call NWG_UKREP_GetIsInsideOf)];
     } forEach _records;
@@ -361,7 +361,7 @@ NWG_UKREP_ABStoREL = {
     } forEachReversed _records;
 
     //Prepare the script
-    //This script iterates through childs and moves them to the parent's 'nested' array if they are inside it
+    //This script iterates through childs and moves them to the parent's 'nested' array if they are inside of it
     //As a result _childObjects may be emptied by the end of the script with all the children moved to respective parents
     private _ABStoREL = {
         params ["_parentObjects","_childObjects","_insideCheckType"];
@@ -369,9 +369,9 @@ NWG_UKREP_ABStoREL = {
 
         private ["_parent","_child"];
         private _insideCheck = switch (_insideCheckType) do {
-            case -1: {{true}};
-            case 0:  {{(_parent#BP_ORIGOBJECT) in (_child#BP_INSIDE_OF)}};
-            case 1:  {{(_parent#BP_ORIGOBJECT) isEqualTo ((_child#BP_INSIDE_OF) param [0,objNull])}};
+            case -1:  {{true}};
+            case  0:  {{(_parent#BP_ORIGOBJECT) in (_child#BP_INSIDE_OF)}};
+            case  1:  {{(_parent#BP_ORIGOBJECT) isEqualTo ((_child#BP_INSIDE_OF) param [0,objNull])}};
         };
         //forEach parent
         {
@@ -386,7 +386,6 @@ NWG_UKREP_ABStoREL = {
                     (_parent#BP_INSIDE) pushBack (_childObjects deleteAt _forEachIndex)
                 };
             } forEachReversed _childObjects;
-            if ((count _childObjects) == 0) exitWith {};//All the children are moved
         } forEach _parentObjects;
     };
 
@@ -397,12 +396,11 @@ NWG_UKREP_ABStoREL = {
         _cur pushBack (_decos deleteAt ((count _decos)-1));
         [_cur,_decos,1] call _ABStoREL;
         [_decos,_cur,1] call _ABStoREL;
-        if ((count _cur) > 0)
-            then {_temp pushBack (_cur deleteAt 0)};
+        if ((count _cur) > 0) then {_temp pushBack (_cur deleteAt 0)};
     };
     _decos append _temp; _temp resize 0; _cur resize 0;
 
-    //Check all the objects and append them back to the list
+    //Check all the objects and append them back to the list (order matters)
     [_decos,_records,1] call _ABStoREL; _records append _decos; _decos resize 0;
     [_furns,_records,1] call _ABStoREL; _records append _furns; _furns resize 0;
     [_bldgs,_records,0] call _ABStoREL; _records append _bldgs; _bldgs resize 0;
