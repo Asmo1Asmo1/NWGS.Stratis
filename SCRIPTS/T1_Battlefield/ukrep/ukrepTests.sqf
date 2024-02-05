@@ -34,6 +34,39 @@ NWG_UKREP_TEST_Clear = {
 
 //================================================================================================================
 //================================================================================================================
+//FRACTAL placement
+// call NWG_UKREP_FRACTAL_PlaceFractalABS_Test
+NWG_UKREP_FRACTAL_PlaceFractalABS_Test = {
+    call NWG_UKREP_TEST_Clear;
+    // NWG_UKREP_FRACTAL_PlaceFractalABS = {
+    // params ["_fractalSteps",["_faction",""],["_groupRules",[]],["_mapObjectsLimit",-1]];
+    private _fractalSteps = [
+        ["testUkrep","FRACTAL_ROOT"],
+        ["testUkrep","FRACTAL_SUB"]
+    ];
+    private _result = [_fractalSteps,"NATO"] call NWG_UKREP_FRACTAL_PlaceFractalABS;
+    NWG_UKREP_TEST_placedObjects = _result;
+    _result
+};
+
+// call NWG_UKREP_FRACTAL_PlaceFractalREL_Test
+NWG_UKREP_FRACTAL_PlaceFractalREL_Test = {
+    call NWG_UKREP_TEST_Clear;
+    // NWG_UKREP_FRACTAL_PlaceFractalREL = {
+    // params ["_pos","_dir","_fractalSteps",["_faction",""],["_groupRules",[]],["_clearTheArea",true]];
+    private _pos = getPosATL player;
+    private _dir = getDir player;
+    private _fractalSteps = [
+        ["testUkrep","FRACTAL_ROOT"],
+        ["testUkrep","FRACTAL_SUB"]
+    ];
+    private _result = [_pos,_dir,_fractalSteps,"NATO"] call NWG_UKREP_FRACTAL_PlaceFractalREL;
+    NWG_UKREP_TEST_placedObjects = _result;
+    _result
+};
+
+//================================================================================================================
+//================================================================================================================
 //Public placement
 // call NWG_UKREP_PUBLIC_PlaceABS_Test
 NWG_UKREP_PUBLIC_PlaceABS_Test = {

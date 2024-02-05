@@ -73,5 +73,71 @@
         ["MINE","APERSBoundingMine",0,[-9.85559,-11.6309,-0.100053],0,-2.538,0],
         ["MINE","APERSTripMine",0,[-9.67957,-9.8877,-0.0912571],0,-2.538,0],
         ["MINE","SLAMDirectionalMine",0,[-5.10327,-10.9858,-0.0013361],0,-2.538,0],
-        ["MINE","TrainingMine_01_F",0,[-6.96167,-10.3579,0.000205994],0,-2.538,0]]]
+        ["MINE","TrainingMine_01_F",0,[-6.96167,-10.3579,0.000205994],0,-2.538,0]]],
+
+    /*Test FRACTAL furniture*/
+    ["REL","FRACTAL_SUB",0,0,0.781018,0,[],[
+        ["FURN","Land_CampingTable_F",0,[0,0,0],0,0,[true,true,false,false,false,false],[
+            ["DECO","Land_Can_V3_F",0,[0.0516357,0.123535,0.813638],128.02,128.02,[true,false,true,false,true,false]],
+            ["DECO","Land_File_research_F",0,[-0.496582,-0.128906,0.81361],179.282,179.282,[true,false,true,false,true,false]],
+            ["DECO","Land_FilePhotos_F",0,[-0.220459,0.00830078,0.81361],327.572,327.572,[true,false,true,false,true,false]],
+            ["DECO","Land_Laptop_03_black_F",0,[0.28418,0.0390625,0.813618],208.922,208.922,[true,false,true,false,true,false]],
+            ["DECO","Land_Router_01_black_F",0,[-0.766113,-0.151855,0.81361],360,360,[true,false,true,false,true,false]]]],
+        ["DECO","Land_CampingChair_V2_F",0,[0.573975,0.473145,0.00501156],31.2593,31.2593,[true,true,false,false,false,false]],
+        ["DECO","Land_CampingChair_V2_F",0,[-0.478027,0.385254,0.00501156],0,0,[true,true,false,false,false,false]]]],
+
+    /*Test FRACTAL building*/
+    ["REL","FRACTAL_SUB",0,0,6.74046,0,[],[
+        ["BLDG","Land_BagBunker_Tower_F",0,[0,0,0],0,0,[false,false,true,false,true,false],[
+            ["FURN","Land_CampingTable_F",0,[-0.952148,-2.07129,2.77999],90,90,[true,true,false,false,false,false]],
+            ["DECO","Land_PortableGenerator_01_black_F",0,[0.595581,2.36426,2.78],297.335,297.335,[true,true,false,false,false,false]],
+            ["UNIT","B_Soldier_VR_F",0,[0.719238,-1.62354,2.78144],179.82,179.82,0],
+            ["TRRT","B_static_AT_F",0,[-1.00903,1.90625,2.78377],330.873,330.873,["B_Soldier_VR_F"]]]],
+        ["FURN","Land_CampingTable_F",0,[-0.0253906,2.49756,-1.19209e-005],180,180,[true,true,false,false,false,false]],
+        ["FURN","Land_CampingTable_F",0,[-3.55505,0.800781,-1.19209e-005],270,270,[true,true,false,false,false,false]],
+        ["DECO","Land_PortableCabinet_01_4drawers_black_F",0,[-1.35901,-2.18604,7.15256e-006],269.441,269.441,[true,false,true,true,true,true]],
+        ["DECO","Land_PortableCabinet_01_bookcase_black_F",0,[-1.24561,-2.83594,0.0024004],232.419,232.419,[true,true,false,false,false,true],[
+            ["DECO","Item_Files",0,[0.0665283,-0.117188,0.819599],0,-232.419,[false,false,false,false,false,true]]]],
+        ["DECO","Land_PortableGenerator_01_black_F",0,[3.47192,2.34961,0],270,270,[true,true,false,false,false,false]],
+        ["UNIT","B_Soldier_VR_F",0,[-0.204712,6.22314,0.00143909],100.776,100.776,2],
+        ["UNIT","B_Soldier_VR_F",0,[-0.0231934,0.717773,0.00143909],0,0,0],
+        ["VEHC","B_Quadbike_01_F",0,[-4.02759,-2.12598,0.0129585],0.000337176,0.000337176,[["B_Soldier_VR_F"]]],
+        ["MINE","TrainingMine_01_F",0,[1.87354,5.70801,0.000205994],0,0,0],
+        ["MINE","TrainingMine_01_F",0,[2.02466,6.4292,0.000205994],0,0,0],
+        ["MINE","TrainingMine_01_F",0,[1.24597,6.13916,0.000205994],0,0,0]]],
+
+
+    /*Test FRACTAL REL*/
+    ["REL","FRACTAL_ROOT",0,0,20.9521,0,[],[
+        ["FURN","Land_CampingTable_F",0,[0,0,0],3.28615e-005,0,[true,false,true,false,true,false]],
+        ["BLDG","CamoNet_BLUFOR_F",0,[10.0997,16.855,0.00259209],90,90,[false,false,true,false,true,false]],
+        ["BLDG","Land_HBarrier_01_tower_green_F",0,[16.6799,0,0.00259209],90,90,[false,false,true,false,true,false]],
+        ["BLDG","Land_HBarrier_01_tower_green_F",0,[-4.51025,20.4609,0.00259209],0,-3.28615e-005,[false,false,true,false,true,false]],
+        ["DECO","Box_NATO_Equip_F",0,[-3.698,9.40625,0.00259113],89.2899,89.2899,[true,false,true,true,true,true]],
+        ["DECO","Land_EngineCrane_01_F",0,[10.438,16.3032,0.00259209],112.105,112.105,[true,true,false,false,false,false]],
+        ["DECO","Land_PaperBox_01_open_empty_F",0,[10.08,13.8521,0.00259209],0,-3.28615e-005,[true,true,false,false,false,false]],
+        ["UNIT","B_Soldier_VR_F",0,[0.891357,12.9717,0.00403118],232.377,232.377,0],
+        ["UNIT","B_Soldier_VR_F",0,[-1.23096,11.855,0.00403118],55.626,55.6259,0],
+        ["UNIT","B_Soldier_VR_F",0,[0.083252,14.1855,0.00403118],174.519,174.519,0],
+        ["VEHC","B_Quadbike_01_F",0,[6.48218,18.5898,0.0148268],244.508,244.508,[[]]],
+        ["VEHC","B_Quadbike_01_F",0,[6.1875,14.1426,0.0149369],244.508,244.508,[["B_Soldier_VR_F"]]],
+        ["TRRT","B_Mortar_01_F",0,[-5.13489,8.54736,0.0394731],308.547,308.547,[]],
+        ["TRRT","B_Mortar_01_F",0,[-3.57898,7.52148,0.0394912],187.797,187.797,["B_Soldier_VR_F"]]]],
+
+    /*Test FRACTAL ABS*/
+    ["ABS","FRACTAL_ROOT",[1821.27,5633.21,0],0,17.9996,0,[],[
+        ["BLDG","CamoNet_BLUFOR_F",[1828.31,5638.3,5.5],0,90,0,[false,false,true,false,true,false]],
+        ["BLDG","Land_HBarrier_01_tower_green_F",[1813.7,5641.9,5.5],0,0,0,[false,false,true,false,true,false]],
+        ["BLDG","Land_HBarrier_01_tower_green_F",[1834.89,5621.44,5.5],0,90,0,[false,false,true,false,true,false]],
+        ["FURN","Land_CampingTable_F",[1818.21,5621.44,5.49741],0,3.28615e-005,0,[true,false,true,false,true,false]],
+        ["DECO","Box_NATO_Equip_F",[1814.51,5630.85,5.5],0,89.2899,0,[true,false,true,true,true,true]],
+        ["DECO","Land_EngineCrane_01_F",[1828.65,5637.75,5.5],0,112.105,0,[true,true,false,false,false,false]],
+        ["DECO","Land_PaperBox_01_open_empty_F",[1828.29,5635.29,5.5],0,0,0,[true,true,false,false,false,false]],
+        ["UNIT","B_Soldier_VR_F",[1818.3,5635.63,5.50144],0,174.519,0,0],
+        ["UNIT","B_Soldier_VR_F",[1816.98,5633.3,5.50144],0,55.626,0,0],
+        ["UNIT","B_Soldier_VR_F",[1819.1,5634.41,5.50144],0,232.377,0,0],
+        ["VEHC","B_Quadbike_01_F",[1824.69,5640.03,5.51223],0,244.508,0,[[]]],
+        ["VEHC","B_Quadbike_01_F",[1824.4,5635.59,5.51234],0,244.508,0,[["B_Soldier_VR_F"]]],
+        ["TRRT","B_Mortar_01_F",[1813.08,5629.99,5.53688],0,308.547,0,[]],
+        ["TRRT","B_Mortar_01_F",[1814.63,5628.96,5.5369],0,187.797,0,["B_Soldier_VR_F"]]]]
 ]
