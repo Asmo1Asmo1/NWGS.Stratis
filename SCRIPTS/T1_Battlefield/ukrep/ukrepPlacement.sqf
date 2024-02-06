@@ -141,7 +141,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     };
     //forEach furniture
     {
-        private _adaptToGround = !(_x call NWG_UKREP_FRACTAL_IsInsideOfAnything);//Adapt chairs around table only if table itself is not inside a building
+        private _adaptToGround = _x call NWG_UKREP_FRACTAL_IsOutside;//Adapt chairs around table only if table itself is not inside a building
         private _furnResult = [_cataloguePage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         {(_result#_forEachIndex) append _x} forEach _furnResult;
     } forEach (_placedFurns + _mapFurns);
@@ -196,7 +196,7 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
     _fractalStep3 params [["_cataloguePage",""],["_blueprintName",""],["_chances",[]]];
     //forEach placed furniture
     {
-        private _adaptToGround = !(_x call NWG_UKREP_FRACTAL_IsInsideOfAnything);//Adapt chairs around table only if table itself is not inside a building
+        private _adaptToGround = _x call NWG_UKREP_FRACTAL_IsOutside;//Adapt chairs around table only if table itself is not inside a building
         private _furnResult = [_cataloguePage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         {(_result#_forEachIndex) append _x} forEach _furnResult;
     } forEach ((_result#UKREP_RESULT_FURNS) select {[_x,OBJ_TYPE_FURN,_cataloguePage,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup});
@@ -229,14 +229,14 @@ NWG_UKREP_FRACTAL_HasRelSetup = {
     }) != -1)
 };
 
-NWG_UKREP_FRACTAL_IsInsideOfAnything = {
+NWG_UKREP_FRACTAL_IsOutside = {
     private _object = _this;
     private _raycastFrom = getPosWorld _object;
     private _raycastTo = _raycastFrom vectorAdd [0,0,-50];
     private _result = (flatten (lineIntersectsSurfaces [_raycastFrom,_raycastTo,_object,objNull,true,-1,"FIRE","VIEW",true]));//Get raycast result
     _result = _result select {_x isEqualType objNull && {!isNull _x && {!(_x isEqualTo _object)}}};//Filter objects only
     //return
-    (count _result) > 0
+    (count _result) == 0
 };
 
 //================================================================================================================
