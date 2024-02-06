@@ -9,10 +9,6 @@ NWG_OBCL_Settings = createHashMapFromArray [
     ["",0]
 ];
 
-//Defines
-#define CATEGORY 0
-#define SAME 1
-
 //================================================================================================================
 //Fields
 NWG_OBCL_BuildingsCatalogue = createHashMap;
@@ -54,6 +50,9 @@ private _Init = {
 
 //================================================================================================================
 //Buldings and Furniture methods
+#define CATEGORY 0
+#define SAME 1
+
 #define GET_CLASSNAME(ARG)\
     private _classname = switch (true) do {\
         case (ARG isEqualType objNull): {typeOf ARG};\

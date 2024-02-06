@@ -87,7 +87,7 @@ NWG_UKREP_GetBlueprintsREL = {
 //================================================================================================================
 //FRACTAL placement
 NWG_UKREP_FRACTAL_PlaceFractalABS = {
-    params ["_fractalSteps",["_faction",""],["_groupRules",[]],["_mapObjectsLimit",-1]];
+    params ["_fractalSteps",["_faction",""],["_groupRules",[]],["_mapObjectsLimit",10]];
 
     //1. Get root blueprint
     private _fractalStep1 = _fractalSteps param [0,[]];
@@ -101,7 +101,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
 
     //2. Scan and save objects on the map for steps 2 and 3
     private _mapObjects = [];
-    if (_mapObjectsLimit != 0) then {
+    if (_mapObjectsLimit > 0) then {
         private _bpPos = _blueprint#BPCONTAINER_POS;
         private _bpRad = _blueprint#BPCONTAINER_RADIUS;
         _mapObjects = _bpPos nearObjects _bpRad;//Get all objects in the area
@@ -120,7 +120,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     _fractalStep2 params [["_cataloguePage",""],["_blueprintName",""],["_chances",[]]];
     private _placedBldgs = (_result#UKREP_RESULT_BLDGS) select {[_x,OBJ_TYPE_BLDG,_cataloguePage,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup};
     private _mapBldgs = _mapObjects select {_x call NWG_fnc_ocIsBuilding && {[_x,OBJ_TYPE_BLDG,_cataloguePage,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup}};
-    if (_mapObjectsLimit != -1 && {(count _mapBldgs) > _mapObjectsLimit}) then {
+    if ((count _mapBldgs) > _mapObjectsLimit) then {
         _mapBldgs = _mapBldgs call NWG_fnc_arrayShuffle;//Shuffle
         _mapBldgs resize _mapObjectsLimit;//Limit
     };
@@ -135,7 +135,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     _fractalStep3 params [["_cataloguePage",""],["_blueprintName",""],["_chances",[]]];
     private _placedFurns = (_result#UKREP_RESULT_FURNS) select {[_x,OBJ_TYPE_FURN,_cataloguePage,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup};
     private _mapFurns = _mapObjects select {_x call NWG_fnc_ocIsFurniture && {[_x,OBJ_TYPE_FURN,_cataloguePage,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup}};
-    if (_mapObjectsLimit != -1 && {(count _mapFurns) > _mapObjectsLimit}) then {
+    if ((count _mapFurns) > _mapObjectsLimit) then {
         _mapFurns = _mapFurns call NWG_fnc_arrayShuffle;//Shuffle
         _mapFurns resize _mapObjectsLimit;//Limit
     };
