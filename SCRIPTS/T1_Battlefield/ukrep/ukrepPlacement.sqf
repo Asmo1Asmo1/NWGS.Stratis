@@ -169,7 +169,7 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
     private _helper = if (_clearTheArea) then {
         private _bpRad = _blueprint#BPCONTAINER_RADIUS;
         ["HELP","ModuleHideTerrainObjects_F",0,[0,0,0],0,0,[
-            	["objectArea",[30,30,0,false,-1]],
+            	["objectArea",[_bpRad,_bpRad,0,false,-1]],
 	            ["#filter",15],
 	            ["#hideLocally",false],
 	            ["BIS_fnc_initModules_disableAutoActivation",false]
