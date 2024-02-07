@@ -91,10 +91,10 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
 
     //1. Get root blueprint
     private _fractalStep1 = _fractalSteps param [0,[]];
-    _fractalStep1 params [["_cataloguePage",""],["_blueprintName",""],["_chances",[]],["_blueprintPos",[]]];
-    private _blueprints = [_cataloguePage,_blueprintName,_blueprintPos] call NWG_UKREP_GetBlueprintsABS;
+    _fractalStep1 params [["_pageName",""],["_blueprintName",""],["_chances",[]],["_blueprintPos",[]]];
+    private _blueprints = [_pageName,_blueprintName,_blueprintPos] call NWG_UKREP_GetBlueprintsABS;
     if ((count _blueprints) == 0) exitWith {
-        (format ["NWG_UKREP_FRACTAL_PlaceFractalABS: Could not find the blueprint matching the %1:%2:%3",_cataloguePage,_blueprintName,_blueprintPos]) call NWG_fnc_logError;
+        (format ["NWG_UKREP_FRACTAL_PlaceFractalABS: Could not find the blueprint matching the %1:%2:%3",_pageName,_blueprintName,_blueprintPos]) call NWG_fnc_logError;
         false//Error
     };
     private _blueprint = [_blueprints,"NWG_UKREP_FRACTAL_PlaceFractalABS"] call NWG_fnc_selectRandomGuaranteed;
@@ -117,32 +117,34 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
 
     //4. Decorate buildings (fractal step 2)
     private _fractalStep2 = _fractalSteps param [1,_fractalStep1];//Unpack or re-use upper step
-    _fractalStep2 params [["_cataloguePage",""],["_blueprintName",""],["_chances",[]]];
-    private _placedBldgs = (_result#UKREP_RESULT_BLDGS) select {[_x,OBJ_TYPE_BLDG,_cataloguePage,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup};
-    private _mapBldgs = _mapObjects select {_x call NWG_fnc_ocIsBuilding && {[_x,OBJ_TYPE_BLDG,_cataloguePage,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup}};
+    _fractalStep2 params [["_pageName",""],["_blueprintName",""],["_chances",[]]];
+    private _placedBldgs = (_result#UKREP_RESULT_BLDGS) select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup};
+    private _mapBldgs = _mapObjects select {_x call NWG_fnc_ocIsBuilding && {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup}};
     if ((count _mapBldgs) > _mapObjectsLimit) then {
         _mapBldgs = _mapBldgs call NWG_fnc_arrayShuffle;//Shuffle
         _mapBldgs resize _mapObjectsLimit;//Limit
     };
     //forEach building
     {
-        private _bldgResult = [_cataloguePage,_x,OBJ_TYPE_BLDG,_blueprintName,_chances,_faction,_groupRules,/*_adaptToGround:*/true] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        private _bldgPage = [_pageName,_x,OBJ_TYPE_BLDG] call NWG_UKREP_FRACTAL_GetPageName;
+        private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintName,_chances,_faction,_groupRules,/*_adaptToGround:*/true] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         {(_result#_forEachIndex) append _x} forEach _bldgResult;
     } forEach (_placedBldgs + _mapBldgs);
 
     //5. Decorate furniture (fractal step 3)
     private _fractalStep3 = _fractalSteps param [2,_fractalStep2];//Unpack or re-use upper step
-    _fractalStep3 params [["_cataloguePage",""],["_blueprintName",""],["_chances",[]]];
-    private _placedFurns = (_result#UKREP_RESULT_FURNS) select {[_x,OBJ_TYPE_FURN,_cataloguePage,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup};
-    private _mapFurns = _mapObjects select {_x call NWG_fnc_ocIsFurniture && {[_x,OBJ_TYPE_FURN,_cataloguePage,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup}};
+    _fractalStep3 params [["_pageName",""],["_blueprintName",""],["_chances",[]]];
+    private _placedFurns = (_result#UKREP_RESULT_FURNS) select {[_x,OBJ_TYPE_FURN,_pageName,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup};
+    private _mapFurns = _mapObjects select {_x call NWG_fnc_ocIsFurniture && {[_x,OBJ_TYPE_FURN,_pageName,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup}};
     if ((count _mapFurns) > _mapObjectsLimit) then {
         _mapFurns = _mapFurns call NWG_fnc_arrayShuffle;//Shuffle
         _mapFurns resize _mapObjectsLimit;//Limit
     };
     //forEach furniture
     {
+        private _furnPage = [_pageName,_x,OBJ_TYPE_FURN] call NWG_UKREP_FRACTAL_GetPageName;
         private _adaptToGround = _x call NWG_UKREP_FRACTAL_IsOutside;//Adapt chairs around table only if table itself is not inside a building
-        private _furnResult = [_cataloguePage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         {(_result#_forEachIndex) append _x} forEach _furnResult;
     } forEach (_placedFurns + _mapFurns);
 
@@ -155,10 +157,10 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
 
     //1. Get root blueprint
     private _fractalStep1 = _fractalSteps param [0,[]];
-    _fractalStep1 params [["_cataloguePage",""],["_blueprintName",""],["_chances",[]],["_blueprintRoot",[]]];
-    private _blueprints = [_cataloguePage,_blueprintName,_blueprintRoot] call NWG_UKREP_GetBlueprintsREL;
+    _fractalStep1 params [["_pageName",""],["_blueprintName",""],["_chances",[]],["_blueprintRoot",[]]];
+    private _blueprints = [_pageName,_blueprintName,_blueprintRoot] call NWG_UKREP_GetBlueprintsREL;
     if ((count _blueprints) == 0) exitWith {
-        (format ["NWG_UKREP_FRACTAL_PlaceFractalREL: Could not find the blueprint matching the %1:%2:%3",_cataloguePage,_blueprintName,_blueprintRoot]) call NWG_fnc_logError;
+        (format ["NWG_UKREP_FRACTAL_PlaceFractalREL: Could not find the blueprint matching the %1:%2:%3",_pageName,_blueprintName,_blueprintRoot]) call NWG_fnc_logError;
         false//Error
     };
     private _blueprint = [_blueprints,"NWG_UKREP_FRACTAL_PlaceFractalREL"] call NWG_fnc_selectRandomGuaranteed;
@@ -184,36 +186,52 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
 
     //4. Decorate buildings (fractal step 2)
     private _fractalStep2 = _fractalSteps param [1,_fractalStep1];//Unpack or re-use upper step
-    _fractalStep2 params [["_cataloguePage",""],["_blueprintName",""],["_chances",[]]];
+    _fractalStep2 params [["_pageName",""],["_blueprintName",""],["_chances",[]]];
     //forEach placed building
     {
-        private _bldgResult = [_cataloguePage,_x,OBJ_TYPE_BLDG,_blueprintName,_chances,_faction,_groupRules,/*_adaptToGround:*/true] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        private _bldgPage = [_pageName,_x,OBJ_TYPE_BLDG] call NWG_UKREP_FRACTAL_GetPageName;
+        private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintName,_chances,_faction,_groupRules,/*_adaptToGround:*/true] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         {(_result#_forEachIndex) append _x} forEach _bldgResult;
-    } forEach ((_result#UKREP_RESULT_BLDGS) select {[_x,OBJ_TYPE_BLDG,_cataloguePage,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup});
+    } forEach ((_result#UKREP_RESULT_BLDGS) select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup});
 
     //5. Decorate furniture (fractal step 3)
     private _fractalStep3 = _fractalSteps param [2,_fractalStep2];//Unpack or re-use upper step
-    _fractalStep3 params [["_cataloguePage",""],["_blueprintName",""],["_chances",[]]];
+    _fractalStep3 params [["_pageName",""],["_blueprintName",""],["_chances",[]]];
     //forEach placed furniture
     {
+        private _furnPage = [_pageName,_x,OBJ_TYPE_FURN] call NWG_UKREP_FRACTAL_GetPageName;
         private _adaptToGround = _x call NWG_UKREP_FRACTAL_IsOutside;//Adapt chairs around table only if table itself is not inside a building
-        private _furnResult = [_cataloguePage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         {(_result#_forEachIndex) append _x} forEach _furnResult;
-    } forEach ((_result#UKREP_RESULT_FURNS) select {[_x,OBJ_TYPE_FURN,_cataloguePage,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup});
+    } forEach ((_result#UKREP_RESULT_FURNS) select {[_x,OBJ_TYPE_FURN,_pageName,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup});
 
     //return
     _result
 };
 
 /*Utils*/
+NWG_UKREP_FRACTAL_GetPageName = {
+    params ["_pageName","_object","_objectType"];
+    if (_pageName isNotEqualTo "AUTO") exitWith {_pageName};//Use provided
+    //return
+    switch (_objectType) do {
+        case OBJ_TYPE_BLDG: {"Bldg" + (_object call NWG_fnc_ocGetBuildingCategory)};
+        case OBJ_TYPE_FURN: {"Furn" + (_object call NWG_fnc_ocGetFurnitureCategory)};
+        default {""};
+    }
+};
+
 NWG_UKREP_FRACTAL_HasRelSetup = {
     params ["_object","_objectType","_pageName","_nameFilter"];
+
     private _rootFilter = switch (_objectType) do {
         case OBJ_TYPE_BLDG: {_object call NWG_fnc_ocGetSameBuildings};
         case OBJ_TYPE_FURN: {_object call NWG_fnc_ocGetSameFurniture};
         default {[(typeOf _object)]};//Shouldn't be used, but okay
     };
     if ((count _rootFilter) == 0) exitWith {false};//Error
+
+    _pageName = [_pageName,_object,_objectType] call NWG_UKREP_FRACTAL_GetPageName;
     private _page = _pageName call NWG_UKREP_GetBlueprintsPage;
     if (_page isEqualTo false) exitWith {false};//Error
 
@@ -243,10 +261,10 @@ NWG_UKREP_FRACTAL_IsOutside = {
 //================================================================================================================
 //Public placement
 NWG_UKREP_PUBLIC_PlaceABS = {
-    params ["_cataloguePage",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction",""],["_groupRules",[]]];
-    private _blueprints = [_cataloguePage,_blueprintName,_blueprintPos] call NWG_UKREP_GetBlueprintsABS;
+    params ["_pageName",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction",""],["_groupRules",[]]];
+    private _blueprints = [_pageName,_blueprintName,_blueprintPos] call NWG_UKREP_GetBlueprintsABS;
     if ((count _blueprints) == 0) exitWith {
-        (format ["NWG_UKREP_PUBLIC_PlaceABS: Could not find the blueprint matching the %1:%2:%3",_cataloguePage,_blueprintName,_blueprintPos]) call NWG_fnc_logError;
+        (format ["NWG_UKREP_PUBLIC_PlaceABS: Could not find the blueprint matching the %1:%2:%3",_pageName,_blueprintName,_blueprintPos]) call NWG_fnc_logError;
         false//Error
     };
     private _blueprint = [_blueprints,"NWG_UKREP_PUBLIC_PlaceABS"] call NWG_fnc_selectRandomGuaranteed;
@@ -258,10 +276,10 @@ NWG_UKREP_PUBLIC_PlaceABS = {
 };
 
 NWG_UKREP_PUBLIC_PlaceREL_Position = {
-    params ["_cataloguePage","_pos","_dir",["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
-    private _blueprints = [_cataloguePage,_blueprintName] call NWG_UKREP_GetBlueprintsREL;
+    params ["_pageName","_pos","_dir",["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
+    private _blueprints = [_pageName,_blueprintName] call NWG_UKREP_GetBlueprintsREL;
     if ((count _blueprints) == 0) exitWith {
-        (format ["NWG_UKREP_PUBLIC_PlaceREL_Position: Could not find the blueprint matching the %1:%2",_cataloguePage,_blueprintName]) call NWG_fnc_logError;
+        (format ["NWG_UKREP_PUBLIC_PlaceREL_Position: Could not find the blueprint matching the %1:%2",_pageName,_blueprintName]) call NWG_fnc_logError;
         false//Error
     };
     private _blueprint = [_blueprints,"NWG_UKREP_PUBLIC_PlaceREL_Position"] call NWG_fnc_selectRandomGuaranteed;
@@ -273,7 +291,7 @@ NWG_UKREP_PUBLIC_PlaceREL_Position = {
 };
 
 NWG_UKREP_PUBLIC_PlaceREL_Object = {
-    params ["_cataloguePage","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
+    params ["_pageName","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
     if (_objectType isEqualTo "") then {_objectType = _object call NWG_fnc_getObjectType};
     private _rootObjFilter = switch (_objectType) do {
         case OBJ_TYPE_BLDG: {_object call NWG_fnc_ocGetSameBuildings};
@@ -285,9 +303,9 @@ NWG_UKREP_PUBLIC_PlaceREL_Object = {
         false//Error
     };
 
-    private _blueprints = [_cataloguePage,_blueprintName,_rootObjFilter] call NWG_UKREP_GetBlueprintsREL;
+    private _blueprints = [_pageName,_blueprintName,_rootObjFilter] call NWG_UKREP_GetBlueprintsREL;
     if ((count _blueprints) == 0) exitWith {
-        (format ["NWG_UKREP_PUBLIC_PlaceREL_Object: Could not find the blueprint matching the %1:%2:%3",_cataloguePage,_blueprintName,_rootObjFilter]) call NWG_fnc_logError;
+        (format ["NWG_UKREP_PUBLIC_PlaceREL_Object: Could not find the blueprint matching the %1:%2:%3",_pageName,_blueprintName,_rootObjFilter]) call NWG_fnc_logError;
         false//Error
     };
     private _blueprint = [_blueprints,"NWG_UKREP_PUBLIC_PlaceREL_Object"] call NWG_fnc_selectRandomGuaranteed;

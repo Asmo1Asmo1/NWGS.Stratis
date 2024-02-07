@@ -30,7 +30,8 @@ NWG_fnc_arrayShuffle = {
 NWG_fnc_arrayRandomShift = {
     //private _array = _this;
     private _i = floor (random (count _this));
-    private _result = (_this select [_i,(count _this)]) + (_this select [0,_i]);
+    if (_i <= 0) exitWith {_this};
+    private _result = (_this select [_i]) + (_this select [0,_i]);
     _this resize 0;
     _this append _result;
     _this
