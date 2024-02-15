@@ -24,7 +24,7 @@ NWG_fnc_compile = {
     (if (fileExists _fileAddress) then {
         (compileFinal preprocessFileLineNumbers _fileAddress)
     } else {
-        diag_log formatText ["%1(%2) [ERROR] %3 %4", __FILE__, __LINE__, "#### File not found: ", _fileAddress];
+        diag_log formatText ["  [ERROR] #### File not found: %1", _fileAddress];
         {}//Return empty code block
     })
 };

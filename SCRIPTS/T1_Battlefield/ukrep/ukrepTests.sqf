@@ -1,3 +1,6 @@
+#include "..\..\globalDefines.h"
+#include "ukrepDefines.h"
+
 // call NWG_UKREP_VectorMathTest
 NWG_UKREP_VectorMathTest = {
     //Determine if previous algorithm and new one give exact same results
@@ -129,4 +132,29 @@ NWG_UKREP_PUBLIC_PlaceREL_Object_Test = {
     private _result = [_cataloguePage,_object,"",_blueprintName] call NWG_UKREP_PUBLIC_PlaceREL_Object;
     NWG_UKREP_TEST_placedObjects = _result;
     _result
+};
+
+//================================================================================================================
+//================================================================================================================
+//Zaselenie test
+
+// [300,""] call NWG_UKREP_ZASELENIE_Test
+// [300,"NATO"] call NWG_UKREP_ZASELENIE_Test
+NWG_UKREP_ZASELENIE_Test = {
+    params ["_radius","_faction"];
+    call NWG_UKREP_TEST_Clear;
+    NWG_UKREP_TEST_placedObjects = [[],[],[],[],[],[],[]];
+    private _mapObjects = (player nearObjects _radius) select {_x call NWG_fnc_ocIsBuilding || {_x call NWG_fnc_ocIsFurniture}};
+
+    //forEach map objects
+    {
+        private _objectType = if (_x call NWG_fnc_ocIsBuilding) then {OBJ_TYPE_BLDG} else {OBJ_TYPE_FURN};
+        private _pageName = ["AUTO",_x,_objectType] call NWG_UKREP_FRACTAL_AutoGetPageName;
+        if !([_x,_objectType,_pageName,""] call NWG_UKREP_FRACTAL_HasRelSetup) then {continue};
+        private _result = [_pageName,_x,_objectType,"",[],_faction] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        if (_result isEqualTo false) then {continue};
+        {(NWG_UKREP_TEST_placedObjects#_forEachIndex) append _x} forEach _result;
+    } forEach _mapObjects;
+
+    NWG_UKREP_TEST_placedObjects
 };

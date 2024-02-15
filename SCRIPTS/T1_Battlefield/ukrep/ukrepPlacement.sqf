@@ -113,6 +113,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     _blueprint = _blueprint#BPCONTAINER_BLUEPRINT;
     _blueprint = +_blueprint;//Clone
     private _result = [_blueprint,_chances,_faction,_groupRules] call NWG_UKREP_PlaceABS;
+    if (_result isEqualTo false) exitWith {false};//Error
     //result is: [_bldgs,_furns,_decos,_units,_vehcs,_trrts,_mines]
 
     //4. Decorate buildings (fractal step 2)
@@ -126,8 +127,9 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     };
     //forEach building
     {
-        private _bldgPage = [_pageName,_x,OBJ_TYPE_BLDG] call NWG_UKREP_FRACTAL_GetPageName;
+        private _bldgPage = [_pageName,_x,OBJ_TYPE_BLDG] call NWG_UKREP_FRACTAL_AutoGetPageName;
         private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintName,_chances,_faction,_groupRules,/*_adaptToGround:*/true] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        if (_bldgResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _bldgResult;
     } forEach (_placedBldgs + _mapBldgs);
 
@@ -142,9 +144,10 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     };
     //forEach furniture
     {
-        private _furnPage = [_pageName,_x,OBJ_TYPE_FURN] call NWG_UKREP_FRACTAL_GetPageName;
+        private _furnPage = [_pageName,_x,OBJ_TYPE_FURN] call NWG_UKREP_FRACTAL_AutoGetPageName;
         private _adaptToGround = _x call NWG_UKREP_FRACTAL_IsOutside;//Adapt chairs around table only if table itself is not inside a building
         private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        if (_furnResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _furnResult;
     } forEach (_placedFurns + _mapFurns);
 
@@ -182,6 +185,7 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
     _blueprint = +_blueprint;//Clone
     if (_clearTheArea) then {_blueprint pushBack _helper};
     private _result = [_blueprint,_pos,_dir,_chances,_faction,_groupRules,/*_adaptToGround:*/true] call NWG_UKREP_PlaceREL_Position;
+    if (_result isEqualTo false) exitWith {false};//Error
     //result is: [_bldgs,_furns,_decos,_units,_vehcs,_trrts,_mines]
 
     //4. Decorate buildings (fractal step 2)
@@ -189,8 +193,9 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
     _fractalStep2 params [["_pageName",""],["_blueprintName",""],["_chances",[]]];
     //forEach placed building
     {
-        private _bldgPage = [_pageName,_x,OBJ_TYPE_BLDG] call NWG_UKREP_FRACTAL_GetPageName;
+        private _bldgPage = [_pageName,_x,OBJ_TYPE_BLDG] call NWG_UKREP_FRACTAL_AutoGetPageName;
         private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintName,_chances,_faction,_groupRules,/*_adaptToGround:*/true] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        if (_bldgResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _bldgResult;
     } forEach ((_result#UKREP_RESULT_BLDGS) select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup});
 
@@ -199,9 +204,10 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
     _fractalStep3 params [["_pageName",""],["_blueprintName",""],["_chances",[]]];
     //forEach placed furniture
     {
-        private _furnPage = [_pageName,_x,OBJ_TYPE_FURN] call NWG_UKREP_FRACTAL_GetPageName;
+        private _furnPage = [_pageName,_x,OBJ_TYPE_FURN] call NWG_UKREP_FRACTAL_AutoGetPageName;
         private _adaptToGround = _x call NWG_UKREP_FRACTAL_IsOutside;//Adapt chairs around table only if table itself is not inside a building
         private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        if (_furnResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _furnResult;
     } forEach ((_result#UKREP_RESULT_FURNS) select {[_x,OBJ_TYPE_FURN,_pageName,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup});
 
@@ -210,7 +216,7 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
 };
 
 /*Utils*/
-NWG_UKREP_FRACTAL_GetPageName = {
+NWG_UKREP_FRACTAL_AutoGetPageName = {
     params ["_pageName","_object","_objectType"];
     if (_pageName isNotEqualTo "AUTO") exitWith {_pageName};//Use provided
     //return
@@ -231,7 +237,7 @@ NWG_UKREP_FRACTAL_HasRelSetup = {
     };
     if ((count _rootFilter) == 0) exitWith {false};//Error
 
-    _pageName = [_pageName,_object,_objectType] call NWG_UKREP_FRACTAL_GetPageName;
+    _pageName = [_pageName,_object,_objectType] call NWG_UKREP_FRACTAL_AutoGetPageName;
     private _page = _pageName call NWG_UKREP_GetBlueprintsPage;
     if (_page isEqualTo false) exitWith {false};//Error
 

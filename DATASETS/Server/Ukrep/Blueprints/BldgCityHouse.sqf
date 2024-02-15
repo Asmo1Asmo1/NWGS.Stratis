@@ -1353,7 +1353,7 @@
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[-1,2.375,0.298916],0,0,[false,false,true,true,true,false]],
             ["DECO","Land_WoodenCrate_01_stack_x3_F",0,[3.625,3.75,0.299],0,0,[false,false,false,false,false,false]],
             ["MINE","APERSTripMine",0,[1.98926,3.19434,0.207411],90,90,0],
-            ["MINE","APERSTripMine",0,[-2.88574,4.56934,0.206966],180,180,0]]]]]
+            ["MINE","APERSTripMine",0,[-2.88574,4.56934,0.206966],180,180,0]]]]],
 
 
     ["REL","11-Civil01",0,0,7.51275,0,[],[
