@@ -107,11 +107,10 @@ NWG_fnc_spwnSpawnUnitsIntoBuilding = {
 //  direction - direction for the unit to face
 //  stance - [optional] stance of the unit 1 - UP 2 - MIDDLE 3 - DOWN
 //_sideOrGroup - [optional] side of the units (west by default) or existing group to spawn into
-//_tryShufflePositions - [optional] if true, will try placing units around given positions with collision check
 //returns:
 //array of spawned units
 NWG_fnc_spwnSpawnUnitsExact = {
-    //params ["_data",["_sideOrGroup",west],["_tryShufflePositions",false]];
+    //params ["_data",["_sideOrGroup",west]];
     _this call NWG_SPWN_SpawnUnitsExact
     //returns _units (array)
 };

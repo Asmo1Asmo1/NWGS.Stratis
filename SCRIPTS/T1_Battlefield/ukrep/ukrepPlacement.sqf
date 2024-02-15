@@ -17,7 +17,6 @@ NWG_UKREP_Settings = createHashMapFromArray [
 
     ["DEFAULT_GROUP_SIDE",west],//If group rules not provided - place under this side
     ["DEFAULT_GROUP_DYNASIM",true],//If group rules not provided - place with this dynamic simulation setting
-    ["DEFAULT_GROUP_TRYSHUFFLE",true],//If group rules not provided - place with this shuffle setting
 
     ["",0]
 ];
@@ -558,9 +557,8 @@ NWG_UKREP_PlacementCore = {
 
     /*Place UNIT - units*/
     if ((count _units) > 0) then {
-        private _tryShufflePositions = _groupRules param [GRP_RULES_TRYSHUFFLE,(NWG_UKREP_Settings get "DEFAULT_GROUP_TRYSHUFFLE")];
         _units = _units apply {[(_x#BP_CLASSNAME),(_x#BP_POS),(_x#BP_DIR),(_x#BP_PAYLOAD)]};//Repack into func argument
-        _units = [_units,(call _getGroup),_tryShufflePositions] call NWG_fnc_spwnSpawnUnitsExact;
+        _units = [_units,(call _getGroup)] call NWG_fnc_spwnSpawnUnitsExact;
         {_x disableAI "PATH"} forEach _units;//Disable pathfinding for all units
     };
 

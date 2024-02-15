@@ -158,7 +158,7 @@ NWG_SPWN_SpawnUnitsIntoBuilding = {
 #define DATA_DIRECTION 2
 #define DATA_STANCE 3
 NWG_SPWN_SpawnUnitsExact = {
-    params ["_data",["_sideOrGroup",west],["_tryShufflePositions",false]];
+    params ["_data",["_sideOrGroup",west]];
 
     //Prespawn units
     private _units = [(_data apply {_x#DATA_CLASSNAME}),nil,_sideOrGroup] call NWG_SPWN_PrespawnUnits;
@@ -169,29 +169,10 @@ NWG_SPWN_SpawnUnitsExact = {
     private "_unit";
     {
         _unit = _units#_forEachIndex;
-        _unit setUnitPos (_stances#(_x param [DATA_STANCE,0]));
         _unit setDir (_x param [DATA_DIRECTION,0]);
         _unit setPosASL (_x param [DATA_POSITION,[0,0,0]]);
+        _unit setUnitPos (_stances#(_x param [DATA_STANCE,0]));
     } forEach _data;
-
-    //Shuffle positions if requested
-    if (_tryShufflePositions) then {
-        private ["_origPos","_boundingBox","_ok"];
-        {
-            _unit = _x;
-            _origPos = getPosASL _unit;
-            _boundingBox = _unit call NWG_SPWN_GetBoundingBox;
-            _ok = false;
-
-            {
-                _x set [2,(_origPos#2)]; _unit setPosASL _x;
-                if (([_unit,_boundingBox,true] call NWG_SPWN_CollisionCheck) && {((getPos _unit)#2) <= 0.3}) exitWith {_ok = true};
-            } forEach ([_origPos,/*_rad:*/5,/*_count:*/3] call NWG_fnc_dtsGenerateDotsCloud);
-
-            if (!_ok) then {_unit setPosASL _origPos};
-
-        } forEach _units;
-    };
 
     //return
     (_units call NWG_SPWN_FinalizeUnitsSpawn)
