@@ -22,8 +22,8 @@
 	["Land_i_Stone_HouseSmall_V1_F",	"Land_i_Stone_HouseSmall_V2_F",	"Land_i_Stone_HouseSmall_V3_F"],
 	["Land_i_Stone_Shed_V1_F",	"Land_i_Stone_Shed_V2_F",	"Land_i_Stone_Shed_V3_F"],
 	["Land_i_Stone_Shed_01_b_clay_F",	"Land_i_Stone_Shed_01_b_raw_F",	"Land_i_Stone_Shed_01_b_white_F",	"Land_i_Stone_Shed_01_c_clay_F",	"Land_i_Stone_Shed_01_c_raw_F",	"Land_i_Stone_Shed_01_c_white_F"],
-	["Land_i_Addon_02_V1_F",	"Land_u_Addon_02_V1_F"],
 	["Land_Shed_08_brown_F",	"Land_Shed_08_grey_F"],
+	"Land_i_Addon_02_V1_F",
 	"Land_i_Addon_02_b_white_F",
 	"Land_Addon_04_F",
 	"Land_i_House_Small_03_V1_F"
@@ -38,7 +38,8 @@
 	"Land_u_House_Small_01_V1_F",
 	"Land_u_House_Small_02_V1_F",
 	"Land_u_Shop_01_V1_F",
-	"Land_u_Shop_02_V1_F"
+	"Land_u_Shop_02_V1_F",
+	"Land_u_Addon_02_V1_F"
 ],
 	"CityHouseHalfRuined",
 [

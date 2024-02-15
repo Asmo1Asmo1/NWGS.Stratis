@@ -348,8 +348,8 @@ NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
 
     //return
     (_triggerPos nearObjects _triggerRad) select {
-        ((count (_x buildingPos -1)) >= 4) && {
         (_x call NWG_fnc_ocIsBuilding) && {
+        ((count (_x buildingPos -1)) >= 4) && {
         !(_x call _isOccupied)}}
     };
 };

@@ -24,9 +24,13 @@ NWG_UKREP_GATHER_Settings = createHashMapFromArray [
 //================================================================================================================
 //Placeholders
 NWG_UKREP_placeholders = createHashMapFromArray([
-    [OBJ_TYPE_BLDG, []],//Not defined yet
+    [OBJ_TYPE_BLDG, [
+        "Land_VR_Block_04_F"//Big VR block (buildings)
+    ]],
     [OBJ_TYPE_FURN, []],//Not defined yet
-    [OBJ_TYPE_DECO, []],//Not defined yet
+    [OBJ_TYPE_DECO, [
+        "Land_VR_Shape_01_cube_1m_F"//VR cube (boxes)
+    ]],
     [OBJ_TYPE_UNIT, [
         "B_Soldier_VR_F",//Blue VR unit (common units)
         "I_Soldier_VR_F",//Green VR unit (high ground units)
