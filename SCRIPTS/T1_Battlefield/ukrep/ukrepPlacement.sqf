@@ -476,11 +476,10 @@ NWG_UKREP_BP_ApplyFaction = {
             } else {
                 _x set [BP_CLASSNAME,_replacement];
             };
-            continue;
         };
 
         //Replace crew of the vehicle or turret
-        if ((_x#BP_OBJTYPE) in [OBJ_TYPE_VEHC,OBJ_TYPE_TRRT]) then {
+        if ((_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_VEHC || {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_TRRT}) then {
             _crew = if ((_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_VEHC)
                 then {(_x param [BP_PAYLOAD,[]]) param [0,[]]}
                 else {(_x param [BP_PAYLOAD,[]])};
