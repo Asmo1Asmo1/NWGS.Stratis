@@ -423,7 +423,7 @@ NWG_UKREP_BP_ApplyChances = {
 
         private _targetCount = if (_chance isEqualType []) then {
             //Min, max and scale count
-            _chance params [["_min",100],["_max",100],["_scale",100]];
+            _chance params ["_min","_max",["_scale",100]];
             private _delta = (count _affectedObjects) - _scale;
             if (_delta > 0) then {
                 _min = _min + _delta;

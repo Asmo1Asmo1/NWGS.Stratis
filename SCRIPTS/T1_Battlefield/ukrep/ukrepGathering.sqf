@@ -34,7 +34,7 @@ NWG_UKREP_placeholders = createHashMapFromArray([
     [OBJ_TYPE_UNIT, [
         "B_Soldier_VR_F",//Blue VR unit (common units)
         "I_Soldier_VR_F",//Green VR unit (high ground units)
-        "C_Soldier_VR_F",//Purple VR unit (officers?)
+        "C_Soldier_VR_F",//Purple VR unit (officers)
         "O_Soldier_VR_F"//Red VR unit (not used yet)
     ]],
     [OBJ_TYPE_VEHC, [
