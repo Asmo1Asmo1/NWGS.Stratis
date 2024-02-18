@@ -63,6 +63,16 @@ NWG_fnc_dtsMarkupArea = {
     _this call NWG_DOTS_AreaSpawnsearch
 };
 
+//Returns the midpoint of the given dots
+//params:
+//_dots: array of dots
+//returns:
+//position of the midpoint (z is always 0)
+NWG_fnc_dtsFindMidpoint = {
+    // private _dots = _this;
+    _this call NWG_DOTS_FindMidpoint
+};
+
 //Returns the index of the nearest dot to the given position
 //params:
 //_dots: array of dots

@@ -343,23 +343,14 @@ NWG_DSPAWN_TRIGGER_CalculatePopulationDistribution = {
 NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
     // private _trigger = _this;
     params ["_triggerPos","_triggerRad"];
-
-    private _isBuildingOccupied = {
-        // private _building = _this;
-        private _occupiedBuildings = BST_OCCUPIED_BUILDINGS call NWG_fnc_shGetState;
-        if (isNil "_occupiedBuildings") exitWith {false};//There are no occupied buildings yet
-        //else
-        _this in _occupiedBuildings
-    };
+    private _occupiedBuildings = BST_OCCUPIED_BUILDINGS call NWG_fnc_shGetState;
+    private _isOccupied = if (isNil "_occupiedBuildings") then {{false}} else {{_x in _occupiedBuildings}};
 
     //return
     (_triggerPos nearObjects _triggerRad) select {
-        switch (true) do {
-            case (!(_x call NWG_fnc_ocIsBuilding)): {false};
-            case ((count (_x buildingPos -1)) < 4): {false};
-            case (_x call _isBuildingOccupied): {false};
-            default {true};
-        }
+        (_x call NWG_fnc_ocIsBuilding) && {
+        ((count (_x buildingPos -1)) >= 4) && {
+        !(_x call _isOccupied)}}
     };
 };
 
@@ -599,32 +590,11 @@ NWG_DSPAWN_PrepareGroupForSpawn = {
     _groupDescr = _groupDescr + [];//Shallow copy to avoid modifying the original
     private _unitsDescr = _groupDescr#DESCR_UNITS;
     _unitsDescr = _unitsDescr + [];//Shallow copy to avoid modifying the original
-    _unitsDescr = _unitsDescr call NWG_DSPAWN_UnCompactStringArray;
+    _unitsDescr = _unitsDescr call NWG_fnc_unCompactStringArray;
     _unitsDescr = [_unitsDescr,_passengersContainer] call NWG_DSPAWN_FillWithPassengers;
     _groupDescr set [DESCR_UNITS,_unitsDescr];
     //return
     _groupDescr
-};
-
-NWG_DSPAWN_UnCompactStringArray = {
-    // private _array = _this;
-    private _result = [];
-    private _count = 1;
-
-    //do
-    {
-        if (_x isEqualType 0) then {
-            _count = _x;
-        } else {
-            for "_i" from 1 to _count do {_result pushBack _x};
-            _count = 1;
-        };
-    } forEach _this;
-
-    //return
-    _this resize 0;
-    _this append _result;
-    _this
 };
 
 NWG_DSPAWN_FillWithPassengers = {
@@ -786,8 +756,7 @@ NWG_DSPAWN_AC_AttachTurret = {
         _gunner = gunner _turret;
         if ((side _gunner) isNotEqualTo (side _group)) then {[_gunner] joinSilent _group};
     } else {
-        _gunner = ([[_gunnerClassname],"_NaN",(side _group)] call NWG_fnc_spwnPrespawnUnits)#0;
-        _gunner call NWG_fnc_spwnRevealObject;
+        _gunner = ([[_gunnerClassname],nil,_group] call NWG_fnc_spwnPrespawnUnits) param [0,objNull];
         _gunner moveInAny _turret;
     };
 };
