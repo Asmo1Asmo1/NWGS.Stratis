@@ -422,8 +422,13 @@ NWG_UKREP_BP_ApplyChances = {
         if ((count _affectedObjects) == 0) then {continue};//Skip if no objects of this type
 
         private _targetCount = if (_chance isEqualType []) then {
-            //Min and max count
-            _chance params ["_min","_max"];
+            //Min, max and scale count
+            _chance params [["_min",100],["_max",100],["_scale",100]];
+            private _delta = (count _affectedObjects) - _scale;
+            if (_delta > 0) then {
+                _min = _min + _delta;
+                _max = _max + _delta;
+            };
             (floor (random (_max-_min+1))) + _min
         } else {
             //Percentage
