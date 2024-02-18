@@ -313,7 +313,7 @@ NWG_UKREP_PUBLIC_PlaceREL_Object = {
         (format ["NWG_UKREP_PUBLIC_PlaceREL_Object: Could not find the blueprint matching the %1:%2:%3",_pageName,_blueprintName,_rootObjFilter]) call NWG_fnc_logError;
         false//Error
     };
-    private _blueprint = [_blueprints,"NWG_UKREP_PUBLIC_PlaceREL_Object"] call NWG_fnc_selectRandomGuaranteed;
+    private _blueprint = [_blueprints,(str _rootObjFilter)] call NWG_fnc_selectRandomGuaranteed;
     _blueprint = _blueprint#BPCONTAINER_BLUEPRINT;
     _blueprint = +_blueprint;//Clone
 
@@ -469,7 +469,7 @@ NWG_UKREP_BP_ApplyFaction = {
             _replacement = _factionPage get _classname;
             _replacement = if ((count _replacement) > 1)
                 then {[_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_classname])] call NWG_fnc_selectRandomGuaranteed}
-                else {_replacement#0};
+                else {_replacement param [0,_classname]};
             if (_replacement isEqualType []) then {
                 _x set [BP_CLASSNAME,(_replacement#0)];
                 _x set [BP_PAYLOAD,(_replacement#1)];
@@ -490,7 +490,7 @@ NWG_UKREP_BP_ApplyFaction = {
                 _replacement = _factionPage get _x;
                 _replacement = if ((count _replacement) > 1)
                     then {[_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_x])] call NWG_fnc_selectRandomGuaranteed}
-                    else {_replacement#0};
+                    else {_replacement param [0,_x]};
                 _replacement = if (_replacement isEqualType []) then {_replacement#0} else {_replacement};
                 _crew set [_forEachIndex,_replacement];//Yes, this is legal
             } forEach _crew;
@@ -558,7 +558,6 @@ NWG_UKREP_PlacementCore = {
     if ((count _units) > 0) then {
         _units = _units apply {[(_x#BP_CLASSNAME),(_x#BP_POS),(_x#BP_DIR),(_x#BP_PAYLOAD)]};//Repack into func argument
         _units = [_units,(call _getGroup)] call NWG_fnc_spwnSpawnUnitsExact;
-        {_x disableAI "PATH"} forEach _units;//Disable pathfinding for all units
     };
 
     /*Place VEHC - vehicles*/
@@ -581,6 +580,7 @@ NWG_UKREP_PlacementCore = {
     if (!isNull _placementGroup) then {
         private _dynaSim = _groupRules param [GRP_RULES_DYNASIM,(NWG_UKREP_Settings get "DEFAULT_GROUP_DYNASIM")];
         _placementGroup enableDynamicSimulation _dynaSim;
+        {_x disableAI "PATH"} forEach (units _placementGroup);//Disable pathfinding for all units
     };
 
     /*Place MINE - mines*/
