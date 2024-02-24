@@ -50,14 +50,14 @@ NWG_ACA_Settings = createHashMapFromArray [
 //================================================================================================================
 //Common
 NWG_ACA_StartAdvancedLogic = {
-    params ["_group","_logic",["_arg",[]]];
+    params ["_group","_logic",["_arg1",[]],["_arg2",[]]];
     //Stop any previous logic
     private _logicHandle = _group getVariable ["NWG_ACA_LogicHandle",scriptNull];
     if (!isNull _logicHandle && {!scriptDone _logicHandle}) then {terminate _logicHandle};
     private _logicHelper = _group getVariable ["NWG_ACA_LogicHelper",objNull];
-    if (!isNull _logicHelper) then {deleteVehicle _logicHelper};
+    if (!isNull _logicHelper) then {_group call NWG_ACA_DeleteHelper};
     //Start new logic
-    _group setVariable ["NWG_ACA_LogicHandle",([_group,_arg] spawn _logic)];
+    _group setVariable ["NWG_ACA_LogicHandle",([_group,_arg1,_arg2] spawn _logic)];
 };
 
 NWG_ACA_GetDataForVehicleForceFire = {
@@ -142,25 +142,19 @@ NWG_ACA_CanDoAirstrike = {
     (alive _veh && {_veh isKindOf "Air" && {(count (_veh call NWG_fnc_spwnGetVehiclePylons)) > 0}})
 };
 
-NWG_ACA_FindGroupsForAirstrike = {
-    // private _groups = _this;
-    //return
-    _this select {_x call NWG_ACA_CanDoAirstrike}
-};
-
 NWG_ACA_SendToAirstrike = {
-    params ["_group","_target",["_checkGroupValid",true]];
+    params ["_group","_target",["_numberOfStrikes",1],["_checkGroupValid",true]];
     //Check if group can do airstrike
     if (_checkGroupValid && {!(_group call NWG_ACA_CanDoAirstrike)}) exitWith {
         "NWG_ACA_SendToAirstrike: tried to send group that can't do airstrike" call NWG_fnc_logError;
         false;
     };
-    [_group,NWG_ACA_Airstrike,_target] call NWG_ACA_StartAdvancedLogic;
+    [_group,NWG_ACA_Airstrike,_target,_numberOfStrikes] call NWG_ACA_StartAdvancedLogic;
     true
 };
 
 NWG_ACA_Airstrike = {
-    params ["_group","_target"];
+    params ["_group","_target",["_numberOfStrikes",1]];
     private _plane = vehicle (leader _group);
     private _pilot = currentPilot _plane;//Fix for some helicopters
     private _abortCondition = {!alive _plane || {!alive _pilot || {!alive _target}}};
@@ -178,6 +172,7 @@ NWG_ACA_Airstrike = {
     private _prepareAltitude = (NWG_ACA_Settings get "AIRSTRIKE_PREPARE_HEIGHT");
 
     //Start Airstrike cycle
+    private _counter = 0;
     waitUntil
     {
         if (call _abortCondition) exitWith {true};
@@ -236,8 +231,9 @@ NWG_ACA_Airstrike = {
         {_x doWatch objNull; _x doTarget objNull} forEach _strikeTeam;
         _plane setVehicleAmmo 1;
 
-        //always return
-        false
+        //return
+        _counter = _counter + 1;
+        _counter >= _numberOfStrikes
     };
 
     //Cleanup
