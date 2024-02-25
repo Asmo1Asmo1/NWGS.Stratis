@@ -54,6 +54,9 @@ NWG_ACA_Settings = createHashMapFromArray [
     ["MORTAR_STRIKE_RADIUS",35],//Radius for actual fire (only if using !_precise argument)
     ["MORTAR_STRIKE_TIMEOUT",180],//Timeout for mortar strike (in case of any errors)
 
+    ["VEH_DEMOLITION_FIRE_RADIUS",150],//Radius for fireing
+    ["VEH_DEMOLITION_TIMEOUT",180],//Timeout for veh demolition
+
     ["",0]
 ];
 
@@ -80,7 +83,7 @@ NWG_ACA_GetDataForVehicleForceFire = {
 
     //For each turret get its weapons and firemodes for each weapon
     private _falseWeapons = ["Horn","Laserdesignator","SmokeLauncher","CMFlareLauncher"];
-    private ["_turret","_weapons","_cur","_fireModes"];
+    private ["_turret","_weapons","_cur","_fireModes","_muzzles"];
     {
         _turret = _x#1;
         if (_turret isEqualTo []) then {_turret = [-1]};
@@ -96,6 +99,8 @@ NWG_ACA_GetDataForVehicleForceFire = {
             _cur = _x;
             _fireModes = (getArray (configFile >> "CfgWeapons" >> _cur >> "modes"));
             if (_fireModes isEqualTo ["this"]) then {_fireModes = [_cur]};
+            _muzzles = (getArray (configFile >> "CfgWeapons" >> _cur >> "muzzles"));
+            if (_muzzles isNotEqualTo ["this"] && {!(_cur in _muzzles)}) then {_cur = _muzzles param [0,_cur]};
             [_cur,_fireModes]
         };
         _x set [1,_weapons];
@@ -176,9 +181,8 @@ NWG_ACA_Airstrike = {
 
     _plane setVehicleAmmo 1;//Lock'n'load
     private _strikeData = _plane call NWG_ACA_GetDataForVehicleForceFire;
-    private _strikeTeam = _strikeData apply {_x#0};
+    private _strikeTeam = crew _plane;
     private _helper = [_group,_target] call NWG_ACA_CreateHelper;
-    _group setVariable ["NWG_ACA_LogicHelper",_helper];
     private _originalAltitude = (getPosASL _plane)#2;
     private _prepareAltitude = (NWG_ACA_Settings get "AIRSTRIKE_PREPARE_HEIGHT");
 
@@ -461,4 +465,92 @@ NWG_ACA_MortarStrike = {
         _precise,
         (NWG_ACA_Settings get "MORTAR_STRIKE_TIMEOUT")
     ] call NWG_ACA_ArtilleryStrikeCore
+};
+
+//================================================================================================================
+//Veh demolition
+NWG_ACA_CanDoVehDemolition = {
+    // private _group = _this;
+    private _veh = vehicle (leader _group);
+    //return
+    (alive _veh && {(_veh isKindOf "Tank" || _veh isKindOf "Wheeled_APC_F") && {alive (gunner _veh) && {alive (driver _veh)}}})
+};
+
+NWG_ACA_SendToVehDemolition = {
+    params ["_group","_target"];
+    //Check if group can do veh demolition
+    if !(_group call NWG_ACA_CanDoVehDemolition) exitWith {
+        "NWG_ACA_SendToVehDemolition: tried to send group that can't do veh demolition" call NWG_fnc_logError;
+        false;
+    };
+
+    [_group,NWG_ACA_VehDemolition,_target] call NWG_ACA_StartAdvancedLogic;
+    true
+};
+
+NWG_ACA_IsClearLineBetween = {
+    params ["_obj1","_obj2"];
+    private _raycastFrom = getPosASL _obj1; _raycastFrom = _raycastFrom vectorAdd [0,0,1.5];//Raise the position a bit
+    private _raycastTo = getPosASL _obj2;
+    private _raycast = lineIntersectsSurfaces [_raycastFrom,_raycastTo,_obj1,objNull,true,1,"FIRE","VIEW",true];
+
+    switch (true) do {
+        case ((count _raycast) == 0): {true};/*No obstacles*/
+        case (((_raycast#0)#2) isEqualTo _obj2): {true};/*The first/only obstacle is the target itself*/
+        case (((_raycast#0)#3) isEqualTo _obj2): {true};/*The first/only obstacle is the target itself*/
+        default {false};/*There is an obstacle between the two objects*/
+    }
+};
+
+NWG_ACA_VehDemolition = {
+    params ["_group","_target"];
+    private _veh = vehicle (leader _group);
+    private _driver = driver _veh;
+    private _gunner = gunner _veh;
+
+    private _timeOut = time + (NWG_ACA_Settings get "VEH_DEMOLITION_TIMEOUT");
+    private _abortCondition = {!alive _veh || {!alive _driver || {!alive _gunner || {!alive _target || {time > _timeOut}}}}};
+    if (call _abortCondition) exitWith {};//Immediate check
+
+    private _strikeData = _veh call NWG_ACA_GetDataForVehicleForceFire;
+    private _strikeTeam = crew _veh;
+    _veh setVehicleAmmo 1;
+
+    private _helper = [_group,_target] call NWG_ACA_CreateHelper;
+    _group setBehaviourStrong "CARELESS";
+    _group setCombatBehaviour "CARELESS";
+    private _onExit = {
+        if (!isNull _group) then {
+            _group setBehaviourStrong "AWARE";
+            _group setCombatBehaviour "AWARE";
+            _group call NWG_ACA_DeleteHelper;
+        };
+    };
+
+    //Move to the target
+    _strikeTeam doMove (position _helper);
+    waitUntil {
+        sleep ((random 1)+1);
+        if (call _abortCondition) exitWith {true};
+        if ((_veh distance _helper) > (NWG_ACA_Settings get "VEH_DEMOLITION_FIRE_RADIUS")) exitWith {false};//Out of range
+        if !([_veh,_target] call NWG_ACA_IsClearLineBetween) exitWith {false};//Obstacle between
+        true
+    };
+    if (call _abortCondition) exitWith _onExit;
+
+    //Watch
+    {doStop _x; _x reveal _helper; _x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
+    sleep ((random 1)+1);
+    if (call _abortCondition) exitWith _onExit;
+
+    //Fire
+    waitUntil {
+        sleep ((random 1)+1);
+        if (call _abortCondition) exitWith {true};
+        [_veh,_strikeData,_helper] call NWG_ACA_VehicleForceFire;
+        _veh setVehicleAmmo 1;
+        false
+    };
+
+    call _onExit;
 };
