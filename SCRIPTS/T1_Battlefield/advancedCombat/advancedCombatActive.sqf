@@ -49,6 +49,11 @@ NWG_ACA_Settings = createHashMapFromArray [
     ["ARTILLERY_STRIKE_RADIUS",50],//Radius for actual fire (only if using !_precise argument)
     ["ARTILLERY_STRIKE_TIMEOUT",180],//Timeout for artillery strike (in case of any errors)
 
+    ["MORTAR_STRIKE_WARNING_RADIUS",100],//Radius for warning strike
+    ["MORTAR_STRIKE_WARNING_PAUSE",1],//Pause between warning strike and actual strike
+    ["MORTAR_STRIKE_RADIUS",35],//Radius for actual fire (only if using !_precise argument)
+    ["MORTAR_STRIKE_TIMEOUT",180],//Timeout for mortar strike (in case of any errors)
+
     ["",0]
 ];
 
@@ -298,6 +303,21 @@ NWG_ACA_ArtilleryStrike = {
     if (_artillery isEqualTo []) exitWith {"NWG_ACA_ArtilleryStrike: No artillery units in range" call NWG_fnc_logError};
     _artillery = selectRandom _artillery;//Select random artillery unit from the list of available units
 
+    [
+        _group,
+        _artillery,
+        _targetPos,
+        (NWG_ACA_Settings get "ARTILLERY_STRIKE_WARNING_RADIUS"),
+        (NWG_ACA_Settings get "ARTILLERY_STRIKE_WARNING_PAUSE"),
+        (NWG_ACA_Settings get "ARTILLERY_STRIKE_RADIUS"),
+        _precise,
+        (NWG_ACA_Settings get "ARTILLERY_STRIKE_TIMEOUT")
+    ] call NWG_ACA_ArtilleryStrikeCore
+};
+
+NWG_ACA_ArtilleryStrikeCore = {
+    params ["_group","_artillery","_targetPos","_warningRadius","_pause","_fireRadius","_precise","_timeOut"];
+
     //Unfreeze (fix for dynamic simulation)
     {
         if (dynamicSimulationEnabled _x) then {_x enableDynamicSimulation false};
@@ -310,7 +330,6 @@ NWG_ACA_ArtilleryStrike = {
 
     //Prepare exit conditions
     private _gunner = gunner _artillery;
-    private _timeOut = time + (NWG_ACA_Settings get "ARTILLERY_STRIKE_TIMEOUT");
     private _abortCondition = {!alive _artillery || {!alive _gunner || {time > _timeOut}}};
     private _onExit = {
         if (!isNull _group) then {
@@ -346,8 +365,7 @@ NWG_ACA_ArtilleryStrike = {
     //Warning strike
     private _warningPos = call {
         private _allPlayers = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
-        private _radius = NWG_ACA_Settings get "ARTILLERY_STRIKE_WARNING_RADIUS";
-        private _strikePoints = [_targetPos,_radius,5] call NWG_fnc_dtsGenerateDotsCircle;
+        private _strikePoints = [_targetPos,_warningRadius,5] call NWG_fnc_dtsGenerateDotsCircle;
         _strikePoints = _strikePoints select {[_artillery,_x] call NWG_ACA_IsInRange};
         if (_strikePoints isEqualTo []) exitWith {_targetPos};//Fallback
         private ["_point","_minDist","_dist"];
@@ -369,7 +387,7 @@ NWG_ACA_ArtilleryStrike = {
     _artillery setVehicleAmmo 1;
 
     //Pause
-    sleep (NWG_ACA_Settings get "ARTILLERY_STRIKE_WARNING_PAUSE");
+    sleep _pause;
     if (call _abortCondition) exitWith _onExit;
 
     //Fire for effect (vanilla system: faster and more precise, but less realistic)
@@ -380,9 +398,8 @@ NWG_ACA_ArtilleryStrike = {
     };
 
     //Fire for effect (custom system: slower and less precise, but more realistic)
-    private _radius = NWG_ACA_Settings get "ARTILLERY_STRIKE_RADIUS";
     private _count = (selectRandom [6,8,12]);//Count was taken empirically
-    private _strikePoints = [_targetPos,_radius,12] call NWG_fnc_dtsGenerateDotsCloud;
+    private _strikePoints = [_targetPos,_fireRadius,12] call NWG_fnc_dtsGenerateDotsCloud;
     _strikePoints = _strikePoints select {[_artillery,_x] call NWG_ACA_IsInRange};
     if ((count _strikePoints) > _count) then {_strikePoints resize _count};
     //forEach strikePoint
@@ -392,4 +409,56 @@ NWG_ACA_ArtilleryStrike = {
         _artillery setVariable ["NWG_artilleryFired",false];//Reset
     } forEach _strikePoints;
     call _onExit;
+};
+
+//================================================================================================================
+//Mortar strike (partially re-uses artillery strike logic)
+NWG_ACA_GetMortars = {
+    // private _group = _this;
+    private _result = (units _this) apply {vehicle _x};
+    _result = _result arrayIntersect _result;//Remove duplicates
+    _result = _result select {alive _x && {_x call NWG_fnc_ocIsTurret && {(getArtilleryAmmo [_x]) isNotEqualTo []}}};
+    //return
+    _result
+};
+
+NWG_ACA_CanDoMortarStrike = {
+    // private _group = _this;
+    (_this call NWG_ACA_GetMortars) isNotEqualTo []
+};
+
+NWG_ACA_SendMortarStrike = {
+    params ["_group","_target",["_precise",false]];
+
+    //Check if group can do mortar strike on said position
+    private _mortars = _group call NWG_ACA_GetMortars;
+    if (_mortars isEqualTo []) exitWith {"NWG_ACA_SendMortarStrike: No mortar units found" call NWG_fnc_logError; false};
+    _mortars = _mortars select {[_x,(position _target)] call NWG_ACA_IsInRange};
+    if (_mortars isEqualTo []) exitWith {false};
+
+    [_group,NWG_ACA_MortarStrike,_target,_precise] call NWG_ACA_StartAdvancedLogic;
+    true
+};
+
+NWG_ACA_MortarStrike = {
+    params ["_group","_target",["_precise",false]];
+
+    //Get artillery
+    private _targetPos = position _target;
+    private _mortar = _group call NWG_ACA_GetMortars;
+    if (_mortar isEqualTo []) exitWith {"NWG_ACA_MortarStrike: No mortar units found" call NWG_fnc_logError};
+    _mortar = _mortar select {[_x,_targetPos] call NWG_ACA_IsInRange};
+    if (_mortar isEqualTo []) exitWith {"NWG_ACA_MortarStrike: No mortar units in range" call NWG_fnc_logError};
+    _mortar = selectRandom _mortar;//Select random mortar unit from the list of available units
+
+    [
+        _group,
+        _mortar,
+        _targetPos,
+        (NWG_ACA_Settings get "MORTAR_STRIKE_WARNING_RADIUS"),
+        (NWG_ACA_Settings get "MORTAR_STRIKE_WARNING_PAUSE"),
+        (NWG_ACA_Settings get "MORTAR_STRIKE_RADIUS"),
+        _precise,
+        (NWG_ACA_Settings get "MORTAR_STRIKE_TIMEOUT")
+    ] call NWG_ACA_ArtilleryStrikeCore
 };
