@@ -259,7 +259,7 @@ NWG_ACA_GetArtilleryVehicles = {
     // private _group = _this;
     private _result = (units _this) apply {vehicle _x};
     _result = _result arrayIntersect _result;//Remove duplicates
-    _result = _result select {alive _x && {(_x call NWG_fnc_ocIsVehicle) && {((getArtilleryAmmo [_x]) isNotEqualTo []) && {alive (gunner _x)}}}};
+    _result = _result select {alive _x && {_x call NWG_fnc_ocIsVehicle && {(getArtilleryAmmo [_x]) isNotEqualTo [] && {alive (gunner _x)}}}};
     //return
     _result
 };
@@ -269,26 +269,19 @@ NWG_ACA_CanDoArtilleryStrike = {
     (_this call NWG_ACA_GetArtilleryVehicles) isNotEqualTo []
 };
 
-NWG_ACA_GetArtilleryVehiclesToStrikePosition = {
-    params ["_group","_position"];
-    private _vehicles = _group call NWG_ACA_GetArtilleryVehicles;
-    if (_vehicles isEqualTo []) exitWith {[]};
-    //return
-    (_vehicles select {_position inRangeOfArtillery [[_x],((getArtilleryAmmo [_x]) param [0,""])]})
+NWG_ACA_IsInRange = {
+    params ["_artillery","_position"];
+    _position inRangeOfArtillery [[_artillery],((getArtilleryAmmo [_artillery]) param [0,""])]
 };
 
 NWG_ACA_SendArtilleryStrike = {
     params ["_group","_target",["_precise",false]];
-    //Check if group can do artillery strike
-    if (!(_group call NWG_ACA_CanDoArtilleryStrike)) exitWith {
-        "NWG_ACA_SendArtilleryStrike: tried to send group that can't do artillery strike" call NWG_fnc_logError;
-        false;
-    };
-    //Check if target is in range of group's artillery
-    if (([_group,(position _target)] call NWG_ACA_GetArtilleryVehiclesToStrikePosition) isEqualTo []) exitWith {
-        //Don't log though, this is a possible situation
-        false
-    };
+
+    //Check if group can do artillery strike on said position
+    private _artillery = _group call NWG_ACA_GetArtilleryVehicles;
+    if (_artillery isEqualTo []) exitWith {"NWG_ACA_SendArtilleryStrike: No artillery units found" call NWG_fnc_logError; false};
+    _artillery = _artillery select {[_x,(position _target)] call NWG_ACA_IsInRange};
+    if (_artillery isEqualTo []) exitWith {false};
 
     [_group,NWG_ACA_ArtilleryStrike,_target,_precise] call NWG_ACA_StartAdvancedLogic;
     true
@@ -297,47 +290,40 @@ NWG_ACA_SendArtilleryStrike = {
 NWG_ACA_ArtilleryStrike = {
     params ["_group","_target",["_precise",false]];
 
+    //Get artillery
     private _targetPos = position _target;
-    private _artillery = [_group,_targetPos] call NWG_ACA_GetArtilleryVehiclesToStrikePosition;
-    if (_artillery isEqualTo []) exitWith {
-        (format ["NWG_ACA_ArtilleryStrike: No artillery units found that can hit the position:'%1'",_targetPos]) call NWG_fnc_logError;
-    };
+    private _artillery = _group call NWG_ACA_GetArtilleryVehicles;
+    if (_artillery isEqualTo []) exitWith {"NWG_ACA_ArtilleryStrike: No artillery units found" call NWG_fnc_logError};
+    _artillery = _artillery select {[_x,_targetPos] call NWG_ACA_IsInRange};
+    if (_artillery isEqualTo []) exitWith {"NWG_ACA_ArtilleryStrike: No artillery units in range" call NWG_fnc_logError};
     _artillery = selectRandom _artillery;//Select random artillery unit from the list of available units
-    private _crew = crew _artillery;
 
-    //Unfreeze
+    //Unfreeze (fix for dynamic simulation)
     {
         if (dynamicSimulationEnabled _x) then {_x enableDynamicSimulation false};
         if (_x isEqualType objNull && {!(simulationEnabled _x)}) then {_x enableSimulation true};
-    } forEach ([_group,_artillery] + _crew);
+    } forEach ([_group,_artillery] + (crew _artillery));
 
     //Make courageous
     _group setBehaviourStrong "CARELESS";
     _group setCombatBehaviour "CARELESS";
 
-    //Prepare exit condition
-    private _timeOut = time + (NWG_ACA_Settings get "ARTILLERY_STRIKE_TIMEOUT");
+    //Prepare exit conditions
     private _gunner = gunner _artillery;
+    private _timeOut = time + (NWG_ACA_Settings get "ARTILLERY_STRIKE_TIMEOUT");
     private _abortCondition = {!alive _artillery || {!alive _gunner || {time > _timeOut}}};
     private _onExit = {
         if (!isNull _group) then {
             _group setBehaviourStrong "AWARE";
             _group setCombatBehaviour "AWARE";
         };
-        halt;
         if (alive _artillery) then {
             _artillery setVehicleAmmo 1;
-            _artillery setVariable ["NWG_artilleryFired",false];
         };
     };
     if (call _abortCondition) exitWith _onExit;//Immediate check
 
-    //Lock'n'Load
-    private _ammoType = (getArtilleryAmmo [_artillery]) param [0,""];
-    _artillery setVehicleAmmo 1;
-    _group selectLeader _gunner;//Fix for cases where artillery crew is not a leader - actual leader orders to stop the fire
-
-    //Add Fired EH to check when unit fulfilled its mission
+    //Add Fired EH to check when artillery fired
     if (isNil {_artillery getVariable "NWG_artilleryFired"}) then {
         _artillery addEventHandler ["Fired",{
             // params ["_unit", "_weapon", "_muzzle", "_mode", "_ammo", "_magazine", "_projectile", "_gunner"];
@@ -346,14 +332,24 @@ NWG_ACA_ArtilleryStrike = {
     };
     _artillery setVariable ["NWG_artilleryFired",false];//Set default value
 
+    //Prepare fire sequence
+    _group selectLeader _gunner;//Fix artillery stop mid-way (arma moment)
+    private _ammoType = (getArtilleryAmmo [_artillery]) param [0,""];
+    _artillery setVehicleAmmo 1;
+    private _fire = {
+        params ["_pos","_count"];
+        _artillery doArtilleryFire [_pos,_ammoType,_count];
+        waitUntil {sleep 0.1; (call _abortCondition  || {_artillery getVariable ["NWG_artilleryFired",false]})};
+        waitUntil {sleep 0.1; (call _abortCondition) || {unitReady _gunner}};
+    };
 
     //Warning strike
     private _warningPos = call {
         private _allPlayers = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
         private _radius = NWG_ACA_Settings get "ARTILLERY_STRIKE_WARNING_RADIUS";
         private _strikePoints = [_targetPos,_radius,5] call NWG_fnc_dtsGenerateDotsCircle;
-        _strikePoints = _strikePoints select {_x inRangeOfArtillery [[_artillery],_ammoType]};
-        if (_strikePoints isEqualTo []) exitWith {_targetPos};
+        _strikePoints = _strikePoints select {[_artillery,_x] call NWG_ACA_IsInRange};
+        if (_strikePoints isEqualTo []) exitWith {_targetPos};//Fallback
         private ["_point","_minDist","_dist"];
         _strikePoints = _strikePoints apply {
             _point = _x;
@@ -367,9 +363,7 @@ NWG_ACA_ArtilleryStrike = {
         _strikePoints sort false;
         ((_strikePoints#0)#1)
     };
-    _artillery doArtilleryFire [_warningPos,_ammoType,1];
-    waitUntil {sleep 0.1; (call _abortCondition  || {_artillery getVariable ["NWG_artilleryFired",false]})};
-    waitUntil {sleep 0.1; (call _abortCondition) || {unitReady _gunner}};//Fix stucking
+    [_warningPos,1] call _fire;
     if (call _abortCondition) exitWith _onExit;
     _artillery setVariable ["NWG_artilleryFired",false];//Reset
     _artillery setVehicleAmmo 1;
@@ -378,31 +372,24 @@ NWG_ACA_ArtilleryStrike = {
     sleep (NWG_ACA_Settings get "ARTILLERY_STRIKE_WARNING_PAUSE");
     if (call _abortCondition) exitWith _onExit;
 
-    //Fire for effect
-    if (_precise) then {
-        //Use vanilla system: faster and more precise, but less realistic
-        _artillery doArtilleryFire [_targetPos,_ammoType,(selectRandom [3,4,5,6])];//Count was taken empirically
-        waitUntil {sleep 0.1; ((call _abortCondition) || {_artillery getVariable ["NWG_artilleryFired",false]})};
-        waitUntil {sleep 0.1; ((call _abortCondition) || {unitReady _gunner})};//Fix stucking
-    } else {
-        //Use custom system: slower and less precise, but more realistic
-        private _radius = NWG_ACA_Settings get "ARTILLERY_STRIKE_RADIUS";
-        private _count = (selectRandom [6,8,12]);//Count was taken empirically
-        private _strikePoints = [_targetPos,_radius,12] call NWG_fnc_dtsGenerateDotsCloud;
-        private _fired = 0;
-        {
-            if !(_x inRangeOfArtillery [[_artillery],_ammoType]) then {continue};
-            _artillery doArtilleryFire [_x,_ammoType,1];
-            waitUntil {sleep 0.1; ((call _abortCondition) || {_artillery getVariable ["NWG_artilleryFired",false]})};
-            waitUntil {sleep 0.1; ((call _abortCondition) || {unitReady _gunner})};//Fix stucking
-            if (call _abortCondition) exitWith {};
-            _artillery setVariable ["NWG_artilleryFired",false];//Reset
-            _fired = _fired + 1;
-            if (_fired >= _count) exitWith {};
-        } forEach _strikePoints;
+    //Fire for effect (vanilla system: faster and more precise, but less realistic)
+    if (_precise) exitWith {
+        private _count = (selectRandom [3,4,5,6]);//Count was taken empirically
+        [_targetPos,_count] call _fire;
+        call _onExit;
     };
 
-    //Cleanup
-    halt;
+    //Fire for effect (custom system: slower and less precise, but more realistic)
+    private _radius = NWG_ACA_Settings get "ARTILLERY_STRIKE_RADIUS";
+    private _count = (selectRandom [6,8,12]);//Count was taken empirically
+    private _strikePoints = [_targetPos,_radius,12] call NWG_fnc_dtsGenerateDotsCloud;
+    _strikePoints = _strikePoints select {[_artillery,_x] call NWG_ACA_IsInRange};
+    if ((count _strikePoints) > _count) then {_strikePoints resize _count};
+    //forEach strikePoint
+    {
+        [_x,1] call _fire;
+        if (call _abortCondition) exitWith {};
+        _artillery setVariable ["NWG_artilleryFired",false];//Reset
+    } forEach _strikePoints;
     call _onExit;
 };
