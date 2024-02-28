@@ -5,7 +5,6 @@
     - Artillery strike
     - Mortart strike
     - Veh building demolition
-    - Inf building demolition
     - Inf building storm
     - Veh vehicle repair
 */
@@ -24,9 +23,6 @@
 
     - Find groups that can do Veh building demolition
     - Send group to do Veh building demolition
-
-    - Find groups that can do Inf building demolition
-    - Send group to do Inf building demolition
 
     - Find groups that can do Inf building storm
     - Send group to do Inf building storm
@@ -56,6 +52,10 @@ NWG_ACA_Settings = createHashMapFromArray [
 
     ["VEH_DEMOLITION_FIRE_RADIUS",150],//Radius for fireing
     ["VEH_DEMOLITION_TIMEOUT",180],//Timeout for veh demolition
+
+    ["INF_STORM_FIRE_RADIUS",50],//Radius for fireing
+    ["INF_STORM_FIRE_TIME",10],//Time for fireing
+    ["INF_STORM_TIMEOUT",180],//Timeout for inf building storm
 
     ["",0]
 ];
@@ -553,4 +553,132 @@ NWG_ACA_VehDemolition = {
     };
 
     call _onExit;
+};
+
+//================================================================================================================
+//Inf building storm
+NWG_ACA_CanDoInfBuildingStorm = {
+    //private _group = _this;
+    //Just check that it is an infantry group
+    private _units = ((units _this) select {alive _x});
+    if ((count _units) == 0) exitWith {false};//No alive units
+    //return
+    (_units findIf {(vehicle _x) isNotEqualTo _x}) == -1
+};
+
+NWG_ACA_SendToInfBuildingStorm = {
+    params ["_group","_target"];
+    //Check if group can do inf building storm
+    if !(_group call NWG_ACA_CanDoInfBuildingStorm) exitWith {
+        "NWG_ACA_SendToInfBuildingStorm: tried to send group that can't do inf building storm" call NWG_fnc_logError;
+        false;
+    };
+    if !(_target call NWG_fnc_ocIsBuilding) exitWith {
+        "NWG_ACA_SendToInfBuildingStorm: target is not a building" call NWG_fnc_logError;
+        false;
+    };
+
+    [_group,NWG_ACA_InfBuildingStorm,_target] call NWG_ACA_StartAdvancedLogic;
+    true
+};
+
+NWG_ACA_InfBuildingStorm = {
+    params ["_group","_target"];
+
+    private _timeOut = time + (NWG_ACA_Settings get "INF_STORM_TIMEOUT");
+    private _abortCondition = {({alive _x} count (units _group)) < 1 || {!alive _target || {time > _timeOut}}};
+    if (call _abortCondition) exitWith {};//Immediate check
+
+    _group setCombatMode "RED";
+    _group setSpeedMode "FULL";
+    _group setBehaviourStrong "AWARE";
+
+    private _helper = [_group,_target] call NWG_ACA_CreateHelper;
+    private _onExit = {
+        if (!isNull _group) then {_group call NWG_ACA_DeleteHelper};
+    };
+
+    //Get closer to the building
+    (units _group) doMove (position _helper);
+    waitUntil {
+        sleep 1;
+        if (call _abortCondition) exitWith {true};
+        if (((leader _group) distance _helper) > (NWG_ACA_Settings get "INF_STORM_FIRE_RADIUS")) exitWith {false};//Out of range
+        if !([(leader _group),_target] call NWG_ACA_IsClearLineBetween) exitWith {false};//Obstacle between
+        true
+    };
+    if (call _abortCondition) exitWith _onExit;
+
+    //Attack the building
+    private _units = (units _group) select {alive _x};
+    _group reveal [_helper,4];
+    _units doWatch _helper; _units doTarget _helper;
+    private _fireTime = time + (NWG_ACA_Settings get "INF_STORM_FIRE_TIME");
+
+    waitUntil {
+        if (call _abortCondition) exitWith _onExit;
+        _units = _units select {alive _x};//Update list
+
+        //forEach unit
+        private ["_unit","_weaponsInfo","_primaryWeapon","_secondaryWeapon","_g","_i","_fireType","_muzzle"];
+        {
+            _unit = _x;
+            _weaponsInfo = _unit weaponsInfo [""];
+            _primaryWeapon = primaryWeapon _unit;
+            _secondaryWeapon = secondaryWeapon _unit;
+            _g = -1;
+            _fireType = "";
+
+            _i = switch (true) do {
+                //Obstacle between unit and a target
+                case (!([_unit,_target] call NWG_ACA_IsClearLineBetween)):
+                    {_fireType = "SUPPRESS"; _weaponsInfo findIf {(_x#2) isEqualTo _primaryWeapon}};
+                //AT unit that sees the target
+                case (_secondaryWeapon isNotEqualTo "" && {(_unit call NWG_fnc_dsDefineWeaponTagForObject) isEqualTo "AT"}):
+                    {_fireType = "WEAPON"; _weaponsInfo findIf {(_x#2) isEqualTo _secondaryWeapon}};
+                //Sub-barrel grenade launcher
+                _g = _weaponsInfo findIf {(_x#5) isEqualTo "1Rnd_HE_Grenade_shell" && {(_x#6) > 0}};
+                case (_g != -1):
+                    {_fireType = "WEAPON"; _g};
+                //Grenades
+                _g = _weaponsInfo findIf {(_x#5) isEqualTo "HandGrenade" && {(_x#6) > 0}};
+                case (_g != -1):
+                    {_fireType = "GRENADE"; _g};
+                _g = _weaponsInfo findIf {(_x#5) isEqualTo "MiniGrenade" && {(_x#6) > 0}};
+                case (_g != -1):
+                    {_fireType = "GRENADE"; _g};
+                //Fallback to primary weapon
+                default
+                    {_fireType = "SUPPRESS"; _weaponsInfo findIf {(_x#2) isEqualTo _primaryWeapon}};
+            };
+            if (_i == -1) then {continue};//Something went wrong
+            _muzzle = (_weaponsInfo#_i)#3;
+            _unit doTarget _helper;
+            switch (_fireType) do {
+                case ("SUPPRESS"): {_unit doSuppressiveFire _helper};
+                case ("WEAPON")  : {_unit selectWeapon _muzzle; _unit fire _muzzle};
+                case ("GRENADE") : {[_unit,_muzzle] call BIS_fnc_fire};
+            };
+        } forEach _units;
+
+        sleep 5;
+        time > _fireTime
+    };
+    if (call _abortCondition) exitWith _onExit;
+    _group call NWG_ACA_DeleteHelper;
+
+    //Storm the building
+    private _buildingPos = _target buildingPos -1;
+    if (_buildingPos isEqualTo []) then {_buildingPos = [(getPosATL _target)]};
+    _buildingPos = _buildingPos call NWG_fnc_arrayShuffle;
+    _units = _units select {alive _x};//Update list
+    private ["_pos"];
+    {
+        _pos = _buildingPos deleteAt 0;
+        _buildingPos pushBack _pos;
+        _x forceSpeed -1;
+        _x doMove _pos;
+        _x moveTo _pos;
+        _x setDestination [_pos,"FORMATION PLANNED",true];
+    } foreach _units;
 };
