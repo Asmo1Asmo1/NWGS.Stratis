@@ -76,56 +76,6 @@ NWG_ACA_StartAdvancedLogic = {
     _group setVariable ["NWG_ACA_LogicHandle",([_group,_arg1,_arg2] spawn _logic)];
 };
 
-NWG_ACA_GetDataForVehicleForceFire = {
-    // private _vehicle = _this;
-
-    //Get initial vehicle info like unit and its turret
-    private _result = ((fullCrew [_this,"",false])
-        select {(_x#2) == -1})/*Filter out cargo units*/
-        apply {[_x#0,_x#3]};/*Repack into [unit,turret]*/
-
-    //For each turret get its weapons and firemodes for each weapon
-    private _falseWeapons = ["Horn","Laserdesignator","SmokeLauncher","CMFlareLauncher"];
-    private ["_turret","_weapons","_cur","_fireModes","_muzzles"];
-    {
-        _turret = _x#1;
-        if (_turret isEqualTo []) then {_turret = [-1]};
-        _weapons = (_this weaponsTurret _turret) select {
-            _cur = _x;
-            ((_falseWeapons findIf {_x in _cur}) == -1)
-        };
-        if (_weapons isEqualTo []) then {
-            _result deleteAt _forEachIndex;
-            continue;
-        };
-        _weapons = _weapons apply {
-            _cur = _x;
-            _fireModes = (getArray (configFile >> "CfgWeapons" >> _cur >> "modes"));
-            if (_fireModes isEqualTo ["this"]) then {_fireModes = [_cur]};
-            _muzzles = (getArray (configFile >> "CfgWeapons" >> _cur >> "muzzles"));
-            if (_muzzles isNotEqualTo ["this"] && {!(_cur in _muzzles)}) then {_cur = _muzzles param [0,_cur]};
-            [_cur,_fireModes]
-        };
-        _x set [1,_weapons];
-    } forEachReversed _result;
-
-    //return
-    _result
-};
-
-NWG_ACA_VehicleForceFire = {
-    params ["_vehicle","_data","_target"];
-    //do
-    {
-        private _gunner = _x#0;
-        (selectRandom (_x#1)) params ["_weapon","_fireModes"];
-        _gunner reveal _target;
-        _gunner doWatch _target;
-        _gunner doTarget _target;
-        _gunner forceWeaponFire [_weapon,(selectRandom _fireModes)];
-    } forEach _data;
-};
-
 NWG_ACA_CreateHelper = {
     params ["_group","_target"];
     private _helper = createVehicle ["CBA_O_InvisibleTargetVehicle",_target,[],0,"CAN_COLLIDE"];
@@ -263,6 +213,57 @@ NWG_ACA_Airstrike = {
     if (!isNull _plane) then {
         _plane setVehicleAmmo 1;
     };
+};
+
+/*Utils*/
+NWG_ACA_GetDataForVehicleForceFire = {
+    // private _vehicle = _this;
+
+    //Get initial vehicle info like unit and its turret
+    private _result = ((fullCrew [_this,"",false])
+        select {(_x#2) == -1})/*Filter out cargo units*/
+        apply {[_x#0,_x#3]};/*Repack into [unit,turret]*/
+
+    //For each turret get its weapons and firemodes for each weapon
+    private _falseWeapons = ["Horn","Laserdesignator","SmokeLauncher","CMFlareLauncher"];
+    private ["_turret","_weapons","_cur","_fireModes","_muzzles"];
+    {
+        _turret = _x#1;
+        if (_turret isEqualTo []) then {_turret = [-1]};
+        _weapons = (_this weaponsTurret _turret) select {
+            _cur = _x;
+            ((_falseWeapons findIf {_x in _cur}) == -1)
+        };
+        if (_weapons isEqualTo []) then {
+            _result deleteAt _forEachIndex;
+            continue;
+        };
+        _weapons = _weapons apply {
+            _cur = _x;
+            _fireModes = (getArray (configFile >> "CfgWeapons" >> _cur >> "modes"));
+            if (_fireModes isEqualTo ["this"]) then {_fireModes = [_cur]};
+            _muzzles = (getArray (configFile >> "CfgWeapons" >> _cur >> "muzzles"));
+            if (_muzzles isNotEqualTo ["this"] && {!(_cur in _muzzles)}) then {_cur = _muzzles param [0,_cur]};
+            [_cur,_fireModes]
+        };
+        _x set [1,_weapons];
+    } forEachReversed _result;
+
+    //return
+    _result
+};
+
+NWG_ACA_VehicleForceFire = {
+    params ["_vehicle","_data","_target"];
+    //do
+    {
+        private _gunner = _x#0;
+        (selectRandom (_x#1)) params ["_weapon","_fireModes"];
+        _gunner reveal _target;
+        _gunner doWatch _target;
+        _gunner doTarget _target;
+        _gunner forceWeaponFire [_weapon,(selectRandom _fireModes)];
+    } forEach _data;
 };
 
 //================================================================================================================
@@ -416,6 +417,7 @@ NWG_ACA_ArtilleryStrikeCore = {
         if (call _abortCondition) exitWith {};
         _artillery setVariable ["NWG_artilleryFired",false];//Reset
     } forEach _strikePoints;
+
     call _onExit;
 };
 
@@ -472,7 +474,7 @@ NWG_ACA_MortarStrike = {
 };
 
 //================================================================================================================
-//Veh demolition
+//Veh demolition (reuses utils from airstrike)
 NWG_ACA_CanDoVehDemolition = {
     // private _group = _this;
     private _veh = vehicle (leader _group);
