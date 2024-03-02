@@ -44,7 +44,7 @@ NWG_UNDTKR_OnKilled = {
 
     private _objType = _obj call NWG_fnc_ocGetObjectType;
     private _actualKiller = [_killer,_instigator] call NWG_UNDTKR_DefineKiller;
-    private _isPlayerKiller = alive _actualKiller && {(_actualKiller call NWG_fnc_ocIsUnit) && {isPlayer _actualKiller}};
+    private _isPlayerKiller = alive _actualKiller && {(_actualKiller isKindOf "Man") && {isPlayer _actualKiller}};
 
     //Re-check for vehicles
     if (!_isPlayerKiller && {_objType isEqualTo OBJ_TYPE_VEHC}) then {

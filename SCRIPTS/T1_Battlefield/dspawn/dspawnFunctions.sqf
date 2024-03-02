@@ -40,6 +40,16 @@ NWG_fnc_dsSendToAttack = {
     _this call NWG_DSPAWN_SendToAttack
 };
 
+//Inner utility to define the weapon tag for the given object
+//params:
+// _object - object to define the weapon tag for (vehicle or unit)
+//returns:
+// weapon tag "AA", "AT", "AA|AT" or "REG"
+NWG_fnc_dsDefineWeaponTagForObject = {
+    // private _object = _this;
+    _this call NWG_DSPAWN_TAGs_DefineWeaponTagForObject
+};
+
 //=============================================================================
 /*Additional code helpers*/
 

@@ -60,6 +60,14 @@ NWG_fnc_ocIsVehicle = {
     _this call NWG_OBCL_IsVehicle
 };
 
+//Check if object is turret
+// _object: Object
+// Returns: Boolean
+NWG_fnc_ocIsTurret = {
+    // private _object = _this;
+    _this call NWG_OBCL_IsTurret
+};
+
 //Check if object is unit
 // _object: Object
 // Returns: Boolean
