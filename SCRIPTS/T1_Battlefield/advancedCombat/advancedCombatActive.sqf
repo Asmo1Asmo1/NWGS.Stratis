@@ -57,6 +57,9 @@ NWG_ACA_Settings = createHashMapFromArray [
     ["INF_STORM_FIRE_TIME",10],//Time for fireing
     ["INF_STORM_TIMEOUT",180],//Timeout for inf building storm
 
+    ["VEH_REPAIR_RADIUS",250],//Radius for vehicle to move to repair
+    ["VEH_REPAIR_TIMEOUT",180],//Timeout for veh repair
+
     ["",0]
 ];
 
@@ -368,10 +371,11 @@ NWG_ACA_ArtilleryStrikeCore = {
 
     //Warning strike
     private _warningPos = call {
-        private _allPlayers = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
         private _strikePoints = [_targetPos,_warningRadius,5] call NWG_fnc_dtsGenerateDotsCircle;
         _strikePoints = _strikePoints select {[_artillery,_x] call NWG_ACA_IsInRange};
         if (_strikePoints isEqualTo []) exitWith {_targetPos};//Fallback
+        private _allPlayers = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
+        if (_allPlayers isEqualTo []) exitWith {selectRandom _strikePoints};//Fallback
         private ["_point","_minDist","_dist"];
         _strikePoints = _strikePoints apply {
             _point = _x;
@@ -681,4 +685,119 @@ NWG_ACA_InfBuildingStorm = {
         _x moveTo _pos;
         _x setDestination [_pos,"FORMATION PLANNED",true];
     } foreach _units;
+};
+
+//================================================================================================================
+//Veh vehicle repair
+NWG_ACA_CanDoVehRepair = {
+    // private _group = _this;
+    private _veh = vehicle (leader _this);
+    //return
+    (alive _veh && {_veh isKindOf "Car" || _veh isKindOf "Tank"})
+};
+
+NWG_ACA_NeedsRepair = {
+    // private _group = _this;
+    if !(_this call NWG_ACA_CanDoVehRepair) exitWith {false};
+    private _veh = vehicle (leader _this);
+    (((getAllHitPointsDamage _veh)#2) findIf {_x >= 0.25}) != -1
+};
+
+NWG_ACA_SendToVehRepair = {
+    private _group = _this;
+    //Check if group can do veh repair
+    if !(_group call NWG_ACA_CanDoVehRepair) exitWith {
+        "NWG_ACA_SendToVehRepair: tried to send group that can't do veh repair" call NWG_fnc_logError;
+        false;
+    };
+    if !(_group call NWG_ACA_NeedsRepair) exitWith {false};
+
+    [_group,NWG_ACA_VehRepair] call NWG_ACA_StartAdvancedLogic;
+    true
+};
+
+NWG_ACA_VehRepair = {
+    params ["_group"];
+    private _veh = vehicle (leader _group);
+    private _crew = crew _veh;
+
+    //Reload the crew if driver is dead
+    if (!alive (driver _veh)) then {
+        {_x moveOut _veh; _x moveInAny _veh} forEach _crew;
+    };
+
+    private _timeOut = time + 180;
+    private _abortCondition = {!alive _veh || {({alive _x} count _crew) < 1 || {time > _timeOut}}};
+    if (call _abortCondition) exitWith {};//Immediate check
+
+    _group setBehaviourStrong "CARELESS";
+    _group setCombatBehaviour "CARELESS";
+    private _onExit = {
+        if (!isNull _group) then {
+            _group setBehaviourStrong "AWARE";
+            _group setCombatBehaviour "AWARE";
+        };
+    };
+
+    //Find a repair position
+    private _repairPos = call {
+        private _vehPos = getPosATL _veh;
+        if !(canMove _veh) exitWith {_vehPos};//Vehicle is stuck
+        private _radius = (NWG_ACA_Settings get "VEH_REPAIR_RADIUS");
+        private _posOptions = [_vehPos,_radius,9] call NWG_fnc_dtsGenerateDotsCircle;
+        _posOptions = _posOptions select {!surfaceIsWater _x};
+        if (_posOptions isEqualTo []) exitWith {_vehPos};//Fallback
+        private _allPlayers = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
+        if (_allPlayers isEqualTo []) exitWith {selectRandom _posOptions};//Fallback
+        private ["_point","_minDist","_dist"];
+        _posOptions = _posOptions apply {
+            _point = _x;
+            _minDist = 100000;
+            {
+                _dist = _point distance _x;
+                if (_dist < _minDist) then {_minDist = _dist};
+            } forEach _allPlayers;
+            [_minDist,_point]
+        };
+        _posOptions sort false;
+        ((_posOptions#0)#1)
+    };
+
+    //Move to the repair position
+    _crew doMove _repairPos;
+    waitUntil {
+        sleep 1;
+        if (call _abortCondition) exitWith {true};
+        (_veh distance _repairPos) < 15
+    };
+    if (call _abortCondition) exitWith _onExit;
+
+    //Unload the crew
+    _crew = _crew select {alive _x};
+    doStop _crew;
+    sleep 2;
+    if (call _abortCondition) exitWith _onExit;
+    _crew = _crew select {alive _x};
+    _group leaveVehicle _veh;
+    {_x moveOut _veh} forEach _crew;
+
+    //Repair
+    sleep 1;
+    if (call _abortCondition) exitWith _onExit;
+    _crew = _crew select {alive _x};
+    {
+        _x setDir (_x getDir _veh);
+        _x switchMove "Acts_carFixingWheel";
+        _x playMoveNow "Acts_carFixingWheel";
+    } forEach _crew;
+    sleep ((random 2)+5);
+    if (call _abortCondition) exitWith _onExit;
+    _veh setDamage 0;
+
+    //Reload the crew
+    _group addVehicle _veh;
+    _crew = _crew select {alive _x};
+    {_x moveInAny _veh} forEach _crew;
+
+    call _onExit;
 };
