@@ -18,6 +18,7 @@ NWG_ACP_Settings = createHashMapFromArray [
 
     ["ON_DSPAWN_ALLOW_WOUNDED",true],//Enable wounded state for SOME of the group members when dspawn spawns the group
     ["DSPAWN_ALLOW_WOUNDED_CHANCE",0.5],//Chance for a group member to be allowed to be wounded
+    ["DSPAWN_ALLOW_WOUNDED_TIME",[10,60]],//Time range for wounded state [min,max]
 
     ["ON_DSPAWN_ALLOW_STAY_IN_VEHICLE",true],//Enable stay in vehicle for SOME of the groups when dspawn spawns the group
     ["DSPAWN_ALLOW_STAY_IN_VEHICLE_CHANCE",0.5],//Chance for a group to be allowed to stay in the vehicle
@@ -61,8 +62,70 @@ NWG_ACP_SetGroupSkills = {
 };
 
 NWG_ACP_AllowWounded = {
-    // private _units = _this;
-    //TODO
+    private _units = _this;
+    private _chance = NWG_ACP_Settings get "DSPAWN_ALLOW_WOUNDED_CHANCE";
+    private _units = _units select {(random 1) <= _chance};//Apply chance
+    if ((count _units) == 0) exitWith {};//No units passed the chance
+
+    //forEach unit
+    {
+        _x addEventHandler ["HandleDamage", {
+            params ["_unit","_selection","_damage","_source","_projectile","_hitIndex","_instigator","_hitPoint"];
+
+            switch (true) do {
+                case (!alive _unit): {/*Do nothing*/};//Do nothing for dead units
+                case ((vehicle _unit) isNotEqualTo _unit): {/*Do nothing*/};//Do nothing for units in vehicles
+                case (_selection in ["legs","arms","hands"]): {
+                    /*Try playing 'falling' animation for hit in legs, arms or hands*/
+                    if !((toUpper (stance _unit)) in ["CROUCH","STAND"]) exitWith {};//Only play animation when standing due to lack of animations, sry
+                    private _anim = switch (currentWeapon _unit) do {
+                        case (""): {"AmovPercMstpSnonWnonDnon"};
+                        case (primaryWeapon _unit): {selectRandom [
+                                "AmovPercMstpSrasWrflDnon_AadjPpneMstpSrasWrflDleft",
+                                "AmovPercMstpSrasWrflDnon_AadjPpneMstpSrasWrflDright",
+                                "AmovPercMsprSlowWrfldf_AmovPpneMstpSrasWrflDnon",
+                                "AmovPercMsprSlowWrfldf_AmovPpneMstpSrasWrflDnon_2"]
+                        };
+                        case (handgunWeapon _unit): {selectRandom [
+                                "AmovPercMstpSrasWpstDnon_AadjPpneMstpSrasWpstDleft",
+                                "AmovPercMstpSrasWpstDnon_AadjPpneMstpSrasWpstDright",
+                                "AmovPercMsprSlowWpstDf_AmovPpneMstpSrasWpstDnon"]
+                        };
+                        default {""};
+                    };
+                    if (_anim isEqualTo "") exitWith {};//Exit if no animation for this weapon exists, i.e. binocular or rocket launcher
+                    [_unit, _anim] call NWG_fnc_playAnim;
+                };
+                default {
+                    /*Wound the unit*/
+                    _unit setUnconscious true;
+                    (NWG_ACP_Settings get "DSPAWN_ALLOW_WOUNDED_TIME") params ["_min","_max"];
+                    private _wakeUpAt = time + ((random (_max - _min)) + _min);
+                    NWG_ACP_unwoundQueue pushBack [_unit,_wakeUpAt];
+                    if (isNull NWG_ACP_unwoundHandle || {scriptDone NWG_ACP_unwoundHandle}) then {NWG_ACP_unwoundHandle = [] spawn NWG_ACP_Unwound};
+                };
+            };
+
+            _unit removeEventHandler [_thisEvent,_thisEventHandler];//Make it one-time event
+            _damage
+        }];
+    } forEach _units;
+};
+
+NWG_ACP_unwoundQueue = [];
+NWG_ACP_unwoundHandle = scriptNull;
+NWG_ACP_Unwound = {
+    waitUntil {
+        sleep 1;
+
+        //forEach wounded unit
+        {
+            if (!alive (_x#0)) then {NWG_ACP_unwoundQueue deleteAt _forEachIndex; continue};//Remove dead units from the queue
+            if (time > (_x#1)) then {(_x#0) setUnconscious false; NWG_ACP_unwoundQueue deleteAt _forEachIndex};//Unwound the unit if the time has come
+        } forEachReversed NWG_ACP_unwoundQueue;
+
+        ((count NWG_ACP_unwoundQueue) <= 0)
+    };
 };
 
 NWG_ACP_AllowStayInVehicle = {
