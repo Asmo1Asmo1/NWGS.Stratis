@@ -343,14 +343,13 @@ NWG_DSPAWN_TRIGGER_CalculatePopulationDistribution = {
 NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
     // private _trigger = _this;
     params ["_triggerPos","_triggerRad"];
-    private _occupiedBuildings = BST_OCCUPIED_BUILDINGS call NWG_fnc_shGetState;
-    private _isOccupied = if (isNil "_occupiedBuildings") then {{false}} else {{_x in _occupiedBuildings}};
+    private _occupiedBuildings = call NWG_fnc_shGetOccupiedBuildings;
 
     //return
     (_triggerPos nearObjects _triggerRad) select {
         (_x call NWG_fnc_ocIsBuilding) && {
         ((count (_x buildingPos -1)) >= 4) && {
-        !(_x call _isOccupied)}}
+        !(_x in _occupiedBuildings)}}
     };
 };
 
@@ -703,13 +702,7 @@ NWG_DSPAWN_SpawnInfantryGroupInBuilding = {
     private _group = group (_units#0);
 
     //Mark building as occupied
-    private _occupiedBuildings = BST_OCCUPIED_BUILDINGS call NWG_fnc_shGetState;
-    if (isNil "_occupiedBuildings") then {
-        _occupiedBuildings = [_building];
-        [BST_OCCUPIED_BUILDINGS,_occupiedBuildings] call NWG_fnc_shSetState;
-    } else {
-        _occupiedBuildings pushBackUnique _building;
-    };
+    _building call NWG_fnc_shAddOccupiedBuilding;
 
     //return
     ([_groupDescr,[_group,false,_units]] call NWG_DSPAWN_SpawnGroupFinalize)
@@ -730,6 +723,10 @@ NWG_DSPAWN_SpawnGroupFinalize = {
     //Set initial behaviour
     _group setCombatMode "RED";
     _group setFormation (selectRandom ["STAG COLUMN","WEDGE","VEE","DIAMOND"]);
+
+    //Raise event
+    private _tier = _groupDescr#DESCR_TIER;
+    [EVENT_ON_DSPAWN_GROUP_SPAWNED,(_spawnResult + [_tags,_tier])] call NWG_fnc_raiseServerEvent;
 
     //return
     _spawnResult

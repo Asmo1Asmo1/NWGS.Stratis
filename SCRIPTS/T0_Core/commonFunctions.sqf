@@ -160,8 +160,7 @@ NWG_fnc_unCompactStringArray = {
 //Returns array of all players
 //params: none
 //returns: array of all players
-NWG_fnc_getPlayersAll =
-{
+NWG_fnc_getPlayersAll = {
     // allPlayers - 0.0006, but returns headless clients
     // call BIS_fnc_listPlayers - works fine, but 0.0056
     (allPlayers - (entities "HeadlessClient_F")) //0.0011
@@ -170,8 +169,23 @@ NWG_fnc_getPlayersAll =
 //Returns an array of unique objects - unit if a player is on foot, vehicle if inside the vehicle
 //params: none
 //returns: array of objects
-NWG_fnc_getPlayersAndOrPlayedVehiclesAll =
-{
+NWG_fnc_getPlayersAndOrPlayedVehiclesAll = {
     private _result = (((call NWG_fnc_getPlayersAll) apply {vehicle _x}) select {alive _x});
     _result arrayIntersect _result//Remove duplicates and return
+};
+
+//===============================================================
+//Animation
+NWG_fnc_playAnim = {
+    params ["_unit","_animName"];
+    if (isNil "_unit" || {isNull _unit}) exitWith {"NWG_fnc_playAnim: unit is Null" call NWG_fnc_logError};
+    _this remoteExecCall ["NWG_fnc_playAnimRemote",0];
+};
+
+NWG_fnc_playAnimRemote = {
+    params ["_unit","_animName"];
+    //Force unscheduled environment, see Leopard20's comment on https://community.bistudio.com/wiki/switchMove
+    if (!canSuspend)
+        then {_unit switchMove _animName; _unit playMoveNow _animName}
+        else {isNil {_unit switchMove _animName; _unit playMoveNow _animName}};
 };

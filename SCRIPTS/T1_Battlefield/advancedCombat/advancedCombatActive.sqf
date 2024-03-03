@@ -11,7 +11,7 @@
 /*
     Breakdown of the module:
     - Find groups that can do Airstrike
-    - Send group to do Airstrike
+    - Send group to do Airstrike on target
 
     - Find groups that can do Artillery strike
     - Find groups that can do Artillery strike on this position
@@ -28,7 +28,8 @@
     - Send group to do Inf building storm
 
     - Find groups that can do Veh vehicle repair
-    - Send group to do Veh vehicle repair
+    - Check that this group vehicle needs repair
+    - Send group to do their Veh vehicle repair
 */
 
 //================================================================================================================
@@ -478,8 +479,11 @@ NWG_ACA_MortarStrike = {
 NWG_ACA_CanDoVehDemolition = {
     // private _group = _this;
     private _veh = vehicle (leader _group);
+    if !(_veh isKindOf "Tank"  || {_veh isKindOf "Wheeled_APC_F"}) exitWith {false};
+    if ((!alive (gunner _veh)) || {!alive (driver _veh)}) exitWith {false};
+    if ((_veh call NWG_ACA_GetDataForVehicleForceFire) isEqualTo []) exitWith {false};
     //return
-    (alive _veh && {(_veh isKindOf "Tank" || _veh isKindOf "Wheeled_APC_F") && {alive (gunner _veh) && {alive (driver _veh)}}})
+    true
 };
 
 NWG_ACA_SendToVehDemolition = {
