@@ -479,8 +479,11 @@ NWG_ACA_MortarStrike = {
 NWG_ACA_CanDoVehDemolition = {
     // private _group = _this;
     private _veh = vehicle (leader _group);
+    if !(_veh isKindOf "Tank"  || {_veh isKindOf "Wheeled_APC_F"}) exitWith {false};
+    if ((!alive (gunner _veh)) || {!alive (driver _veh)}) exitWith {false};
+    if ((_veh call NWG_ACA_GetDataForVehicleForceFire) isEqualTo []) exitWith {false};
     //return
-    (alive _veh && {(_veh isKindOf "Tank" || _veh isKindOf "Wheeled_APC_F") && {alive (gunner _veh) && {alive (driver _veh)}}})
+    true
 };
 
 NWG_ACA_SendToVehDemolition = {
