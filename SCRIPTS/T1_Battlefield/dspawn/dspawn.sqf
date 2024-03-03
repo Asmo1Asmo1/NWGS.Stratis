@@ -724,6 +724,10 @@ NWG_DSPAWN_SpawnGroupFinalize = {
     _group setCombatMode "RED";
     _group setFormation (selectRandom ["STAG COLUMN","WEDGE","VEE","DIAMOND"]);
 
+    //Raise event
+    private _tier = _groupDescr#DESCR_TIER;
+    [EVENT_ON_DSPAWN_GROUP_SPAWNED,(_spawnResult + [_tags,_tier])] call NWG_fnc_raiseServerEvent;
+
     //return
     _spawnResult
 };
