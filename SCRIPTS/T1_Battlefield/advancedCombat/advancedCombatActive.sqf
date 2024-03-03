@@ -11,7 +11,7 @@
 /*
     Breakdown of the module:
     - Find groups that can do Airstrike
-    - Send group to do Airstrike
+    - Send group to do Airstrike on target
 
     - Find groups that can do Artillery strike
     - Find groups that can do Artillery strike on this position
@@ -28,7 +28,8 @@
     - Send group to do Inf building storm
 
     - Find groups that can do Veh vehicle repair
-    - Send group to do Veh vehicle repair
+    - Check that this group vehicle needs repair
+    - Send group to do their Veh vehicle repair
 */
 
 //================================================================================================================
