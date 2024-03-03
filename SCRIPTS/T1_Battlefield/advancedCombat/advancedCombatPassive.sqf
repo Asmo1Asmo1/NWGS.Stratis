@@ -66,50 +66,48 @@ NWG_ACP_AllowWounded = {
     private _chance = NWG_ACP_Settings get "DSPAWN_ALLOW_WOUNDED_CHANCE";
     private _units = _units select {(random 1) <= _chance};//Apply chance
     if ((count _units) == 0) exitWith {};//No units passed the chance
+    { _x addEventHandler ["HandleDamage",{_this call NWG_ACP_OnWounded}] } forEach _units;
+};
 
-    //forEach unit
-    {
-        _x addEventHandler ["HandleDamage", {
-            params ["_unit","_selection","_damage","_source","_projectile","_hitIndex","_instigator","_hitPoint"];
+NWG_ACP_OnWounded = {
+    params ["_unit","_selection","_damage"/*,"_source","_projectile","_hitIndex","_instigator","_hitPoint"*/];
 
-            switch (true) do {
-                case (!alive _unit): {/*Do nothing*/};//Do nothing for dead units
-                case ((vehicle _unit) isNotEqualTo _unit): {/*Do nothing*/};//Do nothing for units in vehicles
-                case (_selection in ["legs","arms","hands"]): {
-                    /*Try playing 'falling' animation for hit in legs, arms or hands*/
-                    if !((toUpper (stance _unit)) in ["CROUCH","STAND"]) exitWith {};//Only play animation when standing due to lack of animations, sry
-                    private _anim = switch (currentWeapon _unit) do {
-                        case (""): {"AmovPercMstpSnonWnonDnon"};
-                        case (primaryWeapon _unit): {selectRandom [
-                                "AmovPercMstpSrasWrflDnon_AadjPpneMstpSrasWrflDleft",
-                                "AmovPercMstpSrasWrflDnon_AadjPpneMstpSrasWrflDright",
-                                "AmovPercMsprSlowWrfldf_AmovPpneMstpSrasWrflDnon",
-                                "AmovPercMsprSlowWrfldf_AmovPpneMstpSrasWrflDnon_2"]
-                        };
-                        case (handgunWeapon _unit): {selectRandom [
-                                "AmovPercMstpSrasWpstDnon_AadjPpneMstpSrasWpstDleft",
-                                "AmovPercMstpSrasWpstDnon_AadjPpneMstpSrasWpstDright",
-                                "AmovPercMsprSlowWpstDf_AmovPpneMstpSrasWpstDnon"]
-                        };
-                        default {""};
-                    };
-                    if (_anim isEqualTo "") exitWith {};//Exit if no animation for this weapon exists, i.e. binocular or rocket launcher
-                    [_unit, _anim] call NWG_fnc_playAnim;
+    switch (true) do {
+        case (!alive _unit): {/*Do nothing*/};//Do nothing for dead units
+        case ((vehicle _unit) isNotEqualTo _unit): {/*Do nothing*/};//Do nothing for units in vehicles
+        case (_selection in ["legs","arms","hands"]): {
+            /*Try playing 'falling' animation for hit in legs, arms or hands*/
+            if !((toUpper (stance _unit)) in ["CROUCH","STAND"]) exitWith {};//Only play animation when standing due to lack of animations, sry
+            private _anim = switch (currentWeapon _unit) do {
+                case (""): {"AmovPercMstpSnonWnonDnon"};
+                case (primaryWeapon _unit): {selectRandom [
+                        "AmovPercMstpSrasWrflDnon_AadjPpneMstpSrasWrflDleft",
+                        "AmovPercMstpSrasWrflDnon_AadjPpneMstpSrasWrflDright",
+                        "AmovPercMsprSlowWrfldf_AmovPpneMstpSrasWrflDnon",
+                        "AmovPercMsprSlowWrfldf_AmovPpneMstpSrasWrflDnon_2"]
                 };
-                default {
-                    /*Wound the unit*/
-                    _unit setUnconscious true;
-                    (NWG_ACP_Settings get "DSPAWN_ALLOW_WOUNDED_TIME") params ["_min","_max"];
-                    private _wakeUpAt = time + ((random (_max - _min)) + _min);
-                    NWG_ACP_unwoundQueue pushBack [_unit,_wakeUpAt];
-                    if (isNull NWG_ACP_unwoundHandle || {scriptDone NWG_ACP_unwoundHandle}) then {NWG_ACP_unwoundHandle = [] spawn NWG_ACP_Unwound};
+                case (handgunWeapon _unit): {selectRandom [
+                        "AmovPercMstpSrasWpstDnon_AadjPpneMstpSrasWpstDleft",
+                        "AmovPercMstpSrasWpstDnon_AadjPpneMstpSrasWpstDright",
+                        "AmovPercMsprSlowWpstDf_AmovPpneMstpSrasWpstDnon"]
                 };
+                default {""};
             };
+            if (_anim isEqualTo "") exitWith {};//Exit if no animation for this weapon exists, i.e. binocular or rocket launcher
+            [_unit, _anim] call NWG_fnc_playAnim;
+        };
+        default {
+            /*Wound the unit*/
+            _unit setUnconscious true;
+            (NWG_ACP_Settings get "DSPAWN_ALLOW_WOUNDED_TIME") params ["_min","_max"];
+            private _wakeUpAt = time + ((random (_max - _min)) + _min);
+            NWG_ACP_unwoundQueue pushBack [_unit,_wakeUpAt];
+            if (isNull NWG_ACP_unwoundHandle || {scriptDone NWG_ACP_unwoundHandle}) then {NWG_ACP_unwoundHandle = [] spawn NWG_ACP_Unwound};
+        };
+    };
 
-            _unit removeEventHandler [_thisEvent,_thisEventHandler];//Make it one-time event
-            _damage
-        }];
-    } forEach _units;
+    _unit removeEventHandler [_thisEvent,_thisEventHandler];//Make it one-time event
+    _damage
 };
 
 NWG_ACP_unwoundQueue = [];
