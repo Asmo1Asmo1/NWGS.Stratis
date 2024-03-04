@@ -720,6 +720,9 @@ NWG_DSPAWN_SpawnGroupFinalize = {
     private _group = _spawnResult#SPAWN_RESULT_GROUP;
     [_group,_tags] call NWG_DSPAWN_TAGs_SetTags;
 
+    //Mark group as spawned by this script
+    _group setVariable ["NWG_DSPAWN_ownership",true];
+
     //Set initial behaviour
     _group setCombatMode "RED";
     _group setFormation (selectRandom ["STAG COLUMN","WEDGE","VEE","DIAMOND"]);
@@ -909,6 +912,9 @@ NWG_DSPAWN_TAGs_atSigns = [" AT","AT ","air-to-surface","HEAT","APFSDS"];
 NWG_DSPAWN_TAGs_magToWeaponTagCache = createHashMap;//Config manipulations are EXTREMELY slow, cache needed (4638/10k VS 10k/10k in tests)
 NWG_DSPAWN_TAGs_DefineWeaponTagForObject = {
     // private _object = _this;
+
+    //Check artillery
+    if (_this call NWG_fnc_ocIsVehicle && {(getArtilleryAmmo [_this]) isNotEqualTo []}) exitWith {"ARTA"};
 
     //Get all the magazines
     private _mags = if (_this isKindOf "Man")
@@ -1217,18 +1223,12 @@ NWG_DSPAWN_ReturnToPatrol = {
 NWG_DSPAWN_GetGroupVehicle = {
     // private _group = _this;
     if (isNull _this) exitWith {objNull};
-
-    //Try the vehicle of the group leader
-    private _result = vehicle (leader _this);
-    if (alive _result && {_result call NWG_fnc_ocIsVehicle}) exitWith {_result};
-
-    //Try the vehicle of any other group member
-    _result = ((units _this) select {alive _x}) apply {vehicle _x};
-    private _i = _result findIf {alive _x && {_x call NWG_fnc_ocIsVehicle}};
-    if (_i != -1) exitWith {_result#_i};
-
-    //Else return null
-    objNull
+    private _array = [(leader _this)] + (units _this);//Start with the leader, always
+    _array = _array apply {vehicle _x};//Get vehicles
+    _array = _array arrayIntersect _array;//Remove duplicates
+    private _i = _array findIf {(alive _x && {(_x call NWG_fnc_ocIsVehicle)})};
+    //return
+    _array param [_i,objNull]
 };
 
 NWG_DSPAWN_GetGroupPassengers = {

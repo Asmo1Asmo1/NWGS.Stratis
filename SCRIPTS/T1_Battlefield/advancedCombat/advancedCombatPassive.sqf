@@ -99,8 +99,7 @@ NWG_ACP_OnWounded = {
         default {
             /*Wound the unit*/
             _unit setUnconscious true;
-            (NWG_ACP_Settings get "DSPAWN_ALLOW_WOUNDED_TIME") params ["_min","_max"];
-            private _wakeUpAt = time + ((random (_max - _min)) + _min);
+            private _wakeUpAt = time + ((NWG_ACP_Settings get "DSPAWN_ALLOW_WOUNDED_TIME") call NWG_fnc_randomRangeInt);
             NWG_ACP_unwoundQueue pushBack [_unit,_wakeUpAt];
             if (isNull NWG_ACP_unwoundHandle || {scriptDone NWG_ACP_unwoundHandle}) then {NWG_ACP_unwoundHandle = [] spawn NWG_ACP_Unwound};
         };

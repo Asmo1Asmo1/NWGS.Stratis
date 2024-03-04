@@ -156,6 +156,22 @@ NWG_fnc_unCompactStringArray = {
 };
 
 //===============================================================
+//Range
+//Returns a random number within the range
+//params:
+// min - minimum value
+// max - maximum value
+//returns: random number
+NWG_fnc_randomRangeInt = {
+    params ["_min","_max"];
+    (floor (_min + (random ((_max - _min) + 1))))
+};
+NWG_fnc_randomRangeFloat = {
+    params ["_min","_max"];
+    (_min + (random (_max - _min)))
+};
+
+//===============================================================
 //Players
 //Returns array of all players
 //params: none
@@ -185,7 +201,7 @@ NWG_fnc_playAnim = {
 NWG_fnc_playAnimRemote = {
     params ["_unit","_animName"];
     //Force unscheduled environment, see Leopard20's comment on https://community.bistudio.com/wiki/switchMove
-    if (!canSuspend)
-        then {_unit switchMove _animName; _unit playMoveNow _animName}
-        else {isNil {_unit switchMove _animName; _unit playMoveNow _animName}};
+    if (canSuspend)
+        then {isNil {_unit switchMove _animName; _unit playMoveNow _animName}}
+        else {_unit switchMove _animName; _unit playMoveNow _animName};
 };

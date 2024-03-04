@@ -36,6 +36,12 @@ NWG_DSPAWN_REINF_SendReinforcements_Test_Any = {
     [(getPosATL player),_this,"NATO"] call NWG_DSPAWN_REINF_SendReinforcements
 };
 
+// 2 call NWG_DSPAWN_REINF_SendReinforcements_Test_InvalidFilter
+NWG_DSPAWN_REINF_SendReinforcements_Test_InvalidFilter = {
+    // private _groupsCount = _this;
+    [(getPosATL player),_this,"NATO",[["invalidWhiteFilter"]]] call NWG_DSPAWN_REINF_SendReinforcements
+};
+
 //================================================================================================================
 //================================================================================================================
 //Catalogue read
