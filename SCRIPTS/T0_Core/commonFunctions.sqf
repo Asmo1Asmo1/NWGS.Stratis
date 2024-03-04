@@ -15,7 +15,6 @@ NWG_fnc_logError = {
 //Shuffles array and returns it
 //params: _array - array to shuffle
 //returns: shuffled array (modifies the input array)
-//note: modifies the input array
 //note: previously known as 'KK_fnc_arrayShuffle'
 //note: made by Nelson Duarte, optimised by Killzone_Kid, optimised by HOPA_EHOTA
 NWG_fnc_arrayShuffle = {
@@ -28,12 +27,11 @@ NWG_fnc_arrayShuffle = {
 //Shifts array elements by random amount
 //params: _array - array to shift
 //returns: shifted array (modifies the input array)
-//note: modifies the input array
-//note: there is no guarantee that the array will be shifted at all
 NWG_fnc_arrayRandomShift = {
     //private _array = _this;
     private _i = floor (random (count _this));
-    private _result = (_this select [_i,(count _this)]) + (_this select [0,_i]);
+    if (_i <= 0) exitWith {_this};
+    private _result = (_this select [_i]) + (_this select [0,_i]);
     _this resize 0;
     _this append _result;
     _this
@@ -51,22 +49,14 @@ NWG_fnc_arrayRandomShift = {
 NWG_fnc_selectRandomGuaranteed = {
     params ["_array","_arrayID",["_deepSave",false]];
 
-    //Check arguments
-    if (!(_this isEqualTypeParams [[],""]) || {_arrayID isEqualTo ""}) exitWith {
-        (format ["NWG_fnc_selectRandomGuaranteed: invalid arguments '%1'",_this]) call NWG_fnc_logError;
-        nil
-    };
-
     //Check obvious case
     private _arrayCount = count _array;
     if (_arrayCount <= 1) exitWith {_array param [0]};
 
     //Get history of previous picks (ID tree)
-    private _historyBook = if (_deepSave) then {
-        (profileNamespace getVariable ["NWG_fnc_selectRandomGuaranteed_historyBook", createHashMap])
-    } else {
-        (localNamespace getVariable ["NWG_fnc_selectRandomGuaranteed_historyBook", createHashMap])
-    };
+    private _historyBook = if (_deepSave)
+        then {(profileNamespace getVariable ["NWG_fnc_selectRandomGuaranteed_historyBook", createHashMap])}
+        else {(localNamespace getVariable ["NWG_fnc_selectRandomGuaranteed_historyBook", createHashMap])};
     private _history = _historyBook getOrDefault [_arrayID,[]];
 
     //Check history validity and values
@@ -96,7 +86,7 @@ NWG_fnc_selectRandomGuaranteed = {
         };
         case (_freeSpace != -1): {
             //We stumbled upon occupied space, but there is free space available - use free space
-            _history set [_lastPick,1];
+            if (_lastPick != -1) then {_history set [_lastPick,1]};
             _history set [_freeSpace,2];
             _freeSpace
         };
@@ -124,12 +114,69 @@ NWG_fnc_selectRandomGuaranteed = {
 };
 
 //===============================================================
+//String array compacting
+
+//Compacts string array ["a","b","b"] to ["a",2,"b"]
+NWG_fnc_compactStringArray = {
+    // private _array = _this;
+    private _result = [];
+    private _i = -1;
+
+    //do
+    {
+        _i = _result find _x;
+        if (_i == -1)
+            then {_result pushBack 1; _result pushBack _x}
+            else {_result set [(_i-1),((_result#(_i-1))+1)]};
+    } forEach _this;
+
+    //return
+    _this resize 0;
+    _this append (_result - [1]);//Remove '1's
+    _this
+};
+
+//Uncompacts string array ["a",2,"b"] to ["a","b","b"]
+NWG_fnc_unCompactStringArray = {
+    // private _array = _this;
+    private _result = [];
+    private _count = 1;
+
+    //do
+    {
+        if (_x isEqualType 0)
+            then {_count = _x}
+            else {for "_i" from 1 to _count do {_result pushBack _x}; _count = 1};
+    } forEach _this;
+
+    //return
+    _this resize 0;
+    _this append _result;
+    _this
+};
+
+//===============================================================
+//Range
+//Returns a random number within the range
+//params:
+// min - minimum value
+// max - maximum value
+//returns: random number
+NWG_fnc_randomRangeInt = {
+    params ["_min","_max"];
+    (floor (_min + (random ((_max - _min) + 1))))
+};
+NWG_fnc_randomRangeFloat = {
+    params ["_min","_max"];
+    (_min + (random (_max - _min)))
+};
+
+//===============================================================
 //Players
 //Returns array of all players
 //params: none
 //returns: array of all players
-NWG_fnc_getPlayersAll =
-{
+NWG_fnc_getPlayersAll = {
     // allPlayers - 0.0006, but returns headless clients
     // call BIS_fnc_listPlayers - works fine, but 0.0056
     (allPlayers - (entities "HeadlessClient_F")) //0.0011
@@ -138,8 +185,23 @@ NWG_fnc_getPlayersAll =
 //Returns an array of unique objects - unit if a player is on foot, vehicle if inside the vehicle
 //params: none
 //returns: array of objects
-NWG_fnc_getPlayersAndOrPlayedVehiclesAll =
-{
+NWG_fnc_getPlayersAndOrPlayedVehiclesAll = {
     private _result = (((call NWG_fnc_getPlayersAll) apply {vehicle _x}) select {alive _x});
     _result arrayIntersect _result//Remove duplicates and return
+};
+
+//===============================================================
+//Animation
+NWG_fnc_playAnim = {
+    params ["_unit","_animName"];
+    if (isNil "_unit" || {isNull _unit}) exitWith {"NWG_fnc_playAnim: unit is Null" call NWG_fnc_logError};
+    _this remoteExecCall ["NWG_fnc_playAnimRemote",0];
+};
+
+NWG_fnc_playAnimRemote = {
+    params ["_unit","_animName"];
+    //Force unscheduled environment, see Leopard20's comment on https://community.bistudio.com/wiki/switchMove
+    if (canSuspend)
+        then {isNil {_unit switchMove _animName; _unit playMoveNow _animName}}
+        else {_unit switchMove _animName; _unit playMoveNow _animName};
 };

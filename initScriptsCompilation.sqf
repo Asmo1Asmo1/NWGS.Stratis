@@ -24,7 +24,7 @@ NWG_fnc_compile = {
     (if (fileExists _fileAddress) then {
         (compileFinal preprocessFileLineNumbers _fileAddress)
     } else {
-        diag_log formatText ["%1(%2) [ERROR] %3 %4", __FILE__, __LINE__, "#### File not found: ", _fileAddress];
+        diag_log formatText ["  [ERROR] #### File not found: %1", _fileAddress];
         {}//Return empty code block
     })
 };
@@ -43,6 +43,10 @@ _clientModules pushBack ("SCRIPTS\T0_Core\eventSystem\eventSystem.sqf" call NWG_
 _commonFunctions pushBack ("SCRIPTS\T0_Core\eventSystem\eventSystemFunctions.sqf" call NWG_fnc_compile);
 
 //T1_Battlefield
+//advancedCombat
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\advancedCombat\advancedCombatActive.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\advancedCombat\advancedCombatPassive.sqf" call NWG_fnc_compile);
+_serverFunctions pushBack ("SCRIPTS\T1_Battlefield\advancedCombat\advancedCombatFunctions.sqf" call NWG_fnc_compile);
 //dots
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\dots\dots.sqf" call NWG_fnc_compile);
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\dots\dotsFunctions.sqf" call NWG_fnc_compile);
@@ -67,6 +71,12 @@ if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\spawner\
 //stateHolder
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\stateHolder\stateHolder.sqf" call NWG_fnc_compile);
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\stateHolder\stateHolderFunctions.sqf" call NWG_fnc_compile);
+//ukrep
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\ukrep\ukrepPlacement.sqf" call NWG_fnc_compile);
+_serverFunctions pushBack ("SCRIPTS\T1_Battlefield\ukrep\ukrepFunctionsServer.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T1_Battlefield\ukrep\ukrepFunctionsClient.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\ukrep\ukrepGathering.sqf" call NWG_fnc_compile)};
+if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\ukrep\ukrepTests.sqf" call NWG_fnc_compile)};
 //undertaker
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\undertaker\undertaker.sqf" call NWG_fnc_compile);
 //yellowKing

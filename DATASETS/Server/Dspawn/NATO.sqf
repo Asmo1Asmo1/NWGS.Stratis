@@ -43,7 +43,11 @@
         "B_support_Mort_F",
         "B_soldier_mine_F",
         "B_Soldier_F",
-        "B_Soldier_TL_F"],
+        "B_Soldier_TL_F",
+        "B_Patrol_Medic_F",
+        "B_Patrol_Engineer_F",
+        "B_Patrol_Soldier_TL_F",
+        "B_Patrol_Soldier_UAV_F"],
 
         /*Uncommon units (30% chance) (AT soldiers or heavy machinegunners for example)*/
         ["B_soldier_M_F",
@@ -53,12 +57,18 @@
         "B_soldier_LAT2_F",
         "B_Soldier_lite_F",
         "B_Soldier_SL_F",
-        "B_HeavyGunner_F"],
+        "B_HeavyGunner_F",
+        "B_Patrol_Soldier_AR_F",
+        "B_Patrol_HeavyGunner_F",
+        "B_Patrol_Soldier_MG_F",
+        "B_Patrol_Soldier_AT_F"],
 
         /*Rare units (10% chance) (AA soldiers or marksmans for example)*/
         ["B_soldier_AT_F",
         "B_Sharpshooter_F",
-        "B_soldier_AA_F"]
+        "B_soldier_AA_F",
+        "B_Patrol_Soldier_M_F",
+        "B_Patrol_Soldier_A_F"]
     ],
     //===========================================
     //Paradrop vehicle(s) (used to imitate vehicles drop from the sky) (leave empty to disable for this faction)
@@ -163,7 +173,7 @@
         //Bobcat
         [
             ["VEH","MEC","REG"],2,
-            ["B_APC_Tracked_01_CRV_F",[["Sand",1],["showAmmobox",1,"showWheels",1,"showCamonetHull",1,"showBags",1]],false],
+            ["B_APC_Tracked_01_CRV_F",[["Sand",1],["showAmmobox",0.5,"showWheels",0.5,"showCamonetHull",0.5,"showBags",0.5]],false],
             [3,"B_crew_F"]
         ],
         //Panther

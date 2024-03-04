@@ -36,6 +36,12 @@ NWG_DSPAWN_REINF_SendReinforcements_Test_Any = {
     [(getPosATL player),_this,"NATO"] call NWG_DSPAWN_REINF_SendReinforcements
 };
 
+// 2 call NWG_DSPAWN_REINF_SendReinforcements_Test_InvalidFilter
+NWG_DSPAWN_REINF_SendReinforcements_Test_InvalidFilter = {
+    // private _groupsCount = _this;
+    [(getPosATL player),_this,"NATO",[["invalidWhiteFilter"]]] call NWG_DSPAWN_REINF_SendReinforcements
+};
+
 //================================================================================================================
 //================================================================================================================
 //Catalogue read
@@ -90,22 +96,6 @@ NWG_DSPAWN_FilterGroups_Test = {
 
     //return
     _pass
-};
-
-//================================================================================================================
-//================================================================================================================
-//String array
-
-// call NWG_DSPAWN_Dev_CompactStringArray_Test
-NWG_DSPAWN_Dev_CompactStringArray_Test = {
-    ["aaa","bbb","aaa","ccc","ccc","ccc"] call NWG_DSPAWN_Dev_CompactStringArray
-    //expected: [2,"aaa","bbb",3,"ccc"]
-};
-
-// call NWG_DSPAWN_UnCompactStringArray_Test
-NWG_DSPAWN_UnCompactStringArray_Test = {
-    [2,"aaa","bbb",3,"ccc"] call NWG_DSPAWN_UnCompactStringArray
-    //expected: ["aaa","aaa","bbb","ccc","ccc","ccc"]
 };
 
 //================================================================================================================

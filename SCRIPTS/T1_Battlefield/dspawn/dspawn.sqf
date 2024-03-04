@@ -343,23 +343,13 @@ NWG_DSPAWN_TRIGGER_CalculatePopulationDistribution = {
 NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
     // private _trigger = _this;
     params ["_triggerPos","_triggerRad"];
-
-    private _isBuildingOccupied = {
-        // private _building = _this;
-        private _occupiedBuildings = BST_OCCUPIED_BUILDINGS call NWG_fnc_shGetState;
-        if (isNil "_occupiedBuildings") exitWith {false};//There are no occupied buildings yet
-        //else
-        _this in _occupiedBuildings
-    };
+    private _occupiedBuildings = call NWG_fnc_shGetOccupiedBuildings;
 
     //return
     (_triggerPos nearObjects _triggerRad) select {
-        switch (true) do {
-            case (!(_x call NWG_fnc_ocIsBuilding)): {false};
-            case ((count (_x buildingPos -1)) < 4): {false};
-            case (_x call _isBuildingOccupied): {false};
-            default {true};
-        }
+        (_x call NWG_fnc_ocIsBuilding) && {
+        ((count (_x buildingPos -1)) >= 4) && {
+        !(_x in _occupiedBuildings)}}
     };
 };
 
@@ -599,32 +589,11 @@ NWG_DSPAWN_PrepareGroupForSpawn = {
     _groupDescr = _groupDescr + [];//Shallow copy to avoid modifying the original
     private _unitsDescr = _groupDescr#DESCR_UNITS;
     _unitsDescr = _unitsDescr + [];//Shallow copy to avoid modifying the original
-    _unitsDescr = _unitsDescr call NWG_DSPAWN_UnCompactStringArray;
+    _unitsDescr = _unitsDescr call NWG_fnc_unCompactStringArray;
     _unitsDescr = [_unitsDescr,_passengersContainer] call NWG_DSPAWN_FillWithPassengers;
     _groupDescr set [DESCR_UNITS,_unitsDescr];
     //return
     _groupDescr
-};
-
-NWG_DSPAWN_UnCompactStringArray = {
-    // private _array = _this;
-    private _result = [];
-    private _count = 1;
-
-    //do
-    {
-        if (_x isEqualType 0) then {
-            _count = _x;
-        } else {
-            for "_i" from 1 to _count do {_result pushBack _x};
-            _count = 1;
-        };
-    } forEach _this;
-
-    //return
-    _this resize 0;
-    _this append _result;
-    _this
 };
 
 NWG_DSPAWN_FillWithPassengers = {
@@ -733,13 +702,7 @@ NWG_DSPAWN_SpawnInfantryGroupInBuilding = {
     private _group = group (_units#0);
 
     //Mark building as occupied
-    private _occupiedBuildings = BST_OCCUPIED_BUILDINGS call NWG_fnc_shGetState;
-    if (isNil "_occupiedBuildings") then {
-        _occupiedBuildings = [_building];
-        [BST_OCCUPIED_BUILDINGS,_occupiedBuildings] call NWG_fnc_shSetState;
-    } else {
-        _occupiedBuildings pushBackUnique _building;
-    };
+    _building call NWG_fnc_shAddOccupiedBuilding;
 
     //return
     ([_groupDescr,[_group,false,_units]] call NWG_DSPAWN_SpawnGroupFinalize)
@@ -757,9 +720,16 @@ NWG_DSPAWN_SpawnGroupFinalize = {
     private _group = _spawnResult#SPAWN_RESULT_GROUP;
     [_group,_tags] call NWG_DSPAWN_TAGs_SetTags;
 
+    //Mark group as spawned by this script
+    _group setVariable ["NWG_DSPAWN_ownership",true];
+
     //Set initial behaviour
     _group setCombatMode "RED";
     _group setFormation (selectRandom ["STAG COLUMN","WEDGE","VEE","DIAMOND"]);
+
+    //Raise event
+    private _tier = _groupDescr#DESCR_TIER;
+    [EVENT_ON_DSPAWN_GROUP_SPAWNED,(_spawnResult + [_tags,_tier])] call NWG_fnc_raiseServerEvent;
 
     //return
     _spawnResult
@@ -786,8 +756,7 @@ NWG_DSPAWN_AC_AttachTurret = {
         _gunner = gunner _turret;
         if ((side _gunner) isNotEqualTo (side _group)) then {[_gunner] joinSilent _group};
     } else {
-        _gunner = ([[_gunnerClassname],"_NaN",(side _group)] call NWG_fnc_spwnPrespawnUnits)#0;
-        _gunner call NWG_fnc_spwnRevealObject;
+        _gunner = ([[_gunnerClassname],nil,_group] call NWG_fnc_spwnPrespawnUnits) param [0,objNull];
         _gunner moveInAny _turret;
     };
 };
@@ -943,6 +912,9 @@ NWG_DSPAWN_TAGs_atSigns = [" AT","AT ","air-to-surface","HEAT","APFSDS"];
 NWG_DSPAWN_TAGs_magToWeaponTagCache = createHashMap;//Config manipulations are EXTREMELY slow, cache needed (4638/10k VS 10k/10k in tests)
 NWG_DSPAWN_TAGs_DefineWeaponTagForObject = {
     // private _object = _this;
+
+    //Check artillery
+    if (_this call NWG_fnc_ocIsVehicle && {(getArtilleryAmmo [_this]) isNotEqualTo []}) exitWith {"ARTA"};
 
     //Get all the magazines
     private _mags = if (_this isKindOf "Man")
@@ -1251,18 +1223,12 @@ NWG_DSPAWN_ReturnToPatrol = {
 NWG_DSPAWN_GetGroupVehicle = {
     // private _group = _this;
     if (isNull _this) exitWith {objNull};
-
-    //Try the vehicle of the group leader
-    private _result = vehicle (leader _this);
-    if (alive _result && {_result call NWG_fnc_ocIsVehicle}) exitWith {_result};
-
-    //Try the vehicle of any other group member
-    _result = ((units _this) select {alive _x}) apply {vehicle _x};
-    private _i = _result findIf {alive _x && {_x call NWG_fnc_ocIsVehicle}};
-    if (_i != -1) exitWith {_result#_i};
-
-    //Else return null
-    objNull
+    private _array = [(leader _this)] + (units _this);//Start with the leader, always
+    _array = _array apply {vehicle _x};//Get vehicles
+    _array = _array arrayIntersect _array;//Remove duplicates
+    private _i = _array findIf {(alive _x && {(_x call NWG_fnc_ocIsVehicle)})};
+    //return
+    _array param [_i,objNull]
 };
 
 NWG_DSPAWN_GetGroupPassengers = {

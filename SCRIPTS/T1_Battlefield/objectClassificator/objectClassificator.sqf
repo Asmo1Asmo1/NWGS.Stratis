@@ -2,18 +2,17 @@
 
 //================================================================================================================
 //Settings
-#define BUILDINGS_CATALOGUE_ADDRESS "DATASETS\Server\ObjectClassificator\Buildings.sqf"
-#define FURNITURE_CATALOGUE_ADDRESS "DATASETS\Server\ObjectClassificator\Furniture.sqf"
+NWG_OBCL_Settings = createHashMapFromArray [
+    ["BUILDINGS_CATALOGUE_ADDRESS","DATASETS\Server\ObjectClassificator\Buildings.sqf"],
+    ["FURNITURE_CATALOGUE_ADDRESS","DATASETS\Server\ObjectClassificator\Furniture.sqf"],
 
-//Defines
-#define CATEGORY 0
-#define FLATTENED 1
-#define STRUCTURED 2
+    ["",0]
+];
 
 //================================================================================================================
 //Fields
-NWG_OBCL_BuildingsCatalogue = [];
-NWG_OBCL_FurnitureCatalogue = [];
+NWG_OBCL_BuildingsCatalogue = createHashMap;
+NWG_OBCL_FurnitureCatalogue = createHashMap;
 
 //================================================================================================================
 //Init
@@ -22,98 +21,85 @@ private _Init = {
     private _initCatalogue = {
         params ["_catalogueAddress","_resultCatalogue"];
 
-        //Compile and check validity
+        //Compile initial catalogue
         private _rawCatalogue = call (_catalogueAddress call NWG_fnc_compile);
         if (isNil "_rawCatalogue" || {!(_rawCatalogue isEqualType [])}) exitWith {
             (format ["NWG_OBCL_Init: Catalogue '%1' is invalid",_catalogueAddress]) call NWG_fnc_logError;
         };
 
-        //Rearrange catalogue
+        //Rearrange into a more efficient structure
+        private ["_category","_entries","_same"];
         for "_i" from 0 to ((count _rawCatalogue)-2) step 2 do {
-            private _category = _rawCatalogue param [_i,-1];
-            private _entries = _rawCatalogue param [(_i+1),-1];
-
-            //Check validity
-            if (isNil "_category" || {!(_category isEqualType "")}) then {
-                (format ["NWG_OBCL_Init: Category '%1' of catalogue '%2' at index %3 is invalid",_catalogueAddress,_category,_i]) call NWG_fnc_logError;
+            _category = _rawCatalogue param [_i,-1];
+            _entries  = _rawCatalogue param [(_i+1),-1];
+            if (!(_category isEqualType "") || {!(_entries isEqualType [])}) then {
+                (format ["NWG_OBCL_Init: Defective record in %1:%2 cat:%3 ent:%4",_catalogueAddress,_i,_category,_entries]) call NWG_fnc_logError;
                 continue;
             };
-            if (isNil "_entries" || {!(_entries isEqualType [])}) then {
-                (format ["NWG_OBCL_Init: Entries '%1' of catalogue '%2' at index %3 are invalid",_catalogueAddress,_entries,(_i+1)]) call NWG_fnc_logError;
-                continue;
-            };
-
-            _resultCatalogue pushBack [_category,(flatten _entries),_entries];
+            {
+                //It's either a string (one of a kind) or an array of strings (same objects with different textures and classnames)
+                _same = if (_x isEqualType "") then {[_x]} else {_x};
+                {_resultCatalogue set [_x,[_category,_same]]} forEach _same;
+            } forEach _entries;
         };
     };
 
-    //Init buildings catalogue
-    [BUILDINGS_CATALOGUE_ADDRESS,NWG_OBCL_BuildingsCatalogue] call _initCatalogue;
-    //Init furniture catalogue
-    [FURNITURE_CATALOGUE_ADDRESS,NWG_OBCL_FurnitureCatalogue] call _initCatalogue;
+    [(NWG_OBCL_Settings get "BUILDINGS_CATALOGUE_ADDRESS"),NWG_OBCL_BuildingsCatalogue] call _initCatalogue;
+    [(NWG_OBCL_Settings get "FURNITURE_CATALOGUE_ADDRESS"),NWG_OBCL_FurnitureCatalogue] call _initCatalogue;
 };
 
 //================================================================================================================
 //Buldings and Furniture methods
+#define CATEGORY 0
+#define SAME 1
 
-/*
-    Annotation:
-    As a trade-off between correct DRY+functions approach and intention to eliminate the overhead of creating and unpacking arrays of arguments,
-    this time we will use macro 'functions' instead of actual functions. Consider this a manual inlining.
-    During the compilation each macro will be replaced with the actual code for each method.
-    Note that for macro we had to replace # operator with a 'select' command
-*/
-
-#define GET_INDEX_IN_CATALOGUE(ARG,CATALOGUE)\
-    private _arg = switch (true) do {\
+#define GET_CLASSNAME(ARG)\
+    private _classname = switch (true) do {\
         case (ARG isEqualType objNull): {typeOf ARG};\
         case (ARG isEqualType ""): {ARG};\
         default {(format ["NWG_OBCL: Unexpected argument '%1'",ARG]) call NWG_fnc_logError; ""};\
     };\
-    private _i = CATALOGUE findIf {_arg in (_x select FLATTENED)}\
-
-#define RETURN_CATEGORY(ARG,CATALOGUE)\
-    GET_INDEX_IN_CATALOGUE(ARG,CATALOGUE);\
-    if (_i == -1) exitWith {""};\
-    ((CATALOGUE select _i) select CATEGORY)\
-
-#define RETURN_SAME(ARG,CATALOGUE)\
-    GET_INDEX_IN_CATALOGUE(ARG,CATALOGUE);\
-    if (_i == -1) exitWith {[]};\
-    private _result = {\
-        if (_x isEqualType "" && {_arg isEqualTo _x}) exitWith {[_x]};\
-        if (_x isEqualType [] && {_arg in _x}) exitWith {_x};\
-    } forEach ((CATALOGUE select _i) select STRUCTURED);\
-    _result\
 
 NWG_OBCL_IsBuilding = {
     //private _objectOrClassname = _this;
-    ((_this call NWG_OBCL_GetBuildingCategory) isNotEqualTo "")
+    GET_CLASSNAME(_this);
+    //return
+    _classname in NWG_OBCL_BuildingsCatalogue
 };
 
 NWG_OBCL_GetBuildingCategory = {
     //private _objectOrClassname = _this;
-    RETURN_CATEGORY(_this,NWG_OBCL_BuildingsCatalogue)
+    GET_CLASSNAME(_this);
+    //return
+    (NWG_OBCL_BuildingsCatalogue getOrDefault [_classname,[]]) param [CATEGORY,""]
 };
 
 NWG_OBCL_GetSameBuildings = {
     //private _objectOrClassname = _this;
-    RETURN_SAME(_this,NWG_OBCL_BuildingsCatalogue)
+    GET_CLASSNAME(_this);
+    //return
+    (NWG_OBCL_BuildingsCatalogue getOrDefault [_classname,[]]) param [SAME,[]]
 };
 
 NWG_OBCL_IsFurniture = {
     //private _objectOrClassname = _this;
-    ((_this call NWG_OBCL_GetFurnitureCategory) isNotEqualTo "")
+    GET_CLASSNAME(_this);
+    //return
+    _classname in NWG_OBCL_FurnitureCatalogue
 };
 
 NWG_OBCL_GetFurnitureCategory = {
     //private _objectOrClassname = _this;
-    RETURN_CATEGORY(_this,NWG_OBCL_FurnitureCatalogue)
+    GET_CLASSNAME(_this);
+    //return
+    (NWG_OBCL_FurnitureCatalogue getOrDefault [_classname,[]]) param [CATEGORY,""]
 };
 
 NWG_OBCL_GetSameFurniture = {
     //private _objectOrClassname = _this;
-    RETURN_SAME(_this,NWG_OBCL_FurnitureCatalogue)
+    GET_CLASSNAME(_this);
+    //return
+    (NWG_OBCL_FurnitureCatalogue getOrDefault [_classname,[]]) param [SAME,[]]
 };
 
 //================================================================================================================

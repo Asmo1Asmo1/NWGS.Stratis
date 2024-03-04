@@ -33,16 +33,34 @@ NWG_SPWN_SpawnVehicleAround = {
     _vehicle
 };
 
+//Spawn the vehicle at the given position
+NWG_SPWN_SpawnVehicleExact = {
+    params ["_classname","_pos","_dir",["_appearance",false],["_pylons",false],["_deferReveal",false]];
+
+    private _vehicle = _this call NWG_SPWN_PrespawnVehicle;
+    private _posATL = ASLToATL _pos;
+    if ((_posATL#2) < 0.3) then {
+        _posATL set [2,0];
+        _vehicle setVehiclePosition [_posATL,[],0,"CAN_COLLIDE"];//Placement with attempt to avoid ground collision
+    } else {
+        _vehicle setPosASL _pos;//Just move it there
+    };
+
+    if (!_deferReveal) then {_vehicle call NWG_SPWN_Reveal};
+
+    //return
+    _vehicle
+};
+
 //================================================================================================================
 //================================================================================================================
 //Spawning of units
 
 NWG_SPWN_PrespawnUnits = {
-    params ["_classnames","_NaN",["_side",west]];
-
-    private _group = createGroup [_side,/*delete when empty:*/true];
-    private _safepos = call NWG_SPWN_GetSafePrespawnPos;
-    private _createArgs = [nil,_safepos,[],0,"CAN_COLLIDE"];
+    params ["_classnames","_NaN",["_sideOrGroup",west]];
+    private _side = if (_sideOrGroup isEqualType west) then {_sideOrGroup} else {side _sideOrGroup};
+    private _group = if (_sideOrGroup isEqualType grpNull) then {_sideOrGroup} else {createGroup [_side,/*delete when empty:*/true]};
+    private _createArgs = [nil,(call NWG_SPWN_GetSafePrespawnPos),[],0,"CAN_COLLIDE"];
     private _units = [];
     private "_unit";
 
@@ -66,20 +84,21 @@ NWG_SPWN_PrespawnUnits = {
 
 NWG_SPWN_FinalizeUnitsSpawn = {
     // private _units = _this;
-    private _group = group (_this#0);
+    if ((count _this) == 0) exitWith {_this};
 
     //Delete default waypoint(s) if any
+    private _group = group (_this#0);
     for "_i" from ((count (waypoints _group)) - 1) to 0 step -1 do {
         deleteWaypoint [_group, _i];
     };
 
     //return
-    _units
+    _this
 };
 
 //Spawn the group of units at given position
 NWG_SPWN_SpawnUnitsAround = {
-    params ["_classnames","_pos",["_side",west]];
+    params ["_classnames","_pos",["_sideOrGroup",west]];
     private _units = _this call NWG_SPWN_PrespawnUnits;
 
     //Place units around given position
@@ -95,8 +114,9 @@ NWG_SPWN_SpawnUnitsAround = {
 
 //Spawn the group of units into given vehicle
 NWG_SPWN_SpawnUnitsIntoVehicle = {
-    params ["_classnames","_vehicle",["_side",west]];
+    params ["_classnames","_vehicle",["_sideOrGroup",west]];
     private _units = _this call NWG_SPWN_PrespawnUnits;
+    if ((count _units) == 0) exitWith {_units};
 
     //Place units into vehicle
     private _group = group (_units#0);
@@ -109,25 +129,50 @@ NWG_SPWN_SpawnUnitsIntoVehicle = {
 
 //Spawn the group of units into given building
 NWG_SPWN_SpawnUnitsIntoBuilding = {
-    params ["_classnames","_building",["_side",west]];
+    params ["_classnames","_building",["_sideOrGroup",west]];
     private _units = _this call NWG_SPWN_PrespawnUnits;
+    if ((count _units) == 0) exitWith {_units};
 
     //Place units into building
     private _buildingPositions = (_building buildingPos -1) call NWG_fnc_arrayShuffle;
-    //Safe check just in case there are no building positions at all (will cause an infinite loop)
-    if ((count _buildingPositions) == 0) exitWith {
-        "NWG_SPWN_SpawnUnitsIntoBuilding: No building positions found!" call NWG_fnc_logError;
+    if ((count _buildingPositions) == 0) exitWith {"NWG_SPWN_SpawnUnitsIntoBuilding: No building positions found!" call NWG_fnc_logError};
+
+    private _i = -1;
+    private _getNextPos = {
+        _i = (_i + 1) mod (count _buildingPositions);//Math hack. Testing confirms that it is working as expected
+        _buildingPositions#_i
     };
-    while {(count _buildingPositions) < (count _units)} do {
-        _buildingPositions append _buildingPositions;
-    };
-    _buildingPositions resize (count _units);
 
     //do
     {
         _x setDir (random 360);
-        _x setPosATL (_buildingPositions select _forEachIndex);
+        _x setPosATL (call _getNextPos);
     } forEach _units;
+
+    //return
+    (_units call NWG_SPWN_FinalizeUnitsSpawn)
+};
+
+#define DATA_CLASSNAME 0
+#define DATA_POSITION 1
+#define DATA_DIRECTION 2
+#define DATA_STANCE 3
+NWG_SPWN_SpawnUnitsExact = {
+    params ["_data",["_sideOrGroup",west]];
+
+    //Prespawn units
+    private _units = [(_data apply {_x#DATA_CLASSNAME}),nil,_sideOrGroup] call NWG_SPWN_PrespawnUnits;
+    if ((count _units) == 0) exitWith {_units};
+
+    //Place units
+    private _stances = ["AUTO","UP","MIDDLE","DOWN"];
+    private "_unit";
+    {
+        _unit = _units#_forEachIndex;
+        _unit setDir (_x param [DATA_DIRECTION,0]);
+        _unit setPosASL (_x param [DATA_POSITION,[0,0,0]]);
+        _unit setUnitPos (_stances#(_x param [DATA_STANCE,0]));
+    } forEach _data;
 
     //return
     (_units call NWG_SPWN_FinalizeUnitsSpawn)
@@ -146,32 +191,25 @@ NWG_SPWN_PlaceAround = {
     private _boundingBox = _object call NWG_SPWN_GetBoundingBox;
     private _isInAir = (_pos#2) > 0.3;
     private _isOnWater = surfaceIsWater _pos;
-    private _isMan = _object isKindOf "Man";
-    private "_placementVar";
+    private _isOnGround = !_isInAir && !_isOnWater;
+    private _placementVar = [];
+    private _isPlacementVarOnWater = false;
+    private _place = if (_isOnGround && {!(_object isKindOf "Man")})
+        then {{(_this#0) setVehiclePosition [(_this#1),[],0,"CAN_COLLIDE"]}}//Placement with attempt to avoid ground collision
+        else {{(_this#0) setPosATL (_this#1)}};//Just move it there
 
     //Do iterations of attempts to place the object
-    for "_r" from 0 to 50 step 1 do
-    {
+    for "_r" from 0 to 50 step 1 do {
         _placementVar = _pos getPos [_r,(random 360)];
         _placementVar set [2,(_pos#2)];
+        _isPlacementVarOnWater = surfaceIsWater _placementVar;
 
-        //Check water/terrain consistency (fix vehicles spawning in water when original position is on land and vice versa)
-        if (!_isInAir && {_isOnWater != (surfaceIsWater _placementVar)}) then {continue};
-
-        //Convert Z coordinate if over water
-        if (surfaceIsWater _placementVar) then {_placementVar = ASLToATL _placementVar};
-
-        //Place the object
-        if (!_isInAir && {!_isOnWater && {!_isMan}}) then {
-            //Placement with attempt to avoid ground collision
-            _object setVehiclePosition [_placementVar,[],0,"CAN_COLLIDE"];
-        } else {
-            //Just move it there
-            _object setPosATL _placementVar;
-        };
+        if (!_isInAir && {_isOnWater != _isPlacementVarOnWater}) then {continue};//Check water/terrain consistency
+        if (_isPlacementVarOnWater) then {_placementVar = ASLToATL _placementVar};//Convert Z coordinate if over water
+        [_object,_placementVar] call _place;//Place the object
 
         //Check for collisions
-        if ([_object,_boundingBox] call NWG_SPWN_CollisionCheck) exitWith {};
+        if ([_object,_boundingBox,_isOnGround] call NWG_SPWN_CollisionCheck) exitWith {};
     };
 
     //return
@@ -247,14 +285,14 @@ NWG_SPWN_collisionCheckOrder = [
         [4,2] /*,[5,3],[6,0],[7,1]*/
 ];
 NWG_SPWN_CollisionCheck = {
-    params ["_object","_boundingBox"];
+    params ["_object","_boundingBox",["_mayBeOnGround",true]];
 
     //Convert relative bounding box to world coordinates for current position
     private _worldBoundingBox = (_boundingBox + []) apply {(_object modelToWorldWorld _x)};
 
-    //Additionally check if lower points gone underground
-    private ["_point","_atlZ"];
-    if (((getPosATL _object)#2) < 0.3) then {
+    //Check if lower points gone underground
+    if (_mayBeOnGround) then {
+        private ["_point","_atlZ"];
         for "_i" from 0 to 3 do {
             _point = _worldBoundingBox#_i;
             _atlZ = (ASLToATL _point)#2;

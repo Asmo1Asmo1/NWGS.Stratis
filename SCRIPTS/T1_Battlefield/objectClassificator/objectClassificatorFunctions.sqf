@@ -6,6 +6,14 @@ NWG_fnc_ocIsBuilding = {
     _this call NWG_OBCL_IsBuilding
 };
 
+//Gets building category
+// _objectOrClassname: Object OR string (class name)
+// Returns: String or "" if the argument is not a building
+NWG_fnc_ocGetBuildingCategory = {
+    // private _objectOrClassname = _this;
+    _this call NWG_OBCL_GetBuildingCategory
+};
+
 //Gets 'same' buildings from catalogue (classnames that represent a retexture of the same model)
 // _objectOrClassname: Object OR string (class name)
 // Returns:
@@ -23,6 +31,14 @@ NWG_fnc_ocGetSameBuildings = {
 NWG_fnc_ocIsFurniture = {
     // private _objectOrClassname = _this;
     _this call NWG_OBCL_IsFurniture
+};
+
+//Gets furniture category
+// _objectOrClassname: Object OR string (class name)
+// Returns: String or "" if the argument is not a furniture
+NWG_fnc_ocGetFurnitureCategory = {
+    // private _objectOrClassname = _this;
+    _this call NWG_OBCL_GetFurnitureCategory
 };
 
 //Gets 'same' furniture from catalogue (classnames that represent a retexture of the same model)
@@ -44,6 +60,14 @@ NWG_fnc_ocIsVehicle = {
     _this call NWG_OBCL_IsVehicle
 };
 
+//Check if object is turret
+// _object: Object
+// Returns: Boolean
+NWG_fnc_ocIsTurret = {
+    // private _object = _this;
+    _this call NWG_OBCL_IsTurret
+};
+
 //Check if object is unit
 // _object: Object
 // Returns: Boolean
@@ -54,6 +78,7 @@ NWG_fnc_ocIsUnit = {
 
 //Gets the NWG type of the object
 // Returns: String of "BLDG"|"FURN"|"DECO"|"UNIT"|"VEHC"|"TRRT"|"MINE" or "" if the argument is not an object
+// Return strings are defined in globalDefines.h
 NWG_fnc_ocGetObjectType = {
     // private _object = _this;
     _this call NWG_OBCL_GetObjectType

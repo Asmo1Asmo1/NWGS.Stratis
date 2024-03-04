@@ -407,7 +407,7 @@ NWG_DOTS_IsPlainSurfaceAt = {
 
     // Is not inside some rock or building
     private _thisASL = AGLtoASL _this;
-    if ((count (lineIntersectsSurfaces [_thisASL,(_thisASL vectorAdd [0, 0, 50]),objNull,objNull,false,1,"GEOM","NONE"])) > 0) exitWith {false};
+    if ((count (lineIntersectsSurfaces [_thisASL,(_thisASL vectorAdd [0,0,50]),objNull,objNull,false,1,"GEOM","NONE"])) > 0) exitWith {false};
 
     // After all checks have passed, return true
     true
