@@ -14,21 +14,34 @@ NWG_fnc_dsSendReinforcements = {
     _this call NWG_DSPAWN_REINF_SendReinforcements
 };
 
-// Returns the group's tags, generating them if they don't exist
+//Checks if the given group is spawned by 'dspawn' subsystem
+//params:
+// _group - group to check
+//returns:
+// boolean
+NWG_fnc_dsIsDspawnGroup = {
+    // private _group = _this;
+    _this getVariable ["NWG_DSPAWN_ownership",false]
+};
+
+// Returns the group's tags
 //params:
 // _group - group to get the tags from
 //returns:
-// array of tags
-NWG_fnc_dsGetOrGenerateTags = {
+// array of tags if found, empty array otherwise
+NWG_fnc_dsGetTags = {
     // private _group = _this;
-    private _tags = _this call NWG_DSPAWN_TAGs_GetTags;
-    if ((count _tags) == 0) then {
-        _tags = [_this] call NWG_DSPAWN_TAGs_GenerateTags;
-        [_this,_tags] call NWG_DSPAWN_TAGs_SetTags;
-    };
+    _this call NWG_DSPAWN_TAGs_GetTags
+};
 
-    //return
-    _tags
+//Adopts the given group assigning it dspawn's tags, allowing it to be controlled by dspawn
+//params:
+// _group - group to adopt
+NWG_fnc_dsAdoptGroup = {
+    // private _group = _this;
+    private _tags = [_this] call NWG_DSPAWN_TAGs_GenerateTags;
+    [_this,_tags] call NWG_DSPAWN_TAGs_SetTags;
+    _this setVariable ["NWG_DSPAWN_ownership",true];
 };
 
 //Sends the group to attack the given position
@@ -39,6 +52,8 @@ NWG_fnc_dsSendToAttack = {
     // params ["_group","_attackPos"];
     _this call NWG_DSPAWN_SendToAttack
 };
+
+/*Exposure of inner utilities (sorry, not sorry)*/
 
 //Inner utility to define the weapon tag for the given object
 //params:

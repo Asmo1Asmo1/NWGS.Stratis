@@ -586,6 +586,7 @@ NWG_UKREP_PlacementCore = {
         private _dynaSim = _groupRules param [GRP_RULES_DYNASIM,(NWG_UKREP_Settings get "DEFAULT_GROUP_DYNASIM")];
         _placementGroup enableDynamicSimulation _dynaSim;
         {_x disableAI "PATH"} forEach (units _placementGroup);//Disable pathfinding for all units
+        _placementGroup setVariable ["NWG_UKREP_ownership",true];//Mark as UKREP group
     };
 
     /*Place MINE - mines*/

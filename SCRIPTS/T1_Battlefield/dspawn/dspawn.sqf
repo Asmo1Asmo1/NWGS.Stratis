@@ -720,6 +720,9 @@ NWG_DSPAWN_SpawnGroupFinalize = {
     private _group = _spawnResult#SPAWN_RESULT_GROUP;
     [_group,_tags] call NWG_DSPAWN_TAGs_SetTags;
 
+    //Mark group as spawned by this script
+    _group setVariable ["NWG_DSPAWN_ownership",true];
+
     //Set initial behaviour
     _group setCombatMode "RED";
     _group setFormation (selectRandom ["STAG COLUMN","WEDGE","VEE","DIAMOND"]);

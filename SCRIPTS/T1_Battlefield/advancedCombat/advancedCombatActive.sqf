@@ -288,6 +288,14 @@ NWG_ACA_IsInRange = {
     _position inRangeOfArtillery [[_artillery],((getArtilleryAmmo [_artillery]) param [0,""])]
 };
 
+NWG_ACA_CanDoArtilleryStrikeOnTarget = {
+    params ["_group","_target"];
+    private _artillery = _group call NWG_ACA_GetArtilleryVehicles;
+    if (_artillery isEqualTo []) exitWith {false};
+    _artillery = _artillery select {[_x,(position _target)] call NWG_ACA_IsInRange};
+    _artillery isNotEqualTo []
+};
+
 NWG_ACA_SendArtilleryStrike = {
     params ["_group","_target",["_precise",false]];
 
@@ -436,6 +444,14 @@ NWG_ACA_GetMortars = {
 NWG_ACA_CanDoMortarStrike = {
     // private _group = _this;
     (_this call NWG_ACA_GetMortars) isNotEqualTo []
+};
+
+NWG_ACA_CanDoMortarStrikeOnTarget = {
+    params ["_group","_target"];
+    private _mortars = _group call NWG_ACA_GetMortars;
+    if (_mortars isEqualTo []) exitWith {false};
+    _mortars = _mortars select {[_x,(position _target)] call NWG_ACA_IsInRange};
+    _mortars isNotEqualTo []
 };
 
 NWG_ACA_SendMortarStrike = {
