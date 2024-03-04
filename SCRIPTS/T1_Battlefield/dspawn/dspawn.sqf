@@ -1217,18 +1217,12 @@ NWG_DSPAWN_ReturnToPatrol = {
 NWG_DSPAWN_GetGroupVehicle = {
     // private _group = _this;
     if (isNull _this) exitWith {objNull};
-
-    //Try the vehicle of the group leader
-    private _result = vehicle (leader _this);
-    if (alive _result && {_result call NWG_fnc_ocIsVehicle}) exitWith {_result};
-
-    //Try the vehicle of any other group member
-    _result = ((units _this) select {alive _x}) apply {vehicle _x};
-    private _i = _result findIf {alive _x && {_x call NWG_fnc_ocIsVehicle}};
-    if (_i != -1) exitWith {_result#_i};
-
-    //Else return null
-    objNull
+    private _array = [(leader _this)] + (units _this);//Start with the leader, always
+    _array = _array apply {vehicle _x};//Get vehicles
+    _array = _array arrayIntersect _array;//Remove duplicates
+    private _i = _array findIf {(alive _x && {(_x call NWG_fnc_ocIsVehicle)})};
+    //return
+    _array param [_i,objNull]
 };
 
 NWG_DSPAWN_GetGroupPassengers = {
