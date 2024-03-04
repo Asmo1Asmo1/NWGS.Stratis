@@ -910,6 +910,9 @@ NWG_DSPAWN_TAGs_magToWeaponTagCache = createHashMap;//Config manipulations are E
 NWG_DSPAWN_TAGs_DefineWeaponTagForObject = {
     // private _object = _this;
 
+    //Check artillery
+    if (_this call NWG_fnc_ocIsVehicle && {(getArtilleryAmmo [_this]) isNotEqualTo []}) exitWith {"ARTA"};
+
     //Get all the magazines
     private _mags = if (_this isKindOf "Man")
         then {magazines _this}
