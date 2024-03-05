@@ -334,7 +334,7 @@ NWG_UKREP_PlaceABS = {
 
 NWG_UKREP_PlaceREL_Position = {
     params ["_blueprint","_pos","_dir",["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
-    _blueprint = [_blueprint,_pos,_dir,_adaptToGround,/*skip root:*/false] call NWG_UKREP_BP_RELtoABS;
+    _blueprint = [_blueprint,_pos,_dir,_adaptToGround,/*skip root:*/false,/*buildingID:*/false] call NWG_UKREP_BP_RELtoABS;
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
     _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
     //return
@@ -343,7 +343,12 @@ NWG_UKREP_PlaceREL_Position = {
 
 NWG_UKREP_PlaceREL_Object = {
     params ["_blueprint","_object",["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
-    _blueprint = [_blueprint,(getPosASL _object),(getDir _object),_adaptToGround,/*skip root:*/true] call NWG_UKREP_BP_RELtoABS;
+    private _buildingId = switch (true) do {
+        case ((_object call NWG_UKREP_BID_GetID) isNotEqualTo false): {_object call NWG_UKREP_BID_GetID};
+        case (_object call NWG_fnc_ocIsBuilding): {_object call NWG_UKREP_BID_GenerateIDFor};
+        default {false};
+    };
+    _blueprint = [_blueprint,(getPosASL _object),(getDir _object),_adaptToGround,/*skip root:*/true,/*buildingId:*/_buildingId] call NWG_UKREP_BP_RELtoABS;
     _blueprint deleteAt 0;//Remove root from blueprint (already placed)
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
     _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
@@ -353,13 +358,36 @@ NWG_UKREP_PlaceREL_Object = {
 
 //================================================================================================================
 //================================================================================================================
+//Building ID
+NWG_UKREP_BID_counter = 0;
+NWG_UKREP_BID_GenerateID = {
+    NWG_UKREP_BID_counter = NWG_UKREP_BID_counter + 1;
+    format ["b%1",NWG_UKREP_BID_counter]
+};
+NWG_UKREP_BID_GenerateIDFor = {
+    // private _building = _this;
+    private _id = (call NWG_UKREP_BID_GenerateID);
+    [_this,_id] call NWG_UKREP_BID_SetID;
+    _id
+};
+NWG_UKREP_BID_GetID = {
+    // private _object = _this;
+    _this getVariable ["NWG_UKREP_BID",false]
+};
+NWG_UKREP_BID_SetID = {
+    params ["_object","_buildingId"];
+    _object setVariable ["NWG_UKREP_BID",_buildingId];
+};
+
+//================================================================================================================
+//================================================================================================================
 //Blueprint manipulation
 NWG_UKREP_BP_RELtoABS = {
-    params ["_blueprint","_placementPos","_placementDir","_adaptToGround","_skipAdaptRoot"];
+    params ["_blueprint","_placementPos","_placementDir","_adaptToGround","_skipAdaptRoot","_buildingId"];
 
     private _result = [];
     private _recursiveRELtoABS = {
-        params ["_rootPos","_rootOrigDir","_rootCurDir","_adapt","_records"];
+        params ["_rootPos","_rootOrigDir","_rootCurDir","_records","_adapt","_buildingId"];
 
         //Prepare variables
         private _a = if (_rootCurDir >= _rootOrigDir)
@@ -388,19 +416,30 @@ NWG_UKREP_BP_RELtoABS = {
             private _absDir = (_rootCurDir + _dirOffset);
             _x set [BP_DIR,_absDir];
 
-            //Check if we need to go deeper (and save in both cases)
+            //Apply building ID or generate new
+            private _bid = _buildingId;
+            switch (_x#BP_OBJTYPE) do {
+                case OBJ_TYPE_BLDG: {_bid = (call NWG_UKREP_BID_GenerateID); _x set [BP_BUILDINGID,_bid]};//Generate new
+                case OBJ_TYPE_FURN: {if (_bid isNotEqualTo false) then {_x set [BP_BUILDINGID,_bid]}};//Apply existing
+                case OBJ_TYPE_DECO: {if (_bid isNotEqualTo false) then {_x set [BP_BUILDINGID,_bid]}};//Apply existing
+                default {/*Do nothing*/};
+            };
+
+            //Save and continue
             private _inside = _x param [BP_INSIDE,[]];
             if ((count _inside) > 0) then {
-                _x resize BP_INSIDE;
+                //We need to go deeper
+                _x set [BP_INSIDE,[]];
                 _result pushBack _x;
-                [_absPos,_origDir,_absDir,false,_inside] call _recursiveRELtoABS;
+                [_absPos,_origDir,_absDir,_inside,false,_bid] call _recursiveRELtoABS;
             } else {
+                //We're done
                 _result pushBack _x;
             };
         } forEach _records;
     };
 
-    [_placementPos,((_blueprint#0)#BP_DIR),_placementDir,_adaptToGround,_blueprint] call _recursiveRELtoABS;
+    [_placementPos,((_blueprint#0)#BP_DIR),_placementDir,_blueprint,_adaptToGround,_buildingId] call _recursiveRELtoABS;
     _blueprint resize 0;
     _blueprint append _result;
 
@@ -613,10 +652,11 @@ NWG_UKREP_PlacementCore = {
 };
 
 NWG_UKREP_CreateObject = {
-    // params ["_objType","_classname","_pos","_posOffset","_dir","_dirOffset","_payload","_inside"];
+    // params ["_objType","_classname","_pos","_posOffset","_dir","_dirOffset","_payload","_inside","_buildingId"];
     private _classname = _this#BP_CLASSNAME;
     private _pos = _this#BP_POS;
     private _dir = _this#BP_DIR;
+    private _buildingId = _this param [BP_BUILDINGID,false];
     (_this#BP_PAYLOAD) params [["_canSimple",false],["_isSimple",false],["_isSimOn",false],["_isDynaSimOn",false],["_isDmgAllowed",false],["_isInteractable",false]];
 
     //Optimize settings
@@ -639,6 +679,9 @@ NWG_UKREP_CreateObject = {
         _obj enableDynamicSimulation _isDynaSimOn;
         _obj allowDamage _isDmgAllowed;
     };
+
+    //Sign
+    if (_buildingId isNotEqualTo false) then {[_obj,_buildingId] call NWG_UKREP_BID_SetID};
 
     //return
     _obj
