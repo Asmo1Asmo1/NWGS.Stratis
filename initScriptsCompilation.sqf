@@ -83,8 +83,15 @@ _serverModules pushBack ("SCRIPTS\T1_Battlefield\undertaker\undertaker.sqf" call
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKing.sqf" call NWG_fnc_compile);
 
 //T2_UserInteraction
+//magrepack
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepack.sqf" call NWG_fnc_compile);
-_clientModules pushBack ("SCRIPTS\T2_UserInteraction\view_distance\viewDistance.sqf" call NWG_fnc_compile);
+//markers
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\markers\markersServerSide.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\markers\markersClientSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\markers\markersFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T2_UserInteraction\markers\markersTests.sqf" call NWG_fnc_compile)};
+//viewDistance
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistance.sqf" call NWG_fnc_compile);
 
 //================================================================================================================
 //================================================================================================================
