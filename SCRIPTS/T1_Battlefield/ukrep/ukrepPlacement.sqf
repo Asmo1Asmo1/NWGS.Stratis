@@ -99,13 +99,11 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     private _blueprint = [_blueprints,"NWG_UKREP_FRACTAL_PlaceFractalABS"] call NWG_fnc_selectRandomGuaranteed;
 
     //2. Scan and save objects on the map for steps 2 and 3
-    private _mapObjects = [];
-    if (_mapObjectsLimit > 0) then {
+    private _mapObjects = if (_mapObjectsLimit > 0) then {
         private _bpPos = _blueprint#BPCONTAINER_POS;
         private _bpRad = _blueprint#BPCONTAINER_RADIUS;
-        _mapObjects = _bpPos nearObjects _bpRad;//Get all objects in the area
-        _mapObjects = _mapObjects arrayIntersect _mapObjects;//Remove duplicates
-    };
+        _bpPos nearObjects _bpRad
+    } else {[]};
 
     //3. Place root blueprint (fractal step 1)
     //We do not use PUBLIC method because we needed bpPos and bpRad from blueprint to get mapObjects
