@@ -125,9 +125,10 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     //forEach building
     {
         private _bldgPage = [_pageName,_x,OBJ_TYPE_BLDG] call NWG_UKREP_FRACTAL_AutoGetPageName;
-        private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintName,_chances,_faction,_groupRules,/*_adaptToGround:*/true] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintName,_chances,_faction,_groupRules,/*_adaptToGround:*/true,/*_raiseEvent:*/false] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         if (_bldgResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _bldgResult;
+        _x call NWG_fnc_shAddOccupiedBuilding;//Mark building as occupied for other subsystems
     } forEach (_placedBldgs + _mapBldgs);
 
     //5. Decorate furniture (fractal step 3)
@@ -142,11 +143,14 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     //forEach furniture
     {
         private _furnPage = [_pageName,_x,OBJ_TYPE_FURN] call NWG_UKREP_FRACTAL_AutoGetPageName;
-        private _adaptToGround = _x call NWG_UKREP_FRACTAL_IsOutside;//Adapt chairs around table only if table itself is not inside a building
-        private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        private _adaptToGround = _x call NWG_UKREP_FRACTAL_IsFurnitureOutside;//Adapt chairs around table only if table itself is not inside a building
+        private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround,/*_raiseEvent:*/false] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         if (_furnResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _furnResult;
     } forEach (_placedFurns + _mapFurns);
+
+    //Raise event
+    [EVENT_ON_UKREP_PLACED,_result] call NWG_fnc_raiseServerEvent;
 
     //return
     _result
@@ -191,9 +195,10 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
     //forEach placed building
     {
         private _bldgPage = [_pageName,_x,OBJ_TYPE_BLDG] call NWG_UKREP_FRACTAL_AutoGetPageName;
-        private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintName,_chances,_faction,_groupRules,/*_adaptToGround:*/true] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintName,_chances,_faction,_groupRules,/*_adaptToGround:*/true,/*_raiseEvent:*/false] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         if (_bldgResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _bldgResult;
+        _x call NWG_fnc_shAddOccupiedBuilding;//Mark building as occupied for other subsystems
     } forEach ((_result#UKREP_RESULT_BLDGS) select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup});
 
     //5. Decorate furniture (fractal step 3)
@@ -202,11 +207,14 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
     //forEach placed furniture
     {
         private _furnPage = [_pageName,_x,OBJ_TYPE_FURN] call NWG_UKREP_FRACTAL_AutoGetPageName;
-        private _adaptToGround = _x call NWG_UKREP_FRACTAL_IsOutside;//Adapt chairs around table only if table itself is not inside a building
-        private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        private _adaptToGround = _x call NWG_UKREP_FRACTAL_IsFurnitureOutside;//Adapt chairs around table only if table itself is not inside a building
+        private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround,/*_raiseEvent:*/false] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         if (_furnResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _furnResult;
     } forEach ((_result#UKREP_RESULT_FURNS) select {[_x,OBJ_TYPE_FURN,_pageName,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup});
+
+    //Raise event
+    [EVENT_ON_UKREP_PLACED,_result] call NWG_fnc_raiseServerEvent;
 
     //return
     _result
@@ -250,12 +258,14 @@ NWG_UKREP_FRACTAL_HasRelSetup = {
     }) != -1)
 };
 
-NWG_UKREP_FRACTAL_IsOutside = {
-    private _object = _this;
-    private _raycastFrom = getPosWorld _object;
+NWG_UKREP_FRACTAL_IsFurnitureOutside = {
+    private _furn = _this;
+    if ((_furn call NWG_UKREP_BID_GetID) isNotEqualTo false) exitWith {false};//Is inside a building (has its ID)
+
+    private _raycastFrom = getPosWorld _furn;
     private _raycastTo = _raycastFrom vectorAdd [0,0,-50];
-    private _result = (flatten (lineIntersectsSurfaces [_raycastFrom,_raycastTo,_object,objNull,true,-1,"FIRE","VIEW",true]));//Get raycast result
-    _result = _result select {_x isEqualType objNull && {!isNull _x && {!(_x isEqualTo _object)}}};//Filter objects only
+    private _result = (flatten (lineIntersectsSurfaces [_raycastFrom,_raycastTo,_furn,objNull,true,-1,"FIRE","VIEW",true]));//Get raycast result
+    _result = _result select {_x isEqualType objNull && {!isNull _x && {!(_x isEqualTo _furn)}}};//Filter objects only
     //return
     (count _result) == 0
 };
@@ -264,7 +274,7 @@ NWG_UKREP_FRACTAL_IsOutside = {
 //================================================================================================================
 //Public placement
 NWG_UKREP_PUBLIC_PlaceABS = {
-    params ["_pageName",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction",""],["_groupRules",[]]];
+    params ["_pageName",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction",""],["_groupRules",[]],["_raiseEvent",true]];
     private _blueprints = [_pageName,_blueprintName,_blueprintPos] call NWG_UKREP_GetBlueprintsABS;
     if ((count _blueprints) == 0) exitWith {
         (format ["NWG_UKREP_PUBLIC_PlaceABS: Could not find the blueprint matching the %1:%2:%3",_pageName,_blueprintName,_blueprintPos]) call NWG_fnc_logError;
@@ -274,12 +284,16 @@ NWG_UKREP_PUBLIC_PlaceABS = {
     _blueprint = _blueprint#BPCONTAINER_BLUEPRINT;
     _blueprint = +_blueprint;//Clone
 
+    private _result = [_blueprint,_chances,_faction,_groupRules] call NWG_UKREP_PlaceABS;
+    if (_result isEqualTo false) exitWith {false};//Error
+    if (_raiseEvent) then {[EVENT_ON_UKREP_PLACED,_result] call NWG_fnc_raiseServerEvent};
+
     //return
-    [_blueprint,_chances,_faction,_groupRules] call NWG_UKREP_PlaceABS
+    _result
 };
 
 NWG_UKREP_PUBLIC_PlaceREL_Position = {
-    params ["_pageName","_pos","_dir",["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
+    params ["_pageName","_pos","_dir",["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true],["_raiseEvent",true]];
     private _blueprints = [_pageName,_blueprintName] call NWG_UKREP_GetBlueprintsREL;
     if ((count _blueprints) == 0) exitWith {
         (format ["NWG_UKREP_PUBLIC_PlaceREL_Position: Could not find the blueprint matching the %1:%2",_pageName,_blueprintName]) call NWG_fnc_logError;
@@ -289,12 +303,16 @@ NWG_UKREP_PUBLIC_PlaceREL_Position = {
     _blueprint = _blueprint#BPCONTAINER_BLUEPRINT;
     _blueprint = +_blueprint;//Clone
 
+    private _result = [_blueprint,_pos,_dir,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PlaceREL_Position;
+    if (_result isEqualTo false) exitWith {false};//Error
+    if (_raiseEvent) then {[EVENT_ON_UKREP_PLACED,_result] call NWG_fnc_raiseServerEvent};
+
     //return
-    [_blueprint,_pos,_dir,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PlaceREL_Position
+    _result
 };
 
 NWG_UKREP_PUBLIC_PlaceREL_Object = {
-    params ["_pageName","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
+    params ["_pageName","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true],["_raiseEvent",true]];
     if (_objectType isEqualTo "") then {_objectType = _object call NWG_fnc_getObjectType};
     private _rootObjFilter = switch (_objectType) do {
         case OBJ_TYPE_BLDG: {_object call NWG_fnc_ocGetSameBuildings};
@@ -315,8 +333,12 @@ NWG_UKREP_PUBLIC_PlaceREL_Object = {
     _blueprint = _blueprint#BPCONTAINER_BLUEPRINT;
     _blueprint = +_blueprint;//Clone
 
+    private _result = [_blueprint,_object,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PlaceREL_Object;
+    if (_result isEqualTo false) exitWith {false};//Error
+    if (_raiseEvent) then {[EVENT_ON_UKREP_PLACED,_result] call NWG_fnc_raiseServerEvent};
+
     //return
-    [_blueprint,_object,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PlaceREL_Object
+    _result
 };
 
 //================================================================================================================
@@ -634,8 +656,7 @@ NWG_UKREP_PlacementCore = {
 
     /*Finalize group*/
     if (!isNull _placementGroup) then {
-        private _dynaSim = _groupRules param [GRP_RULES_DYNASIM,(NWG_UKREP_Settings get "DEFAULT_GROUP_DYNASIM")];
-        _placementGroup enableDynamicSimulation _dynaSim;
+        _placementGroup enableDynamicSimulation (_groupRules param [GRP_RULES_DYNASIM,(NWG_UKREP_Settings get "DEFAULT_GROUP_DYNASIM")]);
         {_x disableAI "PATH"} forEach (units _placementGroup);//Disable pathfinding for all units
         _placementGroup setVariable ["NWG_UKREP_ownership",true];//Mark as UKREP group
     };
