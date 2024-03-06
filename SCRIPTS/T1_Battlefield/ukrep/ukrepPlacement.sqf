@@ -334,7 +334,7 @@ NWG_UKREP_PlaceABS = {
 
 NWG_UKREP_PlaceREL_Position = {
     params ["_blueprint","_pos","_dir",["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
-    _blueprint = [_blueprint,_pos,_dir,_adaptToGround,/*skip root:*/false,/*buildingID:*/false] call NWG_UKREP_BP_RELtoABS;
+    _blueprint = [_blueprint,_pos,_dir,_adaptToGround,/*_rootExists:*/false,/*_rootBuildingId:*/false] call NWG_UKREP_BP_RELtoABS;
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
     _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
     //return
@@ -343,12 +343,12 @@ NWG_UKREP_PlaceREL_Position = {
 
 NWG_UKREP_PlaceREL_Object = {
     params ["_blueprint","_object",["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
-    private _buildingId = switch (true) do {
-        case ((_object call NWG_UKREP_BID_GetID) isNotEqualTo false): {_object call NWG_UKREP_BID_GetID};
-        case (_object call NWG_fnc_ocIsBuilding): {_object call NWG_UKREP_BID_GenerateIDFor};
-        default {false};
+    private _rootBuildingId = switch (true) do {
+        case ((_object call NWG_UKREP_BID_GetID) isNotEqualTo false): {_object call NWG_UKREP_BID_GetID};//Get existing ID (case: furniture)
+        case (_object call NWG_fnc_ocIsBuilding): {_object call NWG_UKREP_BID_GenerateIDFor};//Generate new ID for building (case: building)
+        default {false};//No ID needed
     };
-    _blueprint = [_blueprint,(getPosASL _object),(getDir _object),_adaptToGround,/*skip root:*/true,/*buildingId:*/_buildingId] call NWG_UKREP_BP_RELtoABS;
+    _blueprint = [_blueprint,(getPosASL _object),(getDir _object),_adaptToGround,/*_rootExists:*/true,_rootBuildingId] call NWG_UKREP_BP_RELtoABS;
     _blueprint deleteAt 0;//Remove root from blueprint (already placed)
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
     _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
@@ -383,7 +383,8 @@ NWG_UKREP_BID_SetID = {
 //================================================================================================================
 //Blueprint manipulation
 NWG_UKREP_BP_RELtoABS = {
-    params ["_blueprint","_placementPos","_placementDir","_adaptToGround","_skipAdaptRoot","_buildingId"];
+    params ["_blueprint","_placementPos","_placementDir","_adaptToGround","_rootExists","_rootBuildingId"];
+    private _rootOrigDir = (_blueprint#0)#BP_DIR;
 
     private _result = [];
     private _recursiveRELtoABS = {
@@ -404,7 +405,6 @@ NWG_UKREP_BP_RELtoABS = {
             private _dY = ((_posOffset#1)*_cos)+((_posOffset#0)*_sin);
             private _absPos = _rootPos vectorAdd [_dX,_dY,(_posOffset#2)];
             if (_adapt) then {
-                if (_skipAdaptRoot && {_forEachIndex == 0}) exitWith {};//Skip root adaptation
                 _absPos set [2,0];
                 _absPos = ATLToASL _absPos;
             };
@@ -416,12 +416,17 @@ NWG_UKREP_BP_RELtoABS = {
             private _absDir = (_rootCurDir + _dirOffset);
             _x set [BP_DIR,_absDir];
 
-            //Apply building ID or generate new
+            //Apply building ID
             private _bid = _buildingId;
             switch (_x#BP_OBJTYPE) do {
-                case OBJ_TYPE_BLDG: {_bid = (call NWG_UKREP_BID_GenerateID); _x set [BP_BUILDINGID,_bid]};//Generate new
-                case OBJ_TYPE_FURN: {if (_bid isNotEqualTo false) then {_x set [BP_BUILDINGID,_bid]}};//Apply existing
-                case OBJ_TYPE_DECO: {if (_bid isNotEqualTo false) then {_x set [BP_BUILDINGID,_bid]}};//Apply existing
+                case OBJ_TYPE_BLDG: {
+                    if (_bid isEqualTo false) then {_bid = (call NWG_UKREP_BID_GenerateID)};//Generate new ID
+                    _x set [BP_BUILDINGID,_bid]
+                };
+                case OBJ_TYPE_FURN;
+                case OBJ_TYPE_DECO: {
+                    if (_bid isNotEqualTo false) then {_x set [BP_BUILDINGID,_bid]};//Apply existing
+                };
                 default {/*Do nothing*/};
             };
 
@@ -439,7 +444,16 @@ NWG_UKREP_BP_RELtoABS = {
         } forEach _records;
     };
 
-    [_placementPos,((_blueprint#0)#BP_DIR),_placementDir,_blueprint,_adaptToGround,_buildingId] call _recursiveRELtoABS;
+    if (_rootExists) then {
+        //Root object already exists
+        private _rootChunk = [(_blueprint deleteAt 0)];
+        [_placementPos,_rootOrigDir,_placementDir,_rootChunk,/*_adaptToGround:*/false,_rootBuildingId] call _recursiveRELtoABS;
+        [_placementPos,_rootOrigDir,_placementDir,_blueprint,_adaptToGround,/*_rootBuildingId:*/false] call _recursiveRELtoABS;
+        _rootChunk resize 0;//Clear
+    } else {
+        //Root object does not exist
+        [_placementPos,_rootOrigDir,_placementDir,_blueprint,_adaptToGround,/*_rootBuildingId:*/false] call _recursiveRELtoABS;
+    };
     _blueprint resize 0;
     _blueprint append _result;
 
