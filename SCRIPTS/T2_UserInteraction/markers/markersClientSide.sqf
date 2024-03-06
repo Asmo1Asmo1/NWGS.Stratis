@@ -53,6 +53,32 @@ NWG_MARKERS_icons = [
     "loc_plane"   ,//PLANE
     "loc_boat"     //BOAT
 ];
+NWG_MARKERS_GetMarkerTypeForUnit = {
+    params ["_unit","_playerAltitude"];
+
+    //Check special cases
+    if (_unit isEqualTo (leader (group _unit))) exitWith {ICON_TEAM_LEADER};//Leader of the group
+    if (!isNil "NWG_fnc_medIsMedic" && {_unit call NWG_fnc_medIsMedic}) exitWith {ICON_MEDIC};//Medic
+
+    //Check altitude
+    private _delta = ((getPosASL _unit)#2) - _playerAltitude;
+    switch (true) do {
+        case ((abs _delta) <= (NWG_MARKERS_Settings get "HEIGHT_DELTA")): {ICON_UNIT};//Unit on the same level as player
+        case (_delta > 0): {ICON_UNIT_HIGHER};//Unit is higher
+        default {ICON_UNIT_LOWER};//Unit is lower
+    }
+};
+NWG_MARKERS_GetMarkerTypeForVehicle = {
+    // private _vehicle = _this;
+    switch (true) do {
+        case (_this isKindOf "Tank" || {_this isKindOf "Wheeled_APC_F"}): {ICON_TANK};
+        case (_this isKindOf "Plane"):      {ICON_PLANE};
+        case (_this isKindOf "Helicopter"): {ICON_HELI};
+        case (_this isKindOf "Ship"):       {ICON_BOAT};
+        case (_this isKindOf "Car"): {(if ((getMass _this) < 10000) then {ICON_CAR} else {ICON_TRUCK})};
+        default {-1};//Unknown vehicle (parachute, static weapon, etc)
+    }
+};
 
 //================================================================================================================
 //================================================================================================================
@@ -75,39 +101,21 @@ NWG_MARKERS_Draw = {
 
     //Draw onFoot units
     {
-        _markerType = switch (true) do {
-            case (_x isEqualTo (leader (group _x))): {ICON_TEAM_LEADER};//Leader of the group
-            case (!isNil "NWG_fnc_medIsMedic" && {_x call NWG_fnc_medIsMedic}): {ICON_MEDIC};//Medic
-            _delta = ((getPosASL _x)#2) - _playerAltitude;
-            case ((abs _delta) <= (NWG_MARKERS_Settings get "HEIGHT_DELTA")): {ICON_UNIT};//Unit on the same level as player
-            case (_delta > 0): {ICON_UNIT_HIGHER};//Unit is higher
-            default {ICON_UNIT_LOWER};//Unit is lower
-        };
+        _markerType = [_x,_playerAltitude] call NWG_MARKERS_GetMarkerTypeForUnit;
         _newMarkers pushBack ([_x,_markerType] call NWG_MARKERS_DrawMarker);
     } forEach _onFoot;
 
     //Draw vehicle markers
     private _crew = [];
+    private _unitToShow = objNull;
     //forEach vehicle
     {
-        _markerType = switch (true) do {
-            case (_x isKindOf "Tank" || {_x isKindOf "Wheeled_APC_F"}): {ICON_TANK};
-            case (_x isKindOf "Plane"):      {ICON_PLANE};
-            case (_x isKindOf "Helicopter"): {ICON_HELI};
-            case (_x isKindOf "Ship"):       {ICON_BOAT};
-            case (_x isKindOf "Car"): {(if ((getMass _x) < 10000) then {ICON_CAR} else {ICON_TRUCK})};
-            default {
-                //Unknown vehicle (parachute, static weapon, etc)
-                _delta = ((getPosASL _x)#2) - _playerAltitude;
-                switch (true) do {
-                    case ((abs _delta) <= (NWG_MARKERS_Settings get "HEIGHT_DELTA")): {ICON_UNIT};
-                    case (_delta > 0): {ICON_UNIT_HIGHER};
-                    default {ICON_UNIT_LOWER};
-                }
-            };
-        };
         _crew = crew _x;
-        _newMarkers pushBack ([(_crew select (_crew findIf {_x in _units})),_markerType,(count _crew)] call NWG_MARKERS_DrawMarker);
+        _unitToShow = _crew param [(_crew findIf {_x in _units}),objNull];
+        if (isNull _unitToShow) then {continue};
+        _markerType = _x call NWG_MARKERS_GetMarkerTypeForVehicle;
+        if (_markerType == -1) then {_markerType = [_unitToShow,_playerAltitude] call NWG_MARKERS_GetMarkerTypeForUnit};
+        _newMarkers pushBack ([_unitToShow,_markerType,(count _crew)] call NWG_MARKERS_DrawMarker);
     } forEach _vehicles;
 
     NWG_MARKERS_markers append _newMarkers;
