@@ -294,10 +294,16 @@ NWG_GC_DeleteMission = {
     {_x call NWG_GC_DeleteObject} forEach (NWG_GC_garbageBin#BIN_TRASH);
     {_x resize 0} forEach NWG_GC_garbageBin;
 
-    //2. Find and delete all AI groups
+    //2. Purge buildings decorations
+    {
+        {_x call NWG_GC_DeleteObject} forEach _x;
+        _x resize 0;
+    } forEach (values NWG_GC_buildingDecorations);
+
+    //3. Find and delete all AI groups
     {_x call NWG_GC_DeleteGroup} forEach (allGroups select {!(_x in NWG_GC_originalGroups) && {((units _x) findIf {isPlayer _x}) == -1}});
 
-    //3. Delete all mission objects
+    //4. Delete all mission objects
     //do
     {
         switch (_x call NWG_fnc_ocGetObjectType) do {
@@ -322,19 +328,19 @@ NWG_GC_DeleteMission = {
         };
     } forEach ((allMissionObjects "") select {!(_x in NWG_GC_originalObjects) && {!((typeOf _x) in NWG_GC_environmentExclude)}});
 
-    //4. Delete all map markers
+    //5. Delete all map markers
     {deleteMarker _x} forEach (allMapMarkers select {!(_x in NWG_GC_originalMarkers)});
     call NWG_fnc_gcDeleteUserMarkers;
     remoteExec ["NWG_fnc_gcDeleteUserMarkers",-2];
 
-    //5. Delete all tasks
+    //6. Delete all tasks
     {
         {
             [_x,true,true] call BIS_fnc_deleteTask;
         } forEach (_x call BIS_fnc_tasksUnit);
     } forEach ((call NWG_fnc_getPlayersAll) select {alive _x});
 
-    //6. Invoke callback
+    //7. Invoke callback
     call _callback;
 };
 
