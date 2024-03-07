@@ -25,6 +25,15 @@ NWG_UKREP_VectorMathTest = {
     [(_oldOffset isEqualTo _newOffset),(_oldPos isEqualTo _newPos)]
 };
 
+// call NWG_UKREP_NeedForArrayIntersectTest
+NWG_UKREP_NeedForArrayIntersectTest = {
+    private _mapObjects = (getPosATL player) nearObjects 300;//Get all objects in the area
+    private _origCount = count _mapObjects;
+    _mapObjects = _mapObjects arrayIntersect _mapObjects;//Remove duplicates
+    private _newCount = count _mapObjects;
+    [_origCount,_newCount]
+};
+
 //================================================================================================================
 //================================================================================================================
 //Test utils

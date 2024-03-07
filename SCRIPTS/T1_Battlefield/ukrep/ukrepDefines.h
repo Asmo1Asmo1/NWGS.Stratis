@@ -22,6 +22,8 @@
 /*Used internally during gathering:*/
 #define BP_ORIGOBJECT 8
 #define BP_INSIDE_OF 9
+/*Used internally during placement:*/
+#define BP_BUILDINGID 8
 
 //Payloads
 #define P_OBJ_CAN_SIMPLE 0

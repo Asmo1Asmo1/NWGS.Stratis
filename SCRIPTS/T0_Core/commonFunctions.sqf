@@ -19,9 +19,9 @@ NWG_fnc_logError = {
 //note: made by Nelson Duarte, optimised by Killzone_Kid, optimised by HOPA_EHOTA
 NWG_fnc_arrayShuffle = {
     //private _array = _this;
-	for "_i" from 1 to (count _this) do {_this pushBack (_this deleteAt (floor (random (count _this))))};
+    for "_i" from 1 to (count _this) do {_this pushBack (_this deleteAt (floor (random (count _this))))};
     //return
-	_this
+    _this
 };
 
 //Shifts array elements by random amount
