@@ -12,20 +12,22 @@ NWG_GC_Settings = createHashMapFromArray [
     ["TRASH_MAX",[4,8]],//Min and max ground trash
     ["PRESERVE_DISTANCE",25],//Distance from players to objects at which we will try to preserve them to not break immersion
 
+    ["BUILDING_DECOR_DELETE",true],//Delete building decorations on building destroy
+    ["BUILDING_DECOR_DELETE_DELAY",2],//Delay before deleting building decorations on building destroy
+
     ["",0]
 ];
 
 //======================================================================================================
 //======================================================================================================
-//Defines
-//Bin 'enum'
-#define BODIES 0
-#define WRECKS 1
-#define TRASH 2
-
-//======================================================================================================
-//======================================================================================================
 //Fields
+NWG_GC_originalMarkers = [];
+NWG_GC_originalObjects = [];
+NWG_GC_originalGroups = [];
+
+#define BIN_BODIES 0
+#define BIN_WRECKS 1
+#define BIN_TRASH 2
 NWG_GC_garbageBin = [/*Bodies*/[],/*Wrecks*/[],/*Trash*/[]];
 NWG_GC_environmentExclude = [
     "Sign_Arrow_Green_F",
@@ -44,9 +46,6 @@ NWG_GC_environmentExclude = [
     "FxWindPollen1",
     "#mark"
 ];
-NWG_GC_originalMarkers = [];
-NWG_GC_originalObjects = [];
-NWG_GC_originalGroups = [];
 
 //======================================================================================================
 //======================================================================================================
@@ -68,7 +67,8 @@ private _Init = {
     }];
 
     /*Subscribe to NWG events*/
-    [EVENT_ON_OBJECT_KILLED,{_this call NWG_GC_OnObjectKilled}] call NWG_fnc_subscribeToServerEvent;
+    [EVENT_ON_OBJECT_KILLED,{_this call NWG_GC_OnKilled}] call NWG_fnc_subscribeToServerEvent;
+    [EVENT_ON_UKREP_PLACED,{_this call NWG_GC_RegisterBuildingDecoration}] call NWG_fnc_subscribeToServerEvent;
 
     /*Save original map state*/
     NWG_GC_originalMarkers = allMapMarkers;
@@ -147,21 +147,36 @@ NWG_GC_DeleteGroup = {
 
 //======================================================================================================
 //======================================================================================================
-//Handle garbage on the battlefield
+//Handler
+NWG_GC_OnKilled = {
+    params ["_object","_objType"/*,"_actualKiller","_isPlayerKiller"*/];
+    if (isNull _object) exitWith {};//Unknown error or other Arma moment
+
+    switch (_objType) do {
+        case OBJ_TYPE_BLDG: {_this call NWG_GC_OnBuildingDestroyed};
+        case OBJ_TYPE_UNIT;
+        case OBJ_TYPE_VEHC;
+        case OBJ_TYPE_TRRT: {_this call NWG_GC_OnObjectKilled};
+        default {/*Do nothing*/};
+    };
+};
+
+//======================================================================================================
+//======================================================================================================
+//Handle garbage
 NWG_GC_OnObjectKilled = {
     params ["_object","_objType","_actualKiller","_isPlayerKiller"];
-    if (isNull _object) exitWith {};
-    if (_objType isEqualTo OBJ_TYPE_UNIT &&
-        {(vehicle _object) isNotEqualTo _object &&
-        {(!alive (vehicle _object))}}) exitWith {};//Ignore dead crew inside dead vehicle
 
     private _binIndex = switch (_objType) do {
-        case OBJ_TYPE_UNIT: {BODIES};
-        case OBJ_TYPE_VEHC: {WRECKS};
-        case OBJ_TYPE_TRRT: {WRECKS};
+        case OBJ_TYPE_UNIT: {
+            if ((vehicle _object) isNotEqualTo _object && {(!alive (vehicle _object))}) exitWith {-1};//Ignore dead crew inside dead vehicle
+            BIN_BODIES
+        };
+        case OBJ_TYPE_VEHC: {BIN_WRECKS};
+        case OBJ_TYPE_TRRT: {BIN_WRECKS};
         default {-1};
     };
-    if (_binIndex < 0) exitWith {};//Ignore other types
+    if (_binIndex < 0) exitWith {};
 
     private _immediateDelete = false;
     if (isNull _actualKiller || {!_isPlayerKiller}) then {
@@ -173,8 +188,8 @@ NWG_GC_OnObjectKilled = {
 
     if (_immediateDelete) exitWith {
         switch (_binIndex) do {
-            case BODIES: {_object call NWG_GC_DeleteUnit};
-            case WRECKS: {_object call NWG_GC_DeleteVehicle};
+            case BIN_BODIES: {_object call NWG_GC_DeleteUnit};
+            case BIN_WRECKS: {_object call NWG_GC_DeleteVehicle};
         };
     };
 
@@ -184,7 +199,7 @@ NWG_GC_OnObjectKilled = {
 NWG_GC_OnReportTrash = {
     // private _trashObject = _this;
     if (isNull _this) exitWith {};
-    [_this,TRASH] call NWG_GC_Collect;
+    [_this,BIN_TRASH] call NWG_GC_Collect;
 };
 
 NWG_GC_Collect = {
@@ -196,7 +211,7 @@ NWG_GC_Collect = {
 
     //Update bin
     private _updated = (_bin - [objNull]) + [_object];
-    if (_binIndex == BODIES) then {
+    if (_binIndex == BIN_BODIES) then {
         //Forget bodies inside destroyed vehicles (game will take care of them itself)
         _updated = _updated select {(vehicle _x) isEqualTo _x || {alive (vehicle _x)}};
     };
@@ -211,8 +226,8 @@ NWG_GC_Collect = {
     private _allPlayers = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
     private _preserveDistance = NWG_GC_Settings get "PRESERVE_DISTANCE";
     private _terminate = switch (_binIndex) do {
-        case BODIES: {{_this call NWG_GC_DeleteUnit}};
-        case WRECKS: {{_this call NWG_GC_DeleteVehicle}};
+        case BIN_BODIES: {{_this call NWG_GC_DeleteUnit}};
+        case BIN_WRECKS: {{_this call NWG_GC_DeleteVehicle}};
         default {{_this call NWG_GC_DeleteObject}};
     };
 
@@ -236,14 +251,47 @@ NWG_GC_Collect = {
 
 //======================================================================================================
 //======================================================================================================
+//Clear building on destruction
+NWG_GC_buildingDecorations = createHashMap;
+NWG_GC_RegisterBuildingDecoration = {
+    // params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
+    //forEach furniture and decoration
+    {
+        (NWG_GC_buildingDecorations getOrDefault [(_x call NWG_fnc_ukrpGetBuildingID),[],true]) pushBack _x;
+    } forEach (((_this#1)+(_this#2)) select {(_x call NWG_fnc_ukrpGetBuildingID) isNotEqualTo false});
+};
+
+NWG_GC_OnBuildingDestroyed = {
+    // params ["_object","_objType","_actualKiller","_isPlayerKiller"];
+
+    //Check building ID
+    private _buildingID = (_this#0) call NWG_fnc_ukrpGetBuildingID;
+    if (_buildingID isEqualTo false) exitWith {};//This building was not part of the mission
+
+    //Get decorations
+    private _buildingDecor = NWG_GC_buildingDecorations getOrDefault [_buildingID,[]];
+    if ((count _buildingDecor) == 0) exitWith {};//No decorations to delete
+
+    //Delete all decorations that hang in the air
+    _buildingDecor spawn {
+        sleep (NWG_GC_Settings get "BUILDING_DECOR_DELETE_DELAY");
+        private _i = -1;
+        while {_i = _this findIf {isNull _x || {((position _x)#2) > 0.1}}; _i != -1} do {
+            (_this deleteAt _i) call NWG_GC_DeleteObject;
+        };
+    };
+};
+
+//======================================================================================================
+//======================================================================================================
 //Clear battlefield
 NWG_GC_DeleteMission = {
     params [["_callback",{}]];
 
     //1. Purge garbage bin
-    {_x call NWG_GC_DeleteUnit} forEach (NWG_GC_garbageBin#BODIES);
-    {_x call NWG_GC_DeleteVehicle} forEach (NWG_GC_garbageBin#WRECKS);
-    {_x call NWG_GC_DeleteObject} forEach (NWG_GC_garbageBin#TRASH);
+    {_x call NWG_GC_DeleteUnit} forEach (NWG_GC_garbageBin#BIN_BODIES);
+    {_x call NWG_GC_DeleteVehicle} forEach (NWG_GC_garbageBin#BIN_WRECKS);
+    {_x call NWG_GC_DeleteObject} forEach (NWG_GC_garbageBin#BIN_TRASH);
     {_x resize 0} forEach NWG_GC_garbageBin;
 
     //2. Find and delete all AI groups
