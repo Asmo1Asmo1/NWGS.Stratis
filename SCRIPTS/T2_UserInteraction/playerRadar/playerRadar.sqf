@@ -7,13 +7,10 @@
 //================================================================================================================
 //================================================================================================================
 //Settings
-NWG_RADAR_Settings = createHashMapFromArray [
-    ["RADIUS",4],//Radius where to search for units/vehicles
-    ["HEIGHT_DELTA",3],//If unit/vehicle is higer/lower than N meters - ignore
-    ["FORWARD_ANGLE",30],//Angle defining if object is 'forward' to player
-
-    ["",0]
-];
+/*This module drops fps a little so instead of regular approach, we will optimize the shit out of it*/
+#define RADAR_RADIUS 4
+#define RADAR_HEIGHT_DELTA 3
+#define RADAR_FORWARD_ANGLE 15
 
 //================================================================================================================
 //================================================================================================================
@@ -40,17 +37,16 @@ NWG_RADAR_OnEachFrame = {
     private _playerAltitude = (getPosASL player)#2;
     private _isOnSameHeight = {
         // private _object = _this;
-        (abs (((getPosASL _x)#2) - _playerAltitude)) < (NWG_RADAR_Settings get "HEIGHT_DELTA")
+        (abs (((getPosASL _this)#2) - _playerAltitude)) < RADAR_HEIGHT_DELTA
     };
     private _isInFront = {
         // private _object = _this;
         private _relDir = player getRelDir _this;
-        private _frontAngle = NWG_RADAR_Settings get "FORWARD_ANGLE";
-        (_relDir < (_frontAngle / 2) || {_relDir > (360 - (_frontAngle / 2))})
+        (_relDir < RADAR_FORWARD_ANGLE || {_relDir > (360 - RADAR_FORWARD_ANGLE)})
     };
 
     //Search for units
-    private _units = (player nearEntities [["Man"],(NWG_RADAR_Settings get "RADIUS")]) select {
+    private _units = (player nearEntities [["Man"],RADAR_RADIUS]) select {
         alive _x && {
         _x isNotEqualTo player && {
         isNull (attachedTo _x) && {
@@ -68,10 +64,9 @@ NWG_RADAR_OnEachFrame = {
             NWG_RADAR_unitFront = (_units#0)#1;
         };
     };
-    _units resize 0;//Clear
 
     //Search for vehicles
-    private _vehicles = player nearEntities [["Car","Tank","Helicopter","Plane","Ship"],(NWG_RADAR_Settings get "RADIUS")] select {
+    private _vehicles = player nearEntities [["Car","Tank","Helicopter","Plane","Ship"],RADAR_RADIUS] select {
         alive _x && {
         _x call _isOnSameHeight}
     };
@@ -96,7 +91,6 @@ NWG_RADAR_OnEachFrame = {
                 else {NWG_RADAR_vehcFront = objNull; NWG_RADAR_vehcArond = _veh};
         };
     };
-    _vehicles resize 0;//Clear
 };
 
 //================================================================================================================
