@@ -14,7 +14,7 @@ NWG_EVENTS_SubscribeToEvent = {
     params ["_eventCollection","_event","_code",["_setFirst",false]];
 
     switch (true) do {
-        case (!(_event in _eventCollection)): {_eventCollection set [_event,[_code]]};
+        case (!(_event in _eventCollection)): {_eventCollection set [_event,[_code]]; true};//Return true if the event is new ("fix" misleading 'false' return)
         case (_setFirst): {private _subs = _eventCollection get _event; _eventCollection set [_event,([_code]+_subs)]};
         default {(_eventCollection get _event) pushBack _code};
     };

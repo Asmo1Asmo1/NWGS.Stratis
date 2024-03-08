@@ -83,6 +83,9 @@ _serverModules pushBack ("SCRIPTS\T1_Battlefield\undertaker\undertaker.sqf" call
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKing.sqf" call NWG_fnc_compile);
 
 //T2_UserInteraction
+//inventoryManager
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\inventoryManager\inventoryManager.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\inventoryManager\inventoryManagerTests.sqf" call NWG_fnc_compile)};
 //magrepack
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepack.sqf" call NWG_fnc_compile);
 //markers
