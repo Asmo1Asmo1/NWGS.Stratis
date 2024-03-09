@@ -7,3 +7,8 @@
 #define SUBSTATE_HEAL 4
 #define SUBSTATE_DRAG 5
 #define SUBSTATE_CARR 6
+
+/*Blame 'enum'*/
+#define BLAME_VEH_KO 0
+#define BLAME_WOUND 1
+#define BLAME_KILL 2
