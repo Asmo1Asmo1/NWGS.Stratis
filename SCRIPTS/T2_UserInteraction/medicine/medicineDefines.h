@@ -1,6 +1,6 @@
 /*Wounded sub-state enum*/
 #define SUBSTATE_NONE  -1
-#define SUBSTATE_FALL 0
+#define SUBSTATE_RAGD 0
 #define SUBSTATE_INVH 1
 #define SUBSTATE_DOWN 2
 #define SUBSTATE_CRWL 3
