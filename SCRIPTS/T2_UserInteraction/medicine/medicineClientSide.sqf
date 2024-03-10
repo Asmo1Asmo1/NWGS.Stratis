@@ -73,15 +73,14 @@ NWG_MED_CLI_GetTime = {
 NWG_MED_CLI_SetTime = {
     params ["_unit","_time"];
     if (isNull _unit || {!alive _unit}) exitWith {};
-    _unit setVariable ["NWG_MED_CLI_time",_time,true];
+    _unit setVariable ["NWG_MED_CLI_time",_time];
 };
 NWG_MED_CLI_DecreaseTime = {
     params ["_unit","_timeSubtraction"];
     if (isNull _unit || {!alive _unit}) exitWith {};
     private _time = _unit getVariable ["NWG_MED_CLI_time",0];
     _time = _time - _timeSubtraction;
-    private _publicFlag = (_time % 10) == 0;//Don't spam the network with updates
-    _unit setVariable ["NWG_MED_CLI_time",_time,_publicFlag];
+    _unit setVariable ["NWG_MED_CLI_time",_time];
 };
 
 //================================================================================================================
