@@ -23,6 +23,21 @@ private _Init = {
     NWG_MED_CLI_nextDamageAllowedAt = time + (NWG_MED_CLI_Settings get "INVULNERABILITY_ON_START");
     player addEventHandler ["HandleDamage",{_this call NWG_MED_CLI_OnDamage}];
     if (NWG_MED_CLI_Settings get "ALLOWDAMAGE_ON_INIT") then {player allowDamage true};
+
+    NWG_MED_CLI_respawnPoint = getPosASL player;
+    player addEventHandler ["Respawn",{_this call NWG_MED_CLI_OnRespawn}];
+
+    player call NWG_MED_CLI_InitPlayer;
+};
+
+NWG_MED_CLI_InitPlayer = {
+    // private _player = _this;
+
+    [_this,false] call NWG_MED_CLI_MarkWounded;
+    [_this,SUBSTATE_NONE] call NWG_MED_CLI_SetSubstate;
+    [_this,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_CLI_SetTime;
+
+    //TODO: Add actions assign
 };
 
 //================================================================================================================
@@ -322,8 +337,19 @@ NWG_MED_CLI_BLEEDING_PostProcessDisable = {
 //================================================================================================================
 //Respawn
 NWG_MED_CLI_Respawn = {
-    //TODO: Implement respawn
-    systemChat format ["%1 is dead",name player];
+    player setDamage 1;
+};
+
+/*This will be called on every respawn, including graceful respawn, bugs, instakills, drowning, etc.*/
+NWG_MED_CLI_respawnPoint = [];
+NWG_MED_CLI_OnRespawn = {
+    params ["_player","_corpse"];
+
+    _player setPosASL NWG_MED_CLI_respawnPoint;//Teleport to the respawn point
+    call NWG_MED_CLI_BLEEDING_StopBleeding;//Stop bleeding if it's still active
+    _player setCaptive false;//Reset captive state
+    _player setUnconscious false;//Reset unconscious state
+    _player call NWG_MED_CLI_InitPlayer;
 };
 
 //================================================================================================================
