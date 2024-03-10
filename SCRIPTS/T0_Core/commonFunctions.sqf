@@ -223,3 +223,43 @@ NWG_fnc_localizeDisplay = {
         };
     } forEach _controls;
 };
+
+//===============================================================
+//Messaging
+//Supported message types: single string or array of format arguments as [template,arg0,arg1...]
+NWG_fnc_sideChatMe = {
+    // private _message = _this;
+    if (!hasInterface || {isNull player}) exitWith {};
+    [playerSide,"HQ"] sideChat (_this call NWG_fnc_translateMessage);
+};
+NWG_fnc_sideChatAll = {
+    // private _message = _this;
+    _this remoteExec ["NWG_fnc_sideChatMe"];
+};
+
+NWG_fnc_systemChatMe = {
+    // private _message = _this;
+    if (!hasInterface) exitWith {};
+    systemChat (_this call NWG_fnc_translateMessage);
+};
+NWG_fnc_systemChatAll = {
+    // private _message = _this;
+    _this remoteExec ["NWG_fnc_systemChatMe"];
+};
+
+NWG_fnc_translateMessage = {
+    // private _message = _this;
+    private _translate = {
+        if (_this isEqualType "")
+            then {_this call NWG_fnc_localize}
+            else {(str _this) call NWG_fnc_localize}
+    };
+
+    switch (true) do {
+        /*Simple message*/
+        case (!(_this isEqualType [])): {_this call _translate};//Single string
+        case ((count _this) <= 1):      {(_this param [0,""]) call _translate};//Single element or empty array
+        /*Formatted message*/
+        default {format (_this apply {_x call _translate})};//Array of format arguments as [template,arg0,arg1...]
+    }
+};
