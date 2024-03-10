@@ -146,7 +146,7 @@ NWG_MED_CLI_OnDamageWhileHealthy = {
         };
     };
 
-    call NWG_MED_CLI_StartBleeding;
+    call NWG_MED_CLI_BLEEDING_StartBleeding;
 
     _damager = [_damager,_instigator] call NWG_MED_CLI_DefineDamager;
     [_damager,_unit,BLAME_WOUND] call NWG_fnc_medBlame;
@@ -163,8 +163,8 @@ NWG_MED_CLI_OnDamageWhileWounded = {
     private _timeToDeplete = NWG_MED_CLI_Settings get "TIME_DAMAGE_DEPLETES";
     if (_timeToDeplete <= 0) exitWith {};
 
-    NWG_MED_CLI_isPatched = false;
-    NWG_MED_CLI_lastDamager = _damager;
+    false call NWG_MED_CLI_BLEEDING_SetPatched;
+    _damager call NWG_MED_CLI_BLEEDING_SetLastDamager;
     [_unit,_timeToDeplete] call NWG_MED_CLI_DecreaseTime;
 };
 
@@ -185,33 +185,36 @@ NWG_MED_CLI_DefineDamager = {
 //================================================================================================================
 //================================================================================================================
 //Bleeding cycle
-NWG_MED_CLI_isBleeding = false;
-NWG_MED_CLI_isPatched = false;
-NWG_MED_CLI_lastDamager = objNull;
-NWG_MED_CLI_bleedingCycleHandle = scriptNull;
+NWG_MED_CLI_BLEEDING_isBleeding = false;
+NWG_MED_CLI_BLEEDING_isPatched = false;
+NWG_MED_CLI_BLEEDING_lastDamager = objNull;
+NWG_MED_CLI_BLEEDING_cycleHandle = scriptNull;
 
-NWG_MED_CLI_StartBleeding = {
-    if (NWG_MED_CLI_isBleeding) exitWith {};//Prevent double start
-    NWG_MED_CLI_isPatched = false;
-    NWG_MED_CLI_lastDamager = objNull;
+NWG_MED_CLI_BLEEDING_SetPatched = {NWG_MED_CLI_BLEEDING_isPatched = _this};
+NWG_MED_CLI_BLEEDING_SetLastDamager = {NWG_MED_CLI_BLEEDING_lastDamager = _this};
+
+NWG_MED_CLI_BLEEDING_StartBleeding = {
+    if (NWG_MED_CLI_BLEEDING_isBleeding) exitWith {};//Prevent double start
+    NWG_MED_CLI_BLEEDING_isPatched = false;
+    NWG_MED_CLI_BLEEDING_lastDamager = objNull;
     private _startTime = NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME";
     [player,_startTime] call NWG_MED_CLI_SetTime;
-    call NWG_MED_CLI_PostProcessEnable;
-    NWG_MED_CLI_bleedingCycleHandle = [] spawn NWG_MED_CLI_BleedingCycle;
-    NWG_MED_CLI_isBleeding = true;
+    call NWG_MED_CLI_BLEEDING_PostProcessEnable;
+    NWG_MED_CLI_BLEEDING_cycleHandle = [] spawn NWG_MED_CLI_BLEEDING_Cycle;
+    NWG_MED_CLI_BLEEDING_isBleeding = true;
 };
 
-NWG_MED_CLI_StopBleeding = {
-    if (!NWG_MED_CLI_isBleeding) exitWith {};//Prevent double stop
-    terminate NWG_MED_CLI_bleedingCycleHandle;
-    call NWG_MED_CLI_PostProcessDisable;
+NWG_MED_CLI_BLEEDING_StopBleeding = {
+    if (!NWG_MED_CLI_BLEEDING_isBleeding) exitWith {};//Prevent double stop
+    terminate NWG_MED_CLI_BLEEDING_cycleHandle;
+    call NWG_MED_CLI_BLEEDING_PostProcessDisable;
     hintSilent "";//Clear hint
-    NWG_MED_CLI_isPatched = false;
-    NWG_MED_CLI_lastDamager = objNull;
-    NWG_MED_CLI_isBleeding = false;
+    NWG_MED_CLI_BLEEDING_isPatched = false;
+    NWG_MED_CLI_BLEEDING_lastDamager = objNull;
+    NWG_MED_CLI_BLEEDING_isBleeding = false;
 };
 
-NWG_MED_CLI_BleedingCycle = {
+NWG_MED_CLI_BLEEDING_Cycle = {
     private _abortCondition = {isNull player || {!alive player}};
 
     waitUntil {
@@ -232,19 +235,19 @@ NWG_MED_CLI_BleedingCycle = {
         private _timeLeft = player call NWG_MED_CLI_GetTime;
         if (_timeLeft <= 0) exitWith {
             /*Someone decreased our time while we were doing 'sleep'*/
-            if (!isNull NWG_MED_CLI_lastDamager) then {[NWG_MED_CLI_lastDamager,player,BLAME_KILL] call NWG_fnc_medBlame};
-            [] spawn NWG_MED_CLI_Respawn;//Fix wierdest error where unit appears naked after respawn (yes, by using 'spawn' inside another 'spawn')
+            if (!isNull NWG_MED_CLI_BLEEDING_lastDamager) then {[NWG_MED_CLI_BLEEDING_lastDamager,player,BLAME_KILL] call NWG_fnc_medBlame};
+            call NWG_MED_CLI_Respawn;
             true;//Exit cycle
         };
 
         //Deplete time
         private _timeToDeplete = 1;
-        if !(NWG_MED_CLI_isPatched) then {_timeToDeplete = 2};//Increase if unit not patched
+        if !(NWG_MED_CLI_BLEEDING_isPatched) then {_timeToDeplete = 2};//Increase if unit not patched
         if !(_substate in [SUBSTATE_INVH,SUBSTATE_DOWN]) then {_timeToDeplete = _timeToDeplete * 2};//Increase if unit is not still
         _timeLeft = _timeLeft - _timeToDeplete;
         if (_timeLeft <= 0) exitWith {
             /*Our time ran out naturally*/
-            [] spawn NWG_MED_CLI_Respawn;
+            call NWG_MED_CLI_Respawn;
             true;//Exit cycle
         };
         [player,_timeToDeplete] call NWG_MED_CLI_DecreaseTime;
@@ -273,8 +276,8 @@ NWG_MED_CLI_BleedingCycle = {
 };
 
 /*Post-process bleeding visuals*/
-NWG_MED_CLI_postProcessHandles = [];
-NWG_MED_CLI_PostProcessEnable = {
+NWG_MED_CLI_BLEEDING_postProcessHandles = [];
+NWG_MED_CLI_BLEEDING_PostProcessEnable = {
     private _ppHandles = [];
     private _create = {
         params ["_name","_priority"];
@@ -294,12 +297,12 @@ NWG_MED_CLI_PostProcessEnable = {
     _ppHandles ppEffectEnable true;
 	{_x ppEffectForceInNVG true} forEach _ppHandles;
 
-    NWG_MED_CLI_postProcessHandles = _ppHandles;
+    NWG_MED_CLI_BLEEDING_postProcessHandles = _ppHandles;
 };
 
-NWG_MED_CLI_PostProcessDisable = {
-    private _ppHandles = NWG_MED_CLI_postProcessHandles;
-    NWG_MED_CLI_postProcessHandles = [];
+NWG_MED_CLI_BLEEDING_PostProcessDisable = {
+    private _ppHandles = NWG_MED_CLI_BLEEDING_postProcessHandles;
+    NWG_MED_CLI_BLEEDING_postProcessHandles = [];
 
     //Graceful disable. Step 1: Fade out
     (_ppHandles#0) ppEffectAdjust [1,1,0,[1,1,1,0],[0,0,0,1],[0,0,0,0]];
