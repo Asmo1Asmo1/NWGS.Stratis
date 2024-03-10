@@ -114,14 +114,23 @@ _clientModules pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistance.s
 
 //================================================================================================================
 //================================================================================================================
-//Send to Players
-NWG_SER_toSendToPlayer = [];
-NWG_SER_toSendToPlayer append _commonFunctions;
-NWG_SER_toSendToPlayer append _clientFunctions;
-NWG_SER_toSendToPlayer append _clientModules;
+//ClientSide
+NWG_SER_toSendToPlayer = createHashMap;
+private _clientSide = [];
+_clientSide append _commonFunctions;
+_clientSide append _clientFunctions;
+_clientSide append _clientModules;
+
+{
+    private _localization = (format ["DATASETS\Client\Localization\%1.sqf",_x]) call NWG_fnc_compile;
+    NWG_SER_toSendToPlayer set [_x,([_localization]+_clientSide)];
+} forEach ["English","Russian"];
 
 NWG_fnc_playerScriptsRequest = {
     params ["_playerObj","_language"];
+    private _toSend = if (_language in NWG_SER_toSendToPlayer)
+        then {NWG_SER_toSendToPlayer get _language}
+        else {NWG_SER_toSendToPlayer get "English"};//Default language
 
     //Network check
     private _callerID = remoteExecutedOwner;
@@ -131,7 +140,7 @@ NWG_fnc_playerScriptsRequest = {
     private _recipient = if (_callerID != 0) then {_callerID} else {_playerObj};
 
     //Send
-    NWG_SER_toSendToPlayer remoteExec ["NWG_fnc_clientScriptsReceive",_recipient];
+    _toSend remoteExec ["NWG_fnc_clientScriptsReceive",_recipient];
 };
 
 //================================================================================================================

@@ -1,0 +1,4 @@
+NWG_LocalizationDictionary = createHashMapFromArray [
+
+    ["",""]
+];
