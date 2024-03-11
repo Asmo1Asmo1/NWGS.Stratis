@@ -474,13 +474,12 @@ NWG_MED_CLI_SA_OnSelfHealCompleted = {
     private _spendFakOk = FAKKIT call NWG_fnc_invRemoveItem;
     if (!_spendFakOk) exitWith {
         "NWG_MED_CLI_SA_OnSelfHealCompleted: Failed to consume FAK" call NWG_fnc_logError;
-        ["#MED_ACTION_SELF_HEAL_FAILURE#",(name player)] call NWG_fnc_systemChatAll;
+        [player,player,ACTION_HEAL_FAILURE] call NWG_fnc_medReportMedAction;
     };
 
     //Patch player if needed
     if (!NWG_MED_CLI_BLEEDING_isPatched) then {
-        true call NWG_MED_CLI_BLEEDING_SetPatched;
-        ["#MED_ACTION_SELF_HEAL_PATCHED#",(name player)] call NWG_fnc_systemChatAll;
+        [player,player,ACTION_PATCH] call NWG_fnc_medReportMedAction;
     };
 
     //Get success chance for self-revive
@@ -488,14 +487,9 @@ NWG_MED_CLI_SA_OnSelfHealCompleted = {
     NWG_MED_CLI_SA_selfHealSuccessChance = NWG_MED_CLI_SA_selfHealSuccessChance - (NWG_MED_CLI_Settings get "SELF_HEAL_CHANCE_DECREASE");//Decrease success chance for next attempt
 
     //Try to revive
-    if ((random 100) <= _myChance) then {
-        //Report success
-        [player,player,ACTION_HEAL] call NWG_fnc_medReportMedAction;
-        ["#MED_ACTION_SELF_HEAL_SUCCESS#",(name player)] call NWG_fnc_systemChatAll;
-    } else {
-        //Report failure
-        ["#MED_ACTION_SELF_HEAL_FAILURE#",(name player)] call NWG_fnc_systemChatAll;
-    };
+    if ((random 100) <= _myChance)
+        then {[player,player,ACTION_HEAL_SUCCESS] call NWG_fnc_medReportMedAction}
+        else {[player,player,ACTION_HEAL_FAILURE] call NWG_fnc_medReportMedAction};
 };
 
 /*Respawn*/
