@@ -464,6 +464,12 @@ NWG_MED_CLI_SA_AddSelfActions = {
         {call NWG_MED_CLI_SA_OnRespawnCompleted},/*_onCompleted*/
         true/*_showWhileWounded*/
     ] call NWG_MED_CLI_AddHoldAction;
+
+    /*Crawl*/
+    if (!NWG_MED_CLI_SA_CrawlAdded) then {
+        [] spawn NWG_MED_CLI_SA_AddCrawl;
+        NWG_MED_CLI_SA_CrawlAdded = true;
+    };
 };
 
 /*Self heal*/
@@ -519,6 +525,49 @@ NWG_MED_CLI_SA_OnRespawnCompleted = {
 };
 
 /*Crawl*/
+NWG_MED_CLI_SA_CrawlAdded = false;//This must be done one time only
+NWG_MED_CLI_SA_AddCrawl = {
+    private _gameDisplay = objNull;
+    waitUntil {_gameDisplay = findDisplay 46; !isNull _gameDisplay};
+
+    _gameDisplay displayAddEventHandler ["KeyDown",{
+        // params ["_eventName","_keyCode","_shift","_ctrl","_alt"];
+        params ["","_keyCode"];
+        if (
+            _keyCode in (actionKeys "MoveForward") && {
+            !isNull player && {
+            alive player && {
+            player call NWG_MED_CLI_IsWounded && {
+            (player call NWG_MED_CLI_GetSubstate) in [SUBSTATE_DOWN,SUBSTATE_CRWL] && {
+            (vehicle player) isEqualTo player}}}}}
+        ) then {
+            [player,SUBSTATE_CRWL] call NWG_MED_CLI_SetSubstate;
+            player playMoveNow "AmovPpneMrunSnonWnonDf";
+            player setCaptive false;
+        };
+
+        false/*Never intercept*/
+    }];
+
+    _gameDisplay displayAddEventHandler ["KeyUp", {
+        // params ["_eventName","_keyCode","_shift","_ctrl","_alt"];
+        params ["","_keyCode"];
+        if (
+            _keyCode in (actionKeys "MoveForward") && {
+            !isNull player && {
+            alive player && {
+            player call NWG_MED_CLI_IsWounded && {
+            (player call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_CRWL && {
+            (vehicle player) isEqualTo player}}}}}
+        ) then {
+            [player,SUBSTATE_DOWN] call NWG_MED_CLI_SetSubstate;
+            player playActionNow "Unconscious";
+            player setCaptive true;
+        };
+
+        false/*Never intercept*/
+    }];
+};
 
 //================================================================================================================
 //================================================================================================================
