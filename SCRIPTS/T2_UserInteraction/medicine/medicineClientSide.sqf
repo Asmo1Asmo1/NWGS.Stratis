@@ -13,8 +13,19 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["TIME_BLEEDING_TIME",900],//Start bleeding with this amount of 'time left'
     ["TIME_DAMAGE_DEPLETES",10],//How much time is subtracted when damage received in wounded state
 
+    ["SELF_HEAL_INITIAL_CHANCE",100],//Initial success chance of 'self-heal' action
+    ["SELF_HEAL_CHANCE_DECREASE",10],//Amount by which success chance of 'self-heal' action decreased by every attempt
+    ["SELF_HEAL_ACTION_PRIORITY",12],//Priority of 'self-heal' action
+    ["SELF_HEAL_ACTION_DURATION",8],//Duration of 'self-heal' action
+
     ["",0]
 ];
+
+//================================================================================================================
+//================================================================================================================
+//Defines
+#define FAKKIT "FirstAidKit"
+#define MEDKIT "Medikit"
 
 //================================================================================================================
 //================================================================================================================
@@ -27,6 +38,8 @@ private _Init = {
     NWG_MED_CLI_respawnPoint = getPosASL player;
     player addEventHandler ["Respawn",{_this call NWG_MED_CLI_OnRespawn}];
 
+    [EVENT_ON_LOADOUT_CHANGED,{_this call NWG_MED_CLI_OnInventoryChanged}] call NWG_fnc_subscribeToClientEvent;
+
     player call NWG_MED_CLI_InitPlayer;
 };
 
@@ -37,9 +50,10 @@ NWG_MED_CLI_InitPlayer = {
     [_this,SUBSTATE_NONE] call NWG_MED_CLI_SetSubstate;
     [_this,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_CLI_SetTime;
 
-    call NWG_MED_CLI_CHANCE_Reload;//Reload chances
+    call NWG_MED_CLI_ReloadChances;//Reload chances
+    call NWG_MED_CLI_SA_ReloadSelfHealChance;//Reload self-heal chance
 
-    //TODO: Add actions assign
+    call NWG_MED_CLI_SA_AddSelfActions;//Add self actions
 };
 
 //================================================================================================================
@@ -358,18 +372,135 @@ NWG_MED_CLI_OnRespawn = {
 
 //================================================================================================================
 //================================================================================================================
-//Chances logic
-NWG_MED_CLI_CHANCE_sequence = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100];
-NWG_MED_CLI_CHANCE_Reload = {NWG_MED_CLI_CHANCE_sequence = NWG_MED_CLI_CHANCE_sequence call NWG_fnc_arrayShuffle};
-NWG_MED_CLI_CHANCE_Get = {
-    private _c = NWG_MED_CLI_CHANCE_sequence deleteAt 0;
-    NWG_MED_CLI_CHANCE_sequence pushBack _c;
+//Action utils
+/*Chances logic*/
+NWG_MED_CLI_chanceSequence = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100];
+NWG_MED_CLI_ReloadChances = {NWG_MED_CLI_chanceSequence = NWG_MED_CLI_chanceSequence call NWG_fnc_arrayShuffle};
+NWG_MED_CLI_GetChance = {
+    private _c = NWG_MED_CLI_chanceSequence deleteAt 0;
+    NWG_MED_CLI_chanceSequence pushBack _c;
     _c
+};
+
+/*Med items logic*/
+NWG_MED_CLI_hasFAKkit = false;
+NWG_MED_CLI_hasMedkit = false;
+NWG_MED_CLI_OnInventoryChanged = {
+    // params ["_loadOut","_flattenLoadOut"];
+    params ["","_flattenLoadOut"];
+    NWG_MED_CLI_hasFAKkit = FAKKIT in _flattenLoadOut;
+    NWG_MED_CLI_hasMedkit = MEDKIT in _flattenLoadOut;
+};
+
+/*Add actions utils*/
+NWG_MED_CLI_AddSimpleAction = {
+    params ["_title","_priority","_condition","_action"];
+    player addAction [
+        (_title call NWG_fnc_localize),// title
+        _action,    // Action script
+        nil,        // Arguments
+        _priority,  // Priority
+        false,      // ShowWindow
+        true,       // HideOnUse
+        "",         // Shortcut
+        _condition, // Condition
+        -1          // Radius
+    ]
+};
+
+NWG_MED_CLI_AddHoldAction = {
+    params ["_title","_icon","_priority","_duration","_condition","_conditionHold","_onStarted","_onInterrupted","_onCompleted",["_showWhileWounded",false],["_autoShow",false]];
+    [
+        player,                         // Object the action is attached to
+        (_title call NWG_fnc_localize), // Title of the action
+        _icon,                          // Idle icon shown on screen
+        _icon,                          // Progress icon shown on screen
+        _condition,                     // Condition for the action to be shown
+        _conditionHold,                 // Condition for the action to progress
+        _onStarted,                     // Code executed when action starts
+        {},                             // Code executed on every progress tick
+        _onCompleted,                   // Code executed on completion
+        _onInterrupted,                 // Code executed on interrupted
+        [],                             // Arguments passed to the scripts as _this select 3
+        _duration,                      // Action duration in seconds
+        _priority,                      // Priority
+        false,                          // Remove on completion
+        _showWhileWounded,              // Show in unconscious state
+        _autoShow                       // Auto show on screen
+    ] call BIS_fnc_holdActionAdd
 };
 
 //================================================================================================================
 //================================================================================================================
 //Self actions
+NWG_MED_CLI_SA_AddSelfActions = {
+    /*Self heal*/
+    [
+        "#MED_ACTION_SELF_HEAL_TITLE#",/*_title*/
+        "a3\ui_f\data\igui\cfg\holdactions\holdaction_revive_ca.paa",/*_icon*/
+        (NWG_MED_CLI_Settings get "SELF_HEAL_ACTION_PRIORITY"),/*_priority*/
+        (NWG_MED_CLI_Settings get "SELF_HEAL_ACTION_DURATION"),/*_duration*/
+        "(call NWG_MED_CLI_SA_SelfHealCondition)",/*_condition*/
+        "true",/*_conditionHold*/
+        {call NWG_MED_CLI_SA_OnSelfHealStarted},/*_onStarted*/
+        {},/*_onInterrupted*/
+        {call NWG_MED_CLI_SA_OnSelfHealCompleted},/*_onCompleted*/
+        true/*_showWhileWounded*/
+    ] call NWG_MED_CLI_AddHoldAction;
+};
+
+/*Self heal*/
+NWG_MED_CLI_SA_selfHealSuccessChance = 100;
+NWG_MED_CLI_SA_ReloadSelfHealChance = {NWG_MED_CLI_SA_selfHealSuccessChance = NWG_MED_CLI_Settings get "SELF_HEAL_INITIAL_CHANCE"};
+
+NWG_MED_CLI_SA_SelfHealCondition = {
+    player call NWG_MED_CLI_IsWounded && {
+    NWG_MED_CLI_hasFAKkit && {
+    (player call NWG_MED_CLI_GetSubstate) in [SUBSTATE_DOWN,SUBSTATE_INVH]}}
+};
+NWG_MED_CLI_SA_OnSelfHealStarted = {
+    //Show message
+    private _successChance = (str NWG_MED_CLI_SA_selfHealSuccessChance)+"%";//Fix template unable to have '%' symbol
+    ["#MED_ACTION_SELF_HEAL_HINT#",_successChance] call NWG_fnc_systemChatMe;
+
+    //Play anim
+    if ((vehicle player) isEqualTo player) then {
+        [player,"ainvppnemstpslaywnondnon_medic"] call NWG_fnc_playAnim;
+        player playMove "UnconsciousFaceDown";
+    };
+};
+NWG_MED_CLI_SA_OnSelfHealCompleted = {
+    //Consume First Aid Kit
+    private _spendFakOk = FAKKIT call NWG_fnc_invRemoveItem;
+    if (!_spendFakOk) exitWith {
+        "NWG_MED_CLI_SA_OnSelfHealCompleted: Failed to consume FAK" call NWG_fnc_logError;
+        ["#MED_ACTION_SELF_HEAL_FAILURE#",(name player)] call NWG_fnc_systemChatAll;
+    };
+
+    //Patch player if needed
+    if (!NWG_MED_CLI_BLEEDING_isPatched) then {
+        true call NWG_MED_CLI_BLEEDING_SetPatched;
+        ["#MED_ACTION_SELF_HEAL_PATCHED#",(name player)] call NWG_fnc_systemChatAll;
+    };
+
+    //Get success chance for self-revive
+    private _myChance = NWG_MED_CLI_SA_selfHealSuccessChance;//Get chance
+    NWG_MED_CLI_SA_selfHealSuccessChance = NWG_MED_CLI_SA_selfHealSuccessChance - (NWG_MED_CLI_Settings get "SELF_HEAL_CHANCE_DECREASE");//Decrease success chance for next attempt
+
+    //Try to revive
+    if ((random 100) <= _myChance) then {
+        //Report success
+        [player,player,ACTION_HEAL] call NWG_fnc_medReportMedAction;
+        ["#MED_ACTION_SELF_HEAL_SUCCESS#",(name player)] call NWG_fnc_systemChatAll;
+    } else {
+        //Report failure
+        ["#MED_ACTION_SELF_HEAL_FAILURE#",(name player)] call NWG_fnc_systemChatAll;
+    };
+};
+
+/*Respawn*/
+
+/*Crawl*/
 
 //================================================================================================================
 //================================================================================================================
