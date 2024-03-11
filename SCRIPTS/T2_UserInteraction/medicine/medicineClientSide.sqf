@@ -283,8 +283,22 @@ NWG_MED_CLI_BLEEDING_Cycle = {
         } else {objNull};
 
         //Output info to the UI
-        //TODO: Add actual formatting and localization
-        hintSilent format ["DEBUG:\nt:%1 d:%2\np:%3 pDist:%4",_timeLeft,_timeToDeplete,(name _closestPlayer),(_closestPlayer distance player)];
+        private _template = [];
+        _template pushBack (switch (_timeToDeplete) do {
+            case 1: {"#MED_CLI_BLEEDING_UI_TITLE_LOW#"};
+            case 2: {"#MED_CLI_BLEEDING_UI_TITLE_MID#"};
+            case 4: {"#MED_CLI_BLEEDING_UI_TITLE_HIGH#"};
+            default {""};//Shouldn't happen
+        });
+        _template pushBack "#MED_CLI_BLEEDING_UI_TIMELEFT#";
+        _template pushBack (if (!isNull _closestPlayer)
+            then {"#MED_CLI_BLEEDING_UI_CLOSEST_PLAYER#"}
+            else {"#MED_CLI_BLEEDING_UI_NO_CLOSEST#"});
+        _template = (_template apply {_x call NWG_fnc_localize}) joinString "\n";
+        private _output = if (!isNull _closestPlayer)
+            then {format [_template,_timeLeft,_timeToDeplete,(name _closestPlayer),(_closestPlayer distance player)]}
+            else {format [_template,_timeLeft,_timeToDeplete]};
+        hintSilent _output;
 
         //Repeat
         sleep 1;
