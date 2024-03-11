@@ -37,6 +37,8 @@ NWG_MED_CLI_InitPlayer = {
     [_this,SUBSTATE_NONE] call NWG_MED_CLI_SetSubstate;
     [_this,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_CLI_SetTime;
 
+    call NWG_MED_CLI_CHANCE_Reload;//Reload chances
+
     //TODO: Add actions assign
 };
 
@@ -350,6 +352,17 @@ NWG_MED_CLI_OnRespawn = {
     _player setCaptive false;//Reset captive state
     _player setUnconscious false;//Reset unconscious state
     _player call NWG_MED_CLI_InitPlayer;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Chances logic
+NWG_MED_CLI_CHANCE_sequence = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100];
+NWG_MED_CLI_CHANCE_Reload = {NWG_MED_CLI_CHANCE_sequence = NWG_MED_CLI_CHANCE_sequence call NWG_fnc_arrayShuffle};
+NWG_MED_CLI_CHANCE_Get = {
+    private _c = NWG_MED_CLI_CHANCE_sequence deleteAt 0;
+    NWG_MED_CLI_CHANCE_sequence pushBack _c;
+    _c
 };
 
 //================================================================================================================
