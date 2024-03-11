@@ -145,24 +145,12 @@ NWG_MED_CLI_OnDamageWhileHealthy = {
 
     private _veh = vehicle _unit;
     switch (true) do {
-        /*Invalid vehicle*/
-        case (isNull _veh): {[_unit,SUBSTATE_DOWN] call NWG_MED_CLI_SetSubstate};//Shouldn't happen
-        /*Unit in ragdoll falling to the ground*/
-        case (_veh isEqualTo _unit): {
-            [_unit,SUBSTATE_RAGD] call NWG_MED_CLI_SetSubstate;
-        };
-        /*Unit in static weapon*/
-        case (_veh isKindOf "StaticWeapon"): {
-            moveOut _unit;
-            [_unit,SUBSTATE_RAGD] call NWG_MED_CLI_SetSubstate;
-        };
-        /*Unit in vehicle*/
-        default {
-            _unit playActionNow "Unconscious";
-            [_unit,SUBSTATE_INVH] call NWG_MED_CLI_SetSubstate;
-        };
+        case (isNull _veh || {_veh isEqualTo _unit}): {/*Do nothing*/};
+        case (_veh isKindOf "StaticWeapon"): {moveOut _unit};//Fix stucking inside static weapon
+        default {_unit playActionNow "Unconscious"};//Fix animation in vehicle
     };
 
+    [_unit,SUBSTATE_NONE] call NWG_MED_CLI_SetSubstate;//Will be updated in bleeding cycle
     call NWG_MED_CLI_BLEEDING_StartBleeding;
 
     _damager = [_damager,_instigator] call NWG_MED_CLI_DefineDamager;
