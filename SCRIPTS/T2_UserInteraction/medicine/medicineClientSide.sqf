@@ -11,7 +11,7 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["INVULNERABILITY_ON_WOUNDED",3],//Seconds to ignore damage when getting wounded
 
     ["TIME_BLEEDING_TIME",900],//Start bleeding with this amount of 'time left'
-    ["TIME_DAMAGE_DEPLETES",10],//How much time is subtracted when damage received in wounded state
+    ["TIME_DAMAGE_DEPLETES",6],//How much time is subtracted when damage received in wounded state
 
     ["SELF_HEAL_INITIAL_CHANCE",100],//Initial success chance of 'self-heal' action
     ["SELF_HEAL_CHANCE_DECREASE",10],//Amount by which success chance of 'self-heal' action decreased by every attempt
@@ -182,12 +182,8 @@ NWG_MED_CLI_OnDamageWhileWounded = {
     _damager = [_damager,_instigator] call NWG_MED_CLI_DefineDamager;
     if (isNull _damager) exitWith {};
 
-    private _timeToDeplete = NWG_MED_CLI_Settings get "TIME_DAMAGE_DEPLETES";
-    if (_timeToDeplete <= 0) exitWith {};
-
     false call NWG_MED_CLI_BLEEDING_SetPatched;
     _damager call NWG_MED_CLI_BLEEDING_SetLastDamager;
-    [_unit,_timeToDeplete] call NWG_MED_CLI_DecreaseTime;
 };
 
 NWG_MED_CLI_DefineDamager = {
@@ -253,26 +249,31 @@ NWG_MED_CLI_BLEEDING_Cycle = {
             [player,_substate] call NWG_MED_CLI_SetSubstate;
         };
 
-        //Check time left
+        //Get time left
         private _timeLeft = player call NWG_MED_CLI_GetTime;
-        if (_timeLeft <= 0) exitWith {
-            /*Someone decreased our time while we were doing 'sleep'*/
-            if (!isNull NWG_MED_CLI_BLEEDING_lastDamager) then {[NWG_MED_CLI_BLEEDING_lastDamager,player,BLAME_KILL] call NWG_fnc_medBlame};
-            call NWG_MED_CLI_Respawn;
-            true;//Exit cycle
-        };
 
-        //Deplete time
-        private _timeToDeplete = 1;
-        if !(NWG_MED_CLI_BLEEDING_isPatched) then {_timeToDeplete = 2};//Increase if unit not patched
-        if !(_substate in [SUBSTATE_INVH,SUBSTATE_DOWN]) then {_timeToDeplete = _timeToDeplete * 2};//Increase if unit is not still
-        _timeLeft = _timeLeft - _timeToDeplete;
+        //Deplete by damage
+        private _damager = NWG_MED_CLI_BLEEDING_lastDamager;
+        private _depleteByDamage = if (!isNull _damager) then {
+            NWG_MED_CLI_BLEEDING_lastDamager = objNull;//Reset last damager
+            (NWG_MED_CLI_Settings get "TIME_DAMAGE_DEPLETES")
+        } else {0};
+        _timeLeft = _timeLeft - _depleteByDamage;
+
+        //Deplete by bleeding
+        private _depleteByTime = 1;
+        if !(NWG_MED_CLI_BLEEDING_isPatched) then {_depleteByTime = 2};//Increase if unit not patched
+        if !(_substate in [SUBSTATE_INVH,SUBSTATE_DOWN]) then {_depleteByTime = _depleteByTime * 2};//Increase if unit is not still
+        _timeLeft = _timeLeft - _depleteByTime;
+
+        //Check if we're still alive
         if (_timeLeft <= 0) exitWith {
-            /*Our time ran out naturally*/
+            /*Our time ran out*/
+            if (!isNull _damager) then {[_damager,player,BLAME_KILL] call NWG_fnc_medBlame};//Blame the last damager
             call NWG_MED_CLI_Respawn;
             true;//Exit cycle
         };
-        [player,_timeToDeplete] call NWG_MED_CLI_DecreaseTime;
+        [player,(_depleteByDamage + _depleteByTime)] call NWG_MED_CLI_DecreaseTime;
 
         //Calculate closest player
         private _allValidPlayers = (call NWG_fnc_getPlayersAll) select {
@@ -289,7 +290,7 @@ NWG_MED_CLI_BLEEDING_Cycle = {
 
         //Output info to the UI
         private _template = [];
-        _template pushBack (switch (_timeToDeplete) do {
+        _template pushBack (switch (_depleteByTime) do {
             case 1: {"#MED_CLI_BLEEDING_UI_TITLE_LOW#"};
             case 2: {"#MED_CLI_BLEEDING_UI_TITLE_MID#"};
             case 4: {"#MED_CLI_BLEEDING_UI_TITLE_HIGH#"};
@@ -301,8 +302,8 @@ NWG_MED_CLI_BLEEDING_Cycle = {
             else {"#MED_CLI_BLEEDING_UI_NO_CLOSEST#"});
         _template = (_template apply {_x call NWG_fnc_localize}) joinString "\n";
         private _output = if (!isNull _closestPlayer)
-            then {format [_template,_timeLeft,_timeToDeplete,(name _closestPlayer),(_closestPlayer distance player)]}
-            else {format [_template,_timeLeft,_timeToDeplete]};
+            then {format [_template,_timeLeft,(_depleteByDamage + _depleteByTime),(name _closestPlayer),(_closestPlayer distance player)]}
+            else {format [_template,_timeLeft,(_depleteByDamage + _depleteByTime)]};
         hintSilent _output;
 
         //Repeat
