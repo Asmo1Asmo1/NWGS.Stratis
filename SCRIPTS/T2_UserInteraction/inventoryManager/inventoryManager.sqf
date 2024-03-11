@@ -10,7 +10,7 @@ NWG_INV_currentLoadoutFlattened = [];
 //================================================================================================================
 //Init
 private _Init = {
-    (getUnitLoadout player) call NWG_INV_UpdateFields;//Save initial loadout
+    call NWG_INV_CheckLoadoutChange;//Initial check (will update the fields)
 
     player addEventHandler ["InventoryClosed",{call NWG_INV_CheckLoadoutChange}];
     player addEventHandler ["Take",{call NWG_INV_CheckLoadoutChange}];
@@ -22,18 +22,15 @@ private _Init = {
 //================================================================================================================
 //================================================================================================================
 //Loadout changes check
-NWG_INV_UpdateFields = {
-    // private _loadout = _this;
-    NWG_INV_currentLoadout = _this;
-    NWG_INV_currentLoadoutFlattened = (flatten _this) select {_x isEqualType "" && {_x isNotEqualTo ""}};
-};
-
 NWG_INV_CheckLoadoutChange = {
     private _newLoadout = (getUnitLoadout player);
     if (_newLoadout isEqualTo NWG_INV_currentLoadout) exitWith {};//No changes
+    private _flattened = (flatten _newLoadout) select {_x isEqualType "" && {_x isNotEqualTo ""}};
 
-    _newLoadout call NWG_INV_UpdateFields;//Update fields
-    [EVENT_ON_LOADOUT_CHANGED,[]] call NWG_fnc_raiseClientEvent;//Raise event
+    NWG_INV_currentLoadout = _newLoadout;
+    NWG_INV_currentLoadoutFlattened = _flattened;
+
+    [EVENT_ON_LOADOUT_CHANGED,[_newLoadout,_flattened]] call NWG_fnc_raiseClientEvent;//Raise event
 };
 
 //================================================================================================================
