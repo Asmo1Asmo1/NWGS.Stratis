@@ -12,12 +12,18 @@ NWG_fnc_logError = {
 //===============================================================
 //Array manipulation
 
-//Shuffles array and returns it (modifies the input array)
-//note: made by Nelson Duarte, optimised by Killzone_Kid ('KK_fnc_arrayShuffle'), optimised by HOPA_EHOTA
+//Shuffles array and returns it (modifies the input array) (utilizes Fisher-Yates shuffle algorithm)
 NWG_fnc_arrayShuffle = {
     //private _array = _this;
-    for "_i" from 1 to (count _this) do {_this pushBack (_this deleteAt (floor (random (count _this))))};
-    //return
+    if ((count _this) <= 1) exitWith {_this};//Check obvious case
+
+    private _j = -1;
+    {
+        _j = floor (random (_forEachIndex + 1));//Generate a random index _j between 0 and current index
+        _this set [_forEachIndex,(_this#_j)];
+        _this set [_j,_x];
+    } forEachReversed _this;
+
     _this
 };
 
