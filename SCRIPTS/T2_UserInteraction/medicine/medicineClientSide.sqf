@@ -15,8 +15,11 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
 
     ["SELF_HEAL_INITIAL_CHANCE",100],//Initial success chance of 'self-heal' action
     ["SELF_HEAL_CHANCE_DECREASE",10],//Amount by which success chance of 'self-heal' action decreased by every attempt
-    ["SELF_HEAL_ACTION_PRIORITY",12],//Priority of 'self-heal' action
+    ["SELF_HEAL_ACTION_PRIORITY",13],//Priority of 'self-heal' action
     ["SELF_HEAL_ACTION_DURATION",8],//Duration of 'self-heal' action
+
+    ["RESPAWN_ACTION_PRIORITY",12],//Priority of 'respawn' action
+    ["RESPAWN_ACTION_DURATION",5],//Duration of 'respawn' action
 
     ["",0]
 ];
@@ -447,6 +450,20 @@ NWG_MED_CLI_SA_AddSelfActions = {
         {call NWG_MED_CLI_SA_OnSelfHealCompleted},/*_onCompleted*/
         true/*_showWhileWounded*/
     ] call NWG_MED_CLI_AddHoldAction;
+
+    /*Respawn*/
+        [
+        "#MED_ACTION_RESPAWN_TITLE#",/*_title*/
+        "a3\ui_f\data\igui\cfg\holdactions\holdaction_forcerespawn_ca.paa",/*_icon*/
+        (NWG_MED_CLI_Settings get "RESPAWN_ACTION_PRIORITY"),/*_priority*/
+        (NWG_MED_CLI_Settings get "RESPAWN_ACTION_DURATION"),/*_duration*/
+        "(call NWG_MED_CLI_SA_RespawnCondition)",/*_condition*/
+        "true",/*_conditionHold*/
+        {},/*_onStarted*/
+        {},/*_onInterrupted*/
+        {call NWG_MED_CLI_SA_OnRespawnCompleted},/*_onCompleted*/
+        true/*_showWhileWounded*/
+    ] call NWG_MED_CLI_AddHoldAction;
 };
 
 /*Self heal*/
@@ -493,6 +510,13 @@ NWG_MED_CLI_SA_OnSelfHealCompleted = {
 };
 
 /*Respawn*/
+NWG_MED_CLI_SA_RespawnCondition = {
+    player call NWG_MED_CLI_IsWounded && {
+    (player call NWG_MED_CLI_GetSubstate) in [SUBSTATE_DOWN,SUBSTATE_INVH]}
+};
+NWG_MED_CLI_SA_OnRespawnCompleted = {
+    call NWG_MED_CLI_Respawn;
+};
 
 /*Crawl*/
 

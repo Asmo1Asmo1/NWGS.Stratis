@@ -12,6 +12,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_ACTION_SELF_HEAL_FAILURE#","%1 не смог вылечить себя"],
     ["#MED_ACTION_SELF_HEAL_PATCHED#","%1 перевязал себя"],
     ["#MED_ACTION_SELF_HEAL_SUCCESS#","%1 вылечил себя"],
+    ["#MED_ACTION_RESPAWN_TITLE#","Возродиться"],
 
     ["",""]
 ];
