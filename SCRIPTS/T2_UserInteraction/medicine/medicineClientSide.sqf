@@ -290,22 +290,21 @@ NWG_MED_CLI_BLEEDING_Cycle = {
         } else {objNull};
 
         //Output info to the UI
-        private _template = [];
-        _template pushBack (switch (_depleteByTime) do {
-            case 1: {"#MED_CLI_BLEEDING_UI_TITLE_LOW#"};
-            case 2: {"#MED_CLI_BLEEDING_UI_TITLE_MID#"};
-            case 4: {"#MED_CLI_BLEEDING_UI_TITLE_HIGH#"};
+        private _title = switch (_depleteByTime) do {
+            case 1: {"#MED_CLI_BLEEDING_UI_TITLE_LOW#"  call NWG_fnc_localize};
+            case 2: {"#MED_CLI_BLEEDING_UI_TITLE_MID#"  call NWG_fnc_localize};
+            case 4: {"#MED_CLI_BLEEDING_UI_TITLE_HIGH#" call NWG_fnc_localize};
             default {""};//Shouldn't happen
-        });
-        _template pushBack "#MED_CLI_BLEEDING_UI_TIMELEFT#";
-        _template pushBack (if (!isNull _closestPlayer)
-            then {"#MED_CLI_BLEEDING_UI_CLOSEST_PLAYER#"}
-            else {"#MED_CLI_BLEEDING_UI_NO_CLOSEST#"});
-        _template = (_template apply {_x call NWG_fnc_localize}) joinString "\n";
-        private _output = if (!isNull _closestPlayer)
-            then {format [_template,_timeLeft,(_depleteByDamage + _depleteByTime),(name _closestPlayer),(_closestPlayer distance player)]}
-            else {format [_template,_timeLeft,(_depleteByDamage + _depleteByTime)]};
-        hintSilent _output;
+        };
+        private _timeInfo = format [
+            ("#MED_CLI_BLEEDING_UI_TIMELEFT#" call NWG_fnc_localize),
+            _timeLeft,
+            (_depleteByDamage + _depleteByTime)
+        ];
+        private _closeInfo = if (!isNull _closestPlayer)
+            then {format [("#MED_CLI_BLEEDING_UI_CLOSEST_PLAYER#" call NWG_fnc_localize),(name _closestPlayer),(_closestPlayer distance player)]}
+            else {"#MED_CLI_BLEEDING_UI_NO_CLOSEST#" call NWG_fnc_localize};
+        hintSilent ([_title,_timeInfo,_closeInfo] joinString "\n");
 
         //Repeat
         sleep 1;
