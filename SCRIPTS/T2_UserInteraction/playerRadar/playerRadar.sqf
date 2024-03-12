@@ -51,10 +51,8 @@ NWG_RADAR_OnEachFrame = {
     private _units = (player nearEntities [["Man"],RADAR_RADIUS]) select {
         alive _x && {
         _x isNotEqualTo player && {
-        isNull (attachedTo _x) && {
-        isAwake _x && {
         _x call _isOnSameHeight && {
-        _x call _isInFront}}}}}
+        _x call _isInFront}}}
     };
     switch (count _units) do {
         case 0: {NWG_RADAR_unitFront = NWG_RADAR_objNull};
