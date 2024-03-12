@@ -22,6 +22,12 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["RESPAWN_ACTION_PRIORITY",12],//Priority of 'respawn' action
     ["RESPAWN_ACTION_DURATION",5],//Duration of 'respawn' action
 
+    ["HEAL_WITH_FAK_CHANCE",50],//Chance to heal another unit using only FAK
+    ["HEAL_CHANCE_BOOST_ON_LAST_FAK",20],//Amount by which success chance of 'heal' action increased on last FAK
+    ["HEAL_ACTION_PRIORITY",20],//Priority of 'heal' action
+    ["HEAL_ACTION_DURATION",8],//Duration of 'heal' action
+    ["HEAL_ACTION_AUTOSHOW",true],//If true - will automatically show on screen in suggestive manner
+
     ["",0]
 ];
 
@@ -58,6 +64,7 @@ NWG_MED_CLI_InitPlayer = {
     call NWG_MED_CLI_SA_ReloadSelfHealChance;//Reload self-heal chance
 
     call NWG_MED_CLI_SA_AddSelfActions;//Add self actions
+    call NWG_MED_CLI_UA_AddUnitsActions;//Add units actions
 };
 
 //================================================================================================================
@@ -100,6 +107,33 @@ NWG_MED_CLI_CalculateSubstate = {
     SUBSTATE_DOWN
 };
 
+NWG_MED_CLI_IsPatched = {
+    // private _unit = _this;
+    if (isNull _this || {!alive _this}) exitWith {false};
+    _this getVariable ["NWG_MED_CLI_patched",false]
+};
+NWG_MED_CLI_SetPatched = {
+    params ["_unit","_patched"];
+    if (isNull _unit || {!alive _unit}) exitWith {};
+    //Update only if needed
+    if (_patched isNotEqualTo (_unit getVariable ["NWG_MED_CLI_patched",0]))
+        then {_unit setVariable ["NWG_MED_CLI_patched",_patched,true]};
+};
+
+NWG_MED_CLI_IsMedic = {
+    // private _unit = _this;
+    if (isNull _this || {!alive _this}) exitWith {false};
+    _this getVariable ["NWG_MED_CLI_medic",false]
+};
+NWG_MED_CLI_MarkMedic = {
+    params ["_unit","_isMedic"];
+    if (isNull _unit || {!alive _unit}) exitWith {};
+    //Update only if needed
+    if (_isMedic isNotEqualTo (_unit getVariable ["NWG_MED_CLI_medic",0]))
+        then {_unit setVariable ["NWG_MED_CLI_medic",_isMedic,true]};
+};
+
+/*Time is completely local and never shared with others*/
 NWG_MED_CLI_GetTime = {
     // private _unit = _this;
     if (isNull _this || {!alive _this}) exitWith {0};
@@ -108,13 +142,6 @@ NWG_MED_CLI_GetTime = {
 NWG_MED_CLI_SetTime = {
     params ["_unit","_time"];
     if (isNull _unit || {!alive _unit}) exitWith {};
-    _unit setVariable ["NWG_MED_CLI_time",_time];
-};
-NWG_MED_CLI_DecreaseTime = {
-    params ["_unit","_timeSubtraction"];
-    if (isNull _unit || {!alive _unit}) exitWith {};
-    private _time = _unit getVariable ["NWG_MED_CLI_time",0];
-    _time = _time - _timeSubtraction;
     _unit setVariable ["NWG_MED_CLI_time",_time];
 };
 
@@ -183,7 +210,7 @@ NWG_MED_CLI_OnDamageWhileWounded = {
     _damager = [_damager,_instigator] call NWG_MED_CLI_DefineDamager;
     if (isNull _damager) exitWith {};
 
-    false call NWG_MED_CLI_BLEEDING_SetPatched;
+    [_unit,false] call NWG_MED_CLI_SetPatched;
     _damager call NWG_MED_CLI_BLEEDING_SetLastDamager;
 };
 
@@ -205,19 +232,17 @@ NWG_MED_CLI_DefineDamager = {
 //================================================================================================================
 //Bleeding cycle
 NWG_MED_CLI_BLEEDING_isBleeding = false;
-NWG_MED_CLI_BLEEDING_isPatched = false;
 NWG_MED_CLI_BLEEDING_lastDamager = objNull;
 NWG_MED_CLI_BLEEDING_cycleHandle = scriptNull;
 
-NWG_MED_CLI_BLEEDING_SetPatched = {NWG_MED_CLI_BLEEDING_isPatched = _this};
-NWG_MED_CLI_BLEEDING_SetLastDamager = {NWG_MED_CLI_BLEEDING_lastDamager = _this};
+NWG_MED_CLI_BLEEDING_SetLastDamager = {NWG_MED_CLI_BLEEDING_lastDamager = _this};//Crude Property
 
 NWG_MED_CLI_BLEEDING_StartBleeding = {
     if (NWG_MED_CLI_BLEEDING_isBleeding) exitWith {};//Prevent double start
-    NWG_MED_CLI_BLEEDING_isPatched = false;
     NWG_MED_CLI_BLEEDING_lastDamager = objNull;
     private _startTime = NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME";
     [player,_startTime] call NWG_MED_CLI_SetTime;
+    [player,false] call NWG_MED_CLI_SetPatched;
     call NWG_MED_CLI_BLEEDING_PostProcessEnable;
     NWG_MED_CLI_BLEEDING_cycleHandle = [] spawn NWG_MED_CLI_BLEEDING_Cycle;
     NWG_MED_CLI_BLEEDING_isBleeding = true;
@@ -228,7 +253,6 @@ NWG_MED_CLI_BLEEDING_StopBleeding = {
     terminate NWG_MED_CLI_BLEEDING_cycleHandle;
     call NWG_MED_CLI_BLEEDING_PostProcessDisable;
     hintSilent "";//Clear hint
-    NWG_MED_CLI_BLEEDING_isPatched = false;
     NWG_MED_CLI_BLEEDING_lastDamager = objNull;
     NWG_MED_CLI_BLEEDING_isBleeding = false;
 };
@@ -263,7 +287,7 @@ NWG_MED_CLI_BLEEDING_Cycle = {
 
         //Deplete by bleeding
         private _depleteByTime = 1;
-        if !(NWG_MED_CLI_BLEEDING_isPatched) then {_depleteByTime = 2};//Increase if unit not patched
+        if !(player call NWG_MED_CLI_IsPatched) then {_depleteByTime = 2};//Increase if unit not patched
         if !(_substate in [SUBSTATE_INVH,SUBSTATE_DOWN]) then {_depleteByTime = _depleteByTime * 2};//Increase if unit is not still
         _timeLeft = _timeLeft - _depleteByTime;
 
@@ -274,7 +298,7 @@ NWG_MED_CLI_BLEEDING_Cycle = {
             call NWG_MED_CLI_Respawn;
             true;//Exit cycle
         };
-        [player,(_depleteByDamage + _depleteByTime)] call NWG_MED_CLI_DecreaseTime;
+        [player,_timeLeft] call NWG_MED_CLI_SetTime;
 
         //Calculate closest player
         private _allValidPlayers = (call NWG_fnc_getPlayersAll) select {
@@ -394,6 +418,7 @@ NWG_MED_CLI_OnInventoryChanged = {
     params ["","_flattenLoadOut"];
     NWG_MED_CLI_hasFAKkit = FAKKIT in _flattenLoadOut;
     NWG_MED_CLI_hasMedkit = MEDKIT in _flattenLoadOut;
+    [player,NWG_MED_CLI_hasMedkit] call NWG_MED_CLI_MarkMedic;//Update medic status
 };
 
 /*Add actions utils*/
@@ -413,14 +438,14 @@ NWG_MED_CLI_AddSimpleAction = {
 };
 
 NWG_MED_CLI_AddHoldAction = {
-    params ["_title","_icon","_priority","_duration","_condition","_conditionHold","_onStarted","_onInterrupted","_onCompleted",["_showWhileWounded",false],["_autoShow",false]];
+    params ["_title","_icon","_priority","_duration","_condition","_onStarted","_onInterrupted","_onCompleted",["_showWhileWounded",false],["_autoShow",false]];
     [
         player,                         // Object the action is attached to
         (_title call NWG_fnc_localize), // Title of the action
         _icon,                          // Idle icon shown on screen
         _icon,                          // Progress icon shown on screen
         _condition,                     // Condition for the action to be shown
-        _conditionHold,                 // Condition for the action to progress
+        _condition,                     // Condition for the action to progress
         _onStarted,                     // Code executed when action starts
         {},                             // Code executed on every progress tick
         _onCompleted,                   // Code executed on completion
@@ -445,7 +470,6 @@ NWG_MED_CLI_SA_AddSelfActions = {
         (NWG_MED_CLI_Settings get "SELF_HEAL_ACTION_PRIORITY"),/*_priority*/
         (NWG_MED_CLI_Settings get "SELF_HEAL_ACTION_DURATION"),/*_duration*/
         "(call NWG_MED_CLI_SA_SelfHealCondition)",/*_condition*/
-        "true",/*_conditionHold*/
         {call NWG_MED_CLI_SA_OnSelfHealStarted},/*_onStarted*/
         {call NWG_MED_CLI_SA_OnSelfHealInterrupted},/*_onInterrupted*/
         {call NWG_MED_CLI_SA_OnSelfHealCompleted},/*_onCompleted*/
@@ -453,13 +477,12 @@ NWG_MED_CLI_SA_AddSelfActions = {
     ] call NWG_MED_CLI_AddHoldAction;
 
     /*Respawn*/
-        [
+    [
         "#MED_ACTION_RESPAWN_TITLE#",/*_title*/
         "a3\ui_f\data\igui\cfg\holdactions\holdaction_forcerespawn_ca.paa",/*_icon*/
         (NWG_MED_CLI_Settings get "RESPAWN_ACTION_PRIORITY"),/*_priority*/
         (NWG_MED_CLI_Settings get "RESPAWN_ACTION_DURATION"),/*_duration*/
         "(call NWG_MED_CLI_SA_RespawnCondition)",/*_condition*/
-        "true",/*_conditionHold*/
         {},/*_onStarted*/
         {},/*_onInterrupted*/
         {call NWG_MED_CLI_SA_OnRespawnCompleted},/*_onCompleted*/
@@ -483,7 +506,7 @@ NWG_MED_CLI_SA_SelfHealCondition = {
     (player call NWG_MED_CLI_GetSubstate) in [SUBSTATE_DOWN,SUBSTATE_INVH,SUBSTATE_HEAL]}}/*SUBSTATE_HEAL because otherwise action disappears when started*/
 };
 NWG_MED_CLI_SA_OnSelfHealStarted = {
-    [player,SUBSTATE_HEAL] call NWG_MED_CLI_SetSubstate;//Set substate
+    [player,SUBSTATE_HEAL] call NWG_MED_CLI_SetSubstate;//Set substate to HEAL
 
     //Show message
     private _fakCount = FAKKIT call NWG_fnc_invGetItemCount;
@@ -503,16 +526,11 @@ NWG_MED_CLI_SA_OnSelfHealCompleted = {
     [player,SUBSTATE_NONE] call NWG_MED_CLI_SetSubstate;//Reset substate
 
     //Consume First Aid Kit
-    private _spendFakOk = FAKKIT call NWG_fnc_invRemoveItem;//Also will update NWG_MED_CLI_hasFAKkit (hopefully)
-    if (!_spendFakOk) exitWith {
+    if ((FAKKIT call NWG_fnc_invRemoveItem) isEqualTo false) exitWith {
         "NWG_MED_CLI_SA_OnSelfHealCompleted: Failed to consume FAK" call NWG_fnc_logError;
         [player,player,ACTION_HEAL_FAILURE] call NWG_fnc_medReportMedAction;
     };
-
-    //Patch player if needed
-    if (!NWG_MED_CLI_BLEEDING_isPatched) then {
-        [player,player,ACTION_PATCH] call NWG_fnc_medReportMedAction;
-    };
+    NWG_MED_CLI_hasFAKkit = FAKKIT call NWG_fnc_invHasItem;//Update FAK presence (it SHOULD update on consume, but let's double-check)
 
     //Get success chance for self-revive
     private _myChance = NWG_MED_CLI_SA_selfHealSuccessChance;//Get chance
@@ -523,10 +541,15 @@ NWG_MED_CLI_SA_OnSelfHealCompleted = {
         //No, we do not show this to player - it's a hidden bonus that they should not know about
     };
 
-    //Try to revive
-    if ((call NWG_MED_CLI_GetChance) <= _myChance)
-        then {[player,player,ACTION_HEAL_SUCCESS] call NWG_fnc_medReportMedAction}
-        else {[player,player,ACTION_HEAL_FAILURE] call NWG_fnc_medReportMedAction};
+    //Try to revive self
+    if ((call NWG_MED_CLI_GetChance) <= _myChance) then {
+        /*Success*/
+        [player,player,ACTION_HEAL_PARTIAL] call NWG_fnc_medReportMedAction;
+    } else {
+        /*Failure*/
+        if !(player call NWG_MED_CLI_IsPatched) then {[player,player,ACTION_PATCH] call NWG_fnc_medReportMedAction};//At least patch the player
+        [player,player,ACTION_HEAL_FAILURE] call NWG_fnc_medReportMedAction;
+    };
 };
 
 /*Respawn*/
@@ -582,6 +605,140 @@ NWG_MED_CLI_SA_AddCrawl = {
 //================================================================================================================
 //================================================================================================================
 //Units actions
+NWG_MED_CLI_UA_lockedUnit = objNull;
+NWG_MED_CLI_UA_AddUnitsActions = {
+    /*Heal*/
+    [
+        "#MED_ACTION_HEAL_TITLE#",/*_title*/
+        "a3\ui_f\data\igui\cfg\holdactions\holdaction_revivemedic_ca.paa",/*_icon*/
+        (NWG_MED_CLI_Settings get "HEAL_ACTION_PRIORITY"),/*_priority*/
+        (NWG_MED_CLI_Settings get "HEAL_ACTION_DURATION"),/*_duration*/
+        "(call NWG_MED_CLI_UA_HealCondition)",/*_condition*/
+        {call NWG_MED_CLI_UA_OnHealStarted},/*_onStarted*/
+        {call NWG_MED_CLI_UA_OnHealInterrupted},/*_onInterrupted*/
+        {call NWG_MED_CLI_UA_OnHealCompleted},/*_onCompleted*/
+        false,/*_showWhileWounded*/
+        (NWG_MED_CLI_Settings get "HEAL_ACTION_AUTOSHOW")/*_autoShow*/
+    ] call NWG_MED_CLI_AddHoldAction;
+};
+
+/*Heal*/
+NWG_MED_CLI_UA_HealCondition = {
+    /*NWG_fnc_radarGetUnitInFront also checks if player is alive and on foot, so we can omit it here*/
+    !isNull (call NWG_fnc_radarGetUnitInFront) && {
+    !(player call NWG_MED_CLI_IsWounded) && {
+    (NWG_MED_CLI_hasFAKkit || NWG_MED_CLI_hasMedkit) && {
+    (call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_IsWounded && {
+    ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}
+};
+NWG_MED_CLI_UA_OnHealStarted = {
+    NWG_MED_CLI_UA_lockedUnit = call NWG_fnc_radarGetUnitInFront;//Lock unit
+
+    //Show different message based on 'medic' status
+    //FAK and Medkit presence for medic, FAK count and chance for non-medic
+    if (player call NWG_MED_CLI_IsMedic) then {
+        private _hasMedkit = if (NWG_MED_CLI_hasMedkit) then {"#MED_HAS_MEDKIT#"} else {"#MED_NO_MEDKIT#"};
+        private _fakCount = FAKKIT call NWG_fnc_invGetItemCount;
+        ["#MED_ACTION_HEAL_MED_HINT#",_hasMedkit,_fakCount] call NWG_fnc_systemChatMe;
+    } else {
+        private _fakCount = FAKKIT call NWG_fnc_invGetItemCount;
+        private _myChance = (str (NWG_MED_CLI_Settings get "HEAL_WITH_FAK_CHANCE"))+"%";//Fix template unable to have '%' symbol
+        ["#MED_ACTION_HEAL_FAK_HINT#",_fakCount,_myChance] call NWG_fnc_systemChatMe;
+    };
+
+    //Play anim
+    player playActionNow "MedicOther";
+};
+NWG_MED_CLI_UA_OnHealInterrupted = {
+    NWG_MED_CLI_UA_lockedUnit = objNull;//Drop lock
+    if (isNull player || {!alive player}) exitWith {};//Prevent errors
+    if (player call NWG_MED_CLI_IsWounded) exitWith {};//Game logic will handle this
+    call NWG_MED_CLI_UA_ResetAnimation;//Reset animation
+};
+NWG_MED_CLI_UA_OnHealCompleted = {
+    call NWG_MED_CLI_UA_ResetAnimation;//Reset animation
+    private _healTarget = NWG_MED_CLI_UA_lockedUnit;
+    NWG_MED_CLI_UA_lockedUnit = objNull;//Drop lock
+    if (
+        isNull _healTarget || {
+        _healTarget isNotEqualTo (call NWG_fnc_radarGetUnitInFront) || {
+        !(_healTarget call NWG_MED_CLI_IsWounded)}}
+    ) exitWith {};//Abort on target loss
+
+    if (player call NWG_MED_CLI_IsMedic)
+        then {_healTarget call NWG_MED_CLI_UA_OnHealCompleted_MED}
+        else {_healTarget call NWG_MED_CLI_UA_OnHealCompleted_FAK};
+};
+NWG_MED_CLI_UA_OnHealCompleted_MED = {
+    private _healTarget = _this;
+
+    switch (true) do {
+        /*Full heal by consuming FAK*/
+        case (NWG_MED_CLI_hasFAKkit && NWG_MED_CLI_hasMedkit): {
+            if ((FAKKIT call NWG_fnc_invRemoveItem) isEqualTo false) exitWith {
+                "NWG_MED_CLI_UA_OnHealCompleted_MED: Failed to consume FAK" call NWG_fnc_logError;
+                [player,_healTarget,ACTION_HEAL_FAILURE] call NWG_fnc_medReportMedAction;
+            };
+            NWG_MED_CLI_hasFAKkit = FAKKIT call NWG_fnc_invHasItem;//Update FAK presence
+            [player,_healTarget,ACTION_HEAL_SUCCESS] call NWG_fnc_medReportMedAction;
+        };
+        /*Partial heal if no FAK - additional healing by medkit will be required*/
+        case (NWG_MED_CLI_hasMedkit): {
+            [player,_healTarget,ACTION_HEAL_PARTIAL] call NWG_fnc_medReportMedAction;
+        };
+        /*Error case where we somehow landed here while not having a medkit*/
+        case (NWG_MED_CLI_hasFAKkit): {
+            "NWG_MED_CLI_UA_OnHealCompleted_MED: Unexpected no medkit case. Fallback to heal by FAK" call NWG_fnc_logError;
+            _healTarget call NWG_MED_CLI_UA_OnHealCompleted_FAK;
+        };
+        /*Error. A bad one*/
+        default {
+            "NWG_MED_CLI_UA_OnHealCompleted_MED: Unexpected no medkit and no FAK case" call NWG_fnc_logError;
+            [player,_healTarget,ACTION_HEAL_FAILURE] call NWG_fnc_medReportMedAction;
+        };
+    };
+};
+NWG_MED_CLI_UA_OnHealCompleted_FAK = {
+    private _healTarget = _this;
+
+    //Consume First Aid Kit
+    if ((FAKKIT call NWG_fnc_invRemoveItem) isEqualTo false) exitWith {
+        "NWG_MED_CLI_UA_OnHealCompleted_FAK: Failed to consume FAK" call NWG_fnc_logError;
+        [player,_healTarget,ACTION_HEAL_FAILURE] call NWG_fnc_medReportMedAction;
+    };
+    NWG_MED_CLI_hasFAKkit = FAKKIT call NWG_fnc_invHasItem;//Update FAK presence
+
+    //Get success chance
+    private _myChance = NWG_MED_CLI_Settings get "HEAL_WITH_FAK_CHANCE";//Get chance
+    if (!NWG_MED_CLI_hasFAKkit) then {
+        _myChance = _myChance + (NWG_MED_CLI_Settings get "HEAL_CHANCE_BOOST_ON_LAST_FAK");//Boost chance if it was the last FAK
+        //No, we do not show this to player - it's a hidden bonus that they should not know about
+    };
+
+    //Try to revive
+    if ((call NWG_MED_CLI_GetChance) <= _myChance) then {
+        /*Success*/
+        [player,_healTarget,ACTION_HEAL_PARTIAL] call NWG_fnc_medReportMedAction;
+    } else {
+        /*Failure*/
+        if !(_healTarget call NWG_MED_CLI_IsPatched) then {[player,_healTarget,ACTION_PATCH] call NWG_fnc_medReportMedAction};//At least patch the target
+        [player,_healTarget,ACTION_HEAL_FAILURE] call NWG_fnc_medReportMedAction;
+    };
+};
+NWG_MED_CLI_UA_ResetAnimation = {
+    private _anim = switch (animationState player) do {
+        case "ainvppnemstpslaywrfldnon_medicother";
+        case "ainvppnemstpslaywrfldnon_medicdummyend": {"AmovPpneMstpSrasWrflDnon"};
+        default {"amovPknlMstpSrasWrflDnon"};
+    };
+    [player,_anim] call NWG_fnc_playAnim;
+};
+
+/*Drag*/
+/*Release drag*/
+/*Carry*/
+/*Release carry*/
+/*Vehicle load*/
 
 //================================================================================================================
 //================================================================================================================

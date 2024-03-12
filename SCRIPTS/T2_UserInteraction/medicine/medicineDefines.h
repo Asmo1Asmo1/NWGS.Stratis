@@ -16,4 +16,5 @@
 /*Actions 'enum'*/
 #define ACTION_PATCH 0
 #define ACTION_HEAL_SUCCESS 1
-#define ACTION_HEAL_FAILURE 2
+#define ACTION_HEAL_PARTIAL 2
+#define ACTION_HEAL_FAILURE 3
