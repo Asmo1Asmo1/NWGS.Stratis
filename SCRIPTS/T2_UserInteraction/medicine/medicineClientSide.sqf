@@ -15,6 +15,7 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
 
     ["SELF_HEAL_INITIAL_CHANCE",100],//Initial success chance of 'self-heal' action
     ["SELF_HEAL_CHANCE_DECREASE",10],//Amount by which success chance of 'self-heal' action decreased by every attempt
+    ["SELF_HEAL_CHANCE_BOOST_ON_LAST_FAK",20],//Amount by which success chance of 'self-heal' action increased on last FAK
     ["SELF_HEAL_ACTION_PRIORITY",13],//Priority of 'self-heal' action
     ["SELF_HEAL_ACTION_DURATION",8],//Duration of 'self-heal' action
 
@@ -447,7 +448,7 @@ NWG_MED_CLI_SA_AddSelfActions = {
         "(call NWG_MED_CLI_SA_SelfHealCondition)",/*_condition*/
         "true",/*_conditionHold*/
         {call NWG_MED_CLI_SA_OnSelfHealStarted},/*_onStarted*/
-        {},/*_onInterrupted*/
+        {call NWG_MED_CLI_SA_OnSelfHealInterrupted},/*_onInterrupted*/
         {call NWG_MED_CLI_SA_OnSelfHealCompleted},/*_onCompleted*/
         true/*_showWhileWounded*/
     ] call NWG_MED_CLI_AddHoldAction;
@@ -480,12 +481,15 @@ NWG_MED_CLI_SA_ReloadSelfHealChance = {NWG_MED_CLI_SA_selfHealSuccessChance = NW
 NWG_MED_CLI_SA_SelfHealCondition = {
     player call NWG_MED_CLI_IsWounded && {
     NWG_MED_CLI_hasFAKkit && {
-    (player call NWG_MED_CLI_GetSubstate) in [SUBSTATE_DOWN,SUBSTATE_INVH]}}
+    (player call NWG_MED_CLI_GetSubstate) in [SUBSTATE_DOWN,SUBSTATE_INVH,SUBSTATE_HEAL]}}/*SUBSTATE_HEAL because otherwise action disappears when started*/
 };
 NWG_MED_CLI_SA_OnSelfHealStarted = {
+    [player,SUBSTATE_HEAL] call NWG_MED_CLI_SetSubstate;//Set substate
+
     //Show message
-    private _successChance = (str NWG_MED_CLI_SA_selfHealSuccessChance)+"%";//Fix template unable to have '%' symbol
-    ["#MED_ACTION_SELF_HEAL_HINT#",_successChance] call NWG_fnc_systemChatMe;
+    private _fakCount = FAKKIT call NWG_fnc_invGetItemCount;
+    private _myChance = (str NWG_MED_CLI_SA_selfHealSuccessChance)+"%";//Fix template unable to have '%' symbol
+    ["#MED_ACTION_SELF_HEAL_HINT#",_fakCount,_myChance] call NWG_fnc_systemChatMe;
 
     //Play anim
     if ((vehicle player) isEqualTo player) then {
@@ -493,9 +497,14 @@ NWG_MED_CLI_SA_OnSelfHealStarted = {
         player playMove "UnconsciousFaceDown";
     };
 };
+NWG_MED_CLI_SA_OnSelfHealInterrupted = {
+    [player,SUBSTATE_NONE] call NWG_MED_CLI_SetSubstate;//Reset substate
+};
 NWG_MED_CLI_SA_OnSelfHealCompleted = {
+    [player,SUBSTATE_NONE] call NWG_MED_CLI_SetSubstate;//Reset substate
+
     //Consume First Aid Kit
-    private _spendFakOk = FAKKIT call NWG_fnc_invRemoveItem;
+    private _spendFakOk = FAKKIT call NWG_fnc_invRemoveItem;//Also will update NWG_MED_CLI_hasFAKkit (hopefully)
     if (!_spendFakOk) exitWith {
         "NWG_MED_CLI_SA_OnSelfHealCompleted: Failed to consume FAK" call NWG_fnc_logError;
         [player,player,ACTION_HEAL_FAILURE] call NWG_fnc_medReportMedAction;
@@ -508,10 +517,15 @@ NWG_MED_CLI_SA_OnSelfHealCompleted = {
 
     //Get success chance for self-revive
     private _myChance = NWG_MED_CLI_SA_selfHealSuccessChance;//Get chance
-    NWG_MED_CLI_SA_selfHealSuccessChance = NWG_MED_CLI_SA_selfHealSuccessChance - (NWG_MED_CLI_Settings get "SELF_HEAL_CHANCE_DECREASE");//Decrease success chance for next attempt
+    private _nextChance = _myChance - (NWG_MED_CLI_Settings get "SELF_HEAL_CHANCE_DECREASE");//Decrease success chance for the next attempt
+    NWG_MED_CLI_SA_selfHealSuccessChance = _nextChance;
+    if (_myChance > 0 && {!NWG_MED_CLI_hasFAKkit}) then {
+        _myChance = _myChance + (NWG_MED_CLI_Settings get "SELF_HEAL_CHANCE_BOOST_ON_LAST_FAK");//Boost chance if it was the last FAK
+        //No, we do not show this to player - it's a hidden bonus that they should not know about
+    };
 
     //Try to revive
-    if ((random 100) <= _myChance)
+    if ((call NWG_MED_CLI_GetChance) <= _myChance)
         then {[player,player,ACTION_HEAL_SUCCESS] call NWG_fnc_medReportMedAction}
         else {[player,player,ACTION_HEAL_FAILURE] call NWG_fnc_medReportMedAction};
 };
@@ -536,11 +550,9 @@ NWG_MED_CLI_SA_AddCrawl = {
         params ["","_keyCode"];
         if (
             _keyCode in (actionKeys "MoveForward") && {
-            !isNull player && {
-            alive player && {
             player call NWG_MED_CLI_IsWounded && {
             (player call NWG_MED_CLI_GetSubstate) in [SUBSTATE_DOWN,SUBSTATE_CRWL] && {
-            (vehicle player) isEqualTo player}}}}}
+            (vehicle player) isEqualTo player}}}
         ) then {
             [player,SUBSTATE_CRWL] call NWG_MED_CLI_SetSubstate;
             player playMoveNow "AmovPpneMrunSnonWnonDf";
@@ -555,11 +567,9 @@ NWG_MED_CLI_SA_AddCrawl = {
         params ["","_keyCode"];
         if (
             _keyCode in (actionKeys "MoveForward") && {
-            !isNull player && {
-            alive player && {
             player call NWG_MED_CLI_IsWounded && {
             (player call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_CRWL && {
-            (vehicle player) isEqualTo player}}}}}
+            (vehicle player) isEqualTo player}}}
         ) then {
             [player,SUBSTATE_DOWN] call NWG_MED_CLI_SetSubstate;
             player playActionNow "Unconscious";
