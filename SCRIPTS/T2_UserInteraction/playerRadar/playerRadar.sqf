@@ -22,15 +22,17 @@ private _Init = {
 //================================================================================================================
 //================================================================================================================
 //Logic
-NWG_RADAR_unitFront = objNull;
-NWG_RADAR_vehcFront = objNull;
-NWG_RADAR_vehcArond = objNull;
+/*Dedmen — 03/06/2024 9:53 PM: objNull is not a permanently-allocated value every time you call it, a new one is created*/
+NWG_RADAR_objNull = objNull;
+NWG_RADAR_unitFront = NWG_RADAR_objNull;
+NWG_RADAR_vehcFront = NWG_RADAR_objNull;
+NWG_RADAR_vehcArond = NWG_RADAR_objNull;
 
 NWG_RADAR_OnEachFrame = {
     if (isNull player || {!alive player || {(vehicle player) isNotEqualTo player}}) exitWith {
-        NWG_RADAR_unitFront = objNull;
-        NWG_RADAR_vehcFront = objNull;
-        NWG_RADAR_vehcArond = objNull;
+        NWG_RADAR_unitFront = NWG_RADAR_objNull;
+        NWG_RADAR_vehcFront = NWG_RADAR_objNull;
+        NWG_RADAR_vehcArond = NWG_RADAR_objNull;
     };
 
     //Prepare
@@ -55,7 +57,7 @@ NWG_RADAR_OnEachFrame = {
         _x call _isInFront}}}}}
     };
     switch (count _units) do {
-        case 0: {NWG_RADAR_unitFront = objNull};
+        case 0: {NWG_RADAR_unitFront = NWG_RADAR_objNull};
         case 1: {NWG_RADAR_unitFront = _units#0};
         default {
             //Several units found - select the closest one
@@ -72,14 +74,14 @@ NWG_RADAR_OnEachFrame = {
     };
     switch (count _vehicles) do {
         case 0: {
-            NWG_RADAR_vehcFront = objNull;
-            NWG_RADAR_vehcArond = objNull;
+            NWG_RADAR_vehcFront = NWG_RADAR_objNull;
+            NWG_RADAR_vehcArond = NWG_RADAR_objNull;
         };
         case 1: {
             private _veh = _vehicles#0;
             if (_veh call _isInFront)
-                then {NWG_RADAR_vehcFront = _veh; NWG_RADAR_vehcArond = objNull}
-                else {NWG_RADAR_vehcFront = objNull; NWG_RADAR_vehcArond = _veh};
+                then {NWG_RADAR_vehcFront = _veh; NWG_RADAR_vehcArond = NWG_RADAR_objNull}
+                else {NWG_RADAR_vehcFront = NWG_RADAR_objNull; NWG_RADAR_vehcArond = _veh};
         };
         default {
             //Several vehicles found - select the closest one
@@ -87,8 +89,8 @@ NWG_RADAR_OnEachFrame = {
             _vehicles sort true;
             private _veh = (_vehicles#0)#1;
             if (_veh call _isInFront)
-                then {NWG_RADAR_vehcFront = _veh; NWG_RADAR_vehcArond = objNull}
-                else {NWG_RADAR_vehcFront = objNull; NWG_RADAR_vehcArond = _veh};
+                then {NWG_RADAR_vehcFront = _veh; NWG_RADAR_vehcArond = NWG_RADAR_objNull}
+                else {NWG_RADAR_vehcFront = NWG_RADAR_objNull; NWG_RADAR_vehcArond = _veh};
         };
     };
 };
