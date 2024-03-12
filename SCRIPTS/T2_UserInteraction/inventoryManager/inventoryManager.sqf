@@ -49,22 +49,19 @@ NWG_INV_GetItemCount = {
     // private _itemClassname = _this;
     if !(_this in NWG_INV_currentLoadoutFlattened) exitWith {0};//Item not found
 
+    private _i = -1;
     private _count = 0;
-    private _isNumberExpected = false;
-    //foreach _item in NWG_INV_currentLoadoutFlattened do
-    {
-        if (_isNumberExpected) then {
-            _isNumberExpected = false;
-            if (_x isEqualType 1) then {_count = _count + ((_x-1) max 0)};//Add the number of items (-1 because the item itself was already added)
-        };
+    private _totalCount = 0;
+    private _temp = NWG_INV_currentLoadoutFlattened;
+    while {_i = _temp find _this; _i != -1} do {
+        _count = if ((_temp param [(_i+1),false]) isEqualType 1)
+            then {_temp select (_i+1)}
+            else {1};
+        _totalCount = _totalCount + _count;
+        _temp = _temp select [(_i+1)];
+    };
 
-        if (_x isEqualTo _this) then {
-            _isNumberExpected = true;
-            _count = _count + 1;//Add the item itself
-        };
-    } forEach NWG_INV_currentLoadoutFlattened;
-
-    _count
+    _totalCount
 };
 
 NWG_INV_RemoveItem = {
