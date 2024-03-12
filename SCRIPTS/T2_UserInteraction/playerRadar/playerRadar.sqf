@@ -8,9 +8,9 @@
 //================================================================================================================
 //Settings
 /*This module drops fps a little so instead of regular approach, we will optimize the shit out of it*/
-#define RADAR_RADIUS 4
+#define RADAR_RADIUS 3
 #define RADAR_HEIGHT_DELTA 3
-#define RADAR_FORWARD_ANGLE 15
+#define RADAR_FORWARD_ANGLE 20
 
 //================================================================================================================
 //================================================================================================================
