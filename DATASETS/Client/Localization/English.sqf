@@ -5,7 +5,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_CLI_BLEEDING_UI_TITLE_MID#","Bleeding"],
     ["#MED_CLI_BLEEDING_UI_TITLE_HIGH#","Heavily bleeding"],
     ["#MED_CLI_BLEEDING_UI_TIMELEFT#","Time left: %1 [-%2]"],
-    ["#MED_CLI_BLEEDING_UI_CLOSEST_PLAYER#","Nearest player: %1 (%2m)"],
+    ["#MED_CLI_BLEEDING_UI_CLOSEST_PLAYER#","Nearby: %1 (%2m)"],
     ["#MED_CLI_BLEEDING_UI_NO_CLOSEST#","Nobody nearby"],
     ["#MED_ACTION_SELF_HEAL_TITLE#","Heal yourself"],
     ["#MED_ACTION_SELF_HEAL_HINT#","FAKs left: %1 Success chance: %2"],
