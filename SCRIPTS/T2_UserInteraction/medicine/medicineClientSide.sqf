@@ -829,14 +829,17 @@ NWG_MED_CLI_UA_OnCarryCompleted = {
             !alive player || {
             isNull _targetUnit || {
             !alive _targetUnit || {
+            isNull NWG_MED_CLI_UA_carriedUnit || { /*Lock was dropped by release*/
+            _targetUnit isNotEqualTo NWG_MED_CLI_UA_carriedUnit || { /*Should not happen, but just in case*/
             player call NWG_MED_CLI_IsWounded || {
             !(_targetUnit call NWG_MED_CLI_IsWounded) || {
-            (_targetUnit call NWG_MED_CLI_GetSubstate) isNotEqualTo SUBSTATE_DOWN}}}}}}
+            (_targetUnit call NWG_MED_CLI_GetSubstate) isNotEqualTo SUBSTATE_DOWN}}}}}}}}
         };
         private _abort = {
-            NWG_MED_CLI_UA_carriedUnit = objNull;//Drop the lock on abort
             if (isNull player || {!alive player}) exitWith {};//Prevent errors
             if (player call NWG_MED_CLI_IsWounded) exitWith {};//Game logic will handle this
+            if (isNull NWG_MED_CLI_UA_carriedUnit) exitWith {};//Released during animation
+            NWG_MED_CLI_UA_carriedUnit = objNull;//Drop the lock on abort
             call NWG_MED_CLI_UA_ResetAnimation;//Reset animation
         };
 
