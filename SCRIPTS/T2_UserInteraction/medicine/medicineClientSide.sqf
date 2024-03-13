@@ -640,6 +640,12 @@ NWG_MED_CLI_UA_AddUnitsActions = {
         "(call NWG_MED_CLI_UA_CarryCondition)",/*_condition*/
         {call NWG_MED_CLI_UA_OnCarryCompleted}/*_action*/
     ] call NWG_MED_CLI_AddSimpleAction;
+
+    /*Anim abuse check*/
+    if (!NWG_MED_CLI_UA_animChangeAssigned) then {
+        player addEventHandler ["AnimChanged",{_this call NWG_MED_CLI_UA_OnAnimChange}];//Tested: Persistent after respawn
+        NWG_MED_CLI_UA_animChangeAssigned = true;
+    };
 };
 
 /*Heal*/
@@ -780,13 +786,16 @@ NWG_MED_CLI_UA_carriedUnit = objNull;//Unit that we are carrying
 NWG_MED_CLI_UA_CarryCondition = {
     /*We either carry dragged unit, or unit on the ground*/
     if (!isNull NWG_MED_CLI_UA_draggedUnit) then {
+        isNull NWG_MED_CLI_UA_carriedUnit && {
         alive NWG_MED_CLI_UA_draggedUnit && {
-        !(player call NWG_MED_CLI_IsWounded)}
+        !(player call NWG_MED_CLI_IsWounded)}}
     } else {
         !isNull (call NWG_fnc_radarGetUnitInFront) && {
+        isNull NWG_MED_CLI_UA_draggedUnit && {
+        isNull NWG_MED_CLI_UA_carriedUnit && {
         !(player call NWG_MED_CLI_IsWounded) && {
         (call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_IsWounded && {
-        ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}
+        ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}
     };
 };
 NWG_MED_CLI_UA_OnCarryCompleted = {
@@ -801,6 +810,7 @@ NWG_MED_CLI_UA_OnCarryCompleted = {
 
     [_targetUnit,_isDragToCarry] spawn {
         params ["_targetUnit","_isDragToCarry"];
+        NWG_MED_CLI_UA_carriedUnit = _targetUnit;//Lock unit in advance (anim is long and we don't want to be interrupted)
         private _abortCondition = {
             isNull player || {
             !alive player || {
@@ -811,6 +821,7 @@ NWG_MED_CLI_UA_OnCarryCompleted = {
             (_targetUnit call NWG_MED_CLI_GetSubstate) isNotEqualTo SUBSTATE_DOWN}}}}}}
         };
         private _abort = {
+            NWG_MED_CLI_UA_carriedUnit = objNull;//Drop the lock on abort
             if (isNull player || {!alive player}) exitWith {};//Prevent errors
             if (player call NWG_MED_CLI_IsWounded) exitWith {};//Game logic will handle this
             if ((vehicle player) isNotEqualTo player) exitWith {};//Don't do animation reset
@@ -820,19 +831,38 @@ NWG_MED_CLI_UA_OnCarryCompleted = {
         if (_isDragToCarry) then {
             /*Drop the body first*/
             call NWG_MED_CLI_UA_OnReleaseCompleted;
+            NWG_MED_CLI_UA_carriedUnit = _targetUnit;//Re-lock unit (keep preventing other actions)
             sleep 0.5;//Minor delay to ensure server has processed the action
         };
         if (call _abortCondition) exitWith _abort;
 
         //Run 'Place on shoulders' animation
         [player,"acinpknlmstpsraswrfldnon_acinpercmrunsraswrfldnon"] call NWG_fnc_playAnim;
-        sleep (NWG_MED_CLI_Settings get "CARRY_ACTION_DURATION");
+        sleep (NWG_MED_CLI_Settings get "CARRY_ACTION_DURATION");//Customizable duration
         if (call _abortCondition) exitWith _abort;
 
         //Finalize 'Carry'
-        NWG_MED_CLI_UA_carriedUnit = _targetUnit;//Lock unit
-        [player,"acinpercmstpsraswrfldnon"] call NWG_fnc_playAnim;
+        // NWG_MED_CLI_UA_carriedUnit = _targetUnit;//Unit is already locked
+        [player,"acinpercmstpsraswrfldnon"] call NWG_fnc_playAnim;//Skip remaining animation
         [player,_targetUnit,ACTION_CARRY] call NWG_fnc_medReportMedAction;
+    };
+};
+
+/*Anim abuse check*/
+NWG_MED_CLI_UA_animChangeAssigned = false;
+NWG_MED_CLI_UA_OnAnimChange = {
+    // params ["_unit","_anim"];
+    params ["","_anim"];
+
+    /*Drag to Carry via anim*/
+    if (_anim isEqualTo "acinpercmstpsraswrfldnon" && {!isNull NWG_MED_CLI_UA_draggedUnit && {call NWG_MED_CLI_UA_CarryCondition}}) exitWith {
+        [player,""] call NWG_fnc_playAnim;
+        call NWG_MED_CLI_UA_OnCarryCompleted;
+    };
+
+    /*Carry to Release via anim*/
+    if (_anim isEqualTo "amovpercmstpslowwrfldnon" && {!isNull NWG_MED_CLI_UA_carriedUnit}) exitWith {
+        call NWG_MED_CLI_UA_OnReleaseCompleted;
     };
 };
 
@@ -840,6 +870,9 @@ NWG_MED_CLI_UA_OnCarryCompleted = {
 NWG_MED_CLI_UA_OnReleaseCompleted = {
     // [player,"amovpknlmstpsraswrfldnon"] call NWG_fnc_playAnim;
     //TODO
+    NWG_MED_CLI_UA_draggedUnit = objNull;//Unlock unit
+    NWG_MED_CLI_UA_carriedUnit = objNull;//Unlock unit
+    systemChat "Release";
 };
 /*Vehicle load*/
 
