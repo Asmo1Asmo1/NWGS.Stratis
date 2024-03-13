@@ -13,7 +13,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_ACTION_SELF_HEAL_SUCCESS#","%1 revived themself"],
     ["#MED_ACTION_SELF_HEAL_FAILURE#","%1 failed to revive themself"],
     ["#MED_ACTION_RESPAWN_TITLE#","Respawn"],
-    ["#MED_ACTION_HEAL_TITLE#","Revive"],
+    ["#MED_ACTION_HEAL_TITLE#","Heal"],
     ["#MED_HAS_MEDKIT#","[+]"],
     ["#MED_NO_MEDKIT#","[-]"],
     ["#MED_ACTION_HEAL_MED_HINT#","Medkit: %1  FAKs left: %2"],
@@ -22,6 +22,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_ACTION_HEAL_SUCCESS#","%2 revived by %1"],
     ["#MED_ACTION_HEAL_FAILURE#","%1 failed to revive %2"],
     ["#MED_ACTION_DRAG_TITLE#","Drag"],
+    ["#MED_ACTION_CARRY_TITLE#","Carry"],
 
     ["",""]
 ];

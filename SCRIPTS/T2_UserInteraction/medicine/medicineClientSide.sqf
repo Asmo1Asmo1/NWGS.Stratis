@@ -30,6 +30,9 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
 
     ["DRAG_ACTION_PRIORITY",19],//Priority of 'drag' action
 
+    ["CARRY_ACTION_PRIORITY",18],//Priority of 'carry' action
+    ["CARRY_ACTION_DURATION",4],//Duration of 'carry' action
+
     ["",0]
 ];
 
@@ -621,12 +624,21 @@ NWG_MED_CLI_UA_AddUnitsActions = {
         false,/*_showWhileWounded*/
         (NWG_MED_CLI_Settings get "HEAL_ACTION_AUTOSHOW")/*_autoShow*/
     ] call NWG_MED_CLI_AddHoldAction;
+
     /*Drag*/
     [
         "#MED_ACTION_DRAG_TITLE#",/*_title*/
         (NWG_MED_CLI_Settings get "DRAG_ACTION_PRIORITY"),/*_priority*/
         "(call NWG_MED_CLI_UA_DragCondition)",/*_condition*/
         {call NWG_MED_CLI_UA_OnDragCompleted}/*_action*/
+    ] call NWG_MED_CLI_AddSimpleAction;
+
+    /*Carry*/
+    [
+        "#MED_ACTION_CARRY_TITLE#",/*_title*/
+        (NWG_MED_CLI_Settings get "CARRY_ACTION_PRIORITY"),/*_priority*/
+        "(call NWG_MED_CLI_UA_CarryCondition)",/*_condition*/
+        {call NWG_MED_CLI_UA_OnCarryCompleted}/*_action*/
     ] call NWG_MED_CLI_AddSimpleAction;
 };
 
@@ -635,10 +647,12 @@ NWG_MED_CLI_UA_healTarget = objNull;//Unit that we started healing on
 NWG_MED_CLI_UA_HealCondition = {
     /*NWG_fnc_radarGetUnitInFront also checks if player is alive and on foot, so we can omit it here*/
     !isNull (call NWG_fnc_radarGetUnitInFront) && {
+    isNull NWG_MED_CLI_UA_draggedUnit && {
+    isNull NWG_MED_CLI_UA_carriedUnit && {
     !(player call NWG_MED_CLI_IsWounded) && {
     (NWG_MED_CLI_hasFAKkit || NWG_MED_CLI_hasMedkit) && {
     (call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_IsWounded && {
-    ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}
+    ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}}
 };
 NWG_MED_CLI_UA_OnHealStarted = {
     NWG_MED_CLI_UA_healTarget = call NWG_fnc_radarGetUnitInFront;//Lock unit
@@ -748,9 +762,11 @@ NWG_MED_CLI_UA_draggedUnit = objNull;//Unit that we are dragging
 NWG_MED_CLI_UA_DragCondition = {
     /*NWG_fnc_radarGetUnitInFront also checks if player is alive and on foot, so we can omit it here*/
     !isNull (call NWG_fnc_radarGetUnitInFront) && {
+    isNull NWG_MED_CLI_UA_draggedUnit && {
+    isNull NWG_MED_CLI_UA_carriedUnit && {
     !(player call NWG_MED_CLI_IsWounded) && {
     (call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_IsWounded && {
-    ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}
+    ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}
 };
 NWG_MED_CLI_UA_OnDragCompleted = {
     private _targetUnit = (call NWG_fnc_radarGetUnitInFront);//Omit all checks - rely on condition
@@ -758,8 +774,73 @@ NWG_MED_CLI_UA_OnDragCompleted = {
     [player,_targetUnit,ACTION_DRAG] call NWG_fnc_medReportMedAction;
     player playActionNow "grabDrag";
 };
+
 /*Carry*/
+NWG_MED_CLI_UA_carriedUnit = objNull;//Unit that we are carrying
+NWG_MED_CLI_UA_CarryCondition = {
+    /*We either carry dragged unit, or unit on the ground*/
+    if (!isNull NWG_MED_CLI_UA_draggedUnit) then {
+        alive NWG_MED_CLI_UA_draggedUnit && {
+        !(player call NWG_MED_CLI_IsWounded)}
+    } else {
+        !isNull (call NWG_fnc_radarGetUnitInFront) && {
+        !(player call NWG_MED_CLI_IsWounded) && {
+        (call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_IsWounded && {
+        ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}
+    };
+};
+NWG_MED_CLI_UA_OnCarryCompleted = {
+    private ["_targetUnit","_isDragToCarry"];
+    if (!isNull NWG_MED_CLI_UA_draggedUnit) then {
+        _targetUnit = NWG_MED_CLI_UA_draggedUnit;
+        _isDragToCarry = true;
+    } else {
+        _targetUnit = (call NWG_fnc_radarGetUnitInFront);//Omit all checks - rely on condition
+        _isDragToCarry = false;
+    };
+
+    [_targetUnit,_isDragToCarry] spawn {
+        params ["_targetUnit","_isDragToCarry"];
+        private _abortCondition = {
+            isNull player || {
+            !alive player || {
+            isNull _targetUnit || {
+            !alive _targetUnit || {
+            player call NWG_MED_CLI_IsWounded || {
+            !(_targetUnit call NWG_MED_CLI_IsWounded) || {
+            (_targetUnit call NWG_MED_CLI_GetSubstate) isNotEqualTo SUBSTATE_DOWN}}}}}}
+        };
+        private _abort = {
+            if (isNull player || {!alive player}) exitWith {};//Prevent errors
+            if (player call NWG_MED_CLI_IsWounded) exitWith {};//Game logic will handle this
+            if ((vehicle player) isNotEqualTo player) exitWith {};//Don't do animation reset
+            call NWG_MED_CLI_UA_ResetAnimation;//Reset animation
+        };
+
+        if (_isDragToCarry) then {
+            /*Drop the body first*/
+            call NWG_MED_CLI_UA_OnReleaseCompleted;
+            sleep 0.5;//Minor delay to ensure server has processed the action
+        };
+        if (call _abortCondition) exitWith _abort;
+
+        //Run 'Place on shoulders' animation
+        [player,"acinpknlmstpsraswrfldnon_acinpercmrunsraswrfldnon"] call NWG_fnc_playAnim;
+        sleep (NWG_MED_CLI_Settings get "CARRY_ACTION_DURATION");
+        if (call _abortCondition) exitWith _abort;
+
+        //Finalize 'Carry'
+        NWG_MED_CLI_UA_carriedUnit = _targetUnit;//Lock unit
+        [player,"acinpercmstpsraswrfldnon"] call NWG_fnc_playAnim;
+        [player,_targetUnit,ACTION_CARRY] call NWG_fnc_medReportMedAction;
+    };
+};
+
 /*Release*/
+NWG_MED_CLI_UA_OnReleaseCompleted = {
+    // [player,"amovpknlmstpsraswrfldnon"] call NWG_fnc_playAnim;
+    //TODO
+};
 /*Vehicle load*/
 
 //================================================================================================================
