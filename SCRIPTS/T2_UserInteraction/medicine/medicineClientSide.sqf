@@ -34,6 +34,7 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["CARRY_ACTION_DURATION",4],//Duration of 'carry' action
 
     ["RELEASE_ACTION_PRIORITY",17],//Priority of 'release' action
+    ["VEH_LOADIN_ACTION_PRIORITY",21],//Priority of 'veh load' action
 
     ["",0]
 ];
@@ -632,7 +633,7 @@ NWG_MED_CLI_UA_AddUnitsActions = {
         "#MED_ACTION_DRAG_TITLE#",/*_title*/
         (NWG_MED_CLI_Settings get "DRAG_ACTION_PRIORITY"),/*_priority*/
         "(call NWG_MED_CLI_UA_DragCondition)",/*_condition*/
-        {call NWG_MED_CLI_UA_OnDragCompleted}/*_action*/
+        {call NWG_MED_CLI_UA_DragAction}/*_action*/
     ] call NWG_MED_CLI_AddSimpleAction;
 
     /*Carry*/
@@ -640,7 +641,7 @@ NWG_MED_CLI_UA_AddUnitsActions = {
         "#MED_ACTION_CARRY_TITLE#",/*_title*/
         (NWG_MED_CLI_Settings get "CARRY_ACTION_PRIORITY"),/*_priority*/
         "(call NWG_MED_CLI_UA_CarryCondition)",/*_condition*/
-        {call NWG_MED_CLI_UA_OnCarryCompleted}/*_action*/
+        {call NWG_MED_CLI_UA_CarryAction}/*_action*/
     ] call NWG_MED_CLI_AddSimpleAction;
 
     /*Anim abuse check*/
@@ -654,8 +655,22 @@ NWG_MED_CLI_UA_AddUnitsActions = {
         "#MED_ACTION_RELEASE_TITLE#",/*_title*/
         (NWG_MED_CLI_Settings get "RELEASE_ACTION_PRIORITY"),/*_priority*/
         "(call NWG_MED_CLI_UA_ReleaseCondition)",/*_condition*/
-        {call NWG_MED_CLI_UA_OnReleaseCompleted}/*_action*/
+        {call NWG_MED_CLI_UA_ReleaseAction}/*_action*/
     ] call NWG_MED_CLI_AddSimpleAction;
+
+    /*Vehicle load*/
+    [
+        "#MED_ACTION_VEH_LOADIN_TITLE#",/*_title*/
+        (NWG_MED_CLI_Settings get "VEH_LOADIN_ACTION_PRIORITY"),/*_priority*/
+        "(call NWG_MED_CLI_UA_VehLoadCondition)",/*_condition*/
+        {call NWG_MED_CLI_UA_VehLoadAction}/*_action*/
+    ] call NWG_MED_CLI_AddSimpleAction;
+
+    /*Vehicle load on vehicle get in*/
+    if (!NWG_MED_CLI_UA_getInAssigned) then {
+        player addEventHandler ["GetInMan",{_this call NWG_MED_CLI_UA_OnVehGetIn}];//Tested: Persistent after respawn
+        NWG_MED_CLI_UA_getInAssigned = true;
+    };
 };
 
 /*Heal*/
@@ -787,7 +802,7 @@ NWG_MED_CLI_UA_DragCondition = {
     (call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_IsWounded && {
     ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}
 };
-NWG_MED_CLI_UA_OnDragCompleted = {
+NWG_MED_CLI_UA_DragAction = {
     private _targetUnit = (call NWG_fnc_radarGetUnitInFront);//Omit all checks - rely on condition
     NWG_MED_CLI_UA_draggedUnit = _targetUnit;//Lock unit
     [player,_targetUnit,ACTION_DRAG] call NWG_fnc_medReportMedAction;
@@ -811,7 +826,7 @@ NWG_MED_CLI_UA_CarryCondition = {
         ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}
     };
 };
-NWG_MED_CLI_UA_OnCarryCompleted = {
+NWG_MED_CLI_UA_CarryAction = {
     private ["_targetUnit","_isDragToCarry"];
     if (!isNull NWG_MED_CLI_UA_draggedUnit) then {
         _targetUnit = NWG_MED_CLI_UA_draggedUnit;
@@ -845,7 +860,7 @@ NWG_MED_CLI_UA_OnCarryCompleted = {
 
         if (_isDragToCarry) then {
             /*Drop the body first*/
-            call NWG_MED_CLI_UA_OnReleaseCompleted;
+            call NWG_MED_CLI_UA_ReleaseAction;
             NWG_MED_CLI_UA_carriedUnit = _targetUnit;//Re-lock unit (keep preventing other actions)
             sleep 0.5;//Minor delay to ensure server has processed the action
         };
@@ -872,12 +887,12 @@ NWG_MED_CLI_UA_OnAnimChange = {
     /*Drag to Carry via anim*/
     if (_anim isEqualTo "acinpercmstpsraswrfldnon" && {!isNull NWG_MED_CLI_UA_draggedUnit && {call NWG_MED_CLI_UA_CarryCondition}}) exitWith {
         [player,""] call NWG_fnc_playAnim;
-        call NWG_MED_CLI_UA_OnCarryCompleted;
+        call NWG_MED_CLI_UA_CarryAction;
     };
 
     /*Carry to Release via anim*/
     if (_anim isEqualTo "amovpercmstpslowwrfldnon" && {!isNull NWG_MED_CLI_UA_carriedUnit}) exitWith {
-        call NWG_MED_CLI_UA_OnReleaseCompleted;
+        call NWG_MED_CLI_UA_ReleaseAction;
     };
 };
 
@@ -886,7 +901,7 @@ NWG_MED_CLI_UA_ReleaseCondition = {
     !isNull NWG_MED_CLI_UA_draggedUnit || {
     !isNull NWG_MED_CLI_UA_carriedUnit}
 };
-NWG_MED_CLI_UA_OnReleaseCompleted = {
+NWG_MED_CLI_UA_ReleaseAction = {
     private _targetUnit = if (!isNull NWG_MED_CLI_UA_draggedUnit)
         then {NWG_MED_CLI_UA_draggedUnit}
         else {NWG_MED_CLI_UA_carriedUnit};
@@ -898,6 +913,35 @@ NWG_MED_CLI_UA_OnReleaseCompleted = {
 };
 
 /*Vehicle load*/
+NWG_MED_CLI_UA_VehLoadCondition = {
+    !(isNull NWG_MED_CLI_UA_draggedUnit && {isNull NWG_MED_CLI_UA_carriedUnit}) && {
+    !isNull (call NWG_fnc_radarGetVehAround)}
+};
+NWG_MED_CLI_UA_VehLoadAction = {
+    private _targetUnit = if (!isNull NWG_MED_CLI_UA_draggedUnit)
+        then {NWG_MED_CLI_UA_draggedUnit}
+        else {NWG_MED_CLI_UA_carriedUnit};
+    private _targetVeh = (call NWG_fnc_radarGetVehAround);//Omit all checks - rely on condition
+
+    call NWG_MED_CLI_UA_ReleaseAction;//Release the unit
+    [player,[_targetUnit,_targetVeh],ACTION_VEHLOAD] call NWG_fnc_medReportMedAction;
+};
+
+/*Vehicle load on vehicle in*/
+NWG_MED_CLI_UA_getInAssigned = false;
+NWG_MED_CLI_UA_OnVehGetIn = {
+    // params ["_unit","_role","_vehicle","_turret"];
+    params ["","","_targetVeh"];
+    if (isNull _targetVeh) exitWith {};//Not a vehicle
+    if (isNull NWG_MED_CLI_UA_draggedUnit && {isNull NWG_MED_CLI_UA_carriedUnit}) exitWith {};//No unit to load
+
+    private _targetUnit = if (!isNull NWG_MED_CLI_UA_draggedUnit)
+        then {NWG_MED_CLI_UA_draggedUnit}
+        else {NWG_MED_CLI_UA_carriedUnit};
+
+    call NWG_MED_CLI_UA_ReleaseAction;//Release the unit
+    [player,[_targetUnit,_targetVeh],ACTION_VEHLOAD] call NWG_fnc_medReportMedAction;
+};
 
 //================================================================================================================
 //================================================================================================================

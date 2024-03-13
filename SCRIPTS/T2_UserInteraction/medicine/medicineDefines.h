@@ -21,3 +21,4 @@
 #define ACTION_DRAG 4
 #define ACTION_CARRY 5
 #define ACTION_RELEASE 6
+#define ACTION_VEHLOAD 7

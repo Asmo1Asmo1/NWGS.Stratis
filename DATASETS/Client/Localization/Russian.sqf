@@ -24,6 +24,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_ACTION_DRAG_TITLE#","Тащить"],
     ["#MED_ACTION_CARRY_TITLE#","Нести"],
     ["#MED_ACTION_RELEASE_TITLE#","Отпустить"],
+    ["#MED_ACTION_VEH_LOADIN_TITLE#","Загрузить"],
 
     ["",""]
 ];
