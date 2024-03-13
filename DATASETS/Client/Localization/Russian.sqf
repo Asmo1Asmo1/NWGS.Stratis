@@ -23,6 +23,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_ACTION_HEAL_FAILURE#","%1 не смог вылечить %2"],
     ["#MED_ACTION_DRAG_TITLE#","Тащить"],
     ["#MED_ACTION_CARRY_TITLE#","Нести"],
+    ["#MED_ACTION_RELEASE_TITLE#","Отпустить"],
 
     ["",""]
 ];

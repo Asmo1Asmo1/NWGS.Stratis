@@ -33,6 +33,8 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["CARRY_ACTION_PRIORITY",18],//Priority of 'carry' action
     ["CARRY_ACTION_DURATION",4],//Duration of 'carry' action
 
+    ["RELEASE_ACTION_PRIORITY",17],//Priority of 'release' action
+
     ["",0]
 ];
 
@@ -646,6 +648,14 @@ NWG_MED_CLI_UA_AddUnitsActions = {
         player addEventHandler ["AnimChanged",{_this call NWG_MED_CLI_UA_OnAnimChange}];//Tested: Persistent after respawn
         NWG_MED_CLI_UA_animChangeAssigned = true;
     };
+
+    /*Release*/
+    [
+        "#MED_ACTION_RELEASE_TITLE#",/*_title*/
+        (NWG_MED_CLI_Settings get "RELEASE_ACTION_PRIORITY"),/*_priority*/
+        "(call NWG_MED_CLI_UA_ReleaseCondition)",/*_condition*/
+        {call NWG_MED_CLI_UA_OnReleaseCompleted}/*_action*/
+    ] call NWG_MED_CLI_AddSimpleAction;
 };
 
 /*Heal*/
@@ -755,6 +765,9 @@ NWG_MED_CLI_UA_OnHealCompleted_FAK = {
     };
 };
 NWG_MED_CLI_UA_ResetAnimation = {
+    if (isNull player || {!alive player}) exitWith {};//Prevent errors
+    if ((vehicle player) isNotEqualTo player) exitWith {};//Don't do animation reset in vehicles
+
     private _anim = switch (animationState player) do {
         case "ainvppnemstpslaywrfldnon_medicother";
         case "ainvppnemstpslaywrfldnon_medicdummyend": {"AmovPpneMstpSrasWrflDnon"};
@@ -824,7 +837,6 @@ NWG_MED_CLI_UA_OnCarryCompleted = {
             NWG_MED_CLI_UA_carriedUnit = objNull;//Drop the lock on abort
             if (isNull player || {!alive player}) exitWith {};//Prevent errors
             if (player call NWG_MED_CLI_IsWounded) exitWith {};//Game logic will handle this
-            if ((vehicle player) isNotEqualTo player) exitWith {};//Don't do animation reset
             call NWG_MED_CLI_UA_ResetAnimation;//Reset animation
         };
 
@@ -867,13 +879,21 @@ NWG_MED_CLI_UA_OnAnimChange = {
 };
 
 /*Release*/
+NWG_MED_CLI_UA_ReleaseCondition = {
+    !isNull NWG_MED_CLI_UA_draggedUnit || {
+    !isNull NWG_MED_CLI_UA_carriedUnit}
+};
 NWG_MED_CLI_UA_OnReleaseCompleted = {
-    // [player,"amovpknlmstpsraswrfldnon"] call NWG_fnc_playAnim;
-    //TODO
+    private _targetUnit = if (!isNull NWG_MED_CLI_UA_draggedUnit)
+        then {NWG_MED_CLI_UA_draggedUnit}
+        else {NWG_MED_CLI_UA_carriedUnit};
+
     NWG_MED_CLI_UA_draggedUnit = objNull;//Unlock unit
     NWG_MED_CLI_UA_carriedUnit = objNull;//Unlock unit
-    systemChat "Release";
+    call NWG_MED_CLI_UA_ResetAnimation;//Reset animation
+    [player,_targetUnit,ACTION_RELEASE] call NWG_fnc_medReportMedAction;
 };
+
 /*Vehicle load*/
 
 //================================================================================================================

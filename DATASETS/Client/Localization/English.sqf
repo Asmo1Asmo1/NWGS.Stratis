@@ -23,6 +23,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_ACTION_HEAL_FAILURE#","%1 failed to revive %2"],
     ["#MED_ACTION_DRAG_TITLE#","Drag"],
     ["#MED_ACTION_CARRY_TITLE#","Carry"],
+    ["#MED_ACTION_RELEASE_TITLE#","Release"],
 
     ["",""]
 ];

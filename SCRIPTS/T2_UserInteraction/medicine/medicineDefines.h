@@ -20,3 +20,4 @@
 #define ACTION_HEAL_FAILURE 3
 #define ACTION_DRAG 4
 #define ACTION_CARRY 5
+#define ACTION_RELEASE 6
