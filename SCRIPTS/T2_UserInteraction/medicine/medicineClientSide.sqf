@@ -28,6 +28,8 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["HEAL_ACTION_DURATION",8],//Duration of 'heal' action
     ["HEAL_ACTION_AUTOSHOW",true],//If true - will automatically show on screen in suggestive manner
 
+    ["DRAG_ACTION_PRIORITY",19],//Priority of 'drag' action
+
     ["",0]
 ];
 
@@ -605,7 +607,6 @@ NWG_MED_CLI_SA_AddCrawl = {
 //================================================================================================================
 //================================================================================================================
 //Units actions
-NWG_MED_CLI_UA_lockedUnit = objNull;
 NWG_MED_CLI_UA_AddUnitsActions = {
     /*Heal*/
     [
@@ -620,9 +621,17 @@ NWG_MED_CLI_UA_AddUnitsActions = {
         false,/*_showWhileWounded*/
         (NWG_MED_CLI_Settings get "HEAL_ACTION_AUTOSHOW")/*_autoShow*/
     ] call NWG_MED_CLI_AddHoldAction;
+    /*Drag*/
+    [
+        "#MED_ACTION_DRAG_TITLE#",/*_title*/
+        (NWG_MED_CLI_Settings get "DRAG_ACTION_PRIORITY"),/*_priority*/
+        "(call NWG_MED_CLI_UA_DragCondition)",/*_condition*/
+        {call NWG_MED_CLI_UA_OnDragCompleted}/*_action*/
+    ] call NWG_MED_CLI_AddSimpleAction;
 };
 
 /*Heal*/
+NWG_MED_CLI_UA_healTarget = objNull;//Unit that we started healing on
 NWG_MED_CLI_UA_HealCondition = {
     /*NWG_fnc_radarGetUnitInFront also checks if player is alive and on foot, so we can omit it here*/
     !isNull (call NWG_fnc_radarGetUnitInFront) && {
@@ -632,7 +641,7 @@ NWG_MED_CLI_UA_HealCondition = {
     ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}
 };
 NWG_MED_CLI_UA_OnHealStarted = {
-    NWG_MED_CLI_UA_lockedUnit = call NWG_fnc_radarGetUnitInFront;//Lock unit
+    NWG_MED_CLI_UA_healTarget = call NWG_fnc_radarGetUnitInFront;//Lock unit
 
     //Show different message based on 'medic' status
     //FAK and Medkit presence for medic, FAK count and chance for non-medic
@@ -650,15 +659,15 @@ NWG_MED_CLI_UA_OnHealStarted = {
     player playActionNow "MedicOther";
 };
 NWG_MED_CLI_UA_OnHealInterrupted = {
-    NWG_MED_CLI_UA_lockedUnit = objNull;//Drop lock
+    NWG_MED_CLI_UA_healTarget = objNull;//Drop lock
     if (isNull player || {!alive player}) exitWith {};//Prevent errors
     if (player call NWG_MED_CLI_IsWounded) exitWith {};//Game logic will handle this
     call NWG_MED_CLI_UA_ResetAnimation;//Reset animation
 };
 NWG_MED_CLI_UA_OnHealCompleted = {
     call NWG_MED_CLI_UA_ResetAnimation;//Reset animation
-    private _healTarget = NWG_MED_CLI_UA_lockedUnit;
-    NWG_MED_CLI_UA_lockedUnit = objNull;//Drop lock
+    private _healTarget = NWG_MED_CLI_UA_healTarget;
+    NWG_MED_CLI_UA_healTarget = objNull;//Drop lock
     if (
         isNull _healTarget || {
         _healTarget isNotEqualTo (call NWG_fnc_radarGetUnitInFront) || {
@@ -735,9 +744,22 @@ NWG_MED_CLI_UA_ResetAnimation = {
 };
 
 /*Drag*/
-/*Release drag*/
+NWG_MED_CLI_UA_draggedUnit = objNull;//Unit that we are dragging
+NWG_MED_CLI_UA_DragCondition = {
+    /*NWG_fnc_radarGetUnitInFront also checks if player is alive and on foot, so we can omit it here*/
+    !isNull (call NWG_fnc_radarGetUnitInFront) && {
+    !(player call NWG_MED_CLI_IsWounded) && {
+    (call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_IsWounded && {
+    ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}
+};
+NWG_MED_CLI_UA_OnDragCompleted = {
+    private _targetUnit = (call NWG_fnc_radarGetUnitInFront);//Omit all checks - rely on condition
+    NWG_MED_CLI_UA_draggedUnit = _targetUnit;//Lock unit
+    [player,_targetUnit,ACTION_DRAG] call NWG_fnc_medReportMedAction;
+    player playActionNow "grabDrag";
+};
 /*Carry*/
-/*Release carry*/
+/*Release*/
 /*Vehicle load*/
 
 //================================================================================================================
