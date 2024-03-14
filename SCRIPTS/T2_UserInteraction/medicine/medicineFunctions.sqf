@@ -42,6 +42,17 @@ NWG_fnc_medIsMedic = {
 
 /* Server -> Client */
 
+//Flips unit direction (fix of setDir being La Ge)
+//params:
+//_unit - the unit to flip 180 degrees
+NWG_fnc_medFlipUnit = {
+    private _unit = _this;
+    if (isNull _unit) exitWith {};
+    if (!local _unit) exitWith {_this remoteExec ["NWG_fnc_medFlipUnit",_unit]};//Enforce locality
+
+    _unit setDir ((getDir _unit) + 180);
+};
+
 //Loads a unit into a vehicle
 //params:
 //_unit - the unit to load

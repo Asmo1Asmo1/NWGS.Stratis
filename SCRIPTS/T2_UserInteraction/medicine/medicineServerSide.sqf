@@ -52,9 +52,12 @@ NWG_MED_SER_OnBlame = {
 NWG_MED_SER_OnMedAction = {
     params ["_activeUnit","_passiveUnit","_action"];
     //Checks
-    if (!alive _activeUnit || {_passiveUnit isEqualType objNull && {!alive _passiveUnit}}) exitWith {
-        //Also checks for objNull ('alive objNull' returns false)
-        (format ["NWG_MED_SER_OnMedAction: Active or passive unit is invalid. Args: %1",_this]) call NWG_fnc_logError;
+    private _activeValid = !isNull _activeUnit && {alive _activeUnit};
+    private _passiveValid = if (_passiveUnit isEqualType objNull)
+        then {!isNull _passiveUnit && {alive _passiveUnit}}
+        else {(_passiveUnit findIf {isNull _x || {!alive _x}}) == -1};
+    if (!_activeValid || !_passiveValid) exitWith {
+        (format ["NWG_MED_SER_OnMedAction: Invalid arguments. Args: %1",_this]) call NWG_fnc_logError;
     };
 
     //Handle
@@ -98,15 +101,13 @@ NWG_MED_SER_OnMedAction = {
         case ACTION_RELEASE: {
             if (isNull (attachedTo _passiveUnit)) exitWith {};//Already released
             detach _passiveUnit;
-            _passiveUnit setDir ((getDir _passiveUnit) + 180);//Fix unit direction
+            _passiveUnit call NWG_fnc_medFlipUnit;//Fix unit direction
             [_passiveUnit,"UnconsciousFaceUp"] call NWG_fnc_playAnim;
             [_passiveUnit,SUBSTATE_DOWN] call NWG_MED_COM_SetSubstate;
         };
         case ACTION_VEHLOAD: {
             _passiveUnit params ["_unit","_vehicle"];//The only action that passes two arguments
             if (isNull (attachedTo _unit)) exitWith {};//Already released
-            if (!alive _unit) exitWith {};//Unit is dead
-            if (!alive _vehicle) exitWith {};//Vehicle is dead
             detach _unit;
 
             private _allSeats = ((fullCrew [_vehicle,"",true]) select {
@@ -123,7 +124,7 @@ NWG_MED_SER_OnMedAction = {
                 [_unit,_vehicle,_seat] call NWG_fnc_medLoadIntoVehicle;
             } else {
                 /*Place on the ground like in 'ACTION_RELEASE'*/
-                _unit setDir ((getDir _unit) + 180);
+                _unit call NWG_fnc_medFlipUnit;
                 [_unit,"UnconsciousFaceUp"] call NWG_fnc_playAnim;
                 [_unit,SUBSTATE_DOWN] call NWG_MED_COM_SetSubstate;
             };
