@@ -845,7 +845,9 @@ NWG_MED_CLI_UA_VehLoadAction = {
         else {NWG_MED_CLI_UA_carriedUnit};
     private _targetVeh = (call NWG_fnc_radarGetVehAround);//Omit all checks - rely on condition
 
-    call NWG_MED_CLI_UA_ReleaseAction;//Release the unit
+    NWG_MED_CLI_UA_draggedUnit = objNull;//Unlock unit (unit is still attached to player, but that will be handled by server)
+    NWG_MED_CLI_UA_carriedUnit = objNull;//Unlock unit
+    call NWG_MED_CLI_UA_ResetAnimation;//Reset animation
     [player,[_targetUnit,_targetVeh],ACTION_VEHLOAD] call NWG_fnc_medReportMedAction;
 };
 
@@ -861,7 +863,9 @@ NWG_MED_CLI_UA_OnVehGetIn = {
         then {NWG_MED_CLI_UA_draggedUnit}
         else {NWG_MED_CLI_UA_carriedUnit};
 
-    call NWG_MED_CLI_UA_ReleaseAction;//Release the unit
+    NWG_MED_CLI_UA_draggedUnit = objNull;//Unlock unit (unit is still attached to player, but that will be handled by server)
+    NWG_MED_CLI_UA_carriedUnit = objNull;//Unlock unit
+    call NWG_MED_CLI_UA_ResetAnimation;//Reset animation
     [player,[_targetUnit,_targetVeh],ACTION_VEHLOAD] call NWG_fnc_medReportMedAction;
 };
 
