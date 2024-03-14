@@ -151,12 +151,12 @@ NWG_MED_CLI_DefineDamager = {
     private _suspect = if (!isNull _instigator) then {_instigator} else {_damager};
 
     switch (true) do {
-        case (isNull _suspect):                   {objNull};
-        case (_suspect isKindOf "Man"):           {_suspect};
-        case (unitIsUAV _suspect):                {((UAVControl _suspect) param [0,objNull])};
-        case (_suspect isKindOf "StaticWeapon"):  {(gunner _suspect)};
-        case (_suspect call NWG_fnc_ocIsVehicle): {(driver _suspect)};
-        default                                   {objNull};
+        case (isNull _suspect):                  {objNull};
+        case (_suspect isKindOf "Man"):          {_suspect};
+        case (unitIsUAV _suspect):               {((UAVControl _suspect) param [0,objNull])};
+        case (_suspect isKindOf "StaticWeapon"): {(gunner _suspect)};
+        case (!isNull (driver _suspect)):        {(driver _suspect)};
+        default                                  {objNull};
     }
 };
 
