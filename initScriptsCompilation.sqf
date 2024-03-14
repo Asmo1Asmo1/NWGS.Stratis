@@ -95,12 +95,13 @@ _clientModules pushBack ("SCRIPTS\T2_UserInteraction\markers\markersClientSide.s
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\markers\markersFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T2_UserInteraction\markers\markersTests.sqf" call NWG_fnc_compile)};
 //medicine
+#define MEDICINE_TESTS_ON_DEDICATED true
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineCommon.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineClientSide.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineCommon.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineServerSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineFunctions.sqf" call NWG_fnc_compile);
-if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineTests.sqf" call NWG_fnc_compile)};
+if (_isDevBuild || MEDICINE_TESTS_ON_DEDICATED) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineDummy.sqf" call NWG_fnc_compile)};
 //playerRadar
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadar.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadarFunctions.sqf" call NWG_fnc_compile);

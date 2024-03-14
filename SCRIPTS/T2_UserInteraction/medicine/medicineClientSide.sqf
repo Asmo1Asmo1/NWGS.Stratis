@@ -331,9 +331,10 @@ NWG_MED_CLI_OnRevive = {
     call NWG_MED_CLI_BLEEDING_StopBleeding;//Stop bleeding if it's still active
     player setCaptive false;//Reset captive state
     player setUnconscious false;//Reset unconscious state
-    [player,false] call NWG_MED_COM_MarkWounded;
+    [player,false] call NWG_MED_COM_MarkWounded;//Drop states
     [player,SUBSTATE_NONE] call NWG_MED_COM_SetSubstate;
     [player,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_COM_SetTime;
+    if ((vehicle player) isEqualTo player) then {[player,"amovppnemstpsraswrfldnon"] call NWG_fnc_playAnim};//Reset anim
 };
 
 //================================================================================================================
