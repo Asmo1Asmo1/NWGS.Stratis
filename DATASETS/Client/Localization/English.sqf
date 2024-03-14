@@ -25,6 +25,12 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_ACTION_CARRY_TITLE#","Carry"],
     ["#MED_ACTION_RELEASE_TITLE#","Release"],
     ["#MED_ACTION_VEH_LOADIN_TITLE#","Load in"],
+    ["#MED_BLAME_VEH_KO_NOBODYS#","%1 lost vehicle"],
+    ["#MED_BLAME_VEH_KO_DAMAGER#","%2 lost vehicle by %1"],
+    ["#MED_BLAME_WOUND_NOBODYS#","%1 incapacitated"],
+    ["#MED_BLAME_WOUND_DAMAGER#","%2 incapacitated by %1"],
+    ["#MED_BLAME_KILL_NOBODYS#","%1 executed"],
+    ["#MED_BLAME_KILL_DAMAGER#","%2 executed by %1"],
 
     ["",""]
 ];

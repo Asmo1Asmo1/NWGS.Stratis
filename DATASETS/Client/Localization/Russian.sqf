@@ -25,6 +25,12 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_ACTION_CARRY_TITLE#","Нести"],
     ["#MED_ACTION_RELEASE_TITLE#","Отпустить"],
     ["#MED_ACTION_VEH_LOADIN_TITLE#","Загрузить"],
+    ["#MED_BLAME_VEH_KO_NOBODYS#","%1 выбит из техники"],
+    ["#MED_BLAME_VEH_KO_DAMAGER#","%2 выбит из техники %1"],
+    ["#MED_BLAME_WOUND_NOBODYS#","%1 ранен"],
+    ["#MED_BLAME_WOUND_DAMAGER#","%2 ранен %1"],
+    ["#MED_BLAME_KILL_NOBODYS#","%1 казнён"],
+    ["#MED_BLAME_KILL_DAMAGER#","%2 казнён %1"],
 
     ["",""]
 ];
