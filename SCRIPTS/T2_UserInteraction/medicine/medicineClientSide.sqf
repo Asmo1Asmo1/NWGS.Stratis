@@ -212,7 +212,7 @@ NWG_MED_CLI_BLEEDING_Cycle = {
         if (_substate isEqualTo SUBSTATE_INVH && {!alive (vehicle player)}) then {
             //Fix (im)possible stucking inside burning vehicle
             player moveOut (vehicle player);
-            _substate = SUBSTATE_DOWN;
+            _substate = SUBSTATE_NONE;
         };
         if ((player call NWG_MED_COM_GetSubstate) isNotEqualTo _substate) then {
             [player,_substate] call NWG_MED_COM_SetSubstate;

@@ -1,7 +1,7 @@
 NWG_LocalizationDictionary = createHashMapFromArray [
     //T2_UserInteraction
     //medicine
-    ["#MED_CLI_BLEEDING_UI_TITLE_LOW#","Слабое кровотечение"],
+    ["#MED_CLI_BLEEDING_UI_TITLE_LOW#","Перевязан"],
     ["#MED_CLI_BLEEDING_UI_TITLE_MID#","Кровотечение"],
     ["#MED_CLI_BLEEDING_UI_TITLE_HIGH#","Сильное кровотечение"],
     ["#MED_CLI_BLEEDING_UI_TIMELEFT#","Осталось: %1  [-%2]"],
