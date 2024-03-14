@@ -39,3 +39,21 @@ NWG_fnc_medIsMedic = {
     // private _unit = _this;
     _this call NWG_MED_COM_IsMedic
 };
+
+/* Server -> Client */
+
+//Loads a unit into a vehicle
+//params:
+//_unit - the unit to load
+//_veh - the vehicle to load into
+//_seat - the cargo seat to load into
+NWG_fnc_medLoadIntoVehicle = {
+    params ["_unit","_veh","_seat"];
+    if (isNull _unit) exitWith {};
+    if (!local _unit) exitWith {_this remoteExec ["NWG_fnc_medLoadIntoVehicle",_unit]};//Enforce locality
+
+    _unit moveInCargo [_veh,_seat];
+    if (!(isPlayer _unit)) exitWith {};//Don't do anything additional if it's an NPC
+    _unit playActionNow "Unconscious";
+    _unit setCaptive false;
+};
