@@ -95,7 +95,9 @@ _clientModules pushBack ("SCRIPTS\T2_UserInteraction\markers\markersClientSide.s
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\markers\markersFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T2_UserInteraction\markers\markersTests.sqf" call NWG_fnc_compile)};
 //medicine
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineCommon.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineClientSide.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineCommon.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineServerSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineTests.sqf" call NWG_fnc_compile)};

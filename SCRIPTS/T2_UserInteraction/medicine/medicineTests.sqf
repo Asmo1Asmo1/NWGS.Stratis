@@ -9,6 +9,6 @@ NWG_MED_CLI_SetupDebugDummy = {
     _this setDamage 0.9;
     _this setUnconscious true;
     _this setCaptive true;
-    [_this,true] call NWG_MED_CLI_MarkWounded;
-    [_this,SUBSTATE_DOWN] call NWG_MED_CLI_SetSubstate;
+    [_this,true] call NWG_MED_COM_MarkWounded;
+    [_this,SUBSTATE_DOWN] call NWG_MED_COM_SetSubstate;
 };

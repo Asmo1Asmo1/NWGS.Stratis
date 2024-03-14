@@ -64,93 +64,15 @@ private _Init = {
 NWG_MED_CLI_InitPlayer = {
     // private _player = _this;
 
-    [_this,false] call NWG_MED_CLI_MarkWounded;
-    [_this,SUBSTATE_NONE] call NWG_MED_CLI_SetSubstate;
-    [_this,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_CLI_SetTime;
+    [_this,false] call NWG_MED_COM_MarkWounded;
+    [_this,SUBSTATE_NONE] call NWG_MED_COM_SetSubstate;
+    [_this,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_COM_SetTime;
 
     call NWG_MED_CLI_ReloadChances;//Reload chances
     call NWG_MED_CLI_SA_ReloadSelfHealChance;//Reload self-heal chance
 
     call NWG_MED_CLI_SA_AddSelfActions;//Add self actions
     call NWG_MED_CLI_UA_AddUnitsActions;//Add units actions
-};
-
-//================================================================================================================
-//================================================================================================================
-//State management
-NWG_MED_CLI_IsWounded = {
-    // private _unit = _this;
-    if (isNull _this || {!alive _this}) exitWith {false};
-    _this getVariable ["NWG_MED_CLI_wounded",false]
-};
-NWG_MED_CLI_MarkWounded = {
-    params ["_unit","_wounded"];
-    if (isNull _unit || {!alive _unit}) exitWith {};
-    _unit setVariable ["NWG_MED_CLI_wounded",_wounded,true];
-};
-
-NWG_MED_CLI_GetSubstate = {
-    // private _unit = _this;
-    if (isNull _this || {!alive _this}) exitWith {SUBSTATE_NONE};
-    _this getVariable ["NWG_MED_CLI_substate",SUBSTATE_NONE]
-};
-NWG_MED_CLI_SetSubstate = {
-    params ["_unit","_substate"];
-    if (isNull _unit || {!alive _unit}) exitWith {};
-    _unit setVariable ["NWG_MED_CLI_substate",_substate,true];
-};
-NWG_MED_CLI_CalculateSubstate = {
-    // private _unit = _this;
-
-    /*Check cases that we can get from the engine*/
-    if (isNull _this || {!alive _this})     exitWith {SUBSTATE_NONE};//Invalid unit
-    if ((vehicle _this) isNotEqualTo _this) exitWith {SUBSTATE_INVH};//Inside vehicle
-    if ((alive _this) != (isAwake _this))   exitWith {SUBSTATE_RAGD};//Ragdolling. See: https://community.bistudio.com/wiki/isAwake
-
-    /*Check cases where we must rely on our state changing logic*/
-    private _curSubstate = _this call NWG_MED_CLI_GetSubstate;
-    if (!isNull (attachedTo _this)) exitWith {if (_curSubstate isEqualTo SUBSTATE_CARR) then {SUBSTATE_CARR} else {SUBSTATE_DRAG}};
-    if (_curSubstate in [SUBSTATE_CRWL,SUBSTATE_HEAL]) exitWith {_curSubstate};//These rely solely on our state changing logic
-
-    SUBSTATE_DOWN
-};
-
-NWG_MED_CLI_IsPatched = {
-    // private _unit = _this;
-    if (isNull _this || {!alive _this}) exitWith {false};
-    _this getVariable ["NWG_MED_CLI_patched",false]
-};
-NWG_MED_CLI_SetPatched = {
-    params ["_unit","_patched"];
-    if (isNull _unit || {!alive _unit}) exitWith {};
-    //Update only if needed
-    if (_patched isNotEqualTo (_unit getVariable ["NWG_MED_CLI_patched",0]))
-        then {_unit setVariable ["NWG_MED_CLI_patched",_patched,true]};
-};
-
-NWG_MED_CLI_IsMedic = {
-    // private _unit = _this;
-    if (isNull _this || {!alive _this}) exitWith {false};
-    _this getVariable ["NWG_MED_CLI_medic",false]
-};
-NWG_MED_CLI_MarkMedic = {
-    params ["_unit","_isMedic"];
-    if (isNull _unit || {!alive _unit}) exitWith {};
-    //Update only if needed
-    if (_isMedic isNotEqualTo (_unit getVariable ["NWG_MED_CLI_medic",0]))
-        then {_unit setVariable ["NWG_MED_CLI_medic",_isMedic,true]};
-};
-
-/*Time is completely local and never shared with others*/
-NWG_MED_CLI_GetTime = {
-    // private _unit = _this;
-    if (isNull _this || {!alive _this}) exitWith {0};
-    _this getVariable ["NWG_MED_CLI_time",0]
-};
-NWG_MED_CLI_SetTime = {
-    params ["_unit","_time"];
-    if (isNull _unit || {!alive _unit}) exitWith {};
-    _unit setVariable ["NWG_MED_CLI_time",_time];
 };
 
 //================================================================================================================
@@ -168,7 +90,7 @@ NWG_MED_CLI_OnDamage = {
             case (!alive _unit): {};
             case (!alive (vehicle _unit)): {_this call NWG_MED_CLI_OnVehicleDestroy};
             case (time < NWG_MED_CLI_nextDamageAllowedAt): {};
-            case (_unit call NWG_MED_CLI_IsWounded): {_this call NWG_MED_CLI_OnDamageWhileWounded};
+            case (_unit call NWG_MED_COM_IsWounded): {_this call NWG_MED_CLI_OnDamageWhileWounded};
             default {_this call NWG_MED_CLI_OnDamageWhileHealthy};
         };
     };
@@ -194,7 +116,7 @@ NWG_MED_CLI_OnDamageWhileHealthy = {
 
     _unit setUnconscious true;
     _unit setCaptive true;
-    [_unit,true] call NWG_MED_CLI_MarkWounded;
+    [_unit,true] call NWG_MED_COM_MarkWounded;
 
     private _veh = vehicle _unit;
     switch (true) do {
@@ -203,7 +125,7 @@ NWG_MED_CLI_OnDamageWhileHealthy = {
         default {_unit playActionNow "Unconscious"};//Fix animation in vehicle
     };
 
-    [_unit,SUBSTATE_NONE] call NWG_MED_CLI_SetSubstate;//Will be updated in bleeding cycle
+    [_unit,SUBSTATE_NONE] call NWG_MED_COM_SetSubstate;//Will be updated in bleeding cycle
     call NWG_MED_CLI_BLEEDING_StartBleeding;
 
     _damager = [_damager,_instigator] call NWG_MED_CLI_DefineDamager;
@@ -218,7 +140,7 @@ NWG_MED_CLI_OnDamageWhileWounded = {
     _damager = [_damager,_instigator] call NWG_MED_CLI_DefineDamager;
     if (isNull _damager) exitWith {};
 
-    [_unit,false] call NWG_MED_CLI_SetPatched;
+    [_unit,false] call NWG_MED_COM_SetPatched;
     _damager call NWG_MED_CLI_BLEEDING_SetLastDamager;
 };
 
@@ -249,8 +171,8 @@ NWG_MED_CLI_BLEEDING_StartBleeding = {
     if (NWG_MED_CLI_BLEEDING_isBleeding) exitWith {};//Prevent double start
     NWG_MED_CLI_BLEEDING_lastDamager = objNull;
     private _startTime = NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME";
-    [player,_startTime] call NWG_MED_CLI_SetTime;
-    [player,false] call NWG_MED_CLI_SetPatched;
+    [player,_startTime] call NWG_MED_COM_SetTime;
+    [player,false] call NWG_MED_COM_SetPatched;
     call NWG_MED_CLI_BLEEDING_PostProcessEnable;
     NWG_MED_CLI_BLEEDING_cycleHandle = [] spawn NWG_MED_CLI_BLEEDING_Cycle;
     NWG_MED_CLI_BLEEDING_isBleeding = true;
@@ -272,18 +194,18 @@ NWG_MED_CLI_BLEEDING_Cycle = {
         if (call _abortCondition) exitWith {true};
 
         //Check and update substate
-        private _substate = player call NWG_MED_CLI_CalculateSubstate;
+        private _substate = player call NWG_MED_COM_CalculateSubstate;
         if (_substate isEqualTo SUBSTATE_INVH && {!alive (vehicle player)}) then {
             //Fix (im)possible stucking inside burning vehicle
             player moveOut (vehicle player);
             _substate = SUBSTATE_DOWN;
         };
-        if ((player call NWG_MED_CLI_GetSubstate) isNotEqualTo _substate) then {
-            [player,_substate] call NWG_MED_CLI_SetSubstate;
+        if ((player call NWG_MED_COM_GetSubstate) isNotEqualTo _substate) then {
+            [player,_substate] call NWG_MED_COM_SetSubstate;
         };
 
         //Get time left
-        private _timeLeft = player call NWG_MED_CLI_GetTime;
+        private _timeLeft = player call NWG_MED_COM_GetTime;
 
         //Deplete by damage
         private _damager = NWG_MED_CLI_BLEEDING_lastDamager;
@@ -295,7 +217,7 @@ NWG_MED_CLI_BLEEDING_Cycle = {
 
         //Deplete by bleeding
         private _depleteByTime = 1;
-        if !(player call NWG_MED_CLI_IsPatched) then {_depleteByTime = 2};//Increase if unit not patched
+        if !(player call NWG_MED_COM_IsPatched) then {_depleteByTime = 2};//Increase if unit not patched
         if !(_substate in [SUBSTATE_INVH,SUBSTATE_DOWN]) then {_depleteByTime = _depleteByTime * 2};//Increase if unit is not still
         _timeLeft = _timeLeft - _depleteByTime;
 
@@ -306,13 +228,13 @@ NWG_MED_CLI_BLEEDING_Cycle = {
             call NWG_MED_CLI_Respawn;
             true;//Exit cycle
         };
-        [player,_timeLeft] call NWG_MED_CLI_SetTime;
+        [player,_timeLeft] call NWG_MED_COM_SetTime;
 
         //Calculate closest player
         private _allValidPlayers = (call NWG_fnc_getPlayersAll) select {
             alive _x && {
             _x isNotEqualTo player && {
-            !(_x call NWG_MED_CLI_IsWounded) && {
+            !(_x call NWG_MED_COM_IsWounded) && {
             (side (group _x)) isEqualTo (side (group player))}}}
         };
         private _closestPlayer = if ((count _allValidPlayers) > 0) then {
@@ -426,7 +348,7 @@ NWG_MED_CLI_OnInventoryChanged = {
     params ["","_flattenLoadOut"];
     NWG_MED_CLI_hasFAKkit = FAKKIT in _flattenLoadOut;
     NWG_MED_CLI_hasMedkit = MEDKIT in _flattenLoadOut;
-    [player,NWG_MED_CLI_hasMedkit] call NWG_MED_CLI_MarkMedic;//Update medic status
+    [player,NWG_MED_CLI_hasMedkit] call NWG_MED_COM_MarkMedic;//Update medic status
 };
 
 /*Add actions utils*/
@@ -509,12 +431,12 @@ NWG_MED_CLI_SA_selfHealSuccessChance = 100;
 NWG_MED_CLI_SA_ReloadSelfHealChance = {NWG_MED_CLI_SA_selfHealSuccessChance = NWG_MED_CLI_Settings get "SELF_HEAL_INITIAL_CHANCE"};
 
 NWG_MED_CLI_SA_SelfHealCondition = {
-    player call NWG_MED_CLI_IsWounded && {
+    player call NWG_MED_COM_IsWounded && {
     NWG_MED_CLI_hasFAKkit && {
-    (player call NWG_MED_CLI_GetSubstate) in [SUBSTATE_DOWN,SUBSTATE_INVH,SUBSTATE_HEAL]}}/*SUBSTATE_HEAL because otherwise action disappears when started*/
+    (player call NWG_MED_COM_GetSubstate) in [SUBSTATE_DOWN,SUBSTATE_INVH,SUBSTATE_HEAL]}}/*SUBSTATE_HEAL because otherwise action disappears when started*/
 };
 NWG_MED_CLI_SA_OnSelfHealStarted = {
-    [player,SUBSTATE_HEAL] call NWG_MED_CLI_SetSubstate;//Set substate to HEAL
+    [player,SUBSTATE_HEAL] call NWG_MED_COM_SetSubstate;//Set substate to HEAL
 
     //Show message
     private _fakCount = FAKKIT call NWG_fnc_invGetItemCount;
@@ -528,10 +450,10 @@ NWG_MED_CLI_SA_OnSelfHealStarted = {
     };
 };
 NWG_MED_CLI_SA_OnSelfHealInterrupted = {
-    [player,SUBSTATE_NONE] call NWG_MED_CLI_SetSubstate;//Reset substate
+    [player,SUBSTATE_NONE] call NWG_MED_COM_SetSubstate;//Reset substate
 };
 NWG_MED_CLI_SA_OnSelfHealCompleted = {
-    [player,SUBSTATE_NONE] call NWG_MED_CLI_SetSubstate;//Reset substate
+    [player,SUBSTATE_NONE] call NWG_MED_COM_SetSubstate;//Reset substate
 
     //Consume First Aid Kit
     if ((FAKKIT call NWG_fnc_invRemoveItem) isEqualTo false) exitWith {
@@ -555,15 +477,15 @@ NWG_MED_CLI_SA_OnSelfHealCompleted = {
         [player,player,ACTION_HEAL_PARTIAL] call NWG_fnc_medReportMedAction;
     } else {
         /*Failure*/
-        if !(player call NWG_MED_CLI_IsPatched) then {[player,player,ACTION_PATCH] call NWG_fnc_medReportMedAction};//At least patch the player
+        if !(player call NWG_MED_COM_IsPatched) then {[player,player,ACTION_PATCH] call NWG_fnc_medReportMedAction};//At least patch the player
         [player,player,ACTION_HEAL_FAILURE] call NWG_fnc_medReportMedAction;
     };
 };
 
 /*Respawn*/
 NWG_MED_CLI_SA_RespawnCondition = {
-    player call NWG_MED_CLI_IsWounded && {
-    (player call NWG_MED_CLI_GetSubstate) in [SUBSTATE_DOWN,SUBSTATE_INVH]}
+    player call NWG_MED_COM_IsWounded && {
+    (player call NWG_MED_COM_GetSubstate) in [SUBSTATE_DOWN,SUBSTATE_INVH]}
 };
 NWG_MED_CLI_SA_OnRespawnCompleted = {
     call NWG_MED_CLI_Respawn;
@@ -580,11 +502,11 @@ NWG_MED_CLI_SA_AddCrawl = {
         params ["","_keyCode"];
         if (
             _keyCode in (actionKeys "MoveForward") && {
-            player call NWG_MED_CLI_IsWounded && {
-            (player call NWG_MED_CLI_GetSubstate) in [SUBSTATE_DOWN,SUBSTATE_CRWL] && {
+            player call NWG_MED_COM_IsWounded && {
+            (player call NWG_MED_COM_GetSubstate) in [SUBSTATE_DOWN,SUBSTATE_CRWL] && {
             (vehicle player) isEqualTo player}}}
         ) then {
-            [player,SUBSTATE_CRWL] call NWG_MED_CLI_SetSubstate;
+            [player,SUBSTATE_CRWL] call NWG_MED_COM_SetSubstate;
             player playMoveNow "AmovPpneMrunSnonWnonDf";
             player setCaptive false;
         };
@@ -597,11 +519,11 @@ NWG_MED_CLI_SA_AddCrawl = {
         params ["","_keyCode"];
         if (
             _keyCode in (actionKeys "MoveForward") && {
-            player call NWG_MED_CLI_IsWounded && {
-            (player call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_CRWL && {
+            player call NWG_MED_COM_IsWounded && {
+            (player call NWG_MED_COM_GetSubstate) isEqualTo SUBSTATE_CRWL && {
             (vehicle player) isEqualTo player}}}
         ) then {
-            [player,SUBSTATE_DOWN] call NWG_MED_CLI_SetSubstate;
+            [player,SUBSTATE_DOWN] call NWG_MED_COM_SetSubstate;
             player playActionNow "Unconscious";
             player setCaptive true;
         };
@@ -680,17 +602,17 @@ NWG_MED_CLI_UA_HealCondition = {
     !isNull (call NWG_fnc_radarGetUnitInFront) && {
     isNull NWG_MED_CLI_UA_draggedUnit && {
     isNull NWG_MED_CLI_UA_carriedUnit && {
-    !(player call NWG_MED_CLI_IsWounded) && {
+    !(player call NWG_MED_COM_IsWounded) && {
     (NWG_MED_CLI_hasFAKkit || NWG_MED_CLI_hasMedkit) && {
-    (call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_IsWounded && {
-    ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}}
+    (call NWG_fnc_radarGetUnitInFront) call NWG_MED_COM_IsWounded && {
+    ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_COM_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}}
 };
 NWG_MED_CLI_UA_OnHealStarted = {
     NWG_MED_CLI_UA_healTarget = call NWG_fnc_radarGetUnitInFront;//Lock unit
 
     //Show different message based on 'medic' status
     //FAK and Medkit presence for medic, FAK count and chance for non-medic
-    if (player call NWG_MED_CLI_IsMedic) then {
+    if (player call NWG_MED_COM_IsMedic) then {
         private _hasMedkit = if (NWG_MED_CLI_hasMedkit) then {"#MED_HAS_MEDKIT#"} else {"#MED_NO_MEDKIT#"};
         private _fakCount = FAKKIT call NWG_fnc_invGetItemCount;
         ["#MED_ACTION_HEAL_MED_HINT#",_hasMedkit,_fakCount] call NWG_fnc_systemChatMe;
@@ -706,7 +628,7 @@ NWG_MED_CLI_UA_OnHealStarted = {
 NWG_MED_CLI_UA_OnHealInterrupted = {
     NWG_MED_CLI_UA_healTarget = objNull;//Drop lock
     if (isNull player || {!alive player}) exitWith {};//Prevent errors
-    if (player call NWG_MED_CLI_IsWounded) exitWith {};//Game logic will handle this
+    if (player call NWG_MED_COM_IsWounded) exitWith {};//Game logic will handle this
     call NWG_MED_CLI_UA_ResetAnimation;//Reset animation
 };
 NWG_MED_CLI_UA_OnHealCompleted = {
@@ -716,10 +638,10 @@ NWG_MED_CLI_UA_OnHealCompleted = {
     if (
         isNull _healTarget || {
         _healTarget isNotEqualTo (call NWG_fnc_radarGetUnitInFront) || {
-        !(_healTarget call NWG_MED_CLI_IsWounded)}}
+        !(_healTarget call NWG_MED_COM_IsWounded)}}
     ) exitWith {};//Abort on target loss
 
-    if (player call NWG_MED_CLI_IsMedic)
+    if (player call NWG_MED_COM_IsMedic)
         then {_healTarget call NWG_MED_CLI_UA_OnHealCompleted_MED}
         else {_healTarget call NWG_MED_CLI_UA_OnHealCompleted_FAK};
 };
@@ -775,7 +697,7 @@ NWG_MED_CLI_UA_OnHealCompleted_FAK = {
         [player,_healTarget,ACTION_HEAL_PARTIAL] call NWG_fnc_medReportMedAction;
     } else {
         /*Failure*/
-        if !(_healTarget call NWG_MED_CLI_IsPatched) then {[player,_healTarget,ACTION_PATCH] call NWG_fnc_medReportMedAction};//At least patch the target
+        if !(_healTarget call NWG_MED_COM_IsPatched) then {[player,_healTarget,ACTION_PATCH] call NWG_fnc_medReportMedAction};//At least patch the target
         [player,_healTarget,ACTION_HEAL_FAILURE] call NWG_fnc_medReportMedAction;
     };
 };
@@ -798,9 +720,9 @@ NWG_MED_CLI_UA_DragCondition = {
     !isNull (call NWG_fnc_radarGetUnitInFront) && {
     isNull NWG_MED_CLI_UA_draggedUnit && {
     isNull NWG_MED_CLI_UA_carriedUnit && {
-    !(player call NWG_MED_CLI_IsWounded) && {
-    (call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_IsWounded && {
-    ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}
+    !(player call NWG_MED_COM_IsWounded) && {
+    (call NWG_fnc_radarGetUnitInFront) call NWG_MED_COM_IsWounded && {
+    ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_COM_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}
 };
 NWG_MED_CLI_UA_DragAction = {
     private _targetUnit = (call NWG_fnc_radarGetUnitInFront);//Omit all checks - rely on condition
@@ -816,14 +738,14 @@ NWG_MED_CLI_UA_CarryCondition = {
     if (!isNull NWG_MED_CLI_UA_draggedUnit) then {
         isNull NWG_MED_CLI_UA_carriedUnit && {
         alive NWG_MED_CLI_UA_draggedUnit && {
-        !(player call NWG_MED_CLI_IsWounded)}}
+        !(player call NWG_MED_COM_IsWounded)}}
     } else {
         !isNull (call NWG_fnc_radarGetUnitInFront) && {
         isNull NWG_MED_CLI_UA_draggedUnit && {
         isNull NWG_MED_CLI_UA_carriedUnit && {
-        !(player call NWG_MED_CLI_IsWounded) && {
-        (call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_IsWounded && {
-        ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_CLI_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}
+        !(player call NWG_MED_COM_IsWounded) && {
+        (call NWG_fnc_radarGetUnitInFront) call NWG_MED_COM_IsWounded && {
+        ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_COM_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}
     };
 };
 NWG_MED_CLI_UA_CarryAction = {
@@ -846,13 +768,13 @@ NWG_MED_CLI_UA_CarryAction = {
             !alive _targetUnit || {
             isNull NWG_MED_CLI_UA_carriedUnit || { /*Lock was dropped by release*/
             _targetUnit isNotEqualTo NWG_MED_CLI_UA_carriedUnit || { /*Should not happen, but just in case*/
-            player call NWG_MED_CLI_IsWounded || {
-            !(_targetUnit call NWG_MED_CLI_IsWounded) || {
-            (_targetUnit call NWG_MED_CLI_GetSubstate) isNotEqualTo SUBSTATE_DOWN}}}}}}}}
+            player call NWG_MED_COM_IsWounded || {
+            !(_targetUnit call NWG_MED_COM_IsWounded) || {
+            (_targetUnit call NWG_MED_COM_GetSubstate) isNotEqualTo SUBSTATE_DOWN}}}}}}}}
         };
         private _abort = {
             if (isNull player || {!alive player}) exitWith {};//Prevent errors
-            if (player call NWG_MED_CLI_IsWounded) exitWith {};//Game logic will handle this
+            if (player call NWG_MED_COM_IsWounded) exitWith {};//Game logic will handle this
             if (isNull NWG_MED_CLI_UA_carriedUnit) exitWith {};//Released during animation
             NWG_MED_CLI_UA_carriedUnit = objNull;//Drop the lock on abort
             call NWG_MED_CLI_UA_ResetAnimation;//Reset animation
