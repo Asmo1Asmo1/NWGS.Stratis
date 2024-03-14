@@ -188,10 +188,22 @@ NWG_MED_CLI_BLEEDING_StopBleeding = {
 };
 
 NWG_MED_CLI_BLEEDING_Cycle = {
-    private _abortCondition = {isNull player || {!alive player}};
-
+    private _nextUpdateAt = 0;
     waitUntil {
-        if (call _abortCondition) exitWith {true};
+        //Small cycle
+        if (isNull player || {!alive player}) exitWith {
+            /*Disconnected*/
+            true
+        };
+        if !(player call NWG_MED_COM_IsWounded) exitWith {
+            /*Healed*/
+            [] spawn NWG_MED_CLI_OnRevive;//'spawn' to 'terminate' bleeding not from within itself
+            true
+        };
+
+        //Big cycle time?
+        if (time < _nextUpdateAt) exitWith {sleep 0.1; false};//Go to new small cycle
+        _nextUpdateAt = time + 1;
 
         //Check and update substate
         private _substate = player call NWG_MED_COM_CalculateSubstate;
@@ -223,7 +235,7 @@ NWG_MED_CLI_BLEEDING_Cycle = {
 
         //Check if we're still alive
         if (_timeLeft <= 0) exitWith {
-            /*Our time ran out*/
+            /*Time ran out*/
             if (!isNull _damager) then {[_damager,player,BLAME_KILL] call NWG_fnc_medBlame};//Blame the last damager
             call NWG_MED_CLI_Respawn;
             true;//Exit cycle
@@ -261,7 +273,7 @@ NWG_MED_CLI_BLEEDING_Cycle = {
         hintSilent ([_title,_timeInfo,_closeInfo] joinString "\n");
 
         //Repeat
-        sleep 1;
+        sleep 0.1;//Big cycle will still run every second, but smaller cycle will fire every 0.1 seconds
         false
     };
 };
@@ -311,6 +323,18 @@ NWG_MED_CLI_BLEEDING_PostProcessDisable = {
 
 //================================================================================================================
 //================================================================================================================
+//Revive
+NWG_MED_CLI_OnRevive = {
+    call NWG_MED_CLI_BLEEDING_StopBleeding;//Stop bleeding if it's still active
+    player setCaptive false;//Reset captive state
+    player setUnconscious false;//Reset unconscious state
+    [_this,false] call NWG_MED_COM_MarkWounded;
+    [_this,SUBSTATE_NONE] call NWG_MED_COM_SetSubstate;
+    [_this,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_COM_SetTime;
+};
+
+//================================================================================================================
+//================================================================================================================
 //Respawn
 NWG_MED_CLI_Respawn = {
     player setDamage 1;
@@ -319,13 +343,14 @@ NWG_MED_CLI_Respawn = {
 /*This will be called on every respawn, including graceful respawn, bugs, instakills, drowning, etc.*/
 NWG_MED_CLI_respawnPoint = [];
 NWG_MED_CLI_OnRespawn = {
-    params ["_player","_corpse"];
+    // params ["_player","_corpse"];
+    params ["_player"];
 
     _player setPosASL NWG_MED_CLI_respawnPoint;//Teleport to the respawn point
     call NWG_MED_CLI_BLEEDING_StopBleeding;//Stop bleeding if it's still active
     _player setCaptive false;//Reset captive state
     _player setUnconscious false;//Reset unconscious state
-    _player call NWG_MED_CLI_InitPlayer;
+    _player call NWG_MED_CLI_InitPlayer;//Re-init player
 };
 
 //================================================================================================================
