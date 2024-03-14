@@ -46,6 +46,9 @@ NWG_MED_SER_OnBlame = {
             (format ["NWG_MED_SER_OnBlame: Unknown blame type '%1'",_blame]) call NWG_fnc_logError;
         };
     };
+
+    //Additional handling
+    _passiveUnit call NWG_MED_SER_CheckDetachNeeded;
 };
 
 //================================================================================================================
@@ -113,18 +116,14 @@ NWG_MED_SER_OnMedAction = {
             if (isNull (attachedTo _unit)) exitWith {};//Already released
             detach _unit;
 
-            private _allSeats = ((fullCrew [_vehicle,"",true]) select {
-                isNull (_x#0) && { /*Empty seat*/
-                (_x#2) >= 0} /*Cargo index valid*/
-            }) apply {
-                _x#2 /*Cargo index*/
-            };
+            private _allSeats = ((fullCrew [_vehicle,"",true]) select {isNull (_x#0) && {(_x#2) >= 0}}) apply {_x#2};
             reverse _allSeats;//Prefer the last seat
 
             if ((count _allSeats) > 0) then {
                 /*Load into available seat*/
                 private _seat = _allSeats select 0;
                 [_unit,_vehicle,_seat] call NWG_fnc_medLoadIntoVehicle;
+                [_passiveUnit,SUBSTATE_INVH] call NWG_MED_COM_SetSubstate;
             } else {
                 /*Place on the ground like in 'ACTION_RELEASE'*/
                 _unit call NWG_fnc_medFlipUnit;
@@ -179,3 +178,61 @@ NWG_MED_SER_GarbageAndAnim = {
         [_unit,_animname] call NWG_fnc_medPlayAnim;
     };
 };
+
+//================================================================================================================
+//================================================================================================================
+//Detaching units
+NWG_MED_SER_CheckDetachNeeded = {
+    // private _unit = _this;
+    if (isNull _this) exitWith {};//Invalid unit
+    if !(_this isKindOf "Man") exitWith {};//Only for infantry
+    if !(_this call NWG_MED_COM_HasStates) exitWith {};//Not a part of medicine system (so could not drag anyone)
+
+    //If this unit is being dragged/carried by someone
+    if (!isNull (attachedTo _this)) exitWith {
+        /*Get dragger info*/
+        private _dragger = attachedTo _this;
+        if !(_dragger isKindOf "Man") exitWith {};
+        if !(_dragger call NWG_MED_COM_HasStates) exitWith {};
+        /*Handle this unit*/
+        detach _this;
+        if (alive _this) then {
+            _this call NWG_fnc_medFlipUnit;
+            [_this,"UnconsciousFaceUp"] call NWG_fnc_playAnim;
+            [_this,SUBSTATE_DOWN] call NWG_MED_COM_SetSubstate;
+        };
+        /*Handle dragger*/
+        _dragger call NWG_fnc_medAbortDragAndCarry;
+    };
+
+    //If this unit is dragging someone
+    if ((count (attachedObjects _this)) > 0) exitWith {
+        /*Get dragged info*/
+        private _dragged = (attachedObjects _this) select {_x isKindOf "Man" && {_x call NWG_MED_COM_HasStates}};
+        if ((count _dragged) == 0) exitWith {};
+        /*Handle dragged unit(s)*/
+        {
+            detach _x;
+            if (alive _x) then {
+                _x call NWG_fnc_medFlipUnit;
+                [_x,"UnconsciousFaceUp"] call NWG_fnc_playAnim;
+                [_x,SUBSTATE_DOWN] call NWG_MED_COM_SetSubstate;
+            };
+        } forEach _dragged;
+        /*Handle this unit*/
+        if (alive _this && {!(_this call NWG_MED_COM_IsWounded)})
+            then {_this call NWG_fnc_medAbortDragAndCarry};
+    };
+};
+
+//Add handlers to catch mission events
+addMissionEventHandler ["HandleDisconnect",{
+    // params ["_unit", "_id", "_uid", "_name"];
+    (_this#0) call NWG_MED_SER_CheckDetachNeeded;
+    //Fix AI replacing player
+    false
+}];
+addMissionEventHandler ["EntityRespawned",{
+    // params ["_newEntity","_oldEntity"];
+    (_this#1) call NWG_MED_SER_CheckDetachNeeded;
+}];

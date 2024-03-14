@@ -81,3 +81,11 @@ NWG_fnc_medLoadIntoVehicle = {
     _unit playActionNow "Unconscious";
     _unit setCaptive false;
 };
+
+//Not for publc use (no, it does not drop the body, it just clears the info and resets animation)
+NWG_fnc_medAbortDragAndCarry = {
+    // private _unit = _this;
+    if (isNull _this) exitWith {};
+    if (!local _this) exitWith {_this remoteExec ["NWG_fnc_medAbortDragAndCarry",_this]};
+    _this call NWG_MED_CLI_UA_ForceRelease;
+};

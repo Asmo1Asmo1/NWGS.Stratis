@@ -863,6 +863,11 @@ NWG_MED_CLI_UA_ReleaseAction = {
     call NWG_MED_CLI_UA_ResetAnimation;//Reset animation
     [player,_targetUnit,ACTION_RELEASE] call NWG_fnc_medReportMedAction;
 };
+NWG_MED_CLI_UA_ForceRelease = {
+    NWG_MED_CLI_UA_draggedUnit = objNull;//Unlock unit
+    NWG_MED_CLI_UA_carriedUnit = objNull;//Unlock unit
+    call NWG_MED_CLI_UA_ResetAnimation;//Reset animation
+};
 
 /*Vehicle load*/
 NWG_MED_CLI_UA_VehLoadCondition = {

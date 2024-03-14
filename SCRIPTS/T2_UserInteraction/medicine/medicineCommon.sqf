@@ -82,3 +82,9 @@ NWG_MED_COM_SetTime = {
     if (isNull _unit || {!alive _unit}) exitWith {};
     _unit setVariable ["NWG_MED_CLI_time",_time];
 };
+
+NWG_MED_COM_HasStates = {
+    // private _unit = _this;
+    private _test = _this getVariable "NWG_MED_CLI_wounded";
+    !isNil "_test"
+};
