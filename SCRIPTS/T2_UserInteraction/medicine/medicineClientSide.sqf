@@ -9,6 +9,8 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["INVULNERABILITY_ON_START",5],//Seconds to ignore damage after mission start
     ["INVULNERABILITY_ON_EJECTION",3],//Seconds to ignore damage while ejecting burning vehicle
     ["INVULNERABILITY_ON_WOUNDED",3],//Seconds to ignore damage when getting wounded
+    ["INVULNERABILITY_ON_RESPAWN",5],//Seconds to ignore damage on respawn
+    ["INVULNERABILITY_ON_REVIVE",2],//Seconds to ignore damage on revive
 
     ["TIME_BLEEDING_TIME",900],//Start bleeding with this amount of 'time left'
     ["TIME_DAMAGE_DEPLETES",6],//How much time is subtracted when damage received in wounded state
@@ -325,6 +327,7 @@ NWG_MED_CLI_BLEEDING_PostProcessDisable = {
 //================================================================================================================
 //Revive
 NWG_MED_CLI_OnRevive = {
+    NWG_MED_CLI_nextDamageAllowedAt = time + (NWG_MED_CLI_Settings get "INVULNERABILITY_ON_REVIVE");//Ignore damage for a while
     call NWG_MED_CLI_BLEEDING_StopBleeding;//Stop bleeding if it's still active
     player setCaptive false;//Reset captive state
     player setUnconscious false;//Reset unconscious state
@@ -346,6 +349,7 @@ NWG_MED_CLI_OnRespawn = {
     // params ["_player","_corpse"];
     params ["_player"];
 
+    NWG_MED_CLI_nextDamageAllowedAt = time + (NWG_MED_CLI_Settings get "INVULNERABILITY_ON_RESPAWN");//Ignore damage for a while
     _player setPosASL NWG_MED_CLI_respawnPoint;//Teleport to the respawn point
     call NWG_MED_CLI_BLEEDING_StopBleeding;//Stop bleeding if it's still active
     _player setCaptive false;//Reset captive state
