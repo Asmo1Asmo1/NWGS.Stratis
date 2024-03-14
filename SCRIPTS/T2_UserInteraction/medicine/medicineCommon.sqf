@@ -1,3 +1,4 @@
+#include "medicineDefines.h"
 /*
     Annotation:
     This block is common for both server and client sides
@@ -15,6 +16,7 @@ NWG_MED_COM_IsWounded = {
 NWG_MED_COM_MarkWounded = {
     params ["_unit","_wounded"];
     if (isNull _unit || {!alive _unit}) exitWith {};
+    if ((_unit getVariable ["NWG_MED_CLI_wounded",-1]) isEqualTo _wounded) exitWith {};//Update only if needed
     _unit setVariable ["NWG_MED_CLI_wounded",_wounded,true];
 };
 
@@ -26,6 +28,7 @@ NWG_MED_COM_GetSubstate = {
 NWG_MED_COM_SetSubstate = {
     params ["_unit","_substate"];
     if (isNull _unit || {!alive _unit}) exitWith {};
+    if ((_unit getVariable ["NWG_MED_CLI_substate",-1]) isEqualTo _substate) exitWith {};//Update only if needed
     _unit setVariable ["NWG_MED_CLI_substate",_substate,true];
 };
 NWG_MED_COM_CalculateSubstate = {
@@ -52,9 +55,8 @@ NWG_MED_COM_IsPatched = {
 NWG_MED_COM_SetPatched = {
     params ["_unit","_patched"];
     if (isNull _unit || {!alive _unit}) exitWith {};
-    //Update only if needed
-    if (_patched isNotEqualTo (_unit getVariable ["NWG_MED_CLI_patched",0]))
-        then {_unit setVariable ["NWG_MED_CLI_patched",_patched,true]};
+    if ((_unit getVariable ["NWG_MED_CLI_patched",-1]) isEqualTo _patched) exitWith {};//Update only if needed
+    _unit setVariable ["NWG_MED_CLI_patched",_patched,true];
 };
 
 NWG_MED_COM_IsMedic = {
@@ -65,9 +67,8 @@ NWG_MED_COM_IsMedic = {
 NWG_MED_COM_MarkMedic = {
     params ["_unit","_isMedic"];
     if (isNull _unit || {!alive _unit}) exitWith {};
-    //Update only if needed
-    if (_isMedic isNotEqualTo (_unit getVariable ["NWG_MED_CLI_medic",0]))
-        then {_unit setVariable ["NWG_MED_CLI_medic",_isMedic,true]};
+    if ((_unit getVariable ["NWG_MED_CLI_medic",-1]) isEqualTo _isMedic) exitWith {};//Update only if needed
+    _unit setVariable ["NWG_MED_CLI_medic",_isMedic,true];
 };
 
 /*Time is completely local and never shared with others*/
