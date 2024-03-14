@@ -5,7 +5,9 @@
 //================================================================================================================
 //Settings
 NWG_MED_SER_Settings = createHashMapFromArray [
-    ["BLAME_REPORT_SELFDAMAGE",true],//If true, self-inflicted damage will be reported as well (e.g.: True: 'Joe hit Joe', False: 'Joe is hit')
+    ["BLAME_REPORT_SELFDAMAGE",false],//If true, self-inflicted damage will be reported as well (e.g.: True: 'Joe hit Joe', False: 'Joe is hit')
+    ["ACTION_HEAL_FAILURE_PLACE_GARBAGE",true],//If true, the server will place medical garbage near the wounded on heal failure
+    ["ACTION_HEAL_FAILURE_PLAY_ANIM",true],//If true, the wounded will be forced to play additional animation on heal failure
 
     ["",0]
 ];
@@ -84,6 +86,7 @@ NWG_MED_SER_OnMedAction = {
             if (_activeUnit isEqualTo _passiveUnit)
                 then {["#MED_ACTION_SELF_HEAL_FAILURE#",(name _activeUnit)] call NWG_fnc_systemChatAll}
                 else {["#MED_ACTION_HEAL_FAILURE#",(name _activeUnit),(name _passiveUnit)] call NWG_fnc_systemChatAll};
+            _passiveUnit call NWG_MED_SER_GarbageAndAnim;//Place garbage and play animation
         };
         case ACTION_DRAG: {
             if (!isNull (attachedTo _passiveUnit)) exitWith {};//Already being dragged
@@ -132,5 +135,47 @@ NWG_MED_SER_OnMedAction = {
         default {
             "NWG_MED_SER_OnMedAction: Unknown action type" call NWG_fnc_logError;
         };
+    };
+};
+
+//================================================================================================================
+//================================================================================================================
+//Garbage and animations
+NWG_MED_SER_medGarbage = [
+    "MedicalGarbage_01_Packaging_F",
+    "MedicalGarbage_01_FirstAidKit_F",
+    "MedicalGarbage_01_Bandage_F",
+    "MedicalGarbage_01_1x1_v3_F",
+    "MedicalGarbage_01_1x1_v2_F",
+    "MedicalGarbage_01_1x1_v1_F"
+];
+NWG_MED_SER_woundedAnims = [
+    "UnconsciousReviveArms_A",
+    "UnconsciousReviveArms_B",
+    "UnconsciousReviveArms_C",
+    "UnconsciousReviveBody_A",
+    "UnconsciousReviveBody_B",
+    "UnconsciousReviveLegs_A",
+    "UnconsciousReviveLegs_B"
+];
+
+NWG_MED_SER_GarbageAndAnim = {
+    private _unit = _this;
+    //Checks
+    if (isNull _unit || {!(alive _unit)}) exitWith {};//Invalid unit
+    if ((vehicle _unit) isNotEqualTo _unit) exitWith {};//Only for infantry
+    if (((getPosWorld _unit)#2) < 0) exitWith {};//Underwater
+
+    //Place random garbage
+    if (NWG_MED_SER_Settings get "ACTION_HEAL_FAILURE_PLACE_GARBAGE") then {
+        private _classname = [NWG_MED_SER_medGarbage,"NWG_MED_SER_medGarbage"] call NWG_fnc_selectRandomGuaranteed;
+        private _garbage = createVehicle [_classname,_unit,[],1,"CAN_COLLIDE"];
+        _garbage call NWG_fnc_gcReportTrash;
+    };
+
+    //Play random animation
+    if (NWG_MED_SER_Settings get "ACTION_HEAL_FAILURE_PLAY_ANIM") then {
+        private _animname = [NWG_MED_SER_woundedAnims,"NWG_MED_SER_woundedAnims"] call NWG_fnc_selectRandomGuaranteed;
+        [_unit,_animname] call NWG_fnc_medPlayAnim;
     };
 };

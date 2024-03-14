@@ -1,8 +1,9 @@
 #include "medicineDefines.h"
 
-// test1 call NWG_MED_DUMMY_SetupDummy
+// test1 spawn NWG_MED_DUMMY_SetupDummy
 NWG_MED_DUMMY_SetupDummy = {
     // private _unit = _this;
+    waitUntil {sleep 0.1; local _this};
     _this setDamage 0.7;
     _this addEventHandler ["HandleDamage",{_this call NWG_MED_DUMMY_OnDamage}];
 };
@@ -60,7 +61,7 @@ NWG_MED_DUMMY_Cycle = {
             /*Healed*/
             _unit setUnconscious false;
             _unit setCaptive false;
-            _unit playActionNow "MedicOther";
+            [_unit,"amovppnemstpsraswrfldnon"] call NWG_fnc_playAnim;
             true
         };
 

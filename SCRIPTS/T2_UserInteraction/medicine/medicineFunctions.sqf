@@ -53,6 +53,19 @@ NWG_fnc_medFlipUnit = {
     _unit setDir ((getDir _unit) + 180);
 };
 
+//Plays an animation on a unit
+//params:
+//_unit - the unit to play the animation on
+//_anim - the animation to play
+NWG_fnc_medPlayAnim = {
+    params ["_unit","_anim"];
+    if (isNull _unit) exitWith {};
+    if (!local _unit) exitWith {_this remoteExec ["NWG_fnc_medPlayAnim",_unit]};
+
+    _this call NWG_fnc_playAnim;//Play the animation
+    _unit playMove "UnconsciousFaceUp";//Fix medicine animations require additional playMove to keep playing in cycle
+};
+
 //Loads a unit into a vehicle
 //params:
 //_unit - the unit to load
