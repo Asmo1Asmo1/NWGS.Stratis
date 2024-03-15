@@ -40,6 +40,24 @@ NWG_fnc_medIsMedic = {
     _this call NWG_MED_COM_IsMedic
 };
 
+//Not for public use
+NWG_fnc_medDamage = {
+    params ["_player",["_dmg",0.9]];
+    if (isNull _player) exitWith {};
+    if (!local _player) exitWith {_this remoteExec ["NWG_fnc_medDamage",_player]};//Enforce locality
+    _dmg = (_dmg max 0) min 0.9;//Clamp the damage to 0.0...0.9
+    _player setDamage _dmg;
+    [_player,"",_dmg,_player,"","",_player,""] call NWG_MED_CLI_OnDamage;
+};
+
+//Not for public use
+NWG_fnc_medHeal = {
+    // private _player = _this;
+    if (isNull _this) exitWith {};
+    if (!local _this) exitWith {_this remoteExec ["NWG_fnc_medHeal",_this]};//Enforce locality
+    [_this,false] call NWG_MED_COM_MarkWounded;
+};
+
 /* Server -> Client */
 
 //Flips unit direction (fix of setDir being La Ge)
