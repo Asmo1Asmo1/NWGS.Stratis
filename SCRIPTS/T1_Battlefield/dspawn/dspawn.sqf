@@ -357,10 +357,9 @@ NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
 //================================================================================================================
 //Send reinforcements
 NWG_DSPAWN_REINF_SendReinforcements = {
-    params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west]];
+    params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west],["_spawnMap",[nil,nil,nil,nil]]];
 
     //Prepare spawn point picking (with lazy evaluation)
-    private _spawnMap = [nil,nil,nil,nil];
     private _getSpawnPoint = {
         private _pointType = _this;
         private _index = switch (_pointType) do {
@@ -370,17 +369,15 @@ NWG_DSPAWN_REINF_SendReinforcements = {
             case "AIR":  {3};
         };
 
-        private _spawnArray = _spawnMap#_index;
+        private _spawnArray = _spawnMap param [_index,nil];
         if (isNil "_spawnArray") then {
             private _markupArgs = switch (_pointType) do {
-                case "INF":  {[[_attackPos,true,false,false,false],[0,1]]};//0 - _infPlains, 1 - _infRoads
-                case "VEH":  {[[_attackPos,false,true,false,false],[3,2]]};//3 - _vehRoads, 2 - _vehPlains
-                case "BOAT": {[[_attackPos,false,false,true,false],[4]]};//4 - _boats
-                case "AIR":  {[[_attackPos,false,false,false,true],[5]]};//5 - _air
+                case "INF":  {[_attackPos,true ,false,false,false]};
+                case "VEH":  {[_attackPos,false,true, false,false]};
+                case "BOAT": {[_attackPos,false,false,true, false]};
+                case "AIR":  {[_attackPos,false,false,false,true ]};
             };
-            private _points = (_markupArgs#0) call NWG_fnc_dtsMarkupReinforcement;//[_infPlains,_infRoads,_vehPlains,_vehRoads,_boats,_air]
-            _spawnArray = [];
-            {_spawnArray append ((_points#_x) call NWG_fnc_arrayShuffle)} forEach (_markupArgs#1);
+            _spawnArray = (_markupArgs call NWG_fnc_dtsMarkupReinforcementGrouped) select _index;//[_inf,_veh,_boats,_air]
             _spawnMap set [_index,_spawnArray];
         };
         if ((count _spawnArray) == 0) exitWith {false};//No points to spawn

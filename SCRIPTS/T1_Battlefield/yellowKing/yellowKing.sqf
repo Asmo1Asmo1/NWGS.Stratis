@@ -393,7 +393,9 @@ NWG_YK_REINF_SendReinforcements = {
         default {[]};//No filter
     };
     private _side = NWG_YK_Settings get "KING_SIDE";
-    [_targetPos,1,_faction,_filter,_side] spawn NWG_fnc_dsSendReinforcements;
+    private _reinfMap = BST_REINFMAP call NWG_fnc_shGetState;
+    if (isNil "_reinfMap") then {_reinfMap = []};
+    [_targetPos,1,_faction,_filter,_side,_reinfMap] spawn NWG_fnc_dsSendReinforcements;
 };
 
 //======================================================================================================

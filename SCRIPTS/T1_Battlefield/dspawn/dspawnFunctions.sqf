@@ -9,8 +9,9 @@
 // _faction - faction of the reinforcements
 // _filter - array of groups to filter out (optional)
 // _side - side of the reinforcements (optional, default: west)
+// _spawnMap - array positions to spawn the reinforcements on (optional, default: [nil,nil,nil,nil] for [INF,VEH,BOAT,AIR])
 NWG_fnc_dsSendReinforcements = {
-    // params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west]];
+    // params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west],["_spawnMap",[nil,nil,nil,nil]]];
     _this call NWG_DSPAWN_REINF_SendReinforcements
 };
 

@@ -118,6 +118,19 @@ NWG_DOTS_MarkupReinforcement = {
     [_infPlains,_infRoads,_vehPlains,_vehRoads,_boats,_air]
 };
 
+NWG_DOTS_MarkupReinforcementGrouped = {
+    // params ["_pos",["_doInf",true],["_doVeh",true],["_doBoat",true],["_doAir",true]];
+    private _result = _this call NWG_DOTS_MarkupReinforcement;//[_infPlains,_infRoads,_vehPlains,_vehRoads,_boats,_air]
+    {_x call NWG_fnc_arrayShuffle} forEach _result;
+    private _infRoads  = _result deleteAt 1;
+    private _vehPlains = _result deleteAt 1;
+    (_result#0) append _infRoads;
+    (_result#1) append _vehPlains;
+
+    //return [_inf,_veh,_boats,_air]
+    _result
+};
+
 //Helper for reinforcements attack logic
 NWG_DOTS_FindDotForWaypoint = {
     params ["_pos","_rad","_type"];
