@@ -13,7 +13,7 @@
 #define EVENT_ON_UKREP_PLACED "OnUkrepPlaced" //Called by 'ukrep' subsystem when ukrep is placed.                           params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
 
 //Client events (arguments for NWG_fnc_subscribeToClientEvent and NWG_fnc_raiseClientEvent)
-#define EVENT_ON_LOADOUT_CHANGED "OnLoadoutChanged" //Called by 'inventoryManager' subsystem when a loadout is changed. No params.
+#define EVENT_ON_LOADOUT_CHANGED "OnLoadoutChanged" //Called by 'inventoryManager' subsystem when a loadout is changed.     params ["_loadOut","_flattenLoadOut"];
 
 //Battlefield states (arguments for NWG_fnc_shGetState and NWG_fnc_shSetState)
 #define BST_OCCUPIED_BUILDINGS "OccupiedBuildings"

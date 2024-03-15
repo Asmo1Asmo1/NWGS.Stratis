@@ -338,7 +338,7 @@ NWG_ACA_ArtilleryStrikeCore = {
     //Unfreeze (fix for dynamic simulation)
     {
         if (dynamicSimulationEnabled _x) then {_x enableDynamicSimulation false};
-        if (_x isEqualType objNull && {!(simulationEnabled _x)}) then {_x enableSimulation true};
+        if (_x isEqualType objNull && {!(simulationEnabled _x)}) then {_x enableSimulationGlobal true};
     } forEach ([_group,_artillery] + (crew _artillery));
 
     //Make courageous

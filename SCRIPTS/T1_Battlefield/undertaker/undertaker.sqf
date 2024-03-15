@@ -72,12 +72,7 @@ NWG_UNDTKR_OnKilled = {
 NWG_UNDTKR_DefineKiller = {
     //Supposed to work with EH "HandleDamage" or "EntityKilled", where _killer and _instigator are present
     params [["_killer",objNull],["_instigator",objNull]];
-
-    private _suspect = switch (true) do {
-        case (!isNull _instigator): {_instigator};
-        case (!isNull _killer): {_killer};
-        default {objNull};
-    };
+    private _suspect = if (!isNull _instigator) then {_instigator} else {_killer};
 
     //return
     switch (true) do {

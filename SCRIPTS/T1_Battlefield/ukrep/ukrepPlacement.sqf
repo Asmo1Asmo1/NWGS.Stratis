@@ -708,9 +708,9 @@ NWG_UKREP_CreateObject = {
 
     //Apply settings
     if (!_isSimple) then {
-        _obj enableSimulation _isSimOn;
-        _obj enableDynamicSimulation _isDynaSimOn;
-        _obj allowDamage _isDmgAllowed;
+        if (!_isSimOn) then {_obj enableSimulationGlobal false};
+        if (_isDynaSimOn) then {_obj enableDynamicSimulation true};
+        if (!_isDmgAllowed) then {_obj allowDamage false};
     };
 
     //Sign
