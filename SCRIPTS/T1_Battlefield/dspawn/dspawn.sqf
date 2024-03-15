@@ -16,14 +16,14 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
     ["PARADROP_HEIGHT",200],//Height of paradropping
     ["PARADROP_TIMEOUT",90],//Timeout to auto-cancel paradrop in case of an error
 
-    ["ATTACK_INF_ATTACK_RADIUS",200],//Radius for INF group to 'attack' the position
-    ["ATTACK_VEH_UNLOAD_RADIUS",300],//Radius for VEH group to unload passengers
-    ["ATTACK_VEH_ATTACK_RADIUS",200],//Radius for VEH group to 'attack' the position
-    ["ATTACK_AIR_UNLOAD_RADIUS",300],//Radius for AIR group to unload passengers
-    ["ATTACK_AIR_ATTACK_RADIUS",400],//Radius for AIR group to 'attack' the position
+    ["ATTACK_INF_ATTACK_RADIUS",250],//Radius for INF group to 'attack' the position
+    ["ATTACK_VEH_UNLOAD_RADIUS",350],//Radius for VEH group to unload passengers
+    ["ATTACK_VEH_ATTACK_RADIUS",250],//Radius for VEH group to 'attack' the position
+    ["ATTACK_AIR_UNLOAD_RADIUS",350],//Radius for AIR group to unload passengers
+    ["ATTACK_AIR_ATTACK_RADIUS",450],//Radius for AIR group to 'attack' the position
     ["ATTACK_AIR_DESPAWN_RADIUS",5000],//Radius for AIR vehicle to despawn after unload
     ["ATTACK_BOAT_UNLOAD_RADIUS",300],//Radius for BOAT group to unload passengers
-    ["ATTACK_BOAT_ATTACK_RADIUS",200],//Radius for BOAT group to 'attack' the position
+    ["ATTACK_BOAT_ATTACK_RADIUS",250],//Radius for BOAT group to 'attack' the position
     ["ATTACK_PARADROPS_MAX",1],//Max number of vehicle paradrops per reinforcement
     ["ATTACK_PARADROPS_CHANCE",0.5],//Chance of vehicle group being paradropped (keep 0-1)
     ["ATTACK_SPAWN_PLAYERS_MIN_DISTANCE",300],//Min distance between spawn point and players
@@ -1174,7 +1174,7 @@ NWG_DSPAWN_CheckThePosition = {
 
     private _checkRoute = [
         ([_attackPos,_radius,_type] call NWG_fnc_dtsFindDotForWaypoint),
-        ([_attackPos,(_radius/2),_type] call NWG_fnc_dtsFindDotForWaypoint)
+        ([_attackPos,(round (_radius * 0.33)),_type] call NWG_fnc_dtsFindDotForWaypoint)
     ] select {_x isNotEqualTo false};
 
     if ((count _checkRoute) >= 2) then {
