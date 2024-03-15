@@ -238,7 +238,7 @@ NWG_fnc_translateMessage = {
     private _translate = {
         if (_this isEqualType "")
             then {_this call NWG_fnc_localize}
-            else {(str _this) call NWG_fnc_localize}
+            else {str _this}
     };
 
     switch (true) do {
