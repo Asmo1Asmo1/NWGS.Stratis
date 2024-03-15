@@ -123,7 +123,7 @@ NWG_MED_SER_OnMedAction = {
                 /*Load into available seat*/
                 private _seat = _allSeats select 0;
                 [_unit,_vehicle,_seat] call NWG_fnc_medLoadIntoVehicle;
-                [_passiveUnit,SUBSTATE_INVH] call NWG_MED_COM_SetSubstate;
+                [_unit,SUBSTATE_INVH] call NWG_MED_COM_SetSubstate;
             } else {
                 /*Place on the ground like in 'ACTION_RELEASE'*/
                 _unit call NWG_fnc_medFlipUnit;

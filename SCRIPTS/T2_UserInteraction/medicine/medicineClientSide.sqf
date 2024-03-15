@@ -60,6 +60,9 @@ private _Init = {
 
     [EVENT_ON_LOADOUT_CHANGED,{_this call NWG_MED_CLI_OnInventoryChanged}] call NWG_fnc_subscribeToClientEvent;
 
+    player addEventHandler ["GetInMan",{_this call NWG_MED_CLI_OnVehGetIn}];
+    player addEventHandler ["GetOutMan",{_this call NWG_MED_CLI_OnVehGetOut}];
+
     player call NWG_MED_CLI_InitPlayer;
 };
 
@@ -68,14 +71,13 @@ NWG_MED_CLI_InitPlayer = {
     call NWG_MED_CLI_ReloadStates;//Reload states
     call NWG_MED_CLI_ReloadChances;//Reload chances
     call NWG_MED_CLI_SA_ReloadSelfHealChance;//Reload self-heal chance
-    call NWG_MED_CLI_SA_AddSelfActions;//Add self actions
-    call NWG_MED_CLI_UA_AddUnitsActions;//Add units actions
+    call NWG_MED_CLI_ReloadActions;//Reload actions
 };
 
 NWG_MED_CLI_ReloadStates = {
-    [_this,false] call NWG_MED_COM_MarkWounded;
-    [_this,SUBSTATE_NONE] call NWG_MED_COM_SetSubstate;
-    [_this,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_COM_SetTime;
+    [player,false] call NWG_MED_COM_MarkWounded;
+    [player,SUBSTATE_NONE] call NWG_MED_COM_SetSubstate;
+    [player,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_COM_SetTime;
 };
 
 //================================================================================================================
@@ -115,21 +117,22 @@ NWG_MED_CLI_OnVehicleDestroy = {
 NWG_MED_CLI_OnDamageWhileHealthy = {
     // params ["_unit","_selection","_dmg","_damager","_projectile","_hitIndex","_instigator","_hitPoint"];
     params ["_unit","","","_damager","","","_instigator"];
-    NWG_MED_CLI_nextDamageAllowedAt = time + (NWG_MED_CLI_Settings get "INVULNERABILITY_ON_WOUNDED");
 
+    NWG_MED_CLI_nextDamageAllowedAt = time + (NWG_MED_CLI_Settings get "INVULNERABILITY_ON_WOUNDED");//Ignore damage for a while
     _unit setUnconscious true;
     _unit setCaptive true;
     [_unit,true] call NWG_MED_COM_MarkWounded;
+    [_unit,SUBSTATE_NONE] call NWG_MED_COM_SetSubstate;//Will be updated in bleeding cycle
 
-    private _veh = vehicle _unit;
+    //Fix for turrets and vehicles
     switch (true) do {
-        case (isNull _veh || {_veh isEqualTo _unit}): {/*Do nothing*/};
-        case (_veh isKindOf "StaticWeapon"): {moveOut _unit};//Fix stucking inside static weapon
+        case (isNull (vehicle _unit) || {(vehicle _unit) isEqualTo _unit}): {/*Do nothing*/};
+        case ((vehicle _unit) isKindOf "StaticWeapon"): {moveOut _unit};//Fix stucking inside static weapon
         default {_unit playActionNow "Unconscious"};//Fix animation in vehicle
     };
 
-    [_unit,SUBSTATE_NONE] call NWG_MED_COM_SetSubstate;//Will be updated in bleeding cycle
     call NWG_MED_CLI_BLEEDING_StartBleeding;
+    call NWG_MED_CLI_ReloadActions;//Reload actions
 
     _damager = [_damager,_instigator] call NWG_MED_CLI_DefineDamager;
     [_damager,_unit,BLAME_WOUND] call NWG_fnc_medBlame;
@@ -173,8 +176,7 @@ NWG_MED_CLI_BLEEDING_SetLastDamager = {NWG_MED_CLI_BLEEDING_lastDamager = _this}
 NWG_MED_CLI_BLEEDING_StartBleeding = {
     if (NWG_MED_CLI_BLEEDING_isBleeding) exitWith {};//Prevent double start
     NWG_MED_CLI_BLEEDING_lastDamager = objNull;
-    private _startTime = NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME";
-    [player,_startTime] call NWG_MED_COM_SetTime;
+    [player,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_COM_SetTime;
     [player,false] call NWG_MED_COM_SetPatched;
     call NWG_MED_CLI_BLEEDING_PostProcessEnable;
     NWG_MED_CLI_BLEEDING_cycleHandle = [] spawn NWG_MED_CLI_BLEEDING_Cycle;
@@ -334,6 +336,7 @@ NWG_MED_CLI_OnRevive = {
     player setUnconscious false;//Reset unconscious state
     call NWG_MED_CLI_ReloadStates;//Reload states
     if ((vehicle player) isEqualTo player) then {[player,"amovppnemstpsraswrfldnon"] call NWG_fnc_playAnim};//Reset anim
+    call NWG_MED_CLI_ReloadActions;//Reload actions
 };
 
 //================================================================================================================
@@ -343,7 +346,7 @@ NWG_MED_CLI_Respawn = {
     player setDamage 1;
 };
 
-/*This will be called on every respawn, including graceful respawn, bugs, instakills, drowning, etc.*/
+/*This will be called on every respawn, including 'NWG_MED_CLI_Respawn', bugs, instakills, drowning, etc.*/
 NWG_MED_CLI_respawnPoint = [];
 NWG_MED_CLI_OnRespawn = {
     // params ["_player","_corpse"];
@@ -418,12 +421,46 @@ NWG_MED_CLI_AddHoldAction = {
     ] call BIS_fnc_holdActionAdd
 };
 
+/*Reload actions*/
+NWG_MED_CLI_ReloadActions = {
+    //Drop previous locks
+    NWG_MED_CLI_UA_healTarget = objNull;
+    NWG_MED_CLI_UA_draggedUnit = objNull;
+    NWG_MED_CLI_UA_carriedUnit = objNull;
+
+    //Remove previous actions
+    //We store actions on the player to gracefully handle start of the game and respawn (where old actions die along with the player instance)
+    private _prevActions = player getVariable ["NWG_MED_CLI_actions",[]];
+    {player removeAction _x} forEach _prevActions;//Remove all previous actions
+
+    //Add new actions
+    private _newActions = switch (true) do {
+        case (player call NWG_MED_COM_IsWounded): {call NWG_MED_CLI_SA_AddSelfActions};//Add self actions if wounded
+        case ((vehicle player) isEqualTo player): {call NWG_MED_CLI_UA_AddUnitsActions};//Add units actions if on foot
+        default {[]}//Do nothing if healthy and in vehicle (save some fps)
+    };
+    player setVariable ["NWG_MED_CLI_actions",_newActions];
+};
+
+NWG_MED_CLI_OnVehGetIn = {
+    // params ["_unit","_role","_vehicle","_turret"];
+    _this call NWG_MED_CLI_UA_OnVehGetIn;//First, call unit action 'Veh load in', otherwise we loose it cause locks are dropped
+    call NWG_MED_CLI_ReloadActions;
+};
+
+NWG_MED_CLI_OnVehGetOut = {
+    // params ["_unit","_role","_vehicle","_turret","_isEject"];
+    call NWG_MED_CLI_ReloadActions;
+};
+
 //================================================================================================================
 //================================================================================================================
 //Self actions
 NWG_MED_CLI_SA_AddSelfActions = {
+    private _actions = [];
+
     /*Self heal*/
-    [
+    _actions pushBack ([
         "#MED_ACTION_SELF_HEAL_TITLE#",/*_title*/
         "a3\ui_f\data\igui\cfg\holdactions\holdaction_revive_ca.paa",/*_icon*/
         (NWG_MED_CLI_Settings get "SELF_HEAL_ACTION_PRIORITY"),/*_priority*/
@@ -433,10 +470,10 @@ NWG_MED_CLI_SA_AddSelfActions = {
         {call NWG_MED_CLI_SA_OnSelfHealInterrupted},/*_onInterrupted*/
         {call NWG_MED_CLI_SA_OnSelfHealCompleted},/*_onCompleted*/
         true/*_showWhileWounded*/
-    ] call NWG_MED_CLI_AddHoldAction;
+    ] call NWG_MED_CLI_AddHoldAction);
 
     /*Respawn*/
-    [
+    _actions pushBack ([
         "#MED_ACTION_RESPAWN_TITLE#",/*_title*/
         "a3\ui_f\data\igui\cfg\holdactions\holdaction_forcerespawn_ca.paa",/*_icon*/
         (NWG_MED_CLI_Settings get "RESPAWN_ACTION_PRIORITY"),/*_priority*/
@@ -446,13 +483,15 @@ NWG_MED_CLI_SA_AddSelfActions = {
         {},/*_onInterrupted*/
         {call NWG_MED_CLI_SA_OnRespawnCompleted},/*_onCompleted*/
         true/*_showWhileWounded*/
-    ] call NWG_MED_CLI_AddHoldAction;
+    ] call NWG_MED_CLI_AddHoldAction);
 
     /*Crawl*/
     if (!NWG_MED_CLI_SA_CrawlAdded) then {
         [] spawn NWG_MED_CLI_SA_AddCrawl;
         NWG_MED_CLI_SA_CrawlAdded = true;
     };
+
+    _actions
 };
 
 /*Self heal*/
@@ -565,8 +604,10 @@ NWG_MED_CLI_SA_AddCrawl = {
 //================================================================================================================
 //Units actions
 NWG_MED_CLI_UA_AddUnitsActions = {
+    private _actions = [];
+
     /*Heal*/
-    [
+    _actions pushBack ([
         "#MED_ACTION_HEAL_TITLE#",/*_title*/
         "a3\ui_f\data\igui\cfg\holdactions\holdaction_revivemedic_ca.paa",/*_icon*/
         (NWG_MED_CLI_Settings get "HEAL_ACTION_PRIORITY"),/*_priority*/
@@ -577,23 +618,23 @@ NWG_MED_CLI_UA_AddUnitsActions = {
         {call NWG_MED_CLI_UA_OnHealCompleted},/*_onCompleted*/
         false,/*_showWhileWounded*/
         (NWG_MED_CLI_Settings get "HEAL_ACTION_AUTOSHOW")/*_autoShow*/
-    ] call NWG_MED_CLI_AddHoldAction;
+    ] call NWG_MED_CLI_AddHoldAction);
 
     /*Drag*/
-    [
+    _actions pushBack ([
         "#MED_ACTION_DRAG_TITLE#",/*_title*/
         (NWG_MED_CLI_Settings get "DRAG_ACTION_PRIORITY"),/*_priority*/
         "(call NWG_MED_CLI_UA_DragCondition)",/*_condition*/
         {call NWG_MED_CLI_UA_DragAction}/*_action*/
-    ] call NWG_MED_CLI_AddSimpleAction;
+    ] call NWG_MED_CLI_AddSimpleAction);
 
     /*Carry*/
-    [
+    _actions pushBack ([
         "#MED_ACTION_CARRY_TITLE#",/*_title*/
         (NWG_MED_CLI_Settings get "CARRY_ACTION_PRIORITY"),/*_priority*/
         "(call NWG_MED_CLI_UA_CarryCondition)",/*_condition*/
         {call NWG_MED_CLI_UA_CarryAction}/*_action*/
-    ] call NWG_MED_CLI_AddSimpleAction;
+    ] call NWG_MED_CLI_AddSimpleAction);
 
     /*Anim abuse check*/
     if (!NWG_MED_CLI_UA_animChangeAssigned) then {
@@ -602,26 +643,25 @@ NWG_MED_CLI_UA_AddUnitsActions = {
     };
 
     /*Release*/
-    [
+    _actions pushBack ([
         "#MED_ACTION_RELEASE_TITLE#",/*_title*/
         (NWG_MED_CLI_Settings get "RELEASE_ACTION_PRIORITY"),/*_priority*/
         "(call NWG_MED_CLI_UA_ReleaseCondition)",/*_condition*/
         {call NWG_MED_CLI_UA_ReleaseAction}/*_action*/
-    ] call NWG_MED_CLI_AddSimpleAction;
+    ] call NWG_MED_CLI_AddSimpleAction);
 
     /*Vehicle load*/
-    [
+    _actions pushBack ([
         "#MED_ACTION_VEH_LOADIN_TITLE#",/*_title*/
         (NWG_MED_CLI_Settings get "VEH_LOADIN_ACTION_PRIORITY"),/*_priority*/
         "(call NWG_MED_CLI_UA_VehLoadCondition)",/*_condition*/
         {call NWG_MED_CLI_UA_VehLoadAction}/*_action*/
-    ] call NWG_MED_CLI_AddSimpleAction;
+    ] call NWG_MED_CLI_AddSimpleAction);
 
     /*Vehicle load on vehicle get in*/
-    if (!NWG_MED_CLI_UA_getInAssigned) then {
-        player addEventHandler ["GetInMan",{_this call NWG_MED_CLI_UA_OnVehGetIn}];//Tested: Persistent after respawn
-        NWG_MED_CLI_UA_getInAssigned = true;
-    };
+    //Moved to: 'NWG_MED_CLI_OnVehGetIn'
+
+    _actions
 };
 
 /*Heal*/
@@ -885,8 +925,7 @@ NWG_MED_CLI_UA_VehLoadAction = {
     [player,[_targetUnit,_targetVeh],ACTION_VEHLOAD] call NWG_fnc_medReportMedAction;
 };
 
-/*Vehicle load on vehicle in*/
-NWG_MED_CLI_UA_getInAssigned = false;
+/*Vehicle load on vehicle in ('na kolenki' abuse legalize)*/
 NWG_MED_CLI_UA_OnVehGetIn = {
     // params ["_unit","_role","_vehicle","_turret"];
     params ["","","_targetVeh"];
