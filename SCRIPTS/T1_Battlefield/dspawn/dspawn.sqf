@@ -26,6 +26,7 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
     ["ATTACK_BOAT_ATTACK_RADIUS",200],//Radius for BOAT group to 'attack' the position
     ["ATTACK_PARADROPS_MAX",1],//Max number of vehicle paradrops per reinforcement
     ["ATTACK_PARADROPS_CHANCE",0.5],//Chance of vehicle group being paradropped (keep 0-1)
+    ["ATTACK_SPAWN_PLAYERS_MIN_DISTANCE",300],//Min distance between spawn point and players
 
     ["",0]
 ];
@@ -360,6 +361,8 @@ NWG_DSPAWN_REINF_SendReinforcements = {
     params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west],["_spawnMap",[nil,nil,nil,nil]]];
 
     //Prepare spawn point picking (with lazy evaluation)
+    private _players = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
+    private _minDist = NWG_DSPAWN_Settings get "ATTACK_SPAWN_PLAYERS_MIN_DISTANCE";
     private _getSpawnPoint = {
         private _pointType = _this;
         private _index = switch (_pointType) do {
@@ -382,8 +385,13 @@ NWG_DSPAWN_REINF_SendReinforcements = {
         };
         if ((count _spawnArray) == 0) exitWith {false};//No points to spawn
 
-        private _spawnPoint = _spawnArray deleteAt 0;
-        _spawnArray pushBack _spawnPoint;
+        private _spawnPoint = [];
+        private _attempts = 0;
+        while {_attempts = _attempts + 1; _attempts <= (count _spawnArray)} do {
+            _spawnPoint = _spawnArray deleteAt 0;
+            _spawnArray pushBack _spawnPoint;
+            if ((_players findIf {(_x distance2D _spawnPoint) < _minDist}) == -1) exitWith {};
+        };
 
         //return
         _spawnPoint
