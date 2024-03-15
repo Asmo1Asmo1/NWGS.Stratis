@@ -361,36 +361,35 @@ NWG_DSPAWN_REINF_SendReinforcements = {
 
     //Prepare spawn point picking (with lazy evaluation)
     private _spawnMap = [nil,nil,nil,nil];
-    private _spawnMapPointers = [0,0,0,0];
-    private _lazyGet = {
-        params ["_index","_markupArgs","_markupResultIndexes"];
+    private _getSpawnPoint = {
+        private _pointType = _this;
+        private _index = switch (_pointType) do {
+            case "INF":  {0};
+            case "VEH":  {1};
+            case "BOAT": {2};
+            case "AIR":  {3};
+        };
 
-        private _spawnArray = _spawnMap select _index;
+        private _spawnArray = _spawnMap#_index;
         if (isNil "_spawnArray") then {
-            private _points = _markupArgs call NWG_fnc_dtsMarkupReinforcement;
+            private _markupArgs = switch (_pointType) do {
+                case "INF":  {[[_attackPos,true,false,false,false],[0,1]]};//0 - _infPlains, 1 - _infRoads
+                case "VEH":  {[[_attackPos,false,true,false,false],[3,2]]};//3 - _vehRoads, 2 - _vehPlains
+                case "BOAT": {[[_attackPos,false,false,true,false],[4]]};//4 - _boats
+                case "AIR":  {[[_attackPos,false,false,false,true],[5]]};//5 - _air
+            };
+            private _points = (_markupArgs#0) call NWG_fnc_dtsMarkupReinforcement;//[_infPlains,_infRoads,_vehPlains,_vehRoads,_boats,_air]
             _spawnArray = [];
-            {_spawnArray append ((_points select _x) call NWG_fnc_arrayShuffle)} forEach _markupResultIndexes;
+            {_spawnArray append ((_points#_x) call NWG_fnc_arrayShuffle)} forEach (_markupArgs#1);
             _spawnMap set [_index,_spawnArray];
         };
         if ((count _spawnArray) == 0) exitWith {false};//No points to spawn
 
-        private _pointer = _spawnMapPointers select _index;
-        private _result = _spawnArray select _pointer;
-        _pointer = _pointer + 1;
-        if (_pointer >= (count _spawnArray)) then {_pointer = 0};
-        _spawnMapPointers set [_index,_pointer];
+        private _spawnPoint = _spawnArray deleteAt 0;
+        _spawnArray pushBack _spawnPoint;
 
         //return
-        _result
-    };
-    private _getSpawnPoint = {
-        // private _type = _this;
-        switch (_this) do {
-            case "INF": {[0,[_attackPos,true,false,false,false],[0,1]] call _lazyGet};
-            case "VEH": {[1,[_attackPos,false,true,false,false],[3,2]] call _lazyGet};
-            case "BOAT":{[2,[_attackPos,false,false,true,false],[4]] call _lazyGet};
-            case "AIR": {[3,[_attackPos,false,false,false,true],[5]] call _lazyGet};
-        }
+        _spawnPoint
     };
 
     //Get catalogue values for spawn
@@ -458,9 +457,15 @@ NWG_DSPAWN_REINF_SendReinforcements = {
 
         private _groupDescr = [_groupsContainer,"NWG_DSPAWN_REINF_SendReinforcements"] call NWG_fnc_selectRandomGuaranteed;
         switch (true) do {
-            case ("INF" in (_groupDescr#DESCR_TAGS)): {if (_groupDescr call _trySpawnInfGroup) then {_resultCount = _resultCount + 1}};
-            case ("ARM" in (_groupDescr#DESCR_TAGS)): {if ([_groupDescr,"VEH"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1}};
-            case ("AIR" in (_groupDescr#DESCR_TAGS)): {if ([_groupDescr,"AIR"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1}};
+            case ("INF" in (_groupDescr#DESCR_TAGS)): {
+                if (_groupDescr call _trySpawnInfGroup) then {_resultCount = _resultCount + 1};
+            };
+            case ("ARM" in (_groupDescr#DESCR_TAGS)): {
+                if ([_groupDescr,"VEH"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1};
+            };
+            case ("AIR" in (_groupDescr#DESCR_TAGS)): {
+                if ([_groupDescr,"AIR"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1};
+            };
             case ("VEH" in (_groupDescr#DESCR_TAGS)): {
                 if ((_groupDescr call _isParadropAllowed) && {[_groupDescr,"INF"] call _tryParadropVehGroup}) exitWith {_resultCount = _resultCount + 1; _paradropsLeft = _paradropsLeft - 1};
                 if ([_groupDescr,"VEH"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1};
