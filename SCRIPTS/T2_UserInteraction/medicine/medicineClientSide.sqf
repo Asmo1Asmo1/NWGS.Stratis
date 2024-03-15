@@ -65,16 +65,17 @@ private _Init = {
 
 NWG_MED_CLI_InitPlayer = {
     // private _player = _this;
+    call NWG_MED_CLI_ReloadStates;//Reload states
+    call NWG_MED_CLI_ReloadChances;//Reload chances
+    call NWG_MED_CLI_SA_ReloadSelfHealChance;//Reload self-heal chance
+    call NWG_MED_CLI_SA_AddSelfActions;//Add self actions
+    call NWG_MED_CLI_UA_AddUnitsActions;//Add units actions
+};
 
+NWG_MED_CLI_ReloadStates = {
     [_this,false] call NWG_MED_COM_MarkWounded;
     [_this,SUBSTATE_NONE] call NWG_MED_COM_SetSubstate;
     [_this,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_COM_SetTime;
-
-    call NWG_MED_CLI_ReloadChances;//Reload chances
-    call NWG_MED_CLI_SA_ReloadSelfHealChance;//Reload self-heal chance
-
-    call NWG_MED_CLI_SA_AddSelfActions;//Add self actions
-    call NWG_MED_CLI_UA_AddUnitsActions;//Add units actions
 };
 
 //================================================================================================================
@@ -331,9 +332,7 @@ NWG_MED_CLI_OnRevive = {
     call NWG_MED_CLI_BLEEDING_StopBleeding;//Stop bleeding if it's still active
     player setCaptive false;//Reset captive state
     player setUnconscious false;//Reset unconscious state
-    [player,false] call NWG_MED_COM_MarkWounded;//Drop states
-    [player,SUBSTATE_NONE] call NWG_MED_COM_SetSubstate;
-    [player,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_COM_SetTime;
+    call NWG_MED_CLI_ReloadStates;//Reload states
     if ((vehicle player) isEqualTo player) then {[player,"amovppnemstpsraswrfldnon"] call NWG_fnc_playAnim};//Reset anim
 };
 
