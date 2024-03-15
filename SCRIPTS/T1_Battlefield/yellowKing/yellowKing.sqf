@@ -102,7 +102,7 @@ NWG_YK_React = {
     if ((NWG_YK_reactList findIf {alive _x}) == -1) exitWith _onExit;//No targets to react to
 
     //2. Get difficulty settings
-    (call NWG_YK_GetDifficulty) params ["_ingoreChance","_movesLeft","_reinfChance","_reinfsLeft","_specialChance","_speciaslLeft"];
+    (call NWG_YK_GetDifficulty) params ["_ingoreChance","_movesLeft","_reinfsLeft","_speciaslLeft"];
 
     //3. Gather targets
     private _targets = [NWG_YK_reactList,_ingoreChance] call NWG_YK_ConvertToTargets;
@@ -133,30 +133,27 @@ NWG_YK_React = {
         private _dice = [];
         if (_movesLeft > 0) then {
             private _i = [_hunters,_targetType,_targetPos] call NWG_YK_HUNT_SelectHunterFor;
-            if (_i == -1) exitWith {};
+            if (_i == -1) exitWith {};//Couldn't find a hunter to move
             _dice pushBack [DICE_MOVE,_i];
         };
         if (_reinfsLeft > 0) then {
-            if ((random 1) > _reinfChance) exitWith {};//Chance failed
             _dice pushBack [DICE_REINF];
         };
         if (_speciaslLeft > 0) then {
-            if ((random 1) > _specialChance) exitWith {};//Chance failed
             private _specials = [_hunters,_x] call NWG_YK_SPEC_SelectSpecialsForTarget;//Notice that we pass the entire target record
-            if ((count _specials) == 0) exitWith {};
+            if ((count _specials) == 0) exitWith {};//No specials to use
             _dice pushBack [DICE_SPEC,_specials];
         };
         if (_dice isEqualTo []) then {continue};//There is nothing we can do.. | Napoleon Meme
 
         //Roll the dice (Need for Speed IV Soundtrack - Roll The Dice) https://www.youtube.com/watch?v=ZgmQK1wVPzg
-        private _roll = selectRandom _dice;
-        _roll params ["_type","_arg"];
+        (selectRandom _dice) params ["_diceType","_diceArg"];
 
         //Act
-        switch (_type) do {
-            case DICE_MOVE : {[_hunters,_arg,_targetPos] call NWG_YK_HUNT_MoveHunter;        _movesLeft    = _movesLeft - 1};
-            case DICE_REINF: {[_targetType,_targetPos] call NWG_YK_REINF_SendReinforcements; _reinfsLeft   = _reinfsLeft - 1};
-            case DICE_SPEC : {[_hunters,(selectRandom _arg)] call NWG_YK_SPEC_UseSpecial;    _speciaslLeft = _speciaslLeft - 1};
+        switch (_diceType) do {
+            case DICE_MOVE : {[_hunters,_diceArg,_targetPos] call NWG_YK_HUNT_MoveHunter;     _movesLeft    = _movesLeft - 1};
+            case DICE_REINF: {[_targetType,_targetPos] call NWG_YK_REINF_SendReinforcements;  _reinfsLeft   = _reinfsLeft - 1};
+            case DICE_SPEC : {[_hunters,(selectRandom _diceArg)] call NWG_YK_SPEC_UseSpecial; _speciaslLeft = _speciaslLeft - 1};
         };
     } forEach _targets;
 
@@ -170,11 +167,11 @@ NWG_YK_React = {
 NWG_YK_difficultyCurve = [0,1,0,1,2,1,2,0,1,1,2,0,1,2,2,1,0];//Compiled with the help of chatGPT
 NWG_YK_difficultySettings = [
 /*Easy*/
-    [/*_ingoreChance*/0.4, /*_movesLeft*/2, /*_reinfChance*/0.2, /*_reinfsLeft*/1, /*_specialChance*/0.4, /*_speciaslLeft*/1],
+    [/*_ingoreChance*/0.4, /*_maxMoves*/2, /*_maxReinfs*/0, /*_maxSpecials*/1],
 /*Medium*/
-    [/*_ingoreChance*/0.3, /*_movesLeft*/3, /*_reinfChance*/0.5, /*_reinfsLeft*/1, /*_specialChance*/0.6, /*_speciaslLeft*/2],
+    [/*_ingoreChance*/0.3, /*_maxMoves*/3, /*_maxReinfs*/1, /*_maxSpecials*/2],
 /*Hard*/
-    [/*_ingoreChance*/0.2, /*_movesLeft*/4, /*_reinfChance*/0.8, /*_reinfsLeft*/2, /*_specialChance*/0.8, /*_speciaslLeft*/3]
+    [/*_ingoreChance*/0.2, /*_maxMoves*/4, /*_maxReinfs*/2, /*_maxSpecials*/3]
 ];
 NWG_YK_GetDifficulty = {
     private _i = NWG_YK_difficultyCurve deleteAt 0;
@@ -474,7 +471,7 @@ NWG_YK_SPEC_SelectSpecialsForTarget = {
 
 NWG_YK_SPEC_UseSpecial = {
     params ["_hunters","_special"];
-    _special params ["_specialType","_i","_actualTarget","_arg"];
+    _special params ["_specialType","_i","_actualTarget","_arg"];//Do not use default value for _arg to see the error if we misused it
 
     //Get the hunter
     private _hunter = _hunters deleteAt _i;
