@@ -37,6 +37,21 @@ NWG_DOTS_MarkupReinforcement_Test = {
     {[_x,(format ["testA_%1",_forEachIndex]),"ColorYellow"] call NWG_fnc_testPlaceMarker} forEach _air;
 };
 
+// [] call NWG_DOTS_MarkupReinforcementGrouped_Test
+// [true,true,true,true] call NWG_DOTS_MarkupReinforcementGrouped_Test
+NWG_DOTS_MarkupReinforcementGrouped_Test = {
+    // params [["_doInf",true],["_doVeh",true],["_doBoat",true],["_doAir",true]];
+    private _pos = getPosATL player;
+
+    call NWG_fnc_testClearMap;
+    (([_pos]+_this) call NWG_DOTS_MarkupReinforcementGrouped) params ["_inf","_veh","_boats","_air"];
+
+    {[_x,(format ["testI_%1",_forEachIndex]),"ColorGreen"]  call NWG_fnc_testPlaceMarker} forEach _inf;
+    {[_x,(format ["testV_%1",_forEachIndex]),"ColorRed"]    call NWG_fnc_testPlaceMarker} forEach _veh;
+    {[_x,(format ["testB_%1",_forEachIndex]),"ColorBlue"]   call NWG_fnc_testPlaceMarker} forEach _boats;
+    {[_x,(format ["testA_%1",_forEachIndex]),"ColorYellow"] call NWG_fnc_testPlaceMarker} forEach _air;
+};
+
 // [100,"ground"] call NWG_DOTS_FindDotForWaypoint_Test
 NWG_DOTS_FindDotForWaypoint_Test = {
     params ["_rad","_type"];

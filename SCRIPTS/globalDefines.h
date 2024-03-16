@@ -18,3 +18,5 @@
 //Battlefield states (arguments for NWG_fnc_shGetState and NWG_fnc_shSetState)
 #define BST_OCCUPIED_BUILDINGS "OccupiedBuildings"
 #define BST_ENEMY_FACTION "EnemyFaction"
+#define BST_TRIGGER "Trigger"
+#define BST_REINFMAP "ReinfMap"

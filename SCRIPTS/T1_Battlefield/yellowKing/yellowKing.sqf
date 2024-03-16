@@ -29,6 +29,10 @@ NWG_YK_Settings = createHashMapFromArray [
     ["SPECIAL_VEHDEMOLITION_RADIUS",500],//Radius at which groups will be sent to do vehdemolition
     ["SPECIAL_INFSTORM_RADIUS",500],//Radius at which groups will be sent to do infstorm
 
+    ["STATISTICS_ENABLED",true],//If true, the system will keep track of statistics
+    ["STATISTICS_TO_RPT",true],//If true, the statistics will be dumped to rpt
+    ["STATISTICS_TO_PROFILENAMESPACE",false],//If true, the statistics will be saved to profileNamespace
+
     ["",0]
 ];
 
@@ -39,12 +43,14 @@ private _Init = {
     //Be the first system to react to something being killed
     [EVENT_ON_OBJECT_KILLED,{_this call NWG_YK_OnKilled},/*_setFirst:*/true] call NWG_fnc_subscribeToServerEvent;
 
-    //Shift the difficulty curve
-    NWG_YK_difficultyCurve call NWG_fnc_arrayRandomShift;
-
     //Check if we're in production - disable debug messages
-    if !(is3DENPreview || {is3DENMultiplayer}) then {
-        NWG_YK_Settings set ["SHOW_DEBUG_MESSAGES",false];
+    if !(is3DENPreview || {is3DENMultiplayer})
+        then {NWG_YK_Settings set ["SHOW_DEBUG_MESSAGES",false]};
+
+    //Check auto-enable
+    if (NWG_YK_Settings get "ENABLED") then {
+        NWG_YK_Settings set ["ENABLED",false];//Otherwise NWG_YK_Enable will not work
+        call NWG_YK_Enable;
     };
 };
 
@@ -52,8 +58,19 @@ private _Init = {
 //======================================================================================================
 //Enabling/Disabling
 
-NWG_YK_Enable = {NWG_YK_Settings set ["ENABLED",true]};
-NWG_YK_Disable = {NWG_YK_Settings set ["ENABLED",false]};
+NWG_YK_Enable = {
+    if (NWG_YK_Settings get "ENABLED") exitWith {};//Already enabled
+    NWG_YK_difficultyCurve call NWG_fnc_arrayRandomShift;//Shift the difficulty curve
+    NWG_YK_Settings set ["ENABLED",true];
+    call NWG_YK_STAT_OnEnable;//Statistics
+};
+NWG_YK_Disable = {
+    if !(NWG_YK_Settings get "ENABLED") exitWith {};//Already disabled
+    NWG_YK_Settings set ["ENABLED",false];
+    if (!isNull NWG_YK_reactHandle || {!scriptDone NWG_YK_reactHandle})
+        then {terminate NWG_YK_reactHandle};//Terminate the reaction script
+    call NWG_YK_STAT_OnDisable;//Statistics
+};
 
 //======================================================================================================
 //======================================================================================================
@@ -97,15 +114,24 @@ NWG_YK_React = {
         NWG_YK_reactTime = 0;
         NWG_YK_killCount = 0;
     };
+    /*Statistics*/
+    [STAT_KILL_COUNT,NWG_YK_killCount] call NWG_YK_STAT_Increment;
+    [STAT_REACTION_COUNT,1] call NWG_YK_STAT_Increment;
 
     //1. Check if we have any targets to react to
-    if ((NWG_YK_reactList findIf {alive _x}) == -1) exitWith _onExit;//No targets to react to
+    private _targets = NWG_YK_reactList select {alive _x};
+    if ((count _targets) == 0) exitWith _onExit;//No targets to react to
+    /*Statistics*/
+    private _initialCount = (count _targets);
+    [STAT_TARGETS_ACQUIRED,_initialCount] call NWG_YK_STAT_Increment;
 
     //2. Get difficulty settings
-    (call NWG_YK_GetDifficulty) params ["_ingoreChance","_movesLeft","_reinfChance","_reinfsLeft","_specialChance","_speciaslLeft"];
+    (call NWG_YK_GetDifficulty) params ["_ingoreChance","_movesLeft","_reinfsLeft","_speciaslLeft"];
 
     //3. Gather targets
-    private _targets = [NWG_YK_reactList,_ingoreChance] call NWG_YK_ConvertToTargets;
+    _targets = [NWG_YK_reactList,_ingoreChance] call NWG_YK_ConvertToTargets;
+    /*Statistics*/
+    [STAT_TARGETS_IGNORED,(_initialCount - (count _targets))] call NWG_YK_STAT_Increment; _initialCount = nil;
     if ((count _targets) == 0) exitWith _onExit;//No targets to react to
 
     //4. Gather hunters
@@ -133,30 +159,51 @@ NWG_YK_React = {
         private _dice = [];
         if (_movesLeft > 0) then {
             private _i = [_hunters,_targetType,_targetPos] call NWG_YK_HUNT_SelectHunterFor;
-            if (_i == -1) exitWith {};
+            if (_i == -1) exitWith {};//Couldn't find a hunter to move
             _dice pushBack [DICE_MOVE,_i];
         };
         if (_reinfsLeft > 0) then {
-            if ((random 1) > _reinfChance) exitWith {};//Chance failed
             _dice pushBack [DICE_REINF];
         };
         if (_speciaslLeft > 0) then {
-            if ((random 1) > _specialChance) exitWith {};//Chance failed
             private _specials = [_hunters,_x] call NWG_YK_SPEC_SelectSpecialsForTarget;//Notice that we pass the entire target record
-            if ((count _specials) == 0) exitWith {};
+            if ((count _specials) == 0) exitWith {};//No specials to use
             _dice pushBack [DICE_SPEC,_specials];
         };
         if (_dice isEqualTo []) then {continue};//There is nothing we can do.. | Napoleon Meme
 
         //Roll the dice (Need for Speed IV Soundtrack - Roll The Dice) https://www.youtube.com/watch?v=ZgmQK1wVPzg
-        private _roll = selectRandom _dice;
-        _roll params ["_type","_arg"];
+        (selectRandom _dice) params ["_diceType","_diceArg"];
 
         //Act
-        switch (_type) do {
-            case DICE_MOVE : {[_hunters,_arg,_targetPos] call NWG_YK_HUNT_MoveHunter;        _movesLeft    = _movesLeft - 1};
-            case DICE_REINF: {[_targetType,_targetPos] call NWG_YK_REINF_SendReinforcements; _reinfsLeft   = _reinfsLeft - 1};
-            case DICE_SPEC : {[_hunters,(selectRandom _arg)] call NWG_YK_SPEC_UseSpecial;    _speciaslLeft = _speciaslLeft - 1};
+        switch (_diceType) do {
+            case DICE_MOVE : {
+                [_hunters,_diceArg,_targetPos] call NWG_YK_HUNT_MoveHunter;
+                _movesLeft = _movesLeft - 1;
+                /*Statistics*/
+                [STAT_GROUPS_MOVED,1] call NWG_YK_STAT_Increment;
+            };
+            case DICE_REINF: {
+                [_targetType,_targetPos] call NWG_YK_REINF_SendReinforcements;
+                _reinfsLeft = _reinfsLeft - 1;
+                /*Statistics*/
+                [STAT_REINFS_SENT,1] call NWG_YK_STAT_Increment;
+            };
+            case DICE_SPEC : {
+                private _special = (selectRandom _diceArg);
+                [_hunters,_special] call NWG_YK_SPEC_UseSpecial;
+                _speciaslLeft = _speciaslLeft - 1;
+                /*Statistics*/
+                [STAT_SPECIALS_USED,1] call NWG_YK_STAT_Increment;
+                switch (_special#0) do {
+                    case SPECIAL_AIRSTRIKE:      {[STAT_SPEC_AIRSTRIKE,1] call NWG_YK_STAT_Increment};
+                    case SPECIAL_ARTA:           {[STAT_SPEC_ARTA,     1] call NWG_YK_STAT_Increment};
+                    case SPECIAL_MORTAR:         {[STAT_SPEC_MORTAR,   1] call NWG_YK_STAT_Increment};
+                    case SPECIAL_VEHDEMOLITION:  {[STAT_SPEC_VEHDEMOLITION,1] call NWG_YK_STAT_Increment};
+                    case SPECIAL_INFSTORM:       {[STAT_SPEC_INFSTORM, 1] call NWG_YK_STAT_Increment};
+                    case SPECIAL_VEHREPAIR:      {[STAT_SPEC_VEHREPAIR,1] call NWG_YK_STAT_Increment};
+                };
+            };
         };
     } forEach _targets;
 
@@ -170,11 +217,11 @@ NWG_YK_React = {
 NWG_YK_difficultyCurve = [0,1,0,1,2,1,2,0,1,1,2,0,1,2,2,1,0];//Compiled with the help of chatGPT
 NWG_YK_difficultySettings = [
 /*Easy*/
-    [/*_ingoreChance*/0.4, /*_movesLeft*/2, /*_reinfChance*/0.2, /*_reinfsLeft*/1, /*_specialChance*/0.4, /*_speciaslLeft*/1],
+    [/*_ingoreChance*/0.4, /*_maxMoves*/2, /*_maxReinfs*/0, /*_maxSpecials*/1],
 /*Medium*/
-    [/*_ingoreChance*/0.3, /*_movesLeft*/3, /*_reinfChance*/0.5, /*_reinfsLeft*/1, /*_specialChance*/0.6, /*_speciaslLeft*/2],
+    [/*_ingoreChance*/0.3, /*_maxMoves*/3, /*_maxReinfs*/1, /*_maxSpecials*/2],
 /*Hard*/
-    [/*_ingoreChance*/0.2, /*_movesLeft*/4, /*_reinfChance*/0.8, /*_reinfsLeft*/2, /*_specialChance*/0.8, /*_speciaslLeft*/3]
+    [/*_ingoreChance*/0.2, /*_maxMoves*/4, /*_maxReinfs*/2, /*_maxSpecials*/3]
 ];
 NWG_YK_GetDifficulty = {
     private _i = NWG_YK_difficultyCurve deleteAt 0;
@@ -396,7 +443,9 @@ NWG_YK_REINF_SendReinforcements = {
         default {[]};//No filter
     };
     private _side = NWG_YK_Settings get "KING_SIDE";
-    [_targetPos,1,_faction,_filter,_side] spawn NWG_fnc_dsSendReinforcements;
+    private _reinfMap = BST_REINFMAP call NWG_fnc_shGetState;
+    if (isNil "_reinfMap") then {_reinfMap = []};
+    [_targetPos,1,_faction,_filter,_side,_reinfMap] spawn NWG_fnc_dsSendReinforcements;
 };
 
 //======================================================================================================
@@ -474,7 +523,7 @@ NWG_YK_SPEC_SelectSpecialsForTarget = {
 
 NWG_YK_SPEC_UseSpecial = {
     params ["_hunters","_special"];
-    _special params ["_specialType","_i","_actualTarget","_arg"];
+    _special params ["_specialType","_i","_actualTarget","_arg"];//Do not use default value for _arg to see the error if we misused it
 
     //Get the hunter
     private _hunter = _hunters deleteAt _i;
@@ -494,6 +543,100 @@ NWG_YK_SPEC_UseSpecial = {
     };
     if (isNil "_ok" || {_ok isNotEqualTo true}) then {
         format ["NWG_YK_SPEC_UseSpecial: Failed to use special '%1'. Result:%3",_special,_ok] call NWG_fnc_logError;
+    };
+};
+
+//======================================================================================================
+//======================================================================================================
+//Statistics
+NWG_YK_STAT_statistics = createHashMap;
+NWG_YK_STAT_statisticsKeys = [
+    STAT_ENABLED_AT,STAT_DISABLED_AT,STAT_TIME_WORKING,
+    STAT_GROUPS_ON_ENABLE,STAT_UNITS_ON_ENABLE,
+    STAT_GROUPS_ON_DISABLE,STAT_UNITS_ON_DISABLE,
+    STAT_KILL_COUNT,STAT_REACTION_COUNT,
+    STAT_TARGETS_ACQUIRED,STAT_TARGETS_IGNORED,
+    STAT_GROUPS_MOVED,STAT_REINFS_SENT,STAT_SPECIALS_USED,
+    STAT_SPEC_AIRSTRIKE,STAT_SPEC_ARTA,STAT_SPEC_MORTAR,STAT_SPEC_VEHDEMOLITION,STAT_SPEC_INFSTORM,STAT_SPEC_VEHREPAIR
+];
+NWG_YK_STAT_OnEnable = {
+    if !(NWG_YK_Settings get "STATISTICS_ENABLED") exitWith {};
+
+    //(Re)Fill initial values
+    {NWG_YK_STAT_statistics set [_x,0]} forEach NWG_YK_STAT_statisticsKeys;
+
+    //Fill values we start with
+    private _startTime = round ((round time)/60);//In minutes
+    private _groups = groups (NWG_YK_Settings get "KING_SIDE");
+    private _units = _groups apply {count ((units _x) select {alive _x})};
+    private _unitsCount = 0; {_unitsCount = _unitsCount + _x} forEach _units;
+
+    [STAT_ENABLED_AT,(round time)] call NWG_YK_STAT_Set;
+    [STAT_GROUPS_ON_ENABLE,(count _groups)] call NWG_YK_STAT_Set;
+    [STAT_UNITS_ON_ENABLE,_unitsCount] call NWG_YK_STAT_Set;
+};
+NWG_YK_STAT_OnDisable = {
+    if !(NWG_YK_Settings get "STATISTICS_ENABLED") exitWith {};
+
+    //Fill values we end with
+    private _endTime = round ((round time)/60);//In minutes
+    private _groups = groups (NWG_YK_Settings get "KING_SIDE");
+    private _units = _groups apply {count ((units _x) select {alive _x})};
+    private _unitsCount = 0; {_unitsCount = _unitsCount + _x} forEach _units;
+
+    [STAT_DISABLED_AT,_endTime] call NWG_YK_STAT_Set;
+    [STAT_TIME_WORKING,(_endTime - (NWG_YK_STAT_statistics get STAT_ENABLED_AT))] call NWG_YK_STAT_Set;
+    [STAT_GROUPS_ON_DISABLE,(count _groups)] call NWG_YK_STAT_Set;
+    [STAT_UNITS_ON_DISABLE,_unitsCount] call NWG_YK_STAT_Set;
+
+    //Output
+    call NWG_YK_STAT_Output;
+
+    //We do not clear the statistics in case we will want to check it via console between the missions
+};
+NWG_YK_STAT_Set = {
+    params ["_key","_value"];
+    if !(NWG_YK_Settings get "STATISTICS_ENABLED") exitWith {};
+    NWG_YK_STAT_statistics set [_key,_value];
+};
+NWG_YK_STAT_Increment = {
+    params ["_key","_value"];
+    if !(NWG_YK_Settings get "STATISTICS_ENABLED") exitWith {};
+    private _curValue = NWG_YK_STAT_statistics getOrDefault [_key,0];
+    NWG_YK_STAT_statistics set [_key,(_curValue + _value)];
+};
+
+NWG_YK_STAT_Output = {
+    private _stat = NWG_YK_STAT_statistics;
+    private _lines = [
+        "Yellow King Statistics:",
+        (format ["TIME  : Enabled at: '%1' | Disabled at: '%2' | Worked for: '%3' minutes",(_stat get STAT_ENABLED_AT),(_stat get STAT_DISABLED_AT),(_stat get STAT_TIME_WORKING)]),
+        (format ["ON ENABLE:  Groups: '%1' | Units: '%2'",(_stat get STAT_GROUPS_ON_ENABLE),(_stat get STAT_UNITS_ON_ENABLE)]),
+        (format ["ON DISABLE: Groups: '%1' | Units: '%2'",(_stat get STAT_GROUPS_ON_DISABLE),(_stat get STAT_UNITS_ON_DISABLE)]),
+        (format ["KILLCOUNT: %1",(_stat get STAT_KILL_COUNT)]),
+        (format ["REACTIONS: %1",(_stat get STAT_REACTION_COUNT)]),
+        (format ["TARGETS: Acquired: %1    | Ignored: %2",(_stat get STAT_TARGETS_ACQUIRED),(_stat get STAT_TARGETS_IGNORED)]),
+        (format ["GROUPS MOVED: %1",(_stat get STAT_GROUPS_MOVED)]),
+        (format ["REINFORCEMENTS SENT: %1",(_stat get STAT_REINFS_SENT)]),
+        (format ["SPECIALS USED: %1",(_stat get STAT_SPECIALS_USED)]),
+        "COUNT PER SPECIAL:",
+        (format ["AIRSTRIKE: %1",(_stat get STAT_SPEC_AIRSTRIKE)]),
+        (format ["ARTA: %1",(_stat get STAT_SPEC_ARTA)]),
+        (format ["MORTAR: %1",(_stat get STAT_SPEC_MORTAR)]),
+        (format ["VEHDEMOLITION: %1",(_stat get STAT_SPEC_VEHDEMOLITION)]),
+        (format ["INFSTORM: %1",(_stat get STAT_SPEC_INFSTORM)]),
+        (format ["VEHREPAIR: %1",(_stat get STAT_SPEC_VEHREPAIR)])
+    ];
+
+    if (NWG_YK_Settings get "STATISTICS_TO_RPT") then {
+        diag_log text "==========[ YELLOW KING STATS ]===========";
+        {diag_log (text _x)} forEach _lines;
+        diag_log text "==========[        END        ]===========";
+    };
+
+    if (NWG_YK_Settings get "STATISTICS_TO_PROFILENAMESPACE") then {
+        profileNamespace setVariable ["NWG_YK_STATISTICS",_lines];
+        saveProfileNamespace;//Adds a lag
     };
 };
 

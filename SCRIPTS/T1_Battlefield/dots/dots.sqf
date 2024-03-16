@@ -17,7 +17,6 @@ NWG_DOTS_Settings = createHashMapFromArray [
     ["REINF_VEHICLE_RADIUS",[1000,1200]],//Min-Max radius of the vehicle spawn
     ["REINF_AIR_RADIUS",[3000,4000]],//Min-Max radius of the air spawn
     ["REINF_AIR_COUNT",7],//Number of air dots to generate for reinforcement markup
-    ["REINF_TO_PLAYER_MIN_DISTANCE",300],//Min distance between spawn points and players
 
     ["",0]
 ];
@@ -73,9 +72,6 @@ NWG_DOTS_MarkupTrigger = {
 NWG_DOTS_MarkupReinforcement = {
     params ["_pos",["_doInf",true],["_doVeh",true],["_doBoat",true],["_doAir",true]];
     private _settingsMultiplier = NWG_DOTS_Settings get "REINF_SPAWNSEARCH_SETTINGS_MULTIPLIER";
-    private _players = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
-    private _minDist = NWG_DOTS_Settings get "REINF_TO_PLAYER_MIN_DISTANCE";
-    private _distToPlayersCheck = {(_players findIf {(_x distance2D _this) < _minDist}) == -1};
 
     //Calculate INF spawn radius
     private _infPlains = [];
@@ -83,8 +79,8 @@ NWG_DOTS_MarkupReinforcement = {
     if (_doInf) then {
         (NWG_DOTS_Settings get "REINF_INFANTRY_RADIUS") params ["_minRad","_maxRad"];
         private _points = [_pos,_minRad,_maxRad,true,true,false,_settingsMultiplier] call NWG_DOTS_AreaSpawnsearch;
-        _infPlains = (_points#0) select {_x call _distToPlayersCheck};
-        _infRoads = (_points#1) select {_x call _distToPlayersCheck};
+        _infPlains = _points#0;
+        _infRoads  = _points#1;
     };
 
     //Calculate VEH and BOAT spawn radius
@@ -98,9 +94,9 @@ NWG_DOTS_MarkupReinforcement = {
     if (_doVeh || _doBoat) then {
         (NWG_DOTS_Settings get "REINF_VEHICLE_RADIUS") params ["_minRad","_maxRad"];
         private _points = [_pos,_minRad,_maxRad,_doVeh,_doVeh,_doBoat,_settingsMultiplier] call NWG_DOTS_AreaSpawnsearch;
-        _vehPlains = (_points#0) select {_x call _distToPlayersCheck};
-        _vehRoads = (_points#1) select {_x call _distToPlayersCheck};
-        _boats = (_points#2) select {_x call _distToPlayersCheck};
+        _vehPlains = _points#0;
+        _vehRoads  = _points#1;
+        _boats     = _points#2;
     };
 
     //Calculate AIR spawn radius
@@ -109,13 +105,26 @@ NWG_DOTS_MarkupReinforcement = {
         (NWG_DOTS_Settings get "REINF_AIR_RADIUS") params ["_minRad","_maxRad"];
         private _rad = (random (_maxRad - _minRad)) + _minRad;
         private _count = NWG_DOTS_Settings get "REINF_AIR_COUNT";
-        _air = ([_pos,_rad,_count] call NWG_DOTS_GenerateDotsCircle) select {_x call _distToPlayersCheck};
+        _air = [_pos,_rad,_count] call NWG_DOTS_GenerateDotsCircle;
         private _height = NWG_DOTS_Settings get "AREA_AIR_HEIGHT";
         {(_x set [2,(selectRandom _height)])} forEach _air;
     };
 
     //return
     [_infPlains,_infRoads,_vehPlains,_vehRoads,_boats,_air]
+};
+
+NWG_DOTS_MarkupReinforcementGrouped = {
+    // params ["_pos",["_doInf",true],["_doVeh",true],["_doBoat",true],["_doAir",true]];
+    private _result = _this call NWG_DOTS_MarkupReinforcement;//[_infPlains,_infRoads,_vehPlains,_vehRoads,_boats,_air]
+    {_x call NWG_fnc_arrayShuffle} forEach _result;
+    private _infRoads  = _result deleteAt 1;
+    private _vehPlains = _result deleteAt 1;
+    (_result#0) append _infRoads;
+    (_result#1) append _vehPlains;
+
+    //return [_inf,_veh,_boats,_air]
+    _result
 };
 
 //Helper for reinforcements attack logic
