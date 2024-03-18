@@ -47,7 +47,7 @@ NWG_VOTE_SER_VoteCore = {
         if (_all == 0) then {call _failCallback; continue};//Abort if no voters
 
         //Prepre variables
-        private _stopServerAt = time + _timeout + 2;//Give 2 extra seconds for vote result to be processed
+        private _stopServerAt = time + _timeout + 1;//Give extra second for vote result to be processed
         private _mult = (NWG_VOTE_SER_Settings get "DEFAULT_THRESHOLD_MULTIPLIER");
         private _threshold = (round (_all * _mult)) max 1;
         private _for = 0;
@@ -79,6 +79,20 @@ NWG_VOTE_SER_VoteCore = {
             sleep 1;
             false
         };
+
+        //Re-collect voters because they could have changed
+        _voters = (call NWG_fnc_getPlayersAll) select {
+            !isNull _x && {
+            alive _x && {
+            _x isNotEqualTo _anchor}}
+        };
+        _voters = _voters select _votersFilter;
+
+        //End the voting for all voters
+        [] remoteExec ["NWG_fnc_voteRequestGolosEnd",_voters];
+
+        //Clear anchor
+        if (!isNull _anchor) then {_anchor call NWG_VOTE_COM_Clear};
 
         //Execute callback based on vote result
         switch (_voteResult) do {

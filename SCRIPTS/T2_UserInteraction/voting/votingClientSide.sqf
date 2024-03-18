@@ -1,29 +1,38 @@
-NWG_VOTE_CLI_golos = 0;
-NWG_VOTE_CLI_OnGolosRequest = {
-    params ["_anchor","_title","_timeout"];
+//================================================================================================================
+//================================================================================================================
+//Init
+private _Init = {
+    addMissionEventHandler ["HandleChatMessage",{_this call NWG_VOTE_CLI_OnChatMessage}];
+};
 
-    //Check
+//================================================================================================================
+//================================================================================================================
+//Golos
+NWG_VOTE_CLI_OnGolosRequest = {
+    //params ["_anchor","_title","_timeout"];
+    if (NWG_VOTE_CLI_golosInProgress) then {call NWG_VOTE_CLI_OnGolosEnd};//Abort previous vote
+    NWG_VOTE_CLI_golos = 0;
+    NWG_VOTE_CLI_golosInProgress = true;
+    NWG_VOTE_CLI_golosHandle = _this spawn NWG_VOTE_CLI_GolosCore;
+};
+
+NWG_VOTE_CLI_OnGolosEnd = {
+    NWG_VOTE_CLI_golos = 0;
+    NWG_VOTE_CLI_golosInProgress = false;
+    if (!isNull NWG_VOTE_CLI_golosHandle || {!scriptDone NWG_VOTE_CLI_golosHandle}) then {
+        hintSilent "";//Clear hint
+        terminate NWG_VOTE_CLI_golosHandle;
+    };
+};
+
+NWG_VOTE_CLI_golos = 0;
+NWG_VOTE_CLI_golosInProgress = false;
+NWG_VOTE_CLI_golosHandle = scriptNull;
+NWG_VOTE_CLI_GolosCore = {
+    params ["_anchor","_title","_timeout"];
     private _abortCondition = {isNull _anchor || {!alive _anchor || {!(_anchor call NWG_VOTE_COM_IsValid)}}};
     if (call _abortCondition) exitWith {};//Immediate check
 
-    //Setup vote
-    NWG_VOTE_CLI_golos = 0;
-    private _handlerID = addMissionEventHandler ["HandleChatMessage",{
-	    // params ["_channel","_owner","_from","_text","_person","_name","_strID","_forcedDisplay","_isPlayerMessage","_sentenceType","_chatMessageType","_params"];
-        params ["","","","_text","_sender"];
-
-        if (_sender isEqualTo player) then {
-            private _answer = 0;
-            if ("+" in _text) then {_answer = _answer + 1};
-            if ("-" in _text) then {_answer = _answer - 1};
-            if (_answer != 0) then {NWG_VOTE_CLI_golos = _answer};
-        };
-
-        //Always return false to not to mess with chat system
-        false
-    }];
-
-    //Voting cycle
     _title = _title call NWG_fnc_translateMessage;
     private _stopClientAt = time + _timeout;
     private _counterTemplate = "#VOTE_COUNTER_TEMPLATE#" call NWG_fnc_localize;
@@ -41,9 +50,7 @@ NWG_VOTE_CLI_OnGolosRequest = {
         sleep 1;
         false
     };
-    removeMissionEventHandler ["HandleChatMessage",_handlerID];//Cleanup
 
-    //Vote result
     switch (true) do {
         case (call _abortCondition): {
             hintSilent ("#VOTE_HINT_ABORTED#" call NWG_fnc_localize);
@@ -61,3 +68,26 @@ NWG_VOTE_CLI_OnGolosRequest = {
         };
     };
 };
+
+//================================================================================================================
+//================================================================================================================
+//Chat handler
+NWG_VOTE_CLI_OnChatMessage = {
+    // params ["_channel","_owner","_from","_text","_person","_name","_strID","_forcedDisplay","_isPlayerMessage","_sentenceType","_chatMessageType","_params"];
+    params ["","","","_text","_sender"];
+
+    if (_sender isEqualTo player && {NWG_VOTE_CLI_golosInProgress}) then {
+        private _answer = 0;
+        if ("+" in _text) then {_answer = _answer + 1};
+        if ("-" in _text) then {_answer = _answer - 1};
+        if (_answer != 0) then {NWG_VOTE_CLI_golos = _answer};
+    };
+
+    //Always return false to not to mess with chat system
+    false
+};
+
+//================================================================================================================
+//================================================================================================================
+//Poset-compilation init
+call _Init;

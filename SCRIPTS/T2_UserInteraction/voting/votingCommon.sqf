@@ -15,7 +15,7 @@ NWG_VOTE_COM_GetFor = {
 };
 NWG_VOTE_COM_SetFor = {
     params ["_anchor","_value"];
-    _this setVariable ["NWG_VOTE_for",_value,true];
+    _anchor setVariable ["NWG_VOTE_for",_value,true];
 };
 NWG_VOTE_COM_AddFor = {
     // private _anchor = _this;
@@ -28,9 +28,15 @@ NWG_VOTE_COM_GetAgainst = {
 };
 NWG_VOTE_COM_SetAgainst = {
     params ["_anchor","_value"];
-    _this setVariable ["NWG_VOTE_against",_value,true];
+    _anchor setVariable ["NWG_VOTE_against",_value,true];
 };
 NWG_VOTE_COM_AddAgainst = {
     // private _anchor = _this;
     [_this,((_this call NWG_VOTE_COM_GetAgainst) + 1)] call NWG_VOTE_COM_SetAgainst;
+};
+
+NWG_VOTE_COM_Clear = {
+    // private _anchor = _this;
+    _this setVariable ["NWG_VOTE_for",nil,true];
+    _this setVariable ["NWG_VOTE_against",nil,true];
 };
