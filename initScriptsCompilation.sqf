@@ -109,7 +109,9 @@ if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\play
 //viewDistance
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistance.sqf" call NWG_fnc_compile);
 //voting
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingCommon.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingServerSide.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingCommon.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\voting\votingFunctions.sqf" call NWG_fnc_compile);
 

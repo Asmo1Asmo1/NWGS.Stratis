@@ -31,6 +31,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_BLAME_WOUND_DAMAGER#","%2 ранен %1"],
     ["#MED_BLAME_KILL_NOBODYS#","%1 казнён"],
     ["#MED_BLAME_KILL_DAMAGER#","%2 казнён %1"],
+    //voting
+    ["#VOTE_COUNTER_TEMPLATE#","Введите + или - в чат\n[+]:%2 [-]:%3 (%4)сек"],
+    ["#VOTE_HINT_ABORTED#","Голосование отменено"],
+    ["#VOTE_HINT_VOTE_RECEIVED#","Голос отправлен"],
+    ["#VOTE_HINT_TIMEOUT#","Время вышло"],
 
     ["",""]
 ];
