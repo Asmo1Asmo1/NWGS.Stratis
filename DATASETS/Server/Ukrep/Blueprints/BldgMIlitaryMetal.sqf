@@ -98,13 +98,13 @@
 
     ["REL","01-Fortf02",0,0,7.33072,0,[],[
         ["BLDG","Land_Cargo_Tower_V3_F",0,[0,0,0],0,0,[false,false,true,true,true,true],[
-            ["BLDG","Land_cargo_addon02_V2_F",0,[3.375,0.375,19.375],270,270,[false,false,false,false,false,false]],
             ["FURN","Land_CampingTable_F",0,[2.5,4.875,15.3646],180,180,[true,true,true,false,true,false]],
             ["FURN","Land_CampingTable_small_F",0,[4.375,4.875,15.362],180,180,[true,true,true,false,true,false]],
             ["FURN","Land_CampingTable_small_F",0,[0.870605,2.27588,17.962],270,270,[true,true,true,false,true,false]],
             ["FURN","Land_Metal_rack_F",0,[2.375,0.25,12.7646],0,0,[true,true,true,false,true,false]],
             ["FURN","Land_Metal_rack_Tall_F",0,[0.628662,-4.13867,12.7646],180,180,[true,true,true,false,true,false]],
             ["FURN","Land_PortableDesk_01_sand_F",0,[5.625,1.7085,15.3636],90.0043,90.0043,[true,false,true,true,true,true]],
+            ["DECO","Land_cargo_addon02_V2_F",0,[3.375,0.375,19.375],270,270,[false,false,false,false,false,false]],
             ["DECO","B_CargoNet_01_ammo_F",0,[-2.125,-3.72852,17.8793],0,0,[true,true,true,false,true,true]],
             ["DECO","B_CargoNet_01_ammo_F",0,[-4.45105,-3.16309,17.8898],105,105,[true,true,true,false,true,true]],
             ["DECO","Box_Syndicate_Ammo_F",0,[-3.8313,-5.33643,15.489],0,0,[true,true,true,false,true,true]],
