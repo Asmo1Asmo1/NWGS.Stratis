@@ -82,14 +82,14 @@ createHashMapFromArray [
 [
     "Land_VR_Shape_01_cube_1m_F",/*VR cube (boxes)*/
     [
-        "Land_CampingChair_V2_F",
-        "Land_CampingChair_V1_F",
-        "Box_NATO_Ammo_F",
-        "Box_NATO_Wps_F",
-        "Box_NATO_AmmoOrd_F",
-        "Box_NATO_Grenades_F",
-        "Box_NATO_Support_F",
-        "Land_MetalBarrel_F"
+        ["Land_CampingChair_V2_F",/*objectProperties:*/[true,true,true,false,true,false]],
+        ["Land_CampingChair_V1_F",/*objectProperties:*/[true,true,true,false,true,false]],
+        ["Box_NATO_Ammo_F",       /*objectProperties:*/[false,false,true,true,false,true]],
+        ["Box_NATO_Wps_F",        /*objectProperties:*/[false,false,true,true,false,true]],
+        ["Box_NATO_AmmoOrd_F",    /*objectProperties:*/[false,false,true,true,false,true]],
+        ["Box_NATO_Grenades_F",   /*objectProperties:*/[false,false,true,true,false,true]],
+        ["Box_NATO_Support_F",    /*objectProperties:*/[false,false,true,true,false,true]],
+        ["Land_MetalBarrel_F",    /*objectProperties:*/[true,true,true,false,true,false]]
     ]
 ],
 
