@@ -694,7 +694,7 @@ NWG_UKREP_CreateObject = {
 
     //Optimize settings
     if (NWG_UKREP_Settings get "OPTIMIZE_OBJECTS_ON_CREATE") then {
-        if (_canSimple && !_isInteractable) then {_isSimple = true};
+        if (_canSimple && !_isInteractable) exitWith {_isSimple = true};//Simple object - no interaction or simulation
         if (!_isInteractable) then {_isSimOn = false; _isDynaSimOn = false};
         if (_isSimOn && !_isDynaSimOn) then {_isDynaSimOn = true};
     };
