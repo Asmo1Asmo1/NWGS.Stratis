@@ -52,11 +52,7 @@
 	"Land_d_Shop_02_V1_F",
 	"Land_d_Stone_HouseBig_V1_F",
 	"Land_d_Stone_HouseSmall_V1_F",
-	"Land_d_Stone_Shed_V1_F",
-	"Land_Lighthouse_small_F",
-	"Land_Unfinished_Building_01_F",
-	"Land_Unfinished_Building_02_F",
-	"Land_WIP_F"
+	"Land_d_Stone_Shed_V1_F"
 ],
 	"CityHouseAddon",
 [
@@ -68,6 +64,13 @@
 	"Land_i_Addon_04_V1_F",
 	"Land_Shop_Town_05_addon_F",
 	"Land_u_Addon_01_V1_F"
+],
+	"CityHouseConstruction",
+[
+	"Land_Unfinished_Building_01_F",
+	"Land_Unfinished_Building_02_F",
+	"Land_WIP_F",
+	"Land_Lighthouse_small_F"
 ],
 
 	"Barrack",
