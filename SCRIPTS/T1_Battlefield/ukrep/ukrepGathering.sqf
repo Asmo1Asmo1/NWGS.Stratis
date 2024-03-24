@@ -133,6 +133,9 @@ NWG_UKREP_GatherUkrepABS = {
         /*BPCONTAINER_BLUEPRINT*/_blueprint
     ];
     _fullBlueprint call NWG_UKREP_Dump;//Dump to RPT
+
+    //return
+    _fullBlueprint
 };
 
 //================================================================================================================
@@ -173,6 +176,9 @@ NWG_UKREP_GatherUkrepREL = {
         /*BPCONTAINER_BLUEPRINT*/_blueprint
     ];
     _fullBlueprint call NWG_UKREP_Dump;//Dump to RPT
+
+    //return
+    _fullBlueprint
 };
 
 //================================================================================================================
@@ -528,9 +534,6 @@ NWG_UKREP_Dump = {
 
     //Dump to clipboard
     copyToClipboard (_lines joinString (toString [13,10]));//Copy with 'new line' separator
-
-    //Dump to output console as is
-    _lines
 };
 
 //================================================================================================================

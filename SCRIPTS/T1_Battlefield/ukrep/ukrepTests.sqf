@@ -46,6 +46,32 @@ NWG_UKREP_TEST_Clear = {
 
 //================================================================================================================
 //================================================================================================================
+//Gather - Place Test
+NWG_UKREP_TEST_gatheredBlueprint = [];
+
+// 19 call NWG_UKREP_TEST_GPT_Gather
+NWG_UKREP_TEST_GPT_Gather = {
+    private _radius = _this;
+    private _result = _radius call NWG_UKREP_GatherUkrepREL;
+    NWG_UKREP_TEST_gatheredBlueprint = _result;
+    _result
+};
+
+// "NATO" call NWG_UKREP_TEST_GPT_Place
+NWG_UKREP_TEST_GPT_Place = {
+    private _faction = _this;
+    private _pos = getPosATL player;
+    private _dir = getDir player;
+    private _blueprint = NWG_UKREP_TEST_gatheredBlueprint;
+
+    call NWG_UKREP_TEST_Clear;
+    private _result = [(_blueprint#BPCONTAINER_BLUEPRINT),_pos,_dir,[],_faction] call NWG_UKREP_PlaceREL_Position;
+    NWG_UKREP_TEST_placedObjects = _result;
+    _result
+};
+
+//================================================================================================================
+//================================================================================================================
 //FRACTAL placement
 // call NWG_UKREP_FRACTAL_PlaceFractalABS_Test
 NWG_UKREP_FRACTAL_PlaceFractalABS_Test = {
