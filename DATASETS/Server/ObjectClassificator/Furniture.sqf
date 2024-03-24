@@ -46,5 +46,13 @@
     "MilitaryTables",
     [
         ["Land_PortableDesk_01_black_F","Land_PortableDesk_01_olive_F","Land_PortableDesk_01_sand_F"]
+    ],
+
+    "Tools",
+    [
+        "Land_MetalCase_01_large_F",
+        "Land_MetalCase_01_medium_F",
+        "Land_ToolTrolley_02_F",
+        "Land_ToolTrolley_01_F"
     ]
 ]
