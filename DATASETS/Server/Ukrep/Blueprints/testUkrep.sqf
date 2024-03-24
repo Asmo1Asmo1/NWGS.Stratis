@@ -1,27 +1,27 @@
 [
     /*Test landbunker ABS*/
     ["ABS","BUNKER",[1803.19,5570.65,0],0,16.0322,0,[],[
-        ["BLDG","Land_BagBunker_Tower_F",[1809.96,5570.1,5.5],0,2.538,0,[false,false,true,false,true,false]],
-        ["BLDG","Land_Cargo_Patrol_V3_F",[1810.71,5584.7,5.5],0,270,0,[false,false,true,false,true,true]],
-        ["BLDG","Land_Cargo_Patrol_V3_F",[1796.18,5574.69,5.5],0,0,0,[false,false,true,false,true,true]],
-        ["FURN","Land_CampingTable_F",[1809.57,5572.67,5.49741],0,359.997,0,[true,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",[1814.09,5566.97,5.5],0,90.833,0,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",[1813.08,5564.71,5.5],0,138.856,0,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",[1797.26,5564.39,5.5],0,181.108,0,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",[1810.79,5563.85,5.5],0,181.185,0,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",[1808.15,5563.89,5.5],0,181.409,0,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",[1794.62,5564.43,5.5],0,181.326,0,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",[1791.48,5567.72,5.5],0,273.344,0,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",[1792.34,5565.43,5.5],0,225.329,0,[false,false,true,false,true,false]],
-        ["DECO","Land_Computer_01_black_F",[1810.25,5572.55,6.31103],0,0.00272098,0,[true,false,true,false,true,false]],
-        ["DECO","Land_File1_F",[1793.67,5575.31,10.4679],0,159.763,0,[true,false,true,false,true,false]],
-        ["DECO","Land_Laptop_03_black_F",[1809.25,5572.68,6.31104],0,334.957,0,[true,false,true,false,true,false]],
-        ["DECO","Land_PortableCabinet_01_4drawers_black_F",[1793.76,5575.33,9.63905],0,281.546,0,[true,false,true,false,true,true]],
-        ["DECO","Land_PortableCabinet_01_4drawers_black_F",[1793.59,5576.34,9.63905],0,272.151,0,[true,false,true,false,true,true]],
-        ["DECO","Land_PortableGenerator_01_black_F",[1810.24,5572.41,8.279],0,213.695,0,[true,false,true,false,true,false]],
-        ["DECO","Land_PortableGenerator_01_F",[1813.47,5571.83,5.499],0,271.873,0,[true,false,true,false,true,false]],
-        ["DECO","RoadBarrier_F",[1796.98,5562.34,5.49601],0,177.312,0,[true,false,true,false,true,false]],
-        ["DECO","RoadBarrier_F",[1808.38,5562.02,5.49601],0,184.512,0,[true,false,true,false,true,false]],
+        ["BLDG","Land_BagBunker_Tower_F",[1809.96,5570.1,5.5],0,2.538,0,"STTC"],
+        ["BLDG","Land_Cargo_Patrol_V3_F",[1810.71,5584.7,5.5],0,270,0,"INTR"],
+        ["BLDG","Land_Cargo_Patrol_V3_F",[1796.18,5574.69,5.5],0,0,0,"INTR"],
+        ["FURN","Land_CampingTable_F",[1809.57,5572.67,5.49741],0,359.997,0,"SMPL"],
+        ["DECO","Land_CncBarrier_F",[1814.09,5566.97,5.5],0,90.833,0,"STTC"],
+        ["DECO","Land_CncBarrier_F",[1813.08,5564.71,5.5],0,138.856,0,"STTC"],
+        ["DECO","Land_CncBarrier_F",[1797.26,5564.39,5.5],0,181.108,0,"STTC"],
+        ["DECO","Land_CncBarrier_F",[1810.79,5563.85,5.5],0,181.185,0,"STTC"],
+        ["DECO","Land_CncBarrier_F",[1808.15,5563.89,5.5],0,181.409,0,"STTC"],
+        ["DECO","Land_CncBarrier_F",[1794.62,5564.43,5.5],0,181.326,0,"STTC"],
+        ["DECO","Land_CncBarrier_F",[1791.48,5567.72,5.5],0,273.344,0,"STTC"],
+        ["DECO","Land_CncBarrier_F",[1792.34,5565.43,5.5],0,225.329,0,"STTC"],
+        ["DECO","Land_Computer_01_black_F",[1810.25,5572.55,6.31103],0,0.00272098,0,"SMPL"],
+        ["DECO","Land_File1_F",[1793.67,5575.31,10.4679],0,159.763,0,"SMPL"],
+        ["DECO","Land_Laptop_03_black_F",[1809.25,5572.68,6.31104],0,334.957,0,"SMPL"],
+        ["DECO","Land_PortableCabinet_01_4drawers_black_F",[1793.76,5575.33,9.63905],0,281.546,0,"INTR"],
+        ["DECO","Land_PortableCabinet_01_4drawers_black_F",[1793.59,5576.34,9.63905],0,272.151,0,"INTR"],
+        ["DECO","Land_PortableGenerator_01_black_F",[1810.24,5572.41,8.279],0,213.695,0,"SMPL"],
+        ["DECO","Land_PortableGenerator_01_F",[1813.47,5571.83,5.499],0,271.873,0,"SMPL"],
+        ["DECO","RoadBarrier_F",[1796.98,5562.34,5.49601],0,177.312,0,"SMPL"],
+        ["DECO","RoadBarrier_F",[1808.38,5562.02,5.49601],0,184.512,0,"SMPL"],
         ["UNIT","B_Soldier_VR_F",[1809.74,5571.54,5.50144],0,0,0,0],
         ["UNIT","B_Soldier_VR_F",[1803.03,5572.07,5.50144],0,182.167,0,0],
         ["UNIT","B_Soldier_VR_F",[1809.32,5571.66,8.28144],0,32.1783,0,2],
@@ -39,31 +39,31 @@
 
     /*Test landbunker REL*/
     ["REL","BUNKER",0,0,19.1709,0,[],[
-        ["BLDG","Land_BagBunker_Tower_F",0,[0,0,0],2.538,0,[false,false,true,false,true,false],[
-            ["DECO","Land_PortableGenerator_01_black_F",0,[0.284424,2.30762,2.779],213.697,211.159,[true,false,true,false,true,false]],
+        ["BLDG","Land_BagBunker_Tower_F",0,[0,0,0],2.538,0,"STTC",[
+            ["DECO","Land_PortableGenerator_01_black_F",0,[0.284424,2.30762,2.779],213.697,211.159,"SMPL"],
             ["UNIT","B_Soldier_VR_F",0,[-0.640991,1.56201,2.78144],32.1783,29.6403,2]]],
-        ["BLDG","Land_Cargo_Patrol_V3_F",0,[0.751831,14.6011,4.76837e-007],270,267.462,[false,false,true,false,true,true],[
+        ["BLDG","Land_Cargo_Patrol_V3_F",0,[0.751831,14.6011,4.76837e-007],270,267.462,"INTR",[
             ["MINE","APERSMine",0,[1.14905,-1.67627,4.32116],0,-270,0],
             ["MINE","APERSTripMine",0,[1.72949,-0.957031,4.25278],269.574,-0.426361,0]]],
-        ["BLDG","Land_Cargo_Patrol_V3_F",0,[-13.7765,4.58887,4.76837e-007],0,-2.538,[false,false,true,false,true,true],[
-            ["DECO","Land_PortableCabinet_01_4drawers_black_F",0,[-2.41797,0.640625,4.13905],281.546,281.546,[true,false,true,false,true,true],[
-                ["DECO","Land_File1_F",0,[-0.0917969,-0.0205078,0.828817],159.763,-121.783,[true,false,true,false,true,false]]]],
-            ["DECO","Land_PortableCabinet_01_4drawers_black_F",0,[-2.58643,1.64795,4.13905],272.151,272.151,[true,false,true,false,true,true]],
+        ["BLDG","Land_Cargo_Patrol_V3_F",0,[-13.7765,4.58887,4.76837e-007],0,-2.538,"INTR",[
+            ["DECO","Land_PortableCabinet_01_4drawers_black_F",0,[-2.41797,0.640625,4.13905],281.546,281.546,"INTR",[
+                ["DECO","Land_File1_F",0,[-0.0917969,-0.0205078,0.828817],159.763,-121.783,"SMPL"]]],
+            ["DECO","Land_PortableCabinet_01_4drawers_black_F",0,[-2.58643,1.64795,4.13905],272.151,272.151,"INTR"],
             ["TRRT","B_GMG_01_high_F",0,[1.06506,-0.821777,4.33123],181.101,181.101,["B_Soldier_VR_F"]]]],
-        ["FURN","Land_CampingTable_F",0,[-0.381958,2.57275,-0.00259352],359.999,357.461,[true,false,true,false,true,false],[
-            ["DECO","Land_Computer_01_black_F",0,[0.672119,-0.121094,0.813609],0.00741596,-359.992,[true,false,true,false,true,false]],
-            ["DECO","Land_Laptop_03_black_F",0,[-0.322632,0.00195313,0.813643],334.933,-25.0655,[true,false,true,false,true,false]]]],
-        ["DECO","Land_CncBarrier_F",0,[-17.6163,-4.66992,0],225.329,222.791,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",0,[-15.3342,-5.66992,0],181.326,178.788,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",0,[0.837646,-6.25391,0],181.185,178.647,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",0,[3.12073,-5.396,0],138.856,136.318,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",0,[4.13452,-3.12793,0],90.833,88.295,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",0,[-12.6936,-5.71094,0],181.108,178.57,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",0,[-1.8031,-6.2168,0],181.409,178.871,[false,false,true,false,true,false]],
-        ["DECO","Land_CncBarrier_F",0,[-18.4803,-2.38623,0],273.344,270.806,[false,false,true,false,true,false]],
-        ["DECO","Land_PortableGenerator_01_F",0,[3.51221,1.72314,-0.000999928],271.873,269.335,[true,false,true,false,true,false]],
-        ["DECO","RoadBarrier_F",0,[-1.57263,-8.07764,-0.00398731],184.508,181.97,[true,false,true,false,true,false]],
-        ["DECO","RoadBarrier_F",0,[-12.9766,-7.7627,-0.0039835],177.321,174.783,[true,false,true,false,true,false]],
+        ["FURN","Land_CampingTable_F",0,[-0.381958,2.57275,-0.00259352],359.999,357.461,"SMPL",[
+            ["DECO","Land_Computer_01_black_F",0,[0.672119,-0.121094,0.813609],0.00741596,-359.992,"SMPL"],
+            ["DECO","Land_Laptop_03_black_F",0,[-0.322632,0.00195313,0.813643],334.933,-25.0655,"SMPL"]]],
+        ["DECO","Land_CncBarrier_F",0,[-17.6163,-4.66992,0],225.329,222.791,"STTC"],
+        ["DECO","Land_CncBarrier_F",0,[-15.3342,-5.66992,0],181.326,178.788,"STTC"],
+        ["DECO","Land_CncBarrier_F",0,[0.837646,-6.25391,0],181.185,178.647,"STTC"],
+        ["DECO","Land_CncBarrier_F",0,[3.12073,-5.396,0],138.856,136.318,"STTC"],
+        ["DECO","Land_CncBarrier_F",0,[4.13452,-3.12793,0],90.833,88.295,"STTC"],
+        ["DECO","Land_CncBarrier_F",0,[-12.6936,-5.71094,0],181.108,178.57,"STTC"],
+        ["DECO","Land_CncBarrier_F",0,[-1.8031,-6.2168,0],181.409,178.871,"STTC"],
+        ["DECO","Land_CncBarrier_F",0,[-18.4803,-2.38623,0],273.344,270.806,"STTC"],
+        ["DECO","Land_PortableGenerator_01_F",0,[3.51221,1.72314,-0.000999928],271.873,269.335,"SMPL"],
+        ["DECO","RoadBarrier_F",0,[-1.57263,-8.07764,-0.00398731],184.508,181.97,"SMPL"],
+        ["DECO","RoadBarrier_F",0,[-12.9766,-7.7627,-0.0039835],177.321,174.783,"SMPL"],
         ["UNIT","B_Soldier_VR_F",0,[-6.92554,1.97119,0.00143909],182.167,179.629,0],
         ["UNIT","B_Soldier_VR_F",0,[-0.212158,1.43604,0.00143909],0,-2.538,0],
         ["VEHC","B_G_Quadbike_01_F",0,[-11.1715,11.8936,0.0124421],102.769,100.231,[["B_Soldier_VR_F"]]],
@@ -77,28 +77,28 @@
 
     /*Test FRACTAL furniture*/
     ["REL","FRACTAL_SUB",0,0,0.781018,0,[],[
-        ["FURN","Land_CampingTable_F",0,[0,0,0],0,0,[true,true,false,false,false,false],[
-            ["DECO","Land_Can_V3_F",0,[0.0516357,0.123535,0.813638],128.02,128.02,[true,false,true,false,true,false]],
-            ["DECO","Land_File_research_F",0,[-0.496582,-0.128906,0.81361],179.282,179.282,[true,false,true,false,true,false]],
-            ["DECO","Land_FilePhotos_F",0,[-0.220459,0.00830078,0.81361],327.572,327.572,[true,false,true,false,true,false]],
-            ["DECO","Land_Laptop_03_black_F",0,[0.28418,0.0390625,0.813618],208.922,208.922,[true,false,true,false,true,false]],
-            ["DECO","Land_Router_01_black_F",0,[-0.766113,-0.151855,0.81361],360,360,[true,false,true,false,true,false]]]],
-        ["DECO","Land_CampingChair_V2_F",0,[0.573975,0.473145,0.00501156],31.2593,31.2593,[true,true,false,false,false,false]],
-        ["DECO","Land_CampingChair_V2_F",0,[-0.478027,0.385254,0.00501156],0,0,[true,true,false,false,false,false]]]],
+        ["FURN","Land_CampingTable_F",0,[0,0,0],0,0,"SMPL",[
+            ["DECO","Land_Can_V3_F",0,[0.0516357,0.123535,0.813638],128.02,128.02,"SMPL"],
+            ["DECO","Land_File_research_F",0,[-0.496582,-0.128906,0.81361],179.282,179.282,"SMPL"],
+            ["DECO","Land_FilePhotos_F",0,[-0.220459,0.00830078,0.81361],327.572,327.572,"SMPL"],
+            ["DECO","Land_Laptop_03_black_F",0,[0.28418,0.0390625,0.813618],208.922,208.922,"SMPL"],
+            ["DECO","Land_Router_01_black_F",0,[-0.766113,-0.151855,0.81361],360,360,"SMPL"]]],
+        ["DECO","Land_CampingChair_V2_F",0,[0.573975,0.473145,0.00501156],31.2593,31.2593,"SMPL"],
+        ["DECO","Land_CampingChair_V2_F",0,[-0.478027,0.385254,0.00501156],0,0,"SMPL"]]],
 
     /*Test FRACTAL building*/
     ["REL","FRACTAL_SUB",0,0,6.74046,0,[],[
-        ["BLDG","Land_BagBunker_Tower_F",0,[0,0,0],0,0,[false,false,true,false,true,false],[
-            ["FURN","Land_CampingTable_F",0,[-0.952148,-2.07129,2.77999],90,90,[true,true,false,false,false,false]],
-            ["DECO","Land_PortableGenerator_01_black_F",0,[0.595581,2.36426,2.78],297.335,297.335,[true,true,false,false,false,false]],
+        ["BLDG","Land_BagBunker_Tower_F",0,[0,0,0],0,0,"STTC",[
+            ["FURN","Land_CampingTable_F",0,[-0.952148,-2.07129,2.77999],90,90,"SMPL"],
+            ["DECO","Land_PortableGenerator_01_black_F",0,[0.595581,2.36426,2.78],297.335,297.335,"SMPL"],
             ["UNIT","B_Soldier_VR_F",0,[0.719238,-1.62354,2.78144],179.82,179.82,0],
             ["TRRT","B_static_AT_F",0,[-1.00903,1.90625,2.78377],330.873,330.873,["B_Soldier_VR_F"]]]],
-        ["FURN","Land_CampingTable_F",0,[-0.0253906,2.49756,-1.19209e-005],180,180,[true,true,false,false,false,false]],
-        ["FURN","Land_CampingTable_F",0,[-3.55505,0.800781,-1.19209e-005],270,270,[true,true,false,false,false,false]],
-        ["DECO","Land_PortableCabinet_01_4drawers_black_F",0,[-1.35901,-2.18604,7.15256e-006],269.441,269.441,[true,false,true,true,true,true]],
-        ["DECO","Land_PortableCabinet_01_bookcase_black_F",0,[-1.24561,-2.83594,0.0024004],232.419,232.419,[true,true,false,false,false,true],[
-            ["DECO","Item_Files",0,[0.0665283,-0.117188,0.819599],0,-232.419,[false,false,false,false,false,true]]]],
-        ["DECO","Land_PortableGenerator_01_black_F",0,[3.47192,2.34961,0],270,270,[true,true,false,false,false,false]],
+        ["FURN","Land_CampingTable_F",0,[-0.0253906,2.49756,-1.19209e-005],180,180,"SMPL"],
+        ["FURN","Land_CampingTable_F",0,[-3.55505,0.800781,-1.19209e-005],270,270,"SMPL"],
+        ["DECO","Land_PortableCabinet_01_4drawers_black_F",0,[-1.35901,-2.18604,7.15256e-006],269.441,269.441,"INTR"],
+        ["DECO","Land_PortableCabinet_01_bookcase_black_F",0,[-1.24561,-2.83594,0.0024004],232.419,232.419,"SMPL",[
+            ["DECO","Item_Files",0,[0.0665283,-0.117188,0.819599],0,-232.419,"STTC"]]],
+        ["DECO","Land_PortableGenerator_01_black_F",0,[3.47192,2.34961,0],270,270,"SMPL"],
         ["UNIT","B_Soldier_VR_F",0,[-0.204712,6.22314,0.00143909],100.776,100.776,2],
         ["UNIT","B_Soldier_VR_F",0,[-0.0231934,0.717773,0.00143909],0,0,0],
         ["VEHC","B_Quadbike_01_F",0,[-4.02759,-2.12598,0.0129585],0.000337176,0.000337176,[["B_Soldier_VR_F"]]],
@@ -109,13 +109,13 @@
 
     /*Test FRACTAL REL*/
     ["REL","FRACTAL_ROOT",0,0,20.9521,0,[],[
-        ["FURN","Land_CampingTable_F",0,[0,0,0],3.28615e-005,0,[true,false,true,false,true,false]],
-        ["BLDG","CamoNet_BLUFOR_F",0,[10.0997,16.855,0.00259209],90,90,[false,false,true,false,true,false]],
-        ["BLDG","Land_HBarrier_01_tower_green_F",0,[16.6799,0,0.00259209],90,90,[false,false,true,false,true,false]],
-        ["BLDG","Land_HBarrier_01_tower_green_F",0,[-4.51025,20.4609,0.00259209],0,-3.28615e-005,[false,false,true,false,true,false]],
-        ["DECO","Box_NATO_Equip_F",0,[-3.698,9.40625,0.00259113],89.2899,89.2899,[true,false,true,true,true,true]],
-        ["DECO","Land_EngineCrane_01_F",0,[10.438,16.3032,0.00259209],112.105,112.105,[true,true,false,false,false,false]],
-        ["DECO","Land_PaperBox_01_open_empty_F",0,[10.08,13.8521,0.00259209],0,-3.28615e-005,[true,true,false,false,false,false]],
+        ["FURN","Land_CampingTable_F",0,[0,0,0],3.28615e-005,0,"SMPL"],
+        ["BLDG","CamoNet_BLUFOR_F",0,[10.0997,16.855,0.00259209],90,90,"STTC"],
+        ["BLDG","Land_HBarrier_01_tower_green_F",0,[16.6799,0,0.00259209],90,90,"STTC"],
+        ["BLDG","Land_HBarrier_01_tower_green_F",0,[-4.51025,20.4609,0.00259209],0,-3.28615e-005,"STTC"],
+        ["DECO","Box_NATO_Equip_F",0,[-3.698,9.40625,0.00259113],89.2899,89.2899,"INTR"],
+        ["DECO","Land_EngineCrane_01_F",0,[10.438,16.3032,0.00259209],112.105,112.105,"SMPL"],
+        ["DECO","Land_PaperBox_01_open_empty_F",0,[10.08,13.8521,0.00259209],0,-3.28615e-005,"SMPL"],
         ["UNIT","B_Soldier_VR_F",0,[0.891357,12.9717,0.00403118],232.377,232.377,0],
         ["UNIT","B_Soldier_VR_F",0,[-1.23096,11.855,0.00403118],55.626,55.6259,0],
         ["UNIT","B_Soldier_VR_F",0,[0.083252,14.1855,0.00403118],174.519,174.519,0],
@@ -126,13 +126,13 @@
 
     /*Test FRACTAL ABS*/
     ["ABS","FRACTAL_ROOT",[1821.27,5633.21,0],0,17.9996,0,[],[
-        ["BLDG","CamoNet_BLUFOR_F",[1828.31,5638.3,5.5],0,90,0,[false,false,true,false,true,false]],
-        ["BLDG","Land_HBarrier_01_tower_green_F",[1813.7,5641.9,5.5],0,0,0,[false,false,true,false,true,false]],
-        ["BLDG","Land_HBarrier_01_tower_green_F",[1834.89,5621.44,5.5],0,90,0,[false,false,true,false,true,false]],
-        ["FURN","Land_CampingTable_F",[1818.21,5621.44,5.49741],0,3.28615e-005,0,[true,false,true,false,true,false]],
-        ["DECO","Box_NATO_Equip_F",[1814.51,5630.85,5.5],0,89.2899,0,[true,false,true,true,true,true]],
-        ["DECO","Land_EngineCrane_01_F",[1828.65,5637.75,5.5],0,112.105,0,[true,true,false,false,false,false]],
-        ["DECO","Land_PaperBox_01_open_empty_F",[1828.29,5635.29,5.5],0,0,0,[true,true,false,false,false,false]],
+        ["BLDG","CamoNet_BLUFOR_F",[1828.31,5638.3,5.5],0,90,0,"STTC"],
+        ["BLDG","Land_HBarrier_01_tower_green_F",[1813.7,5641.9,5.5],0,0,0,"STTC"],
+        ["BLDG","Land_HBarrier_01_tower_green_F",[1834.89,5621.44,5.5],0,90,0,"STTC"],
+        ["FURN","Land_CampingTable_F",[1818.21,5621.44,5.49741],0,3.28615e-005,0,"SMPL"],
+        ["DECO","Box_NATO_Equip_F",[1814.51,5630.85,5.5],0,89.2899,0,"INTR"],
+        ["DECO","Land_EngineCrane_01_F",[1828.65,5637.75,5.5],0,112.105,0,"SMPL"],
+        ["DECO","Land_PaperBox_01_open_empty_F",[1828.29,5635.29,5.5],0,0,0,"SMPL"],
         ["UNIT","B_Soldier_VR_F",[1818.3,5635.63,5.50144],0,174.519,0,0],
         ["UNIT","B_Soldier_VR_F",[1816.98,5633.3,5.50144],0,55.626,0,0],
         ["UNIT","B_Soldier_VR_F",[1819.1,5634.41,5.50144],0,232.377,0,0],

@@ -282,19 +282,25 @@ NWG_UKREP_GetObjectPayload = {
 
     //return
     switch (_type) do {
-        /*For objects - payload is array of flags*/
+        /*For objects - payload is a flag of either SIMPLE, STATIC or INTERACTABLE*/
         case OBJ_TYPE_BLDG;
         case OBJ_TYPE_FURN;
         case OBJ_TYPE_DECO: {
             private _cfg = configfile >> "CfgVehicles" >> (typeOf _object);
-            [
-                /*P_OBJ_CAN_SIMPLE*/((getNumber (_cfg >> "SimpleObject" >> "eden")) == 1),
-                /*P_OBJ_IS_SIMPLE*/(isSimpleObject _object),
-                /*P_OBJ_IS_SIM_ON*/(simulationEnabled _object),
-                /*P_OBJ_IS_DYNASIM_ON*/(dynamicSimulationEnabled _object),
-                /*P_OBJ_IS_DMG_ALLOWED*/(isDamageAllowed _object),
-                /*P_OBJ_IS_INTERACTABLE*/([_object,_cfg] call NWG_UKREP_IsInteractable)
-            ]
+            private _canBeSimple = (getNumber (_cfg >> "SimpleObject" >> "eden")) == 1;
+            private _isDynamicSimOn = dynamicSimulationEnabled _object;
+            private _isInteractable = [_object,_cfg] call NWG_UKREP_IsInteractable;
+
+            switch (true) do {
+                /*Simple*/
+                case (isSimpleObject _object): {OBJ_SIMPLE};//Object explicitly marked as simple
+                case (_canBeSimple && !_isDynamicSimOn && !_isInteractable): {OBJ_SIMPLE};//Object can be simplified
+                /*Interactable*/
+                case (_isDynamicSimOn): {OBJ_INTERACTABLE};//Object explicitly marked as interactable
+                case (simulationEnabled _object && _isInteractable): {OBJ_INTERACTABLE};//Object is interactable by nature and allowed to be interacted with
+                /*Static*/
+                default {OBJ_STATIC};//Object is static by default
+            }
         };
 
         /*For units - payload is a stance of unit*/
