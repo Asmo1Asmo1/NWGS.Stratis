@@ -26,9 +26,9 @@
 #define BP_BUILDINGID 8
 
 //Object payload
-#define OBJ_SIMPLE "SMPL"
-#define OBJ_STATIC "STTC"
-#define OBJ_INTERACTABLE "INTR"
+#define OBJ_SIMPLE 0
+#define OBJ_STATIC 1
+#define OBJ_INTERACTABLE 2
 
 //Group rules
 #define GRP_RULES_SIDE 0
