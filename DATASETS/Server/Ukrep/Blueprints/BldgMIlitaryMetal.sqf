@@ -104,6 +104,7 @@
             ["FURN","Land_Metal_rack_F",0,[2.375,0.25,12.7646],0,0,0],
             ["FURN","Land_Metal_rack_Tall_F",0,[0.628662,-4.13867,12.7646],180,180,0],
             ["FURN","Land_PortableDesk_01_sand_F",0,[5.625,1.7085,15.3636],90.0043,90.0043,2],
+            ["FURN","Land_MetalCase_01_large_F",0,[-1.25,-5,12.8632],90,90,0],
             ["DECO","Land_cargo_addon02_V2_F",0,[3.375,0.375,19.375],270,270,1],
             ["DECO","B_CargoNet_01_ammo_F",0,[-2.125,-3.72852,17.8793],0,0,0],
             ["DECO","B_CargoNet_01_ammo_F",0,[-4.45105,-3.16309,17.8898],105,105,0],
@@ -121,10 +122,6 @@
             ["DECO","Land_FoodContainer_01_F",0,[-5.42139,3.94141,12.7419],270,270,0],
             ["DECO","Land_IntravenStand_01_1bag_F",0,[-2.92603,-2.69727,12.7188],168,168,0],
             ["DECO","Land_IntravenStand_01_1bag_F",0,[-0.419922,-0.112305,12.7188],222,222,0],
-            ["DECO","Land_MetalCase_01_large_F",0,[-1.25,-5,12.8632],90,90,0,[
-                ["DECO","Box_C_IDAP_UAV_06_F",0,[0.243286,0.03125,0.737967],0,-90,0],
-                ["DECO","Land_FirstAidKit_01_closed_F",0,[-0.362549,0.0449219,0.738573],225,135,0],
-                ["DECO","Land_Stethoscope_01_F",0,[-0.0650635,-0.0078125,0.738659],0,-90,0]]],
             ["DECO","Land_PaperBox_01_small_closed_brown_F",0,[-5.04736,4.57275,12.7442],105,105,0],
             ["DECO","Land_PaperBox_01_small_closed_brown_food_F",0,[0.991699,-0.236816,12.7467],195,195,0],
             ["DECO","Land_PaperBox_01_small_open_brown_F",0,[-4.83057,-5.42627,15.5007],180,180,1],
@@ -625,18 +622,11 @@
     ["REL","03-Fortf03",0,0,3.89243,0,[],[
         ["BLDG","Land_Cargo_House_V3_F",0,[0,0,0],0,0,2,[
             ["FURN","Land_CampingTable_white_F",0,[-2.375,1,0.5928],90,90,0],
+            ["FURN","Land_MetalCase_01_large_F",0,[2.25,1.5,0.586244],0,0,0],
+            ["FURN","Land_MetalCase_01_medium_F",0,[2.25,0.375,0.58807],0,0,0],
             ["DECO","BloodSplatter_01_Medium_New_F",0,[-0.622803,3.32324,0.728848],43,43,1],
             ["DECO","Land_EmergencyBlanket_02_discarded_F",0,[1.26282,2.98535,0.724626],276,276,0],
             ["DECO","Land_IntravenStand_01_2bags_F",0,[-0.0871582,3.16455,0.729442],0,0,0],
-            ["DECO","Land_MetalCase_01_large_F",0,[2.25,1.5,0.586244],0,0,0,[
-                ["DECO","Land_FirstAidKit_01_open_F",0,[-0.0651855,0.233398,0.723806],90,90,0],
-                ["DECO","Land_Stethoscope_01_F",0,[0.00476074,-0.391602,0.738659],120,120,0],
-                ["DECO","MedicalGarbage_01_1x1_v1_F",0,[-0.00317383,-0.272949,0.738659],90,90,1]]],
-            ["DECO","Land_MetalCase_01_medium_F",0,[2.25,0.375,0.58807],0,0,0,[
-                ["DECO","Land_DisinfectantSpray_F",0,[-0.0393066,0.0141602,0.372255],180,180,0],
-                ["DECO","Land_FirstAidKit_01_closed_F",0,[0,0.25,0.367277],15,15,0],
-                ["DECO","Land_IntravenBag_01_full_F",0,[-0.111572,-0.19043,0.353501],105,105,0],
-                ["DECO","MedicalGarbage_01_FirstAidKit_F",0,[0.189209,-0.207031,0.367362],300,300,1]]],
             ["DECO","Land_Stretcher_01_sand_F",0,[1.27063,3.6792,0.716887],90,90,0],
             ["DECO","Land_Stretcher_01_sand_F",0,[-1.18445,3.13867,0.716887],60,60,0],
             ["DECO","MedicalGarbage_01_1x1_v3_F",0,[-0.52002,3.13184,0.729],0,0,1],
@@ -818,6 +808,9 @@
             ["FURN","Land_Metal_rack_Tall_F",0,[2.87866,-5.12012,0.601674],180,180,0],
             ["FURN","Land_PortableDesk_01_sand_F",0,[5.25,5.875,0.721095],359.998,359.998,2],
             ["FURN","Land_ShelvesWooden_F",0,[3.94385,-5,0.611499],270,270,0],
+            ["FURN","Land_MetalCase_01_large_F",0,[-2.875,-6.25,0.721034],270,270,0],
+            ["FURN","Land_MetalCase_01_large_F",0,[1.25,3.5,0.600619],180,180,0],
+            ["FURN","Land_MetalCase_01_large_F",0,[-1,0,0.600619],270,270,0],
             ["DECO","BloodSplatter_01_Small_New_F",0,[-3.21729,3.40576,0.60167],0,0,1],
             ["DECO","Land_BarrelSand_grey_F",0,[0.875,-5.625,0.722088],180,180,0],
             ["DECO","Land_BarrelSand_grey_F",0,[0.875,-6.25,0.722088],0,0,0],
@@ -832,20 +825,6 @@
             ["DECO","Land_IntravenStand_01_2bags_F",0,[-3.625,1,0.602268],135,135,0],
             ["DECO","Land_IntravenStand_01_2bags_F",0,[-2.85449,3.60693,0.555849],135,135,0],
             ["DECO","Land_IntravenStand_01_2bags_F",0,[-3.625,-3.875,0.602268],135,135,0],
-            ["DECO","Land_MetalCase_01_large_F",0,[-2.875,-6.25,0.721034],270,270,0,[
-                ["DECO","Land_FirstAidKit_01_open_F",0,[-0.314087,0.0541992,0.723806],1.28066e-005,-270,0],
-                ["DECO","MedicalGarbage_01_1x1_v1_F",0,[0.246582,-0.0195313,0.738659],225,-45,1],
-                ["DECO","MedicalGarbage_01_FirstAidKit_F",0,[0.220947,0.100098,0.738966],0,-270,1]]],
-            ["DECO","Land_MetalCase_01_large_F",0,[1.25,3.5,0.600619],180,180,0,[
-                ["DECO","Land_FirstAidKit_01_open_F",0,[-0.0302734,-0.276855,0.723806],105,-75,0],
-                ["DECO","MedicalGarbage_01_1x1_v1_F",0,[0.0196533,0.246582,0.738659],60,-120,1]]],
-            ["DECO","Land_MetalCase_01_large_F",0,[-1,0,0.600619],270,270,0,[
-                ["DECO","Land_PainKillers_F",0,[-0.0430908,-0.09375,0.741461],210,-60,0],
-                ["DECO","Land_Stethoscope_01_F",0,[-0.437744,0.00732422,0.738659],165,-105,0],
-                ["DECO","Land_VitaminBottle_F",0,[-0.174927,-0.034668,0.738478],0,-270,0],
-                ["DECO","Land_VitaminBottle_F",0,[-0.176147,0.0541992,0.738478],210,-60,0],
-                ["DECO","MedicalGarbage_01_Gloves_F",0,[0.22937,0.106445,0.738659],270,0,1],
-                ["DECO","MedicalGarbage_01_Packaging_F",0,[0.25,-0.0151367,0.73838],0,-270,1]]],
             ["DECO","Land_MultiScreenComputer_01_closed_sand_F",0,[8.125,4.125,0.919662],0,0,0,[
                 ["DECO","Land_MultiScreenComputer_01_closed_sand_F",0,[0,0,-0.197489],0,0,0]]],
             ["DECO","Land_PainKillers_F",0,[-1.15198,3.87451,0.602354],135,135,0],
