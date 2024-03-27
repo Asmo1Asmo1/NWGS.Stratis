@@ -1,10 +1,4 @@
 /*
-    Every REL blueprint requires a root object - object in the center of the composition.
-    Ways to mark root object:
-    1. Name it 'NWG_UKREP_Root' (case sensitive)
-    2. Init code: this setVariable ["UKREP_IsRoot",true];
-    3. Look at it as player - the object under the crosshair will be marked as root.
-
     Decoraction options:
     1 Barracks
     2 Hospital

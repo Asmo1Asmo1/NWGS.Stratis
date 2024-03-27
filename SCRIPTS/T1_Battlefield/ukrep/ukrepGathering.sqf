@@ -68,13 +68,8 @@ NWG_UKREP_placeholders = createHashMapFromArray([
         "Land_VR_Target_APC_Wheeled_01_F",//Medium VR vehicle
         "Land_VR_Target_MBT_01_cannon_F"//Large VR vehicle
     ]],
-    [OBJ_TYPE_TRRT, [
-        "VR_3DSelector_01_default_F",//Blue VR selector (standing turret in closed position like inside the tower)
-        "VR_3DSelector_01_complete_F",//Brown VR selector (crouching turret)
-        "VR_3DSelector_01_incomplete_F",//Yellow VR selector (AT/AA) (can also be used for standing turret, no problem)
-        "VR_3DSelector_01_exit_F"//Red VR selector (Mortar)
-    ]],
-    [OBJ_TYPE_MINE, []]//Not defined yet
+    [OBJ_TYPE_TRRT, []],//Not defined (we use actual NATO turrets instead)
+    [OBJ_TYPE_MINE, []] //Not defined yet
 ]);
 
 NWG_UKREP_GetPlaceholderType = {
