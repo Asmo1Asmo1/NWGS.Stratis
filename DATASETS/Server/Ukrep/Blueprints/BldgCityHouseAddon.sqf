@@ -103,70 +103,70 @@
             ["UNIT","B_Soldier_VR_F",0,[-2.17542,1.79004,0.901439],165,165,0],
             ["UNIT","B_Soldier_VR_F",0,[0.924072,-1.87012,0.901439],150,150,0]]]]],
 
-    ["REL","01-Fortf01",0,0,4.58598,0,[],[
+    ["REL","01-Fortf01",0,0,4.63056,0,[],[
         ["BLDG","Land_i_Addon_03mid_V1_F",0,[0,0,0],0,0,1,[
-            ["DECO","Box_Syndicate_Ammo_F",0,[3.5,-0.25,0.888295],240,240,0],
             ["DECO","Box_Syndicate_Ammo_F",0,[3.5,-2.125,0.888295],0,0,0],
+            ["DECO","Box_Syndicate_Ammo_F",0,[3.5,-0.25,0.888295],240,240,0],
             ["DECO","Box_Syndicate_Wps_F",0,[2.5,-2.25,0.9],0,0,0],
-            ["DECO","Land_BagFence_Long_F",0,[4.375,-1.25,0.9],90,90,1],
-            ["DECO","Land_BagFence_Long_F",0,[-4.25,1.25,0.9],270,270,1],
-            ["DECO","Land_BagFence_Long_F",0,[-3,2.75,0.9],0,0,1],
-            ["DECO","Land_BagFence_Long_F",0,[3,-2.75,0.9],180,180,1],
-            ["DECO","Land_BagFence_Long_F",0,[-4.25,-1.375,0.9],90,90,1],
             ["DECO","Land_BagFence_Long_F",0,[4.375,1.375,0.9],270,270,1],
-            ["DECO","Land_BarrelEmpty_grey_F",0,[-1.10767,-2.375,0.87983],210,210,0],
-            ["DECO","Land_Basket_F",0,[-0.610229,-1.98145,0.8852],105,105,0],
-            ["DECO","Land_Pallet_MilBoxes_F",0,[-3.125,1.5,0.865404],90,90,1],
+            ["DECO","Land_BagFence_Long_F",0,[-3,2.75,0.9],0,0,1],
+            ["DECO","Land_BagFence_Long_F",0,[4.375,-1.25,0.9],90,90,1],
+            ["DECO","Land_BagFence_Long_F",0,[-4.41187,-1.40625,0.9],90,90,1],
+            ["DECO","Land_BagFence_Long_F",0,[2.96313,-2.78125,0.9],180,180,1],
+            ["DECO","Land_BagFence_Long_F",0,[-4.41187,1.21875,0.9],270,270,1],
+            ["DECO","Land_BarrelEmpty_grey_F",0,[-1.16187,-2.40625,0.9],210,210,0],
+            ["DECO","Land_Basket_F",0,[-0.661865,-2.03125,0.90237],105,105,0],
+            ["DECO","Land_Pallet_MilBoxes_F",0,[-3.16187,1.46875,0.9],90,90,1],
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[3.5,-1.30176,0.9],0,0,2],
-            ["UNIT","B_Soldier_VR_F",0,[-2,2.2998,0.901439],0,0,0],
-            ["UNIT","B_Soldier_VR_F",0,[3.58679,0.569336,0.997118],45,45,2],
+            ["UNIT","B_Soldier_VR_F",0,[3.60559,0.568848,1.01079],45,45,2],
+            ["UNIT","B_Soldier_VR_F",0,[-2,2.17676,0.901439],0,0,0],
             ["UNIT","B_Soldier_VR_F",0,[-1.18127,-1.73145,0.901439],120,120,0],
             ["UNIT","B_Soldier_VR_F",0,[-3.125,-0.0751953,0.901439],0,0,2]]]]],
 
-    ["REL","01-Fortf02",0,0,4.98202,0,[],[
+    ["REL","01-Fortf02",0,0,4.5191,0,[],[
         ["BLDG","Land_i_Addon_03mid_V1_F",0,[0,0,0],0,0,1,[
-            ["DECO","Land_CanisterPlastic_F",0,[1.26489,-2.48242,0.886737],0,0,0],
-            ["DECO","Land_PaperBox_open_empty_F",0,[1.75,0.25,0.875],240,240,1],
-            ["DECO","Land_Sack_F",0,[-1.125,-2.375,0.9],0,0,1],
-            ["DECO","Land_Sack_F",0,[-1.75,-2,0.9],120,120,1],
-            ["DECO","Land_SandbagBarricade_01_half_F",0,[-3,-2.75,0.9],360,360,1],
-            ["DECO","Land_SandbagBarricade_01_half_F",0,[-4.08386,-0.125,0.875],90,90,1],
-            ["DECO","Land_SandbagBarricade_01_half_F",0,[3.125,2.625,0.9],180,180,1],
-            ["DECO","Land_SandbagBarricade_01_half_F",0,[4.49072,0.125,0.875],90,90,1],
-            ["DECO","Land_SandbagBarricade_01_hole_F",0,[-4.5,-2,0.875],90,90,1],
-            ["DECO","Land_SandbagBarricade_01_hole_F",0,[4.61572,1.875,0.875],90,90,1],
-            ["DECO","Land_SandbagBarricade_01_hole_F",0,[-4.5,1.75,0.875],270,270,1],
-            ["DECO","Land_SandbagBarricade_01_hole_F",0,[4.49072,-1.875,0.875],270,270,1],
-            ["DECO","Land_VR_Shape_01_cube_1m_F",0,[2.375,-0.875,0.9],150,150,2],
-            ["UNIT","B_Soldier_VR_F",0,[0.762085,-0.442871,0.901439],45,45,0],
-            ["UNIT","B_Soldier_VR_F",0,[3.5,-1.9502,0.901439],90,90,0],
-            ["UNIT","B_Soldier_VR_F",0,[-3.53552,-1.81885,0.901438],255,255,0],
-            ["UNIT","I_Soldier_VR_F",0,[3.125,1.74561,0.901439],0,0,0],
-            ["UNIT","I_Soldier_VR_F",0,[-3.38684,1.83887,0.901439],270,270,0]]]]],
+            ["DECO","Land_CanisterPlastic_F",0,[1.21313,-2.53125,0.90407],0,0,0],
+            ["DECO","Land_PaperBox_open_empty_F",0,[1.21313,0.21875,0.9],240,240,1],
+            ["DECO","Land_Sack_F",0,[-1.375,-2,0.9],120,120,1],
+            ["DECO","Land_Sack_F",0,[-0.75,-2.375,0.9],0,0,1],
+            ["DECO","Land_SandbagBarricade_01_half_F",0,[3.96313,0.09375,0.875],90,90,1],
+            ["DECO","Land_SandbagBarricade_01_half_F",0,[-3.91187,-0.15625,0.75],90,90,1],
+            ["DECO","Land_SandbagBarricade_01_half_F",0,[-2.625,-2.75,0.9],360,360,1],
+            ["DECO","Land_SandbagBarricade_01_half_F",0,[2.625,2.625,0.9],180,180,1],
+            ["DECO","Land_SandbagBarricade_01_hole_F",0,[4.08813,1.84375,0.875],90,90,1],
+            ["DECO","Land_SandbagBarricade_01_hole_F",0,[-4.03687,-2.03125,0.75],90,90,1],
+            ["DECO","Land_SandbagBarricade_01_hole_F",0,[-4.16187,1.71875,0.75],270,270,1],
+            ["DECO","Land_SandbagBarricade_01_hole_F",0,[3.96313,-1.90625,0.875],270,270,1],
+            ["DECO","Land_VR_Shape_01_cube_1m_F",0,[1.96313,-1.03125,0.9],150,150,2],
+            ["UNIT","B_Soldier_VR_F",0,[2.96313,-1.85645,0.901439],90,90,0],
+            ["UNIT","B_Soldier_VR_F",0,[-3.03687,-1.73145,0.901439],255,255,0],
+            ["UNIT","B_Soldier_VR_F",0,[0.0881348,-0.731445,0.901439],45,45,0],
+            ["UNIT","I_Soldier_VR_F",0,[-3.03687,1.76855,0.901439],270,270,0],
+            ["UNIT","I_Soldier_VR_F",0,[2.58813,1.74561,0.901439],0,0,0]]]]],
 
-    ["REL","01-Fortf03",0,0,4.71542,0,[],[
+    ["REL","01-Fortf03",0,0,4.83074,0,[],[
         ["BLDG","Land_i_Addon_03mid_V1_F",0,[0,0,0],0,0,1,[
-            ["DECO","Box_NATO_WpsLaunch_F",0,[-3.625,1.625,0.863758],90,90,0],
-            ["DECO","Box_NATO_WpsLaunch_F",0,[-3.5,1.625,1.17993],75,75,0],
-            ["DECO","Box_NATO_WpsLaunch_F",0,[-3.125,1.625,0.863758],90,90,0],
+            ["DECO","Box_NATO_WpsLaunch_F",0,[-3.78687,1.59375,0.838758],90,90,0,[
+                ["DECO","Box_NATO_WpsLaunch_F",0,[0.0878906,-0.03125,0.340632],75,-15,0]]],
+            ["DECO","Box_NATO_WpsLaunch_F",0,[-3.28687,1.59375,0.838758],90,90,0],
             ["DECO","Land_BagFence_Long_F",0,[4.375,1.375,0.9],270,270,1],
+            ["DECO","Land_BagFence_Long_F",0,[4.375,-1.25,0.9],90,90,1,[
+                ["DECO","Land_BagFence_Long_F",0,[-0.0368652,0.09375,0.754055],270,180,1]]],
+            ["DECO","Land_BagFence_Long_F",0,[-4.41187,1.21875,0.875],270,270,1,[
+                ["DECO","Land_BagFence_Long_F",0,[0,0.125,0.724999],90,-180,1]]],
+            ["DECO","Land_BagFence_Long_F",0,[-3.16187,2.71875,0.875],0,0,1,[
+                ["DECO","Land_BagFence_End_F",0,[-0.84375,-0.0185547,0.740748],0,0,1]]],
             ["DECO","Land_BagFence_Long_F",0,[3,-2.75,0.9],180,180,1,[
                 ["DECO","Land_BagFence_Short_F",0,[0.560547,0.0229492,0.775023],180,0,1]]],
             ["DECO","Land_BagFence_Long_F",0,[3.07031,2.71533,0.9],180,180,1],
-            ["DECO","Land_BagFence_Long_F",0,[4.375,-1.25,0.9],90,90,1,[
-                ["DECO","Land_BagFence_Long_F",0,[0.0444336,0.146484,0.754055],270,180,1]]],
-            ["DECO","Land_BagFence_Long_F",0,[-3,2.75,0.9],0,0,1,[
-                ["DECO","Land_BagFence_End_F",0,[-0.84375,-0.0185547,0.740748],0,0,1]]],
-            ["DECO","Land_BagFence_Long_F",0,[-4.25,-1.375,0.9],90,90,1,[
-                ["DECO","Land_BagFence_End_F",0,[-0.0380859,0.995117,0.724999],90,0,1]]],
-            ["DECO","Land_BagFence_Long_F",0,[-4.25,1.25,0.9],270,270,1,[
-                ["DECO","Land_BagFence_Long_F",0,[-0.0498047,0.101563,0.724999],90,-180,1]]],
-            ["DECO","Land_Pallet_MilBoxes_F",0,[3,-1.375,0.873734],0,0,1],
+            ["DECO","Land_BagFence_Long_F",0,[-4.41187,-1.40625,0.875],90,90,1,[
+                ["DECO","Land_BagFence_End_F",0,[0.0117188,1.01855,0.724999],90,0,1]]],
+            ["DECO","Land_Pallet_MilBoxes_F",0,[2.96313,-1.40625,0.9],0,0,1],
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[3.5,0,0.9],0,0,2],
-            ["UNIT","B_Soldier_VR_F",0,[1.80798,-1.49072,0.901439],120,120,2],
+            ["UNIT","B_Soldier_VR_F",0,[3.42847,2.15283,0.919459],0,0,0],
             ["UNIT","B_Soldier_VR_F",0,[-3.5979,-2.17432,0.901439],195,195,0],
-            ["UNIT","B_Soldier_VR_F",0,[-2.48499,1.49268,0.901439],270,270,2],
-            ["UNIT","B_Soldier_VR_F",0,[3.42834,2.22656,0.901439],0,0,0]]]]],
+            ["UNIT","B_Soldier_VR_F",0,[1.7782,-1.47314,0.901439],120,120,2],
+            ["UNIT","B_Soldier_VR_F",0,[-2.03687,1.39355,0.901439],270,270,2]]]]],
 
 
     ["REL","02-Civil01",0,0,4.64723,0,[],[
@@ -276,68 +276,63 @@
 
     ["REL","02-Fortf01",0,0,4.97808,0,[],[
         ["BLDG","Land_i_Addon_03_V1_F",0,[0,0,0],0,0,1,[
-            ["DECO","Box_Syndicate_Ammo_F",0,[3.5,0.75,0.888295],240,240,0],
-            ["DECO","Box_Syndicate_Ammo_F",0,[3.5,-1.125,0.888295],0,0,0],
-            ["DECO","Box_Syndicate_Wps_F",0,[2.5,-1.25,0.9],0,0,0],
-            ["DECO","Land_BagFence_Long_F",0,[4.375,-0.25,0.9],90,90,1],
-            ["DECO","Land_BagFence_Long_F",0,[-4.25,2.25,0.9],270,270,1],
-            ["DECO","Land_BagFence_Long_F",0,[-3,3.75,0.9],0,0,1],
-            ["DECO","Land_BagFence_Long_F",0,[3,-1.75,0.9],180,180,1],
-            ["DECO","Land_BagFence_Long_F",0,[-4.25,-0.375,0.9],90,90,1],
+            ["DECO","Box_Syndicate_Ammo_F",0,[3.75,0.5,0.888295],270,270,0],
+            ["DECO","Box_Syndicate_Wps_F",0,[1.75,-1.25,0.9],0,0,0],
+            ["DECO","Land_BagFence_Long_F",0,[2.875,-1.75,0.9],180,180,1],
+            ["DECO","Land_BagFence_Long_F",0,[-4.375,-0.375,0.9],90,90,1],
             ["DECO","Land_BagFence_Long_F",0,[4.375,2.375,0.9],270,270,1],
-            ["DECO","Land_BarrelEmpty_grey_F",0,[-2.125,-1.625,0.87983],210,210,0],
-            ["DECO","Land_Basket_F",0,[-1.62756,-1.23145,0.8852],105,105,0],
-            ["DECO","Land_Pallet_MilBoxes_F",0,[-3.125,2.5,0.865404],90,90,1],
-            ["DECO","Land_VR_Shape_01_cube_1m_F",0,[3.5,-0.301758,0.9],0,0,2],
-            ["UNIT","B_Soldier_VR_F",0,[-1.75,3.0498,0.901439],0,0,0],
-            ["UNIT","B_Soldier_VR_F",0,[3.62598,1.58887,0.901439],45,45,2],
-            ["UNIT","B_Soldier_VR_F",0,[-2.19861,-0.981445,0.901439],120,120,0],
-            ["UNIT","B_Soldier_VR_F",0,[-3.125,0.799805,0.901439],0,0,2]]]]],
+            ["DECO","Land_BagFence_Long_F",0,[-4.375,2.375,0.875],270,270,1],
+            ["DECO","Land_BagFence_Long_F",0,[4.375,-0.25,0.9],90,90,1],
+            ["DECO","Land_BarrelEmpty_grey_F",0,[-2,-1.625,0.9],210,210,0],
+            ["DECO","Land_Basket_F",0,[-1.625,-1.125,0.90237],105,105,0],
+            ["DECO","Land_Pallet_MilBoxes_F",0,[-3.125,2,0.9],90,90,1],
+            ["DECO","Land_VR_Shape_01_cube_1m_F",0,[3.25,-0.75,0.9],300,300,2],
+            ["UNIT","B_Soldier_VR_F",0,[3.53271,1.41455,0.901439],45,45,2],
+            ["UNIT","B_Soldier_VR_F",0,[-2.625,-0.825195,0.901439],120,120,0],
+            ["UNIT","B_Soldier_VR_F",0,[-3.125,0.424805,0.901439],0,0,2],
+            ["UNIT","B_Soldier_VR_F",0,[0.75,1.7998,0.901439],210,210,0]]]]],
 
-    ["REL","02-Fortf02",0,0,5.37284,0,[],[
+    ["REL","02-Fortf02",0,0,4.92602,0,[],[
         ["BLDG","Land_i_Addon_03_V1_F",0,[0,0,0],0,0,1,[
-            ["DECO","Land_CanisterPlastic_F",0,[1.26489,-1.60742,0.886737],0,0,0],
-            ["DECO","Land_PaperBox_open_empty_F",0,[-1.25,2,0.9],90,90,1],
-            ["DECO","Land_Sack_F",0,[-1.625,-0.25,0.9],0,0,1],
-            ["DECO","Land_Sack_F",0,[-1.75,-1,0.9],120,120,1],
-            ["DECO","Land_SandbagBarricade_01_half_F",0,[-3,-1.75,0.9],360,360,1],
-            ["DECO","Land_SandbagBarricade_01_half_F",0,[-4.08386,0.875,0.875],90,90,1],
-            ["DECO","Land_SandbagBarricade_01_half_F",0,[3.125,3.5,0.9],180,180,1],
-            ["DECO","Land_SandbagBarricade_01_half_F",0,[4.49072,1,0.875],90,90,1],
-            ["DECO","Land_SandbagBarricade_01_hole_F",0,[-4.5,-1,0.875],90,90,1],
-            ["DECO","Land_SandbagBarricade_01_hole_F",0,[4.61572,2.75,0.875],90,90,1],
-            ["DECO","Land_SandbagBarricade_01_hole_F",0,[-4.5,2.75,0.875],270,270,1],
-            ["DECO","Land_SandbagBarricade_01_hole_F",0,[4.49072,-1,0.875],270,270,1],
-            ["DECO","Land_VR_Shape_01_cube_1m_F",0,[3.375,1.125,0.9],270,270,2],
-            ["UNIT","B_Soldier_VR_F",0,[-1.25,3.22803,0.901439],165,165,0],
-            ["UNIT","B_Soldier_VR_F",0,[3.5,-1.0752,0.901439],90,90,0],
-            ["UNIT","B_Soldier_VR_F",0,[-3.53552,-0.818848,0.901439],255,255,0],
-            ["UNIT","I_Soldier_VR_F",0,[3.125,2.62061,0.901439],0,0,0],
-            ["UNIT","I_Soldier_VR_F",0,[-3.38684,2.83887,0.901438],270,270,0]]]]],
+            ["DECO","Land_CanisterPlastic_F",0,[1.5,-0.5,0.90407],300,300,0],
+            ["DECO","Land_PaperBox_open_empty_F",0,[-1.125,1.91602,0.9],90,90,1],
+            ["DECO","Land_Sack_F",0,[-1.625,0.625,0.9],0,0,1],
+            ["DECO","Land_Sack_F",0,[-1.625,-0.125,0.9],120,120,1],
+            ["DECO","Land_SandbagBarricade_01_half_F",0,[2.5,-1.375,0.9],180,180,1],
+            ["DECO","Land_SandbagBarricade_01_half_F",0,[3.875,1.125,0.781069],90,90,1],
+            ["DECO","Land_SandbagBarricade_01_half_F",0,[-2.5,-1.375,0.9],360,360,1],
+            ["DECO","Land_SandbagBarricade_01_half_F",0,[-3.75,1.125,0.9],90,90,1],
+            ["DECO","Land_SandbagBarricade_01_hole_F",0,[4,2.75,0.781069],90,90,1],
+            ["DECO","Land_SandbagBarricade_01_hole_F",0,[-4,-0.75,0.9],90,90,1],
+            ["DECO","Land_SandbagBarricade_01_hole_F",0,[-4,2.875,0.9],270,270,1],
+            ["DECO","Land_SandbagBarricade_01_hole_F",0,[3.875,-0.75,0.875],270,270,1],
+            ["DECO","Land_VR_Shape_01_cube_1m_F",0,[2.5,1.625,0.9],300,300,2],
+            ["UNIT","B_Soldier_VR_F",0,[-1.375,3.14404,0.901439],165,165,0],
+            ["UNIT","B_Soldier_VR_F",0,[2.375,-0.325195,0.901439],90,90,0],
+            ["UNIT","B_Soldier_VR_F",0,[-2.625,-0.200195,0.901439],255,255,0],
+            ["UNIT","I_Soldier_VR_F",0,[3,2.9248,0.901439],75,75,0],
+            ["UNIT","I_Soldier_VR_F",0,[-3,2.7998,0.901439],270,270,0]]]]],
 
-    ["REL","02-Fortf03",0,0,5.40771,0,[],[
+    ["REL","02-Fortf03",0,0,5.03891,0,[],[
         ["BLDG","Land_i_Addon_03_V1_F",0,[0,0,0],0,0,1,[
-            ["DECO","Box_NATO_WpsLaunch_F",0,[-3.64001,2.68213,0.863758],90,90,0],
-            ["DECO","Box_NATO_WpsLaunch_F",0,[-3.51501,2.68213,1.17993],75,75,0],
-            ["DECO","Box_NATO_WpsLaunch_F",0,[-3.14001,2.68213,0.863758],90,90,0],
-            ["DECO","Land_BagFence_Long_F",0,[4.35999,2.43213,0.9],270,270,1],
-            ["DECO","Land_BagFence_Long_F",0,[2.98499,-1.69287,0.9],180,180,1,[
-                ["DECO","Land_BagFence_Short_F",0,[0.560547,0.0229492,0.775023],180,0,1]]],
-            ["DECO","Land_BagFence_Long_F",0,[3.0553,3.77246,0.9],180,180,1],
-            ["DECO","Land_BagFence_Long_F",0,[4.35999,-0.192871,0.9],90,90,1,[
-                ["DECO","Land_BagFence_Long_F",0,[0.0444336,0.146484,0.754055],270,180,1]]],
-            ["DECO","Land_BagFence_Long_F",0,[-3.01501,3.80713,0.9],0,0,1,[
-                ["DECO","Land_BagFence_End_F",0,[-0.84375,-0.0185547,0.740748],0,0,1]]],
-            ["DECO","Land_BagFence_Long_F",0,[-4.26501,-0.317871,0.9],90,90,1,[
-                ["DECO","Land_BagFence_End_F",0,[-0.0380859,0.995117,0.724999],90,0,1]]],
-            ["DECO","Land_BagFence_Long_F",0,[-4.26501,2.30713,0.9],270,270,1,[
-                ["DECO","Land_BagFence_Long_F",0,[-0.0498047,0.101563,0.724999],90,-180,1]]],
-            ["DECO","Land_Pallet_MilBoxes_F",0,[2.98499,-0.317871,0.873734],0,0,1],
-            ["DECO","Land_VR_Shape_01_cube_1m_F",0,[3.48499,1.05713,0.9],0,0,2],
-            ["UNIT","B_Soldier_VR_F",0,[1.625,-0.0751953,0.901439],120,120,2],
-            ["UNIT","B_Soldier_VR_F",0,[-3.61292,-1.11719,0.901439],195,195,0],
-            ["UNIT","B_Soldier_VR_F",0,[-2.5,2.5498,0.901439],270,270,2],
-            ["UNIT","B_Soldier_VR_F",0,[3.41345,3.20996,0.919459],0,0,0]]]]],
+            ["DECO","Box_NATO_WpsLaunch_F",0,[-3.75024,2.375,1.22588],75,75,0],
+            ["DECO","Box_NATO_WpsLaunch_F",0,[-3.875,2.375,0.863758],90,90,0],
+            ["DECO","Box_NATO_WpsLaunch_F",0,[-3.51843,2.375,0.863758],90,90,0],
+            ["DECO","Land_BagFence_Long_F",0,[2.875,-1.75,0.9],180,180,1,[
+                ["DECO","Land_BagFence_Short_F",0,[0.722412,0.0541992,0.745969],180,0,1]]],
+            ["DECO","Land_BagFence_Long_F",0,[-2.75,-1.75,0.9],0,0,1],
+            ["DECO","Land_BagFence_Long_F",0,[-4.375,2.125,0.9],90,90,1,[
+                ["DECO","Land_BagFence_Long_F",0,[0,-0.125,0.85],270,180,1]]],
+            ["DECO","Land_BagFence_Long_F",0,[4.375,2.5,0.875],270,270,1],
+            ["DECO","Land_BagFence_Long_F",0,[4.375,-0.5,0.9],90,90,1,[
+                ["DECO","Land_BagFence_Long_F",0,[0,0.375,0.725],270,180,1]]],
+            ["DECO","Land_BagFence_Long_F",0,[-4.375,-0.375,0.9],90,90,1],
+            ["DECO","Land_Pallet_MilBoxes_F",0,[2.875,-0.5,0.9],0,0,1],
+            ["DECO","Land_VR_Shape_01_cube_1m_F",0,[3.375,1.125,0.9],0,0,2],
+            ["UNIT","B_Soldier_VR_F",0,[-3.375,-1.2002,0.901439],195,195,0],
+            ["UNIT","B_Soldier_VR_F",0,[-2.25,2.2998,0.901439],270,270,2],
+            ["UNIT","B_Soldier_VR_F",0,[1.625,-0.450195,0.901439],120,120,2],
+            ["UNIT","B_Soldier_VR_F",0,[3.25,2.9248,0.901439],0,0,0]]]]],
 
 
     ["REL","03-Civil01",0,0,4.68778,0,[],[
@@ -456,64 +451,63 @@
             ["UNIT","B_Soldier_VR_F",0,[-1.5,-1.8252,0.901439],210,210,0],
             ["UNIT","B_Soldier_VR_F",0,[4.375,2.5498,0.901439],90,90,0]]]]],
 
-    ["REL","03-Fortf01",0,0,4.80885,0,[],[
+    ["REL","03-Fortf01",0,0,4.92166,0,[],[
         ["BLDG","Land_i_Addon_04_V1_F",0,[0,0,0],0,0,1,[
             ["DECO","Box_Syndicate_Ammo_F",0,[-3.625,-1.375,0.888295],90,90,0],
             ["DECO","Box_Syndicate_Ammo_F",0,[-0.749756,-1.37451,0.888295],330,330,0],
             ["DECO","Box_Syndicate_Wps_F",0,[-3.74976,-0.375,0.9],90,90,0],
-            ["DECO","Land_BagFence_Long_F",0,[-4.25,2.25,0.9],270,270,1],
-            ["DECO","Land_BagFence_Long_F",0,[-4.25,-0.375,0.9],90,90,1],
-            ["DECO","Land_BagFence_Long_F",0,[-1.75,-2.25,0.9],180,180,1],
+            ["DECO","Land_BagFence_Long_F",0,[-4.5509,-0.750977,0.9],90,90,1],
             ["DECO","Land_BagFence_Long_F",0,[0.875122,-2.25049,0.9],0.000122943,0.000122943,1],
+            ["DECO","Land_BagFence_Long_F",0,[-1.75,-2.25,0.9],180,180,1],
+            ["DECO","Land_BagFence_Long_F",0,[-4.5509,1.87402,0.9],270,270,1],
             ["DECO","Land_BarrelWater_grey_F",0,[-2.875,-1.625,0.9],210,210,0],
             ["DECO","Land_Basket_F",0,[0.25,-1.625,0.90237],105,105,0],
-            ["DECO","Land_Pallet_MilBoxes_F",0,[-3.125,1.75,0.865404],90,90,1],
+            ["DECO","Land_Pallet_MilBoxes_F",0,[-3.1759,1.74902,0.9],90,90,1],
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[-1.80176,-1.375,0.9],90,90,2],
-            ["UNIT","B_Soldier_VR_F",0,[1.87439,-1.38281,0.901439],135,135,2],
-            ["UNIT","B_Soldier_VR_F",0,[-1.875,2.5498,0.901439],150,150,0],
+            ["UNIT","B_Soldier_VR_F",0,[4.375,1.6748,0.901439],150,150,0],
+            ["UNIT","B_Soldier_VR_F",0,[-3,-0.950195,0.935681],210,210,0],
+            ["UNIT","B_Soldier_VR_F",0,[1.69995,-1.41602,0.901439],135,135,2],
             ["UNIT","B_Soldier_VR_F",0,[-3.125,0.0498047,0.901439],0,0,2],
-            ["UNIT","B_Soldier_VR_F",0,[-3,-0.950195,0.935682],210,210,0],
-            ["UNIT","B_Soldier_VR_F",0,[4.375,1.6748,0.901439],150,150,0]]]]],
+            ["UNIT","B_Soldier_VR_F",0,[-1.875,2.5498,0.901439],150,150,0]]]]],
 
-    ["REL","03-Fortf02",0,0,5.27376,0,[],[
+    ["REL","03-Fortf02",0,0,5.1044,0,[],[
         ["BLDG","Land_i_Addon_04_V1_F",0,[0,0,0],0,0,1,[
             ["DECO","Land_CanisterPlastic_F",0,[-0.5,-0.375,0.90407],0,0,0],
             ["DECO","Land_PaperBox_open_empty_F",0,[-1.5,0.875,0.9],90,90,1],
-            ["DECO","Land_Sack_F",0,[-1.25,-1.875,0.9],120,120,1],
             ["DECO","Land_Sack_F",0,[-0.5,-1.875,0.9],0,0,1],
-            ["DECO","Land_SandbagBarricade_01_half_F",0,[2.01721,-0.375,0.9],270,270,1],
-            ["DECO","Land_SandbagBarricade_01_half_F",0,[-4.08386,0.875,0.875],90,90,1],
-            ["DECO","Land_SandbagBarricade_01_half_F",0,[-3,-1.75,0.9],360,360,1],
-            ["DECO","Land_SandbagBarricade_01_hole_F",0,[4.625,2.375,0.875],90,90,1],
-            ["DECO","Land_SandbagBarricade_01_hole_F",0,[-4.5,2.75,0.875],270,270,1],
-            ["DECO","Land_SandbagBarricade_01_hole_F",0,[-4.5,-1,0.875],90,90,1],
-            ["DECO","Land_SandbagBarricade_01_hole_F",0,[1.375,-1.91357,0.9],1.36604e-005,1.36604e-005,1],
+            ["DECO","Land_Sack_F",0,[-1.25,-1.875,0.9],120,120,1],
+            ["DECO","Land_SandbagBarricade_01_half_F",0,[-2.8009,-1.75098,0.9],360,360,1],
+            ["DECO","Land_SandbagBarricade_01_half_F",0,[1.9491,-0.250977,0.75],270,270,1],
+            ["DECO","Land_SandbagBarricade_01_half_F",0,[-4.0509,0.874023,0.9],90,90,1],
+            ["DECO","Land_SandbagBarricade_01_hole_F",0,[-4.3009,2.74902,0.9],270,270,1],
+            ["DECO","Land_SandbagBarricade_01_hole_F",0,[1.375,-1.78857,0.9],1.36604e-005,1.36604e-005,1],
+            ["DECO","Land_SandbagBarricade_01_hole_F",0,[-4.3009,-1.00098,0.9],90,90,1],
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[-0.125,0.875,0.9],270,270,2],
-            ["UNIT","B_Soldier_VR_F",0,[-1.5,2.10352,0.901439],165,165,0],
-            ["UNIT","B_Soldier_VR_F",0,[1.125,-0.950195,0.901439],135,135,0],
-            ["UNIT","B_Soldier_VR_F",0,[-3.53552,-0.818848,0.901439],255,255,0],
-            ["UNIT","I_Soldier_VR_F",0,[3.625,2.5498,0.901439],0,0,0],
-            ["UNIT","I_Soldier_VR_F",0,[-3.38684,2.83887,0.901439],270,270,0]]]]],
+            ["UNIT","B_Soldier_VR_F",0,[-3.4259,-0.826172,0.901439],255,255,0],
+            ["UNIT","B_Soldier_VR_F",0,[0.574097,-0.576172,0.901439],135,135,0],
+            ["UNIT","B_Soldier_VR_F",0,[-1.5,2.10303,0.901439],165,165,0],
+            ["UNIT","I_Soldier_VR_F",0,[-3.1759,3.04883,0.901439],270,270,0],
+            ["UNIT","I_Soldier_VR_F",0,[1.9491,1.79883,0.901439],0,0,0]]]]],
 
     ["REL","03-Fortf03",0,0,5.14326,0,[],[
         ["BLDG","Land_i_Addon_04_V1_F",0,[0,0,0],0,0,1,[
             ["DECO","Box_NATO_WpsLaunch_F",0,[-3.125,1.625,0.863758],90,90,0],
-            ["DECO","Box_NATO_WpsLaunch_F",0,[-3.5,1.625,1.17993],75,75,0],
+            ["DECO","Box_NATO_WpsLaunch_F",0,[-3.5,1.625,1.22188],75,75,0],
             ["DECO","Box_NATO_WpsLaunch_F",0,[-3.625,1.625,0.863758],90,90,0],
-            ["DECO","Land_BagFence_Long_F",0,[0.75,-2.125,0.9],180,180,1,[
-                ["DECO","Land_BagFence_Short_F",0,[0.560547,0.0229492,0.775023],180,0,1]]],
+            ["DECO","Land_BagFence_Long_F",0,[-4.625,2.125,0.9],270,270,1],
+            ["DECO","Land_BagFence_Long_F",0,[-4.625,-0.5,0.9],90,90,1],
             ["DECO","Land_BagFence_Long_F",0,[-3.23499,-2.18213,0.9],5.91957e-006,5.91957e-006,1],
             ["DECO","Land_BagFence_Long_F",0,[4.625,2.25,0.9],270,270,1],
-            ["DECO","Land_BagFence_Long_F",0,[-4.625,2.125,0.9],270,270,1],
-            ["DECO","Land_BagFence_Long_F",0,[2.125,-0.625,0.9],90,90,1,[
-                ["DECO","Land_BagFence_Long_F",0,[0.0444336,0.146484,0.754055],270,180,1]]],
-            ["DECO","Land_BagFence_Long_F",0,[-4.625,-0.5,0.9],90,90,1],
-            ["DECO","Land_Pallet_MilBoxes_F",0,[0.75,-0.75,0.873734],0,0,1],
-            ["DECO","Land_VR_Shape_01_cube_1m_F",0,[1.25,0.625,0.9],0,0,2],
-            ["UNIT","B_Soldier_VR_F",0,[-2.48499,1.49268,0.901439],270,270,2],
+            ["DECO","Land_BagFence_Long_F",0,[0.75,-2.125,0.9],180,180,1,[
+                ["DECO","Land_BagFence_Short_F",0,[0.560547,0.0229492,0.775023],180,0,1]]],
+            ["DECO","Land_BagFence_Long_F",0,[2.1991,-0.625977,0.9],90,90,1,[
+                ["DECO","Land_BagFence_Long_F",0,[0,0.125,0.754055],270,180,1]]],
+            ["DECO","Land_Pallet_MilBoxes_F",0,[0.699097,-0.750977,0.9],0,0,1],
+            ["DECO","Land_VR_Shape_01_cube_1m_F",0,[1.1991,0.749023,0.9],0,0,2],
             ["UNIT","B_Soldier_VR_F",0,[-0.609985,-0.507324,0.901439],120,120,2],
+            ["UNIT","B_Soldier_VR_F",0,[3.75,2.5498,0.901439],120,120,0],
             ["UNIT","B_Soldier_VR_F",0,[-3.61292,-1.11719,0.901439],195,195,0],
-            ["UNIT","B_Soldier_VR_F",0,[3.75,2.5498,0.901439],120,120,0]]]]]
+            ["UNIT","B_Soldier_VR_F",0,[-2.48499,1.49268,0.901439],270,270,2]]]]]
 
     /*
         Land_u_Addon_01_V1_F is unfortunately needs to be skipped
