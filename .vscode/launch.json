@@ -9,7 +9,7 @@
             "type": "sqf",
             "request": "launch",
             "missionRoot": "${workspaceFolder}",
-            "scriptPrefix": "D:\\Documents\\Arma 3 - Other Profiles\\Asmo\\mpmissions\\NWGS.Stratis\\mission.sqm"
+            "scriptPrefix": "d:\\documents\\arma 3 - other profiles\\asmo\\mpmissions\\nwgs.stratis"
         }
     ]
 }
