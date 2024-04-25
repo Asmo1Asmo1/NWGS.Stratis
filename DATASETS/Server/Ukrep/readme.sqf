@@ -14,6 +14,9 @@ setAccTime 2;
 //Gather REL composition (first number is a radius):
 19 call NWG_UKREP_GatherUkrepREL
 
+//Test zaselenie:
+[300,"NATO"] call NWG_UKREP_ZASELENIE_Test
+
 
 //Placeholders
 /*Building*/
