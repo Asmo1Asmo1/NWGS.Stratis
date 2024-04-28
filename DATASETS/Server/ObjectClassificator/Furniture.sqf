@@ -17,7 +17,6 @@
         "Land_WoodenTable_small_F",
         "Land_TableSmall_01_F",
         "Land_TableBig_01_F",
-        "Land_Bench_F",
         "Land_Workbench_01_F",
         "Land_WoodenCounter_01_F",
         "Land_TableDesk_F",
