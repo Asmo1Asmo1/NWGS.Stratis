@@ -183,8 +183,8 @@
     ["REL","01-Command",0,0,7.32504,0,[],[
         ["BLDG","CamoNet_BLUFOR_big_F",0,[0,0,0],0,0,1],
         ["FURN","Land_CampingTable_small_F",0,[2.875,-0.75,-0.00260353],0,0,0],
-        ["FURN","Land_PortableDesk_01_sand_F",0,[5.75,1.625,-7.24792e-005],90.0007,90.0007,2],
-        ["FURN","Land_PortableDesk_01_sand_F",0,[3.75,4.25,-5.19753e-005],0.000656191,0.000656191,2],
+        ["FURN","Land_PortableDesk_01_sand_F",0,[5.75,1.625,-7.24792e-005],90.0007,90.0007,0],
+        ["FURN","Land_PortableDesk_01_sand_F",0,[3.75,4.25,-5.19753e-005],0.000656191,0.000656191,0],
         ["DECO","Land_CampingChair_V2_F",0,[0.125,2.75,0.00499964],120,120,0],
         ["DECO","Land_CampingChair_V2_F",0,[-2.75,0.125,0.00499964],165,165,0],
         ["DECO","Land_CampingChair_V2_F",0,[-5,0.75,0.00499964],240,240,0],
@@ -460,8 +460,8 @@
 
     ["REL","02-Command",0,0,5.78503,0,[],[
         ["BLDG","CamoNet_BLUFOR_open_F",0,[0,0,0],0,0,1],
-        ["FURN","Land_PortableDesk_01_sand_F",0,[-1.875,3,-3.05176e-005],360,360,2],
-        ["FURN","Land_PortableDesk_01_sand_F",0,[-4.49988,1,-4.43459e-005],270,270,2],
+        ["FURN","Land_PortableDesk_01_sand_F",0,[-1.875,3,-3.05176e-005],360,360,0],
+        ["FURN","Land_PortableDesk_01_sand_F",0,[-4.49988,1,-4.43459e-005],270,270,0],
         ["DECO","Land_CampingChair_V2_F",0,[-0.0767822,1.37842,0.00499964],300,300,0],
         ["DECO","Land_CampingChair_V2_F",0,[0.506836,-0.882813,0.00499964],225,225,0],
         ["DECO","Land_CampingChair_V2_F",0,[0.918701,0.653809,0.00499964],255,255,0],
@@ -659,7 +659,7 @@
     ["REL","03-Command",0,0,5.59308,0,[],[
         ["BLDG","CamoNet_BLUFOR_F",0,[0,0,0],0,0,1],
         ["FURN","Land_CampingTable_F",0,[-2.5,1.5,-1.19209e-005],180,180,0],
-        ["FURN","Land_PortableDesk_01_sand_F",0,[-4.36414,-0.270996,-3.95775e-005],270,270,2],
+        ["FURN","Land_PortableDesk_01_sand_F",0,[-4.36414,-0.270996,-3.95775e-005],270,270,0],
         ["DECO","Land_CampingChair_V2_F",0,[2.0752,-1.59961,0.00499964],195,195,0],
         ["DECO","Land_CampingChair_V2_F",0,[4.63586,-1.271,0.00499964],165,165,0],
         ["DECO","Land_CampingChair_V2_F",0,[0.749512,-0.804199,0.00499964],240,240,0],

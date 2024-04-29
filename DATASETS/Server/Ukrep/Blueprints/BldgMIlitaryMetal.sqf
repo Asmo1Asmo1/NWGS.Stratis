@@ -9,9 +9,9 @@
             ["FURN","Land_CampingTable_small_F",0,[5.25,-3.875,15.362],0,0,0],
             ["FURN","Land_Metal_rack_Tall_F",0,[-0.246338,2.11133,12.753],90,90,0],
             ["FURN","Land_Metal_rack_Tall_F",0,[1.12866,0.236328,12.7646],0,0,0],
-            ["FURN","Land_PortableDesk_01_sand_F",0,[-4.5,-0.875,12.7637],180.005,180.005,2],
-            ["FURN","Land_PortableDesk_01_sand_F",0,[-5.375,1.75,12.7636],269.997,269.997,2],
-            ["FURN","Land_PortableDesk_01_sand_F",0,[5.5,1.625,15.3637],90.0033,90.0033,2],
+            ["FURN","Land_PortableDesk_01_sand_F",0,[-4.5,-0.875,12.7637],180.005,180.005,0],
+            ["FURN","Land_PortableDesk_01_sand_F",0,[-5.375,1.75,12.7636],269.997,269.997,0],
+            ["FURN","Land_PortableDesk_01_sand_F",0,[5.5,1.625,15.3637],90.0033,90.0033,0],
             ["FURN","Land_Sun_chair_F",0,[3.8927,0.185059,17.8845],135,135,0],
             ["FURN","Land_Sun_chair_F",0,[2.875,-1.5,17.8845],105,105,0],
             ["DECO","B_CargoNet_01_ammo_F",0,[5,4.5,12.7655],0,0,0],
@@ -95,7 +95,7 @@
             ["FURN","Land_CampingTable_small_F",0,[0.870605,2.27588,17.962],270,270,0],
             ["FURN","Land_Metal_rack_F",0,[2.375,0.25,12.7646],0,0,0],
             ["FURN","Land_Metal_rack_Tall_F",0,[0.628662,-4.13867,12.7646],180,180,0],
-            ["FURN","Land_PortableDesk_01_sand_F",0,[5.625,1.7085,15.3636],90.0043,90.0043,2],
+            ["FURN","Land_PortableDesk_01_sand_F",0,[5.625,1.7085,15.3636],90.0043,90.0043,0],
             ["FURN","Land_MetalCase_01_large_F",0,[-1.25,-5,12.8632],90,90,0],
             ["DECO","Land_cargo_addon02_V2_F",0,[3.375,0.375,19.375],270,270,1],
             ["DECO","B_CargoNet_01_ammo_F",0,[-2.125,-3.72852,17.8793],0,0,0],
@@ -180,7 +180,7 @@
             ["FURN","Land_Metal_rack_Tall_F",0,[-5.49634,2.98633,12.7646],270,270,0],
             ["FURN","Land_Metal_wooden_rack_F",0,[-2.375,-4.875,12.874],0,0,0],
             ["FURN","Land_Metal_wooden_rack_F",0,[-1.125,-4.875,12.874],0,0,0],
-            ["FURN","Land_PortableDesk_01_sand_F",0,[-0.875,4,15.3637],90.0007,90.0007,2],
+            ["FURN","Land_PortableDesk_01_sand_F",0,[-0.875,4,15.3637],90.0007,90.0007,0],
             ["DECO","Fridge_01_closed_F",0,[-0.946045,-2.96924,15.3694],120,120,0],
             ["DECO","Land_Ammobox_rounds_F",0,[-5.12488,-3.92432,15.3593],37,37,0],
             ["DECO","Land_Ammobox_rounds_F",0,[-5.51746,-3.87744,15.3593],80,80,0],
@@ -267,7 +267,7 @@
         ["BLDG","Land_Cargo_Tower_V3_F",0,[0,0,0],0,0,2,[
             ["FURN","Land_CampingTable_F",0,[5.5,1.625,15.3646],270,270,0],
             ["FURN","Land_CampingTable_small_F",0,[5.23657,-3.58252,15.362],0,0,0],
-            ["FURN","Land_PortableDesk_01_sand_F",0,[2,4.75,15.3637],359.998,359.998,2],
+            ["FURN","Land_PortableDesk_01_sand_F",0,[2,4.75,15.3637],359.998,359.998,0],
             ["FURN","Land_ShelvesWooden_F",0,[0.75,0.125,12.7745],90,90,0],
             ["FURN","Land_ShelvesWooden_F",0,[-0.25,1.375,12.7745],180,180,0],
             ["FURN","Land_WoodenTable_large_F",0,[1.43347,-3.66357,12.7378],270,270,0],
@@ -646,7 +646,7 @@
         ["BLDG","Land_Cargo_House_V3_F",0,[0,0,0],0,0,2,[
             ["FURN","Land_CampingTable_F",0,[-2.5,1,0.5928],90,90,0],
             ["FURN","Land_CampingTable_small_F",0,[1.875,3.75,0.726245],180,180,0],
-            ["FURN","Land_PortableDesk_01_sand_F",0,[-0.125,3.625,0.727855],359.998,359.998,2],
+            ["FURN","Land_PortableDesk_01_sand_F",0,[-0.125,3.625,0.727855],359.998,359.998,0],
             ["DECO","Land_BatteryPack_01_closed_sand_F",0,[-2.375,3.25,0.728591],0,0,0,[
                 ["DECO","Land_BatteryPack_01_closed_sand_F",0,[0,0,0.297415],0,0,0]]],
             ["DECO","Land_MultiScreenComputer_01_closed_sand_F",0,[-1.875,3.875,0.72893],330,330,0],
@@ -798,7 +798,7 @@
             ["FURN","Land_CampingTable_white_F",0,[2.34009,0.676758,0.581143],90,90,0],
             ["FURN","Land_CampingTable_white_F",0,[2.36914,3.1709,0.581143],90,90,0],
             ["FURN","Land_Metal_rack_Tall_F",0,[2.87866,-5.12012,0.601674],180,180,0],
-            ["FURN","Land_PortableDesk_01_sand_F",0,[5.25,5.875,0.721095],359.998,359.998,2],
+            ["FURN","Land_PortableDesk_01_sand_F",0,[5.25,5.875,0.721095],359.998,359.998,0],
             ["FURN","Land_ShelvesWooden_F",0,[3.94385,-5,0.611499],270,270,0],
             ["FURN","Land_MetalCase_01_large_F",0,[-2.875,-6.25,0.721034],270,270,0],
             ["FURN","Land_MetalCase_01_large_F",0,[1.25,3.5,0.600619],180,180,0],
@@ -882,7 +882,7 @@
     ["REL","04-Fortf03",0,0,9.05625,0,[],[
         ["BLDG","Land_Cargo_HQ_V3_F",0,[0,0,0],0,0,2,[
             ["FURN","Land_CampingTable_F",0,[0.125,4,0.601662],180,180,0],
-            ["FURN","Land_PortableDesk_01_sand_F",0,[-2.75,4,0.600702],359.998,359.998,2],
+            ["FURN","Land_PortableDesk_01_sand_F",0,[-2.75,4,0.600702],359.998,359.998,0],
             ["DECO","Flag_NATO_F",0,[1.375,-3.5,3.127],180,180,2],
             ["DECO","Land_BatteryPack_01_closed_sand_F",0,[8.125,2.625,0.721835],0,0,0],
             ["DECO","Land_BatteryPack_01_closed_sand_F",0,[8.42627,2.61084,0.721835],0,0,0],
@@ -1043,10 +1043,10 @@
 
     ["REL","04-Fortf05",0,0,8.75089,0,[],[
         ["BLDG","Land_Cargo_HQ_V3_F",0,[0,0,0],0,0,2,[
-            ["FURN","Land_PortableDesk_01_sand_F",0,[-1.25,3.875,0.601999],0,0,2],
-            ["FURN","Land_PortableDesk_01_sand_F",0,[-3.875,3.125,0.602],270,270,2],
-            ["FURN","Land_PortableDesk_01_sand_F",0,[3.125,0.5,0.600668],180,180,2],
-            ["FURN","Land_PortableDesk_01_sand_F",0,[0.25,0.5,0.600683],180,180,2],
+            ["FURN","Land_PortableDesk_01_sand_F",0,[-1.25,3.875,0.601999],0,0,0],
+            ["FURN","Land_PortableDesk_01_sand_F",0,[-3.875,3.125,0.602],270,270,0],
+            ["FURN","Land_PortableDesk_01_sand_F",0,[3.125,0.5,0.600668],180,180,0],
+            ["FURN","Land_PortableDesk_01_sand_F",0,[0.25,0.5,0.600683],180,180,0],
             ["DECO","Land_MapBoard_01_Wall_Altis_F",0,[7.5,0.75,1.375],90,90,1],
             ["DECO","Land_Portable_generator_F",0,[-3,-5.875,0.721893],345,345,0],
             ["DECO","Land_PortableCabinet_01_7drawers_sand_F",0,[0,-4.5,0.60068],46.995,46.995,2],

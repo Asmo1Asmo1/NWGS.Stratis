@@ -46,7 +46,7 @@
 
     ["REL","01-Fortf03",0,0,4.7263,0,[],[
         ["BLDG","Land_BagBunker_Large_F",0,[0,0,0],0,0,1,[
-            ["FURN","Land_PortableDesk_01_sand_F",0,[0.294678,0.375,0.177577],270.01,270.01,2],
+            ["FURN","Land_PortableDesk_01_sand_F",0,[0.294678,0.375,0.177577],270.01,270.01,0],
             ["FURN","Land_WoodenTable_small_F",0,[-0.875,0.5,0.183414],180,180,0],
             ["DECO","Land_BarrelWater_grey_F",0,[-0.5,-1.25,0.17834],0,0,0],
             ["DECO","Land_Basket_F",0,[-0.75,-0.625,0.18071],60,60,0],
