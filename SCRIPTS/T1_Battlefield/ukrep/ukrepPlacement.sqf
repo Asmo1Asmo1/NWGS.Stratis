@@ -13,8 +13,6 @@ NWG_UKREP_Settings = createHashMapFromArray [
     ["BLUEPRINTS_CATALOGUE_ADDRESS","DATASETS\Server\Ukrep\Blueprints"],//Address of the catalogue for blueprints
     ["FACTIONS_CATALOGUE_ADDRESS","DATASETS\Server\Ukrep\Factions"],//Address of the catalogue for factions
 
-    ["OPTIMIZE_OBJECTS_ON_CREATE",true],//If set to true, script will validate and modify the original object payload for buildings/furniture/decor
-
     ["DEFAULT_GROUP_SIDE",west],//If group rules not provided - place under this side
     ["DEFAULT_GROUP_DYNASIM",true],//If group rules not provided - place with this dynamic simulation setting
 
@@ -690,32 +688,46 @@ NWG_UKREP_CreateObject = {
     private _pos = _this#BP_POS;
     private _dir = _this#BP_DIR;
     private _buildingId = _this param [BP_BUILDINGID,false];
-    (_this#BP_PAYLOAD) params [["_canSimple",false],["_isSimple",false],["_isSimOn",false],["_isDynaSimOn",false],["_isDmgAllowed",false],["_isInteractable",false]];
-
-    //Optimize settings
-    if (NWG_UKREP_Settings get "OPTIMIZE_OBJECTS_ON_CREATE") then {
-        if (_canSimple && !_isInteractable) then {_isSimple = true};
-        if (!_isInteractable) then {_isSimOn = false; _isDynaSimOn = false};
-        if (_isSimOn && !_isDynaSimOn) then {_isDynaSimOn = true};
-    };
 
     //Create
-    private _obj = if (_isSimple)
-        then {createSimpleObject [_classname,_pos]}
-        else {createVehicle [_classname,(ASLToATL _pos),[],0,"CAN_COLLIDE"]};
-    _obj setDir _dir;
-    _obj setPosASL _pos;//Fix postion distortion after setDir for certain objects (buildings especially)
-
-    //Apply settings
-    if (!_isSimple) then {
-        if (!_isSimOn) then {_obj enableSimulationGlobal false};
-        if (_isDynaSimOn) then {_obj enableDynamicSimulation true};
-        if (!_isDmgAllowed) then {_obj allowDamage false};
+    private _object = switch (_this#BP_PAYLOAD) do {
+        /*Simple*/
+        case OBJ_SIMPLE: {
+            private _obj = createSimpleObject [_classname,_pos];
+            _obj setDir _dir;
+            _obj setPosASL _pos;//Fix postion distortion after setDir
+            _obj
+        };
+        /*Static*/
+        case OBJ_STATIC: {
+            private _obj = createVehicle [_classname,(ASLToATL _pos),[],0,"CAN_COLLIDE"];
+            _obj setDir _dir;
+            _obj setPosASL _pos;
+            _obj enableSimulationGlobal false;
+            _obj allowDamage false;
+            _obj
+        };
+        /*Interactable*/
+        case OBJ_INTERACTABLE: {
+            private _obj = createVehicle [_classname,(ASLToATL _pos),[],0,"CAN_COLLIDE"];
+            _obj setDir _dir;
+            _obj setPosASL _pos;
+            _obj enableDynamicSimulation true;
+            _obj
+        };
+        /*Error*/
+        default {
+            (format ["NWG_UKREP_CreateObject: Unknown object payload %1",_this]) call NWG_fnc_logError;
+            private _obj = createVehicle [_classname,(ASLToATL _pos),[],0,"CAN_COLLIDE"];
+            _obj setDir _dir;
+            _obj setPosASL _pos;
+            _obj
+        };
     };
 
     //Sign
-    if (_buildingId isNotEqualTo false) then {[_obj,_buildingId] call NWG_UKREP_BID_SetID};
+    if (_buildingId isNotEqualTo false) then {[_object,_buildingId] call NWG_UKREP_BID_SetID};
 
     //return
-    _obj
+    _object
 };
