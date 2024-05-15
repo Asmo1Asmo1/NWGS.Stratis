@@ -83,8 +83,37 @@ _serverModules pushBack ("SCRIPTS\T1_Battlefield\undertaker\undertaker.sqf" call
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKing.sqf" call NWG_fnc_compile);
 
 //T2_UserInteraction
+//inventoryManager
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\inventoryManager\inventoryManager.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\inventoryManager\inventoryManagerFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\inventoryManager\inventoryManagerTests.sqf" call NWG_fnc_compile)};
+//magrepack
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepack.sqf" call NWG_fnc_compile);
-_clientModules pushBack ("SCRIPTS\T2_UserInteraction\view_distance\viewDistance.sqf" call NWG_fnc_compile);
+//markers
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\markers\markersServerSide.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\markers\markersClientSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\markers\markersFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T2_UserInteraction\markers\markersTests.sqf" call NWG_fnc_compile)};
+//medicine
+#define MEDICINE_TESTS_ON_DEDICATED true
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineCommon.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineClientSide.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineCommon.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineServerSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild || MEDICINE_TESTS_ON_DEDICATED) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineDummy.sqf" call NWG_fnc_compile)};
+//playerRadar
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadar.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadarFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadarTests.sqf" call NWG_fnc_compile)};
+//viewDistance
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistance.sqf" call NWG_fnc_compile);
+//voting
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingCommon.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingServerSide.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingCommon.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingClientSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\voting\votingFunctions.sqf" call NWG_fnc_compile);
 
 //================================================================================================================
 //================================================================================================================
@@ -95,14 +124,23 @@ _clientModules pushBack ("SCRIPTS\T2_UserInteraction\view_distance\viewDistance.
 
 //================================================================================================================
 //================================================================================================================
-//Send to Players
-NWG_SER_toSendToPlayer = [];
-NWG_SER_toSendToPlayer append _commonFunctions;
-NWG_SER_toSendToPlayer append _clientFunctions;
-NWG_SER_toSendToPlayer append _clientModules;
+//ClientSide
+NWG_SER_toSendToPlayer = createHashMap;
+private _clientSide = [];
+_clientSide append _commonFunctions;
+_clientSide append _clientFunctions;
+_clientSide append _clientModules;
+
+{
+    private _localization = (format ["DATASETS\Client\Localization\%1.sqf",_x]) call NWG_fnc_compile;
+    NWG_SER_toSendToPlayer set [_x,([_localization]+_clientSide)];
+} forEach ["English","Russian"];
 
 NWG_fnc_playerScriptsRequest = {
     params ["_playerObj","_language"];
+    private _toSend = if (_language in NWG_SER_toSendToPlayer)
+        then {NWG_SER_toSendToPlayer get _language}
+        else {NWG_SER_toSendToPlayer get "English"};//Default language
 
     //Network check
     private _callerID = remoteExecutedOwner;
@@ -112,7 +150,7 @@ NWG_fnc_playerScriptsRequest = {
     private _recipient = if (_callerID != 0) then {_callerID} else {_playerObj};
 
     //Send
-    NWG_SER_toSendToPlayer remoteExec ["NWG_fnc_clientScriptsReceive",_recipient];
+    _toSend remoteExec ["NWG_fnc_clientScriptsReceive",_recipient];
 };
 
 //================================================================================================================

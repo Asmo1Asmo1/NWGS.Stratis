@@ -1,0 +1,41 @@
+NWG_LocalizationDictionary = createHashMapFromArray [
+    //T2_UserInteraction
+    //medicine
+    ["#MED_CLI_BLEEDING_UI_TITLE_LOW#","Перевязан"],
+    ["#MED_CLI_BLEEDING_UI_TITLE_MID#","Кровотечение"],
+    ["#MED_CLI_BLEEDING_UI_TITLE_HIGH#","Сильное кровотечение"],
+    ["#MED_CLI_BLEEDING_UI_TIMELEFT#","Осталось: %1  [-%2]"],
+    ["#MED_CLI_BLEEDING_UI_CLOSEST_PLAYER#","Рядом: %1 (%2m)"],
+    ["#MED_CLI_BLEEDING_UI_NO_CLOSEST#","Никого поблизости"],
+    ["#MED_ACTION_SELF_HEAL_TITLE#","Вылечить себя"],
+    ["#MED_ACTION_SELF_HEAL_HINT#","Перевязок: %1  Шанс успеха: %2"],
+    ["#MED_ACTION_SELF_HEAL_PATCHED#","%1 перевязал себя"],
+    ["#MED_ACTION_SELF_HEAL_SUCCESS#","%1 вылечил себя"],
+    ["#MED_ACTION_SELF_HEAL_FAILURE#","%1 не смог вылечить себя"],
+    ["#MED_ACTION_RESPAWN_TITLE#","Возродиться"],
+    ["#MED_ACTION_HEAL_TITLE#","Вылечить"],
+    ["#MED_HAS_MEDKIT#","[+]"],
+    ["#MED_NO_MEDKIT#","[-]"],
+    ["#MED_ACTION_HEAL_MED_HINT#","Аптечка: %1  Перевязок: %2"],
+    ["#MED_ACTION_HEAL_FAK_HINT#","Перевязок: %1  Шанс успеха: %2"],
+    ["#MED_ACTION_HEAL_PATCHED#","%2 перевязан %1"],
+    ["#MED_ACTION_HEAL_SUCCESS#","%2 вылечен %1"],
+    ["#MED_ACTION_HEAL_FAILURE#","%1 не смог вылечить %2"],
+    ["#MED_ACTION_DRAG_TITLE#","Тащить"],
+    ["#MED_ACTION_CARRY_TITLE#","Нести"],
+    ["#MED_ACTION_RELEASE_TITLE#","Отпустить"],
+    ["#MED_ACTION_VEH_LOADIN_TITLE#","Загрузить"],
+    ["#MED_BLAME_VEH_KO_NOBODYS#","%1 выбит из техники"],
+    ["#MED_BLAME_VEH_KO_DAMAGER#","%2 выбит из техники %1"],
+    ["#MED_BLAME_WOUND_NOBODYS#","%1 ранен"],
+    ["#MED_BLAME_WOUND_DAMAGER#","%2 ранен %1"],
+    ["#MED_BLAME_KILL_NOBODYS#","%1 казнён"],
+    ["#MED_BLAME_KILL_DAMAGER#","%2 казнён %1"],
+    //voting
+    ["#VOTE_COUNTER_TEMPLATE#","Введите + или - в чат\n[+]:%2 [-]:%3 (%4)сек"],
+    ["#VOTE_HINT_ABORTED#","Голосование отменено"],
+    ["#VOTE_HINT_VOTE_RECEIVED#","Голос отправлен"],
+    ["#VOTE_HINT_TIMEOUT#","Время вышло"],
+
+    ["",""]
+];

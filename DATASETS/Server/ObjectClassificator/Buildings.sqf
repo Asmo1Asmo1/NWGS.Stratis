@@ -52,11 +52,7 @@
 	"Land_d_Shop_02_V1_F",
 	"Land_d_Stone_HouseBig_V1_F",
 	"Land_d_Stone_HouseSmall_V1_F",
-	"Land_d_Stone_Shed_V1_F",
-	"Land_Lighthouse_small_F",
-	"Land_Unfinished_Building_01_F",
-	"Land_Unfinished_Building_02_F",
-	"Land_WIP_F"
+	"Land_d_Stone_Shed_V1_F"
 ],
 	"CityHouseAddon",
 [
@@ -68,6 +64,13 @@
 	"Land_i_Addon_04_V1_F",
 	"Land_Shop_Town_05_addon_F",
 	"Land_u_Addon_01_V1_F"
+],
+	"CityHouseConstruction",
+[
+	"Land_Unfinished_Building_01_F",
+	"Land_Unfinished_Building_02_F",
+	"Land_WIP_F",
+	"Land_Lighthouse_small_F"
 ],
 
 	"Barrack",
@@ -189,15 +192,6 @@
 	"Land_SY_01_crusher_F",
 	"Land_Warehouse_01_F",
 	"Land_Warehouse_02_F"
-],
-	"IndustrialShed",
-[
-	["Land_Shed_Small_F",	"Land_SM_01_shelter_narrow_F"],
-	["Land_Shed_Big_F",	"Land_SM_01_shelter_wide_F"],
-	"Land_MetalShelter_01_F",
-	"Land_MetalShelter_02_F",
-	"Land_SCF_01_shed_F",
-	"Land_WarehouseShelter_01_F"
 ],
 
 	"WorkshopGarage",
@@ -411,19 +405,5 @@
 	"Land_Slum_House01_F",
 	"Land_Slum_House02_F",
 	"Land_Slum_House03_F"
-],
-	"HalupaShed",
-[
-	"Land_Boat_03_abandoned_cover_F",
-	"Land_cargo_addon01_V1_F",
-	"Land_cargo_addon01_V2_F",
-	"Land_cargo_addon02_V1_F",
-	"Land_cargo_addon02_V2_F",
-	"Land_ClothShelter_01_F",
-	"Land_ClothShelter_02_F",
-	"Land_MarketShelter_F",
-	"Land_Shed_06_F",
-	"Land_ShootingPos_Roof_01_F",
-	"Land_WoodenShelter_01_F"
 ]
 ]

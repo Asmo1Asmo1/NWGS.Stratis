@@ -122,58 +122,46 @@ NWG_VD_nextAutoDistance = 0;
 
 NWG_VD_OnEachFrame =
 {
-    if (isNull player || {!alive player}) exitWith {};
+    switch (true) do {
+        /*Invalid state check*/
+        case (isNull player || {!alive player}): {};//Do nothing
 
-    if (NWG_tawvd_targetFPSenabled) then
-    {
-        //Target FPS scheme
+        /*Target FPS scheme*/
+        case (NWG_tawvd_targetFPSenabled): {
+            if (visibleMap) exitWith {};
+            if (time < NWG_VD_nextAutoDistance) exitWith {};
+            NWG_VD_nextAutoDistance = time + TARGET_FPS_REFRESH;
 
-        if (visibleMap) exitWith {};
+            private _delta = NWG_tawvd_targetFPS - (round diag_fps);
+            if ((abs _delta) <= TARGET_FPS_OK_DELTA) exitWith {};
 
-        if (time < NWG_VD_nextAutoDistance) exitWith {};
-        NWG_VD_nextAutoDistance = time + TARGET_FPS_REFRESH;
+            private _curDistance = switch (true) do {
+                case (((UAVControl getConnectedUAV player)#1) isNotEqualTo ""): {NWG_tawvd_drone};
+                case ((vehicle player) isKindOf "Man"): {NWG_tawvd_foot};
+                case ((vehicle player) isKindOf "LandVehicle" || {(vehicle player) isKindOf "Ship"}): {NWG_tawvd_car};
+                case ((vehicle player) isKindOf "Air"): {NWG_tawvd_air};
+                default {NWG_tawvd_foot};
+            };
+            private _step = if (_delta > 0) then {-TARGET_FPS_DISTANCE_STEP} else {TARGET_FPS_DISTANCE_STEP};
+            private _newDistance = (((_curDistance + _step) max NWG_tawvd_targetFPSminDist) min NWG_tawvd_targetFPSmaxDist);
+            if (_newDistance == _curDistance) exitWith {};
 
-        private _delta = NWG_tawvd_targetFPS - (round diag_fps);
-        if ((abs _delta) <= TARGET_FPS_OK_DELTA) exitWith {};
+            NWG_tawvd_foot   = _newDistance;
+            NWG_tawvd_car    = _newDistance;
+            NWG_tawvd_air    = _newDistance;
+            NWG_tawvd_drone  = _newDistance;
+            NWG_tawvd_object = _newDistance;
 
-        private _step = if (_delta > 0) then {-TARGET_FPS_DISTANCE_STEP} else {TARGET_FPS_DISTANCE_STEP};
-        private _curDistance = switch (true) do
-        {
-            case (((NWG_tawvd_foot + NWG_tawvd_car + NWG_tawvd_air + NWG_tawvd_drone + NWG_tawvd_object) / 5) == NWG_tawvd_foot): {NWG_tawvd_foot};//Already equalized
-            case (((UAVControl getConnectedUAV player)#1) isNotEqualTo ""): {NWG_tawvd_drone};
-            case ((vehicle player) isKindOf "Man"): {NWG_tawvd_foot};
-            case ((vehicle player) isKindOf "LandVehicle" || {(vehicle player) isKindOf "Ship"}): {NWG_tawvd_car};
-            case ((vehicle player) isKindOf "Air"): {NWG_tawvd_air};
-            default {NWG_tawvd_foot};
+            _newDistance call NWG_VD_UpdateViewDistanceCore;
+            if (!isNull (findDisplay MENU_IDD)) then {UPDATE_NUMBERS_ONLY call NWG_VD_UpdateMenu};
         };
-        if (_curDistance == NWG_tawvd_targetFPSminDist && {_step < 0}) exitWith {};
-        if (_curDistance == NWG_tawvd_targetFPSmaxDist && {_step > 0}) exitWith {};
 
-        private _newDistance = (((_curDistance + _step) max NWG_tawvd_targetFPSminDist) min NWG_tawvd_targetFPSmaxDist);
-
-        NWG_tawvd_foot   = _newDistance;
-        NWG_tawvd_car    = _newDistance;
-        NWG_tawvd_air    = _newDistance;
-        NWG_tawvd_drone  = _newDistance;
-        NWG_tawvd_object = _newDistance;
-
-        _newDistance call NWG_VD_UpdateViewDistanceCore;
-        if (!isNull (findDisplay MENU_IDD)) then {UPDATE_NUMBERS_ONLY call NWG_VD_UpdateMenu};
-    }
-    else
-    {
-        //Standart scheme
-
-        //Check if vehicle changed
-        if ((vehicle player) isNotEqualTo NWG_VD_prevVeh) exitWith
-        {
+        /*Standart scheme*/
+        case ((vehicle player) isNotEqualTo NWG_VD_prevVeh): {
             NWG_VD_prevVeh = (vehicle player);
             call NWG_VD_UpdateViewDistance;
         };
-
-        //Check if connected/disconnected to/from UAV
-        if (((UAVControl (getConnectedUAV player))#1) isNotEqualTo NWG_VD_prevDrone) exitWith
-        {
+        case (((UAVControl (getConnectedUAV player))#1) isNotEqualTo NWG_VD_prevDrone): {
             NWG_VD_prevDrone = ((UAVControl (getConnectedUAV player))#1);
             call NWG_VD_UpdateViewDistance;
         };

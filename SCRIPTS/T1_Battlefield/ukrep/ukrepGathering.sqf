@@ -4,10 +4,18 @@
 /*
     Annotation:
     This module gathers the blueprint of the object composition.
+
+    Gather REL (Relative position offset) composition:
+    _radius call NWG_UKREP_GatherUkrepREL
+
+    Gather ABS (Absolute position values) composition:
+    _radius call NWG_UKREP_GatherUkrepABS
+
+    The result will be dumped to RPT and copied to clipboard.
 */
 /*
     Every REL blueprint requires a root object - object in the center of the composition.
-    Ways to mark root object:
+    Ways to mark root object (in order of checking in code):
     1. Name it 'NWG_UKREP_Root' (case sensitive)
     2. Init code: this setVariable ["UKREP_IsRoot",true];
     3. Look at it as player - the object under the crosshair will be marked as root.
@@ -16,10 +24,28 @@
 //================================================================================================================
 //Settings
 NWG_UKREP_GATHER_Settings = createHashMapFromArray [
-    ["DISABLE_PLACEHOLDER_UNITS_ON_START",true],//If true all the placeholder units will be disabled to ease gathering
+    ["PLACEHOLDER_UNITS_DISABLE_AI",true],//If true all the placeholder units will have AI disabled to ease gathering
+    ["PLACEHOLDER_UNITS_DISABLE_COLLISION",true],//If true all the placeholder units will be transparent to player to ease gathering
 
     ["",0]
 ];
+
+//================================================================================================================
+//Init
+private _Init = {
+    if (
+        !(NWG_UKREP_GATHER_Settings get "PLACEHOLDER_UNITS_DISABLE_AI") && {
+        !(NWG_UKREP_GATHER_Settings get "PLACEHOLDER_UNITS_DISABLE_COLLISION")}
+    ) exitWith {};
+
+    private _placeholderUnits = allUnits select {(typeOf _x) in (NWG_UKREP_placeholders get OBJ_TYPE_UNIT)};
+
+    if (NWG_UKREP_GATHER_Settings get "PLACEHOLDER_UNITS_DISABLE_AI")
+        then { {_x disableAI "ALL"} forEach _placeholderUnits };
+
+    if (NWG_UKREP_GATHER_Settings get "PLACEHOLDER_UNITS_DISABLE_COLLISION")
+        then { {player disableCollisionWith _x} forEach _placeholderUnits };
+};
 
 //================================================================================================================
 //Placeholders
@@ -42,13 +68,8 @@ NWG_UKREP_placeholders = createHashMapFromArray([
         "Land_VR_Target_APC_Wheeled_01_F",//Medium VR vehicle
         "Land_VR_Target_MBT_01_cannon_F"//Large VR vehicle
     ]],
-    [OBJ_TYPE_TRRT, [
-        "VR_3DSelector_01_default_F",//Blue VR selector (standing turret in closed position like inside the tower)
-        "VR_3DSelector_01_complete_F",//Brown VR selector (crouching turret)
-        "VR_3DSelector_01_incomplete_F",//Yellow VR selector (AT/AA) (can also be used for standing turret, no problem)
-        "VR_3DSelector_01_exit_F"//Red VR selector (Mortar)
-    ]],
-    [OBJ_TYPE_MINE, []]//Not defined yet
+    [OBJ_TYPE_TRRT, []],//Not defined (we use actual NATO turrets instead)
+    [OBJ_TYPE_MINE, []] //Not defined yet
 ]);
 
 NWG_UKREP_GetPlaceholderType = {
@@ -76,12 +97,6 @@ NWG_UKREP_GetPlaceholderPayload = {
         case OBJ_TYPE_TRRT: {[]};
         case OBJ_TYPE_MINE: {0};
     }
-};
-
-//Disable placeholder units
-if (NWG_UKREP_GATHER_Settings get "DISABLE_PLACEHOLDER_UNITS_ON_START") then {
-    private _placeholderUnitsTypes = NWG_UKREP_placeholders get OBJ_TYPE_UNIT;
-    {_x disableAI "ALL"} forEach (allUnits select {(typeOf _x) in _placeholderUnitsTypes});
 };
 
 //================================================================================================================
@@ -113,6 +128,9 @@ NWG_UKREP_GatherUkrepABS = {
         /*BPCONTAINER_BLUEPRINT*/_blueprint
     ];
     _fullBlueprint call NWG_UKREP_Dump;//Dump to RPT
+
+    //return
+    _fullBlueprint
 };
 
 //================================================================================================================
@@ -153,6 +171,9 @@ NWG_UKREP_GatherUkrepREL = {
         /*BPCONTAINER_BLUEPRINT*/_blueprint
     ];
     _fullBlueprint call NWG_UKREP_Dump;//Dump to RPT
+
+    //return
+    _fullBlueprint
 };
 
 //================================================================================================================
@@ -181,12 +202,9 @@ NWG_UKREP_GatherObjectsAround = {
     private _radius = _this;
     //return
     (allMissionObjects "") select {
-        switch (true) do {
-            case ((typeOf _x) in NWG_UKREP_excludeFromGathering): {false};
-            case ((_x distance2D player) > _radius): {false};
-            case (_x isEqualTo player): {false};
-            default {true};
-        }
+        !((typeOf _x) in NWG_UKREP_excludeFromGathering) && {
+        (_x isNotEqualTo player) && {
+        ((_x distance2D player) <= _radius)}}
     };
 };
 
@@ -265,19 +283,25 @@ NWG_UKREP_GetObjectPayload = {
 
     //return
     switch (_type) do {
-        /*For objects - payload is array of flags*/
+        /*For objects - payload is a flag of either SIMPLE, STATIC or INTERACTABLE*/
         case OBJ_TYPE_BLDG;
         case OBJ_TYPE_FURN;
         case OBJ_TYPE_DECO: {
             private _cfg = configfile >> "CfgVehicles" >> (typeOf _object);
-            [
-                /*P_OBJ_CAN_SIMPLE*/((getNumber (_cfg >> "SimpleObject" >> "eden")) == 1),
-                /*P_OBJ_IS_SIMPLE*/(isSimpleObject _object),
-                /*P_OBJ_IS_SIM_ON*/(simulationEnabled _object),
-                /*P_OBJ_IS_DYNASIM_ON*/(dynamicSimulationEnabled _object),
-                /*P_OBJ_IS_DMG_ALLOWED*/(isDamageAllowed _object),
-                /*P_OBJ_IS_INTERACTABLE*/([_object,_cfg] call NWG_UKREP_IsInteractable)
-            ]
+            private _canBeSimple = (getNumber (_cfg >> "SimpleObject" >> "eden")) == 1;
+            private _isDynamicSimOn = dynamicSimulationEnabled _object;
+            private _isInteractable = [_object,_cfg] call NWG_UKREP_IsInteractable;
+
+            switch (true) do {
+                /*Simple*/
+                case (isSimpleObject _object): {OBJ_SIMPLE};//Object explicitly marked as simple
+                case (_canBeSimple && !_isDynamicSimOn && !_isInteractable): {OBJ_SIMPLE};//Object can be simplified
+                /*Interactable*/
+                case (_isDynamicSimOn): {OBJ_INTERACTABLE};//Object explicitly marked as interactable
+                case (simulationEnabled _object && _isInteractable): {OBJ_INTERACTABLE};//Object is interactable by nature and allowed to be interacted with
+                /*Static*/
+                default {OBJ_STATIC};//Object is static by default
+            }
         };
 
         /*For units - payload is a stance of unit*/
@@ -505,7 +529,8 @@ NWG_UKREP_Dump = {
 
     //Dump to clipboard
     copyToClipboard (_lines joinString (toString [13,10]));//Copy with 'new line' separator
-
-    //Dump to output console as is
-    _lines
 };
+
+//================================================================================================================
+//Init
+call _Init;

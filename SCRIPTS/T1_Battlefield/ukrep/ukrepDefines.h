@@ -22,14 +22,13 @@
 /*Used internally during gathering:*/
 #define BP_ORIGOBJECT 8
 #define BP_INSIDE_OF 9
+/*Used internally during placement:*/
+#define BP_BUILDINGID 8
 
-//Payloads
-#define P_OBJ_CAN_SIMPLE 0
-#define P_OBJ_IS_SIMPLE 1
-#define P_OBJ_IS_SIM_ON 2
-#define P_OBJ_IS_DYNASIM_ON 3
-#define P_OBJ_IS_DMG_ALLOWED 4
-#define P_OBJ_IS_INTERACTABLE 5
+//Object payload
+#define OBJ_SIMPLE 0
+#define OBJ_STATIC 1
+#define OBJ_INTERACTABLE 2
 
 //Group rules
 #define GRP_RULES_SIDE 0

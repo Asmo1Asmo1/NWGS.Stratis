@@ -16,16 +16,17 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
     ["PARADROP_HEIGHT",200],//Height of paradropping
     ["PARADROP_TIMEOUT",90],//Timeout to auto-cancel paradrop in case of an error
 
-    ["ATTACK_INF_ATTACK_RADIUS",200],//Radius for INF group to 'attack' the position
-    ["ATTACK_VEH_UNLOAD_RADIUS",300],//Radius for VEH group to unload passengers
-    ["ATTACK_VEH_ATTACK_RADIUS",200],//Radius for VEH group to 'attack' the position
-    ["ATTACK_AIR_UNLOAD_RADIUS",300],//Radius for AIR group to unload passengers
-    ["ATTACK_AIR_ATTACK_RADIUS",400],//Radius for AIR group to 'attack' the position
+    ["ATTACK_INF_ATTACK_RADIUS",250],//Radius for INF group to 'attack' the position
+    ["ATTACK_VEH_UNLOAD_RADIUS",350],//Radius for VEH group to unload passengers
+    ["ATTACK_VEH_ATTACK_RADIUS",250],//Radius for VEH group to 'attack' the position
+    ["ATTACK_AIR_UNLOAD_RADIUS",350],//Radius for AIR group to unload passengers
+    ["ATTACK_AIR_ATTACK_RADIUS",450],//Radius for AIR group to 'attack' the position
     ["ATTACK_AIR_DESPAWN_RADIUS",5000],//Radius for AIR vehicle to despawn after unload
     ["ATTACK_BOAT_UNLOAD_RADIUS",300],//Radius for BOAT group to unload passengers
-    ["ATTACK_BOAT_ATTACK_RADIUS",200],//Radius for BOAT group to 'attack' the position
+    ["ATTACK_BOAT_ATTACK_RADIUS",250],//Radius for BOAT group to 'attack' the position
     ["ATTACK_PARADROPS_MAX",1],//Max number of vehicle paradrops per reinforcement
     ["ATTACK_PARADROPS_CHANCE",0.5],//Chance of vehicle group being paradropped (keep 0-1)
+    ["ATTACK_SPAWN_PLAYERS_MIN_DISTANCE",300],//Min distance between spawn point and players
 
     ["",0]
 ];
@@ -357,40 +358,43 @@ NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
 //================================================================================================================
 //Send reinforcements
 NWG_DSPAWN_REINF_SendReinforcements = {
-    params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west]];
+    params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west],["_spawnMap",[nil,nil,nil,nil]]];
 
     //Prepare spawn point picking (with lazy evaluation)
-    private _spawnMap = [nil,nil,nil,nil];
-    private _spawnMapPointers = [0,0,0,0];
-    private _lazyGet = {
-        params ["_index","_markupArgs","_markupResultIndexes"];
+    private _players = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
+    private _minDist = NWG_DSPAWN_Settings get "ATTACK_SPAWN_PLAYERS_MIN_DISTANCE";
+    private _getSpawnPoint = {
+        private _pointType = _this;
+        private _index = switch (_pointType) do {
+            case "INF":  {0};
+            case "VEH":  {1};
+            case "BOAT": {2};
+            case "AIR":  {3};
+        };
 
-        private _spawnArray = _spawnMap select _index;
+        private _spawnArray = _spawnMap param [_index,nil];
         if (isNil "_spawnArray") then {
-            private _points = _markupArgs call NWG_fnc_dtsMarkupReinforcement;
-            _spawnArray = [];
-            {_spawnArray append ((_points select _x) call NWG_fnc_arrayShuffle)} forEach _markupResultIndexes;
+            private _markupArgs = switch (_pointType) do {
+                case "INF":  {[_attackPos,true ,false,false,false]};
+                case "VEH":  {[_attackPos,false,true, false,false]};
+                case "BOAT": {[_attackPos,false,false,true, false]};
+                case "AIR":  {[_attackPos,false,false,false,true ]};
+            };
+            _spawnArray = (_markupArgs call NWG_fnc_dtsMarkupReinforcementGrouped) select _index;//[_inf,_veh,_boats,_air]
             _spawnMap set [_index,_spawnArray];
         };
         if ((count _spawnArray) == 0) exitWith {false};//No points to spawn
 
-        private _pointer = _spawnMapPointers select _index;
-        private _result = _spawnArray select _pointer;
-        _pointer = _pointer + 1;
-        if (_pointer >= (count _spawnArray)) then {_pointer = 0};
-        _spawnMapPointers set [_index,_pointer];
+        private _spawnPoint = [];
+        private _attempts = 0;
+        while {_attempts = _attempts + 1; _attempts <= (count _spawnArray)} do {
+            _spawnPoint = _spawnArray deleteAt 0;
+            _spawnArray pushBack _spawnPoint;
+            if ((_players findIf {(_x distance2D _spawnPoint) < _minDist}) == -1) exitWith {};
+        };
 
         //return
-        _result
-    };
-    private _getSpawnPoint = {
-        // private _type = _this;
-        switch (_this) do {
-            case "INF": {[0,[_attackPos,true,false,false,false],[0,1]] call _lazyGet};
-            case "VEH": {[1,[_attackPos,false,true,false,false],[3,2]] call _lazyGet};
-            case "BOAT":{[2,[_attackPos,false,false,true,false],[4]] call _lazyGet};
-            case "AIR": {[3,[_attackPos,false,false,false,true],[5]] call _lazyGet};
-        }
+        _spawnPoint
     };
 
     //Get catalogue values for spawn
@@ -458,9 +462,15 @@ NWG_DSPAWN_REINF_SendReinforcements = {
 
         private _groupDescr = [_groupsContainer,"NWG_DSPAWN_REINF_SendReinforcements"] call NWG_fnc_selectRandomGuaranteed;
         switch (true) do {
-            case ("INF" in (_groupDescr#DESCR_TAGS)): {if (_groupDescr call _trySpawnInfGroup) then {_resultCount = _resultCount + 1}};
-            case ("ARM" in (_groupDescr#DESCR_TAGS)): {if ([_groupDescr,"VEH"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1}};
-            case ("AIR" in (_groupDescr#DESCR_TAGS)): {if ([_groupDescr,"AIR"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1}};
+            case ("INF" in (_groupDescr#DESCR_TAGS)): {
+                if (_groupDescr call _trySpawnInfGroup) then {_resultCount = _resultCount + 1};
+            };
+            case ("ARM" in (_groupDescr#DESCR_TAGS)): {
+                if ([_groupDescr,"VEH"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1};
+            };
+            case ("AIR" in (_groupDescr#DESCR_TAGS)): {
+                if ([_groupDescr,"AIR"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1};
+            };
             case ("VEH" in (_groupDescr#DESCR_TAGS)): {
                 if ((_groupDescr call _isParadropAllowed) && {[_groupDescr,"INF"] call _tryParadropVehGroup}) exitWith {_resultCount = _resultCount + 1; _paradropsLeft = _paradropsLeft - 1};
                 if ([_groupDescr,"VEH"] call _trySpawnVehGroup) then {_resultCount = _resultCount + 1};
@@ -1164,7 +1174,7 @@ NWG_DSPAWN_CheckThePosition = {
 
     private _checkRoute = [
         ([_attackPos,_radius,_type] call NWG_fnc_dtsFindDotForWaypoint),
-        ([_attackPos,(_radius/2),_type] call NWG_fnc_dtsFindDotForWaypoint)
+        ([_attackPos,(round (_radius * 0.33)),_type] call NWG_fnc_dtsFindDotForWaypoint)
     ] select {_x isNotEqualTo false};
 
     if ((count _checkRoute) >= 2) then {

@@ -6,27 +6,28 @@
 NWG_fnc_logError = {
     // private _message = _this;
     diag_log formatText ["  [ERROR] #### %1",_this];
-    if (!isServer) then {_this remoteExec ["NWG_fnc_logError", 2]};
+    if (!isServer) then {_this remoteExec ["NWG_fnc_logError",2]};
 };
 
 //===============================================================
 //Array manipulation
 
-//Shuffles array and returns it
-//params: _array - array to shuffle
-//returns: shuffled array (modifies the input array)
-//note: previously known as 'KK_fnc_arrayShuffle'
-//note: made by Nelson Duarte, optimised by Killzone_Kid, optimised by HOPA_EHOTA
+//Shuffles array and returns it (modifies the input array) (utilizes Fisher-Yates shuffle algorithm)
 NWG_fnc_arrayShuffle = {
     //private _array = _this;
-	for "_i" from 1 to (count _this) do {_this pushBack (_this deleteAt (floor (random (count _this))))};
-    //return
-	_this
+    if ((count _this) <= 1) exitWith {_this};//Check obvious case
+
+    private _j = -1;
+    {
+        _j = floor (random (_forEachIndex + 1));//Generate a random index _j between 0 and current index
+        _this set [_forEachIndex,(_this#_j)];
+        _this set [_j,_x];
+    } forEachReversed _this;
+
+    _this
 };
 
-//Shifts array elements by random amount
-//params: _array - array to shift
-//returns: shifted array (modifies the input array)
+//Shifts array elements by random amount and returns it (modifies the input array)
 NWG_fnc_arrayRandomShift = {
     //private _array = _this;
     private _i = floor (random (count _this));
@@ -158,10 +159,6 @@ NWG_fnc_unCompactStringArray = {
 //===============================================================
 //Range
 //Returns a random number within the range
-//params:
-// min - minimum value
-// max - maximum value
-//returns: random number
 NWG_fnc_randomRangeInt = {
     params ["_min","_max"];
     (floor (_min + (random ((_max - _min) + 1))))
@@ -174,17 +171,13 @@ NWG_fnc_randomRangeFloat = {
 //===============================================================
 //Players
 //Returns array of all players
-//params: none
-//returns: array of all players
 NWG_fnc_getPlayersAll = {
     // allPlayers - 0.0006, but returns headless clients
     // call BIS_fnc_listPlayers - works fine, but 0.0056
     (allPlayers - (entities "HeadlessClient_F")) //0.0011
 };
 
-//Returns an array of unique objects - unit if a player is on foot, vehicle if inside the vehicle
-//params: none
-//returns: array of objects
+//Returns an array of players on foot and vehicles occupied by one or more players (array of unique elements)
 NWG_fnc_getPlayersAndOrPlayedVehiclesAll = {
     private _result = (((call NWG_fnc_getPlayersAll) apply {vehicle _x}) select {alive _x});
     _result arrayIntersect _result//Remove duplicates and return
@@ -204,4 +197,75 @@ NWG_fnc_playAnimRemote = {
     if (canSuspend)
         then {isNil {_unit switchMove _animName; _unit playMoveNow _animName}}
         else {_unit switchMove _animName; _unit playMoveNow _animName};
+};
+
+//===============================================================
+//Localization
+NWG_fnc_localize = {
+    //Check localization dictionary
+    if (isNil "NWG_LocalizationDictionary") exitWith {_this};
+    //Return localized input if such localization exists and input itself if not
+    (NWG_LocalizationDictionary getOrDefault [_this,_this])
+};
+
+NWG_fnc_localizeDisplay = {
+    params ["_display","_controls"];
+    if (isNil "_controls") then {_controls = allControls _display};
+
+    //foreach _control in _controls do
+    {
+        private _cur = _x;
+        if (_cur isEqualType 123) then {_cur = _display displayCtrl _cur};
+        if (isNull _cur) then {continue};
+
+        private _text = ctrlText _cur;
+        if (!isNil "_text" && {_text isNotEqualTo ""}) then {
+            _cur ctrlSetText (_text call NWG_fnc_localize);
+        };
+
+        private _tooltip = ctrlTooltip _cur;
+        if (!isNil "_tooltip" && {_tooltip isNotEqualTo ""}) then {
+            _cur ctrlSetTooltip (_tooltip call NWG_fnc_localize);
+        };
+    } forEach _controls;
+};
+
+//===============================================================
+//Messaging
+//Supported message types: single string or array of format arguments as [template,arg0,arg1...]
+NWG_fnc_translateMessage = {
+    // private _message = _this;
+    private _translate = {
+        if (_this isEqualType "")
+            then {_this call NWG_fnc_localize}
+            else {str _this}
+    };
+
+    switch (true) do {
+        /*Simple message*/
+        case (!(_this isEqualType [])): {_this call _translate};//Single string
+        case ((count _this) <= 1):      {(_this param [0,""]) call _translate};//Single element or empty array
+        /*Formatted message*/
+        default {format (_this apply {_x call _translate})};//Array of format arguments as [template,arg0,arg1...]
+    }
+};
+
+NWG_fnc_sideChatMe = {
+    // private _message = _this;
+    if (!hasInterface || {isNull player}) exitWith {};
+    [playerSide,"HQ"] sideChat (_this call NWG_fnc_translateMessage);
+};
+NWG_fnc_sideChatAll = {
+    // private _message = _this;
+    _this remoteExec ["NWG_fnc_sideChatMe"];
+};
+
+NWG_fnc_systemChatMe = {
+    // private _message = _this;
+    if (!hasInterface) exitWith {};
+    systemChat (_this call NWG_fnc_translateMessage);
+};
+NWG_fnc_systemChatAll = {
+    // private _message = _this;
+    _this remoteExec ["NWG_fnc_systemChatMe"];
 };
