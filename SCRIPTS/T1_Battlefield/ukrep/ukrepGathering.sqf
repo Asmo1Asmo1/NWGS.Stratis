@@ -87,15 +87,18 @@ NWG_UKREP_IsPlaceholder = {
 };
 
 NWG_UKREP_GetPlaceholderPayload = {
-    // private _placeholderType = _this;
-    switch (_this) do {
+    params ["_placeholder",["_type",""]];
+    if (_type isEqualTo "") then {_type = _placeholder call NWG_UKREP_GetPlaceholderType};
+
+    switch (_type) do {
         case OBJ_TYPE_BLDG;
         case OBJ_TYPE_FURN;
-        case OBJ_TYPE_DECO: {[]};
-        case OBJ_TYPE_UNIT: {1};
+        case OBJ_TYPE_DECO: {1};//Always return 1 - 'static object'
+        case OBJ_TYPE_UNIT: {[_placeholder,_type] call NWG_UKREP_GetObjectPayload};//Return an actual stance of unit
         case OBJ_TYPE_VEHC;
-        case OBJ_TYPE_TRRT: {[]};
-        case OBJ_TYPE_MINE: {0};
+        case OBJ_TYPE_TRRT: {[]};//Always return empty array
+        case OBJ_TYPE_MINE: {0};//No payload for mines
+        default {0};//Unknown object type
     }
 };
 
@@ -248,8 +251,8 @@ NWG_UKREP_PackIntoRecords = {
         _type = if (_isPlaceholder)
             then {_c call NWG_UKREP_GetPlaceholderType}
             else {_x call NWG_fnc_ocGetObjectType};
-        _payload = if (_isPlaceholder && {_type isNotEqualTo OBJ_TYPE_UNIT})
-            then {_type call NWG_UKREP_GetPlaceholderPayload}
+        _payload = if (_isPlaceholder)
+            then {[_x,_type] call NWG_UKREP_GetPlaceholderPayload}
             else {[_x,_type] call NWG_UKREP_GetObjectPayload};
 
         //Fix for mines (gathered as XXX_Ammo when we need an actaul mine classname, not a magazine)
