@@ -534,40 +534,44 @@ NWG_UKREP_BP_ApplyFaction = {
     if (_faction isEqualTo "") exitWith {_blueprint};//Nothing to do
 
     private _factionPage = _faction call NWG_UKREP_GetFactionsPage;
-    if (_factionPage isEqualTo false) exitWith {_blueprint};//Error
+    if (_factionPage isEqualTo false) exitWith {_blueprint};//Error loading faction page. Error logged internally
 
-    private ["_classname","_crew","_replacement"];
+    private ["_classname","_replacement"];
+    //forEach record in blueprint
     {
         _classname = _x#BP_CLASSNAME;
 
         //Replace classname and payload
         if (_classname in _factionPage) then {
-            _replacement = _factionPage get _classname;
-            _replacement = if ((count _replacement) > 1)
-                then {[_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_classname])] call NWG_fnc_selectRandomGuaranteed}
-                else {_replacement param [0,_classname]};
-            if (_replacement isEqualType []) then {
-                _x set [BP_CLASSNAME,(_replacement#0)];
-                _x set [BP_PAYLOAD,(_replacement#1)];
-            } else {
-                _x set [BP_CLASSNAME,_replacement];
+            _replacement = _factionPage get _classname;//Get array of replacements
+            _replacement = [_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_classname])] call NWG_fnc_selectRandomGuaranteed;//Select random replacement
+            switch (true) do {
+                case (_replacement isEqualType ""): {
+                    _x set [BP_CLASSNAME,_replacement];
+                };
+                case (_replacement isEqualType []): {
+                    _x set [BP_CLASSNAME,(_replacement param [0,""])];
+                    _x set [BP_PAYLOAD,  (_replacement param [1,[]])];
+                };
+                default {
+                    //Log error
+                    (format ["NWG_UKREP_BP_ApplyFaction: Unexpected replacement type for %1",_classname]) call NWG_fnc_logError;
+                };
             };
         };
 
         //Replace crew of the vehicle or turret
         if ((_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_VEHC || {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_TRRT}) then {
-            _crew = if ((_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_VEHC)
-                then {(_x param [BP_PAYLOAD,[]]) param [0,[]]}
-                else {(_x param [BP_PAYLOAD,[]])};
+            private _crew = if ((_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_VEHC)
+                then {(_x param [BP_PAYLOAD,[]]) param [0,[]]}/*VEHC payload: [crew,appearance,pylons]*/
+                else {(_x param [BP_PAYLOAD,[]])};            /*TRRT payload: crew*/
             //do
             {
                 if !(_x isEqualType "")  then {continue};
                 if !(_x in _factionPage) then {continue};
-                _replacement = _factionPage get _x;
-                _replacement = if ((count _replacement) > 1)
-                    then {[_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_x])] call NWG_fnc_selectRandomGuaranteed}
-                    else {_replacement param [0,_x]};
-                _replacement = if (_replacement isEqualType []) then {_replacement#0} else {_replacement};
+                _replacement = _factionPage get _x;//Get array of replacements
+                _replacement = [_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_x])] call NWG_fnc_selectRandomGuaranteed;//Select random replacement
+                _replacement = if (_replacement isEqualType []) then {_replacement param [0,""]} else {_replacement};
                 _crew set [_forEachIndex,_replacement];//Yes, this is legal
             } forEach _crew;
         };
