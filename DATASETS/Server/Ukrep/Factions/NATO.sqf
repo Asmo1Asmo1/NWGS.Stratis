@@ -96,12 +96,12 @@ createHashMapFromArray [
 [
     "Land_VR_Target_MRAP_01_F",/*Small VR vehicle*/
     [
-        ["B_MRAP_01_F",[]],
+        ["B_MRAP_01_F",     [/*crew:*/[2,"B_Soldier_F"]]],
         ["B_MRAP_01_gmg_F", [/*crew:*/[2,"B_Soldier_F"]]],
         ["B_MRAP_01_hmg_F", [/*crew:*/[2,"B_Soldier_F"]]],
         ["B_LSV_01_AT_F",   [/*crew:*/[3,"B_Soldier_F"]]],
         ["B_LSV_01_armed_F",[/*crew:*/[3,"B_Soldier_F"]]],
-        ["B_LSV_01_unarmed_F",[]]
+        ["B_LSV_01_unarmed_F",[/*crew:*/[2,"B_Soldier_F"]]]
     ]
 ],
 
