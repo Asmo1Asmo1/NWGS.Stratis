@@ -5,17 +5,17 @@
         ["BLDG","Land_Cargo_HQ_V1_F",0,[15,-12,4.76837e-007],15,-90,2],
         ["BLDG","Land_i_House_Big_01_V3_F",0,[3,22,0],285,180,2],
         ["BLDG","Land_MedicalTent_01_NATO_generic_inner_F",0,[-22,-4,0],105,0,1],
-        ["DECO","Land_VR_Target_APC_Wheeled_01_F",0,[26,2,0],270,165,2],
-        ["DECO","Land_VR_Target_MBT_01_cannon_F",0,[23,11,0],240,135,2],
-        ["DECO","Land_VR_Target_MRAP_01_F",0,[17,17,0],225,120,2]]],
+        ["VEHC","Land_VR_Target_APC_Wheeled_01_F",0,[26,2,0],270,165,[]],
+        ["VEHC","Land_VR_Target_MBT_01_cannon_F",0,[23,11,0],240,135,[]],
+        ["VEHC","Land_VR_Target_MRAP_01_F",0,[17,17,0],225,120,[]]]],
 
-    ["ABS","FractalTest",[1808.63,5596.13,0],0,29.422,0,[],[
-        ["BLDG","CamoNet_BLUFOR_big_F",[1786,5603,5.5],0,285,0,1],
-        ["BLDG","Land_Cargo_HQ_V1_F",[1818,5578,5.5],0,15,0,2],
-        ["BLDG","Land_i_House_Big_01_V3_F",[1806,5612,5.5],0,285,0,2],
-        ["BLDG","Land_MedicalTent_01_NATO_generic_inner_F",[1781,5586,5.5],0,105,0,1],
-        ["DECO","Land_VR_Shape_01_cube_1m_F",[1803,5590,5.5],0,105,0,1],
-        ["DECO","Land_VR_Target_APC_Wheeled_01_F",[1829,5592,5.5],0,270,0,2],
-        ["DECO","Land_VR_Target_MBT_01_cannon_F",[1826,5601,5.5],0,240,0,2],
-        ["DECO","Land_VR_Target_MRAP_01_F",[1820,5607,5.5],0,225,0,2]]]
+    ["ABS","FractalTest",[1806.26,5554.75,0],0,29.4223,0,[],[
+        ["BLDG","CamoNet_BLUFOR_big_F",[1783.63,5561.62,5.5],0,285,0,1],
+        ["BLDG","Land_Cargo_HQ_V1_F",[1815.63,5536.62,5.5],0,15,0,2],
+        ["BLDG","Land_i_House_Big_01_V3_F",[1803.63,5570.62,5.5],0,285,0,2],
+        ["BLDG","Land_MedicalTent_01_NATO_generic_inner_F",[1778.63,5544.62,5.5],0,105,0,1],
+        ["DECO","Land_VR_Shape_01_cube_1m_F",[1800.63,5548.62,5.5],0,105,0,1],
+        ["VEHC","Land_VR_Target_APC_Wheeled_01_F",[1826.63,5550.62,5.5],0,270,0,[]],
+        ["VEHC","Land_VR_Target_MBT_01_cannon_F",[1823.63,5559.62,5.5],0,240,0,[]],
+        ["VEHC","Land_VR_Target_MRAP_01_F",[1817.63,5565.62,5.5],0,225,0,[]]]]
 ]
