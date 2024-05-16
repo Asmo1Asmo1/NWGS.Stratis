@@ -74,7 +74,7 @@ NWG_UKREP_placeholders = createHashMapFromArray([
 
 NWG_UKREP_GetPlaceholderType = {
     // private _objectOrClassname = _this;
-    private _type = if (_objectOrClassname isEqualType objNull) then {typeOf _objectOrClassname} else {_objectOrClassname};
+    private _type = if (_this isEqualType objNull) then {typeOf _this} else {_this};
     private _result = false;
     {if (_type in _y) exitWith {_result = _x}} forEach NWG_UKREP_placeholders;
     //return
