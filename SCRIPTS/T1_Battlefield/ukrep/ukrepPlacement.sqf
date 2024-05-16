@@ -490,25 +490,52 @@ NWG_UKREP_BP_ApplyChances = {
 
         private _curType = _x;
         private _affectedObjects = _blueprint select {(_x#BP_OBJTYPE) isEqualTo _curType};
-        if ((count _affectedObjects) == 0) then {continue};//Skip if no objects of this type
+        if ((count _affectedObjects) == 0) then {continue};//Skip if no objects to remove
 
-        private _targetCount = if (_chance isEqualType []) then {
-            //Min, max and scale count
-            _chance params ["_min","_max",["_scale",100]];
-            private _delta = (count _affectedObjects) - _scale;
-            if (_delta > 0) then {
-                _min = _min + _delta;
-                _max = _max + _delta;
+        private _targetCount = switch (true) do {
+            case (_chance isEqualType 0.5): {
+                //Fixed percentage
+                //return
+                round ((count _affectedObjects) * _chance)
             };
-            (floor (random (_max-_min+1))) + _min
-        } else {
-            //Percentage
-            round ((count _affectedObjects) * _chance)
+            case (_chance isEqualType []): {
+                //Min-max range
+                private _minPerc = _chance param [0,0.0];
+                private _maxPerc = _chance param [1,1.0];
+                private _targetPercentage = (_minPerc + (random (_maxPerc - _minPerc)));
+                //return
+                round ((count _affectedObjects) * _targetPercentage)
+            };
+            case (_chance isEqualType createHashMap): {
+                //Custom chance rules
+                /*Check if ignore rules are defined*/
+                if ("IgnoreList" in _chance) then {
+                    private _ignoreList = _chance get "IgnoreList";
+                    _affectedObjects = _affectedObjects select {!((_x#BP_CLASSNAME) in _ignoreList)};//Modify affected objects array
+                };
+
+                /*Proceed with target count calculation*/
+                private _minPerc  = _chance getOrDefault ["MinPercentage",0.0];
+                private _maxPerc  = _chance getOrDefault ["MaxPercentage",1.0];
+                private _minCount = _chance getOrDefault ["MinCount",0];
+                private _maxCount = _chance getOrDefault ["MaxCount",(count _affectedObjects)];
+
+                private _targetPercentage = (_minPerc + (random (_maxPerc - _minPerc)));
+                private _result = round ((count _affectedObjects) * _targetPercentage);
+                _result = (_result max _minCount) min _maxCount;//Clamp
+                //return
+                _result
+            };
+            default {
+                //Log error
+                (format ["NWG_UKREP_BP_ApplyChances: Unexpected chance type for '%1': %2",_curType,_chance]) call NWG_fnc_logError;
+                (count _affectedObjects)//Fallback to 100%
+            };
         };
         if ((count _affectedObjects) <= _targetCount) then {continue};//Skip if no objects to remove
 
         _affectedObjects = _affectedObjects call NWG_fnc_arrayShuffle;
-        _toRemove append (_affectedObjects select [_targetCount]);
+        _toRemove append (_affectedObjects select [_targetCount]);//Append everything in excess (from targetCount to the end of the array)
     } forEach [
         OBJ_TYPE_BLDG,
         OBJ_TYPE_FURN,
