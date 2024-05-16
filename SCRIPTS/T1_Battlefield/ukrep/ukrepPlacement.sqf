@@ -536,7 +536,7 @@ NWG_UKREP_BP_ApplyFaction = {
     private _factionPage = _faction call NWG_UKREP_GetFactionsPage;
     if (_factionPage isEqualTo false) exitWith {_blueprint};//Error loading faction page. Error logged internally
 
-    private ["_classname","_replacement"];
+    private ["_classname","_replacement","_crew"];
     //forEach record in blueprint
     {
         _classname = _x#BP_CLASSNAME;
@@ -562,7 +562,7 @@ NWG_UKREP_BP_ApplyFaction = {
 
         //Replace crew of the vehicle or turret
         if ((_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_VEHC || {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_TRRT}) then {
-            private _crew = if ((_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_VEHC)
+            _crew = if ((_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_VEHC)
                 then {(_x param [BP_PAYLOAD,[]]) param [0,[]]}/*VEHC payload: [crew,appearance,pylons]*/
                 else {(_x param [BP_PAYLOAD,[]])};            /*TRRT payload: crew*/
             //do

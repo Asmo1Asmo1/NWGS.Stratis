@@ -197,10 +197,13 @@ NWG_UKREP_ZASELENIE_Test = {
 //================================================================================================================
 //================================================================================================================
 //Fractal+Zaselenie test (closest to actual use)
+//! WARNING ! It seems like the engine postpones deletion to the next frame and so the objects are still there when the second test starts
+//That is why we use 'spawn' here. Also this is how ukrep is recommended to be run anyway - in a separate thread
 
-// call NWG_UKREP_FRACTAL_ZASELENIE_REL_Test
+// [] spawn NWG_UKREP_FRACTAL_ZASELENIE_REL_Test
 NWG_UKREP_FRACTAL_ZASELENIE_REL_Test = {
     call NWG_UKREP_TEST_Clear;
+    if (canSuspend) then {sleep 0.1};
     // NWG_UKREP_FRACTAL_PlaceFractalREL = {
     // params ["_pos","_dir","_fractalSteps",["_faction",""],["_groupRules",[]],["_clearTheArea",true]];
     private _pos = getPosATL player;
@@ -216,9 +219,10 @@ NWG_UKREP_FRACTAL_ZASELENIE_REL_Test = {
     _result
 };
 
-// call NWG_UKREP_FRACTAL_ZASELENIE_ABS_Test
+// [] spawn NWG_UKREP_FRACTAL_ZASELENIE_ABS_Test
 NWG_UKREP_FRACTAL_ZASELENIE_ABS_Test = {
     call NWG_UKREP_TEST_Clear;
+    if (canSuspend) then {sleep 0.1};
     // NWG_UKREP_FRACTAL_PlaceFractalABS = {
     // params ["_fractalSteps",["_faction",""],["_groupRules",[]],["_mapObjectsLimit",-1]];
     private _fractalSteps = [
