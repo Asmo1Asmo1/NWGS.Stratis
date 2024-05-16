@@ -215,3 +215,19 @@ NWG_UKREP_FRACTAL_ZASELENIE_REL_Test = {
     NWG_UKREP_TEST_placedObjects = _result;
     _result
 };
+
+// call NWG_UKREP_FRACTAL_ZASELENIE_ABS_Test
+NWG_UKREP_FRACTAL_ZASELENIE_ABS_Test = {
+    call NWG_UKREP_TEST_Clear;
+    // NWG_UKREP_FRACTAL_PlaceFractalABS = {
+    // params ["_fractalSteps",["_faction",""],["_groupRules",[]],["_mapObjectsLimit",-1]];
+    private _fractalSteps = [
+        /*root:*/[/*pageName:*/"testFractal"],
+        /*bldg:*/[/*pageName:*/"AUTO"],
+        /*furn:*/[/*pageName:*/"AUTO"]
+    ];
+    _faction = "NATO";
+    private _result = [_fractalSteps,_faction] call NWG_UKREP_FRACTAL_PlaceFractalABS;
+    NWG_UKREP_TEST_placedObjects = _result;
+    _result
+};
