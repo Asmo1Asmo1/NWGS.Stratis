@@ -143,7 +143,7 @@ NWG_UKREP_PUBLIC_PlaceREL_Object_Test = {
 NWG_UKREP_FRACTAL_PlaceFractalABS_Test = {
     call NWG_UKREP_TEST_Clear;
     // NWG_UKREP_FRACTAL_PlaceFractalABS = {
-    // params ["_fractalSteps",["_faction",""],["_groupRules",[]],["_mapObjectsLimit",-1]];
+    // params ["_fractalSteps",["_faction",""],["_groupRules",[]],["_mapObjectsLimit",10]];
     private _fractalSteps = [
         ["testUkrep","FRACTAL_ROOT"],
         ["testUkrep","FRACTAL_SUB"]
@@ -197,10 +197,13 @@ NWG_UKREP_ZASELENIE_Test = {
 //================================================================================================================
 //================================================================================================================
 //Fractal+Zaselenie test (closest to actual use)
+//! WARNING ! It seems like the engine postpones deletion to the next frame and so the objects are still there when the second test starts
+//That is why we use 'spawn' here. Also this is how ukrep is recommended to be run anyway - in a separate thread
 
-// call NWG_UKREP_FRACTAL_ZASELENIE_REL_Test
+// [] spawn NWG_UKREP_FRACTAL_ZASELENIE_REL_Test
 NWG_UKREP_FRACTAL_ZASELENIE_REL_Test = {
     call NWG_UKREP_TEST_Clear;
+    if (canSuspend) then {sleep 0.1};
     // NWG_UKREP_FRACTAL_PlaceFractalREL = {
     // params ["_pos","_dir","_fractalSteps",["_faction",""],["_groupRules",[]],["_clearTheArea",true]];
     private _pos = getPosATL player;
@@ -216,15 +219,96 @@ NWG_UKREP_FRACTAL_ZASELENIE_REL_Test = {
     _result
 };
 
-// call NWG_UKREP_FRACTAL_ZASELENIE_ABS_Test
+// [] spawn NWG_UKREP_FRACTAL_ZASELENIE_ABS_Test
 NWG_UKREP_FRACTAL_ZASELENIE_ABS_Test = {
     call NWG_UKREP_TEST_Clear;
+    if (canSuspend) then {sleep 0.1};
     // NWG_UKREP_FRACTAL_PlaceFractalABS = {
-    // params ["_fractalSteps",["_faction",""],["_groupRules",[]],["_mapObjectsLimit",-1]];
+    // params ["_fractalSteps",["_faction",""],["_groupRules",[]],["_mapObjectsLimit",10]];
     private _fractalSteps = [
         /*root:*/[/*pageName:*/"testFractal"],
         /*bldg:*/[/*pageName:*/"AUTO"],
         /*furn:*/[/*pageName:*/"AUTO"]
+    ];
+    _faction = "NATO";
+    private _result = [_fractalSteps,_faction] call NWG_UKREP_FRACTAL_PlaceFractalABS;
+    NWG_UKREP_TEST_placedObjects = _result;
+    _result
+};
+
+// [] spawn NWG_UKREP_FRACTAL_ZASELENIE_Chance_Test
+NWG_UKREP_FRACTAL_ZASELENIE_Chance_Test = {
+    call NWG_UKREP_TEST_Clear;
+    if (canSuspend) then {sleep 0.1};
+
+    // NWG_UKREP_FRACTAL_PlaceFractalABS = {
+    // params ["_fractalSteps",["_faction",""],["_groupRules",[]],["_mapObjectsLimit",10]];
+    // _fractalStep params [["_pageName",""],["_blueprintName",""],["_chances",[]],["_blueprintPos",[]]];
+
+    /*
+        if ("IgnoreList" in _chance) then {
+            private _ignoreList = _chance get "IgnoreList";
+            _affectedObjects = _affectedObjects select {!((_x#BP_CLASSNAME) in _ignoreList)};//Modify affected objects array
+        };
+
+        private _minPerc  = _chance getOrDefault ["MinPercentage",0.0];
+        private _maxPerc  = _chance getOrDefault ["MaxPercentage",1.0];
+        private _minCount = _chance getOrDefault ["MinCount",0];
+        private _maxCount = _chance getOrDefault ["MaxCount",(count _affectedObjects)];
+    */
+
+    private _rootChances = [];//100% all
+    private _bldgChances = [
+        /*OBJ_TYPE_BLDG:*/1,
+        /*OBJ_TYPE_FURN:*/1,
+        /*OBJ_TYPE_DECO:*/1,
+        /*OBJ_TYPE_UNIT:*/(
+            createHashMapFromArray [
+                ["MinPercentage",0.5],
+                ["MaxPercentage",1.0],
+                ["MinCount",1],
+                ["MaxCount",20]
+            ]
+        ),
+        /*OBJ_TYPE_VEHC:*/1,
+        /*OBJ_TYPE_TRRT:*/(
+            createHashMapFromArray [
+                ["MinPercentage",0.5],
+                ["MaxPercentage",1.0],
+                ["MinCount",1],
+                ["MaxCount",3]
+            ]
+        ),
+        /*OBJ_TYPE_MINE:*/1
+    ];
+    private _furnChances = [
+        /*OBJ_TYPE_BLDG:*/1,
+        /*OBJ_TYPE_FURN:*/1,
+        /*OBJ_TYPE_DECO:*/(
+            createHashMapFromArray [
+                ["IgnoreList",[
+                    "Land_PCSet_01_case_F",
+                    "Land_PCSet_01_keyboard_F",
+                    "Land_PCSet_01_screen_F",
+                    "Land_PCSet_Intel_01_F",
+                    "Land_PCSet_Intel_02_F",
+                    "Land_FlatTV_01_F"
+                ]],
+                ["MinPercentage",0.45],
+                ["MaxPercentage",0.75],
+                ["MinCount",2]
+            ]
+        ),
+        /*OBJ_TYPE_UNIT:*/1,
+        /*OBJ_TYPE_VEHC:*/1,
+        /*OBJ_TYPE_TRRT:*/1,
+        /*OBJ_TYPE_MINE:*/1
+    ];
+
+    private _fractalSteps = [
+        /*root:*/[/*pageName:*/"testFractal",/*blueprintName:*/"",_rootChances],
+        /*bldg:*/[/*pageName:*/"AUTO",/*blueprintName:*/"",_bldgChances],
+        /*furn:*/[/*pageName:*/"AUTO",/*blueprintName:*/"",_furnChances]
     ];
     _faction = "NATO";
     private _result = [_fractalSteps,_faction] call NWG_UKREP_FRACTAL_PlaceFractalABS;

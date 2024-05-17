@@ -123,7 +123,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     //forEach building
     {
         private _bldgPage = [_pageName,_x,OBJ_TYPE_BLDG] call NWG_UKREP_FRACTAL_AutoGetPageName;
-        private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintName,_chances,_faction,_groupRules,/*_adaptToGround:*/true,/*_raiseEvent:*/false] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintName,_chances,_faction,_groupRules,/*_adaptToGround:*/true] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         if (_bldgResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _bldgResult;
         _x call NWG_fnc_shAddOccupiedBuilding;//Mark building as occupied for other subsystems
@@ -142,13 +142,10 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     {
         private _furnPage = [_pageName,_x,OBJ_TYPE_FURN] call NWG_UKREP_FRACTAL_AutoGetPageName;
         private _adaptToGround = _x call NWG_UKREP_FRACTAL_IsFurnitureOutside;//Adapt chairs around table only if table itself is not inside a building
-        private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround,/*_raiseEvent:*/false] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         if (_furnResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _furnResult;
     } forEach (_placedFurns + _mapFurns);
-
-    //Raise event
-    [EVENT_ON_UKREP_PLACED,_result] call NWG_fnc_raiseServerEvent;
 
     //return
     _result
@@ -193,7 +190,7 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
     //forEach placed building
     {
         private _bldgPage = [_pageName,_x,OBJ_TYPE_BLDG] call NWG_UKREP_FRACTAL_AutoGetPageName;
-        private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintName,_chances,_faction,_groupRules,/*_adaptToGround:*/true,/*_raiseEvent:*/false] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintName,_chances,_faction,_groupRules,/*_adaptToGround:*/true] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         if (_bldgResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _bldgResult;
         _x call NWG_fnc_shAddOccupiedBuilding;//Mark building as occupied for other subsystems
@@ -206,13 +203,10 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
     {
         private _furnPage = [_pageName,_x,OBJ_TYPE_FURN] call NWG_UKREP_FRACTAL_AutoGetPageName;
         private _adaptToGround = _x call NWG_UKREP_FRACTAL_IsFurnitureOutside;//Adapt chairs around table only if table itself is not inside a building
-        private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround,/*_raiseEvent:*/false] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintName,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         if (_furnResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _furnResult;
     } forEach ((_result#UKREP_RESULT_FURNS) select {[_x,OBJ_TYPE_FURN,_pageName,_blueprintName] call NWG_UKREP_FRACTAL_HasRelSetup});
-
-    //Raise event
-    [EVENT_ON_UKREP_PLACED,_result] call NWG_fnc_raiseServerEvent;
 
     //return
     _result
@@ -258,21 +252,20 @@ NWG_UKREP_FRACTAL_HasRelSetup = {
 
 NWG_UKREP_FRACTAL_IsFurnitureOutside = {
     private _furn = _this;
-    if ((_furn call NWG_UKREP_BID_GetID) isNotEqualTo false) exitWith {false};//Is inside a building (has its ID)
 
     private _raycastFrom = getPosWorld _furn;
     private _raycastTo = _raycastFrom vectorAdd [0,0,-50];
-    private _result = (flatten (lineIntersectsSurfaces [_raycastFrom,_raycastTo,_furn,objNull,true,-1,"FIRE","VIEW",true]));//Get raycast result
-    _result = _result select {_x isEqualType objNull && {!isNull _x && {!(_x isEqualTo _furn)}}};//Filter objects only
-    //return
-    (count _result) == 0
+    private _raycast = (flatten (lineIntersectsSurfaces [_raycastFrom,_raycastTo,_furn,objNull,true,-1,"FIRE","VIEW",true]));
+
+    //Find if there is at least one object beneath - if there is, then the furniture is inside something
+    (_raycast findIf {_x isEqualType objNull && {!isNull _x && {!(_x isEqualTo _furn)}}}) == -1
 };
 
 //================================================================================================================
 //================================================================================================================
 //Public placement
 NWG_UKREP_PUBLIC_PlaceABS = {
-    params ["_pageName",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction",""],["_groupRules",[]],["_raiseEvent",true]];
+    params ["_pageName",["_blueprintName",""],["_blueprintPos",[]],["_chances",[]],["_faction",""],["_groupRules",[]]];
     private _blueprints = [_pageName,_blueprintName,_blueprintPos] call NWG_UKREP_GetBlueprintsABS;
     if ((count _blueprints) == 0) exitWith {
         (format ["NWG_UKREP_PUBLIC_PlaceABS: Could not find the blueprint matching the %1:%2:%3",_pageName,_blueprintName,_blueprintPos]) call NWG_fnc_logError;
@@ -284,14 +277,13 @@ NWG_UKREP_PUBLIC_PlaceABS = {
 
     private _result = [_blueprint,_chances,_faction,_groupRules] call NWG_UKREP_PlaceABS;
     if (_result isEqualTo false) exitWith {false};//Error
-    if (_raiseEvent) then {[EVENT_ON_UKREP_PLACED,_result] call NWG_fnc_raiseServerEvent};
 
     //return
     _result
 };
 
 NWG_UKREP_PUBLIC_PlaceREL_Position = {
-    params ["_pageName","_pos","_dir",["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true],["_raiseEvent",true]];
+    params ["_pageName","_pos","_dir",["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
     private _blueprints = [_pageName,_blueprintName] call NWG_UKREP_GetBlueprintsREL;
     if ((count _blueprints) == 0) exitWith {
         (format ["NWG_UKREP_PUBLIC_PlaceREL_Position: Could not find the blueprint matching the %1:%2",_pageName,_blueprintName]) call NWG_fnc_logError;
@@ -303,14 +295,13 @@ NWG_UKREP_PUBLIC_PlaceREL_Position = {
 
     private _result = [_blueprint,_pos,_dir,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PlaceREL_Position;
     if (_result isEqualTo false) exitWith {false};//Error
-    if (_raiseEvent) then {[EVENT_ON_UKREP_PLACED,_result] call NWG_fnc_raiseServerEvent};
 
     //return
     _result
 };
 
 NWG_UKREP_PUBLIC_PlaceREL_Object = {
-    params ["_pageName","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true],["_raiseEvent",true]];
+    params ["_pageName","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
     if (_objectType isEqualTo "") then {_objectType = _object call NWG_fnc_getObjectType};
     private _rootObjFilter = switch (_objectType) do {
         case OBJ_TYPE_BLDG: {_object call NWG_fnc_ocGetSameBuildings};
@@ -333,7 +324,8 @@ NWG_UKREP_PUBLIC_PlaceREL_Object = {
 
     private _result = [_blueprint,_object,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PlaceREL_Object;
     if (_result isEqualTo false) exitWith {false};//Error
-    if (_raiseEvent) then {[EVENT_ON_UKREP_PLACED,_result] call NWG_fnc_raiseServerEvent};
+
+    [EVENT_ON_UKREP_OBJECT_DECORATED,[_object,_objectType,_result]] call NWG_fnc_raiseServerEvent;
 
     //return
     _result
@@ -352,7 +344,7 @@ NWG_UKREP_PlaceABS = {
 
 NWG_UKREP_PlaceREL_Position = {
     params ["_blueprint","_pos","_dir",["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
-    _blueprint = [_blueprint,_pos,_dir,_adaptToGround,/*_rootExists:*/false,/*_rootBuildingId:*/false] call NWG_UKREP_BP_RELtoABS;
+    _blueprint = [_blueprint,_pos,_dir,_adaptToGround,/*_rootExists:*/false] call NWG_UKREP_BP_RELtoABS;
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
     _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
     //return
@@ -361,12 +353,7 @@ NWG_UKREP_PlaceREL_Position = {
 
 NWG_UKREP_PlaceREL_Object = {
     params ["_blueprint","_object",["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
-    private _rootBuildingId = switch (true) do {
-        case ((_object call NWG_UKREP_BID_GetID) isNotEqualTo false): {_object call NWG_UKREP_BID_GetID};//Get existing ID (case: furniture)
-        case (_object call NWG_fnc_ocIsBuilding): {_object call NWG_UKREP_BID_GenerateIDFor};//Generate new ID for building (case: building)
-        default {false};//No ID needed
-    };
-    _blueprint = [_blueprint,(getPosASL _object),(getDir _object),_adaptToGround,/*_rootExists:*/true,_rootBuildingId] call NWG_UKREP_BP_RELtoABS;
+    _blueprint = [_blueprint,(getPosASL _object),(getDir _object),_adaptToGround,/*_rootExists:*/true] call NWG_UKREP_BP_RELtoABS;
     _blueprint deleteAt 0;//Remove root from blueprint (already placed)
     _blueprint = [_blueprint,_chances] call NWG_UKREP_BP_ApplyChances;
     _blueprint = [_blueprint,_faction] call NWG_UKREP_BP_ApplyFaction;
@@ -376,37 +363,14 @@ NWG_UKREP_PlaceREL_Object = {
 
 //================================================================================================================
 //================================================================================================================
-//Building ID
-NWG_UKREP_BID_counter = 0;
-NWG_UKREP_BID_GenerateID = {
-    NWG_UKREP_BID_counter = NWG_UKREP_BID_counter + 1;
-    format ["b%1",NWG_UKREP_BID_counter]
-};
-NWG_UKREP_BID_GenerateIDFor = {
-    // private _building = _this;
-    private _id = (call NWG_UKREP_BID_GenerateID);
-    [_this,_id] call NWG_UKREP_BID_SetID;
-    _id
-};
-NWG_UKREP_BID_GetID = {
-    // private _object = _this;
-    _this getVariable ["NWG_UKREP_BID",false]
-};
-NWG_UKREP_BID_SetID = {
-    params ["_object","_buildingId"];
-    _object setVariable ["NWG_UKREP_BID",_buildingId];
-};
-
-//================================================================================================================
-//================================================================================================================
 //Blueprint manipulation
 NWG_UKREP_BP_RELtoABS = {
-    params ["_blueprint","_placementPos","_placementDir","_adaptToGround","_rootExists","_rootBuildingId"];
+    params ["_blueprint","_placementPos","_placementDir","_adaptToGround","_rootExists"];
     private _rootOrigDir = (_blueprint#0)#BP_DIR;
 
     private _result = [];
     private _recursiveRELtoABS = {
-        params ["_rootPos","_rootOrigDir","_rootCurDir","_records","_adapt","_buildingId"];
+        params ["_rootPos","_rootOrigDir","_rootCurDir","_records","_adapt"];
 
         //Prepare variables
         private _a = if (_rootCurDir >= _rootOrigDir)
@@ -434,27 +398,13 @@ NWG_UKREP_BP_RELtoABS = {
             private _absDir = (_rootCurDir + _dirOffset);
             _x set [BP_DIR,_absDir];
 
-            //Apply building ID
-            private _bid = _buildingId;
-            switch (_x#BP_OBJTYPE) do {
-                case OBJ_TYPE_BLDG: {
-                    if (_bid isEqualTo false) then {_bid = (call NWG_UKREP_BID_GenerateID)};//Generate new ID
-                    _x set [BP_BUILDINGID,_bid]
-                };
-                case OBJ_TYPE_FURN;
-                case OBJ_TYPE_DECO: {
-                    if (_bid isNotEqualTo false) then {_x set [BP_BUILDINGID,_bid]};//Apply existing
-                };
-                default {/*Do nothing*/};
-            };
-
             //Save and continue
             private _inside = _x param [BP_INSIDE,[]];
             if ((count _inside) > 0) then {
-                //We need to go deeper
+                //We need to go deeper - process objects inside this one
                 _x set [BP_INSIDE,[]];
                 _result pushBack _x;
-                [_absPos,_origDir,_absDir,_inside,false,_bid] call _recursiveRELtoABS;
+                [_absPos,_origDir,_absDir,_inside,/*adaptToGround:*/false] call _recursiveRELtoABS;
             } else {
                 //We're done
                 _result pushBack _x;
@@ -465,12 +415,12 @@ NWG_UKREP_BP_RELtoABS = {
     if (_rootExists) then {
         //Root object already exists
         private _rootChunk = [(_blueprint deleteAt 0)];
-        [_placementPos,_rootOrigDir,_placementDir,_rootChunk,/*_adaptToGround:*/false,_rootBuildingId] call _recursiveRELtoABS;
-        [_placementPos,_rootOrigDir,_placementDir,_blueprint,_adaptToGround,/*_rootBuildingId:*/false] call _recursiveRELtoABS;
+        [_placementPos,_rootOrigDir,_placementDir,_rootChunk,/*_adaptToGround:*/false] call _recursiveRELtoABS;
+        [_placementPos,_rootOrigDir,_placementDir,_blueprint,_adaptToGround] call _recursiveRELtoABS;
         _rootChunk resize 0;//Clear
     } else {
         //Root object does not exist
-        [_placementPos,_rootOrigDir,_placementDir,_blueprint,_adaptToGround,/*_rootBuildingId:*/false] call _recursiveRELtoABS;
+        [_placementPos,_rootOrigDir,_placementDir,_blueprint,_adaptToGround] call _recursiveRELtoABS;
     };
     _blueprint resize 0;
     _blueprint append _result;
@@ -490,25 +440,52 @@ NWG_UKREP_BP_ApplyChances = {
 
         private _curType = _x;
         private _affectedObjects = _blueprint select {(_x#BP_OBJTYPE) isEqualTo _curType};
-        if ((count _affectedObjects) == 0) then {continue};//Skip if no objects of this type
+        if ((count _affectedObjects) == 0) then {continue};//Skip if no objects to remove
 
-        private _targetCount = if (_chance isEqualType []) then {
-            //Min, max and scale count
-            _chance params ["_min","_max",["_scale",100]];
-            private _delta = (count _affectedObjects) - _scale;
-            if (_delta > 0) then {
-                _min = _min + _delta;
-                _max = _max + _delta;
+        private _targetCount = switch (true) do {
+            case (_chance isEqualType 0.5): {
+                //Fixed percentage
+                //return
+                round ((count _affectedObjects) * _chance)
             };
-            (floor (random (_max-_min+1))) + _min
-        } else {
-            //Percentage
-            round ((count _affectedObjects) * _chance)
+            case (_chance isEqualType []): {
+                //Min-max range
+                private _minPerc = _chance param [0,0.0];
+                private _maxPerc = _chance param [1,1.0];
+                private _targetPercentage = (_minPerc + (random (_maxPerc - _minPerc)));
+                //return
+                round ((count _affectedObjects) * _targetPercentage)
+            };
+            case (_chance isEqualType createHashMap): {
+                //Custom chance rules
+                /*Check if ignore rules are defined*/
+                if ("IgnoreList" in _chance) then {
+                    private _ignoreList = _chance get "IgnoreList";
+                    _affectedObjects = _affectedObjects select {!((_x#BP_CLASSNAME) in _ignoreList)};//Modify affected objects array
+                };
+
+                /*Proceed with target count calculation*/
+                private _minPerc  = _chance getOrDefault ["MinPercentage",0.0];
+                private _maxPerc  = _chance getOrDefault ["MaxPercentage",1.0];
+                private _minCount = _chance getOrDefault ["MinCount",0];
+                private _maxCount = _chance getOrDefault ["MaxCount",(count _affectedObjects)];
+
+                private _targetPercentage = (_minPerc + (random (_maxPerc - _minPerc)));
+                private _result = round ((count _affectedObjects) * _targetPercentage);
+                _result = (_result max _minCount) min _maxCount;//Clamp
+                //return
+                _result
+            };
+            default {
+                //Log error
+                (format ["NWG_UKREP_BP_ApplyChances: Unexpected chance type for '%1': %2",_curType,_chance]) call NWG_fnc_logError;
+                (count _affectedObjects)//Fallback to 100%
+            };
         };
         if ((count _affectedObjects) <= _targetCount) then {continue};//Skip if no objects to remove
 
         _affectedObjects = _affectedObjects call NWG_fnc_arrayShuffle;
-        _toRemove append (_affectedObjects select [_targetCount]);
+        _toRemove append (_affectedObjects select [_targetCount]);//Append everything in excess (from targetCount to the end of the array)
     } forEach [
         OBJ_TYPE_BLDG,
         OBJ_TYPE_FURN,
@@ -534,40 +511,44 @@ NWG_UKREP_BP_ApplyFaction = {
     if (_faction isEqualTo "") exitWith {_blueprint};//Nothing to do
 
     private _factionPage = _faction call NWG_UKREP_GetFactionsPage;
-    if (_factionPage isEqualTo false) exitWith {_blueprint};//Error
+    if (_factionPage isEqualTo false) exitWith {_blueprint};//Error loading faction page. Error logged internally
 
-    private ["_classname","_crew","_replacement"];
+    private ["_classname","_replacement","_crew"];
+    //forEach record in blueprint
     {
         _classname = _x#BP_CLASSNAME;
 
         //Replace classname and payload
         if (_classname in _factionPage) then {
-            _replacement = _factionPage get _classname;
-            _replacement = if ((count _replacement) > 1)
-                then {[_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_classname])] call NWG_fnc_selectRandomGuaranteed}
-                else {_replacement param [0,_classname]};
-            if (_replacement isEqualType []) then {
-                _x set [BP_CLASSNAME,(_replacement#0)];
-                _x set [BP_PAYLOAD,(_replacement#1)];
-            } else {
-                _x set [BP_CLASSNAME,_replacement];
+            _replacement = _factionPage get _classname;//Get array of replacements
+            _replacement = [_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_classname])] call NWG_fnc_selectRandomGuaranteed;//Select random replacement
+            switch (true) do {
+                case (_replacement isEqualType ""): {
+                    _x set [BP_CLASSNAME,_replacement];
+                };
+                case (_replacement isEqualType []): {
+                    _x set [BP_CLASSNAME,(_replacement param [0,""])];
+                    _x set [BP_PAYLOAD,  (_replacement param [1,[]])];
+                };
+                default {
+                    //Log error
+                    (format ["NWG_UKREP_BP_ApplyFaction: Unexpected replacement type for %1",_classname]) call NWG_fnc_logError;
+                };
             };
         };
 
         //Replace crew of the vehicle or turret
         if ((_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_VEHC || {(_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_TRRT}) then {
             _crew = if ((_x#BP_OBJTYPE) isEqualTo OBJ_TYPE_VEHC)
-                then {(_x param [BP_PAYLOAD,[]]) param [0,[]]}
-                else {(_x param [BP_PAYLOAD,[]])};
+                then {(_x param [BP_PAYLOAD,[]]) param [0,[]]}/*VEHC payload: [crew,appearance,pylons]*/
+                else {(_x param [BP_PAYLOAD,[]])};            /*TRRT payload: crew*/
             //do
             {
                 if !(_x isEqualType "")  then {continue};
                 if !(_x in _factionPage) then {continue};
-                _replacement = _factionPage get _x;
-                _replacement = if ((count _replacement) > 1)
-                    then {[_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_x])] call NWG_fnc_selectRandomGuaranteed}
-                    else {_replacement param [0,_x]};
-                _replacement = if (_replacement isEqualType []) then {_replacement#0} else {_replacement};
+                _replacement = _factionPage get _x;//Get array of replacements
+                _replacement = [_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_x])] call NWG_fnc_selectRandomGuaranteed;//Select random replacement
+                _replacement = if (_replacement isEqualType []) then {_replacement param [0,""]} else {_replacement};
                 _crew set [_forEachIndex,_replacement];//Yes, this is legal
             } forEach _crew;
         };
@@ -683,11 +664,10 @@ NWG_UKREP_PlacementCore = {
 };
 
 NWG_UKREP_CreateObject = {
-    // params ["_objType","_classname","_pos","_posOffset","_dir","_dirOffset","_payload","_inside","_buildingId"];
+    // params ["_objType","_classname","_pos","_posOffset","_dir","_dirOffset","_payload","_inside"];
     private _classname = _this#BP_CLASSNAME;
     private _pos = _this#BP_POS;
     private _dir = _this#BP_DIR;
-    private _buildingId = _this param [BP_BUILDINGID,false];
 
     //Create
     private _object = switch (_this#BP_PAYLOAD) do {
@@ -724,9 +704,6 @@ NWG_UKREP_CreateObject = {
             _obj
         };
     };
-
-    //Sign
-    if (_buildingId isNotEqualTo false) then {[_object,_buildingId] call NWG_UKREP_BID_SetID};
 
     //return
     _object

@@ -66,9 +66,15 @@ private _Init = {
         (_this#1) call NWG_GC_DeleteUnitAfterDelay;
     }];
 
+    //Delete floating decor when building model changes (partial destruction)
+    addMissionEventHandler ["BuildingChanged", {
+	    // params ["_from", "_to", "_isRuin"];
+        _this call NWG_GC_OnBuildingChanged;
+    }];
+
     /*Subscribe to NWG events*/
     [EVENT_ON_OBJECT_KILLED,{_this call NWG_GC_OnKilled}] call NWG_fnc_subscribeToServerEvent;
-    [EVENT_ON_UKREP_PLACED,{_this call NWG_GC_RegisterBuildingDecoration}] call NWG_fnc_subscribeToServerEvent;
+    [EVENT_ON_UKREP_OBJECT_DECORATED,{_this call NWG_GC_RegisterObjectDecoration}] call NWG_fnc_subscribeToServerEvent;
 
     /*Save original map state*/
     NWG_GC_originalMarkers = allMapMarkers;
@@ -251,34 +257,99 @@ NWG_GC_Collect = {
 
 //======================================================================================================
 //======================================================================================================
-//Clear building on destruction
-NWG_GC_buildingDecorations = createHashMap;
-NWG_GC_RegisterBuildingDecoration = {
-    // params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
-    //forEach furniture and decoration
-    {
-        (NWG_GC_buildingDecorations getOrDefault [(_x call NWG_fnc_ukrpGetBuildingID),[],true]) pushBack _x;
-    } forEach (((_this#1)+(_this#2)) select {(_x call NWG_fnc_ukrpGetBuildingID) isNotEqualTo false});
+//Handle building decorations (furniture, decorations, etc)
+NWG_GC_nextBuildingID = 0;
+NWG_GC_GetBuildingID = {_this getVariable ["NWG_GC_buildingID",-1]};
+NWG_GC_NewBuildingID = {private _id = NWG_GC_nextBuildingID; NWG_GC_nextBuildingID = _id + 1; _id};
+NWG_GC_SetBuildingID = {params ["_building","_id"]; _building setVariable ["NWG_GC_buildingID",_id]};
+
+NWG_GC_buildingDecorations = [];
+NWG_GC_RegisterObjectDecoration = {
+    params ["_obj","_objType","_ukrepResult"];
+    if !(NWG_GC_Settings get "BUILDING_DECOR_DELETE") exitWith {};//Skip if disabled
+
+    //_ukrepResult params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
+    private _decor = (_ukrepResult#1) + (_ukrepResult#2);//Furniture + decorations
+
+    switch (true) do {
+        //Register new building
+        case (_objType isEqualTo OBJ_TYPE_BLDG && {(_obj call NWG_GC_GetBuildingID) < 0}): {
+            private _id = call NWG_GC_NewBuildingID;
+            [_obj,_id] call NWG_GC_SetBuildingID;
+            NWG_GC_buildingDecorations set [_id,_decor];
+        };
+        //Update registered building
+        case (_objType isEqualTo OBJ_TYPE_BLDG): {
+            private _id = _obj call NWG_GC_GetBuildingID;
+            (NWG_GC_buildingDecorations select _id) append _decor;
+        };
+        //Check if this object is a decoration of registered building - update accordingly
+        default {
+            private _id = NWG_GC_buildingDecorations findIf {_obj in _x};
+            if (_id < 0) exitWith {};//Not a decoration of registered building
+            (NWG_GC_buildingDecorations select _id) append _decor;
+        };
+    };
+
+};
+
+NWG_GC_OnBuildingChanged = {
+    // params ["_from", "_to", "_isRuin"];
+    params ["_oldBuilding","_newBuilding"];
+    if !(NWG_GC_Settings get "BUILDING_DECOR_DELETE") exitWith {};//Skip if disabled
+
+    private _id = _oldBuilding call NWG_GC_GetBuildingID;
+    if (_id < 0) exitWith {};//Skip unknown building
+
+    if (!isNull _newBuilding) then {[_newBuilding,_id] call NWG_GC_SetBuildingID};//Copy ID to new building
+    //We do not delete id from the old building because NWG_GC_OnBuildingDestroyed may fire for it
+
+    _id call NWG_GC_DeleteFloatingBuildingDecor;
 };
 
 NWG_GC_OnBuildingDestroyed = {
     // params ["_object","_objType","_actualKiller","_isPlayerKiller"];
+    params ["_building"];
+    if !(NWG_GC_Settings get "BUILDING_DECOR_DELETE") exitWith {};//Skip if disabled
 
-    //Check building ID
-    private _buildingID = (_this#0) call NWG_fnc_ukrpGetBuildingID;
-    if (_buildingID isEqualTo false) exitWith {};//This building was not part of the mission
+    private _id = _building call NWG_GC_GetBuildingID;
+    if (_id < 0) exitWith {};//Skip unknown building
 
-    //Get decorations
-    private _buildingDecor = NWG_GC_buildingDecorations getOrDefault [_buildingID,[]];
-    if ((count _buildingDecor) == 0) exitWith {};//No decorations to delete
+    _id call NWG_GC_DeleteFloatingBuildingDecor;
+};
 
-    //Delete all decorations that hang in the air
-    _buildingDecor spawn {
-        sleep (NWG_GC_Settings get "BUILDING_DECOR_DELETE_DELAY");
-        private _i = -1;
-        while {_i = _this findIf {isNull _x || {((position _x)#2) > 0.1}}; _i != -1} do {
-            (_this deleteAt _i) call NWG_GC_DeleteObject;
-        };
+NWG_GC_deletionHandles = [];
+NWG_GC_DeleteFloatingBuildingDecor = {
+    private _buildingID = _this;
+
+    //Fix NWG_GC_OnBuildingChanged and NWG_GC_OnBuildingDestroyed being called at the same time (case with some buildings)
+    private _curHandle = NWG_GC_deletionHandles param [_buildingID,scriptNull];
+    if (!isNull _curHandle && {!scriptDone _curHandle}) exitWith {};//There is already a deletion in progress
+
+    _curHandle = _buildingID spawn NWG_GC_DeleteFloatingBuildingDecor_Core;
+    NWG_GC_deletionHandles set [_buildingID,_curHandle];
+};
+
+NWG_GC_DeleteFloatingBuildingDecor_Core = {
+    private _buildingID = _this;
+    sleep (NWG_GC_Settings get "BUILDING_DECOR_DELETE_DELAY");
+
+    private _decor = NWG_GC_buildingDecorations param [_buildingID,[]];
+    private _prevCount = count _decor;
+    waitUntil {
+        if ((count _decor) == 0) exitWith {true};//Nothing to delete (safe check for possible NWG_GC_DeleteMission call while sleeping)
+
+        //Delete all floating decorations
+        {
+            if (isNull _x || {((position _x)#2) > 0.1})
+                then {(_decor deleteAt _forEachIndex) call NWG_GC_DeleteObject};
+        } forEachReversed _decor;
+
+        if ((count _decor) == _prevCount) exitWith {true};//Nothing was deleted
+        _prevCount = count _decor;//Update cached count
+        sleep 0.1;
+        //Go to next iteration
+        false
     };
 };
 
@@ -298,7 +369,7 @@ NWG_GC_DeleteMission = {
     {
         {_x call NWG_GC_DeleteObject} forEach _x;
         _x resize 0;
-    } forEach (values NWG_GC_buildingDecorations);
+    } forEach NWG_GC_buildingDecorations;
 
     //3. Find and delete all AI groups
     {_x call NWG_GC_DeleteGroup} forEach (allGroups select {!(_x in NWG_GC_originalGroups) && {((units _x) findIf {isPlayer _x}) == -1}});
