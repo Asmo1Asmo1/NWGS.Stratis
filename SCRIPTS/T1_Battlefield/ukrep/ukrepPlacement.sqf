@@ -325,6 +325,8 @@ NWG_UKREP_PUBLIC_PlaceREL_Object = {
     private _result = [_blueprint,_object,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PlaceREL_Object;
     if (_result isEqualTo false) exitWith {false};//Error
 
+    [EVENT_ON_UKREP_OBJECT_DECORATED,[_object,_objectType,_result]] call NWG_fnc_raiseServerEvent;
+
     //return
     _result
 };
