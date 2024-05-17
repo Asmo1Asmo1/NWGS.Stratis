@@ -255,6 +255,8 @@ NWG_GC_Collect = {
 NWG_GC_buildingDecorations = createHashMap;
 NWG_GC_RegisterBuildingDecoration = {
     // params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
+    if !(NWG_GC_Settings get "BUILDING_DECOR_DELETE") exitWith {};//Skip if disabled
+
     //forEach furniture and decoration
     {
         (NWG_GC_buildingDecorations getOrDefault [(_x call NWG_fnc_ukrpGetBuildingID),[],true]) pushBack _x;
@@ -263,6 +265,7 @@ NWG_GC_RegisterBuildingDecoration = {
 
 NWG_GC_OnBuildingDestroyed = {
     // params ["_object","_objType","_actualKiller","_isPlayerKiller"];
+    if !(NWG_GC_Settings get "BUILDING_DECOR_DELETE") exitWith {};//Skip if disabled
 
     //Check building ID
     private _buildingID = (_this#0) call NWG_fnc_ukrpGetBuildingID;
@@ -274,10 +277,21 @@ NWG_GC_OnBuildingDestroyed = {
 
     //Delete all decorations that hang in the air
     _buildingDecor spawn {
+        // private _buildingDecor = _this;
         sleep (NWG_GC_Settings get "BUILDING_DECOR_DELETE_DELAY");
-        private _i = -1;
-        while {_i = _this findIf {isNull _x || {((position _x)#2) > 0.1}}; _i != -1} do {
-            (_this deleteAt _i) call NWG_GC_DeleteObject;
+        if ((count _this) == 0) exitWith {};//Check again (just in case)
+
+        //OK, I guess a little explanation is needed here:
+        //We do the main logic INSIDE THE CONDITION BLOCK - this way we got us some sort of a "do-while" loop in SQF
+        private _prevCount = count _this;
+        while {
+            {
+                if (isNull _x || {((position _x)#2) > 0.1})
+                    then {(_this deleteAt _forEachIndex) call NWG_GC_DeleteObject};
+            } forEachReversed _this;
+            (count _this) != _prevCount
+        } do {
+            _prevCount = count _this;
         };
     };
 };
