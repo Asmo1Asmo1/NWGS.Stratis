@@ -971,7 +971,7 @@
         ["DECO","Land_PortableLight_02_folded_sand_F",0,[-0.375,3.25,0.0235796],45,45,1],
         ["DECO","Land_PortableServer_01_sand_F",0,[-0.5,-2.25,0.0220294],270,270,0,[
             ["DECO","Land_PortableServer_01_sand_F",0,[0,0,0.347143],270,0,0]]],
-        ["DECO","Land_Sleeping_bag_brown_folded_F",0,[3.5,2.75,0.00459099],165,165,0],
+        ["DECO","Item_Sleeping_bag_folded_01",0,[3.5,2.75,0.00459099],165,165,2],
         ["DECO","Land_Stretcher_01_folded_olive_F",0,[3.32104,3.5332,-0.0235796],135,135,0],
         ["DECO","RuggedTerminal_01_F",0,[2.90918,0.375,0],90,90,1],
         ["DECO","RuggedTerminal_02_communications_F",0,[-2.875,2.75,0.0235796],90,90,1],
