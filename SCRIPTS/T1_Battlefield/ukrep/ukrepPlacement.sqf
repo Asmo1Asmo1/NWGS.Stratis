@@ -258,14 +258,13 @@ NWG_UKREP_FRACTAL_HasRelSetup = {
 
 NWG_UKREP_FRACTAL_IsFurnitureOutside = {
     private _furn = _this;
-    if ((_furn call NWG_UKREP_BID_GetID) isNotEqualTo false) exitWith {false};//Is inside a building (has its ID)
 
     private _raycastFrom = getPosWorld _furn;
     private _raycastTo = _raycastFrom vectorAdd [0,0,-50];
-    private _result = (flatten (lineIntersectsSurfaces [_raycastFrom,_raycastTo,_furn,objNull,true,-1,"FIRE","VIEW",true]));//Get raycast result
-    _result = _result select {_x isEqualType objNull && {!isNull _x && {!(_x isEqualTo _furn)}}};//Filter objects only
-    //return
-    (count _result) == 0
+    private _raycast = (flatten (lineIntersectsSurfaces [_raycastFrom,_raycastTo,_furn,objNull,true,-1,"FIRE","VIEW",true]));
+
+    //Find if there is at least one object beneath - if there is, then the furniture is inside something
+    (_raycast findIf {_x isEqualType objNull && {!isNull _x && {!(_x isEqualTo _furn)}}}) == -1
 };
 
 //================================================================================================================
