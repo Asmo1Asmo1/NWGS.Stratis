@@ -1,4 +1,8 @@
 createHashMapFromArray [
+
+//========================================================================================================
+/*  ==== UNITS ====     */
+
 [
     "B_Soldier_VR_F",/*Blue VR unit (common units)*/
     [
@@ -79,19 +83,8 @@ createHashMapFromArray [
     ]
 ],
 
-[
-    "Land_VR_Shape_01_cube_1m_F",/*VR cube (boxes)*/
-    [
-        ["Land_CampingChair_V2_F",/*payload:*/0],
-        ["Land_CampingChair_V1_F",/*payload:*/0],
-        ["Box_NATO_Ammo_F",       /*payload:*/2],
-        ["Box_NATO_Wps_F",        /*payload:*/2],
-        ["Box_NATO_AmmoOrd_F",    /*payload:*/2],
-        ["Box_NATO_Grenades_F",   /*payload:*/2],
-        ["Box_NATO_Support_F",    /*payload:*/2],
-        ["Land_MetalBarrel_F",    /*payload:*/0]
-    ]
-],
+//========================================================================================================
+/*  ==== VEHICLES ====     */
 
 [
     "Land_VR_Target_MRAP_01_F",/*Small VR vehicle*/
@@ -128,6 +121,9 @@ createHashMapFromArray [
     ]
 ],
 
+//========================================================================================================
+/*  ==== TURRETS    ====*/
+
 [
     "B_HMG_01_high_F",/*Standing turret*/
     [
@@ -152,7 +148,39 @@ createHashMapFromArray [
     "B_static_AA_F",/*Launcher turret*/
     [
         "B_static_AA_F",
-        "B_static_AT_F"
+        "B_static_AT_F",
+        "B_Mortar_01_F"
+    ]
+],
+
+//========================================================================================================
+/*  ==== OBJECTS    ====*/
+
+[
+    "Land_VR_Shape_01_cube_1m_F",/*VR cube (boxes)*/
+    [
+        /*Loot crates*/
+        ["Box_NATO_Wps_F",      /*payload:*/2],
+        ["Box_NATO_Wps_F",      /*payload:*/2],
+        ["Box_NATO_Ammo_F",     /*payload:*/2],
+        ["Box_NATO_AmmoOrd_F",  /*payload:*/2],
+        ["Box_NATO_Grenades_F", /*payload:*/2],
+        ["Box_NATO_Support_F",  /*payload:*/2],
+        /*Props*/
+        ["Land_MetalBarrel_F",      /*payload:*/0],
+        ["FlexibleTank_01_forest_F",/*payload:*/0],
+        ["TrashBagHolder_01_F",     /*payload:*/0],
+        ["Land_PaperBox_01_small_closed_brown_F",/*payload:*/0]
+    ]
+],
+
+[
+    "Land_MedicalTent_01_NATO_generic_inner_F",/*Tent (tents)*/
+    [
+        ["Land_DeconTent_01_NATO_F",                /*payload:*/1],
+        ["Land_MedicalTent_01_NATO_generic_inner_F",/*payload:*/1],
+        ["Land_MedicalTent_01_NATO_generic_open_F", /*payload:*/1],
+        ["Land_MedicalTent_01_NATO_generic_outer_F",/*payload:*/1]
     ]
 ]
 ];

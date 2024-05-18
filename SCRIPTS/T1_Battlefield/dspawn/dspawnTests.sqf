@@ -42,6 +42,12 @@ NWG_DSPAWN_REINF_SendReinforcements_Test_InvalidFilter = {
     [(getPosATL player),_this,"NATO",[["invalidWhiteFilter"]]] call NWG_DSPAWN_REINF_SendReinforcements
 };
 
+// "ARTA" call NWG_DSPAWN_REINF_SendReinforcements_Test_Type
+NWG_DSPAWN_REINF_SendReinforcements_Test_Type = {
+    // private _type = _this;
+    [(getPosATL player),1,"NATO",[[_this]]] call NWG_DSPAWN_REINF_SendReinforcements
+};
+
 //================================================================================================================
 //================================================================================================================
 //Catalogue read
