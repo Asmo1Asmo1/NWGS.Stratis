@@ -240,7 +240,7 @@
             ["B_MBT_01_arty_F",[["Sand",1],["showCanisters",0.5,"showCamonetTurret",0.5,"showAmmobox",0.5,"showCamonetHull",0.5]],false],
             [3,"B_crew_F"]
         ],
-        //M5 Sandstorm - MRLS artillery
+        //M5 Sandstorm - MLRS artillery
         [
             ["ARM","MEC","ARTA"],3,
             ["B_MBT_01_mlrs_F",[["Sand",1],["showCamonetTurret",0.5,"showCamonetHull",0.5]],false],
