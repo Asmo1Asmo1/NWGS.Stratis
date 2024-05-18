@@ -1062,6 +1062,16 @@ NWG_DSPAWN_InfAttackLogic = {
 /*- Attack logic for VEH & ARM*/
 NWG_DSPAWN_VehAttackLogic = {
     params ["_group","_attackPos","_tags"];
+
+    //Stand your ground for artillery
+    if ("ARTA" in _tags) exitWith {
+        private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
+        private _moveAsideWp = [(getPosATL _grpVehicle),100,"ground"] call NWG_fnc_dtsFindDotForWaypoint;
+        if (_moveAsideWp isEqualTo false) exitWith {};
+        [_group,_moveAsideWp] call NWG_DSPAWN_AddWaypoint;//Just move a little bit away from the spawn point
+    };
+
+    //Prepare variables
     private _unloadRadius = NWG_DSPAWN_Settings get "ATTACK_VEH_UNLOAD_RADIUS";
     private _attackRadius = NWG_DSPAWN_Settings get "ATTACK_VEH_ATTACK_RADIUS";
 
