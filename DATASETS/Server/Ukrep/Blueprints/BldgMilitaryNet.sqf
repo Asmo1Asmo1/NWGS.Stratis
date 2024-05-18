@@ -164,7 +164,7 @@
         ["DECO","Land_RefuelingHose_01_F",0,[3.36597,2.5,0.00465775],30,30,0],
         ["DECO","Land_ScrapHeap_1_F",0,[-2.5,-4,0],0,0,1],
         ["DECO","Land_TankTracks_01_long_F",0,[-4.375,-4.75,2.95639e-005],180,180,0],
-        ["DECO","Land_VR_Target_MRAP_01_F",0,[2.125,-3.75,0],195,195,2],
+        ["VEHC","Land_VR_Target_MRAP_01_F",0,[2.125,-3.75,0],195,195,[]],
         ["DECO","Land_WeldingTrolley_01_F",0,[0.5,5.75,0],150,150,0],
         ["DECO","Oil_Spill_F",0,[1.75,-3,0],30,30,1],
         ["DECO","Tire_Van_02_Cargo_F",0,[-3.875,-2.5,-0.000683308],0,0,0],
