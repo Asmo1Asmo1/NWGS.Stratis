@@ -92,7 +92,7 @@
 	"Warehouse",
 [
 	["Land_i_Shed_Ind_F",	"Land_i_Shed_Ind_old_F",	"Land_SM_01_shed_F"],
-	["Land_SM_01_shed_unfinished_F",	"Land_u_Shed_Ind_F"],
+	["Land_u_Shed_Ind_F",	"Land_SM_01_shed_unfinished_F"],
 	"Land_Barn_03_large_F",
 	"Land_Barn_03_small_F",
 	"Land_Barn_04_F",
