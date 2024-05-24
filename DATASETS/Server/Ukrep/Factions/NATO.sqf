@@ -196,15 +196,6 @@ createHashMapFromArray [
     ]
 ],
 [
-    "C_Hatchback_01_F",/*Hatchback*/
-    [
-        ["C_Hatchback_01_F",            [/*crew:*/[],/*appearance:*/[["Beige",0.5,"Green",0.5,"Blue",0.5,"Bluecustom",0.5,"Beigecustom",0.5,"Yellow",0.5,"Grey",0.5,"Black",0.5,"Dark",0.5],[]] ]],
-        ["C_Hatchback_01_sport_F",      [/*crew:*/[],/*appearance:*/[["Red",0.5,"Blue",0.5,"Orange",0.5,"White",0.5,"Beige",0.5,"Green",0.5,"Grey",0.5],[]] ]],
-        ["C_Offroad_02_unarmed_F",      [/*crew:*/[],/*appearance:*/[["Black",0.5,"Blue",0.5,"Green",0.5,"Orange",0.5,"Red",0.5,"White",0.5,"Brown",0.5,"Olive",0.5,"IDAP",0.5],["hideLeftDoor",0,"hideRightDoor",0,"hideRearDoor",0,"hideBullbar",0.5,"hideFenders",0.5,"hideHeadSupportRear",0,"hideHeadSupportFront",0,"hideRollcage",0.5,"hideSeatsRear",0.5,"hideSpareWheel",0.5]] ]],
-        ["C_Offroad_02_unarmed_F",      [/*crew:*/[],/*appearance:*/[["Black",0.5,"Blue",0.5,"Green",0.5,"Orange",0.5,"Red",0.5,"White",0.5,"Brown",0.5,"Olive",0.5,"IDAP",0.5],["hideLeftDoor",1,"hideRightDoor",1,"hideRearDoor",0.5,"hideBullbar",0.5,"hideFenders",0.5,"hideHeadSupportRear",1,"hideHeadSupportFront",1,"hideRollcage",0.5,"hideSeatsRear",0.5,"hideSpareWheel",0.5]] ]]
-    ]
-],
-[
     "C_Offroad_01_F",/*Offroad*/
     [
         ["C_Offroad_01_F",          [/*crew:*/[],/*appearance:*/[["Red",0.5,"Beige",0.5,"White",0.5,"Blue",0.5,"Darkred",0.5,"Bluecustom",0.5,"IDAP",0.5,"Green",0.5,"ParkRanger",0.5],["HideDoor1",0,"HideDoor2",0,"HideDoor3",0.4,"HideBackpacks",1,"HideBumper1",1,"HideBumper2",0.5,"HideConstruction",0.5,"hidePolice",1,"HideServices",1,"BeaconsStart",0,"BeaconsServicesStart",0]] ]],
@@ -212,7 +203,11 @@ createHashMapFromArray [
         ["C_Offroad_01_covered_F",  [/*crew:*/[],/*appearance:*/[["Green",0.5,"Black",0.5,"ParkRanger",0.5],["hidePolice",1,"HideServices",1,"HideCover",0,"StartBeaconLight",0,"HideRoofRack",1,"HideLoudSpeakers",1,"HideAntennas",1,"HideBeacon",1,"HideSpotlight",1,"HideDoor3",0,"OpenDoor3",0,"HideDoor1",0,"HideDoor2",0,"HideBackpacks",1,"HideBumper1",1,"HideBumper2",0,"HideConstruction",0,"BeaconsStart",0]] ]],
         ["C_Offroad_01_covered_F",  [/*crew:*/[],/*appearance:*/[["Green",0.5,"Black",0.5,"ParkRanger",0.5],["hidePolice",1,"HideServices",0,"HideCover",1,"StartBeaconLight",0,"HideRoofRack",1,"HideLoudSpeakers",1,"HideAntennas",1,"HideBeacon",1,"HideSpotlight",1,"HideDoor3",0,"OpenDoor3",0,"HideDoor1",0,"HideDoor2",0,"HideBackpacks",1,"HideBumper1",1,"HideBumper2",1,"HideConstruction",0,"BeaconsStart",0]] ]],
         ["C_SUV_01_F",              [/*crew:*/[],/*appearance:*/[["Red",0.5,"Black",0.5,"Grey",0.5,"Orange",0.5],[]] ]],
-        ["C_SUV_01_F",              [/*crew:*/[],/*appearance:*/[["Red",0.5,"Black",0.5,"Grey",0.5,"Orange",0.5],[]] ]]
+        ["C_SUV_01_F",              [/*crew:*/[],/*appearance:*/[["Red",0.5,"Black",0.5,"Grey",0.5,"Orange",0.5],[]] ]],
+        ["C_Hatchback_01_F",            [/*crew:*/[],/*appearance:*/[["Beige",0.5,"Green",0.5,"Blue",0.5,"Bluecustom",0.5,"Beigecustom",0.5,"Yellow",0.5,"Grey",0.5,"Black",0.5,"Dark",0.5],[]] ]],
+        ["C_Hatchback_01_sport_F",      [/*crew:*/[],/*appearance:*/[["Red",0.5,"Blue",0.5,"Orange",0.5,"White",0.5,"Beige",0.5,"Green",0.5,"Grey",0.5],[]] ]],
+        ["C_Offroad_02_unarmed_F",      [/*crew:*/[],/*appearance:*/[["Black",0.5,"Blue",0.5,"Green",0.5,"Orange",0.5,"Red",0.5,"White",0.5,"Brown",0.5,"Olive",0.5,"IDAP",0.5],["hideLeftDoor",0,"hideRightDoor",0,"hideRearDoor",0,"hideBullbar",0.5,"hideFenders",0.5,"hideHeadSupportRear",0,"hideHeadSupportFront",0,"hideRollcage",0.5,"hideSeatsRear",0.5,"hideSpareWheel",0.5]] ]],
+        ["C_Offroad_02_unarmed_F",      [/*crew:*/[],/*appearance:*/[["Black",0.5,"Blue",0.5,"Green",0.5,"Orange",0.5,"Red",0.5,"White",0.5,"Brown",0.5,"Olive",0.5,"IDAP",0.5],["hideLeftDoor",1,"hideRightDoor",1,"hideRearDoor",0.5,"hideBullbar",0.5,"hideFenders",0.5,"hideHeadSupportRear",1,"hideHeadSupportFront",1,"hideRollcage",0.5,"hideSeatsRear",0.5,"hideSpareWheel",0.5]] ]]
     ]
 ],
 [
