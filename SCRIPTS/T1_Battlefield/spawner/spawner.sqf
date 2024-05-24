@@ -39,7 +39,7 @@ NWG_SPWN_SpawnVehicleExact = {
 
     private _vehicle = _this call NWG_SPWN_PrespawnVehicle;
     private _posATL = ASLToATL _pos;
-    if ((_posATL#2) < 0.3) then {
+    if ((_posATL#2) < 0.1) then {
         _posATL set [2,0];
         _vehicle setVehiclePosition [_posATL,[],0,"CAN_COLLIDE"];//Placement with attempt to avoid ground collision
     } else {
