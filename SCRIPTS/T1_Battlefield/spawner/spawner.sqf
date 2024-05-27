@@ -39,7 +39,7 @@ NWG_SPWN_SpawnVehicleExact = {
 
     private _vehicle = _this call NWG_SPWN_PrespawnVehicle;
     private _posATL = ASLToATL _pos;
-    if ((_posATL#2) < 0.3) then {
+    if ((_posATL#2) < 0.1) then {
         _posATL set [2,0];
         _vehicle setVehiclePosition [_posATL,[],0,"CAN_COLLIDE"];//Placement with attempt to avoid ground collision
     } else {
@@ -337,6 +337,29 @@ NWG_SPWN_GetOriginalCrew = {
 NWG_SPWN_GetVehicleAppearance = {
     // private _vehicle = _this;
     (_this call BIS_fnc_getVehicleCustomization)
+};
+
+NWG_SPWN_GetVehicleAppearanceAll = {
+    // private _vehicle = _this;
+
+    //Modified copy of BIS_fnc_getVehicleCustomization content that gets ALL the colors and animations available
+    private _vehCfg = configFile >> "cfgVehicles" >> (typeof _this);
+
+    private _colors = [];
+    {
+        _colors pushBack (configName _x);
+        _colors pushBack 0.5;
+    } forEach ("true" configClasses (_vehCfg >> "TextureSources"));
+
+    private _animations = [];
+    {
+        _animations pushBack (configName _x);
+        _animations pushBack 0.5;
+    } forEach ((configProperties [_vehCfg >> "animationSources", "isClass _x", true])
+        select {getText (_x >> "displayName") isNotEqualTo "" && {getnumber (_x >> "scope") > 1 || !isnumber (_x >> "scope")}});
+
+    //return
+    [_colors,_animations]
 };
 
 NWG_SPWN_SetVehicleAppearance = {

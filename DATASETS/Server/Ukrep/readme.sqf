@@ -35,3 +35,11 @@ setAccTime 2;
     "Land_VR_Target_MRAP_01_F",//Small VR vehicle
     "Land_VR_Target_APC_Wheeled_01_F",//Medium VR vehicle
     "Land_VR_Target_MBT_01_cannon_F"//Large VR vehicle
+
+
+//Get vehicles appearance:
+/*Get current appearance with current values:*/
+cursorObject call NWG_fnc_spwnGetVehicleAppearance;
+
+/*Get all the appearance and color variants:*/
+cursorObject call NWG_fnc_spwnGetVehicleAppearanceAll;

@@ -137,6 +137,17 @@ NWG_fnc_spwnGetVehicleAppearance = {
     //returns _appearance
 };
 
+//Get all the variations of vehicle appearance (safe to use with NWG_fnc_spwnSetVehicleAppearance)
+//params:
+//_vehicle - vehicle to get appearance of
+//returns:
+//appearance of the vehicle (with all values set to 0.5 for each variation)
+NWG_fnc_spwnGetVehicleAppearanceAll = {
+    //private _vehicle = _this;
+    _this call NWG_SPWN_GetVehicleAppearanceAll
+    //returns _appearance
+};
+
 //Set appearance of the vehicle
 //params:
 //_vehicle - vehicle to set appearance of
