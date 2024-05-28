@@ -22,9 +22,10 @@
 #define BST_TRIGGER "Trigger"
 #define BST_REINFMAP "ReinfMap"
 
-//Mission states
+//Mission stages
 /* initialization */
-#define MSTATE_SCRIPTS_COMPILATION -2
+#define MSTATE_SCRIPTS_COMPILATION -3
+#define MSTATE_DISABLED -2
 #define MSTATE_MACHINE_STARTUP -1
 /* world build */
 #define MSTATE_BASE_INIT 0
@@ -40,7 +41,7 @@
 /* mission playflow */
 #define MSTATE_FIGHT_READY 7
 #define MSTATE_FIGHT_INFILTRATION 8
-#define MSTATE_FIGHT 9
+#define MSTATE_FIGHT_ACTIVE 9
 #define MSTATE_FIGHT_OUT 10
 #define MSTATE_FIGHT_EXHAUSTED 11
 #define MSTATE_FIGHT_ABANDONED 12
