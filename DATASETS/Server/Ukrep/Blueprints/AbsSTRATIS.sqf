@@ -1,0 +1,27 @@
+[
+    ["ABS","LZConnor01",[2990.24,1861.13,0],0,98.4011,0,[],[
+        ["BLDG","CamoNet_BLUFOR_open_F",[2967,1857,171.478],0,330,0,1],
+        ["BLDG","Land_Cargo_Patrol_V2_F",[2942,1850,175],0,60,0,1],
+        ["BLDG","Land_Cargo_Patrol_V2_F",[3011,1859,170.78],0,315,0,1],
+        ["BLDG","Land_Cargo_Tower_V2_F",[2978,1870,171.4],0,60,0,2],
+        ["BLDG","Land_MedicalTent_01_NATO_generic_inner_F",[2994,1879,171.288],0,60.1424,0,1],
+        ["BLDG","Land_MedicalTent_01_NATO_generic_inner_F",[3000,1869,171.315],0,60.1429,0,1],
+        ["DECO","B_Slingload_01_Fuel_F",[2962,1874,171.395],0,60,0,0],
+        ["DECO","B_Slingload_01_Fuel_F",[2961,1877,171.39],0,60,0,0],
+        ["DECO","Land_Can_Dented_F",[3063.78,1816.6,153.879],0,0,0,0],
+        ["DECO","Land_Can_Dented_F",[3002.82,1941.74,167.016],0,0,0,0],
+        ["DECO","Land_Can_Dented_F",[2898.83,1824.7,165.707],0,0,0,0],
+        ["DECO","Land_CargoBox_V1_F",[2979.01,1848.25,171.901],0,181.602,0,0],
+        ["DECO","Land_CargoBox_V1_F",[2977.13,1847.49,172.043],0,172.393,0,0],
+        ["DECO","Land_GarbageHeap_02_F",[3000.88,1858.88,171.285],0,165.011,0,1],
+        ["DECO","Land_HBarrier_5_F",[3034,1842,164.29],0,225,0,1],
+        ["DECO","Land_HBarrier_5_F",[3026.13,1832.25,165.134],0,210,0,1],
+        ["DECO","Land_HBarrier_5_F",[3034,1835,164.315],0,300,0,1],
+        ["DECO","Land_Sacks_heap_F",[2979.09,1846.69,172.034],0,164.682,0,1],
+        ["DECO","Land_WoodenCrate_01_F",[2977.58,1846.21,172.175],0,105.028,0,0],
+        ["UNIT","C_Soldier_VR_F",[2998.42,1895.25,170.731],0,270,0,0],
+        ["UNIT","I_Soldier_VR_F",[2997.05,1895.11,170.813],0,60,0,0],
+        ["VEHC","Land_VR_Target_MBT_01_cannon_F",[3029,1838,164.952],0,120,0,[]],
+        ["VEHC","Land_VR_Target_MRAP_01_F",[2998,1892,171.06],0,74.995,0,[]],
+        ["HELP","ModuleHideTerrainObjects_F",[2955,1872,171.25],0,0,0,[["#hidelocally",false],["bis_fnc_initmodules_disableautoactivation",false],["#filter",4],["objectarea",[10,10,0,false,-1]]]]]]
+]

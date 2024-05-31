@@ -1,3 +1,4 @@
+/*======== GROUPS ==========*/
 //Checks if the given group is spawned by 'ukrep' subsystem
 //params:
 // _group - group to check
@@ -8,6 +9,7 @@ NWG_fnc_ukrpIsUkrepGroup = {
     _this getVariable ["NWG_UKREP_ownership",false]
 };
 
+/*======== BLUEPRINTS ==========*/
 //Returns array of all ABS blueprints from the given page
 //params:
 // _pageName - name of the catalogue page to read
@@ -32,6 +34,26 @@ NWG_fnc_ukrpGetBlueprintsABS = {
 NWG_fnc_ukrpGetBlueprintsREL = {
     // params ["_pageName",["_blueprintName",""],["_blueprintRoot",[]]];
     _this call NWG_UKREP_GetBlueprintsREL
+};
+
+/*======== BUILDING ==========*/
+//Builds FRACTAL ABS composition
+//params:
+// _fractalSteps - array of fractal steps describing each step of the building process
+//      0: root - root layer of the fractal: [["_pageName",""],["_blueprintName",""],["_chances",[]],["_blueprintPos",[]]]
+//      1: bldg - each building:             [["_pageName",""],["_blueprintName",""],["_chances",[]]];
+//      2: furn - each furniture:            [["_pageName",""],["_blueprintName",""],["_chances",[]]];
+// _faction - (optional) faction replacement to be applied (e.g.: "NATO") (default: "")
+// _groupRules - (optional) array of group rules to be applied to the composition
+//      rules are:
+//          - 0: GRP_RULES_MEMBERSHIP - side/group/"AGENT" (default: west) (use "AGENT" to create units as agents instead of actual units)
+//          - 1: GRP_RULES_DYNASIM - apply dynamic simulation to the group (default: true)
+// _mapObjectsLimit - (optional) limit of pre-existing map objects (buildings and furniture) to include in the composition (default: 10)
+//returns:
+// [_bldgs,_furns,_decos,_units,_vehcs,_trrts,_mines] - array of spawned objects OR false if failed
+NWG_fnc_ukrpBuildFractalABS = {
+    // params ["_fractalSteps",["_faction",""],["_groupRules",[]],["_mapObjectsLimit",10]];
+    _this call NWG_UKREP_FRACTAL_PlaceFractalABS
 };
 
 //Builds composition around given object
