@@ -8,6 +8,32 @@ NWG_fnc_ukrpIsUkrepGroup = {
     _this getVariable ["NWG_UKREP_ownership",false]
 };
 
+//Returns array of all ABS blueprints from the given page
+//params:
+// _pageName - name of the catalogue page to read
+// _blueprintName - (optional) name filter of the blueprint(s) to be selected from the page
+// _blueprintPos - (optional) position filter of the blueprint(s) to be selected from the page
+//returns:
+// array of blueprint containers (empty array if none found)
+// each container has following structure: ["ABS","UkrepName",[ABSPos],0,Radius,0,[Payload],[Blueprint]]
+NWG_fnc_ukrpGetBlueprintsABS = {
+    // params ["_pageName",["_blueprintName",""],["_blueprintPos",[]]];
+    _this call NWG_UKREP_GetBlueprintsABS
+};
+
+//Returns array of all REL blueprints from the given page
+//params:
+// _pageName - name of the catalogue page to read
+// _blueprintName - (optional) name filter of the blueprint(s) to be selected from the page
+// _blueprintRoot - (optional) root filter of the blueprint(s) to be selected from the page
+//returns:
+// array of blueprint containers (empty array if none found)
+// each container has following structure: ["REL","UkrepName",0,0,Radius,0,[Payload],[Blueprint]]
+NWG_fnc_ukrpGetBlueprintsREL = {
+    // params ["_pageName",["_blueprintName",""],["_blueprintRoot",[]]];
+    _this call NWG_UKREP_GetBlueprintsREL
+};
+
 //Builds composition around given object
 //params:
 // _pageName - name of the catalogue page to be used
