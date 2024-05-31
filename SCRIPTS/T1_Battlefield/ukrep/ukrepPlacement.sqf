@@ -302,7 +302,7 @@ NWG_UKREP_PUBLIC_PlaceREL_Position = {
 
 NWG_UKREP_PUBLIC_PlaceREL_Object = {
     params ["_pageName","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
-    if (_objectType isEqualTo "") then {_objectType = _object call NWG_fnc_getObjectType};
+    if (_objectType isEqualTo "") then {_objectType = _object call NWG_fnc_ocGetObjectType};
     private _rootObjFilter = switch (_objectType) do {
         case OBJ_TYPE_BLDG: {_object call NWG_fnc_ocGetSameBuildings};
         case OBJ_TYPE_FURN: {_object call NWG_fnc_ocGetSameFurniture};
@@ -604,10 +604,9 @@ NWG_UKREP_PlacementCore = {
     private _placementGroup = grpNull;
     private _getGroup = {
         if (!isNull _placementGroup) exitWith {_placementGroup};
-        _placementGroup = createGroup [
-            (_groupRules param [GRP_RULES_SIDE,(NWG_UKREP_Settings get "DEFAULT_GROUP_SIDE")]),
-            /*delete when empty:*/true
-        ];
+        private _membership = _groupRules param [GRP_RULES_MEMBERSHIP,(NWG_UKREP_Settings get "DEFAULT_GROUP_SIDE")];
+        if (_membership isEqualTo "AGENT") exitWith {_placementGroup = "AGENT"; "AGENT"};//Special case
+        _placementGroup = createGroup [_membership,/*delete when empty:*/true];
         _placementGroup
     };
 
@@ -634,8 +633,9 @@ NWG_UKREP_PlacementCore = {
     };
 
     /*Finalize group*/
-    if (!isNull _placementGroup) then {
-        _placementGroup enableDynamicSimulation (_groupRules param [GRP_RULES_DYNASIM,(NWG_UKREP_Settings get "DEFAULT_GROUP_DYNASIM")]);
+    if (_placementGroup isEqualType grpNull && {!isNull _placementGroup}) then {
+        if (_groupRules param [GRP_RULES_DYNASIM,(NWG_UKREP_Settings get "DEFAULT_GROUP_DYNASIM")])
+            then {_placementGroup enableDynamicSimulation true};//Enable dynamic simulation
         {_x disableAI "PATH"} forEach (units _placementGroup);//Disable pathfinding for all units
         _placementGroup setVariable ["NWG_UKREP_ownership",true];//Mark as UKREP group
     };

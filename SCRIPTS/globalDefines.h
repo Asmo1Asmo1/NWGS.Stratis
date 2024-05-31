@@ -11,7 +11,8 @@
 #define EVENT_ON_OBJECT_KILLED "OnObjectKilled" //Called by 'undertaker' subsystem when an object is killed.                params ["_obj","_objType","_actualKiller","_isPlayerKiller"];
 #define EVENT_ON_DSPAWN_GROUP_SPAWNED "OnDynamicSpawnGroupSpawned" //Called by 'dspawn' subsystem when a group is spawned.  params ["_group","_vehicle","_units","_tags","_tier"];
 #define EVENT_ON_UKREP_OBJECT_DECORATED "OnUkrepObjectDecorated" //Called by 'ukrep' subsystem when composition is placed around object.     params ["_obj","_objType","_ukrepResult"]; _ukrepResult params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
-#define EVENT_ON_MISSION_STATE_CHANGED "OnMissionStateChanged" //Called by 'mission' subsystem when mission state is changed.     params ["_oldState","_newState"];
+#define EVENT_ON_MISSION_STATE_CHANGED "OnMissionStateChanged" //Called by 'missionMachine' subsystem when mission state is changed.     params ["_oldState","_newState"];
+#define EVENT_ON_PLAYERBASE_BUILT "OnPlayerBaseBuilt" //Called by 'missionMachine' subsystem when player base is built.     params ["_baseRoot","_baseDecor"]; _baseDecor params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
 
 //Client events (arguments for NWG_fnc_subscribeToClientEvent and NWG_fnc_raiseClientEvent)
 #define EVENT_ON_LOADOUT_CHANGED "OnLoadoutChanged" //Called by 'inventoryManager' subsystem when a loadout is changed.     params ["_loadOut","_flattenLoadOut"];
@@ -49,3 +50,10 @@
 #define MSTATE_CLEANUP 13
 #define MSTATE_RESET 14
 #define MSTATE_SERVER_RESTART 15
+
+//NPCs unique names
+#define NPC_TAXI "Taxi"
+#define NPC_MECHANIC "Mechanic"
+#define NPC_TRADER "Trader"
+#define NPC_MEDIC "Medic"
+#define NPC_COMMANDER "Commander"
