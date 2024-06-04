@@ -84,6 +84,19 @@ private _Init = {
 
 //======================================================================================================
 //======================================================================================================
+//Ignore methods
+NWG_GC_AddToOriginalObjects = {
+    // private _objects = _this;
+    NWG_GC_originalObjects append _this;
+};
+
+NWG_GC_AddToOriginalMarkers = {
+    // private _markers = _this;
+    NWG_GC_originalMarkers append _this;
+};
+
+//======================================================================================================
+//======================================================================================================
 //Delete methods
 NWG_GC_DeleteUnit = {
     // private _unit = _this;

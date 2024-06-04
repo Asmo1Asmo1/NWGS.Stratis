@@ -18,6 +18,7 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 
     ["PLAYER_BASE_ROOT","PlayerBase"],//Name of pre-placed map object (value of Object:Init -> Variable name) (mandatory for mission machine to work)
     ["PLAYER_BASE_BLUEPRINT","PlayerBase"],//Blueprint(s) page to build the base with using ukrep subsystem
+    ["PLAYER_BASE_MARKERS",["o_unknown","loc_Tourism"]],//Markers to be placed at the player base position
 
     ["PLAYER_BASE_NPC_SETTINGS", createHashMapFromArray [
         [
@@ -107,10 +108,10 @@ NWG_MIS_SER_Cycle = {
 
             /* base build */
             case MSTATE_BASE_UKREP: {
-                private _ok = call NWG_MIS_SER_BuildPlayerBase;
-                if (_ok)
-                    then {MSTATE_BASE_ECONOMY call NWG_MIS_SER_ChangeState}/*Move to the next state*/
-                    else {"NWG_MIS_SER_Cycle: Failed to build the player base - exiting." call NWG_fnc_logError; _exit = true};/*Exit*/
+                private _buildResult = call NWG_MIS_SER_BuildPlayerBase;
+                if (_buildResult isEqualTo false) exitWith
+                    {"NWG_MIS_SER_Cycle: Failed to build the player base - exiting." call NWG_fnc_logError; _exit = true};//Exit
+                MSTATE_BASE_ECONOMY call NWG_MIS_SER_ChangeState;/*Move to the next state*/
             };
             case MSTATE_BASE_ECONOMY: {
                 //TODO: Add base economy
@@ -310,6 +311,9 @@ NWG_MIS_SER_BuildPlayerBase = {
         //3.4 Configure base NPCs
         private _npcSettings = NWG_MIS_SER_Settings get "PLAYER_BASE_NPC_SETTINGS";
         {
+            //Setup dynamic simulation regardless of the group rules for each agent
+            _x enableDynamicSimulation true;
+
             //Check if NPC settings are defined for this type
             if !((typeOf _x) in _npcSettings) then {
                 (format ["NWG_MIS_SER_BuildPlayerBase: NPC settings for '%1' not found in the settings!",typeOf _x]) call NWG_fnc_logError;
@@ -337,11 +341,26 @@ NWG_MIS_SER_BuildPlayerBase = {
         } forEach (_buildResult param [3,[]]);
     };
 
-    //4. Raise event
-    [EVENT_ON_PLAYERBASE_BUILT,[_playerBaseRoot,_buildResult]] call NWG_fnc_raiseServerEvent;
+    //4. Report to garbage collector that these objects are not to be deleted
+    (flatten _buildResult) call NWG_fnc_gcAddOriginalObjects;
 
-    //5. Return success
-    true
+    //5. Place markers
+    private _markers = call {
+        private ["_markerName","_marker"];
+        private _i = 0;
+        (NWG_MIS_SER_Settings get "PLAYER_BASE_MARKERS") apply {
+            private _markerName = format ["playerBase_%1",_i]; _i = _i + 1;
+            private _marker = createMarker [_markerName,_playerBaseRoot];
+            _marker setMarkerShape "icon";
+            _marker setMarkerType _x;
+        }
+    };
+
+    //6. Report to garbage collector that these markers are not to be deleted
+    _markers call NWG_fnc_gcAddOriginalMarkers;
+
+    //7. Return result
+    [_playerBaseRoot,_buildResult]
 };
 
 NWG_MIS_SER_SetNpcId = {
