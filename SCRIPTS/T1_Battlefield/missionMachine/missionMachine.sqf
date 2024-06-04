@@ -77,6 +77,8 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
         ]
     ]],
 
+    ["MISSIONS_LIST_MIN_DISTANCE",100],//Min distance between missions to be added to the list (example: several variants of the same mission, only one will be added by distance rule)
+
     ["",0]
 ];
 
@@ -85,6 +87,9 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 //Fields
 NWG_MIS_SER_currentState = MSTATE_SCRIPTS_COMPILATION;
 NWG_MIS_SER_cycleHandle = scriptNull;
+NWG_MIS_SER_playerBase = objNull;
+NWG_MIS_SER_playerBaseDecoration = [];
+NWG_MIS_SER_missionsList = [];
 
 //================================================================================================================
 //================================================================================================================
@@ -119,6 +124,9 @@ NWG_MIS_SER_Cycle = {
                 private _buildResult = call NWG_MIS_SER_BuildPlayerBase;
                 if (_buildResult isEqualTo false) exitWith
                     {"NWG_MIS_SER_Cycle: Failed to build the player base - exiting." call NWG_fnc_logError; _exit = true};//Exit
+                _buildResult params ["_root","_objects"];
+                NWG_MIS_SER_playerBase = _root;//Save base root object
+                NWG_MIS_SER_playerBaseDecoration = _objects;//Save base objects
                 MSTATE_BASE_ECONOMY call NWG_MIS_SER_ChangeState;/*Move to the next state*/
             };
             case MSTATE_BASE_ECONOMY: {
@@ -133,7 +141,13 @@ NWG_MIS_SER_Cycle = {
 
             /* missions list */
             case MSTATE_LIST_INIT: {
-                //TODO: Build the list of missions
+                private _missionsList = call NWG_MIS_SER_GenerateMissionsList;
+                if (_missionsList isEqualTo false) exitWith
+                    {"NWG_MIS_SER_Cycle: Failed to generate missions list - exiting." call NWG_fnc_logError; _exit = true};//Exit
+                if ((count _missionsList) == 0) exitWith
+                    {"NWG_MIS_SER_Cycle: No missions found for the map at INIT phase - exiting." call NWG_fnc_logError; _exit = true};//Exit
+                NWG_MIS_SER_missionsList = _missionsList;//Save the list
+                MSTATE_LIST_UPDATE call NWG_MIS_SER_ChangeState;/*Move to the next state*/
             };
             case MSTATE_LIST_UPDATE: {
                 //TODO: Update the list of missions
@@ -380,6 +394,37 @@ NWG_MIS_SER_SetNpcId = {
 NWG_MIS_SER_GetNpcId = {
     // private _npc = _this;
     _this getVariable ["NWG_MIS_SER_NPC_ID",""];
+};
+
+//================================================================================================================
+//================================================================================================================
+//Missions list generation
+NWG_MIS_SER_GenerateMissionsList = {
+    //1. Get all missions available for this map
+    private _pageName = "Abs" + (toUpper worldName);
+    private _blueprints = _pageName call NWG_fnc_ukrpGetCataloguePage;
+    if (_blueprints isEqualTo false || {(count _blueprints) == 0}) exitWith {
+        (format ["NWG_MIS_SER_GenerateMissionsList: Failed to get missions list for page '%1'",_pageName]) call NWG_fnc_logError;
+        false// <- Exit if no missions found
+    };
+
+    //2. Shuffle and filter
+    _blueprints = _blueprints + [];//Shallow copy
+    _blueprints = _blueprints call NWG_fnc_arrayShuffle;//Shuffle
+    _blueprints = _blueprints call NWG_fnc_arrayShuffle;//Shuffle again (why not?)
+    private _missionsList = [];
+    private _minDistance = NWG_MIS_SER_Settings get "MISSIONS_LIST_MIN_DISTANCE";
+    private ["_pos","_i"];
+    //forEach blueprint container:
+    //["ABS","UkrepName",[ABSPos],0,Radius,0,[Payload],[Blueprint]]
+    {
+        _pos = _x#2;
+        _i = _missionsList findIf {(_pos distance2D (_x#2)) <= _minDistance};
+        if (_i == -1) then {_missionsList pushBack _x};
+    } forEach _blueprints;
+
+    //3. Return
+    _missionsList
 };
 
 //================================================================================================================

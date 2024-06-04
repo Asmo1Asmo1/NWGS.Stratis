@@ -36,6 +36,30 @@ NWG_fnc_ukrpGetBlueprintsREL = {
     _this call NWG_UKREP_GetBlueprintsREL
 };
 
+//Returns raw catalogue page as is
+//note: shallow or deep copy required to prevent data corruption!
+//params:
+// _pageName - name of the catalogue page to read
+//returns:
+// raw catalogue page content (array of blueprint containers) OR false if not found
+// each container has following structure: [("REL"|"ABS"),"UkrepName",([ABSPos]|0),0,Radius,0,[Payload],[Blueprint]]
+NWG_fnc_ukrpGetCataloguePage = {
+    // private _pageName = _this;
+    _this call NWG_UKREP_GetBlueprintsPage
+};
+
+//Returns raw faction hashmap as is
+//note: Do not modify
+//params:
+// _factionName - name of the faction to read
+//returns:
+// faction hashmap OR false if not found
+// hashmap structure: [["Classname":[Replacements]],["Classname":[Replacements]],...]
+NWG_fnc_ukrpGetFaction = {
+    // private _factionName = _this;
+    _this call NWG_UKREP_GetFactionsPage
+};
+
 /*======== BUILDING ==========*/
 //Builds FRACTAL ABS composition
 //params:
