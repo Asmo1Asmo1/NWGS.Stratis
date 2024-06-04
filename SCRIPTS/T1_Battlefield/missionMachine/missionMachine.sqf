@@ -67,6 +67,13 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
                 "acts_millerIdle"
             ],
             /*addAction:*/["Hello! Yoba, Eto Ti?",{systemChat "Commander: Da, eto ya"}]]
+        ],
+        [
+            "B_G_Captain_Ivan_F",
+            [/*id:*/NPC_ROOF,
+            /*disarm:*/false,
+            /*anim:*/false,
+            /*addAction:*/false]
         ]
     ]],
 

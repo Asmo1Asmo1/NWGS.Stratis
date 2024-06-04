@@ -59,3 +59,4 @@
 #define NPC_TRADER "Trader"
 #define NPC_MEDIC "Medic"
 #define NPC_COMMANDER "Commander"
+#define NPC_ROOF "Roof"
