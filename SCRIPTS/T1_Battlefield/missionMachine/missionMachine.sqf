@@ -103,19 +103,31 @@ NWG_MIS_SER_Cycle = {
             /* initialization */
             case MSTATE_SCRIPTS_COMPILATION: {MSTATE_MACHINE_STARTUP call NWG_MIS_SER_ChangeState};//Move to the next state
             case MSTATE_DISABLED: {_exit = true};//Exit
-            case MSTATE_MACHINE_STARTUP: {MSTATE_BASE_INIT call NWG_MIS_SER_ChangeState};//Move to the next state
+            case MSTATE_MACHINE_STARTUP: {MSTATE_BASE_UKREP call NWG_MIS_SER_ChangeState};//Move to the next state
 
-            /* world build */
-            case MSTATE_BASE_INIT: {
+            /* base build */
+            case MSTATE_BASE_UKREP: {
                 private _ok = call NWG_MIS_SER_BuildPlayerBase;
                 if (_ok)
-                    then {MSTATE_LIST_INIT call NWG_MIS_SER_ChangeState}/*Move to the next state*/
+                    then {MSTATE_BASE_ECONOMY call NWG_MIS_SER_ChangeState}/*Move to the next state*/
                     else {"NWG_MIS_SER_Cycle: Failed to build the player base - exiting." call NWG_fnc_logError; _exit = true};/*Exit*/
             };
+            case MSTATE_BASE_ECONOMY: {
+                //TODO: Add base economy
+                MSTATE_BASE_QUESTS call NWG_MIS_SER_ChangeState;//Move to the next state
+            };
+            case MSTATE_BASE_QUESTS: {
+                //TODO: Add base quests
+                MSTATE_LIST_INIT call NWG_MIS_SER_ChangeState;//Move to the next state
+            };
+
 
             /* missions list */
             case MSTATE_LIST_INIT: {
                 //TODO: Build the list of missions
+            };
+            case MSTATE_LIST_UPDATE: {
+                //TODO: Update the list of missions
             };
 
             /* player input expect */
@@ -220,21 +232,24 @@ NWG_MIS_SER_GetStateName = {
         case MSTATE_SCRIPTS_COMPILATION: {"SCRIPTS_COMPILATION"};
         case MSTATE_DISABLED:        {"DISABLED"};
         case MSTATE_MACHINE_STARTUP: {"MACHINE_STARTUP"};
-        case MSTATE_BASE_INIT: {"BASE_INIT"};
-        case MSTATE_LIST_INIT: {"LIST_INIT"};
+        case MSTATE_BASE_UKREP:     {"BASE_UKREP"};
+        case MSTATE_BASE_ECONOMY:   {"BASE_ECONOMY"};
+        case MSTATE_BASE_QUESTS:    {"BASE_QUESTS"};
+        case MSTATE_LIST_INIT:   {"LIST_INIT"};
+        case MSTATE_LIST_UPDATE: {"LIST_UPDATE"};
         case MSTATE_READY: {"READY"};
-        case MSTATE_BUILD_UKREP: {"BUILD_UKREP"};
-        case MSTATE_BUILD_DSPAWN: {"BUILD_DSPAWN"};
+        case MSTATE_BUILD_UKREP:   {"BUILD_UKREP"};
+        case MSTATE_BUILD_DSPAWN:  {"BUILD_DSPAWN"};
         case MSTATE_BUILD_ECONOMY: {"BUILD_ECONOMY"};
-        case MSTATE_BUILD_QUESTS: {"BUILD_QUESTS"};
+        case MSTATE_BUILD_QUESTS:  {"BUILD_QUESTS"};
         case MSTATE_FIGHT_READY: {"FIGHT_READY"};
         case MSTATE_FIGHT_INFILTRATION: {"FIGHT_INFILTRATION"};
-        case MSTATE_FIGHT_ACTIVE: {"FIGHT_ACTIVE"};
-        case MSTATE_FIGHT_OUT: {"FIGHT_OUT"};
+        case MSTATE_FIGHT_ACTIVE:       {"FIGHT_ACTIVE"};
+        case MSTATE_FIGHT_OUT:          {"FIGHT_OUT"};
         case MSTATE_FIGHT_EXHAUSTED: {"FIGHT_EXHAUSTED"};
         case MSTATE_FIGHT_ABANDONED: {"FIGHT_ABANDONED"};
         case MSTATE_CLEANUP: {"CLEANUP"};
-        case MSTATE_RESET: {"RESET"};
+        case MSTATE_RESET:   {"RESET"};
         case MSTATE_SERVER_RESTART: {"SERVER_RESTART"};
         default {"UNKNOWN"};
     }
