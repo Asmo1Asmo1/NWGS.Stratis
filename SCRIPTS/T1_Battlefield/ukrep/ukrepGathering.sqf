@@ -371,9 +371,11 @@ NWG_UKREP_GetObjectPayload = {
 
         /*For helpers - payload is [variables] we saved in it*/
         case "HELP": {
-            (((allVariables _object)
-                select {_x isNotEqualTo "help_realclassname"})
-                apply  {[_x,_object getVariable _x]})
+            private _allVars = (allVariables _object) select {_x isNotEqualTo "help_realclassname"};
+            _allVars = _allVars apply {[count _x,_x]};
+            _allVars sort true;
+            _allVars = _allVars apply {[_x#1,_object getVariable (_x#1)]};
+            _allVars
         };
 
         /*For unknown objects - payload is ERROR*/
