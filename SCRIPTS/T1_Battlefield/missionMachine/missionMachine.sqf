@@ -19,6 +19,7 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
     ["PLAYER_BASE_ROOT","PlayerBase"],//Name of pre-placed map object (value of Object:Init -> Variable name) (mandatory for mission machine to work)
     ["PLAYER_BASE_BLUEPRINT","PlayerBase"],//Blueprint(s) page to build the base with using ukrep subsystem
     ["PLAYER_BASE_MARKERS",["o_unknown","loc_Tourism"]],//Markers to be placed at the player base position
+    ["PLAYER_BASE_MARKERS_SIZE",1.25],//Size of the markers
 
     ["PLAYER_BASE_NPC_SETTINGS", createHashMapFromArray [
         [
@@ -346,13 +347,15 @@ NWG_MIS_SER_BuildPlayerBase = {
 
     //5. Place markers
     private _markers = call {
-        private ["_markerName","_marker"];
         private _i = 0;
+        private _markerSize = NWG_MIS_SER_Settings get "PLAYER_BASE_MARKERS_SIZE";
+        private ["_markerName","_marker"];
         (NWG_MIS_SER_Settings get "PLAYER_BASE_MARKERS") apply {
-            private _markerName = format ["playerBase_%1",_i]; _i = _i + 1;
-            private _marker = createMarker [_markerName,_playerBaseRoot];
+            _markerName = format ["playerBase_%1",_i]; _i = _i + 1;
+            _marker = createMarker [_markerName,_playerBaseRoot];
             _marker setMarkerShape "icon";
             _marker setMarkerType _x;
+            _marker setMarkerSize [_markerSize,_markerSize];
         }
     };
 
