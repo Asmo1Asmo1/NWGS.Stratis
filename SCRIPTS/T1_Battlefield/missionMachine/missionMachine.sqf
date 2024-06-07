@@ -1,4 +1,5 @@
 #include "..\..\globalDefines.h"
+#include "missionMachineDefines.h"
 
 //================================================================================================================
 //================================================================================================================
@@ -9,6 +10,10 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 
     ["LOG_STATE_CHANGE",true],//Log every state change
     ["HEARTBEAT_RATE",1],//How often the mission machine should check for state changes
+
+    ["MISSIONS_UPDATE_NO_MISSIONS_LOG",true],  //Log error for no missions left
+    ["MISSIONS_UPDATE_NO_MISSIONS_RESET",true],//Go to RESET state if no missions left
+    ["MISSIONS_UPDATE_NO_MISSIONS_EXIT",false],//Exit heartbeat cycle if no missions left
 
     /*The rest see in the DATASETS/Server/MissionMachine/Settings.sqf */
     ["COMPLEX_SETTINGS_ADDRESS","DATASETS\Server\MissionMachine\Settings.sqf"],
@@ -24,7 +29,7 @@ NWG_MIS_SER_cycleHandle = scriptNull;
 NWG_MIS_SER_playerBase = objNull;
 NWG_MIS_SER_playerBaseDecoration = [];
 NWG_MIS_SER_missionsList = [];
-NWG_MIS_SER_missionsSelect = [];
+NWG_MIS_SER_missionsSelection = [];
 
 //================================================================================================================
 //================================================================================================================
@@ -93,7 +98,34 @@ NWG_MIS_SER_Cycle = {
                 MSTATE_LIST_UPDATE call NWG_MIS_SER_ChangeState;/*Move to the next state*/
             };
             case MSTATE_LIST_UPDATE: {
-                //TODO: Update the list of missions
+                //Get settings
+                private _difficultySettings = NWG_MIS_SER_Settings get "MISSIONS_DIFFICULTY";
+                private _missionsCount = count _difficultySettings;
+
+                //Check if we have enough missions for the update
+                if ((count NWG_MIS_SER_missionsList) < _missionsCount) exitWith {
+                    if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_LOG")
+                        then {(format ["NWG_MIS_SER_Cycle: Not enough missions at UPDATE phase! Expected: %1, Found: %2",_missionsCount,(count NWG_MIS_SER_missionsList)]) call NWG_fnc_logError};
+                    if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_RESET")
+                        then {MSTATE_RESET call NWG_MIS_SER_ChangeState};//Reset
+                    if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_EXIT")
+                        then {_exit = true};//Exit
+                    if (NWG_MIS_SER_currentState isEqualTo MSTATE_LIST_UPDATE && !_exit)
+                        then {"NWG_MIS_SER_Cycle: Not enough missions at UPDATE phase and no action taken." call NWG_fnc_logError};//Log at least
+                };
+
+                //Update the selection list
+                //By that stage we already have a randomized list of missions with unique positions, so we can just take the first N elements
+                NWG_MIS_SER_missionsSelection resize 0;
+                for "_i" from 1 to _missionsCount do {
+                    private _ukrep = NWG_MIS_SER_missionsList deleteAt 0;
+                    //_ukrep: [UkrepType,UkrepName,ABSPos,[0,0,0],Radius,0,Payload,Blueprint]
+                    _ukrep params ["_","_name","_pos","_","_rad","_","_","_blueprint"];
+                    NWG_MIS_SER_missionsSelection pushBack [_name,_pos,_rad,_blueprint];
+                };
+
+                //Move to the next state
+                MSTATE_READY call NWG_MIS_SER_ChangeState;
             };
 
             /* player input expect */

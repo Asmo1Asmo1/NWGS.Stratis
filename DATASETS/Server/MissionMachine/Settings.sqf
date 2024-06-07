@@ -126,7 +126,7 @@
             ["DspawnGroupsMin",3],
             ["DspawnGroupsMax",8]
         ]
-    ]]
+    ]],
 
     ["",0]
 ]

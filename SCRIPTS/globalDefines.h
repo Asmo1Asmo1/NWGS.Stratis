@@ -52,11 +52,3 @@
 #define MSTATE_CLEANUP 16
 #define MSTATE_RESET 17
 #define MSTATE_SERVER_RESTART 18
-
-//NPCs unique names
-#define NPC_TAXI "Taxi"
-#define NPC_MECHANIC "Mechanic"
-#define NPC_TRADER "Trader"
-#define NPC_MEDIC "Medic"
-#define NPC_COMMANDER "Commander"
-#define NPC_ROOF "Roof"
