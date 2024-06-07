@@ -3,12 +3,6 @@
 //================================================================================================================
 //================================================================================================================
 //Settings
-#define NPC_TAXI "Taxi"
-#define NPC_MECHANIC "Mechanic"
-#define NPC_TRADER "Trader"
-#define NPC_MEDIC "Medic"
-#define NPC_COMMANDER "Commander"
-
 NWG_MIS_SER_Settings = createHashMapFromArray [
     ["AUTOSTART",true],//Start the mission machine once the scripts are compiled and game started
     ["AUTOSTART_IN_DEVBUILD",true],//Start even if we are in debug environment
@@ -16,68 +10,8 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
     ["LOG_STATE_CHANGE",true],//Log every state change
     ["HEARTBEAT_RATE",1],//How often the mission machine should check for state changes
 
-    ["PLAYER_BASE_ROOT","PlayerBase"],//Name of pre-placed map object (value of Object:Init -> Variable name) (mandatory for mission machine to work)
-    ["PLAYER_BASE_BLUEPRINT","PlayerBase"],//Blueprint(s) page to build the base with using ukrep subsystem
-    ["PLAYER_BASE_MARKERS",["o_unknown","loc_Tourism"]],//Markers to be placed at the player base position
-    ["PLAYER_BASE_MARKERS_SIZE",1.25],//Size of the markers
-
-    ["PLAYER_BASE_NPC_SETTINGS", createHashMapFromArray [
-        [
-            "B_G_Story_Guerilla_01_F", [
-            /*id:*/NPC_TAXI,
-            /*disarm:*/false,
-            /*anim:*/"InBaseMoves_Lean1",
-            /*addAction:*/false]
-        ],
-        [
-            "I_G_Story_Protagonist_F",
-            [/*id:*/NPC_MECHANIC,
-            /*disarm:*/true,
-            /*anim:*/[
-                "HubBriefing_ext_Contact",
-                "HubBriefing_loop",
-                "Acts_Explaining_EW_Idle01"
-            ],
-            /*addAction:*/false]
-        ],
-        [
-            "I_G_resistanceLeader_F",
-            [/*id:*/NPC_TRADER,
-            /*disarm:*/true,
-            /*anim:*/[
-                "HubSittingChairUA_idle2",
-                "HubSittingChairUA_idle3"
-            ],
-            /*addAction:*/false]
-        ],
-        [
-            "I_C_Soldier_Camo_F",
-            [/*id:*/NPC_MEDIC,
-            /*disarm:*/true,
-            /*anim:*/"Acts_Gallery_Visitor_02",
-            /*addAction:*/false]
-        ],
-        [
-            "I_E_Soldier_MP_F",
-            [/*id:*/NPC_COMMANDER,
-            /*disarm:*/false,
-            /*anim:*/[
-                "Acts_millerCamp_A",
-                "Acts_millerCamp_C",
-                "acts_millerIdle"
-            ],
-            /*addAction:*/["Hello! Yoba, Eto Ti?",{systemChat "Commander: Da, eto ya"}]]
-        ],
-        [
-            "B_G_Captain_Ivan_F",
-            [/*id:*/NPC_ROOF,
-            /*disarm:*/false,
-            /*anim:*/false,
-            /*addAction:*/false]
-        ]
-    ]],
-
-    ["MISSIONS_LIST_MIN_DISTANCE",100],//Min distance between missions to be added to the list (example: several variants of the same mission, only one will be added by distance rule)
+    /*The rest see in the DATASETS/Server/MissionMachine/Settings.sqf */
+    ["COMPLEX_SETTINGS_ADDRESS","DATASETS\Server\MissionMachine\Settings.sqf"],
 
     ["",0]
 ];
@@ -90,6 +24,7 @@ NWG_MIS_SER_cycleHandle = scriptNull;
 NWG_MIS_SER_playerBase = objNull;
 NWG_MIS_SER_playerBaseDecoration = [];
 NWG_MIS_SER_missionsList = [];
+NWG_MIS_SER_missionsSelect = [];
 
 //================================================================================================================
 //================================================================================================================
@@ -99,6 +34,14 @@ private _Init = {
     if (!(NWG_MIS_SER_Settings get "AUTOSTART") || {
         (is3DENPreview || is3DENMultiplayer) && !(NWG_MIS_SER_Settings get "AUTOSTART_IN_DEVBUILD")}
     ) exitWith {MSTATE_DISABLED call NWG_MIS_SER_ChangeState};// <- Exit without starting
+
+    //Get complex additional settings
+    private _addSettings = call ((NWG_MIS_SER_Settings get "COMPLEX_SETTINGS_ADDRESS") call NWG_fnc_compile);
+    if (isNil "_addSettings") exitWith {
+        "NWG_MIS_SER: Failed to get complex settings - exiting." call NWG_fnc_logError;
+        MSTATE_DISABLED call NWG_MIS_SER_ChangeState;
+    };// <- Exit if failed to get settings
+    {NWG_MIS_SER_Settings set [_x#0,_x#1]} forEach _addSettings;//Merge settings
 
     //Start
     NWG_MIS_SER_cycleHandle = [] spawn NWG_MIS_SER_Cycle;
@@ -300,7 +243,8 @@ NWG_MIS_SER_BuildPlayerBase = {
         /*chances:*/[],
         /*faction:*/"",
         /*groupRules:*/[/*membership:*/"AGENT",/*dynamic simulation:*/true],
-        /*_adaptToGround:*/true
+        /*adaptToGround:*/true,
+        /*suppressEvent*/true
     ] call NWG_fnc_ukrpBuildAroundObject;
     if (_buildResult isEqualTo false || {(flatten _buildResult) isEqualTo []}) exitWith {
         (format ["NWG_MIS_SER_BuildPlayerBase: Failed to build a player base around object '%1' using blueprint '%2'",_playerBaseRootName,_pageName]) call NWG_fnc_logError;
@@ -343,8 +287,9 @@ NWG_MIS_SER_BuildPlayerBase = {
             };
 
             //Configure NPC
-            (_npcSettings get (typeOf _x)) params ["_id","_disarm","_anim","_addAction"];
-            [_x,_id] call NWG_MIS_SER_SetNpcId;
+            (_npcSettings get (typeOf _x)) params ["_disarm","_anim","_addAction"];
+
+            //Remove weapons
             if (_disarm) then {removeAllWeapons _x};
 
             //Set animation
@@ -377,6 +322,7 @@ NWG_MIS_SER_BuildPlayerBase = {
             _marker setMarkerShape "icon";
             _marker setMarkerType _x;
             _marker setMarkerSize [_markerSize,_markerSize];
+            _markerName
         }
     };
 
@@ -385,15 +331,6 @@ NWG_MIS_SER_BuildPlayerBase = {
 
     //7. Return result
     [_playerBaseRoot,_buildResult]
-};
-
-NWG_MIS_SER_SetNpcId = {
-    params ["_npc","_id"];
-    _npc setVariable ["NWG_MIS_SER_NPC_ID",_id];
-};
-NWG_MIS_SER_GetNpcId = {
-    // private _npc = _this;
-    _this getVariable ["NWG_MIS_SER_NPC_ID",""];
 };
 
 //================================================================================================================

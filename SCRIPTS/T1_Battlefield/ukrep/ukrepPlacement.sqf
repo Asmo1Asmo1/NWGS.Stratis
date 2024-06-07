@@ -301,7 +301,7 @@ NWG_UKREP_PUBLIC_PlaceREL_Position = {
 };
 
 NWG_UKREP_PUBLIC_PlaceREL_Object = {
-    params ["_pageName","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
+    params ["_pageName","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true],["_suppressEvent",false]];
     if (_objectType isEqualTo "") then {_objectType = _object call NWG_fnc_ocGetObjectType};
     private _rootObjFilter = switch (_objectType) do {
         case OBJ_TYPE_BLDG: {_object call NWG_fnc_ocGetSameBuildings};
@@ -325,7 +325,10 @@ NWG_UKREP_PUBLIC_PlaceREL_Object = {
     private _result = [_blueprint,_object,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PlaceREL_Object;
     if (_result isEqualTo false) exitWith {false};//Error
 
-    [EVENT_ON_UKREP_OBJECT_DECORATED,[_object,_objectType,_result]] call NWG_fnc_raiseServerEvent;
+    //Raise event (object decorated)
+    if !(_suppressEvent) then {
+        [EVENT_ON_UKREP_OBJECT_DECORATED,[_object,_objectType,_result]] call NWG_fnc_raiseServerEvent;
+    };
 
     //return
     _result

@@ -97,9 +97,10 @@ NWG_fnc_ukrpBuildFractalABS = {
 //          - 0: GRP_RULES_MEMBERSHIP - side/group/"AGENT" (default: west) (use "AGENT" to create units as agents instead of actual units)
 //          - 1: GRP_RULES_DYNASIM - apply dynamic simulation to the group (default: true)
 // _adaptToGround - (optional) boolean, if true, composition will be adapted to the ground
+// _suppressEvent - (optional) boolean, if true, event EVENT_ON_UKREP_OBJECT_DECORATED will not be fired
 //returns:
 // [_bldgs,_furns,_decos,_units,_vehcs,_trrts,_mines] - array of spawned objects OR false if failed
 NWG_fnc_ukrpBuildAroundObject = {
-    // params ["_pageName","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
+    // params ["_pageName","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true],["_suppressEvent",false]];
     _this call NWG_UKREP_PUBLIC_PlaceREL_Object
 };
