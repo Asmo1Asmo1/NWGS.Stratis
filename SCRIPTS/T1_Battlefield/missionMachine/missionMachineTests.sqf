@@ -5,7 +5,7 @@
 NWG_MIS_SER_ShowAllMissionsOnMap = {
     call NWG_fnc_testClearMap;
 
-    private _pageName = "Abs" + (toUpper worldName);
+    private _pageName = "Abs" + (call NWG_fnc_wcGetWorldName);
     private _blueprints = [_pageName] call NWG_fnc_ukrpGetBlueprintsABS;
     //["ABS","UkrepName",[ABSPos],0,Radius,0,[Payload],[Blueprint]]
     if (count _blueprints == 0) exitWith {"No missions available for this map"};
@@ -28,7 +28,7 @@ NWG_MIS_SER_ShowAllMissionsOnMap = {
 // ["LZConnor","NATO"] spawn NWG_MIS_SER_PlaceMissionOnMap
 NWG_MIS_SER_PlaceMissionOnMap = {
     params [["_missionNameFilter",""],["_faction",""]];
-    private _pageName = "Abs" + (toUpper worldName);
+    private _pageName = "Abs" + (call NWG_fnc_wcGetWorldName);
     private _blueprints = [_pageName,_missionNameFilter] call NWG_fnc_ukrpGetBlueprintsABS;
     //["ABS","UkrepName",[ABSPos],0,Radius,0,[Payload],[Blueprint]]
     if (count _blueprints == 0) exitWith {"No missions available for this map"};

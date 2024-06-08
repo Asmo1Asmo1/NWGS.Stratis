@@ -382,7 +382,7 @@ NWG_MIS_SER_BuildPlayerBase = {
 //Missions list generation
 NWG_MIS_SER_GenerateMissionsList = {
     //1. Get all missions available for this map
-    private _pageName = "Abs" + (toUpper worldName);
+    private _pageName = "Abs" + (call NWG_fnc_wcGetWorldName);
     private _blueprints = _pageName call NWG_fnc_ukrpGetCataloguePage;
     if (_blueprints isEqualTo false || {(count _blueprints) == 0}) exitWith {
         (format ["NWG_MIS_SER_GenerateMissionsList: Failed to get missions list for page '%1'",_pageName]) call NWG_fnc_logError;

@@ -132,7 +132,7 @@ NWG_MIS_CLI_OnSelectionConfirmed = {
 
     //Show player info
     private _line1 = format [("#MIS_CLI_CONFIRMED_PLAYER_TEMPLATE#" call NWG_fnc_localize),(name player)];
-    private _line2 = format ["%1: %2",(worldName call NWG_fnc_localize),(dayTime call BIS_fnc_timeToString)];
+    private _line2 = format ["%1: %2",((call NWG_fnc_wcGetWorldNameLocKey) call NWG_fnc_localize),(dayTime call BIS_fnc_timeToString)];
     [
         [
             [_line1, "<t align = 'right' shadow = '1' size = '1'>%1</t><br/>"],
