@@ -132,8 +132,9 @@ NWG_MIS_SER_Cycle = {
                     };
                     case 1: {
                         //Only one mission available or selection is made - start it
-                        NWG_MIS_SER_selected = NWG_MIS_SER_selectionList deleteAt 0;
-                        MSTATE_BUILD_UKREP call NWG_MIS_SER_ChangeState;
+                        NWG_MIS_SER_selected = NWG_MIS_SER_selectionList deleteAt 0;//Get the selected mission
+                        (NWG_MIS_SER_selected#SELECTION_NAME) remoteExec ["NWG_fnc_mmSelectionConfirmed",0];//Send selection made signal to all the clients
+                        MSTATE_BUILD_UKREP call NWG_MIS_SER_ChangeState;//Move to the next state
                     };
                     default {
                         //Wait for player input
@@ -486,9 +487,6 @@ NWG_MIS_SER_OnSelectionMade = {
 
     //Selection list must contain only one element to proceed
     NWG_MIS_SER_selectionList pushBack _selected;
-
-    //Send selection made signal to all the clients
-    (_selected#SELECTION_NAME) remoteExec ["NWG_fnc_mmSelectionConfirmed",0];
 
     //The rest will be handled by the heartbeat cycle
 };
