@@ -605,14 +605,16 @@ NWG_UKREP_PlacementCore = {
     /*Place HELP - helper modules*/
     if ((count _hlprs) > 0) then {
         private _hlprsGroup = group (missionNamespace getvariable ["BIS_functions_mainscope",objnull]);
-        if (isNull _hlprsGroup) exitWith {};//Failed to obtain
-        {
-            private _helper = _hlprsGroup createUnit [(_x#BP_CLASSNAME),(_x#BP_POS),[],0,"CAN_COLLIDE"];
-            _helper setDir (_x#BP_DIR);
-            _helper setPosASL (_x#BP_POS);
+        if (isNull _hlprsGroup) exitWith {
+            "NWG_UKREP_PlacementCore: Failed to obtain helper group" call NWG_fnc_logError;
+            _hlprs resize 0;//Clear
+        };
+        _hlprs = _hlprs apply {
+            private _helper = _hlprsGroup createUnit [(_x#BP_CLASSNAME),(ASLToAGL (_x#BP_POS)),[],0,"CAN_COLLIDE"];
             {_helper setVariable _x} forEach (_x#BP_PAYLOAD);
-        } forEach _hlprs;
-        _hlprs resize 0;//Clear
+            _helper setVariable ["BIS_fnc_initModules_disableAutoActivation",true];
+            _helper
+        };
     };
 
     /*Place regular objects (BLDG,FURN,DECO) - buildings, furniture, decor*/
@@ -652,14 +654,6 @@ NWG_UKREP_PlacementCore = {
         _turret
     };
 
-    /*Finalize group*/
-    if (_placementGroup isEqualType grpNull && {!isNull _placementGroup}) then {
-        if (_groupRules param [GRP_RULES_DYNASIM,(NWG_UKREP_Settings get "DEFAULT_GROUP_DYNASIM")])
-            then {_placementGroup enableDynamicSimulation true};//Enable dynamic simulation
-        {_x disableAI "PATH"} forEach (units _placementGroup);//Disable pathfinding for all units
-        _placementGroup setVariable ["NWG_UKREP_ownership",true];//Mark as UKREP group
-    };
-
     /*Place MINE - mines*/
     if ((count _mines) > 0) then {
         private _minesDirs = [];//Fix for mines direction in MP
@@ -677,6 +671,19 @@ NWG_UKREP_PlacementCore = {
         };
         [_mines,_minesDirs] call NWG_fnc_ukrpMinesRotateAndAdapt;
         [_mines,_minesDirs] remoteExec ["NWG_fnc_ukrpMinesRotateAndAdapt",-2];//Fix for mines direction in MP
+    };
+
+    /*Finalize group*/
+    if (_placementGroup isEqualType grpNull && {!isNull _placementGroup}) then {
+        if (_groupRules param [GRP_RULES_DYNASIM,(NWG_UKREP_Settings get "DEFAULT_GROUP_DYNASIM")])
+            then {_placementGroup enableDynamicSimulation true};//Enable dynamic simulation
+        {_x disableAI "PATH"} forEach (units _placementGroup);//Disable pathfinding for all units
+        _placementGroup setVariable ["NWG_UKREP_ownership",true];//Mark as UKREP group
+    };
+
+    /*Finalize helpers*/
+    if ((count _hlprs) > 0) then {
+        {_x setvariable ["BIS_fnc_initModules_activate",true]} forEach _hlprs;
     };
 
     //return
