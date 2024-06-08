@@ -23,7 +23,7 @@
 
     ["MISSIONS_DIFFICULTY",[
         createHashMapFromArray [
-            ["Name","Easy"],
+            ["Name","#MIS_DIF_EASY#"],
             ["SelectionMarker","mil_objective"],
             ["SelectionMarker_Color","ColorOrange"],
             ["UkrepFractalSteps",[
@@ -75,7 +75,7 @@
             ["DspawnGroupsMax",5]
         ],
         createHashMapFromArray [
-            ["Name","Normal"],
+            ["Name","#MIS_DIF_NORMAL#"],
             ["SelectionMarker","mil_objective"],
             ["SelectionMarker_Color","ColorRed"],
             ["UkrepFractalSteps",[

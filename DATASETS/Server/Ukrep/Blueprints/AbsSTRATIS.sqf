@@ -1,5 +1,5 @@
 [
-    ["ABS","LZConnor01",[2990.66,1861.99,0],0,92.5497,0,[],[
+    ["ABS","LZConnor_01",[2990.66,1861.99,0],0,92.5497,0,[],[
         ["BLDG","CamoNet_BLUFOR_open_F",[2964.29,1856.44,171.548],0,60,0,1],
         ["BLDG","Land_Cargo_Patrol_V2_F",[3001,1839,168.957],0,330,0,2],
         ["BLDG","Land_Cargo_Patrol_V2_F",[2942,1849,174.042],0,60,0,2],
@@ -25,7 +25,7 @@
         ["VEHC","Land_VR_Target_MRAP_01_F",[2993,1888,171.122],0,75,0,[]],
         ["HELP","ModuleHideTerrainObjects_F",[2956,1873,171.365],0,0,0,[["#filter",4],["objectarea",[10,10,0,false,-1]],["#hidelocally",false],["bis_fnc_initmodules_disableautoactivation",false]]]]],
 
-    ["ABS","LZConnor02",[2976.27,1865.81,0],0,101.251,0,[],[
+    ["ABS","LZConnor_02",[2976.27,1865.81,0],0,101.251,0,[],[
         ["BLDG","CamoNet_BLUFOR_open_F",[2964.29,1856.44,171.548],0,60,0,1],
         ["BLDG","Land_Cargo_HQ_V2_F",[2981,1870,171.4],0,60,0,2],
         ["BLDG","Land_Cargo_Patrol_V2_F",[3001,1839,168.957],0,330,0,2],

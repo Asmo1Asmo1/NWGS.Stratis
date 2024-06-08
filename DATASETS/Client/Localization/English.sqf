@@ -1,4 +1,10 @@
 NWG_LocalizationDictionary = createHashMapFromArray [
+    //T1_Battlefield
+    //missionMachine
+    ["#MIS_DIF_EASY#","Easy"],
+    ["#MIS_DIF_NORMAL#","Normal"],
+    ["#MIS_CLI_CONFIRMED_SUBTITLE#","new destination..."],
+    ["#MIS_CLI_CONFIRMED_PLAYER_TEMPLATE#","Operator: %1"],
     //T2_UserInteraction
     //medicine
     ["#MED_CLI_BLEEDING_UI_TITLE_LOW#","Patched"],

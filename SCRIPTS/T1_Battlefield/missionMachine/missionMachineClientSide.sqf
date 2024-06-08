@@ -34,14 +34,14 @@ NWG_MIS_CLI_RequestMissionSelection = {
     [] remoteExec ["NWG_fnc_mmRequestSelectionOptions",2];
 };
 
-NWG_MIS_CLI_OnMissionSelectionReceived = {
+NWG_MIS_CLI_OnSelectionOptionsReceived = {
     private _selections = _this;
 
     //Check state
     if (isNil "NWG_MIS_CurrentState" || {NWG_MIS_CurrentState != MSTATE_READY})
-        exitWith {"NWG_MIS_CLI_OnMissionSelectionReceived: NWG_MIS_CurrentState is not READY" call NWG_fnc_logError};
+        exitWith {"NWG_MIS_CLI_OnSelectionOptionsReceived: NWG_MIS_CurrentState is not READY" call NWG_fnc_logError};
     if (NWG_MIS_CLI_selectionInProgress)
-        exitWith {"NWG_MIS_CLI_OnMissionSelectionReceived: selection is already in progress" call NWG_fnc_logError};
+        exitWith {"NWG_MIS_CLI_OnSelectionOptionsReceived: selection is already in progress" call NWG_fnc_logError};
 
     //Set state
     NWG_MIS_CLI_selectionInProgress = true;
@@ -115,6 +115,30 @@ NWG_MIS_CLI_OnMapClick = {
 
     //Send selection
     _i remoteExec ["NWG_fnc_mmSelectionMade",2];
+};
+
+//Just a nice visuals to show the progress
+NWG_MIS_CLI_OnSelectionConfirmed = {
+    // private _missionName = _this;
+
+    //Show mission info
+    private _missionName = _this call NWG_fnc_localize;
+    private _subtitle = "#MIS_CLI_CONFIRMED_SUBTITLE#" call NWG_fnc_localize;
+    private _missionInfo = parseText (format ["<t font='RobotoCondensedBold' size='2'>%1</t><br/>%2", _missionName, _subtitle]);
+    [_missionInfo, true, nil, 7, 2, 0] spawn BIS_fnc_textTiles;
+
+    //Delay
+    sleep 6;
+
+    //Show player info
+    private _line1 = format [("#MIS_CLI_CONFIRMED_PLAYER_TEMPLATE#" call NWG_fnc_localize),(name player)];
+    private _line2 = format ["%1: %2",(worldName call NWG_fnc_localize),(dayTime call BIS_fnc_timeToString)];
+    [
+        [
+            [_line1, "<t align = 'right' shadow = '1' size = '1'>%1</t><br/>"],
+            [_line2, "<t align = 'right' shadow = '1' size = '1'>%1</t><br/>", 25]
+        ],0.57,0.85
+    ] spawn BIS_fnc_typeText;
 };
 
 //================================================================================================================

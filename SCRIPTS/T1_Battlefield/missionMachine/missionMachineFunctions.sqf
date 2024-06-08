@@ -18,5 +18,13 @@ NWG_fnc_mmSelectionMade = {
 //params: _options - array
 NWG_fnc_mmSendSelectionOptions = {
     // private _options = _this;
-    _this call NWG_MIS_CLI_OnMissionSelectionReceived;
+    _this call NWG_MIS_CLI_OnSelectionOptionsReceived;
+};
+
+//Confirms the selection made
+//params: _missionName - string
+NWG_fnc_mmSelectionConfirmed = {
+    // private _missionName = _this;
+    if (!hasInterface) exitWith {};//Prevent HC from executing this
+    _this call NWG_MIS_CLI_OnSelectionConfirmed;
 };

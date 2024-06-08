@@ -434,7 +434,7 @@ NWG_MIS_SER_OnSelectionOptionsRequest = {
 
     //Repack selection list for client
     private _options = NWG_MIS_SER_missionsSelection apply {[
-            _x#SELECTION_NAME,
+            (_x call NWG_MIS_SER_ExtractMissionName),
             _x#SELECTION_POS,
             _x#SELECTION_RAD,
             ((_x#SELECTION_SETTINGS) getOrDefault ["Name","Unknown"]),
@@ -455,12 +455,23 @@ NWG_MIS_SER_OnSelectionMade = {
     if (_selectionIndex < 0 || _selectionIndex >= (count NWG_MIS_SER_missionsSelection))
         exitWith {format ["NWG_MIS_SER_OnSelectionMade: Invalid selection. index:'%1' selection count:'%2'",_selectionIndex,(count NWG_MIS_SER_missionsSelection)] call NWG_fnc_logError};
 
-    //Leavy only the selected mission in array
+    //Leave only the selected mission in array
     private _selected = NWG_MIS_SER_missionsSelection deleteAt _selectionIndex;
     NWG_MIS_SER_missionsSelection resize 0;
     NWG_MIS_SER_missionsSelection pushBack _selected;
+
+    //Send selection made to all the clients
+    (_selected call NWG_MIS_SER_ExtractMissionName) remoteExec ["NWG_fnc_mmSelectionConfirmed",0];
+
     //The rest will be handled by the heartbeat cycle
 };
+
+NWG_MIS_SER_ExtractMissionName = {
+    // private _selection = _this;
+    //return
+    (((_this param [SELECTION_NAME,""]) splitString "_")#0)
+};
+
 
 //================================================================================================================
 //================================================================================================================
