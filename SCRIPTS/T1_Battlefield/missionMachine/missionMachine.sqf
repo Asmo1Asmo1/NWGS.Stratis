@@ -144,8 +144,9 @@ NWG_MIS_SER_Cycle = {
 
             /* mission build */
             case MSTATE_BUILD_UKREP: {
-                //TODO: Build the mission using UKREP
-                systemChat "Mission build UKREP";
+                NWG_MIS_SER_selected call NWG_MIS_SER_BuildMission_Marker;//Place marker
+                NWG_MIS_SER_selected call NWG_MIS_SER_BuildMission_Ukrep;//Build mission
+                MSTATE_BUILD_DSPAWN call NWG_MIS_SER_ChangeState;//Move to the next state
             };
             case MSTATE_BUILD_DSPAWN: {
                 //TODO: Spawn patrols using DSPAWN
@@ -491,6 +492,45 @@ NWG_MIS_SER_OnSelectionMade = {
     //The rest will be handled by the heartbeat cycle
 };
 
+//================================================================================================================
+//================================================================================================================
+//Mission building
+NWG_MIS_SER_BuildMission_Marker = {
+    // private _selectedMission = _this;
+    private _pos = _this#SELECTION_POS;
+    private _rad = _this#SELECTION_RAD;
+    private _markerColor = (_this#SELECTION_SETTINGS) getOrDefault ["SelectionMarker_Color","ColorBlack"];
+
+    //Create background outline marker
+    _marker = createMarker ["MIS_BuildMission_Marker",_pos];
+    _marker setMarkerSize [_rad,_rad];
+    _marker setMarkerShape "ELLIPSE";
+    _marker setMarkerColor _markerColor;
+    _marker setMarkerAlpha (NWG_MIS_SER_Settings get "MISSIONS_OUTLINE_ALPHA");
+
+    //return
+    _marker
+};
+
+NWG_MIS_SER_BuildMission_Ukrep = {
+    // private _selectedMission = _this;
+
+    private _blueprint = _this#SELECTION_BLUEPRINT;
+    // _blueprint = +_blueprint;//Deep copy to prevent changes in catalogues (is done internally inside the ukrep system)
+    private _fractalSteps = _this#SELECTION_SETTINGS getOrDefault ["UkrepFractalSteps",[]];
+    _fractalSteps = +_fractalSteps;//Deep copy to prevent changes in the settings
+    (_fractalSteps#0) set [0,_blueprint];//Insert blueprint into the fractal root step
+
+    private _faction = NWG_MIS_SER_Settings get "MISSIONS_ENEMY_FACTION";
+    private _groupRules = [
+        /*GRP_RULES_MEMBERSHIP:*/NWG_MIS_SER_Settings get "MISSIONS_ENEMY_SIDE",
+        /*GRP_RULES_DYNASIM:*/true
+    ];
+    private _mapObjectsLimit = NWG_MIS_SER_Settings get "MISSIONS_BUILD_MAPOBJECTS_LIMIT";
+
+    //build and return the result
+    [_fractalSteps,_faction,_groupRules,_mapObjectsLimit] call NWG_fnc_ukrpBuildFractalABS
+};
 
 //================================================================================================================
 //================================================================================================================

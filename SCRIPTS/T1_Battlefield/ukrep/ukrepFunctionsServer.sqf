@@ -64,7 +64,7 @@ NWG_fnc_ukrpGetFaction = {
 //Builds FRACTAL ABS composition
 //params:
 // _fractalSteps - array of fractal steps describing each step of the building process
-//      0: root - root layer of the fractal: [["_pageName",""],["_blueprintName",""],["_chances",[]],["_blueprintPos",[]]]
+//      0: root - root layer of the fractal: [["_pageNameOrBlueprintContainer",""],["_blueprintName",""],["_chances",[]],["_blueprintPos",[]]]
 //      1: bldg - each building:             [["_pageName",""],["_blueprintName",""],["_chances",[]]];
 //      2: furn - each furniture:            [["_pageName",""],["_blueprintName",""],["_chances",[]]];
 // _faction - (optional) faction replacement to be applied (e.g.: "NATO") (default: "")

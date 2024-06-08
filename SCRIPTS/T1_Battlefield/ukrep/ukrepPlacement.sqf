@@ -88,19 +88,36 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
 
     //1. Get root blueprint
     private _fractalStep1 = _fractalSteps param [0,[]];
-    _fractalStep1 params [["_pageName",""],["_blueprintName",""],["_chances",[]],["_blueprintPos",[]]];
-    private _blueprints = [_pageName,_blueprintName,_blueprintPos] call NWG_UKREP_GetBlueprintsABS;
-    if ((count _blueprints) == 0) exitWith {
-        (format ["NWG_UKREP_FRACTAL_PlaceFractalABS: Could not find the blueprint matching the %1:%2:%3",_pageName,_blueprintName,_blueprintPos]) call NWG_fnc_logError;
-        false//Error
+    _fractalStep1 params [["_pageNameOrBlueprintContainer",""],["_blueprintName",""],["_chances",[]],["_blueprintPos",[]]];
+    private _blueprint = switch (true) do {
+        case (_pageNameOrBlueprintContainer isEqualType ""): {
+            //Page name provided
+            /*Witness the cost of mistake of building your system Down->Up instead of Up->Down. This block will never be used. Time wasted.*/
+            private _pageName = _pageNameOrBlueprintContainer;
+            private _blueprints = [_pageName,_blueprintName,_blueprintPos] call NWG_UKREP_GetBlueprintsABS;
+            if ((count _blueprints) == 0) exitWith {
+                (format ["NWG_UKREP_FRACTAL_PlaceFractalABS: Could not find the blueprint matching the %1:%2:%3",_pageName,_blueprintName,_blueprintPos]) call NWG_fnc_logError;
+                []
+            };
+            //else return
+            [_blueprints,"NWG_UKREP_FRACTAL_PlaceFractalABS"] call NWG_fnc_selectRandomGuaranteed
+        };
+        case (_pageNameOrBlueprintContainer isEqualType []): {
+            //Already selected blueprint container to use as a root
+            _pageNameOrBlueprintContainer
+        };
+        default {
+            format ["NWG_UKREP_FRACTAL_PlaceFractalABS: Invalid arg '_pageNameOrBlueprintContainer' of type: '%1'",(typeOf _pageNameOrBlueprintContainer)] call NWG_fnc_logError;
+            []
+        };
     };
-    private _blueprint = [_blueprints,"NWG_UKREP_FRACTAL_PlaceFractalABS"] call NWG_fnc_selectRandomGuaranteed;
+    if (_blueprint isEqualTo []) exitWith {false};//Error
 
     //2. Scan and save objects on the map for steps 2 and 3
     private _mapObjects = if (_mapObjectsLimit > 0) then {
         private _bpPos = _blueprint#BPCONTAINER_POS;
         private _bpRad = _blueprint#BPCONTAINER_RADIUS;
-        _bpPos nearObjects _bpRad
+        (_bpPos nearObjects _bpRad) select {_x call NWG_fnc_ocIsBuilding || {_x call NWG_fnc_ocIsFurniture}}/*Slight chance that will fix a sudden crash after placing ukrep*/
     } else {[]};
 
     //3. Place root blueprint (fractal step 1)
