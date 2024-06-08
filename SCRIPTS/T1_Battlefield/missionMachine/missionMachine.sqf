@@ -15,6 +15,9 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
     ["MISSIONS_UPDATE_NO_MISSIONS_RESET",true],//Go to RESET state if no missions left
     ["MISSIONS_UPDATE_NO_MISSIONS_EXIT",false],//Exit heartbeat cycle if no missions left
 
+    ["MISSIONS_SELECT_DISCARD_REJECTED",false],//False - rejected missions go back to the missions list for next selection, True - they get discarded
+    ["MISSIONS_SELECT_RESHUFFLE_REJECTED",false],//False - rejected missions simply added to the end of the missions list, True - list gets reshuffled
+
     /*The rest see in the DATASETS/Server/MissionMachine/Settings.sqf */
     ["COMPLEX_SETTINGS_ADDRESS","DATASETS\Server\MissionMachine\Settings.sqf"],
 
@@ -33,7 +36,7 @@ NWG_MIS_SER_cycleHandle = scriptNull;
 NWG_MIS_SER_playerBase = objNull;
 NWG_MIS_SER_playerBaseDecoration = [];
 NWG_MIS_SER_missionsList = [];
-NWG_MIS_SER_missionsSelection = [];
+NWG_MIS_SER_selectionList = [];
 NWG_MIS_SER_selected = [];
 
 //================================================================================================================
@@ -103,12 +106,8 @@ NWG_MIS_SER_Cycle = {
                 MSTATE_LIST_UPDATE call NWG_MIS_SER_ChangeState;//Move to the next state
             };
             case MSTATE_LIST_UPDATE: {
-                //Get settings
-                private _difficultySettings = NWG_MIS_SER_Settings get "MISSIONS_DIFFICULTY";
-                private _selectionCount = count _difficultySettings;
-
-                //Check if we have enough missions to select from
-                if ((count NWG_MIS_SER_missionsList) < _selectionCount) exitWith {
+                private _selectionList = NWG_MIS_SER_missionsList call NWG_MIS_SER_GenerateSelection;
+                if (_selectionList isEqualTo []) exitWith {
                     if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_LOG")
                         then {(format ["NWG_MIS_SER_Cycle: Not enough missions at UPDATE phase! Expected: %1, Found: %2",_selectionCount,(count NWG_MIS_SER_missionsList)]) call NWG_fnc_logError};
                     if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_RESET")
@@ -119,24 +118,13 @@ NWG_MIS_SER_Cycle = {
                         then {"NWG_MIS_SER_Cycle: Not enough missions at UPDATE phase and no action taken." call NWG_fnc_logError};//Log at least
                 };
 
-                //Update the selection list
-                //By that stage we already have a randomized list of missions with unique positions, so we can just take the first N elements
-                NWG_MIS_SER_missionsSelection resize 0;
-                for "_i" from 0 to (_selectionCount-1) do {
-                    private _ukrep = NWG_MIS_SER_missionsList deleteAt 0;
-                    private _settings = _difficultySettings select _i;
-                    //_ukrep: [UkrepType,UkrepName,ABSPos,[0,0,0],Radius,0,Payload,Blueprint]
-                    _ukrep params ["_","_name","_pos","_","_rad","_","_","_blueprint"];
-                    NWG_MIS_SER_missionsSelection pushBack [_name,_pos,_rad,_blueprint,_settings];
-                };
-
-                //Move to the next state
-                MSTATE_READY call NWG_MIS_SER_ChangeState;
+                NWG_MIS_SER_selectionList = _selectionList;//Save the selection
+                MSTATE_READY call NWG_MIS_SER_ChangeState;//Move to the next state
             };
 
             /* player input expect */
             case MSTATE_READY: {
-                switch (count NWG_MIS_SER_missionsSelection) do {
+                switch (count NWG_MIS_SER_selectionList) do {
                     case 0: {
                         //Some wild situation
                         "NWG_MIS_SER_Cycle: No mission selection at READY phase. Must be some kind of error - exiting." call NWG_fnc_logError;
@@ -144,7 +132,7 @@ NWG_MIS_SER_Cycle = {
                     };
                     case 1: {
                         //Only one mission available or selection is made - start it
-                        NWG_MIS_SER_selected = NWG_MIS_SER_missionsSelection deleteAt 0;
+                        NWG_MIS_SER_selected = NWG_MIS_SER_selectionList deleteAt 0;
                         MSTATE_BUILD_UKREP call NWG_MIS_SER_ChangeState;
                     };
                     default {
@@ -420,6 +408,32 @@ NWG_MIS_SER_GenerateMissionsList = {
     _missionsList
 };
 
+NWG_MIS_SER_GenerateSelection = {
+    private _missionsList = _this;
+
+    //1. Get settings
+    private _difficultySettings = NWG_MIS_SER_Settings get "MISSIONS_DIFFICULTY";
+    private _selectionCount = count _difficultySettings;
+
+    //2. Check if we have enough missions to select from
+    if ((count _missionsList) < _selectionCount) exitWith {[]};
+
+    //3. Generate selection list
+    //By that stage we already have a randomized list of missions with unique positions, so we can just take the first N elements
+    private _selectionList = [];
+    for "_i" from 0 to (_selectionCount-1) do {
+        private _ukrep = _missionsList deleteAt 0;
+        private _settings = _difficultySettings select _i;
+        //_ukrep: [UkrepType,UkrepName,ABSPos,[0,0,0],Radius,0,Payload,Blueprint]
+        _ukrep params ["_","_name","_pos","_","_rad"];
+        _name = (_name splitString "_") param [0,"Unknown"];//Extract mission name 'Name_var01' -> 'Name'
+        _selectionList pushBack [_name,_pos,_rad,_ukrep,_settings];
+    };
+
+    //4. Return
+    _selectionList
+};
+
 //================================================================================================================
 //================================================================================================================
 //Missions selection process
@@ -429,12 +443,12 @@ NWG_MIS_SER_OnSelectionOptionsRequest = {
         exitWith {format ["NWG_MIS_SER_OnSelectionOptionsRequest: Caller can not be identified! callerID:%1",_caller] call NWG_fnc_logError};
     if (NWG_MIS_CurrentState isNotEqualTo MSTATE_READY)
         exitWith {format ["NWG_MIS_SER_OnSelectionOptionsRequest: Invalid state for selection options request! state: %1",(NWG_MIS_CurrentState call NWG_MIS_SER_GetStateName)] call NWG_fnc_logError};
-    if ((count NWG_MIS_SER_missionsSelection) == 0)
+    if ((count NWG_MIS_SER_selectionList) == 0)
         exitWith {"NWG_MIS_SER_OnSelectionOptionsRequest: No missions available for selection!" call NWG_fnc_logError};
 
     //Repack selection list for client
-    private _options = NWG_MIS_SER_missionsSelection apply {[
-            (_x call NWG_MIS_SER_ExtractMissionName),
+    private _options = NWG_MIS_SER_selectionList apply {[
+            _x#SELECTION_NAME,
             _x#SELECTION_POS,
             _x#SELECTION_RAD,
             ((_x#SELECTION_SETTINGS) getOrDefault ["Name","Unknown"]),
@@ -448,28 +462,35 @@ NWG_MIS_SER_OnSelectionOptionsRequest = {
 
 NWG_MIS_SER_OnSelectionMade = {
     private _selectionIndex = _this;
+
+    //Checks
     if (NWG_MIS_CurrentState isNotEqualTo MSTATE_READY)
         exitWith {format ["NWG_MIS_SER_OnSelectionMade: Invalid state for selection made! state:%1",(NWG_MIS_CurrentState call NWG_MIS_SER_GetStateName)] call NWG_fnc_logError};
-    if ((count NWG_MIS_SER_missionsSelection) == 0)
+    if ((count NWG_MIS_SER_selectionList) == 0)
         exitWith {"NWG_MIS_SER_OnSelectionMade: No missions available for selection!" call NWG_fnc_logError};
-    if (_selectionIndex < 0 || _selectionIndex >= (count NWG_MIS_SER_missionsSelection))
-        exitWith {format ["NWG_MIS_SER_OnSelectionMade: Invalid selection. index:'%1' selection count:'%2'",_selectionIndex,(count NWG_MIS_SER_missionsSelection)] call NWG_fnc_logError};
+    if (_selectionIndex < 0 || _selectionIndex >= (count NWG_MIS_SER_selectionList))
+        exitWith {format ["NWG_MIS_SER_OnSelectionMade: Invalid selection. index:'%1' selection count:'%2'",_selectionIndex,(count NWG_MIS_SER_selectionList)] call NWG_fnc_logError};
 
-    //Leave only the selected mission in array
-    private _selected = NWG_MIS_SER_missionsSelection deleteAt _selectionIndex;
-    NWG_MIS_SER_missionsSelection resize 0;
-    NWG_MIS_SER_missionsSelection pushBack _selected;
+    //Extract selected mission
+    private _selected = NWG_MIS_SER_selectionList deleteAt _selectionIndex;
 
-    //Send selection made to all the clients
-    (_selected call NWG_MIS_SER_ExtractMissionName) remoteExec ["NWG_fnc_mmSelectionConfirmed",0];
+    //Process rejected missions if any
+    //selection: [_name,_pos,_rad,->_ukrep<-,_settings]
+    if ((count NWG_MIS_SER_selectionList) > 0) then {
+        private _rejected = NWG_MIS_SER_selectionList apply {_x#SELECTION_BLUEPRINT};
+        NWG_MIS_SER_selectionList resize 0;
+        if (NWG_MIS_SER_Settings get "MISSIONS_SELECT_DISCARD_REJECTED") exitWith {};//Discard rejected missions
+        {NWG_MIS_SER_missionsList pushBack _x} forEach _rejected;//Return rejected missions back to the list
+        if (NWG_MIS_SER_Settings get "MISSIONS_SELECT_RESHUFFLE_REJECTED") then {NWG_MIS_SER_missionsList call NWG_fnc_arrayShuffle};//Reshuffle the list
+    };
+
+    //Selection list must contain only one element to proceed
+    NWG_MIS_SER_selectionList pushBack _selected;
+
+    //Send selection made signal to all the clients
+    (_selected#SELECTION_NAME) remoteExec ["NWG_fnc_mmSelectionConfirmed",0];
 
     //The rest will be handled by the heartbeat cycle
-};
-
-NWG_MIS_SER_ExtractMissionName = {
-    // private _selection = _this;
-    //return
-    (((_this param [SELECTION_NAME,""]) splitString "_")#0)
 };
 
 

@@ -128,7 +128,7 @@ NWG_MIS_CLI_OnSelectionConfirmed = {
     [_missionInfo, true, nil, 7, 2, 0] spawn BIS_fnc_textTiles;
 
     //Delay
-    sleep 6;
+    sleep 3;
 
     //Show player info
     private _line1 = format [("#MIS_CLI_CONFIRMED_PLAYER_TEMPLATE#" call NWG_fnc_localize),(name player)];
