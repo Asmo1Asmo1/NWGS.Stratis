@@ -23,7 +23,7 @@
         ["UNIT","I_Soldier_VR_F",[2991.37,1891.22,171.109],0,60,0,0],
         ["VEHC","Land_VR_Target_MBT_01_cannon_F",[3028,1839,164.945],0,120,0,[]],
         ["VEHC","Land_VR_Target_MRAP_01_F",[2993,1888,171.122],0,75,0,[]],
-        ["HELP","ModuleHideTerrainObjects_F",[2956,1873,171.365],0,0,0,[["#filter",4],["objectarea",[10,10,0,false,-1]],["#hidelocally",false],["bis_fnc_initmodules_disableautoactivation",false]]]]],
+        ["HELP","ModuleHideTerrainObjects_F",[2956,1873,171.365],0,0,0,[["#filter",4],["objectarea",[10,10,0,false,-1]],["#hidelocally",false]]]]],
 
     ["ABS","LZConnor_02",[2976.27,1865.81,0],0,101.251,0,[],[
         ["BLDG","CamoNet_BLUFOR_open_F",[2964.29,1856.44,171.548],0,60,0,1],
@@ -42,7 +42,7 @@
         ["DECO","Land_Razorwire_F",[2951,1867,171.225],0,270,0,1],
         ["DECO","Land_Razorwire_F",[2981,1842,171.805],0,328.01,0,1],
         ["VEHC","Land_VR_Target_APC_Wheeled_01_F",[2997,1899,170],0,45,0,[]],
-        ["HELP","ModuleHideTerrainObjects_F",[2956,1873,171.365],0,0,0,[["#filter",4],["objectarea",[10,10,0,false,-1]],["#hidelocally",false],["bis_fnc_initmodules_disableautoactivation",false]]]]],
+        ["HELP","ModuleHideTerrainObjects_F",[2956,1873,171.365],0,0,0,[["#filter",4],["objectarea",[10,10,0,false,-1]],["#hidelocally",false]]]]],
 
     ["ABS","AgiosCephas",[2786.6,1751.41,0],0,140.543,0,[],[
         ["FURN","Land_CampingTable_small_F",[2776.22,1745.21,143.456],0,225.042,0,0],
@@ -90,7 +90,7 @@
         ["DECO","Land_Matches_F",[2763.72,936.305,74.8337],0,0,0,0],
         ["DECO","Land_Matches_F",[2683.37,955.512,80.3124],0,0,0,0],
         ["DECO","Land_ShellCrater_01_F",[2736.13,958.75,80.75],0,0,0,1],
-        ["HELP","ModuleHideTerrainObjects_F",[2729.25,955.625,81.3144],0,0,0,[["#filter",1],["objectarea",[5,5,0,false,-1]],["#hidelocally",false],["bis_fnc_initmodules_disableautoactivation",false]]]]],
+        ["HELP","ModuleHideTerrainObjects_F",[2729.25,955.625,81.3144],0,0,0,[["#filter",1],["objectarea",[5,5,0,false,-1]],["#hidelocally",false]]]]],
 
     ["ABS","StrogosBay",[2148.4,1901.23,0],0,77.009,0,[],[
         ["BLDG","CamoNet_BLUFOR_open_F",[2131,1905,2.48123],0,270.251,0,1],
@@ -148,7 +148,7 @@
         ["DECO","Land_WoodenCrate_01_stack_x5_F",[2143.03,1907.03,3.42322],0,0,0,1],
         ["DECO","Land_WoodenPlanks_01_F",[2155.15,1912.06,3.24234],0,0,0,1],
         ["TRRT","B_static_AA_F",[2152.71,1891.12,2.6592],0,209.956,0,["B_Soldier_VR_F"]],
-        ["HELP","ModuleHideTerrainObjects_F",[2150.75,1907.25,3.33625],0,0,0,[["#filter",4],["objectarea",[5,5,0,false,-1]],["#hidelocally",false],["bis_fnc_initmodules_disableautoactivation",false]]]]],
+        ["HELP","ModuleHideTerrainObjects_F",[2150.75,1907.25,3.33625],0,0,0,[["#filter",4],["objectarea",[5,5,0,false,-1]],["#hidelocally",false]]]]],
 
     ["ABS","TheSpartan",[2645.46,542.027,0],0,90.3499,0,[],[
         ["BLDG","Land_ConnectorTent_01_white_cross_F",[2633,609,65.625],0,270.484,0,1],

@@ -49,15 +49,13 @@ _this setVariable ["HELP_RealClassname",""];
     4. Paste actual module classname to code above
     5. Save the mission
     6. Export -> SQF (if too big: -> Copy to clipboard -> paste to file)
-    7. Find your module in sqf code (in _logics part) and copy all the setVariable lines:
+    7. Find your module in sqf code (in _logics part) and copy all the setVariable lines (except for the bis_fnc_initmodules_disableautoactivation)
     8. Paste to VR selector init, so that entire init looks like this:
 private _this = this;
 _this setVariable ["HELP_RealClassname","ModuleHideTerrainObjects_F"];
 _this setVariable ["objectArea",[10,10,0,false,-1]];
 _this setVariable ["#filter",4];
 _this setVariable ["#hideLocally",false];
-_this setVariable ["bis_fnc_initmodules_disableautoactivation",false];
-    (!note: bis_fnc_initmodules_disableautoactivation should be set to false!)
     9. Now you can gather the composition and see that HELPER record is created at the end of the blueprint
 */
 
