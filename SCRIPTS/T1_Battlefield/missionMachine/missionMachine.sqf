@@ -74,9 +74,15 @@ NWG_MIS_SER_Cycle = {
 
         switch (NWG_MIS_CurrentState) do {
             /* initialization */
-            case MSTATE_SCRIPTS_COMPILATION: {MSTATE_MACHINE_STARTUP call NWG_MIS_SER_ChangeState};//Move to the next state
+            case MSTATE_SCRIPTS_COMPILATION: {MSTATE_MACHINE_STARTUP call NWG_MIS_SER_ChangeState};
             case MSTATE_DISABLED: {_exit = true};//Exit
-            case MSTATE_MACHINE_STARTUP: {MSTATE_BASE_UKREP call NWG_MIS_SER_ChangeState};//Move to the next state
+            case MSTATE_MACHINE_STARTUP: {call NWG_MIS_SER_NextState};
+
+            /* world build */
+            case MSTATE_WORLD_BUILD: {
+                //TODO: Configure the world (time, weather, dynamic simulation, etc.)
+                call NWG_MIS_SER_NextState;
+            };
 
             /* base build */
             case MSTATE_BASE_UKREP: {
@@ -86,16 +92,16 @@ NWG_MIS_SER_Cycle = {
                 _buildResult params ["_root","_objects"];
                 NWG_MIS_SER_playerBase = _root;//Save base root object
                 NWG_MIS_SER_playerBaseDecoration = _objects;//Save base objects
-                MSTATE_BASE_ECONOMY call NWG_MIS_SER_ChangeState;/*Move to the next state*/
+                call NWG_MIS_SER_NextState;
             };
             case MSTATE_BASE_ECONOMY: {
                 //TODO: Add base economy
-                MSTATE_BASE_QUESTS call NWG_MIS_SER_ChangeState;//Move to the next state
+                call NWG_MIS_SER_NextState;
             };
             case MSTATE_BASE_QUESTS: {
                 //TODO: Add base quests
                 NWG_MIS_SER_playerBaseDecoration resize 0;//Release base objects
-                MSTATE_LIST_INIT call NWG_MIS_SER_ChangeState;//Move to the next state
+                call NWG_MIS_SER_NextState;
             };
 
 
@@ -107,7 +113,7 @@ NWG_MIS_SER_Cycle = {
                 if ((count _missionsList) == 0) exitWith
                     {"NWG_MIS_SER_Cycle: No missions found for the map at INIT phase - exiting." call NWG_fnc_logError; _exit = true};//Exit
                 NWG_MIS_SER_missionsList = _missionsList;//Save the list
-                MSTATE_LIST_UPDATE call NWG_MIS_SER_ChangeState;//Move to the next state
+                call NWG_MIS_SER_NextState;
             };
             case MSTATE_LIST_UPDATE: {
                 private _selectionList = NWG_MIS_SER_missionsList call NWG_MIS_SER_GenerateSelection;
@@ -123,7 +129,7 @@ NWG_MIS_SER_Cycle = {
                 };
 
                 NWG_MIS_SER_selectionList = _selectionList;//Save the selection
-                MSTATE_READY call NWG_MIS_SER_ChangeState;//Move to the next state
+                call NWG_MIS_SER_NextState;
             };
 
             /* player input expect */
@@ -138,7 +144,7 @@ NWG_MIS_SER_Cycle = {
                         //Only one mission available or selection is made - start it
                         NWG_MIS_SER_selected = NWG_MIS_SER_selectionList deleteAt 0;//Get the selected mission
                         (NWG_MIS_SER_selected#SELECTION_NAME) remoteExec ["NWG_fnc_mmSelectionConfirmed",0];//Send selection made signal to all the clients
-                        MSTATE_BUILD_UKREP call NWG_MIS_SER_ChangeState;//Move to the next state
+                        call NWG_MIS_SER_NextState;//<-- Move to the next state
                     };
                     default {
                         //Wait for player input
@@ -155,26 +161,29 @@ NWG_MIS_SER_Cycle = {
 
                 NWG_MIS_SER_missionArea = [(NWG_MIS_SER_selected#SELECTION_POS),(NWG_MIS_SER_selected#SELECTION_RAD)];//Save mission area
                 NWG_MIS_SER_missionObjects = _ukrep;//Save mission objects
-                MSTATE_BUILD_DSPAWN call NWG_MIS_SER_ChangeState;//Move to the next state
+                call NWG_MIS_SER_NextState;
+            };
+            case MSTATE_BUILD_ECONOMY: {
+                //TODO: Fill boxes and vehicles with loot using ECONOMY
+                call NWG_MIS_SER_NextState;
             };
             case MSTATE_BUILD_DSPAWN: {
                 private _ok = [NWG_MIS_SER_selected,NWG_MIS_SER_missionObjects] call NWG_MIS_SER_BuildMission_Dspawn;
                 if (_ok isEqualTo false) exitWith
                     {"NWG_MIS_SER_Cycle: Failed to the mission DSPAWN - exiting." call NWG_fnc_logError; _exit = true};//Exit
-
-                MSTATE_BUILD_ECONOMY call NWG_MIS_SER_ChangeState;//Move to the next state
-            };
-            case MSTATE_BUILD_ECONOMY: {
-                //TODO: Fill boxes and vehicles with loot using ECONOMY
-                MSTATE_BUILD_QUESTS call NWG_MIS_SER_ChangeState;//Move to the next state
+                call NWG_MIS_SER_NextState;
             };
             case MSTATE_BUILD_QUESTS: {
                 //TODO: Generate side quests using QUESTS
                 NWG_MIS_SER_missionObjects resize 0;//Release mission objects
-                MSTATE_FIGHT_READY call NWG_MIS_SER_ChangeState;//Move to the next state
+                call NWG_MIS_SER_NextState;
             };
 
             /* mission playflow */
+            case MSTATE_FIGHT_SETUP: {
+                //Mission is being prepared for players to engage
+                //TODO: Check if mission progessed to the next stage
+            };
             case MSTATE_FIGHT_READY: {
                 //Mission is ready for players to engage
                 //TODO: Check if mission progessed to the next stage
@@ -187,16 +196,8 @@ NWG_MIS_SER_Cycle = {
                 //Players are fighting with the enemy
                 //TODO: Check if mission progessed to the next stage
             };
-            case MSTATE_FIGHT_OUT: {
-                //Players have left the mission area
-                //TODO: Check if mission progessed to the next stage
-            };
             case MSTATE_FIGHT_EXHAUSTED: {
                 //Players have exhausted the mission
-                //TODO: Check if mission progessed to the next stage
-            };
-            case MSTATE_FIGHT_ABANDONED: {
-                //Enemy forces have abandoned the mission
                 //TODO: Check if mission progessed to the next stage
             };
 
@@ -253,6 +254,10 @@ NWG_MIS_SER_ChangeState = {
     publicVariable "NWG_MIS_CurrentState";
 };
 
+NWG_MIS_SER_NextState ={
+    (NWG_MIS_CurrentState + 1) call NWG_MIS_SER_ChangeState;
+};
+
 NWG_MIS_SER_GetStateName = {
     // private _state = _this;
     //return
@@ -260,6 +265,7 @@ NWG_MIS_SER_GetStateName = {
         case MSTATE_SCRIPTS_COMPILATION: {"SCRIPTS_COMPILATION"};
         case MSTATE_DISABLED:        {"DISABLED"};
         case MSTATE_MACHINE_STARTUP: {"MACHINE_STARTUP"};
+        case MSTATE_WORLD_BUILD:    {"WORLD_BUILD"};
         case MSTATE_BASE_UKREP:     {"BASE_UKREP"};
         case MSTATE_BASE_ECONOMY:   {"BASE_ECONOMY"};
         case MSTATE_BASE_QUESTS:    {"BASE_QUESTS"};
@@ -267,15 +273,14 @@ NWG_MIS_SER_GetStateName = {
         case MSTATE_LIST_UPDATE: {"LIST_UPDATE"};
         case MSTATE_READY: {"READY"};
         case MSTATE_BUILD_UKREP:   {"BUILD_UKREP"};
-        case MSTATE_BUILD_DSPAWN:  {"BUILD_DSPAWN"};
         case MSTATE_BUILD_ECONOMY: {"BUILD_ECONOMY"};
+        case MSTATE_BUILD_DSPAWN:  {"BUILD_DSPAWN"};
         case MSTATE_BUILD_QUESTS:  {"BUILD_QUESTS"};
+        case MSTATE_FIGHT_SETUP: {"FIGHT_SETUP"};
         case MSTATE_FIGHT_READY: {"FIGHT_READY"};
         case MSTATE_FIGHT_INFILTRATION: {"FIGHT_INFILTRATION"};
         case MSTATE_FIGHT_ACTIVE:       {"FIGHT_ACTIVE"};
-        case MSTATE_FIGHT_OUT:          {"FIGHT_OUT"};
         case MSTATE_FIGHT_EXHAUSTED: {"FIGHT_EXHAUSTED"};
-        case MSTATE_FIGHT_ABANDONED: {"FIGHT_ABANDONED"};
         case MSTATE_CLEANUP: {"CLEANUP"};
         case MSTATE_RESET:   {"RESET"};
         case MSTATE_SERVER_RESTART: {"SERVER_RESTART"};

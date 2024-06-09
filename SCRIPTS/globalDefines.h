@@ -21,34 +21,3 @@
 #define BST_ENEMY_FACTION "EnemyFaction"
 #define BST_TRIGGER "Trigger"
 #define BST_REINFMAP "ReinfMap"
-
-//Mission stages
-/* initialization */
-#define MSTATE_SCRIPTS_COMPILATION -3
-#define MSTATE_DISABLED -2
-#define MSTATE_MACHINE_STARTUP -1
-/* base build */
-#define MSTATE_BASE_UKREP 0
-#define MSTATE_BASE_ECONOMY 1
-#define MSTATE_BASE_QUESTS 2
-/* missions list */
-#define MSTATE_LIST_INIT 3
-#define MSTATE_LIST_UPDATE 4
-/* player input expect */
-#define MSTATE_READY 5
-/* mission build */
-#define MSTATE_BUILD_UKREP 6
-#define MSTATE_BUILD_DSPAWN 7
-#define MSTATE_BUILD_ECONOMY 8
-#define MSTATE_BUILD_QUESTS 9
-/* mission playflow */
-#define MSTATE_FIGHT_READY 10
-#define MSTATE_FIGHT_INFILTRATION 11
-#define MSTATE_FIGHT_ACTIVE 12
-#define MSTATE_FIGHT_OUT 13
-#define MSTATE_FIGHT_EXHAUSTED 14
-#define MSTATE_FIGHT_ABANDONED 15
-/* mission end */
-#define MSTATE_CLEANUP 16
-#define MSTATE_RESET 17
-#define MSTATE_SERVER_RESTART 18
