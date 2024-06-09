@@ -38,6 +38,14 @@ NWG_YK_Settings = createHashMapFromArray [
 
 //======================================================================================================
 //======================================================================================================
+//Fields
+/* reinforcements spawning */
+NWG_YK_reinfSide = nil;
+NWG_YK_reinfFaction = nil;
+NWG_YK_reinfMap = nil;
+
+//======================================================================================================
+//======================================================================================================
 //Init
 private _Init = {
     //Be the first system to react to something being killed
@@ -56,20 +64,28 @@ private _Init = {
 
 //======================================================================================================
 //======================================================================================================
-//Enabling/Disabling
-
+//Enable/Disable/Configure
 NWG_YK_Enable = {
-    if (NWG_YK_Settings get "ENABLED") exitWith {};//Already enabled
+    if (NWG_YK_Settings get "ENABLED") exitWith {false};//Already enabled
     NWG_YK_difficultyCurve call NWG_fnc_arrayRandomShift;//Shift the difficulty curve
     NWG_YK_Settings set ["ENABLED",true];
     call NWG_YK_STAT_OnEnable;//Statistics
+    true
 };
 NWG_YK_Disable = {
-    if !(NWG_YK_Settings get "ENABLED") exitWith {};//Already disabled
+    if !(NWG_YK_Settings get "ENABLED") exitWith {false};//Already disabled
     NWG_YK_Settings set ["ENABLED",false];
     if (!isNull NWG_YK_reactHandle || {!scriptDone NWG_YK_reactHandle})
         then {terminate NWG_YK_reactHandle};//Terminate the reaction script
     call NWG_YK_STAT_OnDisable;//Statistics
+    true
+};
+NWG_YK_Configure = {
+    params ["_kingSide","_reinfSide","_reinfFaction","_reinfMap"];
+    if !(isNil "_kingSide") then {NWG_YK_Settings set ["KING_SIDE",_kingSide]};
+    if !(isNil "_reinfSide") then {NWG_YK_reinfSide = _reinfSide};
+    if !(isNil "_reinfFaction") then {NWG_YK_reinfFaction = _reinfFaction};
+    if !(isNil "_reinfMap") then {NWG_YK_reinfMap = _reinfMap};
 };
 
 //======================================================================================================
@@ -435,16 +451,23 @@ NWG_YK_HUNT_MoveHunter = {
 //Reinforesments logic
 NWG_YK_REINF_SendReinforcements = {
     params ["_targetType","_targetPos"];
-    private _faction = BST_ENEMY_FACTION call NWG_fnc_shGetState;
-    if (isNil "_faction") then {_faction = NWG_YK_Settings get "DEFAULT_REINF_FACTION"};
+
     private _filter = switch (_targetType) do {
         case TARGET_TYPE_ARM: {[["AT"],[],[]]};//Whitelist AT groups
         case TARGET_TYPE_AIR: {[["AA"],[],[]]};//Whitelist AA groups
         default {[]};//No filter
     };
-    private _side = NWG_YK_Settings get "KING_SIDE";
-    private _reinfMap = BST_REINFMAP call NWG_fnc_shGetState;
-    if (isNil "_reinfMap") then {_reinfMap = []};
+
+    private _faction = if !(isNil "NWG_YK_reinfFaction")
+        then {NWG_YK_reinfFaction}
+        else {NWG_YK_Settings get "DEFAULT_REINF_FACTION"};
+    private _side = if !(isNil "NWG_YK_reinfSide")
+        then {NWG_YK_reinfSide}
+        else {NWG_YK_Settings get "KING_SIDE"};//Default to king's side
+    private _reinfMap = if !(isNil "NWG_YK_reinfMap")
+        then {NWG_YK_reinfMap}
+        else {[]};
+
     [_targetPos,1,_faction,_filter,_side,_reinfMap] spawn NWG_fnc_dsSendReinforcements;
 };
 

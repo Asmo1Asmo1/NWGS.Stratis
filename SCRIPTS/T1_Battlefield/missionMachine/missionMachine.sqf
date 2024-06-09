@@ -539,9 +539,6 @@ NWG_MIS_SER_GenerateMissionInfo = {
     private _enemyFaction = NWG_MIS_SER_Settings get "MISSIONS_ENEMY_FACTION";
     _missionInfo set ["EnemySide",_enemySide];
     _missionInfo set ["EnemyFaction",_enemyFaction];
-    /*+ share with other systems*/
-    [BST_ENEMY_SIDE,_enemySide] call NWG_fnc_shSetState;
-    [BST_ENEMY_FACTION,_enemyFaction] call NWG_fnc_shSetState;
 
     //4. Return
     _missionInfo
@@ -602,16 +599,16 @@ NWG_MIS_SER_BuildMission_Dspawn = {
     private _groupsMin  = _settings getOrDefault ["DspawnGroupsMin",2];
     private _groupsMax  = _settings getOrDefault ["DspawnGroupsMax",5];
 
-    //Calculate the DSPAWN trigger
+    //Calculate the DSPAWN area to patrol
     _missionRad = _missionRad * _radiusMult;
     _missionRad = (_missionRad max _radiusMin) min _radiusMax;//Clamp
-    private _trigger = [_missionPos,_missionRad];
-    [BST_TRIGGER,_trigger] call NWG_fnc_shSetState;//Share with other systems
+    private _trigger = [_missionPos,_missionRad];//We use the word 'trigger' just as legacy
+    _missionInfo set ["Dspawn_Area",[_missionPos,_missionRad]];//Save for future use
 
     //Calculate the DSPAWN reinforcment map
     //params ["_pos",["_doInf",true],["_doVeh",true],["_doBoat",true],["_doAir",true]];
     private _reinfMap = [_missionPos,true,true,true,true] call NWG_fnc_dtsMarkupReinforcement;
-    [BST_REINFMAP,_reinfMap] call NWG_fnc_shSetState;//Share with other systems
+    _missionInfo set ["Dspawn_ReinforcementMap",_reinfMap];//Save for future use
 
     // _ukrepObjects params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
     private _ukrepGroups = ((_ukrepObjects#3) + (_ukrepObjects#4) + (_ukrepObjects#5)) apply {group _x};

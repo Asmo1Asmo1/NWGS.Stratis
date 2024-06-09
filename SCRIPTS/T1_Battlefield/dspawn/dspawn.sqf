@@ -33,6 +33,11 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
 
 //================================================================================================================
 //================================================================================================================
+//Fields
+NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
+
+//================================================================================================================
+//================================================================================================================
 //Populate trigger
 #define SP_INDEX_GROUND 0
 #define SP_INDEX_WATER 1
@@ -46,7 +51,6 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
 #define G_INDEX_AIR 3
 #define G_INDEX_BOAT 4
 
-NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
 NWG_DSPAWN_TRIGGER_PopulateTrigger = {
     params ["_trigger","_groupsCount","_faction",["_filter",[]],["_side",west]];
     NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];

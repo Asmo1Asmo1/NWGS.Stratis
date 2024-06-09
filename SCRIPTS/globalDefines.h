@@ -15,10 +15,3 @@
 
 //Client events (arguments for NWG_fnc_subscribeToClientEvent and NWG_fnc_raiseClientEvent)
 #define EVENT_ON_LOADOUT_CHANGED "OnLoadoutChanged" //Called by 'inventoryManager' subsystem when a loadout is changed.     params ["_loadOut","_flattenLoadOut"];
-
-//Battlefield states (arguments for NWG_fnc_shGetState and NWG_fnc_shSetState)
-#define BST_OCCUPIED_BUILDINGS "OccupiedBuildings"
-#define BST_ENEMY_FACTION "EnemyFaction"
-#define BST_ENEMY_SIDE "EnemySide"
-#define BST_TRIGGER "Trigger"
-#define BST_REINFMAP "ReinfMap"
