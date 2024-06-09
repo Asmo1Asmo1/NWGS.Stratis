@@ -12,7 +12,7 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
     ["HEARTBEAT_RATE",1],//How often the mission machine should check for state changes
 
     ["MISSIONS_UPDATE_NO_MISSIONS_LOG",true],  //Log error for no missions left
-    ["MISSIONS_UPDATE_NO_MISSIONS_RESET",true],//Go to RESET state if no missions left
+    ["MISSIONS_UPDATE_NO_MISSIONS_RESTART",true],//Go to RESET state if no missions left
     ["MISSIONS_UPDATE_NO_MISSIONS_EXIT",false],//Exit heartbeat cycle if no missions left
 
     ["MISSIONS_SELECT_DISCARD_REJECTED",false],//False - rejected missions go back to the missions list for next selection, True - they get discarded
@@ -125,8 +125,8 @@ NWG_MIS_SER_Cycle = {
                 if (_selectionList isEqualTo []) exitWith {
                     if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_LOG")
                         then {(format ["NWG_MIS_SER_Cycle: Not enough missions at UPDATE phase! Expected: %1, Found: %2",_selectionCount,(count NWG_MIS_SER_missionsList)]) call NWG_fnc_logError};
-                    if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_RESET")
-                        then {MSTATE_RESET call NWG_MIS_SER_ChangeState};//Reset
+                    if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_RESTART")
+                        then {MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState};//Restart server if no missions left
                     if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_EXIT")
                         then {_exit = true};//Exit
                     if (NWG_MIS_CurrentState isEqualTo MSTATE_LIST_UPDATE && !_exit)
@@ -263,7 +263,8 @@ NWG_MIS_SER_Cycle = {
             };
             case MSTATE_SERVER_RESTART: {
                 //Restart the server
-                //TODO: Restart the server
+                call NWG_MIS_SER_ServerRestart;
+                _exit = true;//Exit
             };
 
             /* unknown */
@@ -760,6 +761,14 @@ NWG_MIS_SER_FightTeardown = {
 
     //return
     _this
+};
+
+//================================================================================================================
+//================================================================================================================
+//Server restart
+NWG_MIS_SER_ServerRestart = {
+    //TODO: Add an actual server restart code here
+    systemChat "Server restart initiated!";
 };
 
 //================================================================================================================
