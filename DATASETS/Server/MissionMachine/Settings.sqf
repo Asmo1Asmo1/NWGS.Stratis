@@ -76,7 +76,9 @@
             ["DspawnRadiusMax",200],
             ["DspawnGroupsMult",1],//Multiply number of ukrep groups by X to get dspawn groups
             ["DspawnGroupsMin",2],
-            ["DspawnGroupsMax",5]
+            ["DspawnGroupsMax",5],
+            ["ExhaustAfter",900],//Seconds after mission is exhausted (no more units will be spawned)
+            ["",0]
         ],
         createHashMapFromArray [
             ["Name","#MIS_DIF_NORMAL#"],
@@ -128,7 +130,9 @@
             ["DspawnRadiusMax",200],
             ["DspawnGroupsMult",2],//Multiply number of ukrep groups by X to get dspawn groups
             ["DspawnGroupsMin",3],
-            ["DspawnGroupsMax",8]
+            ["DspawnGroupsMax",8],
+            ["ExhaustAfter",1800],//Seconds after mission is exhausted (no more units will be spawned)
+            ["",0]
         ]
     ]],
 
