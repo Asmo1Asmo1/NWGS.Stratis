@@ -1,6 +1,20 @@
 //=============================================================================
 /*Server->Server*/
 
+//Populates the given trigger with the given number of groups of the given faction
+//params:
+// _trigger - trigger to populate
+// _groupsCount - number of groups to populate
+// _faction - faction of the groups
+// _filter - array of groups to filter out (optional)
+// _side - side of the groups (optional, default: west)
+//returns:
+// number of groups actually spawned OR false in case of error
+NWG_fnc_dsPopulateTrigger = {
+    // params ["_trigger","_groupsCount","_faction",["_filter",[]],["_side",west]];
+    _this call NWG_DSPAWN_TRIGGER_PopulateTrigger
+};
+
 //Send reinforcements to the given position
 //WARNING: This function is quite heavy. It is advised to use 'spawn' instead of 'call'
 //params:
@@ -10,6 +24,8 @@
 // _filter - array of groups to filter out (optional)
 // _side - side of the reinforcements (optional, default: west)
 // _spawnMap - array positions to spawn the reinforcements on (optional, default: [nil,nil,nil,nil] for [INF,VEH,BOAT,AIR])
+//returns:
+// number of groups actually spawned OR false in case of error
 NWG_fnc_dsSendReinforcements = {
     // params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west],["_spawnMap",[nil,nil,nil,nil]]];
     _this call NWG_DSPAWN_REINF_SendReinforcements

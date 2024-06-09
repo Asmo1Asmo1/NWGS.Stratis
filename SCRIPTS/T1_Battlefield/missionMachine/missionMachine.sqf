@@ -39,6 +39,9 @@ NWG_MIS_SER_missionsList = [];
 NWG_MIS_SER_selectionList = [];
 NWG_MIS_SER_selected = [];
 
+NWG_MIS_SER_missionArea = [];
+NWG_MIS_SER_missionObjects = [];
+
 //================================================================================================================
 //================================================================================================================
 //Init
@@ -91,6 +94,7 @@ NWG_MIS_SER_Cycle = {
             };
             case MSTATE_BASE_QUESTS: {
                 //TODO: Add base quests
+                NWG_MIS_SER_playerBaseDecoration resize 0;//Release base objects
                 MSTATE_LIST_INIT call NWG_MIS_SER_ChangeState;//Move to the next state
             };
 
@@ -144,18 +148,28 @@ NWG_MIS_SER_Cycle = {
 
             /* mission build */
             case MSTATE_BUILD_UKREP: {
-                NWG_MIS_SER_selected call NWG_MIS_SER_BuildMission_Marker;//Place marker
-                NWG_MIS_SER_selected call NWG_MIS_SER_BuildMission_Ukrep;//Build mission
+                /*private _marker = */NWG_MIS_SER_selected call NWG_MIS_SER_BuildMission_Marker;//Place marker
+                private _ukrep  = NWG_MIS_SER_selected call NWG_MIS_SER_BuildMission_Ukrep;//Build mission
+                if (_ukrep isEqualTo false) exitWith
+                    {"NWG_MIS_SER_Cycle: Failed to build the mission UKREP - exiting." call NWG_fnc_logError; _exit = true};//Exit
+
+                NWG_MIS_SER_missionArea = [(NWG_MIS_SER_selected#SELECTION_POS),(NWG_MIS_SER_selected#SELECTION_RAD)];//Save mission area
+                NWG_MIS_SER_missionObjects = _ukrep;//Save mission objects
                 MSTATE_BUILD_DSPAWN call NWG_MIS_SER_ChangeState;//Move to the next state
             };
             case MSTATE_BUILD_DSPAWN: {
-                //TODO: Spawn patrols using DSPAWN
+                private _ok = [NWG_MIS_SER_selected,NWG_MIS_SER_missionObjects] call NWG_MIS_SER_BuildMission_Dspawn;
+                if (_ok isEqualTo false) exitWith
+                    {"NWG_MIS_SER_Cycle: Failed to the mission DSPAWN - exiting." call NWG_fnc_logError; _exit = true};//Exit
+
+                MSTATE_BUILD_ECONOMY call NWG_MIS_SER_ChangeState;//Move to the next state
             };
             case MSTATE_BUILD_ECONOMY: {
                 //TODO: Fill boxes and vehicles with loot using ECONOMY
             };
             case MSTATE_BUILD_QUESTS: {
                 //TODO: Generate side quests using QUESTS
+                NWG_MIS_SER_missionObjects resize 0;//Release mission objects
             };
 
             /* mission playflow */
@@ -414,8 +428,8 @@ NWG_MIS_SER_GenerateSelection = {
     private _missionsList = _this;
 
     //1. Get settings
-    private _difficultySettings = NWG_MIS_SER_Settings get "MISSIONS_DIFFICULTY";
-    private _selectionCount = count _difficultySettings;
+    private _missionPresets = NWG_MIS_SER_Settings get "MISSIONS_SETTINGS";
+    private _selectionCount = count _missionPresets;
 
     //2. Check if we have enough missions to select from
     if ((count _missionsList) < _selectionCount) exitWith {[]};
@@ -425,7 +439,7 @@ NWG_MIS_SER_GenerateSelection = {
     private _selectionList = [];
     for "_i" from 0 to (_selectionCount-1) do {
         private _ukrep = _missionsList deleteAt 0;
-        private _settings = _difficultySettings select _i;
+        private _settings = _missionPresets select _i;
         //_ukrep: [UkrepType,UkrepName,ABSPos,[0,0,0],Radius,0,Payload,Blueprint]
         _ukrep params ["_","_name","_pos","_","_rad"];
         _name = (_name splitString "_") param [0,"Unknown"];//Extract mission name 'Name_var01' -> 'Name'
@@ -517,7 +531,7 @@ NWG_MIS_SER_BuildMission_Ukrep = {
 
     private _blueprint = _this#SELECTION_BLUEPRINT;
     // _blueprint = +_blueprint;//Deep copy to prevent changes in catalogues (is done internally inside the ukrep system)
-    private _fractalSteps = _this#SELECTION_SETTINGS getOrDefault ["UkrepFractalSteps",[]];
+    private _fractalSteps = _this#SELECTION_SETTINGS getOrDefault ["UkrepFractalSteps",[[]]];
     _fractalSteps = +_fractalSteps;//Deep copy to prevent changes in the settings
     (_fractalSteps#0) set [0,_blueprint];//Insert blueprint into the fractal root step
 
@@ -530,6 +544,39 @@ NWG_MIS_SER_BuildMission_Ukrep = {
 
     //build and return the result
     [_fractalSteps,_faction,_groupRules,_mapObjectsLimit] call NWG_fnc_ukrpBuildFractalABS
+};
+
+NWG_MIS_SER_BuildMission_Dspawn = {
+    params ["_selectedMission","_ukrepObjects"];
+
+    private _missionPos = _selectedMission#SELECTION_POS;
+    private _missionRad = _selectedMission#SELECTION_RAD;
+    private _settings   = _selectedMission#SELECTION_SETTINGS;
+
+    private _radiusMult = _settings getOrDefault ["DspawnRadiusMult",1.5];
+    private _radiusMin  = _settings getOrDefault ["DspawnRadiusMin",150];
+    private _radiusMax  = _settings getOrDefault ["DspawnRadiusMax",200];
+    private _groupsMult = _settings getOrDefault ["DspawnGroupsMult",1];
+    private _groupsMin  = _settings getOrDefault ["DspawnGroupsMin",2];
+    private _groupsMax  = _settings getOrDefault ["DspawnGroupsMax",5];
+
+    _missionRad = _missionRad * _radiusMult;
+    _missionRad = (_missionRad max _radiusMin) min _radiusMax;//Clamp
+
+    // _ukrepObjects params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
+    private _ukrepGroups = ((_ukrepObjects#3) + (_ukrepObjects#4) + (_ukrepObjects#5)) apply {group _x};
+    _ukrepGroups = _ukrepGroups arrayIntersect _ukrepGroups;//Remove duplicates
+    private _groupsCount = count _ukrepGroups;
+
+    _groupsCount = _groupsCount * _groupsMult;
+    _groupsCount = (_groupsCount max _groupsMin) min _groupsMax;//Clamp
+
+    private _trigger = [_missionPos,_missionRad];
+    private _faction = NWG_MIS_SER_Settings get "MISSIONS_ENEMY_FACTION";
+    private _side = NWG_MIS_SER_Settings get "MISSIONS_ENEMY_SIDE";
+
+    //populate and return the result
+    [_trigger,_groupsCount,_faction,[],_side] call NWG_fnc_dsPopulateTrigger
 };
 
 //================================================================================================================

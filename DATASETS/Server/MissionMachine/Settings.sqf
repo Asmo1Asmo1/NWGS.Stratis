@@ -25,7 +25,7 @@
     ["MISSIONS_OUTLINE_ALPHA",0.5],//Alpha value of the mission outline marker
     ["MISSIONS_BUILD_MAPOBJECTS_LIMIT",10],//How many original map objects could be used for mission ukrep building
 
-    ["MISSIONS_DIFFICULTY",[
+    ["MISSIONS_SETTINGS",[
         createHashMapFromArray [
             ["Name","#MIS_DIF_EASY#"],
             ["SelectionMarker","mil_objective"],
