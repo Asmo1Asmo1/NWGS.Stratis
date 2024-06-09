@@ -142,7 +142,7 @@ NWG_MIS_SER_Cycle = {
                         //Only one mission available (either there was only one mission preset or player made a selection)
                         private _selected = NWG_MIS_SER_selectionList deleteAt 0;//Get the selected mission
                         (_selected#SELECTION_NAME) remoteExec ["NWG_fnc_mmSelectionConfirmed",0];//Send selection made signal to all the clients
-                        NWG_MIS_SER_missionInfo = [_selected,NWG_MIS_SER_missionInfo] call NWG_MIS_SER_GenerateMissionInfo;//Generate mission info
+                        NWG_MIS_SER_missionInfo = [_selected,NWG_MIS_SER_missionInfo] call NWG_MIS_SER_GenerateMissionInfo;//(Re)Generate mission info
                         call NWG_MIS_SER_NextState;//<-- Move to the next state
                     };
                     case 0: {
@@ -185,7 +185,8 @@ NWG_MIS_SER_Cycle = {
             /* mission playflow */
             case MSTATE_FIGHT_SETUP: {
                 //Mission is being prepared for players to engage
-                //TODO: Check if mission progessed to the next stage
+                NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightSetup;
+                call NWG_MIS_SER_NextState;
             };
             case MSTATE_FIGHT_READY: {
                 //Mission is ready for players to engage
@@ -623,6 +624,25 @@ NWG_MIS_SER_BuildMission_Dspawn = {
 
     //populate and return the result
     [_trigger,_groupsCount,_faction,[],_side] call NWG_fnc_dsPopulateTrigger
+};
+
+//================================================================================================================
+//================================================================================================================
+//Fight stages
+NWG_MIS_SER_FightSetup = {
+    // private _missionInfo = _this;
+
+    //Configure and enable the YellowKing system
+    // params ["_kingSide","_reinfSide","_reinfFaction","_reinfMap"];
+    [
+        (_this get "EnemySide"),
+        (_this get "EnemySide"),
+        (_this get "EnemyFaction"),
+        (_this get "Dspawn_ReinforcementMap")
+    ] call NWG_fnc_ykConfigure;
+
+    private _ok = call NWG_fnc_ykEnable;
+    if (!_ok) then {"NWG_MIS_SER_FightSetup: Failed to enable the YellowKing system. Is it enabled already?" call NWG_fnc_logError};
 };
 
 //================================================================================================================
