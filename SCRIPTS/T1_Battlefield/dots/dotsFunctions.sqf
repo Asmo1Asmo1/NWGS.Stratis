@@ -9,20 +9,6 @@ NWG_fnc_dtsMarkupTrigger = {
     _this call NWG_DOTS_MarkupTrigger
 };
 
-//Markups the reinforcement belts
-//params:
-//_pos: center of the area
-//_doInf: (optional) should infantry be marked
-//_doVeh: (optional) should vehicles be marked
-//_doBoat: (optional) should boats be marked
-//_doAir: (optional) should air be marked
-//returns:
-//array of positions [_infPlains,_infRoads,_vehPlains,_vehRoads,_boats,_air]
-NWG_fnc_dtsMarkupReinforcement = {
-    //params ["_pos",["_doInf",true],["_doVeh",true],["_doBoat",true],["_doAir",true]];
-    _this call NWG_DOTS_MarkupReinforcement
-};
-
 //Markups the reinforcement belts, shuffles and groups them by type
 //params:
 //_pos: center of the area
@@ -32,7 +18,7 @@ NWG_fnc_dtsMarkupReinforcement = {
 //_doAir: (optional) should air be marked
 //returns:
 //array of positions [_inf,_veh,_boats,_air]
-NWG_fnc_dtsMarkupReinforcementGrouped = {
+NWG_fnc_dtsMarkupReinforcement = {
     //params ["_pos",["_doInf",true],["_doVeh",true],["_doBoat",true],["_doAir",true]];
     _this call NWG_DOTS_MarkupReinforcementGrouped
 };

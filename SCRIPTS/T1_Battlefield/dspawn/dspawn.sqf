@@ -380,7 +380,7 @@ NWG_DSPAWN_REINF_SendReinforcements = {
                 case "BOAT": {[_attackPos,false,false,true, false]};
                 case "AIR":  {[_attackPos,false,false,false,true ]};
             };
-            _spawnArray = (_markupArgs call NWG_fnc_dtsMarkupReinforcementGrouped) select _index;//[_inf,_veh,_boats,_air]
+            _spawnArray = (_markupArgs call NWG_fnc_dtsMarkupReinforcement) select _index;//[_inf,_veh,_boats,_air]
             _spawnMap set [_index,_spawnArray];
         };
         if ((count _spawnArray) == 0) exitWith {false};//No points to spawn

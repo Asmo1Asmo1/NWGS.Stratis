@@ -34,12 +34,15 @@ NWG_MIS_CurrentState = MSTATE_SCRIPTS_COMPILATION;
 //Fields
 NWG_MIS_SER_cycleHandle = scriptNull;
 NWG_MIS_SER_playerBase = objNull;
-NWG_MIS_SER_playerBaseDecoration = [];
 NWG_MIS_SER_missionsList = [];
 NWG_MIS_SER_selectionList = [];
 NWG_MIS_SER_selected = [];
 
-NWG_MIS_SER_missionArea = [];
+/*mission info property bag*/
+NWG_MIS_SER_missionInfo = createHashMap;
+
+/*temp object holders between states*/
+NWG_MIS_SER_playerBaseDecoration = [];
 NWG_MIS_SER_missionObjects = [];
 
 //================================================================================================================
@@ -135,31 +138,31 @@ NWG_MIS_SER_Cycle = {
             /* player input expect */
             case MSTATE_READY: {
                 switch (count NWG_MIS_SER_selectionList) do {
+                    case 1: {
+                        //Only one mission available (either there was only one mission preset or player made a selection)
+                        private _selected = NWG_MIS_SER_selectionList deleteAt 0;//Get the selected mission
+                        (_selected#SELECTION_NAME) remoteExec ["NWG_fnc_mmSelectionConfirmed",0];//Send selection made signal to all the clients
+                        NWG_MIS_SER_missionInfo = [_selected,NWG_MIS_SER_missionInfo] call NWG_MIS_SER_GenerateMissionInfo;//Generate mission info
+                        call NWG_MIS_SER_NextState;//<-- Move to the next state
+                    };
                     case 0: {
-                        //Some wild situation
+                        //No missions available
                         "NWG_MIS_SER_Cycle: No mission selection at READY phase. Must be some kind of error - exiting." call NWG_fnc_logError;
                         _exit = true;//Exit
                     };
-                    case 1: {
-                        //Only one mission available or selection is made - start it
-                        NWG_MIS_SER_selected = NWG_MIS_SER_selectionList deleteAt 0;//Get the selected mission
-                        (NWG_MIS_SER_selected#SELECTION_NAME) remoteExec ["NWG_fnc_mmSelectionConfirmed",0];//Send selection made signal to all the clients
-                        call NWG_MIS_SER_NextState;//<-- Move to the next state
-                    };
                     default {
-                        //Wait for player input
+                        //Waiting for player input
                     };
                 }
             };
 
             /* mission build */
             case MSTATE_BUILD_UKREP: {
-                /*private _marker = */NWG_MIS_SER_selected call NWG_MIS_SER_BuildMission_Marker;//Place marker
-                private _ukrep  = NWG_MIS_SER_selected call NWG_MIS_SER_BuildMission_Ukrep;//Build mission
+                /*private _marker = */NWG_MIS_SER_missionInfo call NWG_MIS_SER_BuildMission_Marker;//Place marker
+                private _ukrep  = NWG_MIS_SER_missionInfo call NWG_MIS_SER_BuildMission_Ukrep;//Build mission
                 if (_ukrep isEqualTo false) exitWith
                     {"NWG_MIS_SER_Cycle: Failed to build the mission UKREP - exiting." call NWG_fnc_logError; _exit = true};//Exit
 
-                NWG_MIS_SER_missionArea = [(NWG_MIS_SER_selected#SELECTION_POS),(NWG_MIS_SER_selected#SELECTION_RAD)];//Save mission area
                 NWG_MIS_SER_missionObjects = _ukrep;//Save mission objects
                 call NWG_MIS_SER_NextState;
             };
@@ -168,7 +171,7 @@ NWG_MIS_SER_Cycle = {
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BUILD_DSPAWN: {
-                private _ok = [NWG_MIS_SER_selected,NWG_MIS_SER_missionObjects] call NWG_MIS_SER_BuildMission_Dspawn;
+                private _ok = [NWG_MIS_SER_missionInfo,NWG_MIS_SER_missionObjects] call NWG_MIS_SER_BuildMission_Dspawn;
                 if (_ok isEqualTo false) exitWith
                     {"NWG_MIS_SER_Cycle: Failed to the mission DSPAWN - exiting." call NWG_fnc_logError; _exit = true};//Exit
                 call NWG_MIS_SER_NextState;
@@ -435,7 +438,7 @@ NWG_MIS_SER_GenerateSelection = {
     private _missionsList = _this;
 
     //1. Get settings
-    private _missionPresets = NWG_MIS_SER_Settings get "MISSIONS_SETTINGS";
+    private _missionPresets = NWG_MIS_SER_Settings get "MISSIONS_PRESETS";
     private _selectionCount = count _missionPresets;
 
     //2. Check if we have enough missions to select from
@@ -515,12 +518,43 @@ NWG_MIS_SER_OnSelectionMade = {
 
 //================================================================================================================
 //================================================================================================================
+//Mission info - property bag of current mission
+NWG_MIS_SER_GenerateMissionInfo = {
+    params ["_selectedMission",["_missionInfo",createHashMap]];
+
+    //1. Extract mission info from selected mission
+    _selectedMission params ["_name","_pos","_rad","_blueprint","_settings"];
+    _missionInfo set ["Name",_name];
+    _missionInfo set ["Position",_pos];
+    _missionInfo set ["Radius",_rad];
+    _missionInfo set ["Blueprint",_blueprint];
+    _missionInfo set ["Settings",_settings];
+
+    //2. Combine some to make it easier to use
+    _missionInfo set ["Area",[_pos,_rad]];
+    _missionInfo set ["Color",(_settings getOrDefault ["SelectionMarker_Color","ColorBlack"])];
+
+    //3. Extract values from mission machine settings
+    private _enemySide = NWG_MIS_SER_Settings get "MISSIONS_ENEMY_SIDE";
+    private _enemyFaction = NWG_MIS_SER_Settings get "MISSIONS_ENEMY_FACTION";
+    _missionInfo set ["EnemySide",_enemySide];
+    _missionInfo set ["EnemyFaction",_enemyFaction];
+    /*+ share with other systems*/
+    [BST_ENEMY_SIDE,_enemySide] call NWG_fnc_shSetState;
+    [BST_ENEMY_FACTION,_enemyFaction] call NWG_fnc_shSetState;
+
+    //4. Return
+    _missionInfo
+};
+
+//================================================================================================================
+//================================================================================================================
 //Mission building
 NWG_MIS_SER_BuildMission_Marker = {
-    // private _selectedMission = _this;
-    private _pos = _this#SELECTION_POS;
-    private _rad = _this#SELECTION_RAD;
-    private _markerColor = (_this#SELECTION_SETTINGS) getOrDefault ["SelectionMarker_Color","ColorBlack"];
+    // private _missionInfo = _this;
+    private _pos = _this get "Position";
+    private _rad = _this get "Radius";
+    private _markerColor = _this get "Color";
 
     //Create background outline marker
     _marker = createMarker ["MIS_BuildMission_Marker",_pos];
@@ -534,17 +568,17 @@ NWG_MIS_SER_BuildMission_Marker = {
 };
 
 NWG_MIS_SER_BuildMission_Ukrep = {
-    // private _selectedMission = _this;
+    // private _missionInfo = _this;
 
-    private _blueprint = _this#SELECTION_BLUEPRINT;
-    // _blueprint = +_blueprint;//Deep copy to prevent changes in catalogues (is done internally inside the ukrep system)
-    private _fractalSteps = _this#SELECTION_SETTINGS getOrDefault ["UkrepFractalSteps",[[]]];
+    private _blueprint = _this get "Blueprint";
+    // _blueprint = +_blueprint;//Deep copy to prevent changes in catalogue (is done internally inside the ukrep system)
+    private _fractalSteps = (_this get "Settings") getOrDefault ["UkrepFractalSteps",[[]]];
     _fractalSteps = +_fractalSteps;//Deep copy to prevent changes in the settings
     (_fractalSteps#0) set [0,_blueprint];//Insert blueprint into the fractal root step
 
-    private _faction = NWG_MIS_SER_Settings get "MISSIONS_ENEMY_FACTION";
+    private _faction = _this get "EnemyFaction";
     private _groupRules = [
-        /*GRP_RULES_MEMBERSHIP:*/NWG_MIS_SER_Settings get "MISSIONS_ENEMY_SIDE",
+        /*GRP_RULES_MEMBERSHIP:*/_this get "EnemySide",
         /*GRP_RULES_DYNASIM:*/true
     ];
     private _mapObjectsLimit = NWG_MIS_SER_Settings get "MISSIONS_BUILD_MAPOBJECTS_LIMIT";
@@ -554,11 +588,12 @@ NWG_MIS_SER_BuildMission_Ukrep = {
 };
 
 NWG_MIS_SER_BuildMission_Dspawn = {
-    params ["_selectedMission","_ukrepObjects"];
+    params ["_missionInfo","_ukrepObjects"];
 
-    private _missionPos = _selectedMission#SELECTION_POS;
-    private _missionRad = _selectedMission#SELECTION_RAD;
-    private _settings   = _selectedMission#SELECTION_SETTINGS;
+    //Unpack data
+    private _missionPos = _missionInfo get "Position";
+    private _missionRad = _missionInfo get "Radius";
+    private _settings   = _missionInfo get "Settings";
 
     private _radiusMult = _settings getOrDefault ["DspawnRadiusMult",1.5];
     private _radiusMin  = _settings getOrDefault ["DspawnRadiusMin",150];
@@ -567,8 +602,16 @@ NWG_MIS_SER_BuildMission_Dspawn = {
     private _groupsMin  = _settings getOrDefault ["DspawnGroupsMin",2];
     private _groupsMax  = _settings getOrDefault ["DspawnGroupsMax",5];
 
+    //Calculate the DSPAWN trigger
     _missionRad = _missionRad * _radiusMult;
     _missionRad = (_missionRad max _radiusMin) min _radiusMax;//Clamp
+    private _trigger = [_missionPos,_missionRad];
+    [BST_TRIGGER,_trigger] call NWG_fnc_shSetState;//Share with other systems
+
+    //Calculate the DSPAWN reinforcment map
+    //params ["_pos",["_doInf",true],["_doVeh",true],["_doBoat",true],["_doAir",true]];
+    private _reinfMap = [_missionPos,true,true,true,true] call NWG_fnc_dtsMarkupReinforcement;
+    [BST_REINFMAP,_reinfMap] call NWG_fnc_shSetState;//Share with other systems
 
     // _ukrepObjects params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
     private _ukrepGroups = ((_ukrepObjects#3) + (_ukrepObjects#4) + (_ukrepObjects#5)) apply {group _x};
@@ -578,9 +621,8 @@ NWG_MIS_SER_BuildMission_Dspawn = {
     _groupsCount = _groupsCount * _groupsMult;
     _groupsCount = (_groupsCount max _groupsMin) min _groupsMax;//Clamp
 
-    private _trigger = [_missionPos,_missionRad];
-    private _faction = NWG_MIS_SER_Settings get "MISSIONS_ENEMY_FACTION";
-    private _side = NWG_MIS_SER_Settings get "MISSIONS_ENEMY_SIDE";
+    private _faction = _missionInfo get "EnemyFaction";
+    private _side = _missionInfo get "EnemySide";
 
     //populate and return the result
     [_trigger,_groupsCount,_faction,[],_side] call NWG_fnc_dsPopulateTrigger

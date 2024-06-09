@@ -1,4 +1,4 @@
-//Map object types
+//Object types
 #define OBJ_TYPE_BLDG  "BLDG"  // Building
 #define OBJ_TYPE_FURN  "FURN"  // Furniture
 #define OBJ_TYPE_DECO  "DECO"  // Decorative
@@ -19,5 +19,6 @@
 //Battlefield states (arguments for NWG_fnc_shGetState and NWG_fnc_shSetState)
 #define BST_OCCUPIED_BUILDINGS "OccupiedBuildings"
 #define BST_ENEMY_FACTION "EnemyFaction"
+#define BST_ENEMY_SIDE "EnemySide"
 #define BST_TRIGGER "Trigger"
 #define BST_REINFMAP "ReinfMap"
