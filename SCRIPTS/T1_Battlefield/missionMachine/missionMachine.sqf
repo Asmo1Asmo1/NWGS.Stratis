@@ -166,10 +166,12 @@ NWG_MIS_SER_Cycle = {
             };
             case MSTATE_BUILD_ECONOMY: {
                 //TODO: Fill boxes and vehicles with loot using ECONOMY
+                MSTATE_BUILD_QUESTS call NWG_MIS_SER_ChangeState;//Move to the next state
             };
             case MSTATE_BUILD_QUESTS: {
                 //TODO: Generate side quests using QUESTS
                 NWG_MIS_SER_missionObjects resize 0;//Release mission objects
+                MSTATE_FIGHT_READY call NWG_MIS_SER_ChangeState;//Move to the next state
             };
 
             /* mission playflow */
