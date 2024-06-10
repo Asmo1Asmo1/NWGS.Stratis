@@ -365,7 +365,7 @@ NWG_DSPAWN_REINF_SendReinforcements = {
     params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west],["_spawnMap",[nil,nil,nil,nil]]];
 
     //Prepare spawn point picking (with lazy evaluation)
-    private _players = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
+    private _players = call NWG_fnc_getPlayersOrOccupiedVehicles;
     private _minDist = NWG_DSPAWN_Settings get "ATTACK_SPAWN_PLAYERS_MIN_DISTANCE";
     private _getSpawnPoint = {
         private _pointType = _this;
