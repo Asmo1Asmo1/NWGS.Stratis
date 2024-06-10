@@ -28,3 +28,11 @@ NWG_fnc_mmSelectionConfirmed = {
     if (!hasInterface) exitWith {};//Prevent HC from executing this
     _this call NWG_MIS_CLI_OnSelectionConfirmed;
 };
+
+//Notifies the client that the mission is completed
+//params: _missionName - string
+NWG_fnc_mmMissionCompleted = {
+    // private _missionName = _this;
+    if (!hasInterface) exitWith {};//Prevent HC from executing this
+    _this call NWG_MIS_CLI_OnMissionCompleted;
+};

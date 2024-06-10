@@ -249,13 +249,22 @@ NWG_MIS_SER_Cycle = {
             };
             case MSTATE_FIGHT_EXHAUSTED: {
                 //Players have exhausted the mission
-                /*Do nothing, just chill and expect players to report the end of the mission*/
+                //Just check if we should restart the server, players should report the mission completion manually
+                NWG_MIS_SER_missionInfo = NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;
+                if (NWG_MIS_SER_missionInfo get "IsRestartCondition")
+                    then {MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState};
             };
 
             /* mission end */
+            case MSTATE_COMPLETED: {
+                //Mission is completed
+                (NWG_MIS_SER_missionInfo get "Name") remoteExec ["NWG_fnc_mmMissionCompleted",0];//Send selection made signal to all the clients
+                call NWG_MIS_SER_NextState;
+            };
             case MSTATE_CLEANUP: {
                 //Cleanup the mission
-                //TODO: Cleanup the mission
+                [] call NWG_fnc_gcDeleteMission;
+                call NWG_MIS_SER_NextState;
             };
             case MSTATE_RESET: {
                 //Reset the mission
@@ -333,6 +342,7 @@ NWG_MIS_SER_GetStateName = {
         case MSTATE_FIGHT_INFILTRATION: {"FIGHT_INFILTRATION"};
         case MSTATE_FIGHT_ACTIVE:       {"FIGHT_ACTIVE"};
         case MSTATE_FIGHT_EXHAUSTED: {"FIGHT_EXHAUSTED"};
+        case MSTATE_COMPLETED: {"COMPLETED"};
         case MSTATE_CLEANUP: {"CLEANUP"};
         case MSTATE_RESET:   {"RESET"};
         case MSTATE_SERVER_RESTART: {"SERVER_RESTART"};
@@ -762,6 +772,10 @@ NWG_MIS_SER_FightTeardown = {
     //return
     _this
 };
+
+//================================================================================================================
+//================================================================================================================
+//Mission completion
 
 //================================================================================================================
 //================================================================================================================

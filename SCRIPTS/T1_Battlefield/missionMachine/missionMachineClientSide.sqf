@@ -10,8 +10,17 @@ NWG_MIS_CLI_Settings = createHashMapFromArray [
     ["SELECTION_MARKER_SIZE",1.5],//Size of the selection markers
     ["SELECTION_MAPCLICK_MIN_DISTANCE",500],//Map distance to count map click as selection
 
+    ["MISSION_COMPLETED_CELEBRATE",true],//Play sound and show visuals on mission completion
+    ["MISSION_COMPLETED_CELEBRATE_MUSIC",[
+        "EventTrack01a_F_EPA",
+        "EventTrack02a_F_EPA",
+        "AmbientTrack02a_F_EXP"
+    ]],//Music to play on mission completion
+
     ["",0]
 ];
+
+// EventTrack04a_F_EPB - spooky stuff, can we use it?
 
 //================================================================================================================
 //================================================================================================================
@@ -139,6 +148,47 @@ NWG_MIS_CLI_OnSelectionConfirmed = {
             [_line2, "<t align = 'right' shadow = '1' size = '1'>%1</t><br/>", 25]
         ],0.57,0.85
     ] spawn BIS_fnc_typeText;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Mission completion
+//Just a nice visuals to show the progress
+NWG_MIS_CLI_OnMissionCompleted = {
+    // private _missionName = _this;
+    if !(NWG_MIS_CLI_Settings get "MISSION_COMPLETED_CELEBRATE") exitWith {};//No party. No fun =_=
+
+    //Play sound
+    private _allSounds = NWG_MIS_CLI_Settings get "MISSION_COMPLETED_CELEBRATE_MUSIC";
+    playMusic ([_allSounds,"NWG_MIS_CLI_OnMissionCompleted"] call NWG_fnc_selectRandomGuaranteed);
+
+    sleep 4;
+
+    //Show effects
+    [] spawn {
+        sleep 1;
+        ("NWG_celebrationV" call BIS_fnc_rscLayer) cutRsc ["RscInterlacing","PLAIN",2];
+        sleep 5;
+        ("NWG_celebrationV" call BIS_fnc_rscLayer) cutRsc ["RscNoise","PLAIN"];
+        sleep 0.25;
+        ("NWG_celebrationV" call BIS_fnc_rscLayer) cutRsc ["RscStatic","PLAIN"];
+        sleep 2;
+        ("NWG_celebrationV" call BIS_fnc_rscLayer) cutFadeOut 0;
+    };
+
+    //Show message
+    call {
+        //Option 3: Formatted text in left upper corner (and we have a winner!)
+        private _line1 = format ["%1, ",(call NWG_fnc_wcGetWorldNameLocKey) call NWG_fnc_localize];
+        private _line2 = _this;//mission name
+        private _line3 = format ["%1...",("#MIS_COMPLETED_MESSAGE#" call NWG_fnc_localize)];
+        [
+            [[_line1, "align = 'left' shadow = '1' size = '0.7' font='PuristaBold'"],
+            [ _line2, "align = 'left' shadow = '1' size = '0.7'", "#aaaaaa"],
+            ["", "<br/>"],
+            [ _line3, "align = 'left' shadow = '1' size = '2.0'"]],
+        /*posX:*/-0.5,/*posY:*/nil,nil,nil,nil,nil,/*sound:*/false] spawn BIS_fnc_typeText2;
+    }
 };
 
 //================================================================================================================

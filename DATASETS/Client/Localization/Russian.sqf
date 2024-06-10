@@ -5,6 +5,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MIS_DIF_NORMAL#","Сложнее"],
     ["#MIS_CLI_CONFIRMED_SUBTITLE#","новое назначение..."],
     ["#MIS_CLI_CONFIRMED_PLAYER_TEMPLATE#","Оперативник: %1"],
+    ["#MIS_COMPLETED_MESSAGE#","МИССИЯ ВЫПОЛНЕНА"],
     //worldConfig
     ["#WORLD_NAME_STRATIS#","Стратис"],
     ["#WORLD_NAME_ALTIS#","Алтис"],

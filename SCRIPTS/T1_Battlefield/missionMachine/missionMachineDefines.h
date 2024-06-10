@@ -26,9 +26,10 @@
 #define MSTATE_FIGHT_ACTIVE 14
 #define MSTATE_FIGHT_EXHAUSTED 15
 /* mission end */
-#define MSTATE_CLEANUP 16
-#define MSTATE_RESET 17
-#define MSTATE_SERVER_RESTART 18
+#define MSTATE_COMPLETED 16
+#define MSTATE_CLEANUP 17
+#define MSTATE_RESET 18
+#define MSTATE_SERVER_RESTART 19
 
 // Exempt defines from ukrepDefines.h
 //It is not a good practice, but they are not that widespread to move them to globalDefines.h
