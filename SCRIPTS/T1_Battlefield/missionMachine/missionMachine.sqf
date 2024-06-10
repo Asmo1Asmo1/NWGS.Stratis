@@ -18,6 +18,7 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
     ["MISSIONS_SELECT_DISCARD_REJECTED",false],//False - rejected missions go back to the missions list for next selection, True - they get discarded
     ["MISSIONS_SELECT_RESHUFFLE_REJECTED",false],//False - rejected missions simply added to the end of the missions list, True - list gets reshuffled
 
+    ["PLAYER_BASE_RADIUS",70],//How far from base is counted as 'on the base' for players
     ["SERVER_RESTART_ON_ZERO_ONLINE_AFTER",300],//Delay in seconds how long do we wait for someone to join before restarting the server
 
     /*The rest see in the DATASETS/Server/MissionMachine/Settings.sqf */
@@ -36,6 +37,7 @@ NWG_MIS_CurrentState = MSTATE_SCRIPTS_COMPILATION;
 //Fields
 NWG_MIS_SER_cycleHandle = scriptNull;
 NWG_MIS_SER_playerBase = objNull;
+NWG_MIS_SER_playerBasePos = [];
 NWG_MIS_SER_missionsList = [];
 NWG_MIS_SER_selectionList = [];
 NWG_MIS_SER_selected = [];
@@ -96,6 +98,7 @@ NWG_MIS_SER_Cycle = {
                     {"NWG_MIS_SER_Cycle: Failed to build the player base - exiting." call NWG_fnc_logError; _exit = true};//Exit
                 _buildResult params ["_root","_objects"];
                 NWG_MIS_SER_playerBase = _root;//Save base root object
+                NWG_MIS_SER_playerBasePos = getPosASL _root;//Save base position
                 NWG_MIS_SER_playerBaseDecoration = _objects;//Save base objects
                 call NWG_MIS_SER_NextState;
             };
@@ -188,24 +191,26 @@ NWG_MIS_SER_Cycle = {
             case MSTATE_FIGHT_SETUP: {
                 //Mission is being prepared for players to engage
                 NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightSetup;
+                NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;//Update mission info
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_FIGHT_READY: {
                 //Mission is ready for players to engage
-                NWG_MIS_SER_missionInfo = NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;
+                NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;//Update mission info
+
                 switch (true) do {
                     case (NWG_MIS_SER_missionInfo get "IsRestartCondition"): {
                         //No players online for a while
                         MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState
                     };
-                    case (NWG_MIS_SER_missionInfo get "IsActive"): {
+                    case (NWG_MIS_SER_missionInfo get "IsEngaged"): {
                         //Players are fighting the enemy
-                        NWG_MIS_SER_missionInfo = NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightSetupExhaustion;
+                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightSetupExhaustion;//Setup exhaustion
                         MSTATE_FIGHT_ACTIVE call NWG_MIS_SER_ChangeState
                     };
                     case (NWG_MIS_SER_missionInfo get "IsInfiltrated"): {
                         //Players entered the mission area
-                        NWG_MIS_SER_missionInfo = NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightSetupExhaustion;
+                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightSetupExhaustion;//Setup exhaustion
                         MSTATE_FIGHT_INFILTRATION call NWG_MIS_SER_ChangeState
                     };
                     default {/*Do nothing*/};
@@ -213,27 +218,32 @@ NWG_MIS_SER_Cycle = {
             };
             case MSTATE_FIGHT_INFILTRATION: {
                 //Players entered the mission area
-                NWG_MIS_SER_missionInfo = NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;
+                NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;
                 switch (true) do {
                     case (NWG_MIS_SER_missionInfo get "IsRestartCondition"): {
                         //No players online for a while
                         MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState
                     };
-                    case (NWG_MIS_SER_missionInfo get "IsActive"): {
+                    case (NWG_MIS_SER_missionInfo get "IsEngaged"): {
                         //Players are fighting the enemy
                         MSTATE_FIGHT_ACTIVE call NWG_MIS_SER_ChangeState
                     };
                     case (NWG_MIS_SER_missionInfo get "IsExhausted"): {
                         //Players have exhausted the mission
-                        NWG_MIS_SER_missionInfo = NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
+                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
                         MSTATE_FIGHT_EXHAUSTED call NWG_MIS_SER_ChangeState
+                    };
+                    case (NWG_MIS_SER_missionInfo get "IsAllPlayersOnBase"): {
+                        //Players are back on the base
+                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
+                        MSTATE_COMPLETED call NWG_MIS_SER_ChangeState;//<-- Mission is completed
                     };
                     default {/*Do nothing*/};
                 };
             };
             case MSTATE_FIGHT_ACTIVE: {
                 //Players are fighting the enemy
-                NWG_MIS_SER_missionInfo = NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;
+                NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;
                 switch (true) do {
                     case (NWG_MIS_SER_missionInfo get "IsRestartCondition"): {
                         //No players online for a while
@@ -241,23 +251,37 @@ NWG_MIS_SER_Cycle = {
                     };
                     case (NWG_MIS_SER_missionInfo get "IsExhausted"): {
                         //Players have exhausted the mission
-                        NWG_MIS_SER_missionInfo = NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
+                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
                         MSTATE_FIGHT_EXHAUSTED call NWG_MIS_SER_ChangeState
+                    };
+                    case (NWG_MIS_SER_missionInfo get "IsAllPlayersOnBase"): {
+                        //Players are back on the base
+                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
+                        MSTATE_COMPLETED call NWG_MIS_SER_ChangeState;//<-- Mission is completed
                     };
                     default {/*Do nothing*/};
                 };
             };
             case MSTATE_FIGHT_EXHAUSTED: {
                 //Players have exhausted the mission
-                //Just check if we should restart the server, players should report the mission completion manually
-                NWG_MIS_SER_missionInfo = NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;
-                if (NWG_MIS_SER_missionInfo get "IsRestartCondition")
-                    then {MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState};
+                NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;
+                switch (true) do {
+                    case (NWG_MIS_SER_missionInfo get "IsRestartCondition"): {
+                        //No players online for a while
+                        MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState
+                    };
+                    case (NWG_MIS_SER_missionInfo get "IsAllPlayersOnBase"): {
+                        //Players are back on the base
+                        MSTATE_COMPLETED call NWG_MIS_SER_ChangeState;//<-- Mission is completed
+                    };
+                    default {/*Do nothing*/};
+                };
             };
 
             /* mission end */
             case MSTATE_COMPLETED: {
                 //Mission is completed
+                NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
                 (NWG_MIS_SER_missionInfo get "Name") remoteExec ["NWG_fnc_mmMissionCompleted",0];//Send selection made signal to all the clients
                 call NWG_MIS_SER_NextState;
             };
@@ -268,7 +292,7 @@ NWG_MIS_SER_Cycle = {
             };
             case MSTATE_RESET: {
                 //Reset the mission
-                //TODO: Reset the mission
+                MSTATE_LIST_UPDATE call NWG_MIS_SER_ChangeState;//<- Go back to the mission selection
             };
             case MSTATE_SERVER_RESTART: {
                 //Restart the server
@@ -594,7 +618,7 @@ NWG_MIS_SER_GenerateMissionInfo = {
     _missionInfo set ["Color",(_settings getOrDefault ["SelectionMarker_Color","ColorBlack"])];
     _missionInfo set ["ExhaustAfter",(_settings getOrDefault ["ExhaustAfter",900])];
 
-    //3. Extract values from mission machine settings
+    //3. Extract values from mission machine and settings
     private _enemySide = NWG_MIS_SER_Settings get "MISSIONS_ENEMY_SIDE";
     private _enemyFaction = NWG_MIS_SER_Settings get "MISSIONS_ENEMY_FACTION";
     _missionInfo set ["EnemySide",_enemySide];
@@ -704,10 +728,15 @@ NWG_MIS_SER_FightSetup = {
     if (!_ok) then {"NWG_MIS_SER_FightSetup: Failed to enable the YellowKing system. Is it enabled already?" call NWG_fnc_logError};
 
     //Update mission info with default values
+    _this set ["PlayersOnline",-1];
+    _this set ["PlayersOnMission",-1];
+    _this set ["PlayersOnBase",-1];
+
     _this set ["LastPlayerOnlineAt",-1];
     _this set ["IsRestartCondition",false];
+    _this set ["IsAllPlayersOnBase",false];
     _this set ["IsInfiltrated",false];
-    _this set ["IsActive",false];
+    _this set ["IsEngaged",false];
     _this set ["IsExhausted",false];
     _this set ["WillExhaustAt",-1];
 
@@ -725,57 +754,69 @@ NWG_MIS_SER_FightSetupExhaustion = {
 };
 
 NWG_MIS_SER_FightUpdateMissionInfo = {
-    // private _missionInfo = _this;
-    private _players = call NWG_fnc_getPlayersAll;
-    private _playersCount = (count _players);
+    private _info = _this;
+    private _players = call NWG_fnc_getPlayersOrOccupiedVehicles;//It's ok to count 6 people in a heli as one player - doesn't make much difference in our case
     private _curTime = round time;
 
-    //1. Server restart condition
-    if (_playersCount > 0) then {
-        _this set ["LastPlayerOnlineAt",_curTime];
-        _this set ["IsRestartCondition",false];
+    //1. Update player counters
+    private _playersOnline = (count _players);
+    private _playersOnMission = call {
+        private _missionPos = _info get "Position";
+        private _missionRad = _info get "Radius";
+        {(_x distance2D _missionPos) <= _missionRad} count _players
+    };
+    private _playersOnBase = {
+        private _basePos = NWG_MIS_SER_playerBasePos;
+        private _baseRad = NWG_MIS_SER_Settings get "PLAYER_BASE_RADIUS";
+        {(_x distance2D _basePos) <= _baseRad} count _players
+    };
+
+    _info set ["PlayersOnline",_playersOnline];
+    _info set ["PlayersOnMission",_playersOnMission];
+    _info set ["PlayersOnBase",_playersOnBase];
+
+    //2. Server restart condition (may be on-off)
+    if (_playersOnline > 0) then {
+        _info set ["LastPlayerOnlineAt",_curTime];
+        _info set ["IsRestartCondition",false];
     } else {
-        private _lastOnline = _this get "LastPlayerOnlineAt";
+        private _lastOnline = _info get "LastPlayerOnlineAt";
         private _restartDelay = NWG_MIS_SER_Settings get "SERVER_RESTART_ON_ZERO_ONLINE_AFTER";
         private _restartAt = _lastOnline + _restartDelay;
-        _this set ["IsRestartCondition",(_curTime >= _restartAt)];
+        _info set ["IsRestartCondition",(_curTime >= _restartAt)];
     };
 
-    //2. Mission infiltration condition
-    if !(_this get "IsInfiltrated") then {
-        private _missionPos = _this get "Position";
-        private _missionRad = _this get "Radius";
-        _this set ["IsInfiltrated",((_players findIf {(_x distance2D _missionPos) <= _missionRad}) != -1)];
+    //3. All players on base condition (may be on-off)
+    _info set ["IsAllPlayersOnBase",(_playersOnBase == _playersOnline && {_playersOnline > 0})];
+
+    //4. Mission infiltration condition (one time switch on)
+    if !(_info get "IsInfiltrated") then {
+        _info set ["IsInfiltrated",(_playersOnMission > 0)];//Set 'Active' if at least one player is in the mission area
     };
 
-    //3. Mission active condition
-    if !(_this get "IsActive") then {
-        _this set ["IsActive",((call NWG_fnc_ykGetTotalKillcount) > 0)];//Set 'Active' if YK detected at least one kill
+    //5. Mission engage condition (one time switch on)
+    if !(_info get "IsEngaged") then {
+        _info set ["IsEngaged",((call NWG_fnc_ykGetTotalKillcount) > 0)];//Set 'Active' if YK detected at least one kill (doesn't matter where players are)
     };
 
-    //4. Mission exhausted condition
-    if (!(_this get "IsExhausted") && {(_this get "WillExhaustAt") > 0}) then {
-        _this set ["IsExhausted",(_curTime >= (_this get "WillExhaustAt"))];
+    //6. Mission exhausted condition (one time switch on that is setup by FightSetupExhaustion)
+    if (!(_info get "IsExhausted") && {(_info get "WillExhaustAt") > 0}) then {
+        _info set ["IsExhausted",(_curTime >= (_info get "WillExhaustAt"))];
     };
 
-    //5. Return
-    _this
+    //7. Return
+    _info
 };
 
 NWG_MIS_SER_FightTeardown = {
     // private _missionInfo = _this;
 
     //Disable the YellowKing system
-    private _ok = call NWG_fnc_ykDisable;
-    if (!_ok) then {"NWG_MIS_SER_FightTeardown: Failed to disable the YellowKing system. Is it disabled already?" call NWG_fnc_logError};
+    call NWG_fnc_ykDisable;//It's ok to call it more than once
 
     //return
     _this
 };
-
-//================================================================================================================
-//================================================================================================================
-//Mission completion
 
 //================================================================================================================
 //================================================================================================================
