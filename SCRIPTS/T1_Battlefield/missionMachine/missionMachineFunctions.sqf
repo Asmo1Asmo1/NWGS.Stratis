@@ -36,3 +36,11 @@ NWG_fnc_mmMissionCompleted = {
     if (!hasInterface) exitWith {};//Prevent HC from executing this
     _this call NWG_MIS_CLI_OnMissionCompleted;
 };
+
+//=============================================================================
+/*Debug*/
+//Shows the current state of the mission machine
+//returns: string
+NWG_fnc_mmShowStatus = {
+    NWG_MIS_CurrentState call NWG_MIS_SER_GetStateName
+};
