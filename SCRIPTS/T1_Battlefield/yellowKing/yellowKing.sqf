@@ -39,8 +39,9 @@ NWG_YK_Settings = createHashMapFromArray [
 //======================================================================================================
 //======================================================================================================
 //Fields
-/* main flag */
+/* main flags */
 NWG_YK_Enabled = false;
+NWG_YK_Status = STATUS_DISABLED;
 /* counters */
 NWG_YK_killCount = 0;
 NWG_YK_killCountTotal = 0;
@@ -74,6 +75,7 @@ NWG_YK_Enable = {
     NWG_YK_killCount = 0;//Reset the kill count
     NWG_YK_killCountTotal = 0;//Reset the total kill count
     NWG_YK_Enabled = true;
+    NWG_YK_Status = STATUS_READY;
     true
 };
 NWG_YK_Disable = {
@@ -82,6 +84,7 @@ NWG_YK_Disable = {
         then {terminate NWG_YK_reactHandle};//Terminate the reaction script
     call NWG_YK_STAT_OnDisable;//Statistics
     NWG_YK_Enabled = false;
+    NWG_YK_Status = STATUS_DISABLED;
     true
 };
 NWG_YK_Configure = {
@@ -117,6 +120,7 @@ NWG_YK_OnKilled = {
     if (isNull NWG_YK_reactHandle || {scriptDone NWG_YK_reactHandle}) then {
         NWG_YK_reactTime = time + ((NWG_YK_Settings get "REACTION_TIME") call NWG_fnc_randomRangeInt);
         NWG_YK_reactHandle = [] spawn NWG_YK_React;
+        NWG_YK_Status = STATUS_PREPARING;
     };
 };
 
@@ -133,9 +137,11 @@ NWG_YK_React = {
         NWG_YK_reactList resize 0;
         NWG_YK_reactTime = 0;
         NWG_YK_killCount = 0;
+        NWG_YK_Status = STATUS_READY;
     };
-    /*Statistics*/
+    /*Statistics and status*/
     [STAT_REACTION_COUNT,1] call NWG_YK_STAT_Increment;
+    NWG_YK_Status = STATUS_ACTING;
 
     //1. Check if we have any targets to react to
     private _targets = NWG_YK_reactList select {alive _x};
@@ -585,6 +591,14 @@ NWG_YK_STAT_statisticsKeys = [
     STAT_GROUPS_MOVED,STAT_REINFS_SENT,STAT_SPECIALS_USED,
     STAT_SPEC_AIRSTRIKE,STAT_SPEC_ARTA,STAT_SPEC_MORTAR,STAT_SPEC_VEHDEMOLITION,STAT_SPEC_INFSTORM,STAT_SPEC_VEHREPAIR
 ];
+NWG_YK_STAT_GetCurCounters = {
+    private _curTime = round ((round time)/60);//Time in minutes
+    private _groups  = groups (NWG_YK_Settings get "KING_SIDE");
+    private _groupsCount = count _groups;
+    private _unitsCount = 0;
+    {_unitsCount = _unitsCount + ({alive _x} count (units _x))} forEach _groups;
+    [_curTime,_groupsCount,_unitsCount]
+};
 NWG_YK_STAT_OnEnable = {
     if !(NWG_YK_Settings get "STATISTICS_ENABLED") exitWith {};
 
@@ -592,28 +606,20 @@ NWG_YK_STAT_OnEnable = {
     {NWG_YK_STAT_statistics set [_x,0]} forEach NWG_YK_STAT_statisticsKeys;
 
     //Fill values we start with
-    private _startTime = round ((round time)/60);//In minutes
-    private _groups = groups (NWG_YK_Settings get "KING_SIDE");
-    private _units = _groups apply {count ((units _x) select {alive _x})};
-    private _unitsCount = 0; {_unitsCount = _unitsCount + _x} forEach _units;
-
-    [STAT_ENABLED_AT,(round time)] call NWG_YK_STAT_Set;
-    [STAT_GROUPS_ON_ENABLE,(count _groups)] call NWG_YK_STAT_Set;
+    (call NWG_YK_STAT_GetCurCounters) params ["_startTime","_groupsCount","_unitsCount"];
+    [STAT_ENABLED_AT,_startTime] call NWG_YK_STAT_Set;
+    [STAT_GROUPS_ON_ENABLE,_groupsCount] call NWG_YK_STAT_Set;
     [STAT_UNITS_ON_ENABLE,_unitsCount] call NWG_YK_STAT_Set;
 };
 NWG_YK_STAT_OnDisable = {
     if !(NWG_YK_Settings get "STATISTICS_ENABLED") exitWith {};
 
     //Fill values we end with
-    private _endTime = round ((round time)/60);//In minutes
-    private _groups = groups (NWG_YK_Settings get "KING_SIDE");
-    private _units = _groups apply {count ((units _x) select {alive _x})};
-    private _unitsCount = 0; {_unitsCount = _unitsCount + _x} forEach _units;
-
+    (call NWG_YK_STAT_GetCurCounters) params ["_endTime","_groupsCount","_unitsCount"];
     [STAT_KILL_COUNT,NWG_YK_killCountTotal] call NWG_YK_STAT_Set;
     [STAT_DISABLED_AT,_endTime] call NWG_YK_STAT_Set;
     [STAT_TIME_WORKING,(_endTime - (NWG_YK_STAT_statistics get STAT_ENABLED_AT))] call NWG_YK_STAT_Set;
-    [STAT_GROUPS_ON_DISABLE,(count _groups)] call NWG_YK_STAT_Set;
+    [STAT_GROUPS_ON_DISABLE,_groupsCount] call NWG_YK_STAT_Set;
     [STAT_UNITS_ON_DISABLE,_unitsCount] call NWG_YK_STAT_Set;
 
     //Output
@@ -646,14 +652,14 @@ NWG_YK_STAT_Output = {
         (format ["GROUPS MOVED: %1",(_stat get STAT_GROUPS_MOVED)]),
         (format ["REINFORCEMENTS SENT: %1",(_stat get STAT_REINFS_SENT)]),
         (format ["SPECIALS USED: %1",(_stat get STAT_SPECIALS_USED)]),
-        "COUNT PER SPECIAL:",
-        (format ["AIRSTRIKE: %1",(_stat get STAT_SPEC_AIRSTRIKE)]),
-        (format ["ARTA: %1",(_stat get STAT_SPEC_ARTA)]),
-        (format ["MORTAR: %1",(_stat get STAT_SPEC_MORTAR)]),
-        (format ["VEHDEMOLITION: %1",(_stat get STAT_SPEC_VEHDEMOLITION)]),
-        (format ["INFSTORM: %1",(_stat get STAT_SPEC_INFSTORM)]),
-        (format ["VEHREPAIR: %1",(_stat get STAT_SPEC_VEHREPAIR)])
+        "COUNT PER SPECIAL:"
     ];
+    if (NWG_YK_Settings get "SPECIAL_AIRSTRIKE_ENABLED") then {_lines pushBack (format ["AIRSTRIKE: %1",(_stat get STAT_SPEC_AIRSTRIKE)])};
+    if (NWG_YK_Settings get "SPECIAL_ARTA_ENABLED")      then {_lines pushBack (format ["ARTA: %1",(_stat get STAT_SPEC_ARTA)])};
+    if (NWG_YK_Settings get "SPECIAL_MORTAR_ENABLED")    then {_lines pushBack (format ["MORTAR: %1",(_stat get STAT_SPEC_MORTAR)])};
+    if (NWG_YK_Settings get "SPECIAL_VEHDEMOLITION_ENABLED") then {_lines pushBack (format ["VEHDEMOLITION: %1",(_stat get STAT_SPEC_VEHDEMOLITION)])};
+    if (NWG_YK_Settings get "SPECIAL_INFSTORM_ENABLED")  then {_lines pushBack (format ["INFSTORM: %1",(_stat get STAT_SPEC_INFSTORM)])};
+    if (NWG_YK_Settings get "SPECIAL_VEHREPAIR_ENABLED") then {_lines pushBack (format ["VEHREPAIR: %1",(_stat get STAT_SPEC_VEHREPAIR)])};
 
     if (NWG_YK_Settings get "STATISTICS_TO_RPT") then {
         diag_log text "==========[ YELLOW KING STATS ]===========";

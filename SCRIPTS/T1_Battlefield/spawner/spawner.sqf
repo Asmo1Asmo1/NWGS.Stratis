@@ -130,13 +130,20 @@ NWG_SPWN_FinalizeUnitsSpawn = {
 NWG_SPWN_SpawnUnitsAround = {
     params ["_classnames","_pos",["_membership",west]];
     private _units = _this call NWG_SPWN_PrespawnUnits;
+    if ((count _units) == 0) exitWith {_units};
 
-    //Place units around given position
-    //do
-    {
-        _x setDir (random 360);
-        [_x,_pos] call NWG_SPWN_PlaceAround;
-    } forEach _units;
+    //Carefully place the first unit of the group
+    private _scout = _units#0;
+    _scout setDir (random 360);
+    [_scout,_pos] call NWG_SPWN_PlaceAround;
+
+    //Move the rest of the group around the scout
+    private "_u";
+    for "_i" from 1 to ((count _units)-1) do {
+        _u = _units#_i;
+        _u setDir (random 360);
+        _u setVehiclePosition [_scout,[],(count _units),"CAN_COLLIDE"];
+    };
 
     //return
     (_units call NWG_SPWN_FinalizeUnitsSpawn)
