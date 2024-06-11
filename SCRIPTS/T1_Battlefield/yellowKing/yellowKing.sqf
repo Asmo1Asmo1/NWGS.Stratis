@@ -39,8 +39,9 @@ NWG_YK_Settings = createHashMapFromArray [
 //======================================================================================================
 //======================================================================================================
 //Fields
-/* main flag */
+/* main flags */
 NWG_YK_Enabled = false;
+NWG_YK_Status = STATUS_DISABLED;
 /* counters */
 NWG_YK_killCount = 0;
 NWG_YK_killCountTotal = 0;
@@ -74,6 +75,7 @@ NWG_YK_Enable = {
     NWG_YK_killCount = 0;//Reset the kill count
     NWG_YK_killCountTotal = 0;//Reset the total kill count
     NWG_YK_Enabled = true;
+    NWG_YK_Status = STATUS_READY;
     true
 };
 NWG_YK_Disable = {
@@ -82,6 +84,7 @@ NWG_YK_Disable = {
         then {terminate NWG_YK_reactHandle};//Terminate the reaction script
     call NWG_YK_STAT_OnDisable;//Statistics
     NWG_YK_Enabled = false;
+    NWG_YK_Status = STATUS_DISABLED;
     true
 };
 NWG_YK_Configure = {
@@ -117,6 +120,7 @@ NWG_YK_OnKilled = {
     if (isNull NWG_YK_reactHandle || {scriptDone NWG_YK_reactHandle}) then {
         NWG_YK_reactTime = time + ((NWG_YK_Settings get "REACTION_TIME") call NWG_fnc_randomRangeInt);
         NWG_YK_reactHandle = [] spawn NWG_YK_React;
+        NWG_YK_Status = STATUS_PREPARING;
     };
 };
 
@@ -133,9 +137,11 @@ NWG_YK_React = {
         NWG_YK_reactList resize 0;
         NWG_YK_reactTime = 0;
         NWG_YK_killCount = 0;
+        NWG_YK_Status = STATUS_READY;
     };
-    /*Statistics*/
+    /*Statistics and status*/
     [STAT_REACTION_COUNT,1] call NWG_YK_STAT_Increment;
+    NWG_YK_Status = STATUS_ACTING;
 
     //1. Check if we have any targets to react to
     private _targets = NWG_YK_reactList select {alive _x};

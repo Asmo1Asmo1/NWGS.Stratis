@@ -39,8 +39,12 @@ NWG_fnc_mmMissionCompleted = {
 
 //=============================================================================
 /*Debug*/
-//Shows the current state of the mission machine
+/*
+    Example: add to 'watch' field:
+    call NWG_fnc_mmGetStatus
+*/
+//Returns the current state of the mission machine
 //returns: string
-NWG_fnc_mmShowStatus = {
+NWG_fnc_mmGetStatus = {
     NWG_MIS_CurrentState call NWG_MIS_SER_GetStateName
 };
