@@ -585,6 +585,14 @@ NWG_YK_STAT_statisticsKeys = [
     STAT_GROUPS_MOVED,STAT_REINFS_SENT,STAT_SPECIALS_USED,
     STAT_SPEC_AIRSTRIKE,STAT_SPEC_ARTA,STAT_SPEC_MORTAR,STAT_SPEC_VEHDEMOLITION,STAT_SPEC_INFSTORM,STAT_SPEC_VEHREPAIR
 ];
+NWG_YK_STAT_GetCurCounters = {
+    private _curTime = round ((round time)/60);//Time in minutes
+    private _groups  = groups (NWG_YK_Settings get "KING_SIDE");
+    private _groupsCount = count _groups;
+    private _unitsCount = 0;
+    {_unitsCount = _unitsCount + ({alive _x} count (units _x))} forEach _groups;
+    [_curTime,_groupsCount,_unitsCount]
+};
 NWG_YK_STAT_OnEnable = {
     if !(NWG_YK_Settings get "STATISTICS_ENABLED") exitWith {};
 
@@ -592,28 +600,20 @@ NWG_YK_STAT_OnEnable = {
     {NWG_YK_STAT_statistics set [_x,0]} forEach NWG_YK_STAT_statisticsKeys;
 
     //Fill values we start with
-    private _startTime = round ((round time)/60);//In minutes
-    private _groups = groups (NWG_YK_Settings get "KING_SIDE");
-    private _units = _groups apply {count ((units _x) select {alive _x})};
-    private _unitsCount = 0; {_unitsCount = _unitsCount + _x} forEach _units;
-
-    [STAT_ENABLED_AT,(round time)] call NWG_YK_STAT_Set;
-    [STAT_GROUPS_ON_ENABLE,(count _groups)] call NWG_YK_STAT_Set;
+    (call NWG_YK_STAT_GetCurCounters) params ["_startTime","_groupsCount","_unitsCount"];
+    [STAT_ENABLED_AT,_startTime] call NWG_YK_STAT_Set;
+    [STAT_GROUPS_ON_ENABLE,_groupsCount] call NWG_YK_STAT_Set;
     [STAT_UNITS_ON_ENABLE,_unitsCount] call NWG_YK_STAT_Set;
 };
 NWG_YK_STAT_OnDisable = {
     if !(NWG_YK_Settings get "STATISTICS_ENABLED") exitWith {};
 
     //Fill values we end with
-    private _endTime = round ((round time)/60);//In minutes
-    private _groups = groups (NWG_YK_Settings get "KING_SIDE");
-    private _units = _groups apply {count ((units _x) select {alive _x})};
-    private _unitsCount = 0; {_unitsCount = _unitsCount + _x} forEach _units;
-
+    (call NWG_YK_STAT_GetCurCounters) params ["_endTime","_groupsCount","_unitsCount"];
     [STAT_KILL_COUNT,NWG_YK_killCountTotal] call NWG_YK_STAT_Set;
     [STAT_DISABLED_AT,_endTime] call NWG_YK_STAT_Set;
     [STAT_TIME_WORKING,(_endTime - (NWG_YK_STAT_statistics get STAT_ENABLED_AT))] call NWG_YK_STAT_Set;
-    [STAT_GROUPS_ON_DISABLE,(count _groups)] call NWG_YK_STAT_Set;
+    [STAT_GROUPS_ON_DISABLE,_groupsCount] call NWG_YK_STAT_Set;
     [STAT_UNITS_ON_DISABLE,_unitsCount] call NWG_YK_STAT_Set;
 
     //Output
