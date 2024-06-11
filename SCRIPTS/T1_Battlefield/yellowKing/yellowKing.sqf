@@ -646,14 +646,14 @@ NWG_YK_STAT_Output = {
         (format ["GROUPS MOVED: %1",(_stat get STAT_GROUPS_MOVED)]),
         (format ["REINFORCEMENTS SENT: %1",(_stat get STAT_REINFS_SENT)]),
         (format ["SPECIALS USED: %1",(_stat get STAT_SPECIALS_USED)]),
-        "COUNT PER SPECIAL:",
-        (format ["AIRSTRIKE: %1",(_stat get STAT_SPEC_AIRSTRIKE)]),
-        (format ["ARTA: %1",(_stat get STAT_SPEC_ARTA)]),
-        (format ["MORTAR: %1",(_stat get STAT_SPEC_MORTAR)]),
-        (format ["VEHDEMOLITION: %1",(_stat get STAT_SPEC_VEHDEMOLITION)]),
-        (format ["INFSTORM: %1",(_stat get STAT_SPEC_INFSTORM)]),
-        (format ["VEHREPAIR: %1",(_stat get STAT_SPEC_VEHREPAIR)])
+        "COUNT PER SPECIAL:"
     ];
+    if (NWG_YK_Settings get "SPECIAL_AIRSTRIKE_ENABLED") then {_lines pushBack (format ["AIRSTRIKE: %1",(_stat get STAT_SPEC_AIRSTRIKE)])};
+    if (NWG_YK_Settings get "SPECIAL_ARTA_ENABLED")      then {_lines pushBack (format ["ARTA: %1",(_stat get STAT_SPEC_ARTA)])};
+    if (NWG_YK_Settings get "SPECIAL_MORTAR_ENABLED")    then {_lines pushBack (format ["MORTAR: %1",(_stat get STAT_SPEC_MORTAR)])};
+    if (NWG_YK_Settings get "SPECIAL_VEHDEMOLITION_ENABLED") then {_lines pushBack (format ["VEHDEMOLITION: %1",(_stat get STAT_SPEC_VEHDEMOLITION)])};
+    if (NWG_YK_Settings get "SPECIAL_INFSTORM_ENABLED")  then {_lines pushBack (format ["INFSTORM: %1",(_stat get STAT_SPEC_INFSTORM)])};
+    if (NWG_YK_Settings get "SPECIAL_VEHREPAIR_ENABLED") then {_lines pushBack (format ["VEHREPAIR: %1",(_stat get STAT_SPEC_VEHREPAIR)])};
 
     if (NWG_YK_Settings get "STATISTICS_TO_RPT") then {
         diag_log text "==========[ YELLOW KING STATS ]===========";
