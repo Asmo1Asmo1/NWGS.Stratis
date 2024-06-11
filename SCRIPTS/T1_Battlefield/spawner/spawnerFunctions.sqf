@@ -50,12 +50,12 @@ NWG_fnc_spwnSpawnVehicleExact = {
 //params:
 //_classnames - array of classnames of the units
 //_NaN - not used
-//_sideOrGroup - [optional] side of the units (west by default) or existing group to spawn into
+//_membership - [optional] side of the units (west by default), existing group to spawn into or "AGENT" string to spawn as agents
 //returns:
 //array of spawned units
 //note: The result units will remain in a 'safe spot' but not hidden globally
 NWG_fnc_spwnPrespawnUnits = {
-    //params ["_classnames","_NaN",["_sideOrGroup",west]];
+    //params ["_classnames","_NaN",["_membership",west]];
     _this call NWG_SPWN_PrespawnUnits
     //returns _units (array)
 };
@@ -64,11 +64,11 @@ NWG_fnc_spwnPrespawnUnits = {
 //params:
 //_classnames - array of classnames of the units
 //_pos - position to spawn around
-//_sideOrGroup - [optional] side of the units (west by default) or existing group to spawn into
+//_membership - [optional] side of the units (west by default), existing group to spawn into or "AGENT" string to spawn as agents
 //returns:
 //array of spawned units
 NWG_fnc_spwnSpawnUnitsAround = {
-    //params ["_classnames","_pos",["_sideOrGroup",west]];
+    //params ["_classnames","_pos",["_membership",west]];
     _this call NWG_SPWN_SpawnUnitsAround
     //returns _units (array)
 };
@@ -77,11 +77,11 @@ NWG_fnc_spwnSpawnUnitsAround = {
 //params:
 //_classnames - array of classnames of the units
 //_vehicle - vehicle to spawn into
-//_sideOrGroup - [optional] side of the units (west by default) or existing group to spawn into
+//_membership - [optional] side of the units (west by default), existing group to spawn into or "AGENT" string to spawn as agents
 //returns:
 //array of spawned units
 NWG_fnc_spwnSpawnUnitsIntoVehicle = {
-    //params ["_classnames","_vehicle",["_sideOrGroup",west]];
+    //params ["_classnames","_vehicle",["_membership",west]];
     _this call NWG_SPWN_SpawnUnitsIntoVehicle
     //returns _units (array)
 };
@@ -90,11 +90,11 @@ NWG_fnc_spwnSpawnUnitsIntoVehicle = {
 //params:
 //_classnames - array of classnames of the units
 //_building - building to spawn into
-//_sideOrGroup - [optional] side of the units (west by default) or existing group to spawn into
+//_membership - [optional] side of the units (west by default), existing group to spawn into or "AGENT" string to spawn as agents
 //returns:
 //array of spawned units
 NWG_fnc_spwnSpawnUnitsIntoBuilding = {
-    //params ["_classnames","_building",["_sideOrGroup",west]];
+    //params ["_classnames","_building",["_membership",west]];
     _this call NWG_SPWN_SpawnUnitsIntoBuilding
     //returns _units (array)
 };
@@ -106,11 +106,11 @@ NWG_fnc_spwnSpawnUnitsIntoBuilding = {
 //  position - position ASL to spawn at
 //  direction - direction for the unit to face
 //  stance - [optional] stance of the unit 1 - UP 2 - MIDDLE 3 - DOWN
-//_sideOrGroup - [optional] side of the units (west by default) or existing group to spawn into
+//_membership - [optional] side of the units (west by default), existing group to spawn into or "AGENT" string to spawn as agents
 //returns:
 //array of spawned units
 NWG_fnc_spwnSpawnUnitsExact = {
-    //params ["_data",["_sideOrGroup",west]];
+    //params ["_data",["_membership",west]];
     _this call NWG_SPWN_SpawnUnitsExact
     //returns _units (array)
 };
@@ -134,6 +134,17 @@ NWG_fnc_spwnGetOriginalCrew = {
 NWG_fnc_spwnGetVehicleAppearance = {
     //private _vehicle = _this;
     _this call NWG_SPWN_GetVehicleAppearance
+    //returns _appearance
+};
+
+//Get all the variations of vehicle appearance (safe to use with NWG_fnc_spwnSetVehicleAppearance)
+//params:
+//_vehicle - vehicle to get appearance of
+//returns:
+//appearance of the vehicle (with all values set to 0.5 for each variation)
+NWG_fnc_spwnGetVehicleAppearanceAll = {
+    //private _vehicle = _this;
+    _this call NWG_SPWN_GetVehicleAppearanceAll
     //returns _appearance
 };
 

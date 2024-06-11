@@ -15,7 +15,7 @@ setAccTime 2;
 19 call NWG_UKREP_GatherUkrepREL
 
 //Gather ABS composition (first number is a radius):
-100 call NWG_UKREP_GatherUkrepABS
+250 call NWG_UKREP_GatherUkrepABS
 
 //Test zaselenie:
 [300,"NATO"] call NWG_UKREP_ZASELENIE_Test
@@ -35,3 +35,33 @@ setAccTime 2;
     "Land_VR_Target_MRAP_01_F",//Small VR vehicle
     "Land_VR_Target_APC_Wheeled_01_F",//Medium VR vehicle
     "Land_VR_Target_MBT_01_cannon_F"//Large VR vehicle
+/*Helpers*/
+    "VR_3DSelector_01_default_F"//VR selector (used for modules, see below)
+
+//Gather modules:
+/*
+    This is a problem. Modules usually get created, do the job and get deleted at the first frame of the mission. So the workaround is following:
+    1. Create a module, place it in the editor and configure
+    2. Place VR_3DSelector_01_default_F object at the exact same position
+    3. Add following to VR selector init:
+private _this = this;
+_this setVariable ["HELP_RealClassname",""];
+    4. Paste actual module classname to code above
+    5. Save the mission
+    6. Export -> SQF (if too big: -> Copy to clipboard -> paste to file)
+    7. Find your module in sqf code (in _logics part) and copy all the setVariable lines (except for the bis_fnc_initmodules_disableautoactivation)
+    8. Paste to VR selector init, so that entire init looks like this:
+private _this = this;
+_this setVariable ["HELP_RealClassname","ModuleHideTerrainObjects_F"];
+_this setVariable ["objectArea",[10,10,0,false,-1]];
+_this setVariable ["#filter",4];
+_this setVariable ["#hideLocally",false];
+    9. Now you can gather the composition and see that HELPER record is created at the end of the blueprint
+*/
+
+//Get vehicles appearance:
+/*Get current appearance with current values:*/
+cursorObject call NWG_fnc_spwnGetVehicleAppearance;
+
+/*Get all the appearance and color variants:*/
+cursorObject call NWG_fnc_spwnGetVehicleAppearanceAll;

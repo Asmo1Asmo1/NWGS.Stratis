@@ -234,6 +234,18 @@
             ["B_MBT_01_TUSK_F",[["Sand",1],["showCamonetTurret",0.5,"showCamonetHull",0.5,"showBags",0.5]],false],
             [3,"B_crew_F",6,"RANDOM"]
         ],
+        //M4 Scorcher - barrel artillery
+        [
+            ["ARM","MEC","ARTA"],2,
+            ["B_MBT_01_arty_F",[["Sand",1],["showCanisters",0.5,"showCamonetTurret",0.5,"showAmmobox",0.5,"showCamonetHull",0.5]],false],
+            [3,"B_crew_F"]
+        ],
+        //M5 Sandstorm - MLRS artillery
+        [
+            ["ARM","MEC","ARTA"],3,
+            ["B_MBT_01_mlrs_F",[["Sand",1],["showCamonetTurret",0.5,"showCamonetHull",0.5]],false],
+            [2,"B_crew_F"]
+        ],
 
         //=======================================
         /*AIR - Air vehicles*/

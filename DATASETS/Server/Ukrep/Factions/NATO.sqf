@@ -1,4 +1,8 @@
 createHashMapFromArray [
+
+//========================================================================================================
+/*  ==== UNITS ====     */
+
 [
     "B_Soldier_VR_F",/*Blue VR unit (common units)*/
     [
@@ -79,29 +83,18 @@ createHashMapFromArray [
     ]
 ],
 
-[
-    "Land_VR_Shape_01_cube_1m_F",/*VR cube (boxes)*/
-    [
-        ["Land_CampingChair_V2_F",/*payload:*/0],
-        ["Land_CampingChair_V1_F",/*payload:*/0],
-        ["Box_NATO_Ammo_F",       /*payload:*/2],
-        ["Box_NATO_Wps_F",        /*payload:*/2],
-        ["Box_NATO_AmmoOrd_F",    /*payload:*/2],
-        ["Box_NATO_Grenades_F",   /*payload:*/2],
-        ["Box_NATO_Support_F",    /*payload:*/2],
-        ["Land_MetalBarrel_F",    /*payload:*/0]
-    ]
-],
+//========================================================================================================
+/*  ==== VEHICLES ====     */
 
 [
     "Land_VR_Target_MRAP_01_F",/*Small VR vehicle*/
     [
-        ["B_MRAP_01_F",[]],
+        ["B_MRAP_01_F",     [/*crew:*/[2,"B_Soldier_F"]]],
         ["B_MRAP_01_gmg_F", [/*crew:*/[2,"B_Soldier_F"]]],
         ["B_MRAP_01_hmg_F", [/*crew:*/[2,"B_Soldier_F"]]],
         ["B_LSV_01_AT_F",   [/*crew:*/[3,"B_Soldier_F"]]],
         ["B_LSV_01_armed_F",[/*crew:*/[3,"B_Soldier_F"]]],
-        ["B_LSV_01_unarmed_F",[]]
+        ["B_LSV_01_unarmed_F",[/*crew:*/[2,"B_Soldier_F"]]]
     ]
 ],
 
@@ -128,6 +121,9 @@ createHashMapFromArray [
     ]
 ],
 
+//========================================================================================================
+/*  ==== TURRETS    ====*/
+
 [
     "B_HMG_01_high_F",/*Standing turret*/
     [
@@ -152,7 +148,90 @@ createHashMapFromArray [
     "B_static_AA_F",/*Launcher turret*/
     [
         "B_static_AA_F",
-        "B_static_AT_F"
+        "B_static_AT_F",
+        "B_Mortar_01_F"
+    ]
+],
+
+//========================================================================================================
+/*  ==== OBJECTS    ====*/
+
+[
+    "Land_VR_Shape_01_cube_1m_F",/*VR cube (boxes)*/
+    [
+        /*Loot crates*/
+        ["Box_NATO_Wps_F",      /*payload:*/2],
+        ["Box_NATO_Wps_F",      /*payload:*/2],
+        ["Box_NATO_Ammo_F",     /*payload:*/2],
+        ["Box_NATO_AmmoOrd_F",  /*payload:*/2],
+        ["Box_NATO_Grenades_F", /*payload:*/2],
+        ["Box_NATO_Support_F",  /*payload:*/2],
+        /*Props*/
+        ["Land_MetalBarrel_F",      /*payload:*/0],
+        ["FlexibleTank_01_forest_F",/*payload:*/0],
+        ["TrashBagHolder_01_F",     /*payload:*/0],
+        ["Land_PaperBox_01_small_closed_brown_F",/*payload:*/0]
+    ]
+],
+
+[
+    "Land_MedicalTent_01_NATO_generic_inner_F",/*Tent (tents)*/
+    [
+        ["Land_DeconTent_01_NATO_F",                /*payload:*/1],
+        ["Land_MedicalTent_01_NATO_generic_inner_F",/*payload:*/1],
+        ["Land_MedicalTent_01_NATO_generic_open_F", /*payload:*/1],
+        ["Land_MedicalTent_01_NATO_generic_outer_F",/*payload:*/1]
+    ]
+],
+
+//========================================================================================================
+/*  ==== CIVILIAN VEHICLES  ====*/
+[
+    "C_Van_01_fuel_F",/*Truck*/
+    [
+        ["C_Van_01_fuel_F",     [/*crew:*/[],/*appearance:*/[["Black",0.5,"White",0.5,"Red",0.5,"Black_v2",0.5,"White_v2",0.5,"Red_v2",0.5],[]] ]],
+        ["C_Van_01_box_F",      [/*crew:*/[],/*appearance:*/[["Black",0.5,"White",0.5,"Red",0.5],[]] ]],
+        ["C_Van_01_transport_F",[/*crew:*/[],/*appearance:*/[["Black",0.5,"White",0.5,"Red",0.5,"Brown",0.5,"Olive",0.5],[]] ]],
+        ["C_Tractor_01_F",      [/*crew:*/[],/*appearance:*/[["Green",0.5,"Red",0.5,"Blue",0.5],[]] ]]
+    ]
+],
+[
+    "C_Offroad_01_F",/*Offroad*/
+    [
+        ["C_Offroad_01_F",          [/*crew:*/[],/*appearance:*/[["Red",0.5,"Beige",0.5,"White",0.5,"Blue",0.5,"Darkred",0.5,"Bluecustom",0.5,"IDAP",0.5,"Green",0.5,"ParkRanger",0.5],["HideDoor1",0,"HideDoor2",0,"HideDoor3",0.4,"HideBackpacks",1,"HideBumper1",1,"HideBumper2",0.5,"HideConstruction",0.5,"hidePolice",1,"HideServices",1,"BeaconsStart",0,"BeaconsServicesStart",0]] ]],
+        ["C_Offroad_01_F",          [/*crew:*/[],/*appearance:*/[["Red",0.5,"Beige",0.5,"White",0.5,"Blue",0.5,"Darkred",0.5,"Bluecustom",0.5,"IDAP",0.5,"Green",0.5,"ParkRanger",0.5],["HideDoor1",1,"HideDoor2",1,"HideDoor3",0.6,"HideBackpacks",1,"HideBumper1",1,"HideBumper2",0.5,"HideConstruction",0.5,"hidePolice",1,"HideServices",1,"BeaconsStart",0,"BeaconsServicesStart",0]] ]],
+        ["C_Offroad_01_covered_F",  [/*crew:*/[],/*appearance:*/[["Green",0.5,"Black",0.5,"ParkRanger",0.5],["hidePolice",1,"HideServices",1,"HideCover",0,"StartBeaconLight",0,"HideRoofRack",1,"HideLoudSpeakers",1,"HideAntennas",1,"HideBeacon",1,"HideSpotlight",1,"HideDoor3",0,"OpenDoor3",0,"HideDoor1",0,"HideDoor2",0,"HideBackpacks",1,"HideBumper1",1,"HideBumper2",0,"HideConstruction",0,"BeaconsStart",0]] ]],
+        ["C_Offroad_01_covered_F",  [/*crew:*/[],/*appearance:*/[["Green",0.5,"Black",0.5,"ParkRanger",0.5],["hidePolice",1,"HideServices",0,"HideCover",1,"StartBeaconLight",0,"HideRoofRack",1,"HideLoudSpeakers",1,"HideAntennas",1,"HideBeacon",1,"HideSpotlight",1,"HideDoor3",0,"OpenDoor3",0,"HideDoor1",0,"HideDoor2",0,"HideBackpacks",1,"HideBumper1",1,"HideBumper2",1,"HideConstruction",0,"BeaconsStart",0]] ]],
+        ["C_SUV_01_F",              [/*crew:*/[],/*appearance:*/[["Red",0.5,"Black",0.5,"Grey",0.5,"Orange",0.5],[]] ]],
+        ["C_SUV_01_F",              [/*crew:*/[],/*appearance:*/[["Red",0.5,"Black",0.5,"Grey",0.5,"Orange",0.5],[]] ]],
+        ["C_Hatchback_01_F",            [/*crew:*/[],/*appearance:*/[["Beige",0.5,"Green",0.5,"Blue",0.5,"Bluecustom",0.5,"Beigecustom",0.5,"Yellow",0.5,"Grey",0.5,"Black",0.5,"Dark",0.5],[]] ]],
+        ["C_Hatchback_01_sport_F",      [/*crew:*/[],/*appearance:*/[["Red",0.5,"Blue",0.5,"Orange",0.5,"White",0.5,"Beige",0.5,"Green",0.5,"Grey",0.5],[]] ]],
+        ["C_Offroad_02_unarmed_F",      [/*crew:*/[],/*appearance:*/[["Black",0.5,"Blue",0.5,"Green",0.5,"Orange",0.5,"Red",0.5,"White",0.5,"Brown",0.5,"Olive",0.5,"IDAP",0.5],["hideLeftDoor",0,"hideRightDoor",0,"hideRearDoor",0,"hideBullbar",0.5,"hideFenders",0.5,"hideHeadSupportRear",0,"hideHeadSupportFront",0,"hideRollcage",0.5,"hideSeatsRear",0.5,"hideSpareWheel",0.5]] ]],
+        ["C_Offroad_02_unarmed_F",      [/*crew:*/[],/*appearance:*/[["Black",0.5,"Blue",0.5,"Green",0.5,"Orange",0.5,"Red",0.5,"White",0.5,"Brown",0.5,"Olive",0.5,"IDAP",0.5],["hideLeftDoor",1,"hideRightDoor",1,"hideRearDoor",0.5,"hideBullbar",0.5,"hideFenders",0.5,"hideHeadSupportRear",1,"hideHeadSupportFront",1,"hideRollcage",0.5,"hideSeatsRear",0.5,"hideSpareWheel",0.5]] ]]
+    ]
+],
+[
+    "C_Quadbike_01_F",/*Quad bike*/
+    [
+        ["C_Quadbike_01_F",     [/*crew:*/[],/*appearance:*/[["Black",0.5,"Blue",0.5,"Red",0.5,"White",0.5,"Olive",0.5,"LDF",0.5,"ParkRanger",0.5],[]] ]]
+    ]
+],
+[
+    "C_Van_02_vehicle_F",/*Van*/
+    [
+        ["C_Van_02_vehicle_F",          [/*crew:*/[],/*appearance:*/[["IDAP",0.5,"Redstone",0.5,"CivService",0.5,"Syndikat",0.5,"Daltgreen",0.5,"Vrana",0.5,"BluePearl",0.5,"Fuel",0.5,"BattleBus",0.5,"Green",0.5,"Black",0.5,"Red",0.5,"Blue",0.5,"Orange",0.5,"White",0.5,"Swifd",0.5,"AAN",0.5,"LDF",0.5,"Astra",0.5,"Benzyna",0.5],["Enable_Cargo",0,"Door_1_source",0,"Door_2_source",0,"Door_3_source",0,"Door_4_source",0,"Hide_Door_1_source",0,"Hide_Door_2_source",0,"Hide_Door_3_source",0,"Hide_Door_4_source",0,"lights_em_hide",0,"ladder_hide",1,"spare_tyre_holder_hide",1,"spare_tyre_hide",1,"reflective_tape_hide",1,"roof_rack_hide",1,"LED_lights_hide",1,"sidesteps_hide",1,"rearsteps_hide",0,"side_protective_frame_hide",1,"front_protective_frame_hide",1,"beacon_front_hide",1,"beacon_rear_hide",1]] ]],
+        ["C_Van_02_transport_F",        [/*crew:*/[],/*appearance:*/[["IDAP",0.5,"CivService",0.5,"Syndikat",0.5,"Daltgreen",0.5,"Vrana",0.5,"BluePearl",0.5,"Fuel",0.5,"BattleBus",0.5,"Green",0.5,"Black",0.5,"Red",0.5,"Blue",0.5,"Orange",0.5,"White",0.5,"Swifd",0.5,"AAN",0.5,"LDF",0.5,"LDF_MP",0.5],["Door_1_source",0,"Door_2_source",0,"Door_3_source",0,"Door_4_source",0,"Hide_Door_1_source",0,"Hide_Door_2_source",0,"Hide_Door_3_source",0,"Hide_Door_4_source",0,"lights_em_hide",0,"ladder_hide",1,"spare_tyre_holder_hide",1,"spare_tyre_hide",1,"reflective_tape_hide",1,"roof_rack_hide",1,"LED_lights_hide",1,"sidesteps_hide",1,"rearsteps_hide",1,"side_protective_frame_hide",0,"front_protective_frame_hide",1,"beacon_front_hide",1,"beacon_rear_hide",1]] ]],
+        ["C_Van_02_service_F",          [/*crew:*/[],/*appearance:*/[["IDAP",0.5,"Redstone",0.5,"CivService",0.5,"Syndikat",0.5,"Daltgreen",0.5,"Vrana",0.5,"BluePearl",0.5,"Fuel",0.5,"BattleBus",0.5,"Green",0.5,"Black",0.5,"Red",0.5,"Blue",0.5,"Orange",0.5,"White",0.5,"Swifd",0.5,"AAN",0.5,"Benzyna",0.5],["Door_1_source",0,"Door_2_source",0,"Door_3_source",0,"Door_4_source",0,"Hide_Door_1_source",0,"Hide_Door_2_source",0,"Hide_Door_3_source",0,"Hide_Door_4_source",0,"lights_em_hide",0,"ladder_hide",0,"spare_tyre_holder_hide",0,"spare_tyre_hide",0,"reflective_tape_hide",0,"roof_rack_hide",0,"LED_lights_hide",0,"sidesteps_hide",1,"rearsteps_hide",1,"side_protective_frame_hide",0,"front_protective_frame_hide",0,"beacon_front_hide",0,"beacon_rear_hide",0]] ]],
+        ["C_Van_02_medevac_F",          [/*crew:*/[],/*appearance:*/[["IdapAmbulance",0.5,"CivAmbulance",0.5,"LDFAmbulance",0.5],["Door_1_source",0,"Door_2_source",0,"Door_3_source",0,"Door_4_source",0,"Hide_Door_1_source",0,"Hide_Door_2_source",0,"Hide_Door_3_source",0,"Hide_Door_4_source",0,"lights_em_hide",0,"ladder_hide",1,"spare_tyre_holder_hide",1,"spare_tyre_hide",1,"reflective_tape_hide",0,"roof_rack_hide",1,"LED_lights_hide",0,"sidesteps_hide",0,"rearsteps_hide",1,"side_protective_frame_hide",1,"front_protective_frame_hide",1,"beacon_front_hide",0,"beacon_rear_hide",0]] ]]
+    ]
+],
+[
+    "C_Truck_02_fuel_F",/*Zamak*/
+    [
+        ["C_Truck_02_fuel_F",       [/*crew:*/[],/*appearance:*/[["Orange",0.5,"Blue",0.5,"IDAP",0.5],[]] ]],
+        ["C_Truck_02_box_F",        [/*crew:*/[],/*appearance:*/[["OrangeOrange",0.5,"OrangeGreen",0.5,"BlueOrange",0.5,"BlueGreen",0.5],[]] ]],
+        ["C_Truck_02_transport_F",  [/*crew:*/[],/*appearance:*/[["Orange",0.5,"Blue",0.5,"IDAP",0.5],[]] ]],
+        ["C_Truck_02_covered_F",    [/*crew:*/[],/*appearance:*/[["OrangeBlue",0.5,"OrangeOlive",0.5,"BlueBlue",0.5,"BlueOlive",0.5,"IDAP",0.5],[]] ]]
     ]
 ]
 ];

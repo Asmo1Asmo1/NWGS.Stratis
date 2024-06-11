@@ -69,12 +69,15 @@ NWG_UKREP_placeholders = createHashMapFromArray([
         "Land_VR_Target_MBT_01_cannon_F"//Large VR vehicle
     ]],
     [OBJ_TYPE_TRRT, []],//Not defined (we use actual NATO turrets instead)
-    [OBJ_TYPE_MINE, []] //Not defined yet
+    [OBJ_TYPE_MINE, []],//Not defined yet
+    ["HELP",[
+        "VR_3DSelector_01_default_F"//VR selector
+    ]]
 ]);
 
 NWG_UKREP_GetPlaceholderType = {
     // private _objectOrClassname = _this;
-    private _type = if (_objectOrClassname isEqualType objNull) then {typeOf _objectOrClassname} else {_objectOrClassname};
+    private _type = if (_this isEqualType objNull) then {typeOf _this} else {_this};
     private _result = false;
     {if (_type in _y) exitWith {_result = _x}} forEach NWG_UKREP_placeholders;
     //return
@@ -87,15 +90,19 @@ NWG_UKREP_IsPlaceholder = {
 };
 
 NWG_UKREP_GetPlaceholderPayload = {
-    // private _placeholderType = _this;
-    switch (_this) do {
+    params ["_placeholder",["_type",""]];
+    if (_type isEqualTo "") then {_type = _placeholder call NWG_UKREP_GetPlaceholderType};
+
+    switch (_type) do {
         case OBJ_TYPE_BLDG;
         case OBJ_TYPE_FURN;
-        case OBJ_TYPE_DECO: {[]};
-        case OBJ_TYPE_UNIT: {1};
+        case OBJ_TYPE_DECO: {1};//Always return 1 - 'static object'
+        case OBJ_TYPE_UNIT: {[_placeholder,_type] call NWG_UKREP_GetObjectPayload};//Return an actual stance of unit
         case OBJ_TYPE_VEHC;
-        case OBJ_TYPE_TRRT: {[]};
-        case OBJ_TYPE_MINE: {0};
+        case OBJ_TYPE_TRRT: {[]};//Always return empty array
+        case OBJ_TYPE_MINE: {0};//No payload for mines
+        case "HELP": {[_placeholder,_type] call NWG_UKREP_GetObjectPayload};//Return an actual payload of the module
+        default {0};//Unknown object type
     }
 };
 
@@ -105,6 +112,7 @@ NWG_UKREP_GatherUkrepABS = {
     private _radius = _this;
 
     private _objects = _radius call NWG_UKREP_GatherObjectsAround;//Gather objects around player
+    if ((count _objects) == 0) exitWith {"NWG_UKREP_GatherUkrepABS: No objects found!"};
     [_objects] call NWG_UKREP_MarkObjectsOnMap;//Mark them on map
 
     //Calculate position and radius (inlined)
@@ -139,6 +147,7 @@ NWG_UKREP_GatherUkrepREL = {
     private _radius = _this;
 
     private _objects = _radius call NWG_UKREP_GatherObjectsAround;//Gather objects around player
+    if ((count _objects) == 0) exitWith {"NWG_UKREP_GatherUkrepREL: No objects found!"};
     private _rootObj = _objects call NWG_UKREP_FindRoot;//Find root object
     if (isNull _rootObj) exitWith {"NWG_UKREP_GatherUkrepREL: Root object not found!"};
     _objects = _objects - [_rootObj];//Remove root object from the list
@@ -248,18 +257,28 @@ NWG_UKREP_PackIntoRecords = {
         _type = if (_isPlaceholder)
             then {_c call NWG_UKREP_GetPlaceholderType}
             else {_x call NWG_fnc_ocGetObjectType};
-        _payload = if (_isPlaceholder && {_type isNotEqualTo OBJ_TYPE_UNIT})
-            then {_type call NWG_UKREP_GetPlaceholderPayload}
+        _payload = if (_isPlaceholder)
+            then {[_x,_type] call NWG_UKREP_GetPlaceholderPayload}
             else {[_x,_type] call NWG_UKREP_GetObjectPayload};
 
-        //Fix for mines (gathered as XXX_Ammo when we need an actaul mine classname, not a magazine)
-        if (_type isEqualTo OBJ_TYPE_MINE) then {
-            private _parts = _c splitString "_";
-            _c = switch (true) do {
-                case ((count _parts) > 1 && {(_parts#1) isEqualTo "F"}): {format ["%1_F",(_parts#0)]};
-                case ((_parts#0) isEqualTo "TrainingMine"): {"TrainingMine_01_F"};
-                default {_parts#0};
+        //Reassign _c (classname to be recorded) for special cases
+        _c = switch (_type) do {
+            //Fix for mines (gathered as XXX_Ammo when we need an actual mine classname, not a magazine)
+            case OBJ_TYPE_MINE: {
+                private _parts = _c splitString "_";
+                //return
+                switch (true) do {
+                    case ((count _parts) > 1 && {(_parts#1) isEqualTo "F"}): {format ["%1_F",(_parts#0)]};
+                    case ((_parts#0) isEqualTo "TrainingMine"): {"TrainingMine_01_F"};
+                    default {_parts#0};
+                }
             };
+            //Helper placeholders carry an actual module classname that they represent
+            case "HELP": {
+                _x getVariable ["HELP_RealClassname",_c]
+            };
+            //Default - return as is
+            default {_c};
         };
 
         //pack
@@ -348,6 +367,15 @@ NWG_UKREP_GetObjectPayload = {
         /*For mines - payload is empty*/
         case OBJ_TYPE_MINE: {
             0
+        };
+
+        /*For helpers - payload is [variables] we saved in it*/
+        case "HELP": {
+            private _allVars = (allVariables _object) select {_x isNotEqualTo "help_realclassname"};
+            _allVars = _allVars apply {[count _x,_x]};
+            _allVars sort true;
+            _allVars = _allVars apply {[_x#1,_object getVariable (_x#1)]};
+            _allVars
         };
 
         /*For unknown objects - payload is ERROR*/
@@ -460,7 +488,7 @@ NWG_UKREP_GetIsInsideOf = {
     _result
 };
 
-NWG_UKREP_sortOrder = [OBJ_TYPE_BLDG,OBJ_TYPE_FURN,OBJ_TYPE_DECO,OBJ_TYPE_UNIT,OBJ_TYPE_VEHC,OBJ_TYPE_TRRT,OBJ_TYPE_MINE];
+NWG_UKREP_sortOrder = [OBJ_TYPE_BLDG,OBJ_TYPE_FURN,OBJ_TYPE_DECO,OBJ_TYPE_UNIT,OBJ_TYPE_VEHC,OBJ_TYPE_TRRT,OBJ_TYPE_MINE,"HELP"];
 NWG_UKREP_Sort = {
     // private _records = _this;
 

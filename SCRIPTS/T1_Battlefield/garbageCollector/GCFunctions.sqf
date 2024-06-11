@@ -1,6 +1,22 @@
 //=============================================================================
 /*Server -> GC*/
-//Deletes the entire mission, leaves only original objects and markers
+//Adds provided objects to the oroginal objects list (GC will handle them as if they are original objects of the map and will not delete them)
+//params:
+// _objects: the objects to add
+NWG_fnc_gcAddOriginalObjects = {
+    // private _objects = _this;
+    _this call NWG_GC_AddToOriginalObjects
+};
+
+//Adds provided markers to the oroginal markers list (GC will handle them as if they are original markers of the map and will not delete them)
+//params:
+// _markers: the markers to add
+NWG_fnc_gcAddOriginalMarkers = {
+    // private _markers = _this;
+    _this call NWG_GC_AddToOriginalMarkers
+};
+
+//Deletes the entire mission except the original objects and markers (both originally defined and added by the functions above)
 //note: it is better to use 'spawn' to call this function for it may be slow (a lot of objects to delete)
 //params:
 // _callback: (optional) the code to call after the mission is deleted

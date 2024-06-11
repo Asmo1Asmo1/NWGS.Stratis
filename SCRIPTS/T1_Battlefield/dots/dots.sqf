@@ -14,7 +14,7 @@ NWG_DOTS_Settings = createHashMapFromArray [
     ["REINF_SPAWNSEARCH_SETTINGS_MULTIPLIER",5],//Multiplier for AREA_SPAWNSEARCH settings for reinforcement markup, keep it >1 - it does not need to be so precise as trigger search
     ["REINF_SHORECHECK_RADIUS",300],//Radius to check if there are shores around given position to decide whether or not calculate water positions
     ["REINF_INFANTRY_RADIUS",[500,700]],//Min-Max radius of the infantry spawn
-    ["REINF_VEHICLE_RADIUS",[1000,1200]],//Min-Max radius of the vehicle spawn
+    ["REINF_VEHICLE_RADIUS",[1200,1400]],//Min-Max radius of the vehicle spawn
     ["REINF_AIR_RADIUS",[3000,4000]],//Min-Max radius of the air spawn
     ["REINF_AIR_COUNT",7],//Number of air dots to generate for reinforcement markup
 

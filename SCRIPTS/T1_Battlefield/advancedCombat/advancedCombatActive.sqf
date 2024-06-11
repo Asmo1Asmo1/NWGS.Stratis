@@ -384,7 +384,7 @@ NWG_ACA_ArtilleryStrikeCore = {
         private _strikePoints = [_targetPos,_warningRadius,5] call NWG_fnc_dtsGenerateDotsCircle;
         _strikePoints = _strikePoints select {[_artillery,_x] call NWG_ACA_IsInRange};
         if (_strikePoints isEqualTo []) exitWith {_targetPos};//Fallback
-        private _allPlayers = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
+        private _allPlayers = call NWG_fnc_getPlayersOrOccupiedVehicles;
         if (_allPlayers isEqualTo []) exitWith {selectRandom _strikePoints};//Fallback
         private ["_point","_minDist","_dist"];
         _strikePoints = _strikePoints apply {
@@ -769,7 +769,7 @@ NWG_ACA_VehRepair = {
         private _posOptions = [_vehPos,_radius,9] call NWG_fnc_dtsGenerateDotsCircle;
         _posOptions = _posOptions select {!surfaceIsWater _x};
         if (_posOptions isEqualTo []) exitWith {_vehPos};//Fallback
-        private _allPlayers = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
+        private _allPlayers = call NWG_fnc_getPlayersOrOccupiedVehicles;
         if (_allPlayers isEqualTo []) exitWith {selectRandom _posOptions};//Fallback
         private ["_point","_minDist","_dist"];
         _posOptions = _posOptions apply {

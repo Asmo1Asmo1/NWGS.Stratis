@@ -704,7 +704,7 @@
                 ["DECO","Land_FirstAidKit_01_open_F",0,[0.208984,-0.00439453,0.723806],0,-90,0]]],
             ["DECO","Land_Shoot_House_Wall_Crouch_F",0,[-1.18994,3.06982,1.4427],0,0,1],
             ["DECO","Land_Shoot_House_Wall_Crouch_F",0,[-3.81055,1.24414,1.48827],90,90,1],
-            ["DECO","Land_Sleeping_bag_brown_folded_F",0,[1.62488,-1.375,0.377576],30,30,0],
+            ["DECO","Item_Sleeping_bag_folded_01",0,[1.62488,-1.375,0.377576],30,30,2],
             ["DECO","Land_Stretcher_01_folded_sand_F",0,[7.23584,-0.137695,0.380271],210,210,0],
             ["DECO","Land_Stretcher_01_sand_F",0,[6.23108,2.26025,0.371686],90,90,0],
             ["DECO","Land_Stretcher_01_sand_F",0,[6.80139,-1.9873,0.371686],0,0,0,[
@@ -953,7 +953,7 @@
                 ["DECO","Land_Pillow_grey_F",0,[0.0114746,-0.847168,0.0601711],0,-195,0]]],
             ["DECO","Land_Sleeping_bag_brown_F",0,[-2.875,3.375,4.17462],0,0,1,[
                 ["DECO","Land_Ground_sheet_folded_blue_F",0,[-0.247192,0.761719,0.0286779],134.997,134.997,0]]],
-            ["DECO","Land_Sleeping_bag_brown_folded_F",0,[-3.4541,-1.38379,4.14593],240,240,0],
+            ["DECO","Item_Sleeping_bag_folded_01",0,[-3.4541,-1.38379,4.14593],240,240,2],
             ["DECO","Land_Stretcher_01_olive_F",0,[1.5,1.625,4.17377],0,0,0],
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[3.375,6.375,0.303085],0,0,2],
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[1.5,4.25,4.17307],0,0,2],
@@ -1541,7 +1541,7 @@
             ["DECO","Land_Sleeping_bag_brown_F",0,[2.125,-3.125,0.259255],78,-102,1,[
                 ["DECO","Land_Pillow_old_F",0,[0.626343,0.365234,0.0553422],105.003,27.003,0]]],
             ["DECO","Land_Sleeping_bag_brown_F",0,[-1.125,-3.75,0.259255],183,3.00002,1,[
-                ["DECO","Land_Sleeping_bag_folded_F",0,[0.15625,-0.775391,0.0339236],329.999,146.999,0]]],
+                ["DECO","Item_Sleeping_bag_folded_01",0,[0.15625,-0.775391,0.0339236],329.999,146.999,2]]],
             ["DECO","Land_Sleeping_bag_F",0,[2.125,-1.75,0.259255],275,95,1],
             ["DECO","Land_Sleeping_bag_F",0,[-2.5,-3.875,0.259255],5.00001,-175,1,[
                 ["DECO","Land_Ground_sheet_folded_F",0,[-0.140381,0.904297,0.0292101],329.999,324.999,0]]],
@@ -1843,7 +1843,7 @@
                 ["DECO","Land_Pillow_grey_F",0,[-0.750366,-0.25,0.0303221],15.0003,-255,0]]],
             ["DECO","Land_Sleeping_bag_brown_F",0,[-3.125,-4.375,3.625],105,-75,1,[
                 ["DECO","Land_Pillow_old_F",0,[0.848022,0.081543,0.0604811],0,-105,0]]],
-            ["DECO","Land_Sleeping_bag_brown_folded_F",0,[-1.59521,-4.72314,3.60621],270,90,0],
+            ["DECO","Item_Sleeping_bag_folded_01",0,[-1.59521,-4.72314,3.60621],270,90,2],
             ["DECO","Land_Sleeping_bag_F",0,[-0.75,-3.75,3.625],180,4.57764e-005,1,[
                 ["DECO","Land_Ground_sheet_folded_blue_F",0,[0.210327,-0.741699,0.0283089],329.999,149.999,0]]],
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[3.875,-3.5,3.625],0,-180,2],
@@ -2232,9 +2232,9 @@
             ["DECO","Land_PlasticCase_01_small_gray_F",0,[-4.39807,-2.68311,0.556663],180,180,0],
             ["DECO","Land_Sleeping_bag_brown_F",0,[-2.5,-3.375,0.630001],180,180,1,[
                 ["DECO","Land_Ground_sheet_folded_blue_F",0,[0.199341,-0.817871,0.0286775],59.9962,-120.004,0]]],
-            ["DECO","Land_Sleeping_bag_brown_folded_F",0,[-3.65039,-1.87842,0.559778],315,315,0],
+            ["DECO","Item_Sleeping_bag_folded_01",0,[-3.65039,-1.87842,0.559778],315,315,2],
             ["DECO","Land_Sleeping_bag_F",0,[-3.875,-4.5,0.630001],0,0,1],
-            ["DECO","Land_Sleeping_bag_folded_F",0,[-4.25061,-3.24902,0.564916],315,315,0],
+            ["DECO","Item_Sleeping_bag_folded_01",0,[-4.25061,-3.24902,0.564916],315,315,2],
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[-3.89795,0.834473,0.630001],0,0,2],
             ["DECO","Land_WoodenCrate_01_F",0,[-0.65332,-4.7998,0.59376],0,0,0],
             ["UNIT","B_Soldier_VR_F",0,[-1.45923,-4.65137,0.63144],90,90,0],
@@ -2277,7 +2277,7 @@
             ["DECO","Land_CratesPlastic_F",0,[-3.90356,-6.98242,0.572599],0,0,1],
             ["DECO","Land_FoodContainer_01_F",0,[4.25977,-5.44531,0.619208],0,0,0],
             ["DECO","Land_Ground_sheet_folded_F",0,[-3.31836,-1.86084,0.564764],285,285,0],
-            ["DECO","Land_Sleeping_bag_brown_folded_F",0,[-3.65039,-1.87842,0.559778],315,315,0],
+            ["DECO","Item_Sleeping_bag_folded_01",0,[-3.65039,-1.87842,0.559778],315,315,2],
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[-2.625,-2,0.630001],0,0,2],
             ["DECO","Land_WoodenCrate_01_F",0,[-0.65332,-4.7998,0.59376],0,0,0,[
                 ["DECO","Land_ButaneTorch_F",0,[-0.0567627,0.0957031,0.625536],150,150,0],
@@ -2328,7 +2328,7 @@
             ["DECO","Land_Ground_sheet_folded_F",0,[-3.31836,-1.86084,0.564764],285,285,0],
             ["DECO","Land_Sack_F",0,[-4.125,-2.875,0.604453],300,300,1],
             ["DECO","Land_Sacks_heap_F",0,[-3.75,-4.125,0.589889],0,0,1],
-            ["DECO","Land_Sleeping_bag_brown_folded_F",0,[-3.65039,-1.87842,0.559778],315,315,0],
+            ["DECO","Item_Sleeping_bag_folded_01",0,[-3.65039,-1.87842,0.559778],315,315,2],
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[-4,-5.625,0.630001],0,0,2],
             ["DECO","Land_WoodenCrate_01_F",0,[-0.65332,-4.7998,0.59376],0,0,0],
             ["DECO","Land_WoodenCrate_01_stack_x3_F",0,[-3.5,0.875,0.568165],90,90,1],
@@ -2375,13 +2375,13 @@
             ["DECO","Land_PlasticCase_01_small_gray_F",0,[-4.39807,-2.68311,0.556663],180,180,0],
             ["DECO","Land_PortableCabinet_01_4drawers_sand_F",0,[-4.25,-3.875,4.06901],269.995,269.995,2],
             ["DECO","Land_PortableCabinet_01_4drawers_sand_F",0,[3.125,-2,4.06901],359.991,359.991,2],
-            ["DECO","Land_Sleeping_bag_blue_folded_F",0,[-2.99133,1.04199,4.06443],75,75,0],
+            ["DECO","Item_Sleeping_bag_folded_01",0,[-2.99133,1.04199,4.06443],75,75,2],
             ["DECO","Land_Sleeping_bag_brown_F",0,[-2.5,-3.375,0.630001],180,180,1,[
                 ["DECO","Land_Ground_sheet_folded_blue_F",0,[0.199341,-0.817871,0.0286775],59.9962,-120.004,0]]],
-            ["DECO","Land_Sleeping_bag_brown_folded_F",0,[-3.70703,-2.01758,0.559778],315,315,0],
-            ["DECO","Land_Sleeping_bag_brown_folded_F",0,[-3.31091,1.14941,4.06443],105,105,0],
+            ["DECO","Item_Sleeping_bag_folded_01",0,[-3.70703,-2.01758,0.559778],315,315,2],
+            ["DECO","Item_Sleeping_bag_folded_01",0,[-3.31091,1.14941,4.06443],105,105,2],
             ["DECO","Land_Sleeping_bag_F",0,[-3.875,-4.5,0.630001],0,0,1],
-            ["DECO","Land_Sleeping_bag_folded_F",0,[-4.25061,-3.24902,0.564916],315,315,0],
+            ["DECO","Item_Sleeping_bag_folded_01",0,[-4.25061,-3.24902,0.564916],315,315,2],
             ["DECO","Land_Stretcher_01_olive_F",0,[-3.25,-2.875,4.07007],90,90,0],
             ["DECO","Land_Stretcher_01_olive_F",0,[2,-3,4.07007],0,0,0],
             ["DECO","Land_Stretcher_01_olive_F",0,[-3.25,-4.875,4.07007],90,90,0],
@@ -2455,7 +2455,7 @@
             ["DECO","Land_DustMask_F",0,[-3.875,-0.75,4.13502],0,0,0],
             ["DECO","Land_FoodContainer_01_F",0,[4.25977,-5.44531,0.619208],0,0,0],
             ["DECO","Land_Ground_sheet_folded_F",0,[-3.29297,-1.98242,0.509578],285,285,0],
-            ["DECO","Land_Sleeping_bag_brown_folded_F",0,[-3.625,-2,0.504591],315,315,0],
+            ["DECO","Item_Sleeping_bag_folded_01",0,[-3.625,-2,0.504591],315,315,2],
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[-2.625,-2.375,0.570001],0,0,2],
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[-4,-2.875,4.07],0,0,2],
             ["DECO","Land_WoodenCrate_01_F",0,[-0.65332,-4.7998,0.59376],0,0,0,[
@@ -2532,7 +2532,7 @@
             ["DECO","Land_Sack_F",0,[-3.125,-3.125,4.07],315,315,1],
             ["DECO","Land_Sacks_heap_F",0,[-3.75,-4.125,0.589889],0,0,1],
             ["DECO","Land_Sacks_heap_F",0,[-3.5,-5,4.07],345,345,1],
-            ["DECO","Land_Sleeping_bag_brown_folded_F",0,[-3.70703,-2.01758,0.559778],315,315,0],
+            ["DECO","Item_Sleeping_bag_folded_01",0,[-3.70703,-2.01758,0.559778],315,315,2],
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[3.5,-5.625,4.07],225,225,2],
             ["DECO","Land_VR_Shape_01_cube_1m_F",0,[-4,-5.625,0.630001],0,0,2],
             ["DECO","Land_WoodenCrate_01_F",0,[-0.75,-6.75,4.08643],180,180,0],

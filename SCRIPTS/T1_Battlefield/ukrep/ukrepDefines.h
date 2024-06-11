@@ -22,8 +22,6 @@
 /*Used internally during gathering:*/
 #define BP_ORIGOBJECT 8
 #define BP_INSIDE_OF 9
-/*Used internally during placement:*/
-#define BP_BUILDINGID 8
 
 //Object payload
 #define OBJ_SIMPLE 0
@@ -31,9 +29,8 @@
 #define OBJ_INTERACTABLE 2
 
 //Group rules
-#define GRP_RULES_SIDE 0
+#define GRP_RULES_MEMBERSHIP 0
 #define GRP_RULES_DYNASIM 1
-#define GRP_RULES_TRYSHUFFLE 2
 
 //Fractal rules
 #define FRACTAL_STEP_1 0
