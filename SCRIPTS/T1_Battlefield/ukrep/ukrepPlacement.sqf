@@ -88,19 +88,36 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
 
     //1. Get root blueprint
     private _fractalStep1 = _fractalSteps param [0,[]];
-    _fractalStep1 params [["_pageName",""],["_blueprintName",""],["_chances",[]],["_blueprintPos",[]]];
-    private _blueprints = [_pageName,_blueprintName,_blueprintPos] call NWG_UKREP_GetBlueprintsABS;
-    if ((count _blueprints) == 0) exitWith {
-        (format ["NWG_UKREP_FRACTAL_PlaceFractalABS: Could not find the blueprint matching the %1:%2:%3",_pageName,_blueprintName,_blueprintPos]) call NWG_fnc_logError;
-        false//Error
+    _fractalStep1 params [["_pageNameOrBlueprintContainer",""],["_blueprintName",""],["_chances",[]],["_blueprintPos",[]]];
+    private _blueprint = switch (true) do {
+        case (_pageNameOrBlueprintContainer isEqualType ""): {
+            //Page name provided
+            /*Witness the cost of mistake of building your system Down->Up instead of Up->Down. This block will never be used. Time wasted.*/
+            private _pageName = _pageNameOrBlueprintContainer;
+            private _blueprints = [_pageName,_blueprintName,_blueprintPos] call NWG_UKREP_GetBlueprintsABS;
+            if ((count _blueprints) == 0) exitWith {
+                (format ["NWG_UKREP_FRACTAL_PlaceFractalABS: Could not find the blueprint matching the %1:%2:%3",_pageName,_blueprintName,_blueprintPos]) call NWG_fnc_logError;
+                []
+            };
+            //else return
+            [_blueprints,"NWG_UKREP_FRACTAL_PlaceFractalABS"] call NWG_fnc_selectRandomGuaranteed
+        };
+        case (_pageNameOrBlueprintContainer isEqualType []): {
+            //Already selected blueprint container to use as a root
+            _pageNameOrBlueprintContainer
+        };
+        default {
+            format ["NWG_UKREP_FRACTAL_PlaceFractalABS: Invalid arg '_pageNameOrBlueprintContainer' of type: '%1'",(typeOf _pageNameOrBlueprintContainer)] call NWG_fnc_logError;
+            []
+        };
     };
-    private _blueprint = [_blueprints,"NWG_UKREP_FRACTAL_PlaceFractalABS"] call NWG_fnc_selectRandomGuaranteed;
+    if (_blueprint isEqualTo []) exitWith {false};//Error
 
     //2. Scan and save objects on the map for steps 2 and 3
     private _mapObjects = if (_mapObjectsLimit > 0) then {
         private _bpPos = _blueprint#BPCONTAINER_POS;
         private _bpRad = _blueprint#BPCONTAINER_RADIUS;
-        _bpPos nearObjects _bpRad
+        (_bpPos nearObjects _bpRad) select {_x call NWG_fnc_ocIsBuilding || {_x call NWG_fnc_ocIsFurniture}}/*Slight chance that will fix a sudden crash after placing ukrep*/
     } else {[]};
 
     //3. Place root blueprint (fractal step 1)
@@ -301,8 +318,8 @@ NWG_UKREP_PUBLIC_PlaceREL_Position = {
 };
 
 NWG_UKREP_PUBLIC_PlaceREL_Object = {
-    params ["_pageName","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true]];
-    if (_objectType isEqualTo "") then {_objectType = _object call NWG_fnc_getObjectType};
+    params ["_pageName","_object",["_objectType",""],["_blueprintName",""],["_chances",[]],["_faction",""],["_groupRules",[]],["_adaptToGround",true],["_suppressEvent",false]];
+    if (_objectType isEqualTo "") then {_objectType = _object call NWG_fnc_ocGetObjectType};
     private _rootObjFilter = switch (_objectType) do {
         case OBJ_TYPE_BLDG: {_object call NWG_fnc_ocGetSameBuildings};
         case OBJ_TYPE_FURN: {_object call NWG_fnc_ocGetSameFurniture};
@@ -325,7 +342,10 @@ NWG_UKREP_PUBLIC_PlaceREL_Object = {
     private _result = [_blueprint,_object,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PlaceREL_Object;
     if (_result isEqualTo false) exitWith {false};//Error
 
-    [EVENT_ON_UKREP_OBJECT_DECORATED,[_object,_objectType,_result]] call NWG_fnc_raiseServerEvent;
+    //Raise event (object decorated)
+    if !(_suppressEvent) then {
+        [EVENT_ON_UKREP_OBJECT_DECORATED,[_object,_objectType,_result]] call NWG_fnc_raiseServerEvent;
+    };
 
     //return
     _result
@@ -585,14 +605,16 @@ NWG_UKREP_PlacementCore = {
     /*Place HELP - helper modules*/
     if ((count _hlprs) > 0) then {
         private _hlprsGroup = group (missionNamespace getvariable ["BIS_functions_mainscope",objnull]);
-        if (isNull _hlprsGroup) exitWith {};//Failed to obtain
-        {
-            private _helper = _hlprsGroup createUnit [(_x#BP_CLASSNAME),(_x#BP_POS),[],0,"CAN_COLLIDE"];
-            _helper setDir (_x#BP_DIR);
-            _helper setPosASL (_x#BP_POS);
+        if (isNull _hlprsGroup) exitWith {
+            "NWG_UKREP_PlacementCore: Failed to obtain helper group" call NWG_fnc_logError;
+            _hlprs resize 0;//Clear
+        };
+        _hlprs = _hlprs apply {
+            private _helper = _hlprsGroup createUnit [(_x#BP_CLASSNAME),(ASLToAGL (_x#BP_POS)),[],0,"CAN_COLLIDE"];
             {_helper setVariable _x} forEach (_x#BP_PAYLOAD);
-        } forEach _hlprs;
-        _hlprs resize 0;//Clear
+            _helper setVariable ["BIS_fnc_initModules_disableAutoActivation",true];
+            _helper
+        };
     };
 
     /*Place regular objects (BLDG,FURN,DECO) - buildings, furniture, decor*/
@@ -604,10 +626,9 @@ NWG_UKREP_PlacementCore = {
     private _placementGroup = grpNull;
     private _getGroup = {
         if (!isNull _placementGroup) exitWith {_placementGroup};
-        _placementGroup = createGroup [
-            (_groupRules param [GRP_RULES_SIDE,(NWG_UKREP_Settings get "DEFAULT_GROUP_SIDE")]),
-            /*delete when empty:*/true
-        ];
+        private _membership = _groupRules param [GRP_RULES_MEMBERSHIP,(NWG_UKREP_Settings get "DEFAULT_GROUP_SIDE")];
+        if (_membership isEqualTo "AGENT") exitWith {_placementGroup = "AGENT"; "AGENT"};//Special case
+        _placementGroup = createGroup [_membership,/*delete when empty:*/true];
         _placementGroup
     };
 
@@ -633,13 +654,6 @@ NWG_UKREP_PlacementCore = {
         _turret
     };
 
-    /*Finalize group*/
-    if (!isNull _placementGroup) then {
-        _placementGroup enableDynamicSimulation (_groupRules param [GRP_RULES_DYNASIM,(NWG_UKREP_Settings get "DEFAULT_GROUP_DYNASIM")]);
-        {_x disableAI "PATH"} forEach (units _placementGroup);//Disable pathfinding for all units
-        _placementGroup setVariable ["NWG_UKREP_ownership",true];//Mark as UKREP group
-    };
-
     /*Place MINE - mines*/
     if ((count _mines) > 0) then {
         private _minesDirs = [];//Fix for mines direction in MP
@@ -657,6 +671,19 @@ NWG_UKREP_PlacementCore = {
         };
         [_mines,_minesDirs] call NWG_fnc_ukrpMinesRotateAndAdapt;
         [_mines,_minesDirs] remoteExec ["NWG_fnc_ukrpMinesRotateAndAdapt",-2];//Fix for mines direction in MP
+    };
+
+    /*Finalize group*/
+    if (_placementGroup isEqualType grpNull && {!isNull _placementGroup}) then {
+        if (_groupRules param [GRP_RULES_DYNASIM,(NWG_UKREP_Settings get "DEFAULT_GROUP_DYNASIM")])
+            then {_placementGroup enableDynamicSimulation true};//Enable dynamic simulation
+        {_x disableAI "PATH"} forEach (units _placementGroup);//Disable pathfinding for all units
+        _placementGroup setVariable ["NWG_UKREP_ownership",true];//Mark as UKREP group
+    };
+
+    /*Finalize helpers*/
+    if ((count _hlprs) > 0) then {
+        {_x setvariable ["BIS_fnc_initModules_activate",true]} forEach _hlprs;
     };
 
     //return

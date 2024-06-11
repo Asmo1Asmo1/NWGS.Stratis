@@ -60,6 +60,11 @@ if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\dspawn\d
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\garbageCollector\GCServerSide.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T1_Battlefield\garbageCollector\GCClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T1_Battlefield\garbageCollector\GCFunctions.sqf" call NWG_fnc_compile);
+//missionMachine
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachine.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachineClientSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachineFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachineTests.sqf" call NWG_fnc_compile)};
 //objectClassificator
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\objectClassificator\objectClassificator.sqf" call NWG_fnc_compile);
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\objectClassificator\objectClassificatorFunctions.sqf" call NWG_fnc_compile);
@@ -79,8 +84,13 @@ if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\ukrep\uk
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\ukrep\ukrepTests.sqf" call NWG_fnc_compile)};
 //undertaker
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\undertaker\undertaker.sqf" call NWG_fnc_compile);
+//worldConfig
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldConfig.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldConfig.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldConfigFunctions.sqf" call NWG_fnc_compile);
 //yellowKing
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKing.sqf" call NWG_fnc_compile);
+_serverFunctions pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKingFunctions.sqf" call NWG_fnc_compile);
 
 //T2_UserInteraction
 //inventoryManager

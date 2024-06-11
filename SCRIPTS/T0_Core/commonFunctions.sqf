@@ -178,7 +178,7 @@ NWG_fnc_getPlayersAll = {
 };
 
 //Returns an array of players on foot and vehicles occupied by one or more players (array of unique elements)
-NWG_fnc_getPlayersAndOrPlayedVehiclesAll = {
+NWG_fnc_getPlayersOrOccupiedVehicles = {
     private _result = (((call NWG_fnc_getPlayersAll) apply {vehicle _x}) select {alive _x});
     _result arrayIntersect _result//Remove duplicates and return
 };

@@ -84,6 +84,19 @@ private _Init = {
 
 //======================================================================================================
 //======================================================================================================
+//Ignore methods
+NWG_GC_AddToOriginalObjects = {
+    // private _objects = _this;
+    NWG_GC_originalObjects append _this;
+};
+
+NWG_GC_AddToOriginalMarkers = {
+    // private _markers = _this;
+    NWG_GC_originalMarkers append _this;
+};
+
+//======================================================================================================
+//======================================================================================================
 //Delete methods
 NWG_GC_DeleteUnit = {
     // private _unit = _this;
@@ -187,7 +200,7 @@ NWG_GC_OnObjectKilled = {
     private _immediateDelete = false;
     if (isNull _actualKiller || {!_isPlayerKiller}) then {
         //Check if any player saw it die
-        private _players = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
+        private _players = call NWG_fnc_getPlayersOrOccupiedVehicles;
         private _distance = NWG_GC_Settings get "IMMEDIATE_DELETE_IF_PLAYER_DISTANCE";
         _immediateDelete = (_players findIf {(_x distance2D _object) <= _distance}) == -1;
     };
@@ -229,7 +242,7 @@ NWG_GC_Collect = {
     if ((count _bin) <= _min) exitWith {};//Limit not reached
 
     //Prepare variables
-    private _allPlayers = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
+    private _allPlayers = call NWG_fnc_getPlayersOrOccupiedVehicles;
     private _preserveDistance = NWG_GC_Settings get "PRESERVE_DISTANCE";
     private _terminate = switch (_binIndex) do {
         case BIN_BODIES: {{_this call NWG_GC_DeleteUnit}};

@@ -5,7 +5,7 @@
 //======================================================================================================
 //Settings
 NWG_YK_Settings = createHashMapFromArray [
-    ["ENABLED",true],//Defines wether or not the entire system is enabled
+    ["ENABLE_ON_START",false],//Defines wether or not the entire system is enabled on mission start
     ["KING_SIDE",west],//The side which kills will count and groups/reinforcements used, basically the side YK is plays for
     ["REACTION_TIME",[60,120]],//Min and max time between actions and reactions (will be defined randomly between the two)
     ["REACTION_IMMEDIATE_ON_KILLCOUNT",25],//Number of kills to immediately react to (skips all the wait remaining)
@@ -38,6 +38,19 @@ NWG_YK_Settings = createHashMapFromArray [
 
 //======================================================================================================
 //======================================================================================================
+//Fields
+/* main flag */
+NWG_YK_Enabled = false;
+/* counters */
+NWG_YK_killCount = 0;
+NWG_YK_killCountTotal = 0;
+/* reinforcements spawning */
+NWG_YK_reinfSide = nil;
+NWG_YK_reinfFaction = nil;
+NWG_YK_reinfMap = nil;
+
+//======================================================================================================
+//======================================================================================================
 //Init
 private _Init = {
     //Be the first system to react to something being killed
@@ -48,40 +61,46 @@ private _Init = {
         then {NWG_YK_Settings set ["SHOW_DEBUG_MESSAGES",false]};
 
     //Check auto-enable
-    if (NWG_YK_Settings get "ENABLED") then {
-        NWG_YK_Settings set ["ENABLED",false];//Otherwise NWG_YK_Enable will not work
-        call NWG_YK_Enable;
-    };
+    if (NWG_YK_Settings get "ENABLE_ON_START") then {call NWG_YK_Enable};
 };
 
 //======================================================================================================
 //======================================================================================================
-//Enabling/Disabling
-
+//Enable/Disable/Configure
 NWG_YK_Enable = {
-    if (NWG_YK_Settings get "ENABLED") exitWith {};//Already enabled
+    if (NWG_YK_Enabled) exitWith {false};//Already enabled
     NWG_YK_difficultyCurve call NWG_fnc_arrayRandomShift;//Shift the difficulty curve
-    NWG_YK_Settings set ["ENABLED",true];
     call NWG_YK_STAT_OnEnable;//Statistics
+    NWG_YK_killCount = 0;//Reset the kill count
+    NWG_YK_killCountTotal = 0;//Reset the total kill count
+    NWG_YK_Enabled = true;
+    true
 };
 NWG_YK_Disable = {
-    if !(NWG_YK_Settings get "ENABLED") exitWith {};//Already disabled
-    NWG_YK_Settings set ["ENABLED",false];
+    if !(NWG_YK_Enabled) exitWith {false};//Already disabled
     if (!isNull NWG_YK_reactHandle || {!scriptDone NWG_YK_reactHandle})
         then {terminate NWG_YK_reactHandle};//Terminate the reaction script
     call NWG_YK_STAT_OnDisable;//Statistics
+    NWG_YK_Enabled = false;
+    true
+};
+NWG_YK_Configure = {
+    params ["_kingSide","_reinfSide","_reinfFaction","_reinfMap"];
+    if !(isNil "_kingSide") then {NWG_YK_Settings set ["KING_SIDE",_kingSide]};
+    if !(isNil "_reinfSide") then {NWG_YK_reinfSide = _reinfSide};
+    if !(isNil "_reinfFaction") then {NWG_YK_reinfFaction = _reinfFaction};
+    if !(isNil "_reinfMap") then {NWG_YK_reinfMap = _reinfMap};
 };
 
 //======================================================================================================
 //======================================================================================================
 //Reaction system
 NWG_YK_killsToCount = [OBJ_TYPE_UNIT,OBJ_TYPE_VEHC,OBJ_TYPE_TRRT];
-NWG_YK_killCount = 0;
 NWG_YK_OnKilled = {
     params ["_object","_objType","_actualKiller","_isPlayerKiller"];
 
     //Check
-    if !(NWG_YK_Settings get "ENABLED") exitWith {};//System is disabled
+    if !(NWG_YK_Enabled) exitWith {};//System is disabled
     if (isNull _object || {isNull _actualKiller || {!alive _actualKiller}}) exitWith {};//Unprocessable kill
     if (!(_objType in NWG_YK_killsToCount)) exitWith {};//Not a kill of interest
     if (!_isPlayerKiller && {(NWG_YK_Settings get "REACT_TO_PLAYERS_ONLY")}) exitWith {};//If we only want to react to player kills
@@ -92,6 +111,7 @@ NWG_YK_OnKilled = {
 
     //Setup reaction
     NWG_YK_killCount = NWG_YK_killCount + 1;
+    NWG_YK_killCountTotal = NWG_YK_killCountTotal + 1;
     NWG_YK_reactList pushBackUnique _actualKiller;
     if (NWG_YK_Settings get "SHOW_DEBUG_MESSAGES") then {systemChat (format ["NWG_YK: %1 killed %2",(name _actualKiller),(name _object)])};
     if (isNull NWG_YK_reactHandle || {scriptDone NWG_YK_reactHandle}) then {
@@ -115,7 +135,6 @@ NWG_YK_React = {
         NWG_YK_killCount = 0;
     };
     /*Statistics*/
-    [STAT_KILL_COUNT,NWG_YK_killCount] call NWG_YK_STAT_Increment;
     [STAT_REACTION_COUNT,1] call NWG_YK_STAT_Increment;
 
     //1. Check if we have any targets to react to
@@ -435,16 +454,23 @@ NWG_YK_HUNT_MoveHunter = {
 //Reinforesments logic
 NWG_YK_REINF_SendReinforcements = {
     params ["_targetType","_targetPos"];
-    private _faction = BST_ENEMY_FACTION call NWG_fnc_shGetState;
-    if (isNil "_faction") then {_faction = NWG_YK_Settings get "DEFAULT_REINF_FACTION"};
+
     private _filter = switch (_targetType) do {
         case TARGET_TYPE_ARM: {[["AT"],[],[]]};//Whitelist AT groups
         case TARGET_TYPE_AIR: {[["AA"],[],[]]};//Whitelist AA groups
         default {[]};//No filter
     };
-    private _side = NWG_YK_Settings get "KING_SIDE";
-    private _reinfMap = BST_REINFMAP call NWG_fnc_shGetState;
-    if (isNil "_reinfMap") then {_reinfMap = []};
+
+    private _faction = if !(isNil "NWG_YK_reinfFaction")
+        then {NWG_YK_reinfFaction}
+        else {NWG_YK_Settings get "DEFAULT_REINF_FACTION"};
+    private _side = if !(isNil "NWG_YK_reinfSide")
+        then {NWG_YK_reinfSide}
+        else {NWG_YK_Settings get "KING_SIDE"};//Default to king's side
+    private _reinfMap = if !(isNil "NWG_YK_reinfMap")
+        then {NWG_YK_reinfMap}
+        else {[]};
+
     [_targetPos,1,_faction,_filter,_side,_reinfMap] spawn NWG_fnc_dsSendReinforcements;
 };
 
@@ -584,6 +610,7 @@ NWG_YK_STAT_OnDisable = {
     private _units = _groups apply {count ((units _x) select {alive _x})};
     private _unitsCount = 0; {_unitsCount = _unitsCount + _x} forEach _units;
 
+    [STAT_KILL_COUNT,NWG_YK_killCountTotal] call NWG_YK_STAT_Set;
     [STAT_DISABLED_AT,_endTime] call NWG_YK_STAT_Set;
     [STAT_TIME_WORKING,(_endTime - (NWG_YK_STAT_statistics get STAT_ENABLED_AT))] call NWG_YK_STAT_Set;
     [STAT_GROUPS_ON_DISABLE,(count _groups)] call NWG_YK_STAT_Set;

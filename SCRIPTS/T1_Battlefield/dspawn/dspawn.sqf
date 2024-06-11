@@ -33,6 +33,11 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
 
 //================================================================================================================
 //================================================================================================================
+//Fields
+NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
+
+//================================================================================================================
+//================================================================================================================
 //Populate trigger
 #define SP_INDEX_GROUND 0
 #define SP_INDEX_WATER 1
@@ -46,7 +51,6 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
 #define G_INDEX_AIR 3
 #define G_INDEX_BOAT 4
 
-NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
 NWG_DSPAWN_TRIGGER_PopulateTrigger = {
     params ["_trigger","_groupsCount","_faction",["_filter",[]],["_side",west]];
     NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
@@ -361,7 +365,7 @@ NWG_DSPAWN_REINF_SendReinforcements = {
     params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west],["_spawnMap",[nil,nil,nil,nil]]];
 
     //Prepare spawn point picking (with lazy evaluation)
-    private _players = call NWG_fnc_getPlayersAndOrPlayedVehiclesAll;
+    private _players = call NWG_fnc_getPlayersOrOccupiedVehicles;
     private _minDist = NWG_DSPAWN_Settings get "ATTACK_SPAWN_PLAYERS_MIN_DISTANCE";
     private _getSpawnPoint = {
         private _pointType = _this;
@@ -380,7 +384,7 @@ NWG_DSPAWN_REINF_SendReinforcements = {
                 case "BOAT": {[_attackPos,false,false,true, false]};
                 case "AIR":  {[_attackPos,false,false,false,true ]};
             };
-            _spawnArray = (_markupArgs call NWG_fnc_dtsMarkupReinforcementGrouped) select _index;//[_inf,_veh,_boats,_air]
+            _spawnArray = (_markupArgs call NWG_fnc_dtsMarkupReinforcement) select _index;//[_inf,_veh,_boats,_air]
             _spawnMap set [_index,_spawnArray];
         };
         if ((count _spawnArray) == 0) exitWith {false};//No points to spawn

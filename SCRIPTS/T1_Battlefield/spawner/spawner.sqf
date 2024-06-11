@@ -57,26 +57,54 @@ NWG_SPWN_SpawnVehicleExact = {
 //Spawning of units
 
 NWG_SPWN_PrespawnUnits = {
-    params ["_classnames","_NaN",["_sideOrGroup",west]];
-    private _side = if (_sideOrGroup isEqualType west) then {_sideOrGroup} else {side _sideOrGroup};
-    private _group = if (_sideOrGroup isEqualType grpNull) then {_sideOrGroup} else {createGroup [_side,/*delete when empty:*/true]};
+    params ["_classnames","_NaN",["_membership",west]];
     private _createArgs = [nil,(call NWG_SPWN_GetSafePrespawnPos),[],0,"CAN_COLLIDE"];
+    private _side = west;//There is no sideNull unfortunately
+    private _group = grpNull;
     private _units = [];
-    private "_unit";
 
-    //do
-    {
-        _createArgs set [0,_x];
-        _unit = _group createUnit _createArgs;
+    private _createGroupUnits = {
+        private "_unit";
+        {
+            _createArgs set [0,_x];
+            _unit = _group createUnit _createArgs;
+            //Fix units from other faction beign spawned into 'wrong' side (see: https://community.bistudio.com/wiki/createUnit)
+            if ((side _unit) isNotEqualTo _side)
+                then {[_unit] joinSilent _group};
+            _units pushBack _unit;
+        } forEach _classnames;
+        _units
+    };
 
-        //Fix units from other faction beign spawned into 'wrong' side
-        //see: https://community.bistudio.com/wiki/createUnit
-        if ((side _unit) isNotEqualTo _side) then {
-            [_unit] joinSilent _group;
+    switch (true) do {
+        case (_membership isEqualType west): {
+            //Side provided - create a new group for it
+            _side = _membership;
+            _group = createGroup [_side,/*delete when empty:*/true];
+            call _createGroupUnits;
         };
-
-        _units pushBack _unit;
-    } forEach _classnames;
+        case (_membership isEqualType grpNull): {
+            //Group provided - use it
+            _side = side _membership;
+            _group = _membership;
+            call _createGroupUnits;
+        };
+        case (_membership isEqualTo "AGENT"): {
+            //Agents requested (units with no group/side/behaviour)
+            {
+                _createArgs set [0,_x];
+                _units pushBack (createAgent _createArgs);
+            } forEach _classnames;
+        };
+        default {
+            //Invalid membership
+            format ["NWG_SPWN_PrespawnUnits: Invalid membership provided: %1",_membership] call NWG_fnc_logError;
+            //Fallback to default side
+            _side = west;
+            _group = createGroup [_side,/*delete when empty:*/true];
+            call _createGroupUnits;
+        };
+    };
 
     //return
     _units
@@ -88,8 +116,10 @@ NWG_SPWN_FinalizeUnitsSpawn = {
 
     //Delete default waypoint(s) if any
     private _group = group (_this#0);
-    for "_i" from ((count (waypoints _group)) - 1) to 0 step -1 do {
-        deleteWaypoint [_group, _i];
+    if !(isNull _group) then {
+        for "_i" from ((count (waypoints _group)) - 1) to 0 step -1 do {
+            deleteWaypoint [_group, _i];
+        };
     };
 
     //return
@@ -98,7 +128,7 @@ NWG_SPWN_FinalizeUnitsSpawn = {
 
 //Spawn the group of units at given position
 NWG_SPWN_SpawnUnitsAround = {
-    params ["_classnames","_pos",["_sideOrGroup",west]];
+    params ["_classnames","_pos",["_membership",west]];
     private _units = _this call NWG_SPWN_PrespawnUnits;
 
     //Place units around given position
@@ -114,7 +144,7 @@ NWG_SPWN_SpawnUnitsAround = {
 
 //Spawn the group of units into given vehicle
 NWG_SPWN_SpawnUnitsIntoVehicle = {
-    params ["_classnames","_vehicle",["_sideOrGroup",west]];
+    params ["_classnames","_vehicle",["_membership",west]];
     private _units = _this call NWG_SPWN_PrespawnUnits;
     if ((count _units) == 0) exitWith {_units};
 
@@ -129,7 +159,7 @@ NWG_SPWN_SpawnUnitsIntoVehicle = {
 
 //Spawn the group of units into given building
 NWG_SPWN_SpawnUnitsIntoBuilding = {
-    params ["_classnames","_building",["_sideOrGroup",west]];
+    params ["_classnames","_building",["_membership",west]];
     private _units = _this call NWG_SPWN_PrespawnUnits;
     if ((count _units) == 0) exitWith {_units};
 
@@ -158,10 +188,10 @@ NWG_SPWN_SpawnUnitsIntoBuilding = {
 #define DATA_DIRECTION 2
 #define DATA_STANCE 3
 NWG_SPWN_SpawnUnitsExact = {
-    params ["_data",["_sideOrGroup",west]];
+    params ["_data",["_membership",west]];
 
     //Prespawn units
-    private _units = [(_data apply {_x#DATA_CLASSNAME}),nil,_sideOrGroup] call NWG_SPWN_PrespawnUnits;
+    private _units = [(_data apply {_x#DATA_CLASSNAME}),nil,_membership] call NWG_SPWN_PrespawnUnits;
     if ((count _units) == 0) exitWith {_units};
 
     //Place units
