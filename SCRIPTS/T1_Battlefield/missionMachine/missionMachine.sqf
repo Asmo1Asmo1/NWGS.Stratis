@@ -201,17 +201,17 @@ NWG_MIS_SER_Cycle = {
                 switch (true) do {
                     case (NWG_MIS_SER_missionInfo get "IsRestartCondition"): {
                         //No players online for a while
-                        MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState
+                        MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState;
                     };
                     case (NWG_MIS_SER_missionInfo get "IsEngaged"): {
                         //Players are fighting the enemy
                         NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightSetupExhaustion;//Setup exhaustion
-                        MSTATE_FIGHT_ACTIVE call NWG_MIS_SER_ChangeState
+                        MSTATE_FIGHT_ACTIVE call NWG_MIS_SER_ChangeState;
                     };
                     case (NWG_MIS_SER_missionInfo get "IsInfiltrated"): {
                         //Players entered the mission area
                         NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightSetupExhaustion;//Setup exhaustion
-                        MSTATE_FIGHT_INFILTRATION call NWG_MIS_SER_ChangeState
+                        MSTATE_FIGHT_INFILTRATION call NWG_MIS_SER_ChangeState;
                     };
                     default {/*Do nothing*/};
                 };
@@ -222,20 +222,19 @@ NWG_MIS_SER_Cycle = {
                 switch (true) do {
                     case (NWG_MIS_SER_missionInfo get "IsRestartCondition"): {
                         //No players online for a while
-                        MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState
+                        MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState;
                     };
                     case (NWG_MIS_SER_missionInfo get "IsEngaged"): {
                         //Players are fighting the enemy
-                        MSTATE_FIGHT_ACTIVE call NWG_MIS_SER_ChangeState
+                        MSTATE_FIGHT_ACTIVE call NWG_MIS_SER_ChangeState;
                     };
                     case (NWG_MIS_SER_missionInfo get "IsExhausted"): {
                         //Players have exhausted the mission
                         NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
-                        MSTATE_FIGHT_EXHAUSTED call NWG_MIS_SER_ChangeState
+                        MSTATE_FIGHT_EXHAUSTED call NWG_MIS_SER_ChangeState;
                     };
                     case (NWG_MIS_SER_missionInfo get "IsAllPlayersOnBase"): {
-                        //Players are back on the base
-                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
+                        //Players are back on the base (after sneaking into the mission area and out without a fight)
                         MSTATE_COMPLETED call NWG_MIS_SER_ChangeState;//<-- Mission is completed
                     };
                     default {/*Do nothing*/};
@@ -254,9 +253,8 @@ NWG_MIS_SER_Cycle = {
                         NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
                         MSTATE_FIGHT_EXHAUSTED call NWG_MIS_SER_ChangeState
                     };
-                    case (NWG_MIS_SER_missionInfo get "IsAllPlayersOnBase"): {
-                        //Players are back on the base
-                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
+                    case (NWG_MIS_SER_missionInfo get "IsAllPlayersOnBase" && {NWG_MIS_SER_missionInfo get "IsInfiltrated"}): {
+                        //Players are back on the base after visiting the mission area at least once
                         MSTATE_COMPLETED call NWG_MIS_SER_ChangeState;//<-- Mission is completed
                     };
                     default {/*Do nothing*/};
@@ -270,8 +268,8 @@ NWG_MIS_SER_Cycle = {
                         //No players online for a while
                         MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState
                     };
-                    case (NWG_MIS_SER_missionInfo get "IsAllPlayersOnBase"): {
-                        //Players are back on the base
+                    case (NWG_MIS_SER_missionInfo get "IsAllPlayersOnBase" && {NWG_MIS_SER_missionInfo get "IsInfiltrated"}): {
+                        //Players are back on the base after visiting the mission area at least once
                         MSTATE_COMPLETED call NWG_MIS_SER_ChangeState;//<-- Mission is completed
                     };
                     default {/*Do nothing*/};
@@ -288,6 +286,7 @@ NWG_MIS_SER_Cycle = {
             case MSTATE_CLEANUP: {
                 //Cleanup the mission
                 [] call NWG_fnc_gcDeleteMission;
+                NWG_MIS_SER_missionInfo call NWG_MIS_SER_MarkMissionDone;//Mark mission as done on the map
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_RESET: {
@@ -765,7 +764,7 @@ NWG_MIS_SER_FightUpdateMissionInfo = {
         private _missionRad = _info get "Radius";
         {(_x distance2D _missionPos) <= _missionRad} count _players
     };
-    private _playersOnBase = {
+    private _playersOnBase = call {
         private _basePos = NWG_MIS_SER_playerBasePos;
         private _baseRad = NWG_MIS_SER_Settings get "PLAYER_BASE_RADIUS";
         {(_x distance2D _basePos) <= _baseRad} count _players
@@ -816,6 +815,29 @@ NWG_MIS_SER_FightTeardown = {
 
     //return
     _this
+};
+
+//================================================================================================================
+//================================================================================================================
+//Mission completion
+NWG_MIS_SER_MarkMissionDone = {
+    // private _missionInfo = _this;
+    private _pos = _this get "Position";
+    private _rad = _this get "Radius";
+
+    //Create background outline marker
+    private _missionName = format ["MIS_%1_Done",(count NWG_MIS_SER_missionsList)];//A little hack to get a unique name
+    _marker = createMarker [_missionName,_pos];
+    _marker setMarkerSize [_rad,_rad];
+    _marker setMarkerShape "ELLIPSE";
+    _marker setMarkerColor (NWG_MIS_SER_Settings get "MISSIONS_DONE_COLOR");
+    _marker setMarkerAlpha (NWG_MIS_SER_Settings get "MISSIONS_OUTLINE_ALPHA");
+
+    //Save it to not be deleted
+    [_marker] call NWG_fnc_gcAddOriginalMarkers;
+
+    //return
+    _marker
 };
 
 //================================================================================================================
