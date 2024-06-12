@@ -753,8 +753,12 @@ NWG_DSPAWN_SpawnGroupFinalize = {
 //================================================================================================================
 //Additional code post-spawn helpers
 NWG_DSPAWN_AC_AttachTurret = {
-    params ["_group","_vehicle","_NaN","_turretClassname","_attachToValues",["_gunnerClassname","DEFAULT"]];
+    params ["_spawnResult","_turretClassname","_attachToValues",["_gunnerClassname","DEFAULT"]];
+    _spawnResult params ["_group","_vehicle"/*,"_units"*/];
     _attachToValues params ["_offset","_dirAndUp"];
+
+    //Fix vehicle stucking at place for unknown reason (arma moment)
+    if (canSuspend) then {sleep 5};
 
     //Spawn and attach turret
     private _turret = [_turretClassname,0,0] call NWG_fnc_spwnPrespawnVehicle;
@@ -764,15 +768,20 @@ NWG_DSPAWN_AC_AttachTurret = {
     _turret setVectorDirAndUp _dirAndUp;
 
     //Add gunner
-    private _gunner = objNull;
-    if (_gunner isEqualTo "DEFAULT") then {
+    if (_gunnerClassname isEqualTo "DEFAULT") then {
         _group createVehicleCrew _turret;
-        _gunner = gunner _turret;
+        private _gunner = gunner _turret;
         if ((side _gunner) isNotEqualTo (side _group)) then {[_gunner] joinSilent _group};
     } else {
-        _gunner = ([[_gunnerClassname],nil,_group] call NWG_fnc_spwnPrespawnUnits) param [0,objNull];
+        private _gunner = ([[_gunnerClassname],nil,_group] call NWG_fnc_spwnPrespawnUnits) param [0,objNull];
         _gunner moveInAny _turret;
     };
+};
+
+NWG_DSPAWN_AC_DressUnits = {
+    params ["_spawnResult","_loadouts"];
+    // _spawnResult params ["_group","_vehicle","_units"];
+    {_x setUnitLoadout ([_loadouts,"DSPAWN_AC_DressUnits"] call NWG_fnc_selectRandomGuaranteed)} forEach (_spawnResult#SPAWN_RESULT_UNITS);
 };
 
 //================================================================================================================
