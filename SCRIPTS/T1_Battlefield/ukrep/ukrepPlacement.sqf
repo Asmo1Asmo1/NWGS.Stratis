@@ -663,7 +663,7 @@ NWG_UKREP_PlacementCore = {
                 else {(_x#BP_POS)};//Fix for APERSTripMine
 
             private _mine = createMine [(_x#BP_CLASSNAME),(ASLToAGL _pos),[],0];
-            _mine enableDynamicSimulation true;//Always true
+            _mine enableDynamicSimulation true;//Doesn't work now but left just in case it would in the future, see: https://community.bistudio.com/wiki/enableDynamicSimulation
             _mine setDir (_x#BP_DIR);
 
             _minesDirs pushBack (_x#BP_DIR);

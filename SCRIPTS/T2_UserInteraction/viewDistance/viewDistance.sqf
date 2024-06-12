@@ -15,7 +15,7 @@
 
 /*Limits*/
 #define MIN_VIEWDISTANCE 100
-#define MAX_VIEWDISTANCE 7000
+#define MAX_VIEWDISTANCE 5000
 
 /* Default values */
 #define DEFAULT_VIEWDISTANCE 1600
