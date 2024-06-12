@@ -189,3 +189,22 @@ NWG_fnc_acSendToVehRepair = {
     // private _group = _this;
     _this call NWG_ACA_SendToVehRepair
 };
+
+//=============================================================================
+/*Targeting utils*/
+//Returns target type of the object
+//note: send (vehicle _object) as an argument
+//params: _target - target object
+//returns: TARGET_TYPE_* (see advancedCombatDefines.h) ("INF","VEH","ARM","AIR","BOAT") (will return "VEH" by default if target is not recognized)
+NWG_fnc_acGetTargetType = {
+    // private _target = _this;
+    _this call NWG_ACU_GetTargetType
+};
+
+//Returns building the target is in
+//params: _target - target object
+//returns: building object or objNull if target is not in a building (outside or inside not a building but something else)
+NWG_fnc_acGetBuildingTargetIn = {
+    // private _target = _this;
+    _this call NWG_ACU_GetBuildingTargetIn
+};

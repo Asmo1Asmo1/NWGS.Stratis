@@ -10,7 +10,7 @@
 #define TARGET_POSITION 2
 #define TARGET_BUILDING 3
 
-//Target types
+//Target types (ensure consistency with SCRIPTS\T1_Battlefield\advancedCombat\advancedCombatDefines.h)
 #define TARGET_TYPE_INF "INF"
 #define TARGET_TYPE_VEH "VEH"
 #define TARGET_TYPE_ARM "ARM"
