@@ -56,6 +56,7 @@ NWG_ACA_Settings = createHashMapFromArray [
 
     ["INF_STORM_FIRE_RADIUS",50],//Radius for fireing
     ["INF_STORM_FIRE_TIME",10],//Time for fireing
+    ["INF_STORM_STORM_TIME",20],//Time for storming the building
     ["INF_STORM_TIMEOUT",180],//Timeout for inf building storm
 
     ["VEH_REPAIR_RADIUS",250],//Radius for vehicle to move to repair
@@ -75,6 +76,12 @@ NWG_ACA_StartAdvancedLogic = {
     if (!isNull _logicHelper) then {_group call NWG_ACA_DeleteHelper};
     //Start new logic
     _group setVariable ["NWG_ACA_LogicHandle",([_group,_arg1,_arg2] spawn _logic)];
+};
+NWG_ACA_IsDoingAdvancedLogic = {
+    // private _group = _this;
+    private _logicHandle = _this getVariable ["NWG_ACA_LogicHandle",scriptNull];
+    //return
+    (!isNull _logicHandle && {!scriptDone _logicHandle})
 };
 
 NWG_ACA_CreateHelper = {
@@ -627,8 +634,9 @@ NWG_ACA_InfBuildingStorm = {
     //Get closer to the building
     (units _group) doMove (position _helper);
     waitUntil {
-        sleep 1;
+        sleep 3;
         if (call _abortCondition) exitWith {true};
+        (units _group) doMove (position _helper);
         if (((leader _group) distance _helper) > (NWG_ACA_Settings get "INF_STORM_FIRE_RADIUS")) exitWith {false};//Out of range
         if !([(leader _group),_target] call NWG_ACA_IsClearLineBetween) exitWith {false};//Obstacle between
         true
@@ -637,12 +645,13 @@ NWG_ACA_InfBuildingStorm = {
 
     //Attack the building
     private _units = (units _group) select {alive _x};
+    doStop _units;
     _group reveal [_helper,4];
     _units doWatch _helper; _units doTarget _helper;
     private _fireTime = time + (NWG_ACA_Settings get "INF_STORM_FIRE_TIME");
 
     waitUntil {
-        if (call _abortCondition) exitWith _onExit;
+        if (call _abortCondition) exitWith {true};
         _units = _units select {alive _x};//Update list
 
         //forEach unit
@@ -693,20 +702,34 @@ NWG_ACA_InfBuildingStorm = {
     if (call _abortCondition) exitWith _onExit;
     _group call NWG_ACA_DeleteHelper;
 
-    //Storm the building
+    //Prepare storming positions
+    _units = _units select {alive _x};//Update list
     private _buildingPos = _target buildingPos -1;
     if (_buildingPos isEqualTo []) then {_buildingPos = [(getPosATL _target)]};
-    _buildingPos = _buildingPos call NWG_fnc_arrayShuffle;
-    _units = _units select {alive _x};//Update list
+    _buildingPos = _buildingPos apply {[_x#2,_x]};//Conver for sorting
+    _buildingPos sort false;//Descending order
+    _buildingPos = _buildingPos apply {_x#1};//Convert back
+    while {(count _buildingPos) < (count _units)} do {_buildingPos append _buildingPos};//Extend the list to match the number of units
+
+    //Storm the building
+    private _stormTime = time + (NWG_ACA_Settings get "INF_STORM_STORM_TIME");
     private ["_pos"];
-    {
-        _pos = _buildingPos deleteAt 0;
-        _buildingPos pushBack _pos;
-        _x forceSpeed -1;
-        _x doMove _pos;
-        _x moveTo _pos;
-        _x setDestination [_pos,"FORMATION PLANNED",true];
-    } foreach _units;
+    waitUntil {
+        if (call _abortCondition) exitWith {true};
+
+        {
+            _pos = _buildingPos select _forEachIndex;
+            _x forceSpeed -1;
+            _x doMove _pos;
+            _x moveTo _pos;
+            _x setDestination [_pos,"FORMATION PLANNED",true];
+        } foreach _units;
+
+        sleep 3;
+        time > _stormTime
+    };
+
+    call _onExit;
 };
 
 //================================================================================================================

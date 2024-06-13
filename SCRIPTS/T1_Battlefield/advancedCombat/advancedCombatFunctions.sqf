@@ -208,3 +208,11 @@ NWG_fnc_acGetBuildingTargetIn = {
     // private _target = _this;
     _this call NWG_ACU_GetBuildingTargetIn
 };
+
+//Checks if the group is already performing an action
+//params: _group - group to check
+//returns: boolean
+NWG_fnc_acIsGroupBusy = {
+    // private _group = _this;
+    _this call NWG_ACA_IsDoingAdvancedLogic
+};
