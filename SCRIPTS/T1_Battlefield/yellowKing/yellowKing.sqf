@@ -268,40 +268,14 @@ NWG_YK_ConvertToTargets = {
 
     private ["_type","_position","_building"];
     _targets = _targets apply {
-        _type = _x call NWG_YK_GetTargetType;
+        _type = _x call NWG_fnc_acGetTargetType;
         _position = getPosASL _x;
-        _building = if (_type isEqualTo TARGET_TYPE_INF) then {_x call NWG_YK_GetBuildingTargetIn} else {objNull};
+        _building = if (_type isEqualTo TARGET_TYPE_INF) then {_x call NWG_fnc_acGetBuildingTargetIn} else {objNull};
         [_x,_type,_position,_building]
     };
 
     //return
     _targets
-};
-
-/*Utils*/
-NWG_YK_GetTargetType = {
-    // private _target = _this;
-    switch (true) do {
-        case (_this isKindOf "Man"): {TARGET_TYPE_INF};
-        case (_this isKindOf "StaticWeapon"): {TARGET_TYPE_INF};//Static weapons are not actually infantry, but they are not vehicles either
-        case (_this isKindOf "Air"): {
-            if (_this isKindOf "ParachuteBase")/*Parachutes give false positives for "Air"*/
-                then {TARGET_TYPE_INF}
-                else {TARGET_TYPE_AIR}
-        };
-        case (_this isKindOf "Tank" || {_this isKindOf "Wheeled_APC_F"}) : {TARGET_TYPE_ARM};
-        case (_this isKindOf "Ship"): {TARGET_TYPE_BOAT};
-        default {TARGET_TYPE_VEH};
-    }
-};
-
-NWG_YK_GetBuildingTargetIn = {
-    // private _target = _this;
-    private _raycastFrom = getPosWorld _this;
-    private _raycastTo = _raycastFrom vectorAdd [0,0,-50];
-    private _result = (flatten (lineIntersectsSurfaces [_raycastFrom,_raycastTo,_this,objNull,true,-1,"FIRE","VIEW",true]));
-    _result = _result select {_x isEqualType objNull && {!isNull _x && {_x call NWG_fnc_ocIsBuilding}}};
-    _result param [0,objNull]
 };
 
 //======================================================================================================

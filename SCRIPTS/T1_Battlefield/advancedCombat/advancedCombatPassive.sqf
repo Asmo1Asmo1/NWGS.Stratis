@@ -23,6 +23,8 @@ NWG_ACP_Settings = createHashMapFromArray [
     ["ON_DSPAWN_ALLOW_STAY_IN_VEHICLE",true],//Enable stay in vehicle for SOME of the groups when dspawn spawns the group
     ["DSPAWN_ALLOW_STAY_IN_VEHICLE_CHANCE",0.5],//Chance for a group to be allowed to stay in the vehicle
 
+    ["ON_DSPAWN_ALLOW_INFSTORM",true],//Enable autonomous INFSTORM for every INF group spawned by dspawn
+
     ["",0]
 ];
 
@@ -41,6 +43,7 @@ NWG_ACP_OnDspawnGroupSpawned = {
     if (NWG_ACP_Settings get "ON_DSPAWN_SET_SKILL") then {[_group,_tier] call NWG_ACP_SetGroupSkills};
     if (NWG_ACP_Settings get "ON_DSPAWN_ALLOW_WOUNDED") then {_units call NWG_ACP_AllowWounded};
     if (NWG_ACP_Settings get "ON_DSPAWN_ALLOW_STAY_IN_VEHICLE") then {_vehicle call NWG_ACP_AllowStayInVehicle};
+    if (NWG_ACP_Settings get "ON_DSPAWN_ALLOW_INFSTORM") then {_group call NWG_ACP_SetupInfStorm};
 };
 
 NWG_ACP_SetGroupSkills = {
@@ -143,6 +146,30 @@ NWG_ACP_AllowStayInVehicle = {
     _this allowCrewInImmobile [/*brokenWheels:*/true,/*upsideDown:*/false];
 };
 
+NWG_ACP_SetupInfStorm = {
+    private _group = _this;
+    if (isNull _group) exitWith {};//No group passed
+    if ({alive _x && {!unitIsUAV _x}} count (units _group) <= 0) exitWith {};//No units that can be used for INFSTORM
+    _group addEventHandler ["EnemyDetected",{_this call NWG_ACP_GoToInfStorm}];
+};
+
+NWG_ACP_GoToInfStorm = {
+    params ["_group","_newTarget"];
+    if (_group call NWG_fnc_acIsGroupBusy) exitWith {};//Check if the group is busy with something else
+    if !(_group call NWG_fnc_acCanDoInfBuildingStorm) exitWith {};//Check if the group can storm the building
+    if ((side _newTarget) isEqualTo (side _group)) exitWith {};//Only enemy targets
+
+    _newTarget = vehicle _newTarget;
+    if ((_newTarget call NWG_fnc_acGetTargetType) isNotEqualTo "INF") exitWith {};//Only INF targets
+
+    private _building = _newTarget call NWG_fnc_acGetBuildingTargetIn;
+    if (isNull _building) exitWith {};//No building to storm
+
+    private _ok = [_group,_building] call NWG_fnc_acSendToInfBuildingStorm;
+    _ok
+};
+
+
 //================================================================================================================
-//Post-compilation init
+//================================================================================================================
 call _Init;
