@@ -38,6 +38,8 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["RELEASE_ACTION_PRIORITY",17],//Priority of 'release' action
     ["VEH_LOADIN_ACTION_PRIORITY",21],//Priority of 'veh load' action
 
+    ["VANILLA_HEAL_100HP",true],//If true - any vanilla heal action on player will remove all the damage
+
     ["",0]
 ];
 
@@ -62,6 +64,7 @@ private _Init = {
 
     player addEventHandler ["GetInMan",{_this call NWG_MED_CLI_OnVehGetIn}];
     player addEventHandler ["GetOutMan",{_this call NWG_MED_CLI_OnVehGetOut}];
+    player addEventHandler ["HandleHeal",{_this call NWG_MED_CLI_OnVanillaHeal}];
 
     player call NWG_MED_CLI_InitPlayer;
 };
@@ -78,6 +81,28 @@ NWG_MED_CLI_ReloadStates = {
     [player,false] call NWG_MED_COM_MarkWounded;
     [player,SUBSTATE_NONE] call NWG_MED_COM_SetSubstate;
     [player,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_COM_SetTime;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Vanilla Heal handling
+NWG_MED_CLI_OnVanillaHeal = {
+    // params ["_player","_healer","_isMedic"];
+    //1. Preferably, do not use 'exitWith' inside vanilla event handlers at all - Arma has a history of that breaking things
+    //2. This entire event is broken and we use suggested workaround, see: https://community.bistudio.com/wiki/Arma_3:_Event_Handlers#HandleHeal
+    if (NWG_MED_CLI_Settings get "VANILLA_HEAL_100HP") then {
+        _this spawn {
+            private _player = _this#0;
+            private _healStartDmg = damage _player;
+            private _timeout = time + 5;//NASA teached me this
+            waitUntil {
+                sleep 0.1;
+                (((damage _player) != _healStartDmg) || {time > _timeout})
+            };
+            if (alive _player && {(damage _player) <= _healStartDmg})
+                then {_player setDamage 0};
+        };
+    };
 };
 
 //================================================================================================================
