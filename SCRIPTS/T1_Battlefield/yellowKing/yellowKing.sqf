@@ -33,6 +33,16 @@ NWG_YK_Settings = createHashMapFromArray [
     ["STATISTICS_TO_RPT",true],//If true, the statistics will be dumped to rpt
     ["STATISTICS_TO_PROFILENAMESPACE",false],//If true, the statistics will be saved to profileNamespace
 
+    ["DIFFICULTY_CURVE",[0,1,0,1,2,1,2,0,1,1,2,0,1,2,2,1,0]],//Yellow King difficulty curve
+    ["DIFFUCULTY_PRESETS",[
+        /*Easy*/
+            [/*_ingoreChance*/0.4, /*_maxMoves*/2, /*_maxReinfs*/0, /*_maxSpecials*/1],
+        /*Medium*/
+            [/*_ingoreChance*/0.3, /*_maxMoves*/3, /*_maxReinfs*/1, /*_maxSpecials*/2],
+        /*Hard*/
+            [/*_ingoreChance*/0.2, /*_maxMoves*/4, /*_maxReinfs*/2, /*_maxSpecials*/3]
+    ]],//YellowKing difficulty presets
+
     ["",0]
 ];
 
@@ -70,7 +80,7 @@ private _Init = {
 //Enable/Disable/Configure
 NWG_YK_Enable = {
     if (NWG_YK_Enabled) exitWith {false};//Already enabled
-    NWG_YK_difficultyCurve call NWG_fnc_arrayRandomShift;//Shift the difficulty curve
+    call NWG_YK_ShiftDifficultyCurve;//Shift the difficulty curve
     call NWG_YK_STAT_OnEnable;//Statistics
     NWG_YK_killCount = 0;//Reset the kill count
     NWG_YK_killCountTotal = 0;//Reset the total kill count
@@ -151,7 +161,7 @@ NWG_YK_React = {
     [STAT_TARGETS_ACQUIRED,_initialCount] call NWG_YK_STAT_Increment;
 
     //2. Get difficulty settings
-    (call NWG_YK_GetDifficulty) params ["_ingoreChance","_movesLeft","_reinfsLeft","_speciaslLeft"];
+    (call NWG_YK_GetDifficultyPreset) params ["_ingoreChance","_movesLeft","_reinfsLeft","_speciaslLeft"];
 
     //3. Gather targets
     _targets = [NWG_YK_reactList,_ingoreChance] call NWG_YK_ConvertToTargets;
@@ -239,20 +249,18 @@ NWG_YK_React = {
 //======================================================================================================
 //======================================================================================================
 //Difficulty settings
-NWG_YK_difficultyCurve = [0,1,0,1,2,1,2,0,1,1,2,0,1,2,2,1,0];//Compiled with the help of chatGPT
-NWG_YK_difficultySettings = [
-/*Easy*/
-    [/*_ingoreChance*/0.4, /*_maxMoves*/2, /*_maxReinfs*/0, /*_maxSpecials*/1],
-/*Medium*/
-    [/*_ingoreChance*/0.3, /*_maxMoves*/3, /*_maxReinfs*/1, /*_maxSpecials*/2],
-/*Hard*/
-    [/*_ingoreChance*/0.2, /*_maxMoves*/4, /*_maxReinfs*/2, /*_maxSpecials*/3]
-];
-NWG_YK_GetDifficulty = {
-    private _i = NWG_YK_difficultyCurve deleteAt 0;
-    NWG_YK_difficultyCurve pushBack _i;
+//While it's not a good practice to change settings in runtime as part of the logic, I think we'll allow it here
+NWG_YK_ShiftDifficultyCurve = {
+    private _curve = NWG_YK_Settings get "DIFFICULTY_CURVE";
+    _curve call NWG_fnc_arrayRandomShift;
+};
+NWG_YK_GetDifficultyPreset = {
+    private _curve = NWG_YK_Settings get "DIFFICULTY_CURVE";
+    private _i = _curve deleteAt 0;//Pop
+    _curve pushBack _i;//Push back
+    private _presets = NWG_YK_Settings get "DIFFUCULTY_PRESETS";
     //return
-    (NWG_YK_difficultySettings select _i)
+    (_presets select _i)
 };
 
 //======================================================================================================
