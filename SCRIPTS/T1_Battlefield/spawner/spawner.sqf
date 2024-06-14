@@ -258,14 +258,13 @@ NWG_SPWN_PlaceAround = {
 //Spawn utils
 NWG_SPWN_GetSafePrespawnPos = {
     private _safepos = localNamespace getVariable ["NWG_tempSafePos",(
-        if (isServer) then {[0,0,100]} else {[0,25,100]}
+        if (isServer) then {[0,0,500]} else {[0,25,500]}
     )];
 
     if ((_safepos#2) < 5000) then {_safepos set [2,((_safepos#2) + 25)]} else {_safepos set [2,100]};
     localNamespace setVariable ["NWG_tempSafePos",_safepos];
-    if (surfaceIsWater _safepos) then {_safepos = ASLToATL _safepos};
     //return
-    _safepos
+    ASLToAGL _safepos
 };
 
 NWG_SPWN_Hide = {
