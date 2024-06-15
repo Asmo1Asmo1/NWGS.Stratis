@@ -675,37 +675,40 @@ NWG_MIS_SER_BuildMission_Dspawn = {
     private _missionRad = _missionInfo get "Radius";
     private _settings   = _missionInfo get "Settings";
 
+    //Calculate the DSPAWN area to patrol
     private _radiusMult = _settings getOrDefault ["DspawnRadiusMult",1.5];
     private _radiusMin  = _settings getOrDefault ["DspawnRadiusMin",150];
     private _radiusMax  = _settings getOrDefault ["DspawnRadiusMax",200];
-    private _groupsMult = _settings getOrDefault ["DspawnGroupsMult",1];
-    private _groupsMin  = _settings getOrDefault ["DspawnGroupsMin",2];
-    private _groupsMax  = _settings getOrDefault ["DspawnGroupsMax",5];
-
-    //Calculate the DSPAWN area to patrol
     _missionRad = _missionRad * _radiusMult;
     _missionRad = (_missionRad max _radiusMin) min _radiusMax;//Clamp
-    private _trigger = [_missionPos,_missionRad];//We use the word 'trigger' just as legacy
     _missionInfo set ["Dspawn_Area",[_missionPos,_missionRad]];//Save for future use
 
     //Calculate the DSPAWN reinforcment map
-    //params ["_pos",["_doInf",true],["_doVeh",true],["_doBoat",true],["_doAir",true]];
+    //["_pos",["_doInf",true],["_doVeh",true],["_doBoat",true],["_doAir",true]] call NWG_fnc_dtsMarkupReinforcement
     private _reinfMap = [_missionPos,true,true,true,true] call NWG_fnc_dtsMarkupReinforcement;
     _missionInfo set ["Dspawn_ReinforcementMap",_reinfMap];//Save for future use
 
+    //Calculate groups to spawn count
+    private _groupsMult = _settings getOrDefault ["DspawnGroupsMult",1];
+    private _groupsMin  = _settings getOrDefault ["DspawnGroupsMin",2];
+    private _groupsMax  = _settings getOrDefault ["DspawnGroupsMax",5];
     // _ukrepObjects params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
     private _ukrepGroups = ((_ukrepObjects#3) + (_ukrepObjects#4) + (_ukrepObjects#5)) apply {group _x};
     _ukrepGroups = _ukrepGroups arrayIntersect _ukrepGroups;//Remove duplicates
-    private _groupsCount = count _ukrepGroups;
-
-    _groupsCount = _groupsCount * _groupsMult;
+    private _groupsCount = round ((count _ukrepGroups) * _groupsMult);
+    _groupsMin = if (_groupsMin isEqualType [])
+        then {selectRandom _groupsMin}
+        else {_groupsMin};
+    _groupsMax = if (_groupsMax isEqualType [])
+        then {selectRandom _groupsMax}
+        else {_groupsMax};
     _groupsCount = (_groupsCount max _groupsMin) min _groupsMax;//Clamp
 
     private _faction = _missionInfo get "EnemyFaction";
     private _side = _missionInfo get "EnemySide";
 
     //populate and return the result
-    [_trigger,_groupsCount,_faction,[],_side] call NWG_fnc_dsPopulateTrigger
+    [[_missionPos,_missionRad],_groupsCount,_faction,[],_side] call NWG_fnc_dsPopulateTrigger
 };
 
 //================================================================================================================
