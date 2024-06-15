@@ -16,8 +16,8 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["TIME_DAMAGE_DEPLETES",6],//How much time is subtracted when damage received in wounded state
 
     ["SELF_HEAL_INITIAL_CHANCE",100],//Initial success chance of 'self-heal' action
-    ["SELF_HEAL_CHANCE_DECREASE",10],//Amount by which success chance of 'self-heal' action decreased by every attempt
-    ["SELF_HEAL_CHANCE_BOOST_ON_LAST_FAK",20],//Amount by which success chance of 'self-heal' action increased on last FAK
+    ["SELF_HEAL_CHANCE_DECREASE",10],//Amount by which success chance of 'self-heal' action decreased by every successful attempt
+    ["SELF_HEAL_CHANCE_BOOST_ON_LAST_FAK",40],//Amount by which success chance of 'self-heal' action increased on last FAK
     ["SELF_HEAL_ACTION_PRIORITY",13],//Priority of 'self-heal' action
     ["SELF_HEAL_ACTION_DURATION",8],//Duration of 'self-heal' action
 
@@ -25,7 +25,7 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["RESPAWN_ACTION_DURATION",5],//Duration of 'respawn' action
 
     ["HEAL_WITH_FAK_CHANCE",50],//Chance to heal another unit using only FAK
-    ["HEAL_CHANCE_BOOST_ON_LAST_FAK",20],//Amount by which success chance of 'heal' action increased on last FAK
+    ["HEAL_CHANCE_BOOST_ON_LAST_FAK",40],//Amount by which success chance of 'heal' action increased on last FAK
     ["HEAL_ACTION_PRIORITY",20],//Priority of 'heal' action
     ["HEAL_ACTION_DURATION",8],//Duration of 'heal' action
     ["HEAL_ACTION_AUTOSHOW",true],//If true - will automatically show on screen in suggestive manner
@@ -557,17 +557,17 @@ NWG_MED_CLI_SA_OnSelfHealCompleted = {
 
     //Get success chance for self-revive
     private _myChance = NWG_MED_CLI_SA_selfHealSuccessChance;//Get chance
-    private _nextChance = _myChance - (NWG_MED_CLI_Settings get "SELF_HEAL_CHANCE_DECREASE");//Decrease success chance for the next attempt
-    NWG_MED_CLI_SA_selfHealSuccessChance = _nextChance;
     if (_myChance > 0 && {!NWG_MED_CLI_hasFAKkit}) then {
         _myChance = _myChance + (NWG_MED_CLI_Settings get "SELF_HEAL_CHANCE_BOOST_ON_LAST_FAK");//Boost chance if it was the last FAK
         //No, we do not show this to player - it's a hidden bonus that they should not know about
     };
 
     //Try to revive self
-    if ((call NWG_MED_CLI_GetChance) <= _myChance) then {
+    if (_myChance > 0 && {(call NWG_MED_CLI_GetChance) <= _myChance}) then {
         /*Success*/
         [player,player,ACTION_HEAL_PARTIAL] call NWG_fnc_medReportMedAction;
+        private _nextChance = _myChance - (NWG_MED_CLI_Settings get "SELF_HEAL_CHANCE_DECREASE");//Decrease success chance for the next attempt
+        NWG_MED_CLI_SA_selfHealSuccessChance = _nextChance max 0;
     } else {
         /*Failure*/
         if !(player call NWG_MED_COM_IsPatched) then {[player,player,ACTION_PATCH] call NWG_fnc_medReportMedAction};//At least patch the player
@@ -786,7 +786,7 @@ NWG_MED_CLI_UA_OnHealCompleted_FAK = {
     };
 
     //Try to revive
-    if ((call NWG_MED_CLI_GetChance) <= _myChance) then {
+    if (_myChance > 0 && {(call NWG_MED_CLI_GetChance) <= _myChance}) then {
         /*Success*/
         [player,_healTarget,ACTION_HEAL_PARTIAL] call NWG_fnc_medReportMedAction;
     } else {
