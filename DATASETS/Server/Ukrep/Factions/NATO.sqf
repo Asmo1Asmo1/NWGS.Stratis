@@ -122,7 +122,27 @@ createHashMapFromArray [
 ],
 
 //========================================================================================================
-/*  ==== TURRETS    ====*/
+/*  ==== HELICOPTERS ==== */
+[
+    "B_Heli_Transport_03_unarmed_F",/*Unarmed black huron*/
+    [
+        ["B_Heli_Light_01_dynamicLoadout_F",    [/*crew:*/[2,"B_Helipilot_F"]]],
+        ["B_Heli_Light_01_dynamicLoadout_F",    [/*crew:*/[]]],
+        ["B_Heli_Attack_01_dynamicLoadout_F",   [/*crew:*/[2,"B_Helipilot_F"]]],
+        ["B_Heli_Attack_01_dynamicLoadout_F",   [/*crew:*/[]]],
+        ["B_Heli_Transport_03_F",               [/*crew:*/[2,"B_Helipilot_F",2,"B_helicrew_F"]]],
+        ["B_Heli_Transport_03_F",               [/*crew:*/[]]],
+        ["B_Heli_Transport_03_unarmed_F",       [/*crew:*/[2,"B_Helipilot_F"]]],
+        ["B_Heli_Transport_03_unarmed_F",       [/*crew:*/[]]],
+        ["B_Heli_Light_01_F",                   [/*crew:*/[2,"B_Helipilot_F"]]],
+        ["B_Heli_Light_01_F",                   [/*crew:*/[]]],
+        ["B_Heli_Transport_01_F",               [/*crew:*/[2,"B_Helipilot_F",2,"B_helicrew_F"]]],
+        ["B_Heli_Transport_01_F",               [/*crew:*/[]]]
+    ]
+],
+
+//========================================================================================================
+/*  ====   TURRETS    ====*/
 
 [
     "B_HMG_01_high_F",/*Standing turret*/
