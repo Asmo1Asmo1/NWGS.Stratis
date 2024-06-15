@@ -163,7 +163,7 @@ NWG_MIS_SER_Cycle = {
 
             /* mission build */
             case MSTATE_BUILD_UKREP: {
-                /*private _marker = */NWG_MIS_SER_missionInfo call NWG_MIS_SER_BuildMission_Marker;//Place marker
+                NWG_MIS_SER_missionInfo call NWG_MIS_SER_BuildMission_Markers;//Place markers
                 private _ukrep  = NWG_MIS_SER_missionInfo call NWG_MIS_SER_BuildMission_Ukrep;//Build mission
                 if (_ukrep isEqualTo false) exitWith
                     {"NWG_MIS_SER_Cycle: Failed to build the mission UKREP - exiting." call NWG_fnc_logError; _exit = true};//Exit
@@ -559,9 +559,11 @@ NWG_MIS_SER_OnSelectionOptionsRequest = {
             _x#SELECTION_NAME,
             _x#SELECTION_POS,
             _x#SELECTION_RAD,
-            ((_x#SELECTION_SETTINGS) getOrDefault ["Name","Unknown"]),
-            ((_x#SELECTION_SETTINGS) getOrDefault ["SelectionMarker","mil_dot"]),
-            ((_x#SELECTION_SETTINGS) getOrDefault ["SelectionMarker_Color","ColorBlack"])
+            ((_x#SELECTION_SETTINGS) getOrDefault ["PresetName","Unknown"]),
+            ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarker","mil_dot"]),
+            ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarkerColor","ColorBlack"]),
+            ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarkerSize",1]),
+            ((_x#SELECTION_SETTINGS) getOrDefault ["MapOutlineAlpha",0.5])
     ]};
 
     //Send options to the client
@@ -612,9 +614,11 @@ NWG_MIS_SER_GenerateMissionInfo = {
     _missionInfo set ["Blueprint",_blueprint];
     _missionInfo set ["Settings",_settings];
 
-    //2. Combine some to make it easier to use
-    _missionInfo set ["Area",[_pos,_rad]];
-    _missionInfo set ["Color",(_settings getOrDefault ["SelectionMarker_Color","ColorBlack"])];
+    //2. Extract some to the upper level to make it easier to use
+    _missionInfo set ["Marker",(_settings getOrDefault ["MapMarker","mil_dot"])];
+    _missionInfo set ["MarkerColor",(_settings getOrDefault ["MapMarkerColor","ColorBlack"])];
+    _missionInfo set ["MarkerSize",(_settings getOrDefault ["MapMarkerSize",1])];
+    _missionInfo set ["OutlineAlpha",(_settings getOrDefault ["MapOutlineAlpha",0.5])];
     _missionInfo set ["ExhaustAfter",(_settings getOrDefault ["ExhaustAfter",900])];
 
     //3. Extract values from mission machine and settings
@@ -630,21 +634,28 @@ NWG_MIS_SER_GenerateMissionInfo = {
 //================================================================================================================
 //================================================================================================================
 //Mission building
-NWG_MIS_SER_BuildMission_Marker = {
+NWG_MIS_SER_BuildMission_Markers = {
     // private _missionInfo = _this;
     private _pos = _this get "Position";
     private _rad = _this get "Radius";
-    private _markerColor = _this get "Color";
 
-    //Create background outline marker
-    _marker = createMarker ["MIS_BuildMission_Marker",_pos];
-    _marker setMarkerSize [_rad,_rad];
-    _marker setMarkerShape "ELLIPSE";
+    private _markerType   = _this get "Marker";
+    private _markerColor  = _this get "MarkerColor";
+    private _markerSize   = _this get "MarkerSize";
+    private _outlineAlpha = _this get "OutlineAlpha";
+
+    //Create background outline
+    private _outline = createMarker ["MIS_BuildMission_Outline",_pos];
+    _outline setMarkerSize [_rad,_rad];
+    _outline setMarkerShape "ELLIPSE";
+    _outline setMarkerColor _markerColor;
+    _outline setMarkerAlpha _outlineAlpha;
+
+    //Create mission marker
+    private _marker = createMarker ["MIS_BuildMission_Marker",_pos];
+    _marker setMarkerType _markerType;
+    _marker setMarkerSize [_markerSize,_markerSize];
     _marker setMarkerColor _markerColor;
-    _marker setMarkerAlpha (NWG_MIS_SER_Settings get "MISSIONS_OUTLINE_ALPHA");
-
-    //return
-    _marker
 };
 
 NWG_MIS_SER_BuildMission_Ukrep = {
@@ -830,17 +841,14 @@ NWG_MIS_SER_MarkMissionDone = {
 
     //Create background outline marker
     private _missionName = format ["MIS_%1_Done",(count NWG_MIS_SER_missionsList)];//A little hack to get a unique name
-    _marker = createMarker [_missionName,_pos];
+    private _marker = createMarker [_missionName,_pos];
     _marker setMarkerSize [_rad,_rad];
     _marker setMarkerShape "ELLIPSE";
     _marker setMarkerColor (NWG_MIS_SER_Settings get "MISSIONS_DONE_COLOR");
-    _marker setMarkerAlpha (NWG_MIS_SER_Settings get "MISSIONS_OUTLINE_ALPHA");
+    _marker setMarkerAlpha (NWG_MIS_SER_Settings get "MISSIONS_DONE_ALPHA");
 
     //Save it to not be deleted
     [_marker] call NWG_fnc_gcAddOriginalMarkers;
-
-    //return
-    _marker
 };
 
 //================================================================================================================

@@ -22,15 +22,17 @@
     ["MISSIONS_LIST_MIN_DISTANCE",100],//Min distance between missions to be added to the list (example: several variants of the same mission, only one will be added by distance rule)
     ["MISSIONS_ENEMY_SIDE",west],//Side of the enemy groups (will it be always the same?)
     ["MISSIONS_ENEMY_FACTION","NATO"],//Faction of enemy groups (how will we add more factions? postponed question)
-    ["MISSIONS_OUTLINE_ALPHA",0.55],//Alpha value of the mission outline marker
     ["MISSIONS_BUILD_MAPOBJECTS_LIMIT",10],//How many original map objects could be used for mission ukrep building
     ["MISSIONS_DONE_COLOR","ColorGreen"],//Color to mark missions on the map as done
+    ["MISSIONS_DONE_ALPHA",0.6],//Alpha value of 'done' map mark
 
     ["MISSIONS_PRESETS",[
         createHashMapFromArray [
-            ["Name","#MIS_DIF_EASY#"],
-            ["SelectionMarker","mil_objective"],
-            ["SelectionMarker_Color","ColorOrange"],
+            ["PresetName","#MIS_DIF_EASY#"],
+            ["MapMarker","mil_objective"],
+            ["MapMarkerColor","ColorOrange"],
+            ["MapMarkerSize",1.25],
+            ["MapOutlineAlpha",0.6],
             ["UkrepFractalSteps",[
                 /*root:*/[/*pageName:*/nil,   /*blueprintName:*/"",/*chances:*/[]],
                 /*bldg:*/[/*pageName:*/"AUTO",/*blueprintName:*/"",/*chances:*/[
@@ -74,7 +76,7 @@
             ]],
             ["DspawnRadiusMult",1.5],//Multiply ukrep radius by X to get dspawn radius (trigger)
             ["DspawnRadiusMin",150],
-            ["DspawnRadiusMax",200],
+            ["DspawnRadiusMax",250],
             ["DspawnGroupsMult",1],//Multiply number of ukrep groups by X to get dspawn groups
             ["DspawnGroupsMin",[2,3]],
             ["DspawnGroupsMax",[5,6]],
@@ -82,9 +84,11 @@
             ["",0]
         ],
         createHashMapFromArray [
-            ["Name","#MIS_DIF_NORMAL#"],
-            ["SelectionMarker","mil_objective"],
-            ["SelectionMarker_Color","ColorRed"],
+            ["PresetName","#MIS_DIF_NORMAL#"],
+            ["MapMarker","mil_objective"],
+            ["MapMarkerColor","ColorRed"],
+            ["MapMarkerSize",1.25],
+            ["MapOutlineAlpha",0.6],
             ["UkrepFractalSteps",[
                 /*root:*/[/*pageName:*/nil,   /*blueprintName:*/"",/*chances:*/[]],
                 /*bldg:*/[/*pageName:*/"AUTO",/*blueprintName:*/"",/*chances:*/[
@@ -128,7 +132,7 @@
             ]],
             ["DspawnRadiusMult",1.5],//Multiply ukrep radius by X to get dspawn radius (trigger)
             ["DspawnRadiusMin",150],
-            ["DspawnRadiusMax",200],
+            ["DspawnRadiusMax",250],
             ["DspawnGroupsMult",2],//Multiply number of ukrep groups by X to get dspawn groups
             ["DspawnGroupsMin",[3,4]],
             ["DspawnGroupsMax",[8,9]],
