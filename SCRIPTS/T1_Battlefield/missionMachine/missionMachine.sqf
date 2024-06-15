@@ -15,7 +15,7 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
     ["MISSIONS_UPDATE_NO_MISSIONS_RESTART",true],//Go to RESET state if no missions left
     ["MISSIONS_UPDATE_NO_MISSIONS_EXIT",false],//Exit heartbeat cycle if no missions left
 
-    ["MISSIONS_SELECT_DISCARD_REJECTED",false],//False - rejected missions go back to the missions list for next selection, True - they get discarded
+    ["MISSIONS_SELECT_DISCARD_REJECTED",true],//False - rejected missions go back to the missions list for next selection, True - they get discarded
     ["MISSIONS_SELECT_RESHUFFLE_REJECTED",false],//False - rejected missions simply added to the end of the missions list, True - list gets reshuffled
 
     ["PLAYER_BASE_RADIUS",70],//How far from base is counted as 'on the base' for players
