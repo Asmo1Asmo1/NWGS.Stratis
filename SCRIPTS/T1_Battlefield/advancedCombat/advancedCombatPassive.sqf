@@ -17,7 +17,7 @@ NWG_ACP_Settings = createHashMapFromArray [
     ["DSPAWN_SKILLSET_TIER_4",[["aimingAccuracy",1.0],["aimingShake",1.0],["aimingSpeed",1.0],["commanding",1.0],["courage",1.0],["general",1.0],["reloadSpeed",1.0],["spotDistance",1.0],["spotTime",1.0]]],
 
     ["ON_DSPAWN_ALLOW_WOUNDED",true],//Enable wounded state for SOME of the group members when dspawn spawns the group
-    ["DSPAWN_ALLOW_WOUNDED_CHANCE",0.5],//Chance for a group member to be allowed to be wounded
+    ["DSPAWN_ALLOW_WOUNDED_CHANCE",0.6],//Chance for a group member to be allowed to be wounded
     ["DSPAWN_ALLOW_WOUNDED_TIME",[10,60]],//Time range for wounded state [min,max]
 
     ["ON_DSPAWN_ALLOW_STAY_IN_VEHICLE",true],//Enable stay in vehicle for SOME of the groups when dspawn spawns the group
@@ -83,12 +83,13 @@ NWG_ACP_OnWounded = {
 
     switch (true) do {
         case (!alive _unit): {};//Bypass for dead units
+        case (_dmg < 0.1): {_dmg = 0};//Clamp minor damage
         case (_sel isNotEqualTo ""): {_dmg = (_dmg min 0.75)};//Clamp damage for hits other than body
         case ((vehicle _unit) isNotEqualTo _unit): {_unit removeEventHandler [_thisEvent,_thisEventHandler]};//Remove event handler for units in vehicles
-        case (_unit in (flatten NWG_ACP_unwoundQueue)): {_dmg = (_dmg min 0.75)};//Clamp damage for wounded units (will be removed later)
+        case (_unit in (flatten NWG_ACP_unwoundQueue)): {_dmg = (_dmg min 0.75)};//Clamp damage for wounded units (will be stopped by removing this handler, see below)
 
         default {
-            /*Wound the unit on foot*/
+            /*Wound the unit*/
             _dmg = (_dmg min 0.75);//Clamp damage
             _unit setUnconscious true;
 
