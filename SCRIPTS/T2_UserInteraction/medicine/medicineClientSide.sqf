@@ -16,8 +16,8 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["TIME_DAMAGE_DEPLETES",6],//How much time is subtracted when damage received in wounded state
 
     ["SELF_HEAL_INITIAL_CHANCE",100],//Initial success chance of 'self-heal' action
-    ["SELF_HEAL_CHANCE_DECREASE",10],//Amount by which success chance of 'self-heal' action decreased by every attempt
-    ["SELF_HEAL_CHANCE_BOOST_ON_LAST_FAK",20],//Amount by which success chance of 'self-heal' action increased on last FAK
+    ["SELF_HEAL_CHANCE_DECREASE",10],//Amount by which success chance of 'self-heal' action decreased by every successful attempt
+    ["SELF_HEAL_CHANCE_BOOST_ON_LAST_FAK",40],//Amount by which success chance of 'self-heal' action increased on last FAK
     ["SELF_HEAL_ACTION_PRIORITY",13],//Priority of 'self-heal' action
     ["SELF_HEAL_ACTION_DURATION",8],//Duration of 'self-heal' action
 
@@ -25,7 +25,7 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["RESPAWN_ACTION_DURATION",5],//Duration of 'respawn' action
 
     ["HEAL_WITH_FAK_CHANCE",50],//Chance to heal another unit using only FAK
-    ["HEAL_CHANCE_BOOST_ON_LAST_FAK",20],//Amount by which success chance of 'heal' action increased on last FAK
+    ["HEAL_CHANCE_BOOST_ON_LAST_FAK",40],//Amount by which success chance of 'heal' action increased on last FAK
     ["HEAL_ACTION_PRIORITY",20],//Priority of 'heal' action
     ["HEAL_ACTION_DURATION",8],//Duration of 'heal' action
     ["HEAL_ACTION_AUTOSHOW",true],//If true - will automatically show on screen in suggestive manner
