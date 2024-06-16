@@ -661,9 +661,9 @@ NWG_MIS_SER_BuildMission_Markers = {
 NWG_MIS_SER_BuildMission_Ukrep = {
     // private _missionInfo = _this;
 
-    private _fractalSteps = (_this get "Settings") getOrDefault ["UkrepFractalSteps",[[]]];
+    private _fractalSteps = (_this get "Settings") getOrDefault ["UkrepFractalSteps",[]];
     private _faction = _this get "EnemyFaction";
-    private _mapObjectsLimit = NWG_MIS_SER_Settings get "MISSIONS_BUILD_MAPOBJECTS_LIMIT";
+    private _mapObjectsLimit = (_this get "Settings") getOrDefault ["UkrepMapObjectsLimit",10];
     private _overrides = createHashMapFromArray [
         ["RootBlueprint",(_this get "Blueprint")],
         ["GroupsMembership",(_this get "EnemySide")]
