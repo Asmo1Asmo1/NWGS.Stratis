@@ -203,6 +203,7 @@ NWG_UKREP_excludeFromGathering = [
     "HouseFly",
     "FxWindGrass1",
     "FxWindGrass2",
+    "FxWindLeaf1",
     "FxWindPollen1",
     "ModuleCurator_F",
     "#mark"
@@ -256,7 +257,7 @@ NWG_UKREP_PackIntoRecords = {
         _isPlaceholder = _c call NWG_UKREP_IsPlaceholder;
         _type = if (_isPlaceholder)
             then {_c call NWG_UKREP_GetPlaceholderType}
-            else {_x call NWG_fnc_ocGetObjectType};
+            else {_x call NWG_UKREP_GetObjectType};
         _payload = if (_isPlaceholder)
             then {[_x,_type] call NWG_UKREP_GetPlaceholderPayload}
             else {[_x,_type] call NWG_UKREP_GetObjectPayload};
@@ -294,6 +295,13 @@ NWG_UKREP_PackIntoRecords = {
             /*BP_ORIGOBJECT*/_x
         ]
     }
+};
+
+NWG_UKREP_GetObjectType = {
+    // private _object = _this;
+    if (_this isKindOf "Logic")
+        then {"HELP"}
+        else {(_this call NWG_fnc_ocGetObjectType)}
 };
 
 NWG_UKREP_GetObjectPayload = {
