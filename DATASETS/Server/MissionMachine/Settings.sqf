@@ -33,7 +33,7 @@
             ["MapMarkerSize",1.25],
             ["MapOutlineAlpha",0.6],
             ["UkrepFractalSteps",[
-                /*root:*/[/*pageName:*/nil,   /*chances:*/[]],
+                /*root:*/[/*pageName:*/nil,   /*chances:*/[],   /*groupRules:*/[nil,nil,/*disablePath:*/false]],
                 /*bldg:*/[/*pageName:*/"AUTO",/*chances:*/[
                     /*OBJ_TYPE_BLDG:*/1,
                     /*OBJ_TYPE_FURN:*/1,
@@ -90,7 +90,7 @@
             ["MapMarkerSize",1.25],
             ["MapOutlineAlpha",0.6],
             ["UkrepFractalSteps",[
-                /*root:*/[/*pageName:*/nil,   /*chances:*/[]],
+                /*root:*/[/*pageName:*/nil,   /*chances:*/[],   /*groupRules:*/[nil,nil,/*disablePath:*/false]],
                 /*bldg:*/[/*pageName:*/"AUTO",/*chances:*/[
                     /*OBJ_TYPE_BLDG:*/1,
                     /*OBJ_TYPE_FURN:*/1,
