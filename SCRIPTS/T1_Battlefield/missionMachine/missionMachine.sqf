@@ -661,21 +661,16 @@ NWG_MIS_SER_BuildMission_Markers = {
 NWG_MIS_SER_BuildMission_Ukrep = {
     // private _missionInfo = _this;
 
-    private _blueprint = _this get "Blueprint";
-    // _blueprint = +_blueprint;//Deep copy to prevent changes in catalogue (is done internally inside the ukrep system)
     private _fractalSteps = (_this get "Settings") getOrDefault ["UkrepFractalSteps",[[]]];
-    _fractalSteps = +_fractalSteps;//Deep copy to prevent changes in the settings
-    (_fractalSteps#0) set [0,_blueprint];//Insert blueprint into the fractal root step
-
     private _faction = _this get "EnemyFaction";
-    private _groupRules = [
-        /*GRP_RULES_MEMBERSHIP:*/_this get "EnemySide",
-        /*GRP_RULES_DYNASIM:*/true
-    ];
     private _mapObjectsLimit = NWG_MIS_SER_Settings get "MISSIONS_BUILD_MAPOBJECTS_LIMIT";
+    private _overrides = createHashMapFromArray [
+        ["RootBlueprint",(_this get "Blueprint")],
+        ["GroupsMembership",(_this get "EnemySide")]
+    ];
 
     //build and return the result
-    [_fractalSteps,_faction,_groupRules,_mapObjectsLimit] call NWG_fnc_ukrpBuildFractalABS
+    [_fractalSteps,_faction,_mapObjectsLimit,_overrides] call NWG_fnc_ukrpBuildFractalABS
 };
 
 NWG_MIS_SER_BuildMission_Dspawn = {

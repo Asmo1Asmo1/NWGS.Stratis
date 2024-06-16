@@ -31,6 +31,7 @@
 //Group rules
 #define GRP_RULES_MEMBERSHIP 0
 #define GRP_RULES_DYNASIM 1
+#define GRP_RULES_DISABLEPATH 2
 
 //Fractal rules
 #define FRACTAL_STEP_1 0

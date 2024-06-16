@@ -34,8 +34,8 @@
             ["MapMarkerSize",1.25],
             ["MapOutlineAlpha",0.6],
             ["UkrepFractalSteps",[
-                /*root:*/[/*pageName:*/nil,   /*blueprintName:*/"",/*chances:*/[]],
-                /*bldg:*/[/*pageName:*/"AUTO",/*blueprintName:*/"",/*chances:*/[
+                /*root:*/[/*pageName:*/nil,   /*chances:*/[]],
+                /*bldg:*/[/*pageName:*/"AUTO",/*chances:*/[
                     /*OBJ_TYPE_BLDG:*/1,
                     /*OBJ_TYPE_FURN:*/1,
                     /*OBJ_TYPE_DECO:*/1,
@@ -57,7 +57,7 @@
                         ]
                     ),
                     /*OBJ_TYPE_MINE:*/1]],
-                /*furn:*/[/*pageName:*/"AUTO",/*blueprintName:*/"",[
+                /*furn:*/[/*pageName:*/"AUTO",/*chances:*/[
                     /*OBJ_TYPE_BLDG:*/1,
                     /*OBJ_TYPE_FURN:*/1,
                     /*OBJ_TYPE_DECO:*/(
@@ -90,8 +90,8 @@
             ["MapMarkerSize",1.25],
             ["MapOutlineAlpha",0.6],
             ["UkrepFractalSteps",[
-                /*root:*/[/*pageName:*/nil,   /*blueprintName:*/"",/*chances:*/[]],
-                /*bldg:*/[/*pageName:*/"AUTO",/*blueprintName:*/"",/*chances:*/[
+                /*root:*/[/*pageName:*/nil,   /*chances:*/[]],
+                /*bldg:*/[/*pageName:*/"AUTO",/*chances:*/[
                     /*OBJ_TYPE_BLDG:*/1,
                     /*OBJ_TYPE_FURN:*/1,
                     /*OBJ_TYPE_DECO:*/1,
@@ -113,7 +113,7 @@
                         ]
                     ),
                     /*OBJ_TYPE_MINE:*/1]],
-                /*furn:*/[/*pageName:*/"AUTO",/*blueprintName:*/"",[
+                /*furn:*/[/*pageName:*/"AUTO",/*chances:*/[
                     /*OBJ_TYPE_BLDG:*/1,
                     /*OBJ_TYPE_FURN:*/1,
                     /*OBJ_TYPE_DECO:*/(

@@ -34,8 +34,8 @@ NWG_MIS_SER_PlaceMissionOnMap = {
     if (count _blueprints == 0) exitWith {"No missions available for this map"};
 
     // NWG_fnc_ukrpBuildFractalABS
-    // params ["_fractalSteps",["_faction",""],["_groupRules",[]],["_mapObjectsLimit",10]];
-    // _fractalStep params [["_pageName",""],["_blueprintName",""],["_chances",[]],["_blueprintPos",[]]];
+    // params ["_fractalSteps",["_faction",""],["_mapObjectsLimit",10],["_overrides",createHashMap]];
+    // _fractalStep params [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""],["_blueprintPosFilter",[]]];
 
     private _rootChances = [];//100% all
     private _bldgChances = [
@@ -86,9 +86,9 @@ NWG_MIS_SER_PlaceMissionOnMap = {
     ];
 
     private _fractalSteps = [
-        /*root:*/[/*pageName:*/_pageName,/*blueprintName:*/_missionNameFilter,_rootChances],
-        /*bldg:*/[/*pageName:*/"AUTO",/*blueprintName:*/"",_bldgChances],
-        /*furn:*/[/*pageName:*/"AUTO",/*blueprintName:*/"",_furnChances]
+        /*root:*/[/*pageName:*/_pageName,_rootChances,[],_missionNameFilter],
+        /*bldg:*/[/*pageName:*/"AUTO",_bldgChances],
+        /*furn:*/[/*pageName:*/"AUTO",_furnChances]
     ];
     private _result = [_fractalSteps,_faction] call NWG_fnc_ukrpBuildFractalABS;
     _result
