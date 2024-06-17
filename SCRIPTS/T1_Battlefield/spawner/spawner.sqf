@@ -199,7 +199,7 @@ NWG_SPWN_SpawnUnitsExact = {
     if ((count _units) == 0) exitWith {_units};
 
     //Place units
-    private _stances = ["AUTO","UP","MIDDLE","DOWN"];
+    private _stances = ["UP","UP","MIDDLE","DOWN"];
     private "_unit";
     {
         _unit = _units#_forEachIndex;
