@@ -8,6 +8,8 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
     ["AUTOSTART",true],//Start the mission machine once the scripts are compiled and game started
     ["AUTOSTART_IN_DEVBUILD",true],//Start even if we are in debug environment
 
+    ["PLAYER_BASE_ROOT","PlayerBase"],//Name of pre-placed map object (value of Object:Init -> Variable name) (mandatory for mission machine to work)
+
     ["LOG_STATE_CHANGE",true],//Log every state change
     ["HEARTBEAT_RATE",1],//How often the mission machine should check for state changes
 
@@ -55,8 +57,10 @@ NWG_MIS_SER_missionObjects = [];
 private _Init = {
     //Check if we should start
     if (!(NWG_MIS_SER_Settings get "AUTOSTART") || {
-        (is3DENPreview || is3DENMultiplayer) && !(NWG_MIS_SER_Settings get "AUTOSTART_IN_DEVBUILD")}
-    ) exitWith {MSTATE_DISABLED call NWG_MIS_SER_ChangeState};// <- Exit without starting
+        (is3DENPreview || is3DENMultiplayer) && !(NWG_MIS_SER_Settings get "AUTOSTART_IN_DEVBUILD")})
+        exitWith {MSTATE_DISABLED call NWG_MIS_SER_ChangeState};// <- Exit by settings
+    if (isNull (call NWG_MIS_SER_FindPlayerBaseRoot))
+        exitWith {MSTATE_DISABLED call NWG_MIS_SER_ChangeState};// <- Exit if no olayer base root object found on the map
 
     //Get complex additional settings
     private _addSettings = call ((NWG_MIS_SER_Settings get "COMPLEX_SETTINGS_ADDRESS") call NWG_fnc_compile);
@@ -376,12 +380,15 @@ NWG_MIS_SER_GetStateName = {
 //================================================================================================================
 //================================================================================================================
 //Player Base building
+NWG_MIS_SER_FindPlayerBaseRoot = {
+    missionNamespace getVariable [(NWG_MIS_SER_Settings get "PLAYER_BASE_ROOT"),objNull]
+};
+
 NWG_MIS_SER_BuildPlayerBase = {
     //1. Find a root object on the map
-    private _playerBaseRootName = NWG_MIS_SER_Settings get "PLAYER_BASE_ROOT";
-    private _playerBaseRoot = missionNamespace getVariable [_playerBaseRootName,objNull];//Pre-defined root object on the map
+    private _playerBaseRoot = call NWG_MIS_SER_FindPlayerBaseRoot;//Pre-defined root object on the map
     if (isNull _playerBaseRoot) exitWith {
-        (format ["NWG_MIS_SER_BuildPlayerBase: Object '%1' not found on the map! Unable to build a player base",_playerBaseRootName]) call NWG_fnc_logError;
+        (format ["NWG_MIS_SER_BuildPlayerBase: Object '%1' not found on the map! Unable to build a player base",(NWG_MIS_SER_Settings get "PLAYER_BASE_ROOT")]) call NWG_fnc_logError;
         false// <- Exit if no root object found
     };
 
@@ -399,7 +406,7 @@ NWG_MIS_SER_BuildPlayerBase = {
         /*suppressEvent*/true
     ] call NWG_fnc_ukrpBuildAroundObject;
     if (_buildResult isEqualTo false || {(flatten _buildResult) isEqualTo []}) exitWith {
-        (format ["NWG_MIS_SER_BuildPlayerBase: Failed to build a player base around object '%1' using blueprint '%2'",_playerBaseRootName,_pageName]) call NWG_fnc_logError;
+        (format ["NWG_MIS_SER_BuildPlayerBase: Failed to build a player base around object '%1' using blueprint '%2'",(NWG_MIS_SER_Settings get "PLAYER_BASE_ROOT"),_pageName]) call NWG_fnc_logError;
         false// <- Exit if failed to build a base
     };
 
