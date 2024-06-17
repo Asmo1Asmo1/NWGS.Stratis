@@ -143,7 +143,7 @@ NWG_UKREP_PUBLIC_PlaceREL_Object_Test = {
 NWG_UKREP_FRACTAL_PlaceFractalABS_Test = {
     call NWG_UKREP_TEST_Clear;
     // NWG_UKREP_FRACTAL_PlaceFractalABS = {
-    // params ["_fractalSteps",["_faction",""],["_mapObjectsLimit",10],["_overrides",[]]];
+    // params ["_fractalSteps",["_faction",""],["_mapBldgsLimit",10],["_overrides",[]]];
     private _fractalSteps = [
         ["testUkrep",[],[],"FRACTAL_ROOT"],
         ["testUkrep",[],[],"FRACTAL_SUB"]
@@ -242,7 +242,7 @@ NWG_UKREP_FRACTAL_ZASELENIE_ABS_Test = {
     call NWG_UKREP_TEST_Clear;
     if (canSuspend) then {sleep 0.1};
     // NWG_UKREP_FRACTAL_PlaceFractalABS = {
-    // params ["_fractalSteps",["_faction",""],["_mapObjectsLimit",10],["_overrides",[]]];
+    // params ["_fractalSteps",["_faction",""],["_mapBldgsLimit",10],["_overrides",[]]];
     private _fractalSteps = [
         /*root:*/[/*pageName:*/"testFractal"],
         /*bldg:*/[/*pageName:*/"AUTO"],
@@ -260,7 +260,7 @@ NWG_UKREP_FRACTAL_ZASELENIE_Chance_Test = {
     if (canSuspend) then {sleep 0.1};
 
     // NWG_UKREP_FRACTAL_PlaceFractalABS = {
-    // params ["_fractalSteps",["_faction",""],["_mapObjectsLimit",10],["_overrides",[]]];
+    // params ["_fractalSteps",["_faction",""],["_mapBldgsLimit",10],["_overrides",[]]];
     // _fractalStep params [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""],["_blueprintPosFilter",[]]];
 
     /*

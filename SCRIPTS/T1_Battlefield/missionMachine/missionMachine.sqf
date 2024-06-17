@@ -670,14 +670,14 @@ NWG_MIS_SER_BuildMission_Ukrep = {
 
     private _fractalSteps = (_this get "Settings") getOrDefault ["UkrepFractalSteps",[]];
     private _faction = _this get "EnemyFaction";
-    private _mapObjectsLimit = (_this get "Settings") getOrDefault ["UkrepMapObjectsLimit",10];
+    private _mapBldgsLimit = (_this get "Settings") getOrDefault ["UkrepMapBldgsLimit",10];
     private _overrides = createHashMapFromArray [
         ["RootBlueprint",(_this get "Blueprint")],
         ["GroupsMembership",(_this get "EnemySide")]
     ];
 
     //build and return the result
-    [_fractalSteps,_faction,_mapObjectsLimit,_overrides] call NWG_fnc_ukrpBuildFractalABS
+    [_fractalSteps,_faction,_mapBldgsLimit,_overrides] call NWG_fnc_ukrpBuildFractalABS
 };
 
 NWG_MIS_SER_BuildMission_Dspawn = {

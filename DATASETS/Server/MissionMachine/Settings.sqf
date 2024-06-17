@@ -72,7 +72,7 @@
                     /*OBJ_TYPE_MINE:*/1
                 ]]
             ]],
-            ["UkrepMapObjectsLimit",7],
+            ["UkrepMapBldgsLimit",7],
             ["DspawnRadiusMult",1.5],//Multiply ukrep radius by X to get dspawn radius (trigger)
             ["DspawnRadiusMin",150],
             ["DspawnRadiusMax",250],
@@ -129,7 +129,7 @@
                     /*OBJ_TYPE_MINE:*/1
                 ]]
             ]],
-            ["UkrepMapObjectsLimit",10],
+            ["UkrepMapBldgsLimit",10],
             ["DspawnRadiusMult",1.5],//Multiply ukrep radius by X to get dspawn radius (trigger)
             ["DspawnRadiusMin",150],
             ["DspawnRadiusMax",250],

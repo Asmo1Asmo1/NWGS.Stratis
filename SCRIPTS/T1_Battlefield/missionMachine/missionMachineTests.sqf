@@ -34,7 +34,7 @@ NWG_MIS_SER_PlaceMissionOnMap = {
     if (count _blueprints == 0) exitWith {"No missions available for this map"};
 
     // NWG_fnc_ukrpBuildFractalABS
-    // params ["_fractalSteps",["_faction",""],["_mapObjectsLimit",10],["_overrides",createHashMap]];
+    // params ["_fractalSteps",["_faction",""],["_mapBldgsLimit",10],["_overrides",createHashMap]];
     // _fractalStep params [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""],["_blueprintPosFilter",[]]];
 
     private _rootChances = [];//100% all

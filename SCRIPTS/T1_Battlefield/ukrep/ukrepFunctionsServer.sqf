@@ -68,7 +68,7 @@ NWG_fnc_ukrpGetFaction = {
 //      1: bldg - each building:             [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""]];
 //      2: furn - each furniture:            [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""]];
 // _faction - (optional) faction replacement to be applied (e.g.: "NATO") (default: "")
-// _mapObjectsLimit - (optional) max number of pre-existing map objects (buildings and furniture) to include into the placement (default: 10)
+// _mapBldgsLimit - (optional) max number of pre-existing map buildings in ukrep area to include as if they are a part of the blueprint itself (default: 10)
 // _overrides - (optional) hashmap of overrides for fractal steps (default: empty hashmap). Overrides are:
 //      - "RootBlueprint":[] - blueprint container to use as a root, skips catalogue search for the 'root' fractal step
 //      - "GroupsMembership":side|group|"AGENT" - sets common membership value for all _groupRules of each fractal step
@@ -77,7 +77,7 @@ NWG_fnc_ukrpGetFaction = {
 //returns:
 // [_bldgs,_furns,_decos,_units,_vehcs,_trrts,_mines] - array of spawned objects OR false if failed
 NWG_fnc_ukrpBuildFractalABS = {
-    // params ["_fractalSteps",["_faction",""],["_mapObjectsLimit",10],["_overrides",createHashMap]];
+    // params ["_fractalSteps",["_faction",""],["_mapBldgsLimit",10],["_overrides",createHashMap]];
     _this call NWG_UKREP_FRACTAL_PlaceFractalABS
 };
 

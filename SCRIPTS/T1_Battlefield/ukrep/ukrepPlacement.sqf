@@ -85,7 +85,7 @@ NWG_UKREP_GetBlueprintsREL = {
 //================================================================================================================
 //FRACTAL placement
 NWG_UKREP_FRACTAL_PlaceFractalABS = {
-    params ["_fractalSteps",["_faction",""],["_mapObjectsLimit",10],["_overrides",[]]];
+    params ["_fractalSteps",["_faction",""],["_mapBldgsLimit",10],["_overrides",[]]];
 
     //1. Get root blueprint
     private _fractalStep1 = _fractalSteps param [0,[]];
@@ -100,11 +100,11 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     };
     if (_blueprint isEqualTo []) exitWith {false};//Error
 
-    //2. Scan and save objects on the map for steps 2 and 3
-    private _mapObjects = if (_mapObjectsLimit > 0) then {
+    //2. Scan and save objects on the map
+    private _mapBldgs = if (_mapBldgsLimit > 0) then {
         private _bpPos = _blueprint#BPCONTAINER_POS;
         private _bpRad = _blueprint#BPCONTAINER_RADIUS;
-        (_bpPos nearObjects _bpRad) select {_x call NWG_fnc_ocIsBuilding || {_x call NWG_fnc_ocIsFurniture}}/*Slight chance that will fix a sudden crash after placing ukrep*/
+        (_bpPos nearObjects _bpRad) select {_x call NWG_fnc_ocIsBuilding}
     } else {[]};
 
     //3. Prepare group rules override
@@ -129,11 +129,9 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     _fractalStep2 params [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""]];
     _groupRules = _groupRules call _groupRulesOverride;//Apply overrides if any
     private _placedBldgs = (_result#UKREP_RESULT_BLDGS) select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup};
-    private _mapBldgs = _mapObjects select {_x call NWG_fnc_ocIsBuilding && {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup}};
-    if ((count _mapBldgs) > _mapObjectsLimit) then {
-        _mapBldgs = _mapBldgs call NWG_fnc_arrayShuffle;//Shuffle
-        _mapBldgs resize _mapObjectsLimit;//Limit
-    };
+    //Re-check cached map buildings (we now have pageName and blueprintNameFilter)
+    _mapBldgs = _mapBldgs select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup};
+    if ((count _mapBldgs) > _mapBldgsLimit) then {_mapBldgs call NWG_fnc_arrayShuffle; _mapBldgs resize _mapBldgsLimit};
     //forEach building
     {
         private _bldgPage = [_pageName,_x,OBJ_TYPE_BLDG] call NWG_UKREP_FRACTAL_AutoGetPageName;
@@ -148,11 +146,6 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     _fractalStep3 params [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""]];
     _groupRules = _groupRules call _groupRulesOverride;//Apply overrides if any
     private _placedFurns = (_result#UKREP_RESULT_FURNS) select {[_x,OBJ_TYPE_FURN,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup};
-    private _mapFurns = _mapObjects select {_x call NWG_fnc_ocIsFurniture && {[_x,OBJ_TYPE_FURN,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup}};
-    if ((count _mapFurns) > _mapObjectsLimit) then {
-        _mapFurns = _mapFurns call NWG_fnc_arrayShuffle;//Shuffle
-        _mapFurns resize _mapObjectsLimit;//Limit
-    };
     //forEach furniture
     {
         private _furnPage = [_pageName,_x,OBJ_TYPE_FURN] call NWG_UKREP_FRACTAL_AutoGetPageName;
@@ -160,7 +153,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
         private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintNameFilter,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         if (_furnResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _furnResult;
-    } forEach (_placedFurns + _mapFurns);
+    } forEach _placedFurns;
 
     //return
     _result
