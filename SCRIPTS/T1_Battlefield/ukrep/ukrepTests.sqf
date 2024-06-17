@@ -194,6 +194,24 @@ NWG_UKREP_ZASELENIE_Test = {
     NWG_UKREP_TEST_placedObjects
 };
 
+// 300 call NWG_UKREP_ZASELENIE_EmptyBldgsTest
+NWG_UKREP_ZASELENIE_EmptyBldgsTest = {
+    private _radius = _this;
+    call NWG_UKREP_TEST_Clear;
+    NWG_UKREP_TEST_placedObjects = [[],[],[],[],[],[],[]];
+    private _mapBuildings = (player nearObjects _radius) select {_x call NWG_fnc_ocIsBuilding};
+
+    //forEach map objects
+    {
+        if !([_x,OBJ_TYPE_BLDG,"BldgEmpty",""] call NWG_UKREP_FRACTAL_HasRelSetup) then {continue};
+        private _result = ["BldgEmpty",_x,OBJ_TYPE_BLDG,"",[],""] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        if (_result isEqualTo false) then {continue};
+        {(NWG_UKREP_TEST_placedObjects#_forEachIndex) append _x} forEach _result;
+    } forEach _mapBuildings;
+
+    NWG_UKREP_TEST_placedObjects
+};
+
 //================================================================================================================
 //================================================================================================================
 //Fractal+Zaselenie test (closest to actual use)
