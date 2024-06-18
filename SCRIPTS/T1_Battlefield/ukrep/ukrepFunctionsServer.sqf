@@ -37,7 +37,7 @@ NWG_fnc_ukrpGetBlueprintsREL = {
 };
 
 //Returns raw catalogue page as is
-//note: shallow or deep copy required to prevent data corruption!
+//note: shallow or deep copy *required* to prevent data corruption!
 //params:
 // _pageName - name of the catalogue page to read
 //returns:
@@ -49,7 +49,7 @@ NWG_fnc_ukrpGetCataloguePage = {
 };
 
 //Returns raw faction hashmap as is
-//note: Do not modify
+//note: Do NOT modify
 //params:
 // _factionName - name of the faction to read
 //returns:
@@ -58,6 +58,19 @@ NWG_fnc_ukrpGetCataloguePage = {
 NWG_fnc_ukrpGetFaction = {
     // private _factionName = _this;
     _this call NWG_UKREP_GetFactionsPage
+};
+
+//Checks if the given object has REL setup to be used for decoration
+//params:
+// _object - object to check
+// _objectType - type of the object (type: string from globalDefines: "BLDG","FURN","DECO","UNIT","VEHC","TRRT","MINE")
+// _pageName - name of the catalogue page to read ("AUTO" for automatic detection)
+// _nameFilter - (optional) name filter of the blueprint(s) to be selected from the page
+//returns:
+// boolean
+NWG_fnc_ukrpHasRelSetup = {
+    // params ["_object","_objectType","_pageName",["_nameFilter",""]];
+    _this call NWG_UKREP_FRACTAL_HasRelSetup
 };
 
 /*======== BUILDING ==========*/

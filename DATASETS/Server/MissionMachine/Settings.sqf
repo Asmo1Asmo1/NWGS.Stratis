@@ -21,6 +21,7 @@
     ["MISSIONS_LIST_MIN_DISTANCE",100],//Min distance between missions to be added to the list (example: several variants of the same mission, only one will be added by distance rule)
     ["MISSIONS_ENEMY_SIDE",west],//Side of the enemy groups (will it be always the same?)
     ["MISSIONS_ENEMY_FACTION","NATO"],//Faction of enemy groups (how will we add more factions? postponed question)
+    ["MISSIONS_EMPTY_BLDG_PAGENAME","BldgEmpty"],//Pagename with blueprints to fill empty buildings with
     ["MISSIONS_DONE_COLOR","ColorGreen"],//Color to mark missions on the map as done
     ["MISSIONS_DONE_ALPHA",0.6],//Alpha value of 'done' map mark
 
@@ -72,7 +73,8 @@
                     /*OBJ_TYPE_MINE:*/1
                 ]]
             ]],
-            ["UkrepMapBldgsLimit",7],
+            ["UkrepMapBldgsLimit",7],//How many buildings in the mission area to decorate properly
+            ["UkrepMapBldgsEmptyLimit",5],//How many leftover empty buildings to fill with partial, low object number decorations
             ["DspawnRadiusMult",1.5],//Multiply ukrep radius by X to get dspawn radius (trigger)
             ["DspawnRadiusMin",150],
             ["DspawnRadiusMax",250],
@@ -129,7 +131,8 @@
                     /*OBJ_TYPE_MINE:*/1
                 ]]
             ]],
-            ["UkrepMapBldgsLimit",10],
+            ["UkrepMapBldgsLimit",9],//How many buildings in the mission area to decorate properly
+            ["UkrepMapBldgsEmptyLimit",3],//How many leftover empty buildings to fill with partial, low object number decorations
             ["DspawnRadiusMult",1.5],//Multiply ukrep radius by X to get dspawn radius (trigger)
             ["DspawnRadiusMin",150],
             ["DspawnRadiusMax",250],

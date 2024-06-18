@@ -291,6 +291,7 @@ NWG_MIS_SER_Cycle = {
                 //Cleanup the mission
                 [] call NWG_fnc_gcDeleteMission;
                 NWG_MIS_SER_missionInfo call NWG_MIS_SER_MarkMissionDone;//Mark mission as done on the map
+                (call NWG_fnc_shGetOccupiedBuildings) resize 0;//Release occupied buildings
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_RESET: {
@@ -668,6 +669,10 @@ NWG_MIS_SER_BuildMission_Markers = {
 NWG_MIS_SER_BuildMission_Ukrep = {
     // private _missionInfo = _this;
 
+    //Cache map buildings in the area
+    private _mapEmptyBldgs = ((_this get "Position") nearObjects (_this get "Radius")) select {_x call NWG_fnc_ocIsBuilding};
+
+    //Build the mission by the blueprint
     private _fractalSteps = (_this get "Settings") getOrDefault ["UkrepFractalSteps",[]];
     private _faction = _this get "EnemyFaction";
     private _mapBldgsLimit = (_this get "Settings") getOrDefault ["UkrepMapBldgsLimit",10];
@@ -675,9 +680,27 @@ NWG_MIS_SER_BuildMission_Ukrep = {
         ["RootBlueprint",(_this get "Blueprint")],
         ["GroupsMembership",(_this get "EnemySide")]
     ];
+    private _bldResult = [_fractalSteps,_faction,_mapBldgsLimit,_overrides] call NWG_fnc_ukrpBuildFractalABS;
 
-    //build and return the result
-    [_fractalSteps,_faction,_mapBldgsLimit,_overrides] call NWG_fnc_ukrpBuildFractalABS
+    //Find any map buildings that were left unused
+    private _occupiedBldgs = call NWG_fnc_shGetOccupiedBuildings;
+    private _emptyBldgPageName = NWG_MIS_SER_Settings get "MISSIONS_EMPTY_BLDG_PAGENAME";
+    private _emptyBldgsLimit = (_this get "Settings") getOrDefault ["UkrepMapBldgsEmptyLimit",5];
+    _mapEmptyBldgs = _mapEmptyBldgs select {
+        !(_x in _occupiedBldgs) && {
+        [_x,OBJ_TYPE_BLDG,_emptyBldgPageName] call NWG_fnc_ukrpHasRelSetup}
+    };
+    if ((count _mapEmptyBldgs) > _emptyBldgsLimit) then {_mapEmptyBldgs call NWG_fnc_arrayShuffle; _mapEmptyBldgs resize _emptyBldgsLimit};//Shuffle and limit
+
+    //Fill unused buildings with 'empty' decor (partial, low object number decorations just for the looks)
+    {
+        private _emptResult = [_emptyBldgPageName,_x,OBJ_TYPE_BLDG] call NWG_fnc_ukrpBuildAroundObject;
+        if (_emptResult isEqualTo false) then {continue};//Skip if failed to build
+        {(_bldResult#_forEachIndex) append _x} forEach _emptResult;
+    } forEach _mapEmptyBldgs;
+
+    //Return the result
+    _bldResult
 };
 
 NWG_MIS_SER_BuildMission_Dspawn = {
