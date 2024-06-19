@@ -45,6 +45,7 @@ NWG_MIS_EscapeFlag = false;
 NWG_MIS_SER_cycleHandle = scriptNull;
 NWG_MIS_SER_playerBase = objNull;
 NWG_MIS_SER_playerBasePos = [];
+NWG_MIS_SER_playerBaseNPCs = [];
 NWG_MIS_SER_missionsList = [];
 NWG_MIS_SER_selectionList = [];
 NWG_MIS_SER_selected = [];
@@ -108,6 +109,7 @@ NWG_MIS_SER_Cycle = {
                 _buildResult params ["_root","_objects"];
                 NWG_MIS_SER_playerBase = _root;//Save base root object
                 NWG_MIS_SER_playerBasePos = getPosASL _root;//Save base position
+                NWG_MIS_SER_playerBaseNPCs = _objects param [UKREP_RESULT_UNITS,[]];//Save base NPCs
                 NWG_MIS_SER_playerBaseDecoration = _objects;//Save base objects
                 call NWG_MIS_SER_NextState;
             };
@@ -183,7 +185,7 @@ NWG_MIS_SER_Cycle = {
                 //Escape injection
                 if (NWG_MIS_EscapeFlag) then {
                     //[_bldgs,_furns,_decos,_units,_vehcs,_trrts,_mines]
-                    private _escapeVehicle = (_ukrep#4) param [0,objNull];
+                    private _escapeVehicle = (_ukrep#UKREP_RESULT_VEHCS) param [0,objNull];
                     if (isNull _escapeVehicle || {!alive _escapeVehicle}) exitWith
                         {"NWG_MIS_SER_Cycle: Escape vehicle not found or dead - exiting." call NWG_fnc_logError; _exit = true};//Exit
                     _escapeVehicle allowDamage false;
@@ -493,7 +495,7 @@ NWG_MIS_SER_BuildPlayerBase = {
         {_x allowDamage false} forEach (flatten _buildResult);
 
         //3.2 Lock every vehicle
-        {_x lock true} forEach (_buildResult param [4,[]]);
+        {_x lock true} forEach (_buildResult param [UKREP_RESULT_VEHCS,[]]);
 
         //3.3 Clear and lock inventory of every object that has it
         {
@@ -539,7 +541,7 @@ NWG_MIS_SER_BuildPlayerBase = {
             if (_addAction isNotEqualTo false) then {
                 _x addAction _addAction;//TODO: Conditions, distance and JIP compatibility
             };
-        } forEach (_buildResult param [3,[]]);
+        } forEach (_buildResult param [UKREP_RESULT_UNITS,[]]);
     };
 
     //4. Report to garbage collector that these objects are not to be deleted
@@ -973,6 +975,15 @@ NWG_MIS_SER_MarkMissionDone = {
 //Escape sequence
 NWG_MIS_SER_AttackPlayerBase = {
     // private _missionInfo = _this;
+
+    //Put base NPSc into 'surrender' animation
+    private _npcs = NWG_MIS_SER_playerBaseNPCs;
+    {
+        [_x,"Acts_JetsMarshallingStop_loop"] remoteExecCall ["NWG_fnc_playAnimRemote",0,_x];//Make it JIP compatible + ensure unscheduled environment
+        _x disableAI "ANIM";//Fix AI switching out of the animation (works even for agents)
+    } forEach _npcs;
+
+    //Send enemy reinforcements to the player base
     private _basePos = NWG_MIS_SER_playerBasePos;
     private _groupsCount = selectRandom (NWG_MIS_SER_Settings get "ESCAPE_BASEATTACK_GROUPSCOUNT");
     private _faction = _this get "EnemyFaction";
