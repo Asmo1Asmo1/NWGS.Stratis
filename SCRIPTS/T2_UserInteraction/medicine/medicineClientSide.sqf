@@ -88,7 +88,7 @@ NWG_MED_CLI_ReloadStates = {
 //Vanilla Heal handling
 NWG_MED_CLI_OnVanillaHeal = {
     // params ["_player","_healer","_isMedic"];
-    //1. Preferably, do not use 'exitWith' inside vanilla event handlers at all - Arma has a history of that breaking things
+    //1. Preferably, do not use 'exitWith' inside vanilla event handlers at all - Arma has a history of that causing issues
     //2. This entire event is broken and we use suggested workaround, see: https://community.bistudio.com/wiki/Arma_3:_Event_Handlers#HandleHeal
     if (NWG_MED_CLI_Settings get "VANILLA_HEAL_100HP") then {
         _this spawn {

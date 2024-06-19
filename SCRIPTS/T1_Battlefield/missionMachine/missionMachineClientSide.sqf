@@ -8,6 +8,7 @@ NWG_MIS_CLI_Settings = createHashMapFromArray [
     ["SELECTION_MARKER_TEXT_TEMPLATE","  %1 : %2"],//Template for Name:Difficulty of a mission
     ["SELECTION_MAPCLICK_MIN_DISTANCE",500],//Map distance to count map click as selection
 
+    ["MISSION_COMPLETED_RELOAD_SELF_HEAL",true],//Call medicine system to reload self-heal chance on mission completion
     ["MISSION_COMPLETED_CELEBRATE",true],//Play sound and show visuals on mission completion
     ["MISSION_COMPLETED_CELEBRATE_MUSIC",[
         "EventTrack01a_F_EPA",
@@ -153,6 +154,12 @@ NWG_MIS_CLI_OnSelectionConfirmed = {
 //Just a nice visuals to show the progress
 NWG_MIS_CLI_OnMissionCompleted = {
     // private _missionName = _this;
+    //Reload self-healing success chance
+    if (NWG_MIS_CLI_Settings get "MISSION_COMPLETED_RELOAD_SELF_HEAL") then {
+        player call NWG_fnc_medReloadSelfHealChance;
+    };
+
+    //Celebrate?
     if !(NWG_MIS_CLI_Settings get "MISSION_COMPLETED_CELEBRATE") exitWith {};//No party. No fun =_=
 
     //Play sound
