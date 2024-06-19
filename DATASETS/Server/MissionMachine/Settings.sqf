@@ -144,5 +144,10 @@
         ]
     ]],
 
+    //==================================================================================================
+    // Escape endgame
+    ["ESCAPE_MUSIC",["LeadTrack01_F_Mark","LeadTrack01_F_Heli","LeadTrack04_F_EXP","MainTheme_F_Tank","LeadTrack01_F_6th_Anniversary_Remix"]],
+    ["ESCAPE_BASEATTACK_GROUPSCOUNT",[5,6,7,8]],
+
     ["",0]
 ]
