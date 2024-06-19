@@ -37,6 +37,20 @@ NWG_fnc_mmMissionCompleted = {
     _this call NWG_MIS_CLI_OnMissionCompleted;
 };
 
+//Plays the music on the client
+//params: _music - string
+NWG_fnc_mmPlayMusic = {
+    // private _music = _this;
+    if (!hasInterface) exitWith {};//Prevent HC from executing this
+    _this call NWG_MIS_CLI_OnPlayMusic;
+};
+
+//Notifies the client that escape has been completed
+NWG_fnc_mmEscapeCompleted = {
+    if (!hasInterface) exitWith {};//Prevent HC from executing this
+    call NWG_MIS_CLI_OnEscapeCompleted;
+};
+
 //=============================================================================
 /*Debug*/
 /*

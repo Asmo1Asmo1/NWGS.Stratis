@@ -30,6 +30,10 @@
 #define MSTATE_CLEANUP 17
 #define MSTATE_RESET 18
 #define MSTATE_SERVER_RESTART 19
+/* escape phase */
+#define MSTATE_ESCAPE_SETUP 20
+#define MSTATE_ESCAPE_ACTIVE 21
+#define MSTATE_ESCAPE_COMPLETED 22
 
 // Exempt defines from ukrepDefines.h
 //It is not a good practice, but they are not that widespread to move them to globalDefines.h
