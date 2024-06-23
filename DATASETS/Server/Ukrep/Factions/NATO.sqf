@@ -237,6 +237,12 @@ createHashMapFromArray [
     ]
 ],
 [
+    "C_Kart_01_F",/*Kart*/
+    [
+        ["C_Kart_01_F",         [/*crew:*/[],/*appearance:*/[["Fuel",0.5,"Bluking",0.5,"Redstone",0.5,"Vrana",0.5,"Green",0.5,"Blue",0.5,"Orange",0.5,"White",0.5,"Yellow",0.5,"Black",0.5,"Red",0.5],[]] ]]
+    ]
+],
+[
     "C_Van_02_vehicle_F",/*Van*/
     [
         ["C_Van_02_vehicle_F",          [/*crew:*/[],/*appearance:*/[["IDAP",0.5,"Redstone",0.5,"CivService",0.5,"Syndikat",0.5,"Daltgreen",0.5,"Vrana",0.5,"BluePearl",0.5,"Fuel",0.5,"BattleBus",0.5,"Green",0.5,"Black",0.5,"Red",0.5,"Blue",0.5,"Orange",0.5,"White",0.5,"Swifd",0.5,"AAN",0.5,"LDF",0.5,"Astra",0.5,"Benzyna",0.5],["Enable_Cargo",0,"Door_1_source",0,"Door_2_source",0,"Door_3_source",0,"Door_4_source",0,"Hide_Door_1_source",0,"Hide_Door_2_source",0,"Hide_Door_3_source",0,"Hide_Door_4_source",0,"lights_em_hide",0,"ladder_hide",1,"spare_tyre_holder_hide",1,"spare_tyre_hide",1,"reflective_tape_hide",1,"roof_rack_hide",1,"LED_lights_hide",1,"sidesteps_hide",1,"rearsteps_hide",0,"side_protective_frame_hide",1,"front_protective_frame_hide",1,"beacon_front_hide",1,"beacon_rear_hide",1]] ]],
@@ -280,6 +286,16 @@ createHashMapFromArray [
             ["C_Truck_02_box_F",        [/*crew:*/[],/*appearance:*/[["OrangeOrange",0.5,"OrangeGreen",0.5,"BlueOrange",0.5,"BlueGreen",0.5],[]] ]],
             ["C_Truck_02_transport_F",  [/*crew:*/[],/*appearance:*/[["Orange",0.5,"Blue",0.5,"IDAP",0.5],[]] ]],
             ["C_Truck_02_covered_F",    [/*crew:*/[],/*appearance:*/[["OrangeBlue",0.5,"OrangeOlive",0.5,"BlueBlue",0.5,"BlueOlive",0.5,"IDAP",0.5],[]] ]]
+    ]
+],
+[
+    "C_Boat_Civil_01_F",/*Boat*/
+    [
+        ["C_Boat_Civil_01_F",           [/*crew:*/[],/*appearance:*/[["Civilian",0.75,"Rescue",0.25,"Police",0],["hidePolice",1,"HideRescueSigns",0.75,"HidePoliceSigns",1]] ]],
+        ["C_Boat_Civil_01_F",           [/*crew:*/[],/*appearance:*/[["Civilian",0.75,"Rescue",0.25,"Police",0],["hidePolice",1,"HideRescueSigns",0.75,"HidePoliceSigns",1]] ]],
+        ["C_Rubberboat",                [/*crew:*/[],/*appearance:*/[["Black",0.25,"Hex",0,"Rescue",0.25,"Civilian",0.5,"Digital",0],[]] ]],
+        ["C_Boat_Transport_02_F",       [/*crew:*/[],/*appearance:*/[["Black",0.5,"Civilian",0.5],[]] ]],
+        ["C_Scooter_Transport_01_F",    [/*crew:*/[],/*appearance:*/[["White",0.5,"Black",0.5,"Blue",0.5,"Grey",0.5,"Lime",0.5,"Red",0.5,"Yellow",0.5],[]] ]]
     ]
 ]
 ];
