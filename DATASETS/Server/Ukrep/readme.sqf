@@ -64,6 +64,12 @@ _this setVariable ["#hideLocally",false];
     9. Delete the module from the editor
     Now you can gather the composition and see that HELPER record is created at the end of the blueprint
 */
+/*
+To easy copy the already gathered module:
+private _this = this;
+_this setVariable ["HELP_RealClassname",""];
+{_this setVariable [(_x#0),(_x#1)]} forEach []
+*/
 
 //Get vehicles appearance:
 /*Get current appearance with current values:*/
