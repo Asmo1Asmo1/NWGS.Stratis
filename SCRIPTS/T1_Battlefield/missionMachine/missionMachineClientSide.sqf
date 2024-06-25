@@ -58,7 +58,7 @@ NWG_MIS_CLI_OnSelectionOptionsReceived = {
     private ["_markerName","_marker"];
     private _markers = [];
     {
-        _x params ["_name","_pos","_rad","_difficulty","_markerType","_markerColor","_markerSize","_outlineAlpha"];
+        _x params ["_name","_pos","_difficulty","_markerType","_markerColor","_markerSize","_outlineAlpha","_outlineRadius"];
 
         //Localize variables
         _name = _name call NWG_fnc_localize;
@@ -67,7 +67,7 @@ NWG_MIS_CLI_OnSelectionOptionsReceived = {
         //Create background outline marker
         _markerName = format ["selection_outline_%1",_forEachIndex];
         _marker = createMarker [_markerName,_pos];
-        _marker setMarkerSize [_rad,_rad];
+        _marker setMarkerSize [_outlineRadius,_outlineRadius];
         _marker setMarkerShape "ELLIPSE";
         _marker setMarkerColor _markerColor;
         _marker setMarkerAlpha _outlineAlpha;

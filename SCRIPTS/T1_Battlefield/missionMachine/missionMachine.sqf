@@ -646,12 +646,14 @@ NWG_MIS_SER_OnSelectionOptionsRequest = {
     private _options = NWG_MIS_SER_selectionList apply {[
             _x#SELECTION_NAME,
             _x#SELECTION_POS,
-            _x#SELECTION_RAD,
             ((_x#SELECTION_SETTINGS) getOrDefault ["PresetName","Unknown"]),
             ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarker","mil_dot"]),
             ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarkerColor","ColorBlack"]),
             ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarkerSize",1]),
-            ((_x#SELECTION_SETTINGS) getOrDefault ["MapOutlineAlpha",0.5])
+            ((_x#SELECTION_SETTINGS) getOrDefault ["MapOutlineAlpha",0.5]),
+            if (NWG_MIS_SER_Settings get "MISSIONS_OUTLINE_USE_ACTUAL_RAD")
+                then {_x#SELECTION_RAD}
+                else {((_x#SELECTION_SETTINGS) getOrDefault ["MapOutlineRadius",100])}
     ]};
 
     //Send options to the client
@@ -707,6 +709,11 @@ NWG_MIS_SER_GenerateMissionInfo = {
     _missionInfo set ["MarkerColor",(_settings getOrDefault ["MapMarkerColor","ColorBlack"])];
     _missionInfo set ["MarkerSize",(_settings getOrDefault ["MapMarkerSize",1])];
     _missionInfo set ["OutlineAlpha",(_settings getOrDefault ["MapOutlineAlpha",0.5])];
+    _missionInfo set ["OutlineRadius",(
+        if (NWG_MIS_SER_Settings get "MISSIONS_OUTLINE_USE_ACTUAL_RAD")
+            then {_rad}
+            else {(_settings getOrDefault ["MapOutlineRadius",100])}
+    )];
     _missionInfo set ["ExhaustAfter",(_settings getOrDefault ["ExhaustAfter",900])];
 
     //3. Extract values from mission machine and settings
@@ -734,10 +741,11 @@ NWG_MIS_SER_BuildMission_Markers = {
     private _markerColor  = _this get "MarkerColor";
     private _markerSize   = _this get "MarkerSize";
     private _outlineAlpha = _this get "OutlineAlpha";
+    private _outlineRad   = _this get "OutlineRadius";
 
     //Create background outline
     private _outline = createMarker ["MIS_BuildMission_Outline",_pos];
-    _outline setMarkerSize [_rad,_rad];
+    _outline setMarkerSize [_outlineRad,_outlineRad];
     _outline setMarkerShape "ELLIPSE";
     _outline setMarkerColor _markerColor;
     _outline setMarkerAlpha _outlineAlpha;
@@ -956,12 +964,12 @@ NWG_MIS_SER_FightTeardown = {
 NWG_MIS_SER_MarkMissionDone = {
     // private _missionInfo = _this;
     private _pos = _this get "Position";
-    private _rad = _this get "Radius";
+    private _outlineRad = _this get "OutlineRadius";
 
     //Create background outline marker
-    private _missionName = format ["MIS_%1_Done",(count NWG_MIS_SER_missionsList)];//A little hack to get a unique name
+    private _missionName = format ["MIS_%1_Done",(count NWG_MIS_SER_missionsList)];//A little hack to get a unique marker name
     private _marker = createMarker [_missionName,_pos];
-    _marker setMarkerSize [_rad,_rad];
+    _marker setMarkerSize [_outlineRad,_outlineRad];
     _marker setMarkerShape "ELLIPSE";
     _marker setMarkerColor (NWG_MIS_SER_Settings get "MISSIONS_DONE_COLOR");
     _marker setMarkerAlpha (NWG_MIS_SER_Settings get "MISSIONS_DONE_ALPHA");

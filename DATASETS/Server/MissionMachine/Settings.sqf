@@ -19,6 +19,7 @@
     //==================================================================================================
     // Mission settings
     ["MISSIONS_LIST_MIN_DISTANCE",100],//Min distance between missions to be added to the list (example: several variants of the same mission, only one will be added by distance rule)
+    ["MISSIONS_OUTLINE_USE_ACTUAL_RAD",false],//If true - an actual radius of a mission will be used for map outline radius (may be misleading)
     ["MISSIONS_ENEMY_SIDE",west],//Side of the enemy groups (will it be always the same?)
     ["MISSIONS_ENEMY_FACTION","NATO"],//Faction of enemy groups (how will we add more factions? postponed question)
     ["MISSIONS_EMPTY_BLDG_PAGENAME","BldgEmpty"],//Pagename with blueprints to fill empty buildings with
@@ -32,6 +33,7 @@
             ["MapMarkerColor","ColorOrange"],
             ["MapMarkerSize",1.25],
             ["MapOutlineAlpha",0.6],
+            ["MapOutlineRadius",100],
             ["UkrepFractalSteps",[
                 /*root:*/[/*pageName:*/nil,   /*chances:*/[],   /*groupRules:*/[nil,nil,/*disablePath:*/false]],
                 /*bldg:*/[/*pageName:*/"AUTO",/*chances:*/[
@@ -90,6 +92,7 @@
             ["MapMarkerColor","ColorRed"],
             ["MapMarkerSize",1.25],
             ["MapOutlineAlpha",0.6],
+            ["MapOutlineRadius",150],
             ["UkrepFractalSteps",[
                 /*root:*/[/*pageName:*/nil,   /*chances:*/[],   /*groupRules:*/[nil,nil,/*disablePath:*/false]],
                 /*bldg:*/[/*pageName:*/"AUTO",/*chances:*/[
