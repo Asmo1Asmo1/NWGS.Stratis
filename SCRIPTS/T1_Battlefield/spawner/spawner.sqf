@@ -58,7 +58,6 @@ NWG_SPWN_SpawnVehicleExact = {
 
 NWG_SPWN_PrespawnUnits = {
     params ["_classnames","_NaN",["_membership",west]];
-    private _createArgs = [nil,(call NWG_SPWN_GetSafePrespawnPos),[],0,"CAN_COLLIDE"];
     private _side = west;//There is no sideNull unfortunately
     private _group = grpNull;
     private _units = [];
@@ -66,11 +65,9 @@ NWG_SPWN_PrespawnUnits = {
     private _createGroupUnits = {
         private "_unit";
         {
-            _createArgs set [0,_x];
-            _unit = _group createUnit _createArgs;
+            _unit = _group createUnit [_x,(call NWG_SPWN_GetSafePrespawnPos),[],0,"CAN_COLLIDE"];
             //Fix units from other faction beign spawned into 'wrong' side (see: https://community.bistudio.com/wiki/createUnit)
-            if ((side _unit) isNotEqualTo _side)
-                then {[_unit] joinSilent _group};
+            if ((side _unit) isNotEqualTo _side) then {[_unit] joinSilent _group};
             _units pushBack _unit;
         } forEach _classnames;
         _units
@@ -91,10 +88,7 @@ NWG_SPWN_PrespawnUnits = {
         };
         case (_membership isEqualTo "AGENT"): {
             //Agents requested (units with no group/side/behaviour)
-            {
-                _createArgs set [0,_x];
-                _units pushBack (createAgent _createArgs);
-            } forEach _classnames;
+            {_units pushBack (createAgent [_x,(call NWG_SPWN_GetSafePrespawnPos),[],0,"CAN_COLLIDE"])} forEach _classnames;
         };
         default {
             //Invalid membership
@@ -105,6 +99,9 @@ NWG_SPWN_PrespawnUnits = {
             call _createGroupUnits;
         };
     };
+
+    //Part of fixing units falling on spawn
+    {_x setVelocity [0,0,0]} forEach _units;
 
     //return
     _units
@@ -202,7 +199,7 @@ NWG_SPWN_SpawnUnitsExact = {
     if ((count _units) == 0) exitWith {_units};
 
     //Place units
-    private _stances = ["AUTO","UP","MIDDLE","DOWN"];
+    private _stances = ["UP","UP","MIDDLE","DOWN"];
     private "_unit";
     {
         _unit = _units#_forEachIndex;
@@ -258,14 +255,13 @@ NWG_SPWN_PlaceAround = {
 //Spawn utils
 NWG_SPWN_GetSafePrespawnPos = {
     private _safepos = localNamespace getVariable ["NWG_tempSafePos",(
-        if (isServer) then {[0,0,100]} else {[0,25,100]}
+        if (isServer) then {[0,0,500]} else {[0,25,500]}
     )];
 
     if ((_safepos#2) < 5000) then {_safepos set [2,((_safepos#2) + 25)]} else {_safepos set [2,100]};
     localNamespace setVariable ["NWG_tempSafePos",_safepos];
-    if (surfaceIsWater _safepos) then {_safepos = ASLToATL _safepos};
     //return
-    _safepos
+    ASLToAGL _safepos
 };
 
 NWG_SPWN_Hide = {

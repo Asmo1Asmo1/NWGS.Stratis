@@ -22,7 +22,7 @@
 
 //===============================================
 // NATO faction
-[
+private _faction = [
     //===========================================
     //Passenger container (used to fill 'RANDOM' slots - usually passenger seats in vehicles)
     [
@@ -106,6 +106,10 @@
         [["INF","SPN"],2,false,["B_sniper_F","B_spotter_F",3,"RANDOM"]],
         //Weapons squad
         [["INF","REG"],1,false,["B_Soldier_SL_F","B_soldier_AR_F","B_Soldier_GL_F","B_soldier_M_F","B_soldier_AT_F","B_soldier_AAT_F","B_Soldier_A_F","B_medic_F"]],
+        //Gendarmerie patrol
+        [["INF","REG","GENDARME"],1,false,[2,"B_GEN_Commander_F",3,"B_GEN_Soldier_F"],{[_this,NWG_DSPAWNFACTION_NATO_GendarmerieLoadouts] call NWG_fnc_dsAcHelperDressUnits}],
+        //Gendarmerie speznaz
+        [["INF","SPN","GENDARME"],2,false,[6,"B_GEN_Soldier_F"],{[_this,NWG_DSPAWNFACTION_NATO_GendarmerieSpeznazLoadouts] call NWG_fnc_dsAcHelperDressUnits}],
 
         //=======================================
         /*VEH - Vehicles*/
@@ -191,8 +195,11 @@
             {
                 // params ["_group","_vehicle","_units"]
                 //Attach Spartan AA system
-                private _offsets = [[-0.00012207,-1.99898,0.959962],[[-5.25924e-006,0.999999,-0.00159716],[0.000130184,0.00159716,0.999999]]];
-                (_this + ["B_SAM_System_01_F",_offsets]) call NWG_DSPAWN_AC_AttachTurret;
+                [
+                    _this,
+                    "B_SAM_System_01_F",
+                    [[-0.00012207,-1.99898,0.959962],[[-5.25924e-006,0.999999,-0.00159716],[0.000130184,0.00159716,0.999999]]]
+                ] call NWG_fnc_dsAcHelperAttachTurret;
             }
         ],
         //Stomper UAV
@@ -200,6 +207,20 @@
             ["VEH","MEC","UAV","REG"],1,
             ["B_UGV_01_rcws_F"],
             [2,"B_UAV_AI"]
+        ],
+        //Gendarmerie patrol
+        [
+            ["VEH","MOT","REG","GENDARME"],2,
+            ["B_GEN_Offroad_01_covered_F",[["Gendarmerie",1],["hidePolice",0,"HideServices",1,"HideCover",0.5,"StartBeaconLight",0.5,"HideRoofRack",0.5,"HideLoudSpeakers",0,"HideAntennas",1,"HideBeacon",0,"HideSpotlight",0,"HideDoor3",0,"OpenDoor3",0,"HideDoor1",0,"HideDoor2",0,"HideBackpacks",1,"HideBumper1",1,"HideBumper2",0,"HideConstruction",1,"BeaconsStart",0.5]],false],
+            ["B_GEN_Commander_F",2,"B_GEN_Soldier_F"],
+            {[_this,NWG_DSPAWNFACTION_NATO_GendarmerieLoadouts] call NWG_fnc_dsAcHelperDressUnits}
+        ],
+        //Gendarmerie speznaz party van
+        [
+            ["VEH","MOT","REG","GENDARME"],2,
+            ["B_GEN_Van_02_transport_F",[["Gendarmerie",1],["Door_1_source",0,"Door_2_source",0,"Door_3_source",0,"Door_4_source",0,"Hide_Door_1_source",0,"Hide_Door_2_source",0,"Hide_Door_3_source",0,"Hide_Door_4_source",0,"lights_em_hide",0.5,"ladder_hide",0.5,"spare_tyre_holder_hide",1,"spare_tyre_hide",1,"reflective_tape_hide",0,"roof_rack_hide",0.5,"LED_lights_hide",0,"sidesteps_hide",1,"rearsteps_hide",1,"side_protective_frame_hide",0,"front_protective_frame_hide",0,"beacon_front_hide",0,"beacon_rear_hide",0]],false],
+            [10,"B_GEN_Soldier_F"],
+            {[_this,NWG_DSPAWNFACTION_NATO_GendarmerieSpeznazLoadouts] call NWG_fnc_dsAcHelperDressUnits}
         ],
 
         //=======================================
@@ -327,6 +348,45 @@
             ["BOAT","MEC","REG"],2,
             ["B_Boat_Armed_01_minigun_F"],
             [3,"B_Soldier_F"]
+        ],
+        //Police boat
+        [
+            ["BOAT","MOT","REG"],1,
+            ["C_Boat_Civil_01_police_F",[["Police",1],["hidePolice",0,"HideRescueSigns",1,"HidePoliceSigns",0]],false],
+            ["B_GEN_Commander_F",2,"B_GEN_Soldier_F"],
+            {[_this,NWG_DSPAWNFACTION_NATO_GendarmerieLoadouts] call NWG_fnc_dsAcHelperDressUnits}
         ]
     ]
-]
+];
+
+
+//===============================================
+//Additional code data
+//Gendarmerie:
+NWG_DSPAWNFACTION_NATO_GendarmerieLoadouts = [
+    /*protector*/[["SMG_05_F","","acc_flashlight","",["30Rnd_9x21_Mag_SMG_02",30],[],""],nil,nil,[nil,[["FirstAidKit",1],["30Rnd_9x21_Mag_SMG_02",2,30]]],["V_TacVest_gen_F",[["30Rnd_9x21_Mag_SMG_02",3,30],["16Rnd_9x21_Mag",2,16],["SmokeShell",1,1]]],nil,nil,nil,nil,nil],
+    /*protector*/[["SMG_05_F","","acc_flashlight","",["30Rnd_9x21_Mag_SMG_02",30],[],""],nil,nil,[nil,[["FirstAidKit",1],["30Rnd_9x21_Mag_SMG_02",2,30]]],["V_TacVest_gen_F",[["30Rnd_9x21_Mag_SMG_02",3,30],["16Rnd_9x21_Mag",2,16],["SmokeShell",1,1]]],nil,nil,nil,nil,nil],
+    /*sting    */[["SMG_02_F","","acc_flashlight","",["30Rnd_9x21_Mag_SMG_02",30],[],""],nil,nil,[nil,[["FirstAidKit",1],["30Rnd_9x21_Mag_SMG_02",3,30]]],["V_TacVest_gen_F",[["16Rnd_9x21_Mag",2,16],["SmokeShell",1,1],["30Rnd_9x21_Mag_SMG_02",5,30]]],nil,nil,nil,nil,nil],
+    /*sting    */[["SMG_02_F","","acc_flashlight","",["30Rnd_9x21_Mag_SMG_02",30],[],""],nil,nil,[nil,[["FirstAidKit",1],["30Rnd_9x21_Mag_SMG_02",3,30]]],["V_TacVest_gen_F",[["16Rnd_9x21_Mag",2,16],["SmokeShell",1,1],["30Rnd_9x21_Mag_SMG_02",5,30]]],nil,nil,nil,nil,nil],
+    /*pdw2000  */[["hgun_PDW2000_F","","acc_flashlight","",["30Rnd_9x21_Mag",30],[],""],nil,nil,[nil,[["FirstAidKit",1],["30Rnd_9x21_Mag",3,30]]],["V_TacVest_gen_F",[["SmokeShell",2,1],["30Rnd_9x21_Mag",8,30]]],nil,nil,nil,nil,nil],
+    /*P90      */[["SMG_03C_TR_black","","acc_flashlight","",["50Rnd_570x28_SMG_03",50],[],""],[],nil,[nil,[["FirstAidKit",2],["16Rnd_9x21_Mag",2,16],["50Rnd_570x28_SMG_03",1,50]]],["V_TacVest_gen_F",[["SmokeShell",2,1],["50Rnd_570x28_SMG_03",4,50]]],nil,nil,nil,nil,nil],
+    /*spar     */[["arifle_SPAR_01_blk_F","","acc_flashlight","",["30Rnd_556x45_Stanag",30],[],""],nil,nil,[nil,[["FirstAidKit",1],["30Rnd_556x45_Stanag",3,30]]],["V_TacVest_gen_F",[["16Rnd_9x21_Mag",2,16],["SmokeShell",1,1],["30Rnd_556x45_Stanag",7,30]]],nil,nil,nil,nil,nil],
+    /*Katiba   */[["arifle_Katiba_F","","acc_flashlight","",["30Rnd_65x39_caseless_green",30],[],""],[],nil,[nil,[["FirstAidKit",2],["16Rnd_9x21_Mag",2,16],["30Rnd_65x39_caseless_green",1,30]]],["V_TacVest_gen_F",[["SmokeShell",2,1],["30Rnd_65x39_caseless_green",7,30],["HandGrenade",2,1]]],nil,nil,nil,nil,nil],
+    /*LIM mgun */[["LMG_03_F","","acc_flashlight","",["200Rnd_556x45_Box_F",200],[],""],nil,nil,[nil,[["FirstAidKit",2],["16Rnd_9x21_Mag",2,16]]],["V_TacVest_gen_F",[["SmokeShell",2,1],["200Rnd_556x45_Box_F",2,200]]],nil,nil,nil,nil,nil]
+];
+//Gendarmerie Speznaz:
+NWG_DSPAWNFACTION_NATO_GendarmerieSpeznazLoadouts = [
+    /*sturm01*/[["arifle_Katiba_F","","acc_flashlight","",["30Rnd_65x39_caseless_green",30],[],""],[],["hgun_P07_blk_F","","","",["16Rnd_9x21_Mag",16],[],""],["U_B_GEN_Commander_F",[["FirstAidKit",1],["30Rnd_65x39_caseless_green",2,30]]],["V_TacVest_blk_POLICE",[["FirstAidKit",1],["SmokeShell",4,1],["30Rnd_65x39_caseless_green",7,30]]],[],"H_PASGT_basic_black_F","G_Aviator",[],nil],
+    /*sturm01*/[["arifle_Katiba_F","","acc_flashlight","",["30Rnd_65x39_caseless_green",30],[],""],[],["hgun_P07_blk_F","","","",["16Rnd_9x21_Mag",16],[],""],["U_B_GEN_Commander_F",[["FirstAidKit",1],["30Rnd_65x39_caseless_green",2,30]]],["V_TacVest_blk_POLICE",[["FirstAidKit",1],["SmokeShell",4,1],["30Rnd_65x39_caseless_green",7,30]]],[],"H_PASGT_basic_black_F","G_Aviator",[],nil],
+    /*sturm02*/[["SMG_02_F","","acc_flashlight","",["30Rnd_9x21_Mag_SMG_02",30],[],""],[],["hgun_P07_blk_F","","","",["16Rnd_9x21_Mag",16],[],""],["U_B_GEN_Commander_F",[["FirstAidKit",2],["30Rnd_9x21_Mag_SMG_02",1,30]]],["V_TacVest_blk_POLICE",[["SmokeShell",3,1],["30Rnd_9x21_Mag_SMG_02",7,30]]],[],"H_PASGT_basic_black_F","G_Tactical_Clear",[],nil],
+    /*sturm02*/[["SMG_02_F","","acc_flashlight","",["30Rnd_9x21_Mag_SMG_02",30],[],""],[],["hgun_P07_blk_F","","","",["16Rnd_9x21_Mag",16],[],""],["U_B_GEN_Commander_F",[["FirstAidKit",2],["30Rnd_9x21_Mag_SMG_02",1,30]]],["V_TacVest_blk_POLICE",[["SmokeShell",3,1],["30Rnd_9x21_Mag_SMG_02",7,30]]],[],"H_PASGT_basic_black_F","G_Tactical_Clear",[],nil],
+    /*sturm03*/[["arifle_SPAR_01_blk_F","","acc_flashlight","",["30Rnd_556x45_Stanag",30],[],""],[],["hgun_P07_blk_F","","","",["16Rnd_9x21_Mag",16],[],""],["U_B_GEN_Commander_F",[["FirstAidKit",2],["30Rnd_556x45_Stanag",1,30]]],["V_TacVest_blk_POLICE",[["SmokeShell",3,1],["30Rnd_556x45_Stanag",8,30]]],[],"H_PASGT_basic_black_F","G_Balaclava_blk",[],nil],
+    /*sturm03*/[["arifle_SPAR_01_blk_F","","acc_flashlight","",["30Rnd_556x45_Stanag",30],[],""],[],["hgun_P07_blk_F","","","",["16Rnd_9x21_Mag",16],[],""],["U_B_GEN_Commander_F",[["FirstAidKit",2],["30Rnd_556x45_Stanag",1,30]]],["V_TacVest_blk_POLICE",[["SmokeShell",3,1],["30Rnd_556x45_Stanag",8,30]]],[],"H_PASGT_basic_black_F","G_Balaclava_blk",[],nil],
+    /*strumGL*/[["arifle_Katiba_GL_F","","acc_flashlight","",["30Rnd_65x39_caseless_green",30],["1Rnd_HE_Grenade_shell",1],""],[],["hgun_P07_blk_F","","","",["16Rnd_9x21_Mag",16],[],""],["U_B_GEN_Commander_F",[["FirstAidKit",2]]],["V_TacVest_blk_POLICE",[["SmokeShell",1,1],["1Rnd_HE_Grenade_shell",5,1],["30Rnd_65x39_caseless_green",3,30],["1Rnd_Smoke_Grenade_shell",5,1],["UGL_FlareWhite_F",5,1]]],["B_Messenger_Black_F",[["1Rnd_HE_Grenade_shell",5,1],["UGL_FlareWhite_F",5,1],["1Rnd_Smoke_Grenade_shell",5,1],["30Rnd_65x39_caseless_green",5,30]]],"H_PASGT_basic_black_F","G_Combat",[],nil],
+    /*medic01*/[["SMG_03C_black","","acc_flashlight","",["50Rnd_570x28_SMG_03",50],[],""],[],["hgun_P07_blk_F","","","",["16Rnd_9x21_Mag",16],[],""],["U_B_GEN_Commander_F",[["FirstAidKit",2],["50Rnd_570x28_SMG_03",1,50]]],["V_TacVestIR_blk",[["Medikit",1],["FirstAidKit",2],["SmokeShell",2,1],["50Rnd_570x28_SMG_03",3,50]]],[],"H_PASGT_basic_black_F","",[],nil],
+    /*marksmn*/[["arifle_SPAR_03_blk_F","muzzle_snds_B","","optic_SOS",["20Rnd_762x51_Mag",20],[],"bipod_01_F_blk"],[],["hgun_P07_blk_F","","","",["16Rnd_9x21_Mag",16],[],""],["U_B_GEN_Commander_F",[["FirstAidKit",2],["20Rnd_762x51_Mag",1,20]]],["V_TacVest_blk_POLICE",[["SmokeShell",3,1],["20Rnd_762x51_Mag",3,20],["16Rnd_9x21_Mag",3,16]]],["B_Messenger_Black_F",[["20Rnd_762x51_Mag",5,20]]],"H_PASGT_basic_black_F","G_Balaclava_blk",[],nil],
+    /*mgunner*/[["LMG_03_F","","acc_flashlight","",["200Rnd_556x45_Box_F",200],[],""],[],["hgun_P07_blk_F","","","",["16Rnd_9x21_Mag",16],[],""],["U_B_GEN_Commander_F",[["FirstAidKit",1]]],["V_TacVest_blk_POLICE",[["FirstAidKit",1],["SmokeShell",4,1],["200Rnd_556x45_Box_F",1,200]]],["B_Messenger_Black_F",[["200Rnd_556x45_Box_F",3,200]]],"H_PASGT_basic_black_F","G_Balaclava_blk",[],nil]
+];
+
+//return
+_faction

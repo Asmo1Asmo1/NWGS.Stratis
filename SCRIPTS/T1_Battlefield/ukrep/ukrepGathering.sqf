@@ -203,6 +203,7 @@ NWG_UKREP_excludeFromGathering = [
     "HouseFly",
     "FxWindGrass1",
     "FxWindGrass2",
+    "FxWindLeaf1",
     "FxWindPollen1",
     "ModuleCurator_F",
     "#mark"
@@ -256,7 +257,7 @@ NWG_UKREP_PackIntoRecords = {
         _isPlaceholder = _c call NWG_UKREP_IsPlaceholder;
         _type = if (_isPlaceholder)
             then {_c call NWG_UKREP_GetPlaceholderType}
-            else {_x call NWG_fnc_ocGetObjectType};
+            else {_x call NWG_UKREP_GetObjectType};
         _payload = if (_isPlaceholder)
             then {[_x,_type] call NWG_UKREP_GetPlaceholderPayload}
             else {[_x,_type] call NWG_UKREP_GetObjectPayload};
@@ -294,6 +295,13 @@ NWG_UKREP_PackIntoRecords = {
             /*BP_ORIGOBJECT*/_x
         ]
     }
+};
+
+NWG_UKREP_GetObjectType = {
+    // private _object = _this;
+    if (_this isKindOf "Logic")
+        then {"HELP"}
+        else {(_this call NWG_fnc_ocGetObjectType)}
 };
 
 NWG_UKREP_GetObjectPayload = {
@@ -335,7 +343,10 @@ NWG_UKREP_GetObjectPayload = {
 
         /*For vehicles - payload is array of [[crew],(optional)[appearance],(optional)[pylons]]*/
         case OBJ_TYPE_VEHC: {
+            //Garther crew
+            private _payload = [];
             private _crew = ((crew _object) apply {typeOf _x}) call NWG_fnc_compactStringArray;
+            _payload pushBack _crew;
 
             //Create default second vehicle to compare its appearance and pylons with original
             private _defaultVehicle = createVehicle [(typeOf _object), (ASLToATL [120,120,1000])];
@@ -343,20 +354,23 @@ NWG_UKREP_GetObjectPayload = {
             //Gather appearance info
             private _vehicleAppearance = _object call NWG_fnc_spwnGetVehicleAppearance;
             private _defaultAppearance = _defaultVehicle call NWG_fnc_spwnGetVehicleAppearance;
-            private _appearance = if (_vehicleAppearance isEqualTo _defaultAppearance) then {false} else {_vehicleAppearance};
+            if (_vehicleAppearance isNotEqualTo _defaultAppearance) then {_payload set [1,_vehicleAppearance]};
 
             //Gather pylons info
             private _vehiclePylons = _object call NWG_fnc_spwnGetVehiclePylons;
             private _defaultPylons = _defaultVehicle call NWG_fnc_spwnGetVehiclePylons;
-            private _pylons = if (_vehiclePylons isEqualTo _defaultPylons) then {false} else {_vehiclePylons};
+            if (_vehiclePylons isNotEqualTo _defaultPylons) then {_payload set [2,_vehiclePylons]};
 
             //Delete default vehicle
             deleteVehicle _defaultVehicle;
 
+            //Replace missing arrays with 'false' (e.g.: [[crew],nil,[pylons]] -> [[crew],false,[pylons]])
+            for "_i" from 0 to ((count _payload)-1) do {
+                if (isNil {_payload select _i}) then {_payload set [_i,false]};
+            };
+
             //return
-            if (_appearance isNotEqualTo false || _pylons isNotEqualTo false)
-                then {[_crew,_appearance,_pylons]}
-                else {[_crew]}
+            _payload
         };
 
         /*For turrets - payload is [crew]*/

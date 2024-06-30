@@ -46,6 +46,7 @@ _commonFunctions pushBack ("SCRIPTS\T0_Core\eventSystem\eventSystemFunctions.sqf
 //advancedCombat
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\advancedCombat\advancedCombatActive.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\advancedCombat\advancedCombatPassive.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\advancedCombat\advancedCombatUtils.sqf" call NWG_fnc_compile);
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\advancedCombat\advancedCombatFunctions.sqf" call NWG_fnc_compile);
 //dots
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\dots\dots.sqf" call NWG_fnc_compile);
@@ -86,7 +87,8 @@ if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\ukrep\uk
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\undertaker\undertaker.sqf" call NWG_fnc_compile);
 //worldConfig
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldConfig.sqf" call NWG_fnc_compile);
-_clientModules pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldConfig.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldInfo.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldInfo.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldConfigFunctions.sqf" call NWG_fnc_compile);
 //yellowKing
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKing.sqf" call NWG_fnc_compile);

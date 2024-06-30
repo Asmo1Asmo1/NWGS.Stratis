@@ -141,14 +141,14 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
         };
         private _spawnSelected = switch (true) do {
             case (_groupsIndex == G_INDEX_INF): {{
-                [_groupToSpawn,(_patrolRoute#0)] call NWG_DSPAWN_SpawnInfantryGroup
+                [_groupToSpawn,(_patrolRoute#0),_side] call NWG_DSPAWN_SpawnInfantryGroup
             }};
             case (_patrolLength == 1): {{
-                [_groupToSpawn,(_patrolRoute#0),(random 360)] call NWG_DSPAWN_SpawnVehicledGroup
+                [_groupToSpawn,(_patrolRoute#0),(random 360),false,_side] call NWG_DSPAWN_SpawnVehicledGroup
             }};
             default /*!INF && _patrolLength > 1*/ {{
                 private _dir = if ((count _patrolRoute)>1) then {(_patrolRoute#0) getDir (_patrolRoute#1)} else {random 360};
-                [_groupToSpawn,(_patrolRoute#0),_dir] call NWG_DSPAWN_SpawnVehicledGroup
+                [_groupToSpawn,(_patrolRoute#0),_dir,false,_side] call NWG_DSPAWN_SpawnVehicledGroup
             }};
         };
 
@@ -229,7 +229,7 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
             _patrolRoute = _patrolRoute call NWG_fnc_arrayShuffle;
             private _groupToSpawn = [G_INDEX_INF,_groups,_groupsPointers] call _getNext;
             _groupToSpawn = [_groupToSpawn,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
-            private _spawnResult = [_groupToSpawn,(_patrolRoute#0)] call NWG_DSPAWN_SpawnInfantryGroup;
+            private _spawnResult = [_groupToSpawn,(_patrolRoute#0),_side] call NWG_DSPAWN_SpawnInfantryGroup;
             if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) then {continue};
             [(_spawnResult#SPAWN_RESULT_GROUP),_patrolRoute] call NWG_DSPAWN_SendToPatrol;
             _resultCount = _resultCount + 1;
@@ -257,7 +257,7 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
         {
             private _groupToSpawn = [G_INDEX_INF,_groups,_groupsPointers] call _getNext;
             _groupToSpawn = [_groupToSpawn,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
-            private _spawnResult = [_groupToSpawn,_x] call NWG_DSPAWN_SpawnInfantryGroupInBuilding;
+            private _spawnResult = [_groupToSpawn,_x,_side] call NWG_DSPAWN_SpawnInfantryGroupInBuilding;
             if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) then {continue};
             _resultCount = _resultCount + 1;
             (_spawnResult#SPAWN_RESULT_GROUP) call _dynamicIfNeeded;
@@ -753,8 +753,12 @@ NWG_DSPAWN_SpawnGroupFinalize = {
 //================================================================================================================
 //Additional code post-spawn helpers
 NWG_DSPAWN_AC_AttachTurret = {
-    params ["_group","_vehicle","_NaN","_turretClassname","_attachToValues",["_gunnerClassname","DEFAULT"]];
+    params ["_spawnResult","_turretClassname","_attachToValues",["_gunnerClassname","DEFAULT"]];
+    _spawnResult params ["_group","_vehicle"/*,"_units"*/];
     _attachToValues params ["_offset","_dirAndUp"];
+
+    //Fix vehicle stucking at place for unknown reason (arma moment)
+    if (canSuspend) then {sleep 5};
 
     //Spawn and attach turret
     private _turret = [_turretClassname,0,0] call NWG_fnc_spwnPrespawnVehicle;
@@ -764,15 +768,20 @@ NWG_DSPAWN_AC_AttachTurret = {
     _turret setVectorDirAndUp _dirAndUp;
 
     //Add gunner
-    private _gunner = objNull;
-    if (_gunner isEqualTo "DEFAULT") then {
+    if (_gunnerClassname isEqualTo "DEFAULT") then {
         _group createVehicleCrew _turret;
-        _gunner = gunner _turret;
+        private _gunner = gunner _turret;
         if ((side _gunner) isNotEqualTo (side _group)) then {[_gunner] joinSilent _group};
     } else {
-        _gunner = ([[_gunnerClassname],nil,_group] call NWG_fnc_spwnPrespawnUnits) param [0,objNull];
+        private _gunner = ([[_gunnerClassname],nil,_group] call NWG_fnc_spwnPrespawnUnits) param [0,objNull];
         _gunner moveInAny _turret;
     };
+};
+
+NWG_DSPAWN_AC_DressUnits = {
+    params ["_spawnResult","_loadouts"];
+    // _spawnResult params ["_group","_vehicle","_units"];
+    {_x setUnitLoadout ([_loadouts,"DSPAWN_AC_DressUnits"] call NWG_fnc_selectRandomGuaranteed)} forEach (_spawnResult#SPAWN_RESULT_UNITS);
 };
 
 //================================================================================================================
@@ -1069,10 +1078,8 @@ NWG_DSPAWN_VehAttackLogic = {
 
     //Stand your ground for artillery
     if ("ARTA" in _tags) exitWith {
-        private _grpVehicle = _group call NWG_DSPAWN_GetGroupVehicle;
-        private _moveAsideWp = [(getPosATL _grpVehicle),100,"ground"] call NWG_fnc_dtsFindDotForWaypoint;
-        if (_moveAsideWp isEqualTo false) exitWith {};
-        [_group,_moveAsideWp] call NWG_DSPAWN_AddWaypoint;//Just move a little bit away from the spawn point
+        doStop (units _group);
+        {_x disableAI "PATH"} forEach (units _group);
     };
 
     //Prepare variables

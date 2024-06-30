@@ -1,23 +1,45 @@
 //================================================================================================================
 //================================================================================================================
-//World info
-#define NAME_RAW 0
-#define NAME_LOC_KEY 1
+//Settings
+NWG_WCONF_Settings = createHashMapFromArray [
+    ["DYNASIM_CONFIGURE_ON_START",true],//Configure dynamic simulation on mission start
+    ["DYNASIM_ENABLED",true],//Is dynamic simulation system enabled
+    ["DYNASIM_DIST_CHAR",5000],//Dynasim distance for units/groups
+    ["DYNASIM_DIST_MVEH",5000],//Dynasim distance for manned (occupied) vehicles
+    ["DYNASIM_DIST_EVEH",500],//Dynasim distance for empty vehicles
+    ["DYNASIM_DIST_PROP",50],//Dynasim distance for objects and buildings
+    ["DYNASIM_DIST_MOVING_MULT",1],//Multiply distance by N if the object is moving
+    // ["DYNASIM_DIST_LIMIT_BY_VIEW",true],//Limit by viewdistance (there is no such script command and behaviour in MP is undefined anyway)
 
-NWG_WINFO_worlds = createHashMapFromArray [
-    ["stratis", ["Stratis","#WORLD_NAME_STRATIS#"]],
-    ["altis",   ["Altis","#WORLD_NAME_ALTIS#"]],
-    ["tanoa",   ["Tanoa","#WORLD_NAME_TANOA#"]],
-    ["malden",  ["Malden","#WORLD_NAME_MALDEN#"]],
-    ["bootcamp",["Bootcamp","#WORLD_NAME_BOOTCAMP#"]],
-    ["vr",      ["VR","#WORLD_NAME_VR#"]],
-
-    ["unknown", ["Unknown","#WORLD_NAME_UNKNOWN#"]]
+    ["",0]
 ];
 
-NWG_WINFO_GetWorldName = {
-    (NWG_WINFO_worlds getOrDefault [worldName,(NWG_WINFO_worlds get "unknown")]) select NAME_RAW
+//================================================================================================================
+//================================================================================================================
+//Init
+private _Init = {
+    //dynamic simulation
+    if (NWG_WCONF_Settings get "DYNASIM_CONFIGURE_ON_START") then {call NWG_WCONF_ConfigureDynamicSimulation};
 };
-NWG_WINFO_GetWorldNameLocKey = {
-    (NWG_WINFO_worlds getOrDefault [worldName,(NWG_WINFO_worlds get "unknown")]) select NAME_LOC_KEY
+
+//================================================================================================================
+//================================================================================================================
+//World config
+NWG_WCONF_ConfigureDynamicSimulation = {
+    //Entire system enable/disable
+    enableDynamicSimulationSystem (NWG_WCONF_Settings get "DYNASIM_ENABLED");
+    if !(NWG_WCONF_Settings get "DYNASIM_ENABLED") exitWith {};//Exit if dynamic simulation is disabled
+
+    //Set distances
+    "Group"        setDynamicSimulationDistance (NWG_WCONF_Settings get "DYNASIM_DIST_CHAR");
+    "Vehicle"      setDynamicSimulationDistance (NWG_WCONF_Settings get "DYNASIM_DIST_MVEH");
+    "EmptyVehicle" setDynamicSimulationDistance (NWG_WCONF_Settings get "DYNASIM_DIST_EVEH");
+    "Prop"         setDynamicSimulationDistance (NWG_WCONF_Settings get "DYNASIM_DIST_PROP");
+
+    //Set moving multiplier
+    "IsMoving" setDynamicSimulationDistanceCoef (NWG_WCONF_Settings get "DYNASIM_DIST_MOVING_MULT");
 };
+
+//================================================================================================================
+//================================================================================================================
+call _Init;

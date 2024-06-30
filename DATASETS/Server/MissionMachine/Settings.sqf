@@ -4,7 +4,6 @@
 [
     //==================================================================================================
     // Player Base settings
-    ["PLAYER_BASE_ROOT","PlayerBase"],//Name of pre-placed map object (value of Object:Init -> Variable name) (mandatory for mission machine to work)
     ["PLAYER_BASE_BLUEPRINT","PlayerBase"],//Blueprint(s) page to build the base with using ukrep subsystem
     ["PLAYER_BASE_MARKERS",["o_unknown","loc_Tourism"]],//Markers to be placed at the player base position
     ["PLAYER_BASE_MARKERS_SIZE",1.25],//Size of the markers
@@ -20,20 +19,24 @@
     //==================================================================================================
     // Mission settings
     ["MISSIONS_LIST_MIN_DISTANCE",100],//Min distance between missions to be added to the list (example: several variants of the same mission, only one will be added by distance rule)
+    ["MISSIONS_OUTLINE_USE_ACTUAL_RAD",false],//If true - an actual radius of a mission will be used for map outline radius (may be misleading)
     ["MISSIONS_ENEMY_SIDE",west],//Side of the enemy groups (will it be always the same?)
     ["MISSIONS_ENEMY_FACTION","NATO"],//Faction of enemy groups (how will we add more factions? postponed question)
-    ["MISSIONS_OUTLINE_ALPHA",0.55],//Alpha value of the mission outline marker
-    ["MISSIONS_BUILD_MAPOBJECTS_LIMIT",10],//How many original map objects could be used for mission ukrep building
+    ["MISSIONS_EMPTY_BLDG_PAGENAME","BldgEmpty"],//Pagename with blueprints to fill empty buildings with
     ["MISSIONS_DONE_COLOR","ColorGreen"],//Color to mark missions on the map as done
+    ["MISSIONS_DONE_ALPHA",0.6],//Alpha value of 'done' map mark
 
     ["MISSIONS_PRESETS",[
         createHashMapFromArray [
-            ["Name","#MIS_DIF_EASY#"],
-            ["SelectionMarker","mil_objective"],
-            ["SelectionMarker_Color","ColorOrange"],
+            ["PresetName","#MIS_DIF_EASY#"],
+            ["MapMarker","mil_objective"],
+            ["MapMarkerColor","ColorOrange"],
+            ["MapMarkerSize",1.25],
+            ["MapOutlineAlpha",0.6],
+            ["MapOutlineRadius",100],
             ["UkrepFractalSteps",[
-                /*root:*/[/*pageName:*/nil,   /*blueprintName:*/"",/*chances:*/[]],
-                /*bldg:*/[/*pageName:*/"AUTO",/*blueprintName:*/"",/*chances:*/[
+                /*root:*/[/*pageName:*/nil,   /*chances:*/[],   /*groupRules:*/[nil,nil,/*disablePath:*/false]],
+                /*bldg:*/[/*pageName:*/"AUTO",/*chances:*/[
                     /*OBJ_TYPE_BLDG:*/1,
                     /*OBJ_TYPE_FURN:*/1,
                     /*OBJ_TYPE_DECO:*/1,
@@ -55,7 +58,7 @@
                         ]
                     ),
                     /*OBJ_TYPE_MINE:*/1]],
-                /*furn:*/[/*pageName:*/"AUTO",/*blueprintName:*/"",[
+                /*furn:*/[/*pageName:*/"AUTO",/*chances:*/[
                     /*OBJ_TYPE_BLDG:*/1,
                     /*OBJ_TYPE_FURN:*/1,
                     /*OBJ_TYPE_DECO:*/(
@@ -72,22 +75,27 @@
                     /*OBJ_TYPE_MINE:*/1
                 ]]
             ]],
+            ["UkrepMapBldgsLimit",7],//How many buildings in the mission area to decorate properly
+            ["UkrepMapBldgsEmptyLimit",5],//How many leftover empty buildings to fill with partial, low object number decorations
             ["DspawnRadiusMult",1.5],//Multiply ukrep radius by X to get dspawn radius (trigger)
             ["DspawnRadiusMin",150],
-            ["DspawnRadiusMax",200],
+            ["DspawnRadiusMax",250],
             ["DspawnGroupsMult",1],//Multiply number of ukrep groups by X to get dspawn groups
-            ["DspawnGroupsMin",2],
-            ["DspawnGroupsMax",5],
+            ["DspawnGroupsMin",[2,3]],
+            ["DspawnGroupsMax",[5,6]],
             ["ExhaustAfter",900],//Seconds after mission is exhausted (no more units will be spawned)
             ["",0]
         ],
         createHashMapFromArray [
-            ["Name","#MIS_DIF_NORMAL#"],
-            ["SelectionMarker","mil_objective"],
-            ["SelectionMarker_Color","ColorRed"],
+            ["PresetName","#MIS_DIF_NORMAL#"],
+            ["MapMarker","mil_objective"],
+            ["MapMarkerColor","ColorRed"],
+            ["MapMarkerSize",1.25],
+            ["MapOutlineAlpha",0.6],
+            ["MapOutlineRadius",150],
             ["UkrepFractalSteps",[
-                /*root:*/[/*pageName:*/nil,   /*blueprintName:*/"",/*chances:*/[]],
-                /*bldg:*/[/*pageName:*/"AUTO",/*blueprintName:*/"",/*chances:*/[
+                /*root:*/[/*pageName:*/nil,   /*chances:*/[],   /*groupRules:*/[nil,nil,/*disablePath:*/false]],
+                /*bldg:*/[/*pageName:*/"AUTO",/*chances:*/[
                     /*OBJ_TYPE_BLDG:*/1,
                     /*OBJ_TYPE_FURN:*/1,
                     /*OBJ_TYPE_DECO:*/1,
@@ -109,7 +117,7 @@
                         ]
                     ),
                     /*OBJ_TYPE_MINE:*/1]],
-                /*furn:*/[/*pageName:*/"AUTO",/*blueprintName:*/"",[
+                /*furn:*/[/*pageName:*/"AUTO",/*chances:*/[
                     /*OBJ_TYPE_BLDG:*/1,
                     /*OBJ_TYPE_FURN:*/1,
                     /*OBJ_TYPE_DECO:*/(
@@ -126,16 +134,23 @@
                     /*OBJ_TYPE_MINE:*/1
                 ]]
             ]],
+            ["UkrepMapBldgsLimit",9],//How many buildings in the mission area to decorate properly
+            ["UkrepMapBldgsEmptyLimit",3],//How many leftover empty buildings to fill with partial, low object number decorations
             ["DspawnRadiusMult",1.5],//Multiply ukrep radius by X to get dspawn radius (trigger)
             ["DspawnRadiusMin",150],
-            ["DspawnRadiusMax",200],
+            ["DspawnRadiusMax",250],
             ["DspawnGroupsMult",2],//Multiply number of ukrep groups by X to get dspawn groups
-            ["DspawnGroupsMin",3],
-            ["DspawnGroupsMax",8],
+            ["DspawnGroupsMin",[3,4]],
+            ["DspawnGroupsMax",[8,9]],
             ["ExhaustAfter",1800],//Seconds after mission is exhausted (no more units will be spawned)
             ["",0]
         ]
     ]],
+
+    //==================================================================================================
+    // Escape endgame
+    ["ESCAPE_MUSIC",["LeadTrack01_F_Mark","LeadTrack01_F_Heli","LeadTrack04_F_EXP","MainTheme_F_Tank","LeadTrack01_F_6th_Anniversary_Remix"]],
+    ["ESCAPE_BASEATTACK_GROUPSCOUNT",[5,6,7,8]],
 
     ["",0]
 ]

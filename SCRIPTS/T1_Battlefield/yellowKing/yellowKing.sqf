@@ -7,12 +7,10 @@
 NWG_YK_Settings = createHashMapFromArray [
     ["ENABLE_ON_START",false],//Defines wether or not the entire system is enabled on mission start
     ["KING_SIDE",west],//The side which kills will count and groups/reinforcements used, basically the side YK is plays for
-    ["REACTION_TIME",[60,120]],//Min and max time between actions and reactions (will be defined randomly between the two)
-    ["REACTION_IMMEDIATE_ON_KILLCOUNT",25],//Number of kills to immediately react to (skips all the wait remaining)
     ["REACT_TO_PLAYERS_ONLY",false],//Should we handle kills made by players only or include enemy AI units as well
+    ["SHOW_DEBUG_MESSAGES",true],//Show debug messages in systemChat
 
     ["DEFAULT_REINF_FACTION","NATO"],//The default faction to use for reinforcements if no faction saved to state holder
-    ["SHOW_DEBUG_MESSAGES",true],//Show debug messages in systemChat
 
     ["HUNT_ALARM",true],//Should we alarm hunters when a kill happens
     ["HUNT_ALARM_RADIUS",1000],//The radius in which hunters will be alarmed
@@ -23,7 +21,7 @@ NWG_YK_Settings = createHashMapFromArray [
     ["SPECIAL_ARTA_ENABLED",true],//Is artillery strike allowed
     ["SPECIAL_MORTAR_ENABLED",true],//Is mortar strike allowed
     ["SPECIAL_VEHDEMOLITION_ENABLED",true],//Is vehicle demolition allowed
-    ["SPECIAL_INFSTORM_ENABLED",true],//Is infantry building storm allowed
+    ["SPECIAL_INFSTORM_ENABLED",false],//Is infantry building storm allowed
     ["SPECIAL_VEHREPAIR_ENABLED",true],//Is vehicle repair allowed
 
     ["SPECIAL_VEHDEMOLITION_RADIUS",500],//Radius at which groups will be sent to do vehdemolition
@@ -32,6 +30,18 @@ NWG_YK_Settings = createHashMapFromArray [
     ["STATISTICS_ENABLED",true],//If true, the system will keep track of statistics
     ["STATISTICS_TO_RPT",true],//If true, the statistics will be dumped to rpt
     ["STATISTICS_TO_PROFILENAMESPACE",false],//If true, the statistics will be saved to profileNamespace
+
+    ["DIFFICULTY_REACTION_TIME",[60,120]],//Min and max time between actions and reactions (will be defined randomly between the two)
+    ["DIFFICULTY_REACTION_IMMEDIATE_ON_KILLCOUNT",10],//Number of kills to immediately react to (skips all the wait remaining)
+    ["DIFFICULTY_CURVE",[0,1,0,1,2,1,2,0,1,1,2,0,1,2,2,1,0]],//Yellow King difficulty curve
+    ["DIFFUCULTY_PRESETS",[
+        /*Easy*/
+            [/*_minReact*/1, /*_ingoreChance*/0.3, /*_maxMoves*/2, /*_maxReinfs*/0, /*_maxSpecials*/1],
+        /*Medium*/
+            [/*_minReact*/2, /*_ingoreChance*/0.2, /*_maxMoves*/3, /*_maxReinfs*/1, /*_maxSpecials*/2],
+        /*Hard*/
+            [/*_minReact*/3, /*_ingoreChance*/0.1, /*_maxMoves*/4, /*_maxReinfs*/2, /*_maxSpecials*/3]
+    ]],//YellowKing difficulty presets
 
     ["",0]
 ];
@@ -61,6 +71,9 @@ private _Init = {
     if !(is3DENPreview || {is3DENMultiplayer})
         then {NWG_YK_Settings set ["SHOW_DEBUG_MESSAGES",false]};
 
+    //Init difficulty curve
+    NWG_YK_difficultyCurve = (NWG_YK_Settings get "DIFFICULTY_CURVE")+[];//Shallow copy
+
     //Check auto-enable
     if (NWG_YK_Settings get "ENABLE_ON_START") then {call NWG_YK_Enable};
 };
@@ -70,7 +83,7 @@ private _Init = {
 //Enable/Disable/Configure
 NWG_YK_Enable = {
     if (NWG_YK_Enabled) exitWith {false};//Already enabled
-    NWG_YK_difficultyCurve call NWG_fnc_arrayRandomShift;//Shift the difficulty curve
+    call NWG_YK_ShiftDifficultyCurve;//Shift the difficulty curve
     call NWG_YK_STAT_OnEnable;//Statistics
     NWG_YK_killCount = 0;//Reset the kill count
     NWG_YK_killCountTotal = 0;//Reset the total kill count
@@ -118,7 +131,7 @@ NWG_YK_OnKilled = {
     NWG_YK_reactList pushBackUnique _actualKiller;
     if (NWG_YK_Settings get "SHOW_DEBUG_MESSAGES") then {systemChat (format ["NWG_YK: %1 killed %2",(name _actualKiller),(name _object)])};
     if (isNull NWG_YK_reactHandle || {scriptDone NWG_YK_reactHandle}) then {
-        NWG_YK_reactTime = time + ((NWG_YK_Settings get "REACTION_TIME") call NWG_fnc_randomRangeInt);
+        NWG_YK_reactTime = time + ((NWG_YK_Settings get "DIFFICULTY_REACTION_TIME") call NWG_fnc_randomRangeInt);
         NWG_YK_reactHandle = [] spawn NWG_YK_React;
         NWG_YK_Status = STATUS_PREPARING;
     };
@@ -131,7 +144,7 @@ NWG_YK_React = {
     //0. Wait for the reaction time to pass or the kill count to reach the immediate reaction limit
     waitUntil {
         sleep 1;
-        (time >= NWG_YK_reactTime || {NWG_YK_killCount > (NWG_YK_Settings get "REACTION_IMMEDIATE_ON_KILLCOUNT")})
+        (time >= NWG_YK_reactTime || {NWG_YK_killCount > (NWG_YK_Settings get "DIFFICULTY_REACTION_IMMEDIATE_ON_KILLCOUNT")})
     };
     private _onExit = {
         NWG_YK_reactList resize 0;
@@ -143,23 +156,28 @@ NWG_YK_React = {
     [STAT_REACTION_COUNT,1] call NWG_YK_STAT_Increment;
     NWG_YK_Status = STATUS_ACTING;
 
-    //1. Check if we have any targets to react to
+    //1. Get raw targets to react to
     private _targets = NWG_YK_reactList select {alive _x};
     if ((count _targets) == 0) exitWith _onExit;//No targets to react to
-    /*Statistics*/
-    private _initialCount = (count _targets);
-    [STAT_TARGETS_ACQUIRED,_initialCount] call NWG_YK_STAT_Increment;
 
     //2. Get difficulty settings
-    (call NWG_YK_GetDifficulty) params ["_ingoreChance","_movesLeft","_reinfsLeft","_speciaslLeft"];
+    (call NWG_YK_GetDifficultyPreset) params ["_minReact","_ignoreChance","_movesLeft","_reinfsLeft","_speciaslLeft"];
 
-    //3. Gather targets
-    _targets = [NWG_YK_reactList,_ingoreChance] call NWG_YK_ConvertToTargets;
+    //3. Process and convert the targets
+    /*Apply min reaction count*/
+    if ((count _targets) < _minReact) then {
+        while {(count _targets) < _minReact} do {_targets append _targets};
+        _targets resize _minReact;
+    };
+    private _initialCount = (count _targets);//Statistics
+    _targets = _targets select {(random 1) >= _ignoreChance};//Apply ignore chance
+    _targets = _targets call NWG_YK_ConvertToTargetData;//Convert to target data
     /*Statistics*/
+    [STAT_TARGETS_ACQUIRED,_initialCount] call NWG_YK_STAT_Increment;
     [STAT_TARGETS_IGNORED,(_initialCount - (count _targets))] call NWG_YK_STAT_Increment; _initialCount = nil;
     if ((count _targets) == 0) exitWith _onExit;//No targets to react to
 
-    //4. Gather hunters
+    //4. Gather the hunters
     private _hunters = call NWG_YK_HUNT_GetHunters;
     if (NWG_YK_Settings get "HUNT_MERGE_LONERS") then {
         _hunters = _hunters call NWG_YK_HUNT_MergeLoners;
@@ -171,7 +189,7 @@ NWG_YK_React = {
         _toRepair call NWG_YK_SPEC_SendToRepair;
     };
 
-    //5. Process the targets
+    //5. Bring the action
     //forEach target
     {
         //Unpack data
@@ -184,16 +202,14 @@ NWG_YK_React = {
         private _dice = [];
         if (_movesLeft > 0) then {
             private _i = [_hunters,_targetType,_targetPos] call NWG_YK_HUNT_SelectHunterFor;
-            if (_i == -1) exitWith {};//Couldn't find a hunter to move
-            _dice pushBack [DICE_MOVE,_i];
+            if (_i != -1) then {_dice pushBack [DICE_MOVE,_i]};
         };
         if (_reinfsLeft > 0) then {
             _dice pushBack [DICE_REINF];
         };
         if (_speciaslLeft > 0) then {
             private _specials = [_hunters,_x] call NWG_YK_SPEC_SelectSpecialsForTarget;//Notice that we pass the entire target record
-            if ((count _specials) == 0) exitWith {};//No specials to use
-            _dice pushBack [DICE_SPEC,_specials];
+            if ((count _specials) > 0) then {_dice pushBack [DICE_SPEC,_specials]};
         };
         if (_dice isEqualTo []) then {continue};//There is nothing we can do.. | Napoleon Meme
 
@@ -239,69 +255,36 @@ NWG_YK_React = {
 //======================================================================================================
 //======================================================================================================
 //Difficulty settings
-NWG_YK_difficultyCurve = [0,1,0,1,2,1,2,0,1,1,2,0,1,2,2,1,0];//Compiled with the help of chatGPT
-NWG_YK_difficultySettings = [
-/*Easy*/
-    [/*_ingoreChance*/0.4, /*_maxMoves*/2, /*_maxReinfs*/0, /*_maxSpecials*/1],
-/*Medium*/
-    [/*_ingoreChance*/0.3, /*_maxMoves*/3, /*_maxReinfs*/1, /*_maxSpecials*/2],
-/*Hard*/
-    [/*_ingoreChance*/0.2, /*_maxMoves*/4, /*_maxReinfs*/2, /*_maxSpecials*/3]
-];
-NWG_YK_GetDifficulty = {
-    private _i = NWG_YK_difficultyCurve deleteAt 0;
-    NWG_YK_difficultyCurve pushBack _i;
+NWG_YK_difficultyCurve = [];
+NWG_YK_ShiftDifficultyCurve = {
+    NWG_YK_difficultyCurve = NWG_YK_difficultyCurve call NWG_fnc_arrayRandomShift;
+};
+NWG_YK_GetDifficultyPreset = {
+    private _i = NWG_YK_difficultyCurve deleteAt 0;//Pop
+    NWG_YK_difficultyCurve pushBack _i;//Push back
+    private _presets = NWG_YK_Settings get "DIFFUCULTY_PRESETS";
     //return
-    (NWG_YK_difficultySettings select _i)
+    (_presets select _i)
 };
 
 //======================================================================================================
 //======================================================================================================
 //Targets logic
-NWG_YK_ConvertToTargets = {
-    params ["_units","_ignoreChance"];
-    _units = _units select {alive _x && {(random 1) >= _ignoreChance}};
-    if ((count _units) == 0) exitWith {[]};
+NWG_YK_ConvertToTargetData = {
+    private _targets = _this;
+    if ((count _targets) == 0) exitWith {[]};
+    _targets = (_targets apply {vehicle _x}) select {alive _x};//Convert to vehicles
 
-    private _targets = _units apply {vehicle _x};//Convert to vehicles
-    _targets = _targets arrayIntersect _targets;//Remove duplicates
-
-    private ["_type","_position","_building"];
+    private ["_type","_pos","_bldg"];
     _targets = _targets apply {
-        _type = _x call NWG_YK_GetTargetType;
-        _position = getPosASL _x;
-        _building = if (_type isEqualTo TARGET_TYPE_INF) then {_x call NWG_YK_GetBuildingTargetIn} else {objNull};
-        [_x,_type,_position,_building]
+        _type = _x call NWG_fnc_acGetTargetType;
+        _pos  = getPosASL _x;
+        _bldg = if (_type isEqualTo TARGET_TYPE_INF) then {_x call NWG_fnc_acGetBuildingTargetIn} else {objNull};
+        [_x,_type,_pos,_bldg]
     };
 
     //return
     _targets
-};
-
-/*Utils*/
-NWG_YK_GetTargetType = {
-    // private _target = _this;
-    switch (true) do {
-        case (_this isKindOf "Man"): {TARGET_TYPE_INF};
-        case (_this isKindOf "StaticWeapon"): {TARGET_TYPE_INF};//Static weapons are not actually infantry, but they are not vehicles either
-        case (_this isKindOf "Air"): {
-            if (_this isKindOf "ParachuteBase")/*Parachutes give false positives for "Air"*/
-                then {TARGET_TYPE_INF}
-                else {TARGET_TYPE_AIR}
-        };
-        case (_this isKindOf "Tank" || {_this isKindOf "Wheeled_APC_F"}) : {TARGET_TYPE_ARM};
-        case (_this isKindOf "Ship"): {TARGET_TYPE_BOAT};
-        default {TARGET_TYPE_VEH};
-    }
-};
-
-NWG_YK_GetBuildingTargetIn = {
-    // private _target = _this;
-    private _raycastFrom = getPosWorld _this;
-    private _raycastTo = _raycastFrom vectorAdd [0,0,-50];
-    private _result = (flatten (lineIntersectsSurfaces [_raycastFrom,_raycastTo,_this,objNull,true,-1,"FIRE","VIEW",true]));
-    _result = _result select {_x isEqualType objNull && {!isNull _x && {_x call NWG_fnc_ocIsBuilding}}};
-    _result param [0,objNull]
 };
 
 //======================================================================================================

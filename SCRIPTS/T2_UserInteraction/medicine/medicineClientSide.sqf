@@ -16,8 +16,8 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["TIME_DAMAGE_DEPLETES",6],//How much time is subtracted when damage received in wounded state
 
     ["SELF_HEAL_INITIAL_CHANCE",100],//Initial success chance of 'self-heal' action
-    ["SELF_HEAL_CHANCE_DECREASE",10],//Amount by which success chance of 'self-heal' action decreased by every attempt
-    ["SELF_HEAL_CHANCE_BOOST_ON_LAST_FAK",20],//Amount by which success chance of 'self-heal' action increased on last FAK
+    ["SELF_HEAL_CHANCE_DECREASE",10],//Amount by which success chance of 'self-heal' action decreased by every successful attempt
+    ["SELF_HEAL_CHANCE_BOOST_ON_LAST_FAK",40],//Amount by which success chance of 'self-heal' action increased on last FAK
     ["SELF_HEAL_ACTION_PRIORITY",13],//Priority of 'self-heal' action
     ["SELF_HEAL_ACTION_DURATION",8],//Duration of 'self-heal' action
 
@@ -25,7 +25,7 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["RESPAWN_ACTION_DURATION",5],//Duration of 'respawn' action
 
     ["HEAL_WITH_FAK_CHANCE",50],//Chance to heal another unit using only FAK
-    ["HEAL_CHANCE_BOOST_ON_LAST_FAK",20],//Amount by which success chance of 'heal' action increased on last FAK
+    ["HEAL_CHANCE_BOOST_ON_LAST_FAK",40],//Amount by which success chance of 'heal' action increased on last FAK
     ["HEAL_ACTION_PRIORITY",20],//Priority of 'heal' action
     ["HEAL_ACTION_DURATION",8],//Duration of 'heal' action
     ["HEAL_ACTION_AUTOSHOW",true],//If true - will automatically show on screen in suggestive manner
@@ -37,6 +37,8 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
 
     ["RELEASE_ACTION_PRIORITY",17],//Priority of 'release' action
     ["VEH_LOADIN_ACTION_PRIORITY",21],//Priority of 'veh load' action
+
+    ["VANILLA_HEAL_100HP",true],//If true - any vanilla heal action on player will remove all the damage
 
     ["",0]
 ];
@@ -62,6 +64,7 @@ private _Init = {
 
     player addEventHandler ["GetInMan",{_this call NWG_MED_CLI_OnVehGetIn}];
     player addEventHandler ["GetOutMan",{_this call NWG_MED_CLI_OnVehGetOut}];
+    player addEventHandler ["HandleHeal",{_this call NWG_MED_CLI_OnVanillaHeal}];
 
     player call NWG_MED_CLI_InitPlayer;
 };
@@ -78,6 +81,28 @@ NWG_MED_CLI_ReloadStates = {
     [player,false] call NWG_MED_COM_MarkWounded;
     [player,SUBSTATE_NONE] call NWG_MED_COM_SetSubstate;
     [player,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_COM_SetTime;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Vanilla Heal handling
+NWG_MED_CLI_OnVanillaHeal = {
+    // params ["_player","_healer","_isMedic"];
+    //1. Preferably, do not use 'exitWith' inside vanilla event handlers at all - Arma has a history of that causing issues
+    //2. This entire event is broken and we use suggested workaround, see: https://community.bistudio.com/wiki/Arma_3:_Event_Handlers#HandleHeal
+    if (NWG_MED_CLI_Settings get "VANILLA_HEAL_100HP") then {
+        _this spawn {
+            private _player = _this#0;
+            private _healStartDmg = damage _player;
+            private _timeout = time + 5;//NASA teached me this
+            waitUntil {
+                sleep 0.1;
+                (((damage _player) != _healStartDmg) || {time > _timeout})
+            };
+            if (alive _player && {(damage _player) <= _healStartDmg})
+                then {_player setDamage 0};
+        };
+    };
 };
 
 //================================================================================================================
@@ -532,17 +557,17 @@ NWG_MED_CLI_SA_OnSelfHealCompleted = {
 
     //Get success chance for self-revive
     private _myChance = NWG_MED_CLI_SA_selfHealSuccessChance;//Get chance
-    private _nextChance = _myChance - (NWG_MED_CLI_Settings get "SELF_HEAL_CHANCE_DECREASE");//Decrease success chance for the next attempt
-    NWG_MED_CLI_SA_selfHealSuccessChance = _nextChance;
+    private _nextChance = (_myChance - (NWG_MED_CLI_Settings get "SELF_HEAL_CHANCE_DECREASE")) max 0;//Calc next chance beforehand (before boost)
     if (_myChance > 0 && {!NWG_MED_CLI_hasFAKkit}) then {
         _myChance = _myChance + (NWG_MED_CLI_Settings get "SELF_HEAL_CHANCE_BOOST_ON_LAST_FAK");//Boost chance if it was the last FAK
         //No, we do not show this to player - it's a hidden bonus that they should not know about
     };
 
     //Try to revive self
-    if ((call NWG_MED_CLI_GetChance) <= _myChance) then {
+    if (_myChance > 0 && {(call NWG_MED_CLI_GetChance) <= _myChance}) then {
         /*Success*/
         [player,player,ACTION_HEAL_PARTIAL] call NWG_fnc_medReportMedAction;
+        NWG_MED_CLI_SA_selfHealSuccessChance = _nextChance;//Decrease success chance for the next attempt
     } else {
         /*Failure*/
         if !(player call NWG_MED_COM_IsPatched) then {[player,player,ACTION_PATCH] call NWG_fnc_medReportMedAction};//At least patch the player
@@ -761,7 +786,7 @@ NWG_MED_CLI_UA_OnHealCompleted_FAK = {
     };
 
     //Try to revive
-    if ((call NWG_MED_CLI_GetChance) <= _myChance) then {
+    if (_myChance > 0 && {(call NWG_MED_CLI_GetChance) <= _myChance}) then {
         /*Success*/
         [player,_healTarget,ACTION_HEAL_PARTIAL] call NWG_fnc_medReportMedAction;
     } else {
