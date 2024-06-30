@@ -348,6 +348,13 @@ private _faction = [
             ["BOAT","MEC","REG"],2,
             ["B_Boat_Armed_01_minigun_F"],
             [3,"B_Soldier_F"]
+        ],
+        //Police boat
+        [
+            ["BOAT","MOT","REG"],1,
+            ["C_Boat_Civil_01_police_F",[["Police",1],["hidePolice",0,"HideRescueSigns",1,"HidePoliceSigns",0]],false],
+            ["B_GEN_Commander_F",2,"B_GEN_Soldier_F"],
+            {[_this,NWG_DSPAWNFACTION_NATO_GendarmerieLoadouts] call NWG_fnc_dsAcHelperDressUnits}
         ]
     ]
 ];

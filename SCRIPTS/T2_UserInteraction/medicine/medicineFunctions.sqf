@@ -40,6 +40,14 @@ NWG_fnc_medIsMedic = {
     _this call NWG_MED_COM_IsMedic
 };
 
+//Reloads player self-heal chance
+NWG_fnc_medReloadSelfHealChance = {
+    // private _player = _this;
+    if (isNull _this) exitWith {};
+    if (!local _this) exitWith {_this remoteExec ["NWG_fnc_medReloadSelfHealChance",_this]};//Enforce locality
+    _this call NWG_MED_CLI_SA_ReloadSelfHealChance;
+};
+
 //Not for public use
 NWG_fnc_medDamage = {
     params ["_player",["_dmg",0.9]];

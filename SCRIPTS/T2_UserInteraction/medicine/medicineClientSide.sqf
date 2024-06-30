@@ -88,7 +88,7 @@ NWG_MED_CLI_ReloadStates = {
 //Vanilla Heal handling
 NWG_MED_CLI_OnVanillaHeal = {
     // params ["_player","_healer","_isMedic"];
-    //1. Preferably, do not use 'exitWith' inside vanilla event handlers at all - Arma has a history of that breaking things
+    //1. Preferably, do not use 'exitWith' inside vanilla event handlers at all - Arma has a history of that causing issues
     //2. This entire event is broken and we use suggested workaround, see: https://community.bistudio.com/wiki/Arma_3:_Event_Handlers#HandleHeal
     if (NWG_MED_CLI_Settings get "VANILLA_HEAL_100HP") then {
         _this spawn {
@@ -557,6 +557,7 @@ NWG_MED_CLI_SA_OnSelfHealCompleted = {
 
     //Get success chance for self-revive
     private _myChance = NWG_MED_CLI_SA_selfHealSuccessChance;//Get chance
+    private _nextChance = (_myChance - (NWG_MED_CLI_Settings get "SELF_HEAL_CHANCE_DECREASE")) max 0;//Calc next chance beforehand (before boost)
     if (_myChance > 0 && {!NWG_MED_CLI_hasFAKkit}) then {
         _myChance = _myChance + (NWG_MED_CLI_Settings get "SELF_HEAL_CHANCE_BOOST_ON_LAST_FAK");//Boost chance if it was the last FAK
         //No, we do not show this to player - it's a hidden bonus that they should not know about
@@ -566,8 +567,7 @@ NWG_MED_CLI_SA_OnSelfHealCompleted = {
     if (_myChance > 0 && {(call NWG_MED_CLI_GetChance) <= _myChance}) then {
         /*Success*/
         [player,player,ACTION_HEAL_PARTIAL] call NWG_fnc_medReportMedAction;
-        private _nextChance = _myChance - (NWG_MED_CLI_Settings get "SELF_HEAL_CHANCE_DECREASE");//Decrease success chance for the next attempt
-        NWG_MED_CLI_SA_selfHealSuccessChance = _nextChance max 0;
+        NWG_MED_CLI_SA_selfHealSuccessChance = _nextChance;//Decrease success chance for the next attempt
     } else {
         /*Failure*/
         if !(player call NWG_MED_COM_IsPatched) then {[player,player,ACTION_PATCH] call NWG_fnc_medReportMedAction};//At least patch the player

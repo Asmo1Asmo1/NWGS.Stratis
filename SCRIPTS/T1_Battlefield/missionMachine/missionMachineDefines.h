@@ -30,6 +30,10 @@
 #define MSTATE_CLEANUP 17
 #define MSTATE_RESET 18
 #define MSTATE_SERVER_RESTART 19
+/* escape phase */
+#define MSTATE_ESCAPE_SETUP 20
+#define MSTATE_ESCAPE_ACTIVE 21
+#define MSTATE_ESCAPE_COMPLETED 22
 
 // Exempt defines from ukrepDefines.h
 //It is not a good practice, but they are not that widespread to move them to globalDefines.h
@@ -44,14 +48,25 @@
 #define BPCONTAINER_PAYLOAD 6
 #define BPCONTAINER_BLUEPRINT 7
 
+#define UKREP_RESULT_BLDGS 0
+#define UKREP_RESULT_FURNS 1
+#define UKREP_RESULT_DECOS 2
+#define UKREP_RESULT_UNITS 3
+#define UKREP_RESULT_VEHCS 4
+#define UKREP_RESULT_TRRTS 5
+#define UKREP_RESULT_MINES 6
+
 //Selection element structure
 #define SELECTION_NAME 0
 #define SELECTION_POS 1
-#define SELECTION_RAD 2
 /*Server side*/
+#define SELECTION_RAD 2
 #define SELECTION_BLUEPRINT 3
 #define SELECTION_SETTINGS 4
 /*Client side*/
-#define SELECTION_DIFFICULTY 3
-#define SELECTION_MARKER 4
-#define SELECTION_MARKER_COLOR 5
+#define SELECTION_DIFFICULTY 2
+#define SELECTION_MARKER 3
+#define SELECTION_COLOR 4
+#define SELECTION_MARKER_SIZE 5
+#define SELECTION_OUTLINE_ALPHA 6
+#define SELECTION_OUTLINE_RADIUS 7

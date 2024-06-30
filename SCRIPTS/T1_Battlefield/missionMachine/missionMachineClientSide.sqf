@@ -6,10 +6,9 @@
 //Settings
 NWG_MIS_CLI_Settings = createHashMapFromArray [
     ["SELECTION_MARKER_TEXT_TEMPLATE","  %1 : %2"],//Template for Name:Difficulty of a mission
-    ["SELECTION_MARKER_OUTLINE_ALPHA",0.5],//Alpha of the selection markers outline
-    ["SELECTION_MARKER_SIZE",1.5],//Size of the selection markers
     ["SELECTION_MAPCLICK_MIN_DISTANCE",500],//Map distance to count map click as selection
 
+    ["MISSION_COMPLETED_RELOAD_SELF_HEAL",true],//Call medicine system to reload self-heal chance on mission completion
     ["MISSION_COMPLETED_CELEBRATE",true],//Play sound and show visuals on mission completion
     ["MISSION_COMPLETED_CELEBRATE_MUSIC",[
         "EventTrack01a_F_EPA",
@@ -57,10 +56,9 @@ NWG_MIS_CLI_OnSelectionOptionsReceived = {
 
     //Create markers on the map
     private ["_markerName","_marker"];
-    private _size = NWG_MIS_CLI_Settings get "SELECTION_MARKER_SIZE";
     private _markers = [];
     {
-        _x params ["_name","_pos","_rad","_difficulty","_markerType","_markerColor"];
+        _x params ["_name","_pos","_difficulty","_markerType","_markerColor","_markerSize","_outlineAlpha","_outlineRadius"];
 
         //Localize variables
         _name = _name call NWG_fnc_localize;
@@ -69,17 +67,17 @@ NWG_MIS_CLI_OnSelectionOptionsReceived = {
         //Create background outline marker
         _markerName = format ["selection_outline_%1",_forEachIndex];
         _marker = createMarker [_markerName,_pos];
-        _marker setMarkerSize [_rad,_rad];
+        _marker setMarkerSize [_outlineRadius,_outlineRadius];
         _marker setMarkerShape "ELLIPSE";
         _marker setMarkerColor _markerColor;
-        _marker setMarkerAlpha (NWG_MIS_CLI_Settings get "SELECTION_MARKER_OUTLINE_ALPHA");
+        _marker setMarkerAlpha _outlineAlpha;
         _markers pushBack _marker;
 
         //Create main marker
         _markerName = format ["selection_%1",_forEachIndex];
         _marker = createMarker [_markerName,_pos];
         _marker setMarkerType _markerType;
-        _marker setMarkerSize [_size,_size];
+        _marker setMarkerSize [_markerSize,_markerSize];
         _marker setMarkerText (format [(NWG_MIS_CLI_Settings get "SELECTION_MARKER_TEXT_TEMPLATE"),_name,_difficulty]);
         _marker setMarkerColor _markerColor;
         _markers pushBack _marker;
@@ -156,6 +154,12 @@ NWG_MIS_CLI_OnSelectionConfirmed = {
 //Just a nice visuals to show the progress
 NWG_MIS_CLI_OnMissionCompleted = {
     // private _missionName = _this;
+    //Reload self-healing success chance
+    if (NWG_MIS_CLI_Settings get "MISSION_COMPLETED_RELOAD_SELF_HEAL") then {
+        player call NWG_fnc_medReloadSelfHealChance;
+    };
+
+    //Celebrate?
     if !(NWG_MIS_CLI_Settings get "MISSION_COMPLETED_CELEBRATE") exitWith {};//No party. No fun =_=
 
     //Play sound
@@ -189,6 +193,18 @@ NWG_MIS_CLI_OnMissionCompleted = {
             [ _line3, "align = 'left' shadow = '1' size = '2.0'"]],
         /*posX:*/-0.5,/*posY:*/nil,nil,nil,nil,nil,/*sound:*/false] spawn BIS_fnc_typeText2;
     }
+};
+
+//================================================================================================================
+//================================================================================================================
+//Escape sequence
+NWG_MIS_CLI_OnPlayMusic = {
+    // private _music = _this;
+    playMusic _this
+};
+
+NWG_MIS_CLI_OnEscapeCompleted = {
+    ["end2",true,true,false,true] call BIS_fnc_endMission;
 };
 
 //================================================================================================================
