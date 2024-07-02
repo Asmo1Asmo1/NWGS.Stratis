@@ -111,6 +111,7 @@ NWG_fnc_ukrpBuildFractalABS = {
 //          - 0: GRP_RULES_MEMBERSHIP - side/group/"AGENT" (default: west) (use "AGENT" to create units as agents instead of actual units)
 //          - 1: GRP_RULES_DYNASIM - apply dynamic simulation to the group (default: true)
 //          - 2: GRP_RULES_DISABLEPATH - disable pathfinding for the group, make them static (default: true)
+//          - 3: GRP_RULES_SEPARATE_VEHS - separate vehicles each into its own group (default: true)
 // _adaptToGround - (optional) boolean, if true, composition will be adapted to the ground
 // _suppressEvent - (optional) boolean, if true, event EVENT_ON_UKREP_OBJECT_DECORATED will not be fired
 //returns:
