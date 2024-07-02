@@ -46,6 +46,7 @@
 #define SPEC_ARG 3
 
 //Dice
+#define DICE_IGNORE "IGNORE"
 #define DICE_MOVE "MOVE"
 #define DICE_REINF "REINF"
 #define DICE_SPEC "SPEC"

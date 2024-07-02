@@ -36,11 +36,11 @@ NWG_YK_Settings = createHashMapFromArray [
     ["DIFFICULTY_CURVE",[0,1,0,1,2,1,2,0,1,1,2,0,1,2,2,1,0]],//Yellow King difficulty curve
     ["DIFFUCULTY_PRESETS",[
         /*Easy*/
-            [/*_minReact*/1, /*_ingoreChance*/0.3, /*_maxMoves*/2, /*_maxReinfs*/0, /*_maxSpecials*/1],
+            [/*_minReact*/1, /*_maxIgnores*/2, /*_maxMoves*/2, /*_maxReinfs*/0, /*_maxSpecials*/1],
         /*Medium*/
-            [/*_minReact*/2, /*_ingoreChance*/0.2, /*_maxMoves*/3, /*_maxReinfs*/1, /*_maxSpecials*/2],
+            [/*_minReact*/2, /*_maxIgnores*/1, /*_maxMoves*/3, /*_maxReinfs*/1, /*_maxSpecials*/2],
         /*Hard*/
-            [/*_minReact*/3, /*_ingoreChance*/0.1, /*_maxMoves*/4, /*_maxReinfs*/2, /*_maxSpecials*/3]
+            [/*_minReact*/3, /*_maxIgnores*/0, /*_maxMoves*/4, /*_maxReinfs*/2, /*_maxSpecials*/3]
     ]],//YellowKing difficulty presets
 
     ["",0]
@@ -161,7 +161,7 @@ NWG_YK_React = {
     if ((count _targets) == 0) exitWith _onExit;//No targets to react to
 
     //2. Get difficulty settings
-    (call NWG_YK_GetDifficultyPreset) params ["_minReact","_ignoreChance","_movesLeft","_reinfsLeft","_speciaslLeft"];
+    (call NWG_YK_GetDifficultyPreset) params ["_minReact","_ignoresLeft","_movesLeft","_reinfsLeft","_speciaslLeft"];
 
     //3. Process and convert the targets
     /*Apply min reaction count*/
@@ -169,13 +169,11 @@ NWG_YK_React = {
         while {(count _targets) < _minReact} do {_targets append _targets};
         _targets resize _minReact;
     };
-    private _initialCount = (count _targets);//Statistics
-    _targets = _targets select {(random 1) >= _ignoreChance};//Apply ignore chance
-    _targets = _targets call NWG_YK_ConvertToTargetData;//Convert to target data
-    /*Statistics*/
-    [STAT_TARGETS_ACQUIRED,_initialCount] call NWG_YK_STAT_Increment;
-    [STAT_TARGETS_IGNORED,(_initialCount - (count _targets))] call NWG_YK_STAT_Increment; _initialCount = nil;
+    /*Convert to target data*/
+    _targets = _targets call NWG_YK_ConvertToTargetData;
     if ((count _targets) == 0) exitWith _onExit;//No targets to react to
+    /*Statistics*/
+    [STAT_TARGETS_ACQUIRED,(count _targets)] call NWG_YK_STAT_Increment;
 
     //4. Gather the hunters
     private _hunters = call NWG_YK_HUNT_GetHunters;
@@ -200,6 +198,9 @@ NWG_YK_React = {
 
         //Fill the dice
         private _dice = [];
+        if (_ignoresLeft > 0) then {
+            _dice pushBack [DICE_IGNORE];
+        };
         if (_movesLeft > 0) then {
             private _i = [_hunters,_targetType,_targetPos] call NWG_YK_HUNT_SelectHunterFor;
             if (_i != -1) then {_dice pushBack [DICE_MOVE,_i]};
@@ -211,13 +212,21 @@ NWG_YK_React = {
             private _specials = [_hunters,_x] call NWG_YK_SPEC_SelectSpecialsForTarget;//Notice that we pass the entire target record
             if ((count _specials) > 0) then {_dice pushBack [DICE_SPEC,_specials]};
         };
-        if (_dice isEqualTo []) then {continue};//There is nothing we can do.. | Napoleon Meme
+        if (_dice isEqualTo []) then {
+            continue
+        };//There is nothing we can do.. | Napoleon Meme
 
         //Roll the dice (Need for Speed IV Soundtrack - Roll The Dice) https://www.youtube.com/watch?v=ZgmQK1wVPzg
         (selectRandom _dice) params ["_diceType","_diceArg"];
 
         //Act
         switch (_diceType) do {
+            case DICE_IGNORE: {
+                //Do nothing
+                _ignoresLeft = _ignoresLeft - 1;
+                /*Statistics*/
+                [STAT_TARGETS_IGNORED,1] call NWG_YK_STAT_Increment;
+            };
             case DICE_MOVE : {
                 [_hunters,_diceArg,_targetPos] call NWG_YK_HUNT_MoveHunter;
                 _movesLeft = _movesLeft - 1;
