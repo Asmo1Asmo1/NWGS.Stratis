@@ -102,9 +102,15 @@ createHashMapFromArray [
     "Land_VR_Target_APC_Wheeled_01_F",/*Medium VR vehicle*/
     [
         ["B_APC_Wheeled_01_cannon_F",   [/*crew:*/[3,"B_crew_F"],/*appearance:*/[["Sand",1],["showBags",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5,"showSLATHull",0.5,"showSLATTurret",0.5]]]],
+        ["B_APC_Wheeled_01_cannon_F",   [/*crew:*/[3,"B_crew_F"],/*appearance:*/[["Sand",1],["showBags",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5,"showSLATHull",0.5,"showSLATTurret",0.5]]]],
+        ["B_AFV_Wheeled_01_cannon_F",   [/*crew:*/[3,"B_crew_F"],/*appearance:*/[["Sand",1],["showCamonetHull",0.5,"showCamonetTurret",0.5,"showSLATHull",0.5]]]],
         ["B_AFV_Wheeled_01_cannon_F",   [/*crew:*/[3,"B_crew_F"],/*appearance:*/[["Sand",1],["showCamonetHull",0.5,"showCamonetTurret",0.5,"showSLATHull",0.5]]]],
         ["B_AFV_Wheeled_01_up_cannon_F",[/*crew:*/[3,"B_crew_F"],/*appearance:*/[["Sand",1],["showCamonetHull",0.5,"showCamonetTurret",0.5,"showSLATHull",0.5]]]],
-        ["B_Truck_01_mover_F",[]]
+        ["B_AFV_Wheeled_01_up_cannon_F",[/*crew:*/[3,"B_crew_F"],/*appearance:*/[["Sand",1],["showCamonetHull",0.5,"showCamonetTurret",0.5,"showSLATHull",0.5]]]],
+        ["B_Truck_01_mover_F",[/*crew:*/["B_Soldier_F"]]],
+        ["B_Truck_01_ammo_F", [/*crew:*/["B_Soldier_F"]]],
+        ["B_Truck_01_box_F",  [/*crew:*/["B_Soldier_F"]]],
+        ["B_Truck_01_fuel_F", [/*crew:*/[2,"B_Soldier_F"]]]
     ]
 ],
 
