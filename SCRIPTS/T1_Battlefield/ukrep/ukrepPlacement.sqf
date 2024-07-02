@@ -16,6 +16,7 @@ NWG_UKREP_Settings = createHashMapFromArray [
     ["DEFAULT_GROUP_SIDE",west],//If group rules not provided - place under this side
     ["DEFAULT_GROUP_DYNASIM",true],//If group rules not provided - place with this dynamic simulation setting
     ["DEFAULT_GROUP_DISABLEPATH",true],//If group rules not provided - place with this pathfinding setting
+    ["DEFAULT_GROUP_SEPARATE_VEHS",true],//If group rules not provided - place with this vehicles separation setting (wether or not put vehicles into separate groups)
 
     ["",0]
 ];
@@ -575,6 +576,9 @@ NWG_UKREP_BP_ApplyFaction = {
 //================================================================================================================
 //Placement CORE
 //Note: at this point we expect the blueprint to be in absolute coordinates ASL, insides unpacked into single-dimension array and protected from modification of the original blueprint
+#define GET_GROUP_UNIT 0
+#define GET_GROUP_VEHC 1
+#define GET_GROUP_TRRT 2
 NWG_UKREP_PlacementCore = {
     params ["_blueprint",["_groupRules",[]]];
 
@@ -615,27 +619,42 @@ NWG_UKREP_PlacementCore = {
     _furns = _furns apply {_x call NWG_UKREP_CreateObject};
     _decos = _decos apply {_x call NWG_UKREP_CreateObject};
 
-    /*Prepare the group to include units into with lazy evaluation*/
-    private _placementGroup = grpNull;
+    /*Prepare the group(s) to include units into with lazy evaluation*/
+    private _rootGroup = grpNull;
+    private _addGroups = [];
     private _getGroup = {
-        if (!isNull _placementGroup) exitWith {_placementGroup};
+        private _flag = _this;
+
+        //Check special "AGENT" case
         private _membership = _groupRules param [GRP_RULES_MEMBERSHIP,(NWG_UKREP_Settings get "DEFAULT_GROUP_SIDE")];
-        if (_membership isEqualTo "AGENT") exitWith {_placementGroup = "AGENT"; "AGENT"};//Special case
-        _placementGroup = createGroup [_membership,/*delete when empty:*/true];
-        _placementGroup
+        if (_membership isEqualTo "AGENT") exitWith {"AGENT"};//Special case
+
+        //Check vehicle separation case
+        if (_flag == GET_GROUP_VEHC && {
+            _groupRules param [GRP_RULES_SEPARATE_VEHS,(NWG_UKREP_Settings get "DEFAULT_GROUP_SEPARATE_VEHS")]}
+        ) exitWith {
+            private _group = createGroup [_membership,/*delete when empty:*/true];
+            _addGroups pushBack _group;
+            _group
+        };
+
+        //Default
+        if (!isNull _rootGroup) exitWith {_rootGroup};
+        _rootGroup = createGroup [_membership,/*delete when empty:*/true];
+        _rootGroup
     };
 
     /*Place UNIT - units*/
     if ((count _units) > 0) then {
         _units = _units apply {[(_x#BP_CLASSNAME),(_x#BP_POS),(_x#BP_DIR),(_x#BP_PAYLOAD)]};//Repack into func argument
-        _units = [_units,(call _getGroup)] call NWG_fnc_spwnSpawnUnitsExact;
+        _units = [_units,(GET_GROUP_UNIT call _getGroup)] call NWG_fnc_spwnSpawnUnitsExact;
     };
 
     /*Place VEHC - vehicles*/
     _vehcs = _vehcs apply {
         (_x#BP_PAYLOAD) params [["_crew",[]],["_appearance",false],["_pylons",false]];
         private _vehicle = [(_x#BP_CLASSNAME),(_x#BP_POS),(_x#BP_DIR),_appearance,_pylons] call NWG_fnc_spwnSpawnVehicleExact;
-        if ((count _crew) > 0) then {[(_crew call NWG_fnc_unCompactStringArray),_vehicle,(call _getGroup)] call NWG_fnc_spwnSpawnUnitsIntoVehicle};
+        if ((count _crew) > 0) then {[(_crew call NWG_fnc_unCompactStringArray),_vehicle,(GET_GROUP_VEHC call _getGroup)] call NWG_fnc_spwnSpawnUnitsIntoVehicle};
         _vehicle
     };
 
@@ -643,7 +662,7 @@ NWG_UKREP_PlacementCore = {
     _trrts = _trrts apply {
         private _crew = _x param [BP_PAYLOAD,[]];
         private _turret = [(_x#BP_CLASSNAME),(_x#BP_POS),(_x#BP_DIR)] call NWG_fnc_spwnSpawnVehicleExact;
-        if ((count _crew) > 0) then {[(_crew call NWG_fnc_unCompactStringArray),_turret,(call _getGroup)] call NWG_fnc_spwnSpawnUnitsIntoVehicle};
+        if ((count _crew) > 0) then {[(_crew call NWG_fnc_unCompactStringArray),_turret,(GET_GROUP_TRRT call _getGroup)] call NWG_fnc_spwnSpawnUnitsIntoVehicle};
         _turret
     };
 
@@ -666,15 +685,15 @@ NWG_UKREP_PlacementCore = {
         [_mines,_minesDirs] remoteExec ["NWG_fnc_ukrpMinesRotateAndAdapt",-2];//Fix for mines direction in MP
     };
 
-    /*Finalize group*/
-    if (_placementGroup isEqualType grpNull && {!isNull _placementGroup}) then {
+    /*Finalize groups*/
+    {
         if (_groupRules param [GRP_RULES_DYNASIM,(NWG_UKREP_Settings get "DEFAULT_GROUP_DYNASIM")])
-            then {_placementGroup enableDynamicSimulation true};//Enable dynamic simulation
+            then {_x enableDynamicSimulation true};//Enable dynamic simulation
         if (_groupRules param [GRP_RULES_DISABLEPATH,(NWG_UKREP_Settings get "DEFAULT_GROUP_DISABLEPATH")])
-            then {{_x disableAI "PATH"} forEach (units _placementGroup)};//Disable pathfinding for all units
+            then {{_x disableAI "PATH"} forEach (units _x)};//Disable pathfinding for all units
 
-        _placementGroup setVariable ["NWG_UKREP_ownership",true];//Mark as UKREP group
-    };
+        _x setVariable ["NWG_UKREP_ownership",true];//Mark as UKREP group
+    } forEach (([_rootGroup] + _addGroups) select {!isNull _x});
 
     /*Finalize helpers*/
     if ((count _hlprs) > 0) then {
