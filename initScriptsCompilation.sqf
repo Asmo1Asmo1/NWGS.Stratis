@@ -131,6 +131,10 @@ _clientModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingCommon.sqf" ca
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\voting\votingFunctions.sqf" call NWG_fnc_compile);
 
+//T3_Economics
+//customizationPylons
+_clientModules pushBack ("SCRIPTS\T3_Economics\customizationPylons\customizationPylons.sqf" call NWG_fnc_compile);
+
 //================================================================================================================
 //================================================================================================================
 //ServerSide

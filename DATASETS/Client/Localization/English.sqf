@@ -51,6 +51,12 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_HINT_ABORTED#","Vote aborted"],
     ["#VOTE_HINT_VOTE_RECEIVED#","Vote sent"],
     ["#VOTE_HINT_TIMEOUT#","Vote timeout"],
+    //T3_Economics
+    //customizationPylons
+    ["#CPYL_LEFT_TITLE#","Pylon presets"],
+    ["#CPYL_RIGHT_TITLE#","Pylons owner"],
+    ["#CPYL_OWNER_PILOT#","Pilot"],
+    ["#CPYL_OWNER_GUNNER#","Gunner"],
 
     ["",""]
 ];

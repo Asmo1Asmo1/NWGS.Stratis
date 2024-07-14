@@ -22,6 +22,7 @@ class vehicleCustomization {
 			y = -17 * UI_GRID_H + UI_GRID_Y;
 			w = 13 * UI_GRID_W;
 			h = 34 * UI_GRID_H;
+			rowHeight = 2.5 * UI_GRID_H;
 		};
 		class RightBox: RscListbox
 		{
@@ -30,6 +31,7 @@ class vehicleCustomization {
 			y = -17 * UI_GRID_H + UI_GRID_Y;
 			w = 13 * UI_GRID_W;
 			h = 34 * UI_GRID_H;
+			rowHeight = 2.5 * UI_GRID_H;
 		};
 		////////////////////////////////////////////////////////
 		// GUI EDITOR OUTPUT END
