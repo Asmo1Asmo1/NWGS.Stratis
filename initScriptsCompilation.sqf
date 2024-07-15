@@ -132,8 +132,11 @@ _clientModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingClientSide.sqf
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\voting\votingFunctions.sqf" call NWG_fnc_compile);
 
 //T3_Economics
-//customizationPylons
-_clientModules pushBack ("SCRIPTS\T3_Economics\customizationPylons\customizationPylons.sqf" call NWG_fnc_compile);
+//vehCustomizationPylons
+_clientModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationPylons\vehCustomizationPylons.sqf" call NWG_fnc_compile);
+//vehCustomizationUI
+_clientModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationUI\vehCustomizationUI.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T3_Economics\vehCustomizationUI\vehCustomizationUIFunctions.sqf" call NWG_fnc_compile);
 
 //================================================================================================================
 //================================================================================================================
