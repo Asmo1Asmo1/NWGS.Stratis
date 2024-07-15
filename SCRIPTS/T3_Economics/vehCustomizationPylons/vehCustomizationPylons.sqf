@@ -56,4 +56,50 @@ NWG_VCPYL_CustomizePylons = {
     _rightPanel lbAdd (format [TITLE_TEMPLATE,("#CPYL_RIGHT_TITLE#" call NWG_fnc_localize)]);
     _rightPanel lbAdd ("#CPYL_OWNER_PILOT#" call NWG_fnc_localize);
     _rightPanel lbAdd ("#CPYL_OWNER_GUNNER#" call NWG_fnc_localize);
+
+    //Define customization logic
+    with uiNamespace do {
+        _gui setVariable ["NWG_VCPYL_vehicle",_vehicle];
+        _gui setVariable ["NWG_VCPYL_selectedPreset",""];
+        _gui setVariable ["NWG_VCPYL_isPilotOwner",true];
+    };
+
+    _leftPanel  ctrlAddEventHandler ["LBSelChanged", {
+        //Pylon preset selected
+        // params ["_control", "_lbCurSel", "_lbSelection"];
+        params ["_panel","_index"];
+        private _gui = ctrlParent _panel;
+        switch (_index) do {
+            case -1: {/*Do nothing*/};
+            case 0: {_gui setVariable ["NWG_VCPYL_selectedPreset",""]};//Title clicked - Clear preset
+            default {
+                private _preset = _panel lbData _index;
+                _gui setVariable ["NWG_VCPYL_selectedPreset",_preset];
+
+                private _vehicle = _gui getVariable "NWG_VCPYL_vehicle";
+                private _isPilotOwner = _gui getVariable "NWG_VCPYL_isPilotOwner";
+                [_vehicle,_preset,_isPilotOwner] spawn NWG_fnc_vcpylOnPresetSelected;
+            };
+        };
+    }];
+
+    _rightPanel ctrlAddEventHandler ["LBSelChanged", {
+        //Pylon owner selected
+        // params ["_control", "_lbCurSel", "_lbSelection"];
+        params ["_panel","_index"];
+        private _gui = ctrlParent _panel;
+        switch (_index) do {
+            case -1: {/*Do nothing*/};
+            case  0: {_gui setVariable ["NWG_VCPYL_isPilotOwner",true]};//Title clicked - Default to pilot
+            default {
+                private _isPilotOwner = (_index == 1);
+                _gui setVariable ["NWG_VCPYL_isPilotOwner",_isPilotOwner];
+
+                private _vehicle = _gui getVariable "NWG_VCPYL_vehicle";
+                private _preset = _gui getVariable "NWG_VCPYL_selectedPreset";
+                if (_preset isNotEqualTo "")
+                    then {[_vehicle,_preset,_isPilotOwner] spawn NWG_fnc_vcpylOnPresetSelected};
+            };
+        };
+    }];
 };
