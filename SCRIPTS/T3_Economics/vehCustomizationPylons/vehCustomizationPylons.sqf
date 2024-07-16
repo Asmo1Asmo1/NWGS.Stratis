@@ -13,14 +13,6 @@
     @Asmo
 */
 
-//================================================================================================================
-//================================================================================================================
-//Defines
-#define TITLE_TEMPLATE "[ %1 ]"
-
-//================================================================================================================
-//================================================================================================================
-//Methods
 NWG_VCPYL_CanCustomizePylons = {
     // private _vehicle = _this;
     "true" configClasses (configOf _this >> "Components" >> "TransportPylonsComponent") isNotEqualTo []
@@ -36,14 +28,13 @@ NWG_VCPYL_CustomizePylons = {
     };
 
     //Create GUI
-    private _guiCreateResult = _vehicle call NWG_fnc_vcuiCreateCustomizationUI;
+    private _guiCreateResult = [_vehicle,"#CPYL_LEFT_TITLE#","#CPYL_RIGHT_TITLE#"] call NWG_fnc_vcuiCreateCustomizationUI;
     if (_guiCreateResult isEqualTo false) exitWith {
         "NWG_VCPYL_CustomizePylons: Failed to create GUI" call NWG_fnc_logError;
     };
     _guiCreateResult params ["_gui","_leftPanel","_rightPanel"];
 
     //Init the left panel (pylon presets)
-    _leftPanel lbAdd (format [TITLE_TEMPLATE,("#CPYL_LEFT_TITLE#" call NWG_fnc_localize)]);
     private _presets = "true" configClasses (configOf _vehicle >> "Components" >> "TransportPylonsComponent" >> "Presets");
     private _picture = getText (configOf _vehicle >> "icon");
 	{
@@ -53,7 +44,6 @@ NWG_VCPYL_CustomizePylons = {
 	} forEach _presets;
 
     //Init the right panel (pylon owner)
-    _rightPanel lbAdd (format [TITLE_TEMPLATE,("#CPYL_RIGHT_TITLE#" call NWG_fnc_localize)]);
     _rightPanel lbAdd ("#CPYL_OWNER_PILOT#" call NWG_fnc_localize);
     _rightPanel lbAdd ("#CPYL_OWNER_GUNNER#" call NWG_fnc_localize);
 
