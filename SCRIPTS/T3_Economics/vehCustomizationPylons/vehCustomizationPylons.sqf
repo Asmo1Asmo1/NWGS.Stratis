@@ -2,11 +2,11 @@
     Reference used: SetupPylons by Artemoz
     This is NOT the same script, but a cut-down and reworked version of it because I wanted to:
     a) Allow it to be put in public (never got such permission from Artemoz)
-    b) Make it consistent with appearanceCustomization and use the same UI
+    b) Make it consistent with vehCustomizationAppearance and use the same UI
 
     Differences are:
     - Uses custom camera view instead of no changes to camera
-    - Uses the same UI as appearanceCustomization instead of custom UI by Artemoz
+    - Uses the same UI as vehCustomizationAppearance instead of custom UI by Artemoz
     - Does not support precise pylon customization, only presets (about 3/4 of functionality is removed)
     - Changes in how we store variables, how we apply choice and so on
     - Click-rate limit to prevent DDOS'ing the server
