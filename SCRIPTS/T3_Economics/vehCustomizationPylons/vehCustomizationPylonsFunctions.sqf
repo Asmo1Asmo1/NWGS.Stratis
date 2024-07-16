@@ -13,5 +13,5 @@ NWG_fnc_vcpylOnPresetSelected = {
 
     if (local _vehicle)
         then {_this call NWG_VCPYL_OnPresetSelected}
-        else {_this remoteExec ["NWG_VCPYL_OnPresetSelected",_vehicle]};
+        else {_this remoteExec ["NWG_fnc_vcpylOnPresetSelected",_vehicle]};
 };

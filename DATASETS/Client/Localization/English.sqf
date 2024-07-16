@@ -52,7 +52,10 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_HINT_VOTE_RECEIVED#","Vote sent"],
     ["#VOTE_HINT_TIMEOUT#","Vote timeout"],
     //T3_Economics
-    //customizationPylons
+    //vehCustomizationAppearance
+    ["#CAPP_LEFT_TITLE#","Color"],
+    ["#CAPP_RIGHT_TITLE#","Components"],
+    //vehCustomizationPylons
     ["#CPYL_LEFT_TITLE#","Pylon presets"],
     ["#CPYL_RIGHT_TITLE#","Pylons owner"],
     ["#CPYL_OWNER_PILOT#","Pilot"],

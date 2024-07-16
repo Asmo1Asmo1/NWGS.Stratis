@@ -1,10 +1,11 @@
 #define DIALOGUE_NAME "vehicleCustomization"
 #define LEFT_BOX_IDD 1500
 #define RIGHT_BOX_IDD 1501
+#define TITLE_TEMPLATE "[ %1 ]"
 
 NWG_VCUI_CreateCustomizationUI = {
     disableSerialization;
-    private _vehicle = _this;
+    params ["_vehicle","_leftTitle","_rightTitle"];
 
     //Check argument
     if (isNull _vehicle || {!alive _vehicle}) exitWith {
@@ -69,6 +70,10 @@ NWG_VCUI_CreateCustomizationUI = {
         _camera cameraEffect ["terminate","back"];
         camDestroy _camera;
     }];
+
+    //Add titles
+    _leftPanel  lbAdd (format [TITLE_TEMPLATE,(_leftTitle call NWG_fnc_localize)]);
+    _rightPanel lbAdd (format [TITLE_TEMPLATE,(_rightTitle call NWG_fnc_localize)]);
 
     //Return
     [_gui,_leftPanel,_rightPanel]
