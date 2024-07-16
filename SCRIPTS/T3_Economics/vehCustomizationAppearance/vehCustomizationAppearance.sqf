@@ -6,98 +6,78 @@
     - Does not highlight the current selection (TODO: add maybe?)
     @Asmo
 */
-/*
-    Refactoring notes:
-    We loop through the same arrays 3 times: once to get the current customization, once to get all the options and once to get display names.
-    Maybe there is a way to do it in one loop?
-*/
 
 //Rate limit to prevent DDOS'ing the server (each valid click is another client->server request)
 #define PROTECTION_RATE 0.1
 NWG_VCAPP_protectionTime = 0;
+
+//Enum
+#define CONFIG_NAME 0
+#define DISPLAY_NAME 1
+#define FLAG 2
 
 //======================================================================================================
 //======================================================================================================
 //Customization getters
 NWG_VCAPP_HasCustomizationOptions = {
     // private _vehicle = _this;
-    ([_this,/*colors:*/true,/*anims:*/true] call NWG_VCAPP_GetCustomizationOptions) params ["_colors","_animations"];
+    (_this call NWG_VCAPP_GetCustomization) params ["_colors","_animations"];
     //return
-    (((count _colors) > 2) || ((count _animations) > 2))
+    (((count _colors) > 1) || ((count _animations) > 1))
 };
 
-NWG_VCAPP_GetCurrentCustomization = {
-    //Returns the current customization of the vehicle just like BIS_fnc_getVehicleCustomization does, but with all the options available
-    // private _vehicle = _this;
-    ([_this,/*colors:*/true,/*anims:*/false] call NWG_VCAPP_GetCustomizationOptions) params ["_colors"];
-    (_this call BIS_fnc_getVehicleCustomization) params ["_curColors","_animations"];
-
-    //Transfer color
-    private _i = _colors find (_curColors param [0,""]);//_curColors is usually ["ColorName",1]
-    if (_i != -1) then {_colors set [(_i+1),1]};
-
-    //Transfer animations
-    /*
-        Testing and debugging showed that current animations that we got with 'BIS_fnc_getVehicleCustomization'
-        Is usually exactly the same as 'all animations' but with flags set correctly.
-        So we don't need to do anything here, just take and use it.
-    */
-
-    //return
-    [_colors,_animations]
-};
-
-NWG_VCAPP_GetCustomizationOptions = {
-    //Modified content of BIS_fnc_getVehicleCustomization that gets ALL the colors and animations available, not just the current ones
+NWG_VCAPP_GetCustomization = {
+    //Modified content of BIS_fnc_getVehicleCustomization that gets ALL the colors and animations available not just the current ones (+ with display names)
     //see: https://community.bistudio.com/wiki/BIS_fnc_getVehicleCustomization
-    params ["_vehicle",["_getColors",true],["_getAnimations",true]];
+    private _vehicle = _this;
     private _vehCfg = configFile >> "cfgVehicles" >> (typeof _vehicle);
+    private ["_configName","_displayName","_flag"];
 
+    //--- Read colors
     private _colors = [];
-    if (_getColors) then {
-        {
-            _colors pushBack (configName _x);
-            _colors pushBack 0;
-        } forEach ("true" configClasses (_vehCfg >> "TextureSources"));
+    private _normalizeTexturesArray = {
+        // private _array = _this;
+        //return
+        _this apply {
+            switch (true) do {
+                case (!(_x isEqualType "")): {_x};
+                case (_x find "\" != 0): {"\" + (toLower _x)};
+                default {(toLower _x)};
+            }
+        }
     };
 
-    private _animations = [];
-    if (_getAnimations) then {
-        {
-            _animations pushBack (configName _x);
-            _animations pushBack 0;
-        } forEach ((configProperties [_vehCfg >> "animationSources", "isClass _x", true])
-            select {getText (_x >> "displayName") isNotEqualTo "" && {getnumber (_x >> "scope") > 1 || !isnumber (_x >> "scope")}});
-    };
-
-    //return
-    [_colors,_animations]
-};
-
-NWG_VCAPP_GetCustomizationDisplayNames = {
-    // private _vehicle = _this;
-    private _vehCfg = configFile >> "cfgVehicles" >> (typeOf _this);
-    private _cur = "";
-
-    private _colorDisplayNames = [];
+    private _currentTextures = (getObjectTextures _vehicle) call _normalizeTexturesArray;
+    _flag = 0;
     {
-        _cur = getText (_x >> "displayName");
-        if (_cur isEqualTo "") then { _displayName = configName _x};
-        _colorDisplayNames pushBack _cur;
-        _colorDisplayNames pushBack 0;
+        _configName = configName _x;
+        _displayName = getText (_x >> "displayName");
+        if (isNil "_displayName" || {_displayName isEqualTo ""}) then {_displayName = _configName};
+        /*Use the fact that only one color can hit match, so we can safely cut corner and skip the rest*/
+        if (_flag == 0) then {
+            private _textures = (getArray (_x >> "textures")) call _normalizeTexturesArray;
+            private _isMatch = (count (_textures arrayIntersect _currentTextures)) > 0;
+            _flag = if (_isMatch) then {1} else {0};
+            _colors pushBack [_configName,_displayName,_flag];
+        } else {
+            _colors pushBack [_configName,_displayName,0];
+        };
     } forEach ("true" configClasses (_vehCfg >> "TextureSources"));
 
-    private _animationDisplayNames = [];
+    //--- Read components
+    //(animations they call them, technically some of them are, but mostly they are just 'on|off' switches)
+    private _animations = [];
     {
-        _cur = getText (_x >> "displayName");
-        if (_cur isEqualTo "") then { _displayName = configName _x};
-        _animationDisplayNames pushBack _cur;
-        _animationDisplayNames pushBack 0;
+        _configName = configName _x;
+        _displayName = getText (_x >> "displayName");
+        if (isNil "_displayName" || {_displayName isEqualTo ""}) then {_displayName = _configName};
+        _flag = _vehicle animationPhase _configName;
+        _animations pushBack [_configName,_displayName,_flag];
     } forEach ((configProperties [_vehCfg >> "animationSources", "isClass _x", true])
         select {getText (_x >> "displayName") isNotEqualTo "" && {getNumber (_x >> "scope") > 1 || !isNumber (_x >> "scope")}});
 
-    // return
-    [_colorDisplayNames, _animationDisplayNames]
+    //return
+    [_colors,_animations]
 };
 
 //======================================================================================================
@@ -120,5 +100,5 @@ NWG_VCAPP_CustomizeAppearance = {
     _guiCreateResult params ["_gui","_leftPanel","_rightPanel"];
 
     //Get customization options
-    (_vehicle call NWG_VCAPP_GetCurrentCustomization) params ["_colors","_animations"];
+    (_vehicle call NWG_VCAPP_GetCustomization) params ["_colors","_animations"];
 };
