@@ -43,11 +43,11 @@ NWG_VCPYL_CustomizePylons = {
     //Init the left panel (pylon presets)
     private _presets = "true" configClasses (configOf _vehicle >> "Components" >> "TransportPylonsComponent" >> "Presets");
     private _picture = getText (configOf _vehicle >> "icon");
-	{
-		private _i = _leftPanel lbAdd (getText (_x >> "displayName"));
-		_leftPanel lbSetData [_i, (configName _x)];
+    {
+        private _i = _leftPanel lbAdd (getText (_x >> "displayName"));
+        _leftPanel lbSetData [_i, (configName _x)];
         _leftPanel lbSetPicture [_i, _picture];
-	} forEach _presets;
+    } forEach _presets;
 
     //Init the right panel (pylon owner)
     _rightPanel lbAdd ("#CPYL_OWNER_PILOT#" call NWG_fnc_localize);

@@ -101,4 +101,16 @@ NWG_VCAPP_CustomizeAppearance = {
 
     //Get customization options
     (_vehicle call NWG_VCAPP_GetCustomization) params ["_colors","_animations"];
+
+    //Init the left panel (colors)
+    private _picture = getText (configOf _vehicle >> "icon");
+    {
+        private _i = _leftPanel lbAdd (_x select DISPLAY_NAME);
+        _leftPanel lbSetPicture [_i, _picture];
+    } forEach _colors;
+
+    //Init the right panel (components)
+    {
+        _rightPanel lbAdd (_x select DISPLAY_NAME);
+    } forEach _animations;
 };
