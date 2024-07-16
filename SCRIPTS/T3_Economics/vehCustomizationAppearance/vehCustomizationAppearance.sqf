@@ -11,6 +11,9 @@
 #define PROTECTION_RATE 0.1
 NWG_VCAPP_protectionTime = 0;
 
+//======================================================================================================
+//======================================================================================================
+//Customization getters
 NWG_VCAPP_HasCustomizationOptions = {
     // private _vehicle = _this;
     ([_this,/*colors:*/true,/*anims:*/true] call NWG_VCAPP_GetCustomizationOptions) params ["_colors","_animations"];
@@ -64,4 +67,24 @@ NWG_VCAPP_GetCustomizationOptions = {
 
     //return
     [_colors,_animations]
+};
+
+//======================================================================================================
+//======================================================================================================
+//Customization change logic
+NWG_VCAPP_CustomizeAppearance = {
+    disableSerialization;
+    private _vehicle = _this;
+
+    //Check argument
+    if !(_vehicle call NWG_VCAPP_HasCustomizationOptions) exitWith {
+        (format ["NWG_VCAPP_CustomizeAppearance: %1 cannot be customized",(typeOf _vehicle)]) call NWG_fnc_logError;
+    };
+
+    //Create GUI
+    private _guiCreateResult = [_vehicle,"#CAPP_LEFT_TITLE#","#CAPP_RIGHT_TITLE#"] call NWG_fnc_vcuiCreateCustomizationUI;
+    if (_guiCreateResult isEqualTo false) exitWith {
+        "NWG_VCAPP_CustomizeAppearance: Failed to create GUI" call NWG_fnc_logError;
+    };
+    _guiCreateResult params ["_gui","_leftPanel","_rightPanel"];
 };
