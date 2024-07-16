@@ -8,10 +8,16 @@
     - Uses custom camera view instead of no changes to camera
     - Uses the same UI as appearanceCustomization instead of custom UI by Artemoz
     - Does not support precise pylon customization, only presets (about 3/4 of functionality is removed)
+    - Changes in how we store variables, how we apply choice and so on
+    - Click-rate limit to prevent DDOS'ing the server
     - Rearranged and refactored code
 
     @Asmo
 */
+
+//Rate limit to prevent DDOS'ing the server (each valid click is another client->server request)
+#define PROTECTION_RATE 0.1
+NWG_VCPYL_protectionTime = 0;
 
 NWG_VCPYL_CanCustomizePylons = {
     // private _vehicle = _this;
@@ -54,42 +60,60 @@ NWG_VCPYL_CustomizePylons = {
         _gui setVariable ["NWG_VCPYL_isPilotOwner",true];
     };
 
-    _leftPanel  ctrlAddEventHandler ["LBSelChanged", {
+    _leftPanel ctrlAddEventHandler ["LBSelChanged", {
         //Pylon preset selected
         // params ["_control", "_lbCurSel", "_lbSelection"];
         params ["_panel","_index"];
-        private _gui = ctrlParent _panel;
-        switch (_index) do {
-            case -1: {/*Do nothing*/};
-            case 0: {_gui setVariable ["NWG_VCPYL_selectedPreset",""]};//Title clicked - Clear preset
-            default {
-                private _preset = _panel lbData _index;
-                _gui setVariable ["NWG_VCPYL_selectedPreset",_preset];
 
-                private _vehicle = _gui getVariable "NWG_VCPYL_vehicle";
-                private _isPilotOwner = _gui getVariable "NWG_VCPYL_isPilotOwner";
-                [_vehicle,_preset,_isPilotOwner] spawn NWG_fnc_vcpylOnPresetSelected;
+        if (time > NWG_VCPYL_protectionTime) then {
+            NWG_VCPYL_protectionTime = time + PROTECTION_RATE;
+            private _gui = ctrlParent _panel;
+            switch (_index) do {
+                case -1: {/*Do nothing on 'unselected'*/};
+                case  0: {_gui setVariable ["NWG_VCPYL_selectedPreset",""]};//Title clicked - Clear preset
+                default {
+                    private _preset = _panel lbData _index;
+                    _gui setVariable ["NWG_VCPYL_selectedPreset",_preset];
+
+                    private _vehicle = _gui getVariable "NWG_VCPYL_vehicle";
+                    private _isPilotOwner = _gui getVariable "NWG_VCPYL_isPilotOwner";
+                    [_vehicle,_preset,_isPilotOwner] spawn NWG_fnc_vcpylOnPresetSelected;
+                };
             };
         };
+
     }];
 
     _rightPanel ctrlAddEventHandler ["LBSelChanged", {
         //Pylon owner selected
         // params ["_control", "_lbCurSel", "_lbSelection"];
         params ["_panel","_index"];
-        private _gui = ctrlParent _panel;
-        switch (_index) do {
-            case -1: {/*Do nothing*/};
-            case  0: {_gui setVariable ["NWG_VCPYL_isPilotOwner",true]};//Title clicked - Default to pilot
-            default {
-                private _isPilotOwner = (_index == 1);
-                _gui setVariable ["NWG_VCPYL_isPilotOwner",_isPilotOwner];
 
-                private _vehicle = _gui getVariable "NWG_VCPYL_vehicle";
-                private _preset = _gui getVariable "NWG_VCPYL_selectedPreset";
-                if (_preset isNotEqualTo "")
-                    then {[_vehicle,_preset,_isPilotOwner] spawn NWG_fnc_vcpylOnPresetSelected};
+        if (time > NWG_VCPYL_protectionTime) then {
+            NWG_VCPYL_protectionTime = time + PROTECTION_RATE;
+            private _gui = ctrlParent _panel;
+            switch (_index) do {
+                case -1: {/*Do nothing on 'unselected'*/};
+                case  0: {_gui setVariable ["NWG_VCPYL_isPilotOwner",true]};//Title clicked - Default to pilot
+                default {
+                    private _isPilotOwner = (_index == 1);
+                    _gui setVariable ["NWG_VCPYL_isPilotOwner",_isPilotOwner];
+
+                    private _vehicle = _gui getVariable "NWG_VCPYL_vehicle";
+                    private _preset = _gui getVariable "NWG_VCPYL_selectedPreset";
+                    if (_preset isNotEqualTo "")
+                        then {[_vehicle,_preset,_isPilotOwner] spawn NWG_fnc_vcpylOnPresetSelected};
+                };
             };
         };
+
     }];
+
+    /*
+        It could be re-written to decrease nesting and improve readability, BUT,
+        not sure with that one, but with some other vanilla event handlers
+        there were legit issues with 'exitWith' command being used inside the event handler code block
+        resulting in unexpected behavior.
+        So it is how it is.
+    */
 };
