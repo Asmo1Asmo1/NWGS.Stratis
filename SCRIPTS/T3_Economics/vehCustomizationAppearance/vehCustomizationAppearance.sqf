@@ -199,17 +199,25 @@ NWG_VCAPP_ApplyChanges = {
         _gui setVariable ["NWG_VCAPP_selectedAnimation",-1];//Clear selection
     };
 
-    //Convert color data to function args
+    //Generate color function args
     private _colorArgs = call {
+        if (_selectedColor == -1) exitWith {false};//Nothing selected - do no changes
         private _i = _colors findIf {(_x select SELECTION_FLAG) == 1};
         if (_i == -1) exitWith {[]};
         //else return
         [((_colors#_i) select CONFIG_NAME),((_colors#_i) select SELECTION_FLAG)]
     };
 
-    //Convert animation data to function args
-    private _animArgs = _animations apply {
-        [(_x select CONFIG_NAME),(_x select SELECTION_FLAG)]
+    //Generate animation function args
+    private _animArgs = call {
+        if (_selectedAnimation == -1) exitWith {false};//Nothing selected - do no changes
+        private _args = [];
+        {
+            _args pushBack (_x#CONFIG_NAME);
+            _args pushBack (_x#SELECTION_FLAG);
+        } forEach _animations;
+        //return
+        _args
     };
 
     //Run request
