@@ -113,4 +113,61 @@ NWG_VCAPP_CustomizeAppearance = {
     {
         _rightPanel lbAdd (_x select DISPLAY_NAME);
     } forEach _animations;
+
+    //Define customization logic
+    with uiNamespace do {
+        _gui setVariable ["NWG_VCAPP_vehicle",_vehicle];
+        _gui setVariable ["NWG_VCAPP_colors",_colors];
+        _gui setVariable ["NWG_VCAPP_animations",_animations];
+        _gui setVariable ["NWG_VCAPP_selectedColor",-1];
+        _gui setVariable ["NWG_VCAPP_selectedAnimation",-1];
+    };
+
+    _leftPanel ctrlAddEventHandler ["LBSelChanged", {
+        //Color selected
+        // params ["_control", "_lbCurSel", "_lbSelection"];
+        params ["_panel","_index"];
+
+        if (time > NWG_VCAPP_protectionTime) then {
+            NWG_VCAPP_protectionTime = time + PROTECTION_RATE;
+            private _gui = ctrlParent _panel;
+            switch (_index) do {
+                case -1: {/*Do nothing on 'unselected'*/};
+                case  0: {_gui setVariable ["NWG_VCAPP_selectedColor",-1]};//Title clicked - Clear
+                default {
+                    _gui setVariable ["NWG_VCAPP_selectedColor",_index];
+                    _gui call NWG_VCAPP_ApplyChanges;
+                };
+            };
+        };
+
+    }];
+
+    _rightPanel ctrlAddEventHandler ["LBSelChanged", {
+        //Component selected
+        // params ["_control", "_lbCurSel", "_lbSelection"];
+        params ["_panel","_index"];
+
+        if (time > NWG_VCAPP_protectionTime) then {
+            NWG_VCAPP_protectionTime = time + PROTECTION_RATE;
+            private _gui = ctrlParent _panel;
+            switch (_index) do {
+                case -1: {/*Do nothing on 'unselected'*/};
+                case  0: {_gui setVariable ["NWG_VCAPP_selectedAnimation",-1]};//Title clicked - Clear
+                default {
+                    _gui setVariable ["NWG_VCAPP_selectedAnimation",_index];
+                    _gui call NWG_VCAPP_ApplyChanges;
+                };
+            };
+        };
+
+    }];
+
+};
+
+NWG_VCAPP_ApplyChanges = {
+    private _gui = _this;
+
+    //TODO: Implement
+    systemChat "TODO: Implement NWG_VCAPP_ApplyChanges";
 };
