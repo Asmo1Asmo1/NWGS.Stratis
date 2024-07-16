@@ -6,6 +6,11 @@
     - Does not highlight the current selection (TODO: add maybe?)
     @Asmo
 */
+/*
+    Refactoring notes:
+    We loop through the same arrays 3 times: once to get the current customization, once to get all the options and once to get display names.
+    Maybe there is a way to do it in one loop?
+*/
 
 //Rate limit to prevent DDOS'ing the server (each valid click is another client->server request)
 #define PROTECTION_RATE 0.1
@@ -69,6 +74,32 @@ NWG_VCAPP_GetCustomizationOptions = {
     [_colors,_animations]
 };
 
+NWG_VCAPP_GetCustomizationDisplayNames = {
+    // private _vehicle = _this;
+    private _vehCfg = configFile >> "cfgVehicles" >> (typeOf _this);
+    private _cur = "";
+
+    private _colorDisplayNames = [];
+    {
+        _cur = getText (_x >> "displayName");
+        if (_cur isEqualTo "") then { _displayName = configName _x};
+        _colorDisplayNames pushBack _cur;
+        _colorDisplayNames pushBack 0;
+    } forEach ("true" configClasses (_vehCfg >> "TextureSources"));
+
+    private _animationDisplayNames = [];
+    {
+        _cur = getText (_x >> "displayName");
+        if (_cur isEqualTo "") then { _displayName = configName _x};
+        _animationDisplayNames pushBack _cur;
+        _animationDisplayNames pushBack 0;
+    } forEach ((configProperties [_vehCfg >> "animationSources", "isClass _x", true])
+        select {getText (_x >> "displayName") isNotEqualTo "" && {getNumber (_x >> "scope") > 1 || !isNumber (_x >> "scope")}});
+
+    // return
+    [_colorDisplayNames, _animationDisplayNames]
+};
+
 //======================================================================================================
 //======================================================================================================
 //Customization change logic
@@ -87,4 +118,7 @@ NWG_VCAPP_CustomizeAppearance = {
         "NWG_VCAPP_CustomizeAppearance: Failed to create GUI" call NWG_fnc_logError;
     };
     _guiCreateResult params ["_gui","_leftPanel","_rightPanel"];
+
+    //Get customization options
+    (_vehicle call NWG_VCAPP_GetCurrentCustomization) params ["_colors","_animations"];
 };
