@@ -13,7 +13,7 @@ NWG_VCAPP_protectionTime = 0;
 
 NWG_VCAPP_HasCustomizationOptions = {
     // private _vehicle = _this;
-    (_this call NWG_VCAPP_GetCustomizationOptions) params ["_colors","_animations"];
+    ([_this,/*colors:*/true,/*anims:*/true] call NWG_VCAPP_GetCustomizationOptions) params ["_colors","_animations"];
     //return
     (((count _colors) > 2) || ((count _animations) > 2))
 };
@@ -21,8 +21,8 @@ NWG_VCAPP_HasCustomizationOptions = {
 NWG_VCAPP_GetCurrentCustomization = {
     //Returns the current customization of the vehicle just like BIS_fnc_getVehicleCustomization does, but with all the options available
     // private _vehicle = _this;
-    (_this call NWG_VCAPP_GetCustomizationOptions) params ["_colors"];
-    (_this call BIS_fnc_getVehicleCustomization)   params ["_curColors","_animations"];
+    ([_this,/*colors:*/true,/*anims:*/false] call NWG_VCAPP_GetCustomizationOptions) params ["_colors"];
+    (_this call BIS_fnc_getVehicleCustomization) params ["_curColors","_animations"];
 
     //Transfer color
     private _i = _colors find (_curColors param [0,""]);//_curColors is usually ["ColorName",1]
@@ -42,21 +42,25 @@ NWG_VCAPP_GetCurrentCustomization = {
 NWG_VCAPP_GetCustomizationOptions = {
     //Modified content of BIS_fnc_getVehicleCustomization that gets ALL the colors and animations available, not just the current ones
     //see: https://community.bistudio.com/wiki/BIS_fnc_getVehicleCustomization
-    // private _vehicle = _this;
-    private _vehCfg = configFile >> "cfgVehicles" >> (typeof _this);
+    params ["_vehicle",["_getColors",true],["_getAnimations",true]];
+    private _vehCfg = configFile >> "cfgVehicles" >> (typeof _vehicle);
 
     private _colors = [];
-    {
-        _colors pushBack (configName _x);
-        _colors pushBack 0;
-    } forEach ("true" configClasses (_vehCfg >> "TextureSources"));
+    if (_getColors) then {
+        {
+            _colors pushBack (configName _x);
+            _colors pushBack 0;
+        } forEach ("true" configClasses (_vehCfg >> "TextureSources"));
+    };
 
     private _animations = [];
-    {
-        _animations pushBack (configName _x);
-        _animations pushBack 0;
-    } forEach ((configProperties [_vehCfg >> "animationSources", "isClass _x", true])
-        select {getText (_x >> "displayName") isNotEqualTo "" && {getnumber (_x >> "scope") > 1 || !isnumber (_x >> "scope")}});
+    if (_getAnimations) then {
+        {
+            _animations pushBack (configName _x);
+            _animations pushBack 0;
+        } forEach ((configProperties [_vehCfg >> "animationSources", "isClass _x", true])
+            select {getText (_x >> "displayName") isNotEqualTo "" && {getnumber (_x >> "scope") > 1 || !isnumber (_x >> "scope")}});
+    };
 
     //return
     [_colors,_animations]
