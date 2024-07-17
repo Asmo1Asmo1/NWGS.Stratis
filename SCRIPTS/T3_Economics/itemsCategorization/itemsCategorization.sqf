@@ -37,8 +37,7 @@ NWG_ICAT_GetItemType = {
                 else {ITEM_TYPE_WEPN}
         };
         case ((getText (_cfg >> "vehicleClass")) == "Backpacks"): {/*'==' to keep it case-insensitive*/
-            if ((getText (_cfg >> "assembleInfo" >> "assembleTo")) isNotEqualTo "" ||
-                {getNumber (_cfg >> "maximumLoad") == 0})
+            if ((getText (_cfg >> "assembleInfo" >> "assembleTo")) isNotEqualTo "")
                 then {ITEM_TYPE_WEPN}/*UAV/UGV and weapon backpacks*/
                 else {ITEM_TYPE_CLTH}/*Regular backpacks*/
         };
