@@ -30,11 +30,11 @@ NWG_ICAT_GetItemType_Test_VanillaCatalogue = {
         _category = _x param [0,""];
         _entries  = _x param [1,[]];
         if (!(_category isEqualType "") || {!(_entries isEqualType [])})
-            then {_errors pushBack (format ["NWG_ICAT_GetItemType_Test_VanillaCatalogue: Defective record in %1:%2 cat:%3 ent:%4",_filePath,_forEachIndex,_category,_entries])};
+            then {_errors pushBack (format ["NWG_ICAT_GetItemType_Test_VanillaCatalogue: Defective record in %1:%2 cat:%3 ent:%4",_filePath,_forEachIndex,_category,_entries]); continue};
 
         _category = (_category splitString "_") select 0;
         if !(_category in _itemCategories)
-            then {_errors pushBack (format ["NWG_ICAT_GetItemType_Test_VanillaCatalogue: Invalid category '%1' in %2:%3",_category,_filePath,_forEachIndex])};
+            then {_errors pushBack (format ["NWG_ICAT_GetItemType_Test_VanillaCatalogue: Invalid category '%1' in %2:%3",_category,_filePath,_forEachIndex]); continue};
 
         {
             _xCat = _x call NWG_ICAT_GetItemType;
@@ -48,7 +48,7 @@ NWG_ICAT_GetItemType_Test_VanillaCatalogue = {
         _errors call NWG_ICAT_Dump;
         "Some errors occured, see RPT for details"
     } else {
-        "All tests passed"
+        "All tests passed successfully"
     }
 };
 
