@@ -132,6 +132,9 @@ _clientModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingClientSide.sqf
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\voting\votingFunctions.sqf" call NWG_fnc_compile);
 
 //T3_Economics
+//itemsCategorization
+_clientModules pushBack ("SCRIPTS\T3_Economics\itemsCategorization\itemsCategorization.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\itemsCategorization\itemsCategorizationTests.sqf" call NWG_fnc_compile)};
 //vehCustomizationAppearance
 _serverModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationAppearance\vehCustomizationAppearanceCore.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationAppearance\vehCustomizationAppearanceCore.sqf" call NWG_fnc_compile);
