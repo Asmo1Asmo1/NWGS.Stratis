@@ -17,6 +17,41 @@ NWG_ICAT_GetItemType_Test_PlayerLoadout = {
     _loadout
 };
 
+// call NWG_ICAT_GetItemType_Test_VanillaCatalogue
+NWG_ICAT_GetItemType_Test_VanillaCatalogue = {
+    private _filePath = "DATASETS\Server\ItemsCategorization\_Vanilla.sqf";
+    private _catalogue = call (_filePath call NWG_fnc_compile);
+    if (isNil "_catalogue" || {!(_catalogue isEqualType [])}) exitWith {"Failed to load catalogue"};
+
+    private _itemCategories = [ITEM_TYPE_CLTH,ITEM_TYPE_WEPN,ITEM_TYPE_ITEM,ITEM_TYPE_AMMO];
+    private ["_category","_entries","_xCat"];
+    private _errors = [];
+    {
+        _category = _x param [0,""];
+        _entries  = _x param [1,[]];
+        if (!(_category isEqualType "") || {!(_entries isEqualType [])})
+            then {_errors pushBack (format ["NWG_ICAT_GetItemType_Test_VanillaCatalogue: Defective record in %1:%2 cat:%3 ent:%4",_filePath,_forEachIndex,_category,_entries])};
+
+        _category = (_category splitString "_") select 0;
+        if !(_category in _itemCategories)
+            then {_errors pushBack (format ["NWG_ICAT_GetItemType_Test_VanillaCatalogue: Invalid category '%1' in %2:%3",_category,_filePath,_forEachIndex])};
+
+        {
+            _xCat = _x call NWG_ICAT_GetItemType;
+            if (_category isNotEqualTo _xCat)
+                then {_errors pushBack (format ["NWG_ICAT_GetItemType_Test_VanillaCatalogue: For '%1' expected '%2' got '%3'",_x,_category,_xCat])};
+        } forEach _entries;
+
+    } forEach _catalogue;
+
+    if ((count _errors) > 0) then {
+        _errors call NWG_ICAT_Dump;
+        "Some errors occured, see RPT for details"
+    } else {
+        "All tests passed"
+    }
+};
+
 //================================================================================================================
 //================================================================================================================
 //Test utils
