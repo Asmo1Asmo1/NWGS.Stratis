@@ -32,7 +32,6 @@ NWG_ICAT_GetItemType_Test_VanillaCatalogue = {
         if (!(_category isEqualType "") || {!(_entries isEqualType [])})
             then {_errors pushBack (format ["NWG_ICAT_GetItemType_Test_VanillaCatalogue: Defective record in %1:%2 cat:%3 ent:%4",_filePath,_forEachIndex,_category,_entries]); continue};
 
-        _category = (_category splitString "_") select 0;
         if !(_category in _itemCategories)
             then {_errors pushBack (format ["NWG_ICAT_GetItemType_Test_VanillaCatalogue: Invalid category '%1' in %2:%3",_category,_filePath,_forEachIndex]); continue};
 

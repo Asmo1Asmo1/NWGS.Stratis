@@ -5,14 +5,14 @@
     //РЮКЗАКИ
 
     /*Special backpacks with 0 load*/
-    ["CLTH_B_CommonBackpacks",
+    ["CLTH",
     [
         "B_CombinationUnitRespirator_01_F"	,
         "B_SCBA_01_F"	,
         "B_Parachute"
     ]],
-    /*Common backpacks of different size and load*/
-    ["CLTH_B_LightBackpacks",
+    /*LightBackpacks*/
+    ["CLTH",
     [
         "B_AssaultPack_blk"	,
         "B_AssaultPack_dgtl"	,
@@ -28,7 +28,8 @@
         "B_Messenger_Olive_F"	,
         "B_Messenger_Gray_F"
     ]],
-    ["CLTH_B_InfantryBackpacks",
+    /*InfantryBackpacks*/
+    ["CLTH",
     [
         "B_CivilianBackpack_01_Everyday_Black_F"	,
         "B_CivilianBackpack_01_Everyday_Vrana_F"	,
@@ -66,7 +67,8 @@
         "B_RadioBag_01_mtp_F"	,
         "B_AssaultPack_Kerry"
     ]],
-    ["CLTH_B_HeavyBackpacks",
+    /*HeavyBackpacks*/
+    ["CLTH",
     [
         "B_Carryall_eaf_F"	,
         "B_Carryall_ghex_F"	,
@@ -84,8 +86,8 @@
         "B_ViperHarness_oli_F"
     ]],
 
-    /*Backpacked supports and tripods for weapons (what are they? weapons? clothes? garbage?)*/
-    ["CLTH_B_WeaponPartsBackpacks",
+    /*WeaponPartsBackpacks*//*Backpacked supports and tripods for weapons (what are they? weapons? clothes? garbage?)*/
+    ["CLTH",
     [
         //Turrets
         "O_HMG_01_support_high_F"	,
@@ -96,8 +98,8 @@
         "O_Mortar_01_support_F"
     ]],
 
-    /*Backpacked weapons and drones*/
-    ["WEPN_B_WeaponBackpacks",
+    /*WeaponBackpacks*/
+    ["WEPN",
     [
         //Turrets
         "O_HMG_02_high_weapon_F"	,
@@ -127,7 +129,8 @@
     //=============================================================================================
     //ПРЕДМЕТЫ
 
-    ["ITEM_I_CommonItems",
+    /*CommonItems*/
+    ["ITEM",
     [
         "ItemMap"	,
         "ItemGPS"	,
@@ -140,12 +143,14 @@
         "Medikit",
         "ToolKit"
     ]],
-    ["ITEM_I_UavTerminal",
+    /*UavTerminal*/
+    ["ITEM",
     [
         "O_UavTerminal"
     ]],
 
-    ["ITEM_G_NightGoggles",
+    /*NightGoggles*/
+    ["ITEM",
     [
         "O_NVGoggles_ghex_F"	,
         "O_NVGoggles_grn_F"	,
@@ -154,14 +159,16 @@
         "NVGoggles_tna_F"
     ]],
 
-    ["ITEM_G_TIGoggles",
+    /*TIGoggles*/
+    ["ITEM",
 	[
         "NVGogglesB_grn_F",
         "NVGogglesB_gry_F",
         "NVGogglesB_blk_F"
 	]],
 
-    ["ITEM_F_CommonFacewear",
+    /*CommonFacewear*/
+    ["ITEM",
     [
         "G_Aviator"	,
         "G_Bandanna_aviator"	,
@@ -209,14 +216,16 @@
         "G_Spectacles_Tinted"	,
         "G_WirelessEarpiece_F"
     ]],
-    ["ITEM_F_LightFacewear",
+    /*LightFacewear*/
+    ["ITEM",
     [
         "G_Balaclava_oli"	,
         "G_Bandanna_oli"	,
         "G_Balaclava_TI_tna_F"	,
         "G_Balaclava_TI_G_tna_F"
     ]],
-    ["ITEM_F_InfantryFacewear",
+    /*InfantryFacewear*/
+    ["ITEM",
     [
         "G_AirPurifyingRespirator_02_black_F"	,
         "G_AirPurifyingRespirator_02_olive_F"	,
@@ -229,7 +238,8 @@
     ]],
 
     /*Hats are CLTH*/
-    ["CLTH_H_CommonHats",
+    /*CommonHats*/
+    ["CLTH",
     [
         "H_Bandanna_gry"	,
         "H_Bandanna_blu"	,
@@ -244,7 +254,8 @@
         "H_HeadSet_black_F"	,
         "H_WirelessEarpiece_F"
     ]],
-    ["CLTH_H_LightHats",
+    /*LightHats*/
+    ["CLTH",
     [
         "H_Bandanna_khk_hs"	,
         "H_Bandanna_khk"	,
@@ -277,7 +288,8 @@
         "H_MilCap_eaf"	,
         "H_Cap_headphones"
     ]],
-    ["CLTH_H_InfantryHelmets",
+    /*InfantryHelmets*/
+    ["CLTH",
     [
         "H_HelmetHBK_headset_F"	,
         "H_HelmetHBK_chops_F"	,
@@ -310,7 +322,8 @@
         "H_CrewHelmetHeli_B",
         "H_PASGT_basic_white_F"
     ]],
-    ["CLTH_H_Booniehats",
+    /*Booniehats*/
+    ["CLTH",
     [
         "H_Booniehat_mgrn"	,
         "H_Booniehat_khk_hs"	,
@@ -323,12 +336,14 @@
         "H_Booniehat_dgtl"	,
         "H_Booniehat_eaf"
     ]],
-    ["CLTH_H_Shemags",
+    /*Shemags*/
+    ["CLTH",
     [
         "H_Shemag_olive"	,
         "H_Shemag_olive_hs"
     ]],
-    ["CLTH_H_Helmets_Tank",
+    /*Helmets_Tank*/
+    ["CLTH",
     [
         "H_HelmetAggressor_F"	,
         "H_HelmetAggressor_cover_F"	,
@@ -340,7 +355,8 @@
         "H_HelmetCrew_I"	,
         "H_HelmetCrew_I_E"
     ]],
-    ["CLTH_H_Helmets_Pilot",
+    /*Helmets_Pilot*/
+    ["CLTH",
     [
         "H_CrewHelmetHeli_I"	,
         "H_CrewHelmetHeli_O"	,
@@ -352,11 +368,13 @@
         "H_PilotHelmetFighter_O"
     ]],
 
-    ["CLTH_U_CommonUniform",
+    /*CommonUniform*/
+    ["CLTH",
     [
         "U_BG_Guerilla2_1"
     ]],
-    ["CLTH_U_LightUniform",
+    /*LightUniform*/
+    ["CLTH",
     [
         "U_I_C_Soldier_Bandit_1_F"	,
         "U_I_C_Soldier_Bandit_3_F"	,
@@ -407,7 +425,8 @@
         "U_B_survival_uniform"	,
         "U_O_R_Gorka_01_black_F"
     ]],
-    ["CLTH_U_InfantryUniform",
+    /*InfantryUniform*/
+    ["CLTH",
     [
         "U_B_CBRN_Suit_01_Tropic_F"	,
         "U_B_CBRN_Suit_01_Wdl_F"	,
@@ -416,7 +435,8 @@
         "U_I_Wetsuit"	,
         "U_O_Wetsuit"
     ]],
-    ["CLTH_U_Ghillie",
+    /*Ghillie*/
+    ["CLTH",
     [
         "U_I_FullGhillie_ard"	,
         "U_O_FullGhillie_ard"	,
@@ -428,7 +448,8 @@
         "U_O_T_Sniper_F"	,
         "U_I_GhillieSuit"
     ]],
-    ["CLTH_U_Uniform_Pilot",
+    /*Uniform_Pilot*/
+    ["CLTH",
     [
         "U_I_E_Uniform_01_coveralls_F"	,
         "U_I_HeliPilotCoveralls",
@@ -436,7 +457,8 @@
         "U_Tank_green_F"
     ]],
 
-    ["CLTH_V_LightVests",
+    /*LightVests*/
+    ["CLTH",
     [
         "V_Chestrig_blk"	,
         "V_Chestrig_rgr"	,
@@ -463,7 +485,8 @@
         "V_TacVest_oli"	,
         "V_I_G_resistanceLeader_F"
     ]],
-    ["CLTH_V_InfantryVests",
+    /*InfantryVests*/
+    ["CLTH",
     [
         "V_PlateCarrier1_blk"	,
         "V_PlateCarrier1_tna_F"	,
@@ -480,7 +503,8 @@
         "V_RebreatherIA"	,
         "V_RebreatherIR"
     ]],
-    ["CLTH_V_HeavyVests",
+    /*HeavyVests*/
+    ["CLTH",
     [
         "V_PlateCarrierGL_blk"	,
         "V_PlateCarrierGL_rgr"	,
@@ -496,17 +520,20 @@
         "V_CarrierRigKBT_01_heavy_Olive_F",
         "V_EOD_olive_F"
     ]],
-    ["CLTH_V_Vests_Medic",
+    /*Vests_Medic*/
+    ["CLTH",
     [
         "V_TacVestIR_blk"
     ]],
 
-    ["ITEM_A_CommonAttachments",
+    /*CommonAttachments*/
+    ["ITEM",
     [
         "acc_flashlight"	,
         "acc_pointer_IR"
     ]],
-    ["ITEM_A_PistolAttachments",
+    /*PistolAttachments*/
+    ["ITEM",
     [
         "muzzle_snds_acp"	,
         "muzzle_snds_L"	,
@@ -518,7 +545,8 @@
         "optic_MRD_black"	,
         "optic_Yorris"
     ]],
-    ["ITEM_A_Silencers",
+    /*Silencers*/
+    ["ITEM",
     [
         "muzzle_snds_570"	,
         "muzzle_snds_B_khk_F"	,
@@ -538,7 +566,8 @@
         "muzzle_snds_338_black"	,
         "muzzle_snds_338_green"
     ]],
-    ["ITEM_A_Bipods",
+    /*Bipods*/
+    ["ITEM",
     [
         "bipod_02_F_arid"	,
         "bipod_03_F_blk"	,
@@ -553,7 +582,8 @@
         "bipod_02_F_tan"
     ]],
 
-    ["ITEM_O_SmgOptics",
+    /*SmgOptics*/
+    ["ITEM",
     [
         "optic_ACO_grn"	,
         "optic_Aco"	,
@@ -562,7 +592,8 @@
         "optic_Holosight_blk_F"	,
         "optic_Holosight_smg_blk_F"
     ]],
-    ["ITEM_O_InfantryOptics",
+    /*InfantryOptics*/
+    ["ITEM",
     [
         "optic_Arco_blk_F"	,
         "optic_Arco_ghex_F"	,
@@ -582,7 +613,8 @@
         "optic_Hamr"	,
         "optic_Hamr_khk_F"
     ]],
-    ["ITEM_O_SniperOptics",
+    /*SniperOptics*/
+    ["ITEM",
     [
         "optic_AMS"	,
         "optic_AMS_khk"	,
@@ -595,7 +627,8 @@
         "optic_SOS"	,
         "optic_SOS_khk_F"
     ]],
-    ["ITEM_O_MarksmanOptics",
+    /*MarksmanOptics*/
+    ["ITEM",
     [
         "optic_NVS",
         "optic_DMS"	,
@@ -603,8 +636,8 @@
         "optic_DMS_weathered_F"
     ]],
 
-    /*Loot items*/
-    ["ITEM_L_CommonLoot",
+    /*LootItems*/
+    ["ITEM",
     [
         "FlashDisk",
         "Files",
@@ -634,7 +667,8 @@
     //=============================================================================================
     //МАГАЗИНЫ
 
-    ["AMMO_M_CommonMagazines",
+    /*CommonMags*/
+    ["AMMO",
     [
         //Батарейки
         "Laserbatteries"	,
@@ -766,12 +800,10 @@
         "SmokeShellPurple"	,
         "SmokeShellRed"	,
         "SmokeShell"	,
-        "SmokeShellYellow",
-        //Подрыв пакеты
-        "DemoCharge_Remote_Mag"	,
-        "SatchelCharge_Remote_Mag"
+        "SmokeShellYellow"
     ]],
-    ["AMMO_M_MachinegunMagazines",
+    /*MachinegunMags*/
+    ["AMMO",
     [
         "130Rnd_338_Mag"	,
         "150Rnd_556x45_Drum_Green_Mag_F"	,
@@ -810,7 +842,8 @@
         "75Rnd_762x39_Mag_Tracer_F"	,
         "150Rnd_93x64_Mag"
     ]],
-    ["AMMO_M_Explosives",
+    /*Explosives*/
+    ["AMMO",
     [
         "APERSBoundingMine_Range_Mag"	,
         "APERSMine_Range_Mag"	,
@@ -819,15 +852,18 @@
         "ATMine_Range_Mag"	,
         "ClaymoreDirectionalMine_Remote_Mag"	,
         "SLAMDirectionalMine_Wire_Mag"	,
-        "TrainingMine_Mag"
+        "TrainingMine_Mag",
+        //Подрыв пакеты
+        "DemoCharge_Remote_Mag"	,
+        "SatchelCharge_Remote_Mag"
     ]],
 
     //=============================================================================================
     //=============================================================================================
     //ОРУЖИЕ
 
-    /*Binoculars is NOT a weapon*/
-    ["ITEM_W_Binoculars",
+    /*Binoculars*//*Are not a weapon*/
+    ["ITEM",
     [
         "Binocular"	,
         "Rangefinder",
@@ -835,7 +871,8 @@
         "Laserdesignator_03"	,
         "Laserdesignator"
     ]],
-    ["WEPN_W_Handguns",
+    /*Handguns*/
+    ["WEPN",
     [
         "hgun_Pistol_heavy_01_F"	,
         "hgun_Pistol_heavy_01_green_F"	,
@@ -849,14 +886,16 @@
         "hgun_esd_01_F",
         "hgun_Pistol_Signal_F"
     ]],
-    ["WEPN_W_SMGs",
+    /*SMGs*/
+    ["WEPN",
     [
         "hgun_PDW2000_F"	,
         "SMG_05_F"	,
         "SMG_02_F"	,
         "SMG_01_F"
     ]],
-    ["WEPN_W_P90",
+    /*P90*/
+    ["WEPN",
     [
         "SMG_03_black"	,
         "SMG_03_camo"	,
@@ -871,12 +910,14 @@
         "SMG_03C_TR_camo"	,
         "SMG_03C_TR_hex"
     ]],
-    ["WEPN_W_Shotguns",
+    /*Shotguns*/
+    ["WEPN",
     [
         "sgun_HunterShotgun_01_sawedoff_F"	,
         "sgun_HunterShotgun_01_F"
     ]],
-    ["WEPN_W_Carabines",
+    /*Carabines*/
+    ["WEPN",
     [
         "arifle_AKS_F"	,
         "arifle_AK12U_F"	,
@@ -888,12 +929,14 @@
         "arifle_MXC_khk_F"	,
         "arifle_TRG20_F"
     ]],
-    ["WEPN_W_AssaultRifles",
+    /*AssaultRifles*/
+    ["WEPN",
     [
         "arifle_AKM_F"	,
         "arifle_SDAR_F"
     ]],
-    ["WEPN_W_AssaultRifles_noGL",
+    /*AssaultRifles_noGL*/
+    ["WEPN",
     [
         "arifle_AK12_F"	,
         "arifle_AK12_lush_F"	,
@@ -913,7 +956,8 @@
         "arifle_SPAR_01_khk_F"	,
         "arifle_TRG21_F"
     ]],
-    ["WEPN_W_AssaultRifles_GL",
+    /*AssaultRifles_GL*/
+    ["WEPN",
     [
         "arifle_AK12_GL_F"	,
         "arifle_AK12_GL_lush_F"	,
@@ -939,7 +983,8 @@
         "arifle_ARX_ghex_F"	,
         "arifle_ARX_hex_F"
     ]],
-    ["WEPN_W_AT_AA_Launchers",
+    /*AT_AA_Launchers*/
+    ["WEPN",
     [
         "launch_O_Vorona_green_F"	,
         "launch_MRAWS_green_rail_F"	,
@@ -958,7 +1003,8 @@
         "launch_B_Titan_olive_F"	,
         "launch_B_Titan_tna_F"
     ]],
-    ["WEPN_W_Machineguns",
+    /*Machineguns*/
+    ["WEPN",
     [
         "arifle_CTARS_blk_F"	,
         "arifle_CTARS_ghex_F"	,
@@ -977,7 +1023,8 @@
         "MMG_02_black_F"	,
         "LMG_Zafir_F"
     ]],
-    ["WEPN_W_MarksmanRifles",
+    /*MarksmanRifles*/
+    ["WEPN",
     [
         "srifle_DMR_07_blk_F"	,
         "srifle_DMR_07_ghex_F"	,
@@ -999,7 +1046,8 @@
         "arifle_SPAR_03_blk_F"	,
         "arifle_SPAR_03_khk_F"
     ]],
-    ["WEPN_W_SniperRifles",
+    /*SniperRifles*/
+    ["WEPN",
     [
         "srifle_DMR_04_F"	,
         "srifle_DMR_05_blk_F"	,
