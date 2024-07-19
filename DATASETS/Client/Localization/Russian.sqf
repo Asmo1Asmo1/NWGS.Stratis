@@ -15,6 +15,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#WORLD_NAME_VR#","VR"],
     ["#WORLD_NAME_UNKNOWN#","Неизвест."],
     //T2_UserInteraction
+    //inventoryUI
+    ["#INV_BUTTON_LOOT_TOOLTIP#","Отправить в хранилище"],
+    ["#INV_BUTTON_WEAP_TOOLTIP#","Сменить оружие"],
+    ["#INV_BUTTON_UNIF_TOOLTIP#","Сменить форму"],
+    ["#INV_BUTTON_MAGR_TOOLTIP#","Перепаковать магазины"],
     //medicine
     ["#MED_CLI_BLEEDING_UI_TITLE_LOW#","Перевязан"],
     ["#MED_CLI_BLEEDING_UI_TITLE_MID#","Кровотечение"],

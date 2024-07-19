@@ -1,0 +1,12 @@
+/* #Synixy
+$[
+	1.063,
+	["inventoryUI",[["0.5","0.5","0","0"],"2.5 * pixelW * pixelGrid","2.5 * pixelH * pixelGrid","UI_GRID"],0,0,0],
+	[1000,"TextWeight",[2,"125kg",["10.5 * UI_GRID_W + UI_GRID_X","9.5 * UI_GRID_H + UI_GRID_Y","3.5 * UI_GRID_W","1.5 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1600,"ButtonWeaponSwitch",[2,"",["17.5 * UI_GRID_W + UI_GRID_X","-6 * UI_GRID_H + UI_GRID_Y","2.9325 * UI_GRID_W","2.2 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1601,"ButtonLoot",[2,"",["-20 * UI_GRID_W + UI_GRID_X","-11 * UI_GRID_H + UI_GRID_Y","2.9325 * UI_GRID_W","2.2 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1602,"ButtonUniform",[2,"",["-20 * UI_GRID_W + UI_GRID_X","-8 * UI_GRID_H + UI_GRID_Y","2.9325 * UI_GRID_W","2.2 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1603,"ButtonMagRepack",[2,"",["-20 * UI_GRID_W + UI_GRID_X","-5 * UI_GRID_H + UI_GRID_Y","2.9325 * UI_GRID_W","2.2 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]]
+]
+*/
+/*Grid values are outdated, update from inventoryUI.hpp if|when need to make changes*/
