@@ -7,7 +7,7 @@
 //Defines
 
 /*Settings*/
-#define SETUP_HOTKEY true
+#define SETUP_HOTKEY false
 #define HOTKEY_KEYCODE 19//R
 #define HOTKEY_MODIFIER "ctrl"//'none','shift','ctrl','alt'
 

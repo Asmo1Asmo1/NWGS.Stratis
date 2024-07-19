@@ -42,8 +42,6 @@ NWG_INVUI_OnInventoryOpen = {
     _buttonWeap ctrlAddEventHandler ["ButtonClick",{call NWG_INVUI_OnButtonWeap}];
     _buttonUnif ctrlAddEventHandler ["ButtonClick",{call NWG_INVUI_OnButtonUnif}];
     _buttonMagR ctrlAddEventHandler ["ButtonClick",{call NWG_INVUI_OnButtonMagR}];
-
-    systemChat "Custom inventory UI created!";
 };
 
 //================================================================================================================
@@ -64,8 +62,8 @@ NWG_INVUI_OnButtonUnif = {
 };
 
 NWG_INVUI_OnButtonMagR = {
-    //TODO: Implement
-    systemChat "Magazine repack button pressed!";
+    //Magazine repack
+    call NWG_fnc_mroOpen;
 };
 
 //================================================================================================================
