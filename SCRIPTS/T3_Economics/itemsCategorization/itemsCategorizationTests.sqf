@@ -13,7 +13,7 @@ NWG_ICAT_GetItemType_Test_PlayerLoadout = {
         [(_x call NWG_ICAT_GetItemType),_x]
     };
     _loadout = _loadout call NWG_ICAT_Sort;
-    _loadout call NWG_ICAT_Dump;
+    _loadout call NWG_fnc_testDumpToRptAndClipboard;
     _loadout
 };
 
@@ -44,7 +44,7 @@ NWG_ICAT_GetItemType_Test_VanillaCatalogue = {
     } forEach _catalogue;
 
     if ((count _errors) > 0) then {
-        _errors call NWG_ICAT_Dump;
+        _errors call NWG_fnc_testDumpToRptAndClipboard;
         "Some errors occured, see RPT for details"
     } else {
         "All tests passed successfully"
@@ -63,17 +63,4 @@ NWG_ICAT_Sort = {
     _this append (_sorted apply {_x#1});//Repack back
     //return
     _this
-};
-
-NWG_ICAT_Dump = {
-    private _array = _this;
-    _array = _array apply {str _x};//Convert to strings
-
-    //Dump to RPT
-    diag_log text "==========[   NWG_ICAT_Dump   ]===========";
-    {diag_log (text _x)} forEach _array;
-    diag_log text "==========[        END        ]===========";
-
-    //Dump to clipboard
-    copyToClipboard (_array joinString (toString [13,10]));//Copy with 'new line' separator
 };

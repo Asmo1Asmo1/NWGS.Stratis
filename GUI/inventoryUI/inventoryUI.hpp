@@ -1,5 +1,5 @@
 import RscText;
-import RscButton;
+import RscActivePictureKeepAspect;
 
 #define UI_GRID_X	(0.5)
 #define UI_GRID_Y	(0.5)
@@ -13,21 +13,22 @@ import RscButton;
 class TextWeight: RscText
 {
 	idc = 1000;
-	text = "125kg"; //--- ToDo: Localize;
-	x = 14 * UI_GRID_W + UI_GRID_X;
+	text = "17kg"; //--- ToDo: Localize;
+	style = 1;
+	x = 12.75 * UI_GRID_W + UI_GRID_X;
 	y = 8.5 * UI_GRID_H + UI_GRID_Y;
 	w = 3.5 * UI_GRID_W;
 	h = 1.5 * UI_GRID_H;
 };
-class ButtonCommon: RscButton
+class ButtonCommon: RscActivePictureKeepAspect
 {
-	w = 2.9 * UI_GRID_W;
+	w = 2.5 * UI_GRID_W;
 	h = 2.5 * UI_GRID_H;
 };
 class ButtonWeaponSwitch: ButtonCommon
 {
 	idc = 1600;
-	x = 17.6 * UI_GRID_W + UI_GRID_X;
+	x = 17.2 * UI_GRID_W + UI_GRID_X;
 	y = -5.7 * UI_GRID_H + UI_GRID_Y;
 };
 class ButtonLoot: ButtonCommon

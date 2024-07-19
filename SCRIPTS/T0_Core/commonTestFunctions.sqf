@@ -11,3 +11,19 @@ NWG_fnc_testPlaceMarker = {
     _marker setMarkerColorLocal _color;
     _marker setMarkerTextLocal _text;
 };
+
+NWG_fnc_testDumpToRptAndClipboard = {
+    private _array = _this;
+    _array = _array apply {str _x};//Convert to strings
+
+    //Dump to RPT
+    diag_log text "==========[       START       ]===========";
+    {diag_log (text _x)} forEach _array;
+    diag_log text "==========[        END        ]===========";
+
+    //Dump to clipboard
+    copyToClipboard (_array joinString (toString [13,10]));//Copy with 'new line' separator
+
+    //Return the array
+    _array
+};
