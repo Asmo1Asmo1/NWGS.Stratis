@@ -37,8 +37,35 @@ NWG_INVUI_OnInventoryOpen = {
     _buttonUnif ctrlSetTooltip ("#INV_BUTTON_UNIF_TOOLTIP#" call NWG_fnc_localize);
     _buttonMagR ctrlSetTooltip ("#INV_BUTTON_MAGR_TOOLTIP#" call NWG_fnc_localize);
 
+    //Add handlers
+    _buttonLoot ctrlAddEventHandler ["ButtonClick",{call NWG_INVUI_OnButtonLoot}];
+    _buttonWeap ctrlAddEventHandler ["ButtonClick",{call NWG_INVUI_OnButtonWeap}];
+    _buttonUnif ctrlAddEventHandler ["ButtonClick",{call NWG_INVUI_OnButtonUnif}];
+    _buttonMagR ctrlAddEventHandler ["ButtonClick",{call NWG_INVUI_OnButtonMagR}];
 
     systemChat "Custom inventory UI created!";
+};
+
+//================================================================================================================
+//Buttons
+NWG_INVUI_OnButtonLoot = {
+    //TODO: Implement
+    systemChat "Loot button pressed!";
+};
+
+NWG_INVUI_OnButtonWeap = {
+    //TODO: Implement
+    systemChat "Weapon switch button pressed!";
+};
+
+NWG_INVUI_OnButtonUnif = {
+    //TODO: Implement
+    systemChat "Uniform change button pressed!";
+};
+
+NWG_INVUI_OnButtonMagR = {
+    //TODO: Implement
+    systemChat "Magazine repack button pressed!";
 };
 
 //================================================================================================================
