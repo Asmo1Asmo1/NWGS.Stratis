@@ -393,8 +393,12 @@ NWG_GC_DeleteMission = {
         switch (_x call NWG_fnc_ocGetObjectType) do {
             case OBJ_TYPE_BLDG;
             case OBJ_TYPE_FURN;
-            case OBJ_TYPE_DECO;
             case OBJ_TYPE_MINE: {_x call NWG_GC_DeleteObject};
+
+            case OBJ_TYPE_DECO: {
+                //Delete only if not attached to any player
+                if (isNull (attachedTo _x) || {!(isPlayer (attachedTo _x))}) then {_x call NWG_GC_DeleteObject};
+            };
 
             case OBJ_TYPE_UNIT: {
                 if (!isPlayer _x) then {_x call NWG_GC_DeleteUnit};
