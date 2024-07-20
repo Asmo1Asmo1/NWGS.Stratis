@@ -86,6 +86,7 @@ NWG_INVUI_OnButtonLoot = {
 NWG_INVUI_OnButtonWeap = {
     //Switch primary<->additional weapon
     call NWG_fnc_awSwitchWeapon;
+    call NWG_INVUI_UpdateWeight;
 };
 
 NWG_INVUI_OnButtonUnif = {
