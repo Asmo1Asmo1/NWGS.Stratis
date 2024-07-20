@@ -7,6 +7,18 @@
     - For that - weaponHolder logic been separated from the switch logic
     @Asmo
 */
+/*
+    Known issues:
+    - The inventory window bugs out when switching weapons - vest and backpack tabs disappear
+    You can recreate this also by running
+    [] spawn {
+        sleep 1;
+        player setUnitLoadout (getUnitLoadout player);
+    };
+    in the console and opening the inventory window
+    Arma bug - not mine to fix. If it bothers you AND you call this from the inventory window - use feature toggle below
+*/
+#define CLOSE_INVENTORY_ON_SWITCH false
 
 //================================================================================================================
 //Weapon switch logic
@@ -39,6 +51,11 @@ NWG_AW_SwitchWeapon = {
 
     //Apply new loadout
     player setUnitLoadout _newLoadout;
+
+    //'Fix' the issue with vest and backpack tabs disappearing
+    if (CLOSE_INVENTORY_ON_SWITCH) then {
+        (uiNamespace getVariable ["RscDisplayInventory", displayNull]) closeDisplay 2;
+    };
 };
 
 //================================================================================================================
