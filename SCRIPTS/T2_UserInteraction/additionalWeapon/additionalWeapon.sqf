@@ -9,7 +9,7 @@
 */
 /*
     Known issues:
-    - The inventory window bugs out when switching weapons - vest and backpack tabs disappear
+    - The inventory window bugs out when switching weapons - vest and backpack tabs disappear (reopening the window fixes it)
     You can recreate this also by running
     [] spawn {
         sleep 1;
@@ -18,7 +18,11 @@
     in the console and opening the inventory window
     Arma bug - not mine to fix. If it bothers you AND you call this from the inventory window - use feature toggle below
 */
+
+//================================================================================================================
+//Defines
 #define CLOSE_INVENTORY_ON_SWITCH false
+#define MOVE_HOLDER_ON_RESPAWN true
 
 //================================================================================================================
 //Weapon switch logic
@@ -79,7 +83,7 @@ NWG_AW_CreateHolder = {
     _holder setVectorDirAndUp [[0, 0, 1], [0, 0.5, 0]];
     _holder addWeaponWithAttachmentsCargoGlobal [_config,1];
 
-    //It's just much easier to get with get/setVariable than to grab an actual object and try to disect it
+    //It's just much easier to go with get/setVariable than to grab an actual object and try to disect it
     _holder setVariable ["NWG_AW_HolderLoadout",_config];
 
     //return
@@ -91,3 +95,20 @@ NWG_AW_DeleteHolder = {
     detach _this;
     deleteVehicle _this;
 };
+
+//================================================================================================================
+//Respawn logic
+if (!MOVE_HOLDER_ON_RESPAWN) exitWith {};//Feature toggle
+
+NWG_AW_OnRespawn = {
+    params ["_player","_corpse"];
+    //Get existing holder
+    (_corpse call NWG_AW_GetHolder) params ["_holder","_holderLoadout"];
+
+    //Recreate holder for the new player instance
+    if (!isNull _holder) then {
+        _holder call NWG_AW_DeleteHolder;
+        [_player,_holderLoadout] call NWG_AW_CreateHolder;
+    };
+};
+player addEventHandler ["Respawn",{_this call NWG_AW_OnRespawn}];
