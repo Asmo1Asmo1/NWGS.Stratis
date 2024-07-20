@@ -41,11 +41,15 @@ NWG_INVUI_OnInventoryOpen = {
     private _buttonUnif = _inventoryDisplay ctrlCreate ["ButtonUniform",-1];
     private _buttonMagR = _inventoryDisplay ctrlCreate ["ButtonMagRepack",-1];
 
-    //Init weight text
-    uiNamespace setVariable ["NWG_INVUI_textWeight",_textWeight];
+    //Add some data
+    uiNamespace setVariable ["NWG_INVUI_textWeight",_textWeight];//Store weight text control
+    uiNamespace setVariable ["NWG_UNEQ_ForEquipSelectedUniform",_this];//Store arguments for later use
     _inventoryDisplay displayAddEventHandler ["Unload",{
-        uiNamespace setVariable ["NWG_INVUI_textWeight",nil];//Clear on close
+        uiNamespace setVariable ["NWG_INVUI_textWeight",nil];
+        uiNamespace setVariable ["NWG_UNEQ_ForEquipSelectedUniform",nil];
     }];
+
+    //Init weight text
     call NWG_INVUI_UpdateWeight;
 
     //Add pictures to buttons
@@ -90,8 +94,8 @@ NWG_INVUI_OnButtonWeap = {
 };
 
 NWG_INVUI_OnButtonUnif = {
-    //TODO: Implement
-    systemChat "Uniform change button pressed!";
+    //Equip the unform selected in inventory
+    call NWG_fnc_uneqEquipSelected;
 };
 
 NWG_INVUI_OnButtonMagR = {

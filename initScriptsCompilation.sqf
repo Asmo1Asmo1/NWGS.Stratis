@@ -129,6 +129,9 @@ if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\play
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerTraits\playerTraits.sqf" call NWG_fnc_compile);
 //stickyBombs
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\stickyBombs\stickyBombs.sqf" call NWG_fnc_compile);
+//unformEquip
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\unformEquip\unformEquip.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\unformEquip\unformEquipFunctions.sqf" call NWG_fnc_compile);
 //viewDistance
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistance.sqf" call NWG_fnc_compile);
 //voting
