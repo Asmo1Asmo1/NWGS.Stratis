@@ -85,7 +85,7 @@ NWG_INVUI_OnButtonLoot = {
 
 NWG_INVUI_OnButtonWeap = {
     //TODO: Implement
-    systemChat "Weapon switch button pressed!";
+    systemChat "Additional weapon button pressed!";
 };
 
 NWG_INVUI_OnButtonUnif = {
