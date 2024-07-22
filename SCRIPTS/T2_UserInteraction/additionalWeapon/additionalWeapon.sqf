@@ -21,8 +21,11 @@
 
 //================================================================================================================
 //Defines
-#define CLOSE_INVENTORY_ON_SWITCH false
-#define MOVE_HOLDER_ON_RESPAWN true
+
+/*Feature toggles*/
+#define CLOSE_INVENTORY_ON_SWITCH false //Close inventory to not see bug with inventory tabs disappearing
+#define MOVE_HOLDER_ON_RESPAWN true     //Move weapon holder to the new player instance on respawn
+#define DELETE_HOLDER_IN_VEHCILE true   //Delete weapon holder when player enters a vehicle (prevents issues with helicopters)
 
 //================================================================================================================
 //Weapon switch logic
@@ -45,7 +48,7 @@ NWG_AW_SwitchWeapon = {
 
     //Create a new holder with primary weapon
     if (_hasPrimaryWeapon) then {
-        _holder = [player,_primaryWeaponLoadout] call NWG_AW_CreateHolder;
+        [player,_primaryWeaponLoadout] call NWG_AW_CreateHolder;
     };
 
     //Move weapon from holder to player if any
@@ -66,21 +69,30 @@ NWG_AW_SwitchWeapon = {
 //Holder logic
 NWG_AW_GetHolder = {
     // private _unit = _this;
-    private _holder = objNull;
-    {if (_x isKindOf "Library_WeaponHolder") exitWith {_holder = _x}} forEach (attachedObjects _this);
-    //return
-    if (isNull _holder)
-        then {[ objNull, []]}
-        else {[ _holder, (_holder getVariable ["NWG_AW_HolderLoadout",[]]) ]}
+
+    if (DELETE_HOLDER_IN_VEHCILE && {!isNil {_this getVariable "NWG_AW_HolderLoadout"}})
+        exitWith {[_this,(_this getVariable "NWG_AW_HolderLoadout")]};
+
+    private _holder = ((attachedObjects _this) select {_x isKindOf "Library_WeaponHolder"}) param [0,objNull];
+    if (!isNull _holder) exitWith {[_holder,(_holder getVariable "NWG_AW_HolderLoadout")]};
+
+    //else return
+    [objNull,[]];
 };
 
 NWG_AW_CreateHolder = {
     params ["_unit","_config"];
-    private _holder = createVehicle ["Library_WeaponHolder", _unit, [], 0, "CAN_COLLIDE"];
-    _holder attachTo [_unit, [0,0.84,-0.2], "Spine3", true];
-    _holder setVectorDirAndUp [[0, 0, 1], [0, 0.5, 0]];
-    _holder addWeaponWithAttachmentsCargoGlobal [_config,1];
-    _holder setDamage 1;//Effectively 'close' the holder for any further interaction
+
+    private _holder = objNull;
+    if (DELETE_HOLDER_IN_VEHCILE && {(vehicle _unit) isNotEqualTo _unit}) then {
+        _holder = _unit;
+    } else {
+        _holder = createVehicle ["Library_WeaponHolder", _unit, [], 0, "CAN_COLLIDE"];
+        _holder attachTo [_unit, [0,0.84,-0.2], "Spine3", true];
+        _holder setVectorDirAndUp [[0, 0, 1], [0, 0.5, 0]];
+        _holder addWeaponWithAttachmentsCargoGlobal [_config,1];
+        _holder setDamage 1;//Effectively 'close' the holder for any further interaction
+    };
 
     //It's just much easier to go with get/setVariable than to grab an actual object and try to disect it
     _holder setVariable ["NWG_AW_HolderLoadout",_config];
@@ -91,13 +103,18 @@ NWG_AW_CreateHolder = {
 
 NWG_AW_DeleteHolder = {
     // private _holder = _this;
+
+    if (DELETE_HOLDER_IN_VEHCILE && {_this isKindOf "Man"})
+        exitWith {_this setVariable ["NWG_AW_HolderLoadout",nil]};
+
+    //else
     detach _this;
     deleteVehicle _this;
 };
 
 //================================================================================================================
-//Respawn logic
-if (!MOVE_HOLDER_ON_RESPAWN) exitWith {};//Feature toggle
+//Move on respawn feature logic
+if (MOVE_HOLDER_ON_RESPAWN) then {
 
 NWG_AW_OnRespawn = {
     params ["_player","_corpse"];
@@ -111,3 +128,24 @@ NWG_AW_OnRespawn = {
     };
 };
 player addEventHandler ["Respawn",{_this call NWG_AW_OnRespawn}];
+
+};
+
+//================================================================================================================
+//Delete holder when player enters a vehicle feature logic
+if (DELETE_HOLDER_IN_VEHCILE) then {
+
+NWG_AW_OnInOutOfVehicle = {
+    // params ["_unit","_role","_vehicle","_turret"];
+    params ["_player"];
+    (_player call NWG_AW_GetHolder) params ["_holder","_holderLoadout"];
+    if (!isNull _holder) then {
+        //Re-create holder (will create a new holder differently based on wether we're in a vehicle or not)
+        _holder call NWG_AW_DeleteHolder;
+        [_player,_holderLoadout] call NWG_AW_CreateHolder;
+    };
+};
+player addEventHandler ["GetInMan",{_this call NWG_AW_OnInOutOfVehicle}];
+player addEventHandler ["GetOutMan",{_this call NWG_AW_OnInOutOfVehicle}];
+
+};
