@@ -8,7 +8,7 @@
 #define OBJ_TYPE_MINE  "MINE"  // Mine
 
 //Items types
-#define ITEM_TYPE_CLTH "CLTH" // Clothing
+#define ITEM_TYPE_CLTH "CLTH"  // Clothing
 #define ITEM_TYPE_WEPN "WEPN"  // Weapon
 #define ITEM_TYPE_ITEM "ITEM"  // Item
 #define ITEM_TYPE_AMMO "AMMO"  // Ammo
