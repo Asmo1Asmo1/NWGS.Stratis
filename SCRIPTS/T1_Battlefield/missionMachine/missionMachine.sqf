@@ -503,7 +503,7 @@ NWG_MIS_SER_BuildPlayerBase = {
             clearMagazineCargoGlobal _x;
             clearItemCargoGlobal _x;
             clearBackpackCargoGlobal _x;
-            _x lockInventory true;
+            [_x,true] remoteExecCall ["lockInventory",0,_x];//Lock it JIP compatible
         } forEach ((flatten _buildResult) select {
             !(_x isKindOf "Man") && {
             !(isSimpleObject _x) && {
