@@ -37,6 +37,7 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 //================================================================================================================
 //Global flags
 NWG_MIS_CurrentState = MSTATE_SCRIPTS_COMPILATION;
+NWG_MIS_NewState = MSTATE_SCRIPTS_COMPILATION;
 NWG_MIS_EscapeFlag = false;
 
 //================================================================================================================
@@ -66,7 +67,7 @@ private _Init = {
         (is3DENPreview || is3DENMultiplayer) && !(NWG_MIS_SER_Settings get "AUTOSTART_IN_DEVBUILD")})
         exitWith {MSTATE_DISABLED call NWG_MIS_SER_ChangeState};// <- Exit by settings
     if (isNull (call NWG_MIS_SER_FindPlayerBaseRoot))
-        exitWith {MSTATE_DISABLED call NWG_MIS_SER_ChangeState};// <- Exit if no olayer base root object found on the map
+        exitWith {MSTATE_DISABLED call NWG_MIS_SER_ChangeState};// <- Exit if no player base root object found on the map
 
     //Get complex additional settings
     private _addSettings = call ((NWG_MIS_SER_Settings get "COMPLEX_SETTINGS_ADDRESS") call NWG_fnc_compile);
@@ -87,8 +88,19 @@ NWG_MIS_SER_Cycle = {
     private _exit = false;
 
     waitUntil {
+        /*Every heartbeat...*/
         sleep (NWG_MIS_SER_Settings get "HEARTBEAT_RATE");
 
+        /*Update flags and fire events on a first iteration of a new state*/
+        if (NWG_MIS_CurrentState isNotEqualTo NWG_MIS_NewState) then {
+            //State changed
+            private _oldState = NWG_MIS_CurrentState;
+            private _newState = NWG_MIS_NewState;
+            [_oldState,_newState] call NWG_MIS_SER_OnStateChanged;
+            NWG_MIS_CurrentState = _newState;
+        };
+
+        /*Do things and calculate next state to switch to*/
         switch (NWG_MIS_CurrentState) do {
             /* initialization */
             case MSTATE_SCRIPTS_COMPILATION: {MSTATE_MACHINE_STARTUP call NWG_MIS_SER_ChangeState};
@@ -396,10 +408,21 @@ NWG_MIS_SER_Cycle = {
 //================================================================================================================
 //State change tracking
 NWG_MIS_SER_ChangeState = {
-    //Set new state
-    private _newState = _this;
-    private _oldState = NWG_MIS_CurrentState;
-    NWG_MIS_CurrentState = _newState;
+    //Setup new state
+    NWG_MIS_NewState = _this;
+
+    //Raise one last event on disabled
+    if (_this isEqualTo MSTATE_DISABLED)
+        then {[NWG_MIS_CurrentState,_this] call NWG_MIS_SER_OnStateChanged};
+};
+
+NWG_MIS_SER_NextState = {
+    //Set new state based on the current one
+    NWG_MIS_NewState = (NWG_MIS_CurrentState + 1);
+};
+
+NWG_MIS_SER_OnStateChanged = {
+    params ["_oldState","_newState"];
 
     //Log
     if (NWG_MIS_SER_Settings get "LOG_STATE_CHANGE") then {
@@ -414,10 +437,6 @@ NWG_MIS_SER_ChangeState = {
 
     //Update global flag for the clients
     publicVariable "NWG_MIS_CurrentState";
-};
-
-NWG_MIS_SER_NextState ={
-    (NWG_MIS_CurrentState + 1) call NWG_MIS_SER_ChangeState;
 };
 
 NWG_MIS_SER_GetStateName = {
