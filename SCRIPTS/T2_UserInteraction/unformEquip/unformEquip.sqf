@@ -18,7 +18,8 @@
 */
 //================================================================================================================
 //Defines
-#define CLOSE_INVENTORY_ON_UNIFORM_CHANGE false
+#define CLOSE_INVENTORY_ON_UNIFORM_CHANGE false //Close inventory on uniform switch (hides the bug with inventory tabs)
+#define INVENTORY_WINDOW_FIX true       //Fix the issue with inventory tabs disappearing (suggestion by HOPA_EHOTA)
 
 //UI IDDs
 #define MAIN_CONTAINER_LIST 640
@@ -75,9 +76,16 @@ NWG_UNEQ_EquipSelectedUniform = {
         [player,_selectedItem] call NWG_UNEQ_ReplaceUniformForUnit;//Update player's loadout
     };
 
-    //'Fix' the issue with vest and backpack tabs disappearing
-    if (CLOSE_INVENTORY_ON_UNIFORM_CHANGE) then {
+    //Close inventory window (Hide the issue with vest and backpack tabs disappearing)
+    if (CLOSE_INVENTORY_ON_UNIFORM_CHANGE) exitWith {
         (uiNamespace getVariable ["RscDisplayInventory", displayNull]) closeDisplay 2;
+    };
+
+    //Fix the issue with inventory tabs disappearing
+    if (INVENTORY_WINDOW_FIX) exitWith {
+        //--- hacky solution how to enable vest and backpack container
+        player addItem "Antibiotic";
+        player removeItem "Antibiotic";
     };
 };
 
