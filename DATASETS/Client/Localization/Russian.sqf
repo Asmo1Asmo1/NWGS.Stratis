@@ -57,6 +57,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_HINT_VOTE_RECEIVED#","Голос отправлен"],
     ["#VOTE_HINT_TIMEOUT#","Время вышло"],
     //T3_Economics
+    //lootStorage
+    ["#LS_STORAGE_ACTION_TITLE#","Открыть Хранилище"],
     //vehCustomizationAppearance
     ["#CAPP_LEFT_TITLE#","Цвет"],
     ["#CAPP_RIGHT_TITLE#","Компоненты"],

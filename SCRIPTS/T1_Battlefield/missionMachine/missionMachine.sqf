@@ -126,7 +126,7 @@ NWG_MIS_SER_Cycle = {
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BASE_ECONOMY: {
-                //TODO: Add base economy
+                //Expect: EVENT_ON_MISSION_STATE_CHANGED subscriber(s) made changes by this point (see: 'Update flags...' above)
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BASE_QUESTS: {

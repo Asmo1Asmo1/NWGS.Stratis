@@ -62,3 +62,14 @@ NWG_fnc_mmEscapeCompleted = {
 NWG_fnc_mmGetStatus = {
     NWG_MIS_CurrentState call NWG_MIS_SER_GetStateName
 };
+
+//=============================================================================
+/*Other systems->Mission machine*/
+//Returns player base and its decorations
+//note: these exist only on MSTATE_BASE_ECONOMY and MSTATE_BASE_QUESTS mission states, use in EVENT_ON_MISSION_STATE_CHANGED subscriber(s)
+//returns: [obj,[array]]
+// - obj - persistent player base or objNull if there are none
+// - array - decorations in format ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"] or
+NWG_fnc_mmGetPlayerBase = {
+    [NWG_MIS_SER_playerBase,NWG_MIS_SER_playerBaseDecoration]
+};
