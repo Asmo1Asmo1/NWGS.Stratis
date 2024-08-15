@@ -1,3 +1,5 @@
+#include "..\..\globalDefines.h"
+
 //================================================================================================================
 //================================================================================================================
 //Settings (this time as defines - can not be changed in runtime anyway)
@@ -9,6 +11,7 @@
 //================================================================================================================
 //Fields
 NWG_LS_CLI_invisibleBox = objNull;
+NWG_LS_CLI_isInvisibleBoxModified = false;
 
 //================================================================================================================
 //================================================================================================================
@@ -35,6 +38,11 @@ private _Init = {
         "true",//Condition
         OPEN_STORAGE_ACTION_RADIUS//Radius
     ];
+
+    //Add event handlers
+    player addEventHandler ["InventoryClosed",{call NWG_LS_CLI_OnInventoryClose}];
+    player addEventHandler ["Take",{call NWG_LS_CLI_OnTakeOrPut}];
+    player addEventHandler ["Put",{call NWG_LS_CLI_OnTakeOrPut}];
 };
 
 //================================================================================================================
@@ -55,8 +63,8 @@ NWG_LS_CLI_OpenMyStorage = {
     clearBackpackCargo _invisibleBox;
 
     //Get player loot
-    private _loot = player call NWG_fnc_lsGetPlayerLoot;
-    _loot = flatten _loot;//Flatten and shallow copy
+    private _loot = player call NWG_fnc_lsGetPlayerLoot;//=> [["clth1",2,"clth2"],[3,"wepn1"],...]
+    _loot = flatten _loot;//Flatten and shallow copy      => ["clth1",2,"clth2",3,"wepn1",...]
 
     //Put loot into the box
     private _count = 1;
@@ -74,6 +82,92 @@ NWG_LS_CLI_OpenMyStorage = {
 
     //Open the box
     player action ["Gear",_invisibleBox];
+};
+
+//================================================================================================================
+//================================================================================================================
+//Storage update via vanilla inventory actions
+NWG_LS_CLI_OnTakeOrPut = {
+    //Mark storage dirty if it exists
+    //note: we *assume* it is the storage that has been changed if we take/put when storage object exists
+    if (!isNull NWG_LS_CLI_invisibleBox)
+        then {NWG_LS_CLI_isInvisibleBoxModified = true};
+};
+
+NWG_LS_CLI_OnInventoryClose = {
+    if (isNull NWG_LS_CLI_invisibleBox)
+        exitWith {};//Ignore if storage object does not exist
+    if (!NWG_LS_CLI_isInvisibleBoxModified)
+        exitWith {deleteVehicle NWG_LS_CLI_invisibleBox};//Ignore if storage was not modified
+    NWG_LS_CLI_isInvisibleBoxModified = false;//Reset flag
+
+    //Re-write the player loot based on what is left in the box
+    private _loot = NWG_LS_CLI_invisibleBox call NWG_LS_CLI_LootTheContainer;
+    {_x call NWG_fnc_compactStringArray} forEach _loot;//Compact the loot records
+    [player,_loot] call NWG_fnc_lsSetPlayerLoot;
+
+    //Close the box
+    deleteVehicle NWG_LS_CLI_invisibleBox;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Looting (low level)
+//This function does a low-level looting and categorization
+//Clears the container (any kind) and returns uncompressed loot records
+//returns: [[CLTH_array],[WEPN_array],[ITEM_array],[AMMO_array]]
+NWG_LS_CLI_LootTheContainer = {
+    private _container = _this;
+
+    private _allContainerItems = [];
+    {
+        private _arr = switch (_x) do {
+            case 0: {getBackpackCargo _container};
+            case 1: {getItemCargo _container};
+            case 2: {getMagazineCargo _container};
+            case 3: {getWeaponCargo _container};
+        };
+
+        _arr params ["_classNames","_counts"];
+        for "_i" from 0 to ((count _classNames)-1) do {
+            _allContainerItems pushBack (_counts#_i);
+            _allContainerItems pushBack (_classNames#_i);
+        };
+
+        switch (_x) do {
+            case 0: {clearBackpackCargoGlobal _container};
+            case 1: {clearItemCargoGlobal _container};
+            case 2: {clearMagazineCargoGlobal _container};
+            case 3: {clearWeaponCargoGlobal _container};
+        };
+    } forEach [0,1,2,3];
+    _allContainerItems = _allContainerItems call NWG_fnc_unCompactStringArray;
+
+    private _loot = [[],[],[],[]];
+    {
+        switch (_x call NWG_fnc_icGetItemType) do {
+            case ITEM_TYPE_CLTH: {(_loot#0) pushBack _x};
+            case ITEM_TYPE_WEPN: {(_loot#1) pushBack _x};
+            case ITEM_TYPE_ITEM: {(_loot#2) pushBack _x};
+            case ITEM_TYPE_AMMO: {(_loot#3) pushBack _x};
+        };
+    } forEach _allContainerItems;
+    _allContainerItems resize 0;//Clear
+
+    //return
+    _loot
+};
+
+//================================================================================================================
+//================================================================================================================
+//Looting (public, high level)
+NWG_LS_CLI_LootByInventoryUI = {
+    //TODO: Implement looting
+};
+
+NWG_LS_CLI_LootByAction = {
+    private _container = _this;
+    //TODO: Implement looting
 };
 
 //================================================================================================================
