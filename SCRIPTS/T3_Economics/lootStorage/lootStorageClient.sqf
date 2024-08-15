@@ -73,9 +73,14 @@ NWG_LS_CLI_OpenMyStorage = {
         if (_x isEqualType 1)
             then {_count = _x; continue};
         //Put item into the box
-        if (isClass (configFile >> "CfgVehicles" >> _x))
-            then {_invisibleBox addBackpackCargo [_x,_count]}/*Backpacks require different approach*/
-            else {_invisibleBox addItemCargo [_x,_count]};//Items (any, except for backpacks, see: https://community.bistudio.com/wiki/addItemCargo)
+        if (!isClass (configFile >> "CfgVehicles" >> _x)) then {
+            //Items (any, except for backpacks, see: https://community.bistudio.com/wiki/addItemCargo)
+            _invisibleBox addItemCargo [_x,_count];
+        } else {
+            //Backpacks require different approach
+            _x = _x call BIS_fnc_basicBackpack;//Fix items getting inside backpacks
+            _invisibleBox addBackpackCargo [_x,_count];
+        };
         //Reset count
         _count = 1;
     } forEach _loot;
@@ -102,47 +107,65 @@ NWG_LS_CLI_OnInventoryClose = {
     NWG_LS_CLI_isInvisibleBoxModified = false;//Reset flag
 
     //Re-write the player loot based on what is left in the box
-    private _loot = NWG_LS_CLI_invisibleBox call NWG_LS_CLI_LootTheContainer;
+    private _loot = NWG_LS_CLI_invisibleBox call NWG_LS_CLI_ContainerItemsToLoot;
     {_x call NWG_fnc_compactStringArray} forEach _loot;//Compact the loot records
     [player,_loot] call NWG_fnc_lsSetPlayerLoot;
 
-    //Close the box
+    //Close the box (will also delete all the items inside)
     deleteVehicle NWG_LS_CLI_invisibleBox;
 };
 
 //================================================================================================================
 //================================================================================================================
-//Looting (low level)
-//This function does a low-level looting and categorization
-//Clears the container (any kind) and returns uncompressed loot records
+//Looting util
+//Converts container items into loot
 //returns: [[CLTH_array],[WEPN_array],[ITEM_array],[AMMO_array]]
-NWG_LS_CLI_LootTheContainer = {
+NWG_LS_CLI_ContainerItemsToLoot = {
     private _container = _this;
-
     private _allContainerItems = [];
-    {
-        private _arr = switch (_x) do {
-            case 0: {getBackpackCargo _container};
-            case 1: {getItemCargo _container};
-            case 2: {getMagazineCargo _container};
-            case 3: {getWeaponCargo _container};
-        };
 
-        _arr params ["_classNames","_counts"];
-        for "_i" from 0 to ((count _classNames)-1) do {
-            _allContainerItems pushBack (_counts#_i);
-            _allContainerItems pushBack (_classNames#_i);
+    //Get all items from the container
+    if (_container isKindOf "Man") then {
+        //Looting the body of a unit
+        private _loadout = getUnitLoadout _container;
+        //Extract items from uniform,vest and backpack (they have structure: [class,count])
+        for "_i" from 3 to 5 do {
+            if ((_loadout#i) isEqualTo []) then {continue};//Skip empty
+            private ["_class","_count"];
+            {
+                _class = _x param [0,""];
+                _count = _x param [1,1];
+                if (_class isEqualTo "") then {continue};//Skip empty
+                if !(_count isEqualType 1) then {_count = 1};//Fix for backpacks (true/false) and weapons ("")
+                //Ignore ammo count inside magazines - not interested (think of it as a free refill)
+                //Ignore 'weapon stored inside backpack' - rare usecase and AI units don't do that at all
+                _allContainerItems pushBack _count;
+                _allContainerItems pushBack _class;
+            } forEach ((_loadout#_i) deleteAt 1);//Extract what is stored inside
         };
+        //Extract everything else (can be imagied as just a flat list of items)
+        _loadout = (flatten _loadout) select {_x isEqualType "" && {_x isNotEqualTo ""}};//Flatten and filter
+        {_allContainerItems pushBack _x} forEach _loadout;
+    } else {
+        //Looting regular container (box/vehicle)
+        {
+            private _arr = switch (_x) do {
+                case 0: {getBackpackCargo _container};
+                case 1: {getItemCargo _container};
+                case 2: {getMagazineCargo _container};
+                case 3: {getWeaponCargo _container};
+            };
 
-        switch (_x) do {
-            case 0: {clearBackpackCargoGlobal _container};
-            case 1: {clearItemCargoGlobal _container};
-            case 2: {clearMagazineCargoGlobal _container};
-            case 3: {clearWeaponCargoGlobal _container};
-        };
-    } forEach [0,1,2,3];
+            _arr params ["_classNames","_counts"];
+            for "_i" from 0 to ((count _classNames)-1) do {
+                _allContainerItems pushBack (_counts#_i);
+                _allContainerItems pushBack (_classNames#_i);
+            };
+        } forEach [0,1,2,3];
+    };
     _allContainerItems = _allContainerItems call NWG_fnc_unCompactStringArray;
 
+    //Convert to loot
     private _loot = [[],[],[],[]];
     {
         switch (_x call NWG_fnc_icGetItemType) do {
@@ -166,8 +189,39 @@ NWG_LS_CLI_LootByInventoryUI = {
 };
 
 NWG_LS_CLI_LootByAction = {
+    //Get container loot
     private _container = _this;
-    //TODO: Implement looting
+    private _loot = _container call NWG_LS_CLI_ContainerItemsToLoot;
+    private _flattenedLoot = flatten _loot;
+    if (_flattenedLoot isEqualTo []) exitWith {};//Nothing to take
+
+    //Clear the container
+    if (_container isKindOf "Man") then {
+        //Looting the body of a unit
+        private _uniform = uniform _container;//Get current uniform
+        if (_uniform isNotEqualTo "" && {_flattenedLoot isNotEqualTo [_uniform]}) then {
+            //If there was a uniform and it is not the only thing left
+            _container setUnitLoadout [[],[],[],[_uniform,[]],[],[],"","",[],["","","","","",""]];//Leave only the uniform
+            (_loot#0) deleteAt ((_loot#0) find _uniform);//Remove uniform from loot (we're not taking it)
+        } else {
+            _container setUnitLoadout (configFile >> "EmptyLoadout");//Clear the inventory completely
+        };
+    } else {
+        //Looting regular container (box/vehicle)
+        clearBackpackCargoGlobal _container;
+        clearItemCargoGlobal _container;
+        clearMagazineCargoGlobal _container;
+        clearWeaponCargoGlobal _container;
+    };
+
+    //Append to player loot storage
+    private _playerLoot = player call NWG_fnc_lsGetPlayerLoot;
+    {
+        _x call NWG_fnc_unCompactStringArray;//Uncompact
+        _x append (_loot#_forEachIndex);//Append
+        _x call NWG_fnc_compactStringArray;//Compact
+    } forEach _playerLoot;
+    [player,_playerLoot] call NWG_fnc_lsSetPlayerLoot;//Save
 };
 
 //================================================================================================================

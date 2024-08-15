@@ -12,7 +12,7 @@ NWG_LS_LootStorageObject = objNull;
 // Get/Set functions for player's loot
 NWG_LS_COM_GetPlayerLoot = {
     //private _unit = _this;
-    _this getVariable ["NWG_LS_LootStorage",[]];
+    _this getVariable ["NWG_LS_LootStorage",[[],[],[],[]]];
 };
 
 NWG_LS_COM_SetPlayerLoot = {
