@@ -117,7 +117,7 @@ NWG_LS_CLI_OnInventoryClose = {
 
 //================================================================================================================
 //================================================================================================================
-//Looting util
+//Looting utils
 //Converts container items into loot
 //returns: [[CLTH_array],[WEPN_array],[ITEM_array],[AMMO_array]]
 NWG_LS_CLI_ContainerItemsToLoot = {
@@ -169,8 +169,8 @@ NWG_LS_CLI_ContainerItemsToLoot = {
     private _loot = [[],[],[],[]];
     {
         switch (_x call NWG_fnc_icGetItemType) do {
-            case ITEM_TYPE_CLTH: {(_loot#0) pushBack _x};
-            case ITEM_TYPE_WEPN: {(_loot#1) pushBack _x};
+            case ITEM_TYPE_CLTH: {(_loot#0) pushBack (_x call NWG_LS_CLI_GetBasicBackpack)};//Could be a backpack
+            case ITEM_TYPE_WEPN: {(_loot#1) pushBack (_x call NWG_LS_CLI_GetBasicBackpack)};//Also could be a backpack (folded weapon)
             case ITEM_TYPE_ITEM: {(_loot#2) pushBack _x};
             case ITEM_TYPE_AMMO: {(_loot#3) pushBack _x};
         };
@@ -179,6 +179,63 @@ NWG_LS_CLI_ContainerItemsToLoot = {
 
     //return
     _loot
+};
+
+/*
+    BIS_fnc_basicBackpack (reworked)
+	Author: Jiri Wainar
+    Reworked by: Asmo
+
+	Description:
+	Return class of given backpack without a bakened-in equipment (an empty backpack).
+
+    Asmo's note:
+    Originally some backpacks have pre-determined content that gets added if you add backpack to storage.
+    >cursorObject addBackpackCargo ["B_AssaultPack_mcamo_AA",1];
+    >Expectation: Just an empty backpack added
+    >Reality: Backpack added with two Titan missles in it
+    This function is a fix for that.
+    Additionally, the vanilla scheme means same backpacks would be counted as different items with different classnames.
+    We want to treat them as the same item, so we need to 'normalize' - this function does that as well.
+
+	Example:
+	_class:string = _class:string call BIS_fnc_basicBackpack;
+	"b_assaultpack_rgr" = "b_assaultpack_rgr_medic" call BIS_fnc_basicBackpack;
+*/
+NWG_LS_CLI_GetBasicBackpack = {
+    private _input = _this;
+    if !(isClass (configfile >> "CfgVehicles" >> _input)) exitWith {_input};//Not a backpack
+
+    private _fn_hasCargo = {
+        // private _input = _this;
+        private _hasCargo = false;
+        {
+            if (count (_x call Bis_fnc_getCfgSubClasses) > 0)
+                exitWith {_hasCargo = true};
+        }
+        forEach [
+            (configfile >> "CfgVehicles" >> _this >> "TransportItems"),
+            (configfile >> "CfgVehicles" >> _this >> "TransportMagazines"),
+            (configfile >> "CfgVehicles" >> _this >> "TransportWeapons")
+        ];
+
+        _hasCargo
+    };
+    if !(_input call _fn_hasCargo) exitWith {_input};//Backpack has no cargo
+
+    private _output = "";
+    private _parents = [configfile >> "CfgVehicles" >> _input, true] call BIS_fnc_returnParents;
+    private _i = _parents findIf {!(_x call _fn_hasCargo) && {(getNumber (configfile >> "CfgVehicles" >> _x >> "scope")) == 2}};
+    if (_i != -1) then {_output = _parents select _i};//Can it return ""? Let's be extra cautious and assume it can
+
+    if (_output isEqualTo "") then {
+        _output = if (_input == "b_kitbag_rgr_exp")
+            then {"b_kitbag_rgr"}/*Some unnamed border case, taken from original 'as is'*/
+            else {_input};
+    };
+
+    //return
+    _output
 };
 
 //================================================================================================================
