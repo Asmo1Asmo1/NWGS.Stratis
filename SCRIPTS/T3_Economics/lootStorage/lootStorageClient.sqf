@@ -143,9 +143,19 @@ NWG_LS_CLI_ContainerItemsToLoot = {
                 _allContainerItems pushBack _class;
             } forEach ((_loadout#_i) deleteAt 1);//Extract what is stored inside
         };
-        //Extract everything else (can be imagied as just a flat list of items)
+        //Extract everything else from loadout (can be imagied as just a flat list of items)
         _loadout = (flatten _loadout) select {_x isEqualType "" && {_x isNotEqualTo ""}};//Flatten and filter
-        {_allContainerItems pushBack _x} forEach _loadout;
+        _allContainerItems append _loadout;
+        //Extract weapons from weapon holders
+        private _weaponHolders = if (!alive _container)
+            then {_container call NWG_LS_CLI_GetDeadUnitWeaponHolders}
+            else {[]};
+        private _weaponInfo = [];
+        {
+            _weaponInfo = weaponsItems _x;//Get weapon items inside the holder
+            _weaponInfo = (flatten _weaponInfo) select {_x isEqualType "" && {_x isNotEqualTo ""}};//Flatten and filter
+            _allContainerItems append _weaponInfo;
+        } forEach _weaponHolders;
     } else {
         //Looting regular container (box/vehicle)
         {
@@ -238,6 +248,12 @@ NWG_LS_CLI_GetBasicBackpack = {
     _output
 };
 
+NWG_LS_CLI_GetDeadUnitWeaponHolders = {
+    //replace with https://community.bistudio.com/wiki/getCorpseWeaponholders when available (arma 3 2.18)
+    // private _deadUnit = _this;
+    _this nearObjects ["WeaponHolderSimulated",5]
+};
+
 //================================================================================================================
 //================================================================================================================
 //Looting (public, high level)
@@ -262,6 +278,10 @@ NWG_LS_CLI_LootByAction = {
             (_loot#0) deleteAt ((_loot#0) find _uniform);//Remove uniform from loot (we're not taking it)
         } else {
             _container setUnitLoadout (configFile >> "EmptyLoadout");//Clear the inventory completely
+        };
+        //Delete weapons from weapon holders
+        if (!alive _container) then {
+            {deleteVehicle _x} forEach (_container call NWG_LS_CLI_GetDeadUnitWeaponHolders);
         };
     } else {
         //Looting regular container (box/vehicle)
