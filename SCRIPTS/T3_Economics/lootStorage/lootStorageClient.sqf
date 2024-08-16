@@ -124,13 +124,40 @@ NWG_LS_CLI_ContainerItemsToLoot = {
     private _container = _this;
     private _allContainerItems = [];
 
+    private _scanContainer = {
+        private _container = _this;
+
+        //Loot clothes, items and ammo
+        {
+            private _arr = switch (_x) do {
+                case 0: {getBackpackCargo _container};
+                case 1: {getItemCargo _container};
+                case 2: {getMagazineCargo _container};
+            };
+
+            _arr params ["_classNames","_counts"];
+            for "_i" from 0 to ((count _classNames)-1) do {
+                _allContainerItems pushBack (_counts#_i);
+                _allContainerItems pushBack (_classNames#_i);
+            };
+        } forEach [0,1,2];
+
+        //Loot weapons
+        private _cargo = (getWeaponCargo _container)#0;
+        private _wepns = weaponsItems _container;
+        _wepns = _wepns select {(_x#0) in _cargo};//Remove non-contained weapons (horn, etc.)
+        _wepns = (flatten _wepns) select {_x isEqualType "" && {_x isNotEqualTo ""}};//Flatten and filter
+        _allContainerItems append _wepns;
+    };
+
     //Get all items from the container
     if (_container isKindOf "Man") then {
-        //Looting the body of a unit
+
+        /*--- Looting the body of a unit ---*/
         private _loadout = getUnitLoadout _container;
         //Extract items from uniform,vest and backpack (they have structure: [class,count])
         for "_i" from 3 to 5 do {
-            if ((_loadout#i) isEqualTo []) then {continue};//Skip empty
+            if ((_loadout#_i) isEqualTo []) then {continue};//Skip empty
             private ["_class","_count"];
             {
                 _class = _x param [0,""];
@@ -143,44 +170,32 @@ NWG_LS_CLI_ContainerItemsToLoot = {
                 _allContainerItems pushBack _class;
             } forEach ((_loadout#_i) deleteAt 1);//Extract what is stored inside
         };
-        //Extract everything else from loadout (can be imagied as just a flat list of items)
+        //Extract everything else that is left in loadout (can be imagied as just a flat list of items)
         _loadout = (flatten _loadout) select {_x isEqualType "" && {_x isNotEqualTo ""}};//Flatten and filter
         _allContainerItems append _loadout;
         //Extract weapons from weapon holders
-        private _weaponHolders = if (!alive _container)
-            then {_container call NWG_LS_CLI_GetDeadUnitWeaponHolders}
-            else {[]};
-        private _weaponInfo = [];
-        {
-            _weaponInfo = weaponsItems _x;//Get weapon items inside the holder
-            _weaponInfo = (flatten _weaponInfo) select {_x isEqualType "" && {_x isNotEqualTo ""}};//Flatten and filter
-            _allContainerItems append _weaponInfo;
-        } forEach _weaponHolders;
-    } else {
-        //Looting regular container (box/vehicle)
-        {
-            private _arr = switch (_x) do {
-                case 0: {getBackpackCargo _container};
-                case 1: {getItemCargo _container};
-                case 2: {getMagazineCargo _container};
-                case 3: {getWeaponCargo _container};
-            };
+        {_x call _scanContainer} forEach (call NWG_LS_CLI_GetDeadUnitWeaponHolders);
 
-            _arr params ["_classNames","_counts"];
-            for "_i" from 0 to ((count _classNames)-1) do {
-                _allContainerItems pushBack (_counts#_i);
-                _allContainerItems pushBack (_classNames#_i);
-            };
-        } forEach [0,1,2,3];
+    } else {
+
+        /*--- Looting regular container (box/vehicle) ---*/
+        //Loot every sub-container
+        private _subContainers = (everyContainer _container) apply {_x#1};
+        {_x call _scanContainer} forEach _subContainers;
+        //Loot the container itself
+        _container call _scanContainer;
+
     };
+
+    //Uncompact to array of strings
     _allContainerItems = _allContainerItems call NWG_fnc_unCompactStringArray;
 
     //Convert to loot
     private _loot = [[],[],[],[]];
     {
         switch (_x call NWG_fnc_icGetItemType) do {
-            case ITEM_TYPE_CLTH: {(_loot#0) pushBack (_x call NWG_LS_CLI_GetBasicBackpack)};//Could be a backpack
-            case ITEM_TYPE_WEPN: {(_loot#1) pushBack (_x call NWG_LS_CLI_GetBasicBackpack)};//Also could be a backpack (folded weapon)
+            case ITEM_TYPE_CLTH: {(_loot#0) pushBack (_x call NWG_LS_CLI_GetBasicBackpack)};
+            case ITEM_TYPE_WEPN: {(_loot#1) pushBack (_x call NWG_LS_CLI_GetBasicWeapon)};
             case ITEM_TYPE_ITEM: {(_loot#2) pushBack _x};
             case ITEM_TYPE_AMMO: {(_loot#3) pushBack _x};
         };
@@ -191,30 +206,10 @@ NWG_LS_CLI_ContainerItemsToLoot = {
     _loot
 };
 
-/*
-    BIS_fnc_basicBackpack (reworked)
-	Author: Jiri Wainar
-    Reworked by: Asmo
-
-	Description:
-	Return class of given backpack without a bakened-in equipment (an empty backpack).
-
-    Asmo's note:
-    Originally some backpacks have pre-determined content that gets added if you add backpack to storage.
-    >cursorObject addBackpackCargo ["B_AssaultPack_mcamo_AA",1];
-    >Expectation: Just an empty backpack added
-    >Reality: Backpack added with two Titan missles in it
-    This function is a fix for that.
-    Additionally, the vanilla scheme means same backpacks would be counted as different items with different classnames.
-    We want to treat them as the same item, so we need to 'normalize' - this function does that as well.
-
-	Example:
-	_class:string = _class:string call BIS_fnc_basicBackpack;
-	"b_assaultpack_rgr" = "b_assaultpack_rgr_medic" call BIS_fnc_basicBackpack;
-*/
+//BIS_fnc_basicBackpack (reworked)
 NWG_LS_CLI_GetBasicBackpack = {
     private _input = _this;
-    if !(isClass (configfile >> "CfgVehicles" >> _input)) exitWith {_input};//Not a backpack
+    if !(isClass (configFile >> "CfgVehicles" >> _input)) exitWith {_input};//Not a backpack
 
     private _fn_hasCargo = {
         // private _input = _this;
@@ -224,9 +219,9 @@ NWG_LS_CLI_GetBasicBackpack = {
                 exitWith {_hasCargo = true};
         }
         forEach [
-            (configfile >> "CfgVehicles" >> _this >> "TransportItems"),
-            (configfile >> "CfgVehicles" >> _this >> "TransportMagazines"),
-            (configfile >> "CfgVehicles" >> _this >> "TransportWeapons")
+            (configFile >> "CfgVehicles" >> _this >> "TransportItems"),
+            (configFile >> "CfgVehicles" >> _this >> "TransportMagazines"),
+            (configFile >> "CfgVehicles" >> _this >> "TransportWeapons")
         ];
 
         _hasCargo
@@ -234,8 +229,8 @@ NWG_LS_CLI_GetBasicBackpack = {
     if !(_input call _fn_hasCargo) exitWith {_input};//Backpack has no cargo
 
     private _output = "";
-    private _parents = [configfile >> "CfgVehicles" >> _input, true] call BIS_fnc_returnParents;
-    private _i = _parents findIf {!(_x call _fn_hasCargo) && {(getNumber (configfile >> "CfgVehicles" >> _x >> "scope")) == 2}};
+    private _parents = [configFile >> "CfgVehicles" >> _input, true] call BIS_fnc_returnParents;
+    private _i = _parents findIf {!(_x call _fn_hasCargo) && {(getNumber (configFile >> "CfgVehicles" >> _x >> "scope")) == 2}};
     if (_i != -1) then {_output = _parents select _i};//Can it return ""? Let's be extra cautious and assume it can
 
     if (_output isEqualTo "") then {
@@ -248,10 +243,33 @@ NWG_LS_CLI_GetBasicBackpack = {
     _output
 };
 
+//BIS_fnc_baseWeapon (reworked)
+NWG_LS_CLI_GetBasicWeapon = {
+    _input = _this;
+    private _cfg = configFile >> "CfgWeapons" >> _input;
+    if !(isClass _cfg) exitWith {_input};//Not a weapon
+
+    //--- Get manual base weapon
+    private _base = getText (_cfg >> "baseWeapon");
+    if (isclass (configFile >> "CfgWeapons" >> _base)) exitWith {_base};
+
+    //--- Get first parent without any attachments
+    private _return = _input;
+    {
+        if (count (_x >> "linkeditems") == 0) exitWith {_return = configname _x};
+    } foreach (_cfg call BIS_fnc_returnParents);
+
+    //return
+    _return
+};
+
 NWG_LS_CLI_GetDeadUnitWeaponHolders = {
     //replace with https://community.bistudio.com/wiki/getCorpseWeaponholders when available (arma 3 2.18)
+    //note: checked looting with secondary weapon attached to player - seems all good
     // private _deadUnit = _this;
-    _this nearObjects ["WeaponHolderSimulated",5]
+    if (!alive _this)
+        then {_this nearObjects ["WeaponHolderSimulated",5]}
+        else {[]}
 };
 
 //================================================================================================================
@@ -270,7 +288,7 @@ NWG_LS_CLI_LootByAction = {
 
     //Clear the container
     if (_container isKindOf "Man") then {
-        //Looting the body of a unit
+        //We were looting the body of a unit
         private _uniform = uniform _container;//Get current uniform
         if (_uniform isNotEqualTo "" && {_flattenedLoot isNotEqualTo [_uniform]}) then {
             //If there was a uniform and it is not the only thing left
@@ -280,11 +298,9 @@ NWG_LS_CLI_LootByAction = {
             _container setUnitLoadout (configFile >> "EmptyLoadout");//Clear the inventory completely
         };
         //Delete weapons from weapon holders
-        if (!alive _container) then {
-            {deleteVehicle _x} forEach (_container call NWG_LS_CLI_GetDeadUnitWeaponHolders);
-        };
+        {deleteVehicle _x} forEach (_container call NWG_LS_CLI_GetDeadUnitWeaponHolders);
     } else {
-        //Looting regular container (box/vehicle)
+        //We were looting regular container (box/vehicle)
         clearBackpackCargoGlobal _container;
         clearItemCargoGlobal _container;
         clearMagazineCargoGlobal _container;

@@ -1,3 +1,20 @@
+// call NWG_LS_CLI_LootByAction_Test
+NWG_LS_CLI_LootByAction_Test = {
+	private _target = cursorTarget;
+	if (isNull _target) exitWith {"No target selected"};
+
+	_target spawn {
+		private _target = _this;
+		sleep 1;
+
+		[player,[[],[],[],[]]] call NWG_fnc_lsSetPlayerLoot;//Clear player loot
+		_target call NWG_LS_CLI_LootByAction;//Loot target
+		with missionNamespace do {
+			call NWG_LS_CLI_OpenMyStorage;//Open storage to see loot
+		};
+	};
+};
+
 // call NWG_LS_CLI_GetBasicBackpack_Test_EqualWithBisFunc
 NWG_LS_CLI_GetBasicBackpack_Test_EqualWithBisFunc = {
     private _testCases = [
