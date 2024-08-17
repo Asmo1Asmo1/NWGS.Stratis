@@ -15,6 +15,11 @@ NWG_fnc_lsLootOpenedContainer = {
     _this call NWG_LS_CLI_LootByInventoryUI;
 };
 
+//Notifies loot storage that storage may have changed during UI interaction
+NWG_fnc_lsNotifyStorageChanged = {
+    call NWG_LS_CLI_OnTakeOrPut;
+};
+
 /*Any->Any*/
 //Get loot storage of a player
 //params: _player - object

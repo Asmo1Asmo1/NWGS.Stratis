@@ -95,6 +95,7 @@ NWG_INVUI_OnButtonWeap = {
 NWG_INVUI_OnButtonUnif = {
     //Equip the unform selected in inventory
     (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_uneqEquipSelected;
+    call NWG_fnc_lsNotifyStorageChanged;//Notify loot storage that storage may have changed (if we equip uniform from loot storage)
 };
 
 NWG_INVUI_OnButtonMagR = {
