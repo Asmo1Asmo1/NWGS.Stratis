@@ -28,6 +28,7 @@
 //Script
 NWG_UNEQ_EquipSelectedUniform = {
     disableSerialization;
+    //params ["_unit","_mainContainer","_secdContainer"];
     params ["",["_mainContainer",objNull],["_secdContainer",objNull]];
 
     private _inventoryDisplay = findDisplay 602;

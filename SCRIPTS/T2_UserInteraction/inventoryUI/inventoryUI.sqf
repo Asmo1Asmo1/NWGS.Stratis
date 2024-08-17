@@ -82,8 +82,8 @@ NWG_INVUI_UpdateWeight = {
 //================================================================================================================
 //Buttons
 NWG_INVUI_OnButtonLoot = {
-    //TODO: Implement
-    systemChat "Loot button pressed!";
+    //Loot the container opened in inventory
+    (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_lsLootOpenedContainer;
 };
 
 NWG_INVUI_OnButtonWeap = {

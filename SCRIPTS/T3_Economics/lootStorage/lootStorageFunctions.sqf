@@ -6,6 +6,15 @@ NWG_fnc_lsSetLootStorageObject = {
     _this call NWG_LS_SER_SetStorageObject;
 };
 
+/*UI->Client*/
+//Loot the container opened in inventory
+//params: "InventoryOpened" event args: ["_unit","_mainContainer","_secdContainer"];
+//note: this function must be called from within the inventory UI
+NWG_fnc_lsLootOpenedContainer = {
+    // params ["_unit","_mainContainer","_secdContainer"];
+    _this call NWG_LS_CLI_LootByInventoryUI;
+};
+
 /*Any->Any*/
 //Get loot storage of a player
 //params: _player - object

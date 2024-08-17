@@ -276,7 +276,12 @@ NWG_LS_CLI_GetDeadUnitWeaponHolders = {
 //================================================================================================================
 //Looting (public, high level)
 NWG_LS_CLI_LootByInventoryUI = {
-    //TODO: Implement looting
+    disableSerialization;
+    //params ["_unit","_mainContainer","_secdContainer"];
+    params ["",["_mainContainer",objNull],["_secdContainer",objNull]];
+
+    //TODO: Implement
+    systemChat "Loot button pressed!";
 };
 
 NWG_LS_CLI_LootByAction = {
