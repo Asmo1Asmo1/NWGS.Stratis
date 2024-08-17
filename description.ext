@@ -2,6 +2,8 @@
 //GUI elements
 #include "GUI\magrepack\magrepackGUI.hpp"
 #include "GUI\viewDistance\viewDistanceGUI.h"
+#include "GUI\vehicleCustomization\vehicleCustomization.hpp"
+#include "GUI\inventoryUI\inventoryUI.hpp"
 
 //===========================================================
 //Loading screen

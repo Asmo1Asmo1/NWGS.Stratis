@@ -15,6 +15,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#WORLD_NAME_VR#","VR"],
     ["#WORLD_NAME_UNKNOWN#","Неизвест."],
     //T2_UserInteraction
+    //inventoryUI
+    ["#INV_BUTTON_LOOT_TOOLTIP#","Отправить в хранилище"],
+    ["#INV_BUTTON_WEAP_TOOLTIP#","Сменить оружие"],
+    ["#INV_BUTTON_UNIF_TOOLTIP#","Сменить форму"],
+    ["#INV_BUTTON_MAGR_TOOLTIP#","Перепаковать магазины"],
     //medicine
     ["#MED_CLI_BLEEDING_UI_TITLE_LOW#","Перевязан"],
     ["#MED_CLI_BLEEDING_UI_TITLE_MID#","Кровотечение"],
@@ -51,6 +56,17 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_HINT_ABORTED#","Голосование отменено"],
     ["#VOTE_HINT_VOTE_RECEIVED#","Голос отправлен"],
     ["#VOTE_HINT_TIMEOUT#","Время вышло"],
+    //T3_Economics
+    //lootStorage
+    ["#LS_STORAGE_ACTION_TITLE#","Открыть Хранилище"],
+    //vehCustomizationAppearance
+    ["#CAPP_LEFT_TITLE#","Цвет"],
+    ["#CAPP_RIGHT_TITLE#","Компоненты"],
+    //vehCustomizationPylons
+    ["#CPYL_LEFT_TITLE#","Пресеты пилонов"],
+    ["#CPYL_RIGHT_TITLE#","Владелец пилонов"],
+    ["#CPYL_OWNER_PILOT#","Пилот"],
+    ["#CPYL_OWNER_GUNNER#","Стрелок"],
 
     ["",""]
 ];

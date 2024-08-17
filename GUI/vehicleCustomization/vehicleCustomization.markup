@@ -1,0 +1,8 @@
+/* #Rifoga
+$[
+	1.063,
+	["vehicleCustomization",[["0.5","0.5","0","0"],"2.5 * pixelW * pixelGrid","2.5 * pixelH * pixelGrid","UI_GRID"],0,0,0],
+	[1500,"LeftBox",[2,"",["-29 * UI_GRID_W + UI_GRID_X","-17 * UI_GRID_H + UI_GRID_Y","13 * UI_GRID_W","34 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1501,"RightBox",[2,"",["16 * UI_GRID_W + UI_GRID_X","-17 * UI_GRID_H + UI_GRID_Y","13 * UI_GRID_W","34 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]]
+]
+*/
