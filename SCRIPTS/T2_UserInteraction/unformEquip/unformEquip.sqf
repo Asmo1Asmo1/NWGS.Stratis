@@ -3,14 +3,11 @@
     This module adds this ability.
     Note: It requires inventory to be opened in order to work.
 
-    Usage: Inside "InventoryOpened" event handler, add the following line:
-    uiNamespace setVariable ["NWG_UNEQ_ForEquipSelectedUniform",_this];
-
-    Then, in your custom button handler, add the following line:
-    call NWG_fnc_uneqEquipSelected;
+    Usage: Inside "InventoryOpened" event handler, add any handler that will call this function with the same arguments.
+    ["_unit","_mainContainer","_secdContainer"] call NWG_fnc_uneqEquipSelected
 
     I did not find a way to grab actual containers solely from the inventory UI.
-    So unfortunately this module requires the arguments of "InventoryOpened" handler to be stored in UInamespace
+    So unfortunately this module requires the arguments of "InventoryOpened" handler to be sent
 */
 /*
     Known issues:
@@ -31,6 +28,8 @@
 //Script
 NWG_UNEQ_EquipSelectedUniform = {
     disableSerialization;
+    params ["",["_mainContainer",objNull],["_secdContainer",objNull]];
+
     private _inventoryDisplay = findDisplay 602;
     if (isNull _inventoryDisplay) exitWith {
         "NWG_UNEQ_EquipSelectedUniform: Inventory must be opened to equip uniform." call NWG_fnc_logError;
@@ -48,8 +47,7 @@ NWG_UNEQ_EquipSelectedUniform = {
     private _selectedItem = _uiContainer lbData (lbCurSel _uiContainer);
     if ((getNumber (configFile >> "CfgWeapons" >> _selectedItem >> "ItemInfo" >> "type")) != 801) exitWith {};//Not a uniform
 
-    //Get container (the spaghetti way)
-    (uiNamespace getVariable ["NWG_UNEQ_ForEquipSelectedUniform",[]]) params ["",["_mainContainer",objNull],["_secdContainer",objNull]];
+    //Get physical container
     private _container = if (_uiContainerID == MAIN_CONTAINER_LIST)
         then {if (!isNull _mainContainer) then {_mainContainer} else {_secdContainer}}
         else {if (!isNull _secdContainer) then {_secdContainer} else {_mainContainer}};//Fix looting corpses (switches the containers)
