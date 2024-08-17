@@ -24,7 +24,6 @@ private _Init = {
 //Handler
 NWG_INVUI_OnInventoryOpen = {
     disableSerialization;
-    // params ["_unit", "_container"];
     // params ["_unit","_mainContainer","_secdContainer"];
 
     //Wait for vanilla inventory to open
@@ -41,12 +40,12 @@ NWG_INVUI_OnInventoryOpen = {
     private _buttonUnif = _inventoryDisplay ctrlCreate ["ButtonUniform",-1];
     private _buttonMagR = _inventoryDisplay ctrlCreate ["ButtonMagRepack",-1];
 
-    //Add some data
+    //Handle data store and cleanup
     uiNamespace setVariable ["NWG_INVUI_textWeight",_textWeight];//Store weight text control
-    uiNamespace setVariable ["NWG_UNEQ_ForEquipSelectedUniform",_this];//Store arguments for later use
+    uiNamespace setVariable ["NWG_INVUI_eventArgs",_this];//Store arguments for later use
     _inventoryDisplay displayAddEventHandler ["Unload",{
         uiNamespace setVariable ["NWG_INVUI_textWeight",nil];
-        uiNamespace setVariable ["NWG_UNEQ_ForEquipSelectedUniform",nil];
+        uiNamespace setVariable ["NWG_INVUI_eventArgs",nil];
     }];
 
     //Init weight text
@@ -83,8 +82,8 @@ NWG_INVUI_UpdateWeight = {
 //================================================================================================================
 //Buttons
 NWG_INVUI_OnButtonLoot = {
-    //TODO: Implement
-    systemChat "Loot button pressed!";
+    //Loot the container opened in inventory
+    (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_lsLootOpenedContainer;
 };
 
 NWG_INVUI_OnButtonWeap = {
@@ -95,7 +94,8 @@ NWG_INVUI_OnButtonWeap = {
 
 NWG_INVUI_OnButtonUnif = {
     //Equip the unform selected in inventory
-    call NWG_fnc_uneqEquipSelected;
+    (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_uneqEquipSelected;
+    call NWG_fnc_lsNotifyStorageChanged;//Notify loot storage that storage may have changed (if we equip uniform from loot storage)
 };
 
 NWG_INVUI_OnButtonMagR = {
