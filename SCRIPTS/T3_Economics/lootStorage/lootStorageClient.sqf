@@ -6,6 +6,7 @@
 #define OPEN_STORAGE_ACTION_PRIORITY 6
 #define OPEN_STORAGE_ACTION_RADIUS 3
 #define INVISIBLE_BOX_TYPE "B_supplyCrate_F"
+#define CLOSE_INVENTORY_ON_LOOT true
 
 //================================================================================================================
 //================================================================================================================
@@ -275,13 +276,47 @@ NWG_LS_CLI_GetDeadUnitWeaponHolders = {
 //================================================================================================================
 //================================================================================================================
 //Looting (public, high level)
+//UI IDDs
+#define MAIN_CONTAINER_LIST 640
+#define SECN_CONTAINER_LIST 632
 NWG_LS_CLI_LootByInventoryUI = {
     disableSerialization;
     //params ["_unit","_mainContainer","_secdContainer"];
     params ["",["_mainContainer",objNull],["_secdContainer",objNull]];
 
-    //TODO: Implement
-    systemChat "Loot button pressed!";
+    //Check if we trying to loot the storage itself
+    if (!isNull NWG_LS_CLI_invisibleBox) exitWith {};//Ignore if storage object exists (we're not looting it)
+
+    //Get inventory display
+    private _inventoryDisplay = findDisplay 602;
+    if (isNull _inventoryDisplay) exitWith {
+        "NWG_LS_CLI_LootByInventoryUI: Inventory must be opened to equip uniform." call NWG_fnc_logError;
+    };
+
+    //Find currently opened UI container
+    private _uiContainerID = -1;
+    {
+        if (ctrlShown (_inventoryDisplay displayCtrl _x)) exitWith {_uiContainerID = _x};
+    } forEach [MAIN_CONTAINER_LIST,SECN_CONTAINER_LIST];
+    if (_uiContainerID == -1) exitWith {
+        "NWG_LS_CLI_LootByInventoryUI: No container is opened." call NWG_fnc_logError;
+    };
+
+    //Get physical container
+    private _container = if (_uiContainerID == MAIN_CONTAINER_LIST)
+        then {if (!isNull _mainContainer) then {_mainContainer} else {_secdContainer}}
+        else {if (!isNull _secdContainer) then {_secdContainer} else {_mainContainer}};//Fix looting corpses (switches the containers)
+    if (isNull _container) exitWith {
+        "NWG_LS_CLI_LootByInventoryUI: Inventory containers are not available." call NWG_fnc_logError;
+    };
+
+    //Loot the container by using existing code
+    _container call NWG_LS_CLI_LootByAction;
+
+    //Close the window
+    if (CLOSE_INVENTORY_ON_LOOT) exitWith {
+        (uiNamespace getVariable ["RscDisplayInventory", displayNull]) closeDisplay 2;
+    };
 };
 
 NWG_LS_CLI_LootByAction = {
