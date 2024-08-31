@@ -7,6 +7,12 @@ NWG_INVUI_Settings = createHashMapFromArray [
     ["BUTTON_MAGR_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\rearm_ca.paa"],
     ["TEXT_WEIGHT_TEMPLATE","%1kg"],
 
+    ["SOUND_ON",true],
+    ["SOUND_BUTTON_LOOT","FD_Finish_F"],
+    ["SOUND_BUTTON_WEAP","FD_Finish_F"],
+    ["SOUND_BUTTON_UNIF","FD_Finish_F"],
+    ["SOUND_BUTTON_MAGR","FD_Finish_F"],
+
     ["",0]
 ];
 
@@ -84,23 +90,35 @@ NWG_INVUI_UpdateWeight = {
 NWG_INVUI_OnButtonLoot = {
     //Loot the container opened in inventory
     (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_lsLootOpenedContainer;
+    (NWG_INVUI_Settings get "SOUND_BUTTON_LOOT") call NWG_INVUI_PlaySound;
 };
 
 NWG_INVUI_OnButtonWeap = {
     //Switch primary<->additional weapon
     call NWG_fnc_awSwitchWeapon;
     call NWG_INVUI_UpdateWeight;
+    (NWG_INVUI_Settings get "SOUND_BUTTON_WEAP") call NWG_INVUI_PlaySound;
 };
 
 NWG_INVUI_OnButtonUnif = {
     //Equip the unform selected in inventory
     (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_uneqEquipSelected;
     call NWG_fnc_lsNotifyStorageChanged;//Notify loot storage that storage may have changed (if we equip uniform from loot storage)
+    (NWG_INVUI_Settings get "SOUND_BUTTON_UNIF") call NWG_INVUI_PlaySound;
 };
 
 NWG_INVUI_OnButtonMagR = {
     //Magazine repack
     call NWG_fnc_mroOpen;
+    (NWG_INVUI_Settings get "SOUND_BUTTON_MAGR") call NWG_INVUI_PlaySound;
+};
+
+//================================================================================================================
+//Sound
+NWG_INVUI_PlaySound = {
+    //private _sound = _this;
+    if !(NWG_INVUI_Settings get "SOUND_ON") exitWith {};
+    playSound _this;
 };
 
 //================================================================================================================
