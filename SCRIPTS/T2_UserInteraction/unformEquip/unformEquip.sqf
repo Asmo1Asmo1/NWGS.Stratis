@@ -35,6 +35,7 @@ NWG_UNEQ_EquipSelectedUniform = {
     private _inventoryDisplay = findDisplay 602;
     if (isNull _inventoryDisplay) exitWith {
         "NWG_UNEQ_EquipSelectedUniform: Inventory must be opened to equip uniform." call NWG_fnc_logError;
+        false
     };
 
     //Find UI container with selected item
@@ -42,12 +43,12 @@ NWG_UNEQ_EquipSelectedUniform = {
     {
         if ((lbCurSel (_inventoryDisplay displayCtrl _x)) > -1) exitWith {_uiContainerID = _x};
     } forEach [MAIN_CONTAINER_LIST,SECN_CONTAINER_LIST];
-    if (_uiContainerID == -1) exitWith {};//Nothing is selected anywhere
+    if (_uiContainerID == -1) exitWith {false};//Nothing is selected anywhere
     private _uiContainer = _inventoryDisplay displayCtrl _uiContainerID;
 
     //Get selected item
     private _selectedItem = _uiContainer lbData (lbCurSel _uiContainer);
-    if ((getNumber (configFile >> "CfgWeapons" >> _selectedItem >> "ItemInfo" >> "type")) != 801) exitWith {};//Not a uniform
+    if ((getNumber (configFile >> "CfgWeapons" >> _selectedItem >> "ItemInfo" >> "type")) != 801) exitWith {false};//Not a uniform
 
     //Get physical container
     private _container = if (_uiContainerID == MAIN_CONTAINER_LIST)
@@ -55,12 +56,13 @@ NWG_UNEQ_EquipSelectedUniform = {
         else {if (!isNull _secdContainer) then {_secdContainer} else {_mainContainer}};//Fix looting corpses (switches the containers)
     if (isNull _container) exitWith {
         "NWG_UNEQ_EquipSelectedUniform: Inventory containers are not available." call NWG_fnc_logError;
+        false
     };
 
     //Get player's uniform
     private _playerUniformLoadout = (getUnitLoadout player) select UNIFORM_IN_LOADOUT;
     private _playerUniformClass = _playerUniformLoadout param [0,""];
-    if (_playerUniformClass isEqualTo _selectedItem) exitWith {};//Already wearing this uniform
+    if (_playerUniformClass isEqualTo _selectedItem) exitWith {false};//Already wearing this uniform
 
     //Update the container based on what it is
     if (_container isKindOf "Man") then {
@@ -75,17 +77,22 @@ NWG_UNEQ_EquipSelectedUniform = {
         [player,_selectedItem] call NWG_UNEQ_ReplaceUniformForUnit;//Update player's loadout
     };
 
-    //Close inventory window (Hide the issue with vest and backpack tabs disappearing)
-    if (CLOSE_INVENTORY_ON_UNIFORM_CHANGE) exitWith {
-        (uiNamespace getVariable ["RscDisplayInventory", displayNull]) closeDisplay 2;
+    //Apply fixes
+    switch (true) do {
+        case (CLOSE_INVENTORY_ON_SWITCH): {
+            //Close inventory window
+            (uiNamespace getVariable ["RscDisplayInventory", displayNull]) closeDisplay 2;
+        };
+        case (INVENTORY_WINDOW_FIX): {
+            //Fix the issue with inventory tabs disappearing
+            player addItem "Antibiotic";
+            player removeItem "Antibiotic";
+        };
+        default {/*Do nothing*/};
     };
 
-    //Fix the issue with inventory tabs disappearing
-    if (INVENTORY_WINDOW_FIX) exitWith {
-        //--- hacky solution how to enable vest and backpack container
-        player addItem "Antibiotic";
-        player removeItem "Antibiotic";
-    };
+    //return
+    true
 };
 
 //================================================================================================================

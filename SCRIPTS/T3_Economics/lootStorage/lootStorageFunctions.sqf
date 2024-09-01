@@ -10,9 +10,10 @@ NWG_fnc_lsSetLootStorageObject = {
 //Loot the container opened in inventory
 //params: "InventoryOpened" event args: ["_unit","_mainContainer","_secdContainer"];
 //note: this function must be called from within the inventory UI
+//returns: boolean - true if looting was successful, false if not
 NWG_fnc_lsLootOpenedContainer = {
     // params ["_unit","_mainContainer","_secdContainer"];
-    _this call NWG_LS_CLI_LootByInventoryUI;
+    _this call NWG_LS_CLI_LootByInventoryUI
 };
 
 //Notifies loot storage that storage may have changed during UI interaction

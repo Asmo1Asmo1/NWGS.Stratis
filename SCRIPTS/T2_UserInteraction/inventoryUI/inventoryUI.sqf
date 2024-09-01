@@ -89,28 +89,35 @@ NWG_INVUI_UpdateWeight = {
 //Buttons
 NWG_INVUI_OnButtonLoot = {
     //Loot the container opened in inventory
-    (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_lsLootOpenedContainer;
-    (NWG_INVUI_Settings get "SOUND_BUTTON_LOOT") call NWG_INVUI_PlaySound;
+    private _ok = (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_lsLootOpenedContainer;
+    if (_ok) then {
+        (NWG_INVUI_Settings get "SOUND_BUTTON_LOOT") call NWG_INVUI_PlaySound;
+    };
 };
 
 NWG_INVUI_OnButtonWeap = {
     //Switch primary<->additional weapon
-    call NWG_fnc_awSwitchWeapon;
-    call NWG_INVUI_UpdateWeight;
-    (NWG_INVUI_Settings get "SOUND_BUTTON_WEAP") call NWG_INVUI_PlaySound;
+    private _ok = call NWG_fnc_awSwitchWeapon;
+    if (_ok) then {
+        call NWG_INVUI_UpdateWeight;
+        (NWG_INVUI_Settings get "SOUND_BUTTON_WEAP") call NWG_INVUI_PlaySound;
+    };
 };
 
 NWG_INVUI_OnButtonUnif = {
     //Equip the unform selected in inventory
-    (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_uneqEquipSelected;
-    call NWG_fnc_lsNotifyStorageChanged;//Notify loot storage that storage may have changed (if we equip uniform from loot storage)
-    (NWG_INVUI_Settings get "SOUND_BUTTON_UNIF") call NWG_INVUI_PlaySound;
+    private _ok = (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_uneqEquipSelected;
+    if (_ok) then {
+        call NWG_INVUI_UpdateWeight;
+        call NWG_fnc_lsNotifyStorageChanged;//Notify loot storage that storage may have changed (if we equip uniform from loot storage)
+        (NWG_INVUI_Settings get "SOUND_BUTTON_UNIF") call NWG_INVUI_PlaySound;
+    };
 };
 
 NWG_INVUI_OnButtonMagR = {
     //Magazine repack
-    call NWG_fnc_mroOpen;
-    (NWG_INVUI_Settings get "SOUND_BUTTON_MAGR") call NWG_INVUI_PlaySound;
+    call NWG_fnc_mroOpen;//Opens separate window
+    (NWG_INVUI_Settings get "SOUND_BUTTON_MAGR") call NWG_INVUI_PlaySound;//Always play sound
 };
 
 //================================================================================================================
