@@ -13,6 +13,7 @@
 //Equip the unform selected in inventory
 //params: "InventoryOpened" event args: ["_unit","_mainContainer","_secdContainer"];
 //note: this function must be called from within the inventory UI
+//returns: boolean - true if successful, false if not
 NWG_fnc_uneqEquipSelected = {
     // params ["_unit","_mainContainer","_secdContainer"];
     _this call NWG_UNEQ_EquipSelectedUniform;

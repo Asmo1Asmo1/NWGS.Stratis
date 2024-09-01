@@ -25,7 +25,7 @@ NWG_AW_SwitchWeapon = {
     private _hasHolder = !isNull _holder;
     private _primaryWeaponLoadout = (getUnitLoadout player) select 0;
     private _hasPrimaryWeapon = _primaryWeaponLoadout isNotEqualTo [];
-    if (!_hasHolder && !_hasPrimaryWeapon) exitWith {};//No primary weapon and no additional weapon - do nothing
+    if (!_hasHolder && !_hasPrimaryWeapon) exitWith {false};//No primary weapon and no additional weapon - do nothing
 
     //Prepare loadout modification
     private _newLoadout = [];
@@ -49,17 +49,22 @@ NWG_AW_SwitchWeapon = {
     //Apply new loadout
     player setUnitLoadout _newLoadout;
 
-    //Close inventory window (Hide the issue with vest and backpack tabs disappearing)
-    if (CLOSE_INVENTORY_ON_SWITCH) exitWith {
-        (uiNamespace getVariable ["RscDisplayInventory", displayNull]) closeDisplay 2;
+    //Apply fixes
+    switch (true) do {
+        case (CLOSE_INVENTORY_ON_SWITCH): {
+            //Close inventory window
+            (uiNamespace getVariable ["RscDisplayInventory", displayNull]) closeDisplay 2;
+        };
+        case (INVENTORY_WINDOW_FIX): {
+            //Fix the issue with inventory tabs disappearing
+            player addItem "Antibiotic";
+            player removeItem "Antibiotic";
+        };
+        default {/*Do nothing*/};
     };
 
-    //Fix the issue with inventory tabs disappearing
-    if (INVENTORY_WINDOW_FIX) exitWith {
-        //--- hacky solution how to enable vest and backpack container
-        player addItem "Antibiotic";
-        player removeItem "Antibiotic";
-    };
+    //return
+    true
 };
 
 //================================================================================================================

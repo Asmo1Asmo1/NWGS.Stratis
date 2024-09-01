@@ -285,12 +285,13 @@ NWG_LS_CLI_LootByInventoryUI = {
     params ["",["_mainContainer",objNull],["_secdContainer",objNull]];
 
     //Check if we trying to loot the storage itself
-    if (!isNull NWG_LS_CLI_invisibleBox) exitWith {};//Ignore if storage object exists (we're not looting it)
+    if (!isNull NWG_LS_CLI_invisibleBox) exitWith {false};//Ignore if storage object exists (we're not looting it)
 
     //Get inventory display
     private _inventoryDisplay = findDisplay 602;
     if (isNull _inventoryDisplay) exitWith {
         "NWG_LS_CLI_LootByInventoryUI: Inventory must be opened to equip uniform." call NWG_fnc_logError;
+        false
     };
 
     //Find currently opened UI container
@@ -300,6 +301,7 @@ NWG_LS_CLI_LootByInventoryUI = {
     } forEach [MAIN_CONTAINER_LIST,SECN_CONTAINER_LIST];
     if (_uiContainerID == -1) exitWith {
         "NWG_LS_CLI_LootByInventoryUI: No container is opened." call NWG_fnc_logError;
+        false
     };
 
     //Get physical container
@@ -308,15 +310,20 @@ NWG_LS_CLI_LootByInventoryUI = {
         else {if (!isNull _secdContainer) then {_secdContainer} else {_mainContainer}};//Fix looting corpses (switches the containers)
     if (isNull _container) exitWith {
         "NWG_LS_CLI_LootByInventoryUI: Inventory containers are not available." call NWG_fnc_logError;
+        false
     };
 
     //Loot the container by using existing code
-    _container call NWG_LS_CLI_LootByAction;
+    private _ok = _container call NWG_LS_CLI_LootByAction;
+    if (!_ok) exitWith {false};
 
     //Close the window
-    if (CLOSE_INVENTORY_ON_LOOT) exitWith {
+    if (CLOSE_INVENTORY_ON_LOOT) then {
         (uiNamespace getVariable ["RscDisplayInventory", displayNull]) closeDisplay 2;
     };
+
+    //return
+    true
 };
 
 NWG_LS_CLI_LootByAction = {
@@ -324,7 +331,7 @@ NWG_LS_CLI_LootByAction = {
     private _container = _this;
     private _loot = _container call NWG_LS_CLI_ContainerItemsToLoot;
     private _flattenedLoot = flatten _loot;
-    if (_flattenedLoot isEqualTo []) exitWith {};//Nothing to take
+    if (_flattenedLoot isEqualTo []) exitWith {false};//Nothing to take
 
     //Clear the container
     if (_container isKindOf "Man") then {
@@ -355,6 +362,9 @@ NWG_LS_CLI_LootByAction = {
         _x call NWG_fnc_compactStringArray;//Compact
     } forEach _playerLoot;
     [player,_playerLoot] call NWG_fnc_lsSetPlayerLoot;//Save
+
+    //return
+    true
 };
 
 //================================================================================================================
