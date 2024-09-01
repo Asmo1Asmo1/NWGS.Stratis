@@ -5,7 +5,7 @@ NWG_fnc_clientScriptsReceive = {
 };
 NWG_fnc_clientRemoteExecReliable = {
     params ["_functionName","_args"];
-    waitUntil {!isNil _functionName};
+    waitUntil {sleep 0.1; !isNil _functionName};
     _args call (missionNamespace getVariable _functionName);
 };
 

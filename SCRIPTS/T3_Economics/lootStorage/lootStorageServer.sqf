@@ -14,11 +14,8 @@ NWG_LS_SER_SetStorageObject = {
         "NWG_LS_SER_SetStorageObject: Invalid loot storage object" call NWG_fnc_logError;
     };
 
-    //Broadcast the loot storage object to all clients (and add to JIP)
-    //Going with 'publicVariable' instead of function calls is more reliable in MP environment
-    //...because we can not ensure the execution order of the scripts, JIPs and etc.
-    NWG_LS_LootStorageObject = _this;
-    publicVariable "NWG_LS_LootStorageObject";
+    [_this,true] remoteExecCall ["lockInventory",0,_this];//Lock its vanilla inventory
+    [_this,"#LS_STORAGE_ACTION_TITLE#",{call NWG_LS_CLI_OpenMyStorage}] call NWG_fnc_addActionGlobal;//Add action
 };
 
 //=============================================================================
