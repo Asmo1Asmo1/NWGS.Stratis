@@ -8,10 +8,10 @@ NWG_INVUI_Settings = createHashMapFromArray [
     ["TEXT_WEIGHT_TEMPLATE","%1kg"],
 
     ["SOUND_ON",true],
-    ["SOUND_BUTTON_LOOT","FD_Finish_F"],
-    ["SOUND_BUTTON_WEAP","FD_Finish_F"],
-    ["SOUND_BUTTON_UNIF","FD_Finish_F"],
-    ["SOUND_BUTTON_MAGR","FD_Finish_F"],
+    ["SOUND_BUTTON_LOOT","Scared_Animal2"],
+    ["SOUND_BUTTON_WEAP","surrender_fall"],
+    ["SOUND_BUTTON_UNIF","surrender_stand_up"],
+    ["SOUND_BUTTON_MAGR","Place_Flag"],
 
     ["",0]
 ];
