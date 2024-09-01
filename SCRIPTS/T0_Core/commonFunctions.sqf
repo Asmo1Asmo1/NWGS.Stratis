@@ -272,18 +272,20 @@ NWG_fnc_systemChatAll = {
 
 //===============================================================
 //Actions
-//Adds action to object (MP and JIP compatible, action title localized)
+//Adds action to object on every client (MP and JIP compatible, action title localized)
 //note: action radius and conditions are hardcoded
-NWG_fnc_addAction = {
+NWG_fnc_addActionGlobal = {
     params ["_object","_title","_script"];
     if (isNull _object) exitWith {
-        "NWG_fnc_addAction: object is Null" call NWG_fnc_logError;
+        "NWG_fnc_addActionGlobal: object is Null" call NWG_fnc_logError;
     };
 
-    _this remoteExecCall ["NWG_fnc_addActionCore",0,_object];
+    ["NWG_fnc_addAction",_this] remoteExec ["NWG_fnc_clientRemoteExecReliable",0,_object];
 };
 
-NWG_fnc_addActionCore = {
+//Adds action to object
+//note: action radius and conditions are hardcoded
+NWG_fnc_addAction = {
     params ["_object","_title","_script"];
     if (!hasInterface || {isNull _object}) exitWith {};
 
@@ -296,7 +298,7 @@ NWG_fnc_addActionCore = {
         true,  // hideOnUse
         "",    // shortcut
         "true",// condition
-        5,     // radius
+        4,     // radius
         false, // unconscious
         "",    // selection
         ""     // memoryPoint
