@@ -109,7 +109,6 @@ NWG_INVUI_OnButtonUnif = {
     private _ok = (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_uneqEquipSelected;
     if (_ok) then {
         call NWG_INVUI_UpdateWeight;
-        call NWG_fnc_lsNotifyStorageChanged;//Notify loot storage that storage may have changed (if we equip uniform from loot storage)
         (NWG_INVUI_Settings get "SOUND_BUTTON_UNIF") call NWG_INVUI_PlaySound;
     };
 };

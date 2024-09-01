@@ -12,7 +12,6 @@
 //================================================================================================================
 //Fields
 NWG_LS_CLI_invisibleBox = objNull;
-NWG_LS_CLI_isInvisibleBoxModified = false;
 
 //================================================================================================================
 //================================================================================================================
@@ -42,8 +41,6 @@ private _Init = {
 
     //Add event handlers
     player addEventHandler ["InventoryClosed",{call NWG_LS_CLI_OnInventoryClose}];
-    player addEventHandler ["Take",{call NWG_LS_CLI_OnTakeOrPut}];
-    player addEventHandler ["Put",{call NWG_LS_CLI_OnTakeOrPut}];
 };
 
 //================================================================================================================
@@ -69,21 +66,24 @@ NWG_LS_CLI_OpenMyStorage = {
 
     //Put loot into the box
     private _count = 1;
+    //forEach ["clth1",2,"clth2",3,"wepn1",...]
     {
-        //Read count if any
-        if (_x isEqualType 1)
-            then {_count = _x; continue};
-        //Put item into the box
-        if (!isClass (configFile >> "CfgVehicles" >> _x)) then {
-            //Items (any, except for backpacks, see: https://community.bistudio.com/wiki/addItemCargo)
-            _invisibleBox addItemCargo [_x,_count];
-        } else {
-            //Backpacks require different approach
-            _x = _x call BIS_fnc_basicBackpack;//Fix items getting inside backpacks
-            _invisibleBox addBackpackCargo [_x,_count];
+        switch (true) do {
+            case (_x isEqualType 1): {
+                //Read count
+                _count = _x;
+            };
+            case (isClass (configFile >> "CfgVehicles" >> _x)): {
+                //Backpacks require different approach
+                _invisibleBox addBackpackCargo [_x,_count];
+                _count = 1;//Reset count
+            };
+            default {
+                //Items (any, except for backpacks, see: https://community.bistudio.com/wiki/addItemCargo)
+                _invisibleBox addItemCargo [_x,_count];
+                _count = 1;//Reset count
+            };
         };
-        //Reset count
-        _count = 1;
     } forEach _loot;
 
     //Open the box
@@ -93,24 +93,20 @@ NWG_LS_CLI_OpenMyStorage = {
 //================================================================================================================
 //================================================================================================================
 //Storage update via vanilla inventory actions
-NWG_LS_CLI_OnTakeOrPut = {
-    //Mark storage dirty if it exists
-    //note: we *assume* it is the storage that has been changed if we take/put when storage object exists
-    if (!isNull NWG_LS_CLI_invisibleBox)
-        then {NWG_LS_CLI_isInvisibleBoxModified = true};
-};
-
 NWG_LS_CLI_OnInventoryClose = {
-    if (isNull NWG_LS_CLI_invisibleBox)
-        exitWith {};//Ignore if storage object does not exist
-    if (!NWG_LS_CLI_isInvisibleBoxModified)
-        exitWith {deleteVehicle NWG_LS_CLI_invisibleBox};//Ignore if storage was not modified
-    NWG_LS_CLI_isInvisibleBoxModified = false;//Reset flag
+    //Check if we closing the storage object
+    if (isNull NWG_LS_CLI_invisibleBox) exitWith {};//Ignore if storage object does not exist
 
-    //Re-write the player loot based on what is left in the box
-    private _loot = NWG_LS_CLI_invisibleBox call NWG_LS_CLI_ContainerItemsToLoot;
-    {_x call NWG_fnc_compactStringArray} forEach _loot;//Compact the loot records
-    [player,_loot] call NWG_fnc_lsSetPlayerLoot;
+    //Get loot records
+    private _playerLoot = player call NWG_fnc_lsGetPlayerLoot;
+    private _storageLoot = NWG_LS_CLI_invisibleBox call NWG_LS_CLI_ContainerItemsToLoot;
+    {_x call NWG_fnc_compactStringArray} forEach _storageLoot;//Compact the storage loot records
+
+    //Check if storage was modified
+    if (_storageLoot isNotEqualTo _playerLoot) then {
+        //Re-write the player loot based on what is left in the box
+        [player,_storageLoot] call NWG_fnc_lsSetPlayerLoot;
+    };
 
     //Close the box (will also delete all the items inside)
     deleteVehicle NWG_LS_CLI_invisibleBox;
