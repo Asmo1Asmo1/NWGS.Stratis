@@ -269,3 +269,36 @@ NWG_fnc_systemChatAll = {
     // private _message = _this;
     _this remoteExec ["NWG_fnc_systemChatMe"];
 };
+
+//===============================================================
+//Actions
+//Adds action to object (MP and JIP compatible, action title localized)
+//note: action radius and conditions are hardcoded
+NWG_fnc_addAction = {
+    params ["_object","_title","_script"];
+    if (isNull _object) exitWith {
+        "NWG_fnc_addAction: object is Null" call NWG_fnc_logError;
+    };
+
+    _this remoteExecCall ["NWG_fnc_addActionCore",0,_object];
+};
+
+NWG_fnc_addActionCore = {
+    params ["_object","_title","_script"];
+    if (!hasInterface || {isNull _object}) exitWith {};
+
+    _object addAction [
+        (_title call NWG_fnc_localize),
+        _script,
+        nil,   // arguments
+        1.5,   // priority
+        true,  // showWindow
+        true,  // hideOnUse
+        "",    // shortcut
+        "true",// condition
+        5,     // radius
+        false, // unconscious
+        "",    // selection
+        ""     // memoryPoint
+    ];
+};
