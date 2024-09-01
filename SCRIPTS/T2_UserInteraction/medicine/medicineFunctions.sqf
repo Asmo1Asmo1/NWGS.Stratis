@@ -88,7 +88,7 @@ NWG_fnc_medPlayAnim = {
     if (isNull _unit) exitWith {};
     if (!local _unit) exitWith {_this remoteExec ["NWG_fnc_medPlayAnim",_unit]};
 
-    _this call NWG_fnc_playAnim;//Play the animation
+    _this call NWG_fnc_playAnimGlobal;//Play the animation
     _unit playMove "UnconsciousFaceUp";//Fix medicine animations require additional playMove to keep playing in cycle
 };
 

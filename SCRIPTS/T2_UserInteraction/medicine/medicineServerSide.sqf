@@ -95,20 +95,20 @@ NWG_MED_SER_OnMedAction = {
             if (!isNull (attachedTo _passiveUnit)) exitWith {};//Already being dragged
             _passiveUnit attachTo [_activeUnit,[0,1,0.1]];
             _passiveUnit setVectorDirAndUp [[0,1,0],[0,0,1]];
-            [_passiveUnit,"Acts_Waking_Up_Player"] call NWG_fnc_playAnim;
+            [_passiveUnit,"Acts_Waking_Up_Player"] call NWG_fnc_playAnimGlobal;
             [_passiveUnit,SUBSTATE_DRAG] call NWG_MED_COM_SetSubstate;
         };
         case ACTION_CARRY: {
             if (!isNull (attachedTo _passiveUnit)) exitWith {};//Already being carried
             _passiveUnit attachTo [_activeUnit,[0.15,0.15,0.1]];
-            [_passiveUnit,"AinjPfalMstpSnonWrflDf_carried_dead"] call NWG_fnc_playAnim;
+            [_passiveUnit,"AinjPfalMstpSnonWrflDf_carried_dead"] call NWG_fnc_playAnimGlobal;
             [_passiveUnit,SUBSTATE_CARR] call NWG_MED_COM_SetSubstate;
         };
         case ACTION_RELEASE: {
             if (isNull (attachedTo _passiveUnit)) exitWith {};//Already released
             detach _passiveUnit;
             _passiveUnit call NWG_fnc_medFlipUnit;//Fix unit direction
-            [_passiveUnit,"UnconsciousFaceUp"] call NWG_fnc_playAnim;
+            [_passiveUnit,"UnconsciousFaceUp"] call NWG_fnc_playAnimGlobal;
             [_passiveUnit,SUBSTATE_DOWN] call NWG_MED_COM_SetSubstate;
         };
         case ACTION_VEHLOAD: {
@@ -127,7 +127,7 @@ NWG_MED_SER_OnMedAction = {
             } else {
                 /*Place on the ground like in 'ACTION_RELEASE'*/
                 _unit call NWG_fnc_medFlipUnit;
-                [_unit,"UnconsciousFaceUp"] call NWG_fnc_playAnim;
+                [_unit,"UnconsciousFaceUp"] call NWG_fnc_playAnimGlobal;
                 [_unit,SUBSTATE_DOWN] call NWG_MED_COM_SetSubstate;
             };
         };
@@ -198,7 +198,7 @@ NWG_MED_SER_CheckDetachNeeded = {
         detach _this;
         if (alive _this) then {
             _this call NWG_fnc_medFlipUnit;
-            [_this,"UnconsciousFaceUp"] call NWG_fnc_playAnim;
+            [_this,"UnconsciousFaceUp"] call NWG_fnc_playAnimGlobal;
             [_this,SUBSTATE_DOWN] call NWG_MED_COM_SetSubstate;
         };
         /*Handle dragger*/
@@ -215,7 +215,7 @@ NWG_MED_SER_CheckDetachNeeded = {
             detach _x;
             if (alive _x) then {
                 _x call NWG_fnc_medFlipUnit;
-                [_x,"UnconsciousFaceUp"] call NWG_fnc_playAnim;
+                [_x,"UnconsciousFaceUp"] call NWG_fnc_playAnimGlobal;
                 [_x,SUBSTATE_DOWN] call NWG_MED_COM_SetSubstate;
             };
         } forEach _dragged;

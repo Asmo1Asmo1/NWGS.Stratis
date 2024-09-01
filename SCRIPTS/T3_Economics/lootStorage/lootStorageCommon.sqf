@@ -5,10 +5,6 @@
 */
 
 //=============================================================================
-// Global object
-NWG_LS_LootStorageObject = objNull;
-
-//=============================================================================
 // Get/Set functions for player's loot
 NWG_LS_COM_GetPlayerLoot = {
     //private _unit = _this;

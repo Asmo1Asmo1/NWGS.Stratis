@@ -185,13 +185,13 @@ NWG_fnc_getPlayersOrOccupiedVehicles = {
 
 //===============================================================
 //Animation
-NWG_fnc_playAnim = {
+NWG_fnc_playAnimGlobal = {
     params ["_unit","_animName"];
-    if (isNil "_unit" || {isNull _unit}) exitWith {"NWG_fnc_playAnim: unit is Null" call NWG_fnc_logError};
-    _this remoteExecCall ["NWG_fnc_playAnimRemote",0];
+    if (isNil "_unit" || {isNull _unit}) exitWith {"NWG_fnc_playAnimGlobal: unit is Null" call NWG_fnc_logError};
+    _this remoteExecCall ["NWG_fnc_playAnim",0];
 };
 
-NWG_fnc_playAnimRemote = {
+NWG_fnc_playAnim = {
     params ["_unit","_animName"];
     //Force unscheduled environment, see Leopard20's comment on https://community.bistudio.com/wiki/switchMove
     if (canSuspend)
@@ -268,4 +268,39 @@ NWG_fnc_systemChatMe = {
 NWG_fnc_systemChatAll = {
     // private _message = _this;
     _this remoteExec ["NWG_fnc_systemChatMe"];
+};
+
+//===============================================================
+//Actions
+//Adds action to object on every client (MP and JIP compatible, action title localized)
+//note: action radius and conditions are hardcoded
+NWG_fnc_addActionGlobal = {
+    params ["_object","_title","_script"];
+    if (isNull _object) exitWith {
+        "NWG_fnc_addActionGlobal: object is Null" call NWG_fnc_logError;
+    };
+
+    ["NWG_fnc_addAction",_this] remoteExec ["NWG_fnc_clientRemoteExecReliable",0,_object];
+};
+
+//Adds action to object
+//note: action radius and conditions are hardcoded
+NWG_fnc_addAction = {
+    params ["_object","_title","_script"];
+    if (!hasInterface || {isNull _object}) exitWith {};
+
+    _object addAction [
+        (_title call NWG_fnc_localize),
+        _script,
+        nil,   // arguments
+        1.5,   // priority
+        true,  // showWindow
+        true,  // hideOnUse
+        "",    // shortcut
+        "true",// condition
+        4,     // radius
+        false, // unconscious
+        "",    // selection
+        ""     // memoryPoint
+    ];
 };

@@ -552,13 +552,14 @@ NWG_MIS_SER_BuildPlayerBase = {
                 _anim = if (_anim isEqualType "")
                     then {_anim}
                     else {selectRandom _anim};
-                [_x,_anim] remoteExecCall ["NWG_fnc_playAnimRemote",0,_x];//Make it JIP compatible + ensure unscheduled environment
+                [_x,_anim] remoteExecCall ["NWG_fnc_playAnim",0,_x];//Make it JIP compatible + ensure unscheduled environment
                 _x disableAI "ANIM";//Fix AI switching out of the animation (works even for agents)
             };
 
             //Add action
-            if (_addAction isNotEqualTo false) then {
-                _x addAction _addAction;//TODO: Conditions, distance and JIP compatibility
+            if (_addAction isNotEqualTo false && {_addAction isEqualType []}) then {
+                _addAction params [["_title",""],["_script",{}]];
+                [_x,_title,_script] call NWG_fnc_addActionGlobal;
             };
         } forEach (_buildResult param [UKREP_RESULT_UNITS,[]]);
     };
@@ -1006,7 +1007,7 @@ NWG_MIS_SER_AttackPlayerBase = {
     //Put base NPSc into 'surrender' animation
     private _npcs = NWG_MIS_SER_playerBaseNPCs;
     {
-        [_x,"Acts_JetsMarshallingStop_loop"] remoteExecCall ["NWG_fnc_playAnimRemote",0,_x];//Make it JIP compatible + ensure unscheduled environment
+        [_x,"Acts_JetsMarshallingStop_loop"] remoteExecCall ["NWG_fnc_playAnim",0,_x];//Make it JIP compatible + ensure unscheduled environment
         _x disableAI "ANIM";//Fix AI switching out of the animation (works even for agents)
     } forEach _npcs;
 
