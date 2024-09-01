@@ -360,7 +360,7 @@ NWG_MED_CLI_OnRevive = {
     player setCaptive false;//Reset captive state
     player setUnconscious false;//Reset unconscious state
     call NWG_MED_CLI_ReloadStates;//Reload states
-    if ((vehicle player) isEqualTo player) then {[player,"amovppnemstpsraswrfldnon"] call NWG_fnc_playAnim};//Reset anim
+    if ((vehicle player) isEqualTo player) then {[player,"amovppnemstpsraswrfldnon"] call NWG_fnc_playAnimGlobal};//Reset anim
     call NWG_MED_CLI_ReloadActions;//Reload actions
 };
 
@@ -538,7 +538,7 @@ NWG_MED_CLI_SA_OnSelfHealStarted = {
 
     //Play anim
     if ((vehicle player) isEqualTo player) then {
-        [player,"ainvppnemstpslaywnondnon_medic"] call NWG_fnc_playAnim;
+        [player,"ainvppnemstpslaywnondnon_medic"] call NWG_fnc_playAnimGlobal;
         player playMove "UnconsciousFaceDown";
     };
 };
@@ -804,7 +804,7 @@ NWG_MED_CLI_UA_ResetAnimation = {
         case "ainvppnemstpslaywrfldnon_medicdummyend": {"AmovPpneMstpSrasWrflDnon"};
         default {"amovPknlMstpSrasWrflDnon"};
     };
-    [player,_anim] call NWG_fnc_playAnim;
+    [player,_anim] call NWG_fnc_playAnimGlobal;
 };
 
 /*Drag*/
@@ -883,13 +883,13 @@ NWG_MED_CLI_UA_CarryAction = {
         if (call _abortCondition) exitWith _abort;
 
         //Run 'Place on shoulders' animation
-        [player,"acinpknlmstpsraswrfldnon_acinpercmrunsraswrfldnon"] call NWG_fnc_playAnim;
+        [player,"acinpknlmstpsraswrfldnon_acinpercmrunsraswrfldnon"] call NWG_fnc_playAnimGlobal;
         sleep (NWG_MED_CLI_Settings get "CARRY_ACTION_DURATION");//Customizable duration
         if (call _abortCondition) exitWith _abort;
 
         //Finalize 'Carry'
         // NWG_MED_CLI_UA_carriedUnit = _targetUnit;//Unit is already locked
-        [player,"acinpercmstpsraswrfldnon"] call NWG_fnc_playAnim;//Skip remaining animation
+        [player,"acinpercmstpsraswrfldnon"] call NWG_fnc_playAnimGlobal;//Skip remaining animation
         [player,_targetUnit,ACTION_CARRY] call NWG_fnc_medReportMedAction;
     };
 };
@@ -902,7 +902,7 @@ NWG_MED_CLI_UA_OnAnimChange = {
 
     /*Drag to Carry via anim*/
     if (_anim isEqualTo "acinpercmstpsraswrfldnon" && {!isNull NWG_MED_CLI_UA_draggedUnit && {call NWG_MED_CLI_UA_CarryCondition}}) exitWith {
-        [player,""] call NWG_fnc_playAnim;
+        [player,""] call NWG_fnc_playAnimGlobal;
         call NWG_MED_CLI_UA_CarryAction;
     };
 

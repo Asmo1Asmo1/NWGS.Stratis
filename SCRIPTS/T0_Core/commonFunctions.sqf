@@ -185,13 +185,13 @@ NWG_fnc_getPlayersOrOccupiedVehicles = {
 
 //===============================================================
 //Animation
-NWG_fnc_playAnim = {
+NWG_fnc_playAnimGlobal = {
     params ["_unit","_animName"];
-    if (isNil "_unit" || {isNull _unit}) exitWith {"NWG_fnc_playAnim: unit is Null" call NWG_fnc_logError};
-    _this remoteExecCall ["NWG_fnc_playAnimRemote",0];
+    if (isNil "_unit" || {isNull _unit}) exitWith {"NWG_fnc_playAnimGlobal: unit is Null" call NWG_fnc_logError};
+    _this remoteExecCall ["NWG_fnc_playAnim",0];
 };
 
-NWG_fnc_playAnimRemote = {
+NWG_fnc_playAnim = {
     params ["_unit","_animName"];
     //Force unscheduled environment, see Leopard20's comment on https://community.bistudio.com/wiki/switchMove
     if (canSuspend)

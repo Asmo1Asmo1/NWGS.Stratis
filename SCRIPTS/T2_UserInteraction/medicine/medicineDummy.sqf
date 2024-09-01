@@ -61,7 +61,7 @@ NWG_MED_DUMMY_Cycle = {
             /*Healed*/
             _unit setUnconscious false;
             _unit setCaptive false;
-            [_unit,"amovppnemstpsraswrfldnon"] call NWG_fnc_playAnim;
+            [_unit,"amovppnemstpsraswrfldnon"] call NWG_fnc_playAnimGlobal;
             true
         };
 
