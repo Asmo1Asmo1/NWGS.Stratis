@@ -166,8 +166,8 @@ NWG_LS_CLI_ContainerItemsToLoot = {
     private _loot = [[],[],[],[]];
     {
         switch (_x call NWG_fnc_icatGetItemType) do {
-            case ITEM_TYPE_CLTH: {(_loot#0) pushBack (_x call NWG_LS_CLI_GetBasicBackpack)};
-            case ITEM_TYPE_WEPN: {(_loot#1) pushBack (_x call NWG_LS_CLI_GetBasicWeapon)};
+            case ITEM_TYPE_CLTH: {(_loot#0) pushBack (_x call NWG_fnc_icatGetBaseBackpack)};
+            case ITEM_TYPE_WEPN: {(_loot#1) pushBack (_x call NWG_fnc_icatGetBaseWeapon)};
             case ITEM_TYPE_ITEM: {(_loot#2) pushBack _x};
             case ITEM_TYPE_AMMO: {(_loot#3) pushBack _x};
         };
@@ -176,63 +176,6 @@ NWG_LS_CLI_ContainerItemsToLoot = {
 
     //return
     _loot
-};
-
-//BIS_fnc_basicBackpack (reworked)
-NWG_LS_CLI_GetBasicBackpack = {
-    private _input = _this;
-    if !(isClass (configFile >> "CfgVehicles" >> _input)) exitWith {_input};//Not a backpack
-
-    private _fn_hasCargo = {
-        // private _input = _this;
-        private _hasCargo = false;
-        {
-            if (count (_x call Bis_fnc_getCfgSubClasses) > 0)
-                exitWith {_hasCargo = true};
-        }
-        forEach [
-            (configFile >> "CfgVehicles" >> _this >> "TransportItems"),
-            (configFile >> "CfgVehicles" >> _this >> "TransportMagazines"),
-            (configFile >> "CfgVehicles" >> _this >> "TransportWeapons")
-        ];
-
-        _hasCargo
-    };
-    if !(_input call _fn_hasCargo) exitWith {_input};//Backpack has no cargo
-
-    private _output = "";
-    private _parents = [configFile >> "CfgVehicles" >> _input, true] call BIS_fnc_returnParents;
-    private _i = _parents findIf {!(_x call _fn_hasCargo) && {(getNumber (configFile >> "CfgVehicles" >> _x >> "scope")) == 2}};
-    if (_i != -1) then {_output = _parents select _i};//Can it return ""? Let's be extra cautious and assume it can
-
-    if (_output isEqualTo "") then {
-        _output = if (_input == "b_kitbag_rgr_exp")
-            then {"b_kitbag_rgr"}/*Some unnamed border case, taken from original 'as is'*/
-            else {_input};
-    };
-
-    //return
-    _output
-};
-
-//BIS_fnc_baseWeapon (reworked)
-NWG_LS_CLI_GetBasicWeapon = {
-    _input = _this;
-    private _cfg = configFile >> "CfgWeapons" >> _input;
-    if !(isClass _cfg) exitWith {_input};//Not a weapon
-
-    //--- Get manual base weapon
-    private _base = getText (_cfg >> "baseWeapon");
-    if (isclass (configFile >> "CfgWeapons" >> _base)) exitWith {_base};
-
-    //--- Get first parent without any attachments
-    private _return = _input;
-    {
-        if (count (_x >> "linkeditems") == 0) exitWith {_return = configname _x};
-    } foreach (_cfg call BIS_fnc_returnParents);
-
-    //return
-    _return
 };
 
 NWG_LS_CLI_GetDeadUnitWeaponHolders = {
