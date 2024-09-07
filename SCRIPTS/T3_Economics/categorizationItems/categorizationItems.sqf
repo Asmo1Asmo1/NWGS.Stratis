@@ -24,36 +24,36 @@ NWG_ICAT_GetItemType = {
             switch (true) do {
                 case (isClass (_cfg >> "WeaponSlotsInfo")) : {
                     if ((getNumber (_cfg >> "type")) == 4096)
-                        then {ITEM_TYPE_ITEM}/*Binoculars and such*/
-                        else {ITEM_TYPE_WEPN}
+                        then {LOOT_ITEM_TYPE_ITEM}/*Binoculars and such*/
+                        else {LOOT_ITEM_TYPE_WEPN}
                 };
                 case (isClass (_cfg >> "ItemInfo")) : {
                     if ((getNumber (_cfg >> "ItemInfo" >> "type")) in [801,701,605])/*Magic numbers by Claude AI*/
-                        then {ITEM_TYPE_CLTH}
-                        else {ITEM_TYPE_ITEM}
+                        then {LOOT_ITEM_TYPE_CLTH}
+                        else {LOOT_ITEM_TYPE_ITEM}
                 };
-                default {ITEM_TYPE_ITEM};//Default to ITEM
+                default {LOOT_ITEM_TYPE_ITEM};//Default to ITEM
             }
         };
         case "CfgMagazines": {
             //Ammo mostly, but also some of the loot items from Oldman (those that can be 'used')
             if ((getText (_cfg >> "ammo")) isEqualTo "")
-                then {ITEM_TYPE_ITEM}/*Loot items*/
-                else {ITEM_TYPE_AMMO}/*Ammo*/
+                then {LOOT_ITEM_TYPE_ITEM}/*Loot items*/
+                else {LOOT_ITEM_TYPE_AMMO}/*Ammo*/
         };
         case "CfgGlasses": {
             //Glasses and goggles
-            ITEM_TYPE_ITEM
+            LOOT_ITEM_TYPE_ITEM
         };
         case "CfgVehicles": {
             //Backpacks
             if ((getText (_cfg >> "assembleInfo" >> "assembleTo")) isNotEqualTo "")
-                then {ITEM_TYPE_WEPN}/*UAV/UGV and weapon backpacks*/
-                else {ITEM_TYPE_CLTH}/*Regular backpacks*/
+                then {LOOT_ITEM_TYPE_WEPN}/*UAV/UGV and weapon backpacks*/
+                else {LOOT_ITEM_TYPE_CLTH}/*Regular backpacks*/
         };
         default {
             //Default to ITEM if not found in configs
-            ITEM_TYPE_ITEM
+            LOOT_ITEM_TYPE_ITEM
         };
     };
 

@@ -1,4 +1,4 @@
-//Object types
+//Object types (objects on map, used in 'ukrep' subsystem for example)
 #define OBJ_TYPE_BLDG  "BLDG"  // Building
 #define OBJ_TYPE_FURN  "FURN"  // Furniture
 #define OBJ_TYPE_DECO  "DECO"  // Decorative
@@ -7,11 +7,11 @@
 #define OBJ_TYPE_TRRT  "TRRT"  // Turret
 #define OBJ_TYPE_MINE  "MINE"  // Mine
 
-//Items types
-#define ITEM_TYPE_CLTH "CLTH"  // Clothing
-#define ITEM_TYPE_WEPN "WEPN"  // Weapon
-#define ITEM_TYPE_ITEM "ITEM"  // Item
-#define ITEM_TYPE_AMMO "AMMO"  // Ammo
+//Loot items types
+#define LOOT_ITEM_TYPE_CLTH "CLTH"  // Clothing
+#define LOOT_ITEM_TYPE_WEPN "WEPN"  // Weapon
+#define LOOT_ITEM_TYPE_ITEM "ITEM"  // Item
+#define LOOT_ITEM_TYPE_AMMO "AMMO"  // Ammo
 
 //Server events (arguments for NWG_fnc_subscribeToServerEvent and NWG_fnc_raiseServerEvent)
 #define EVENT_ON_OBJECT_KILLED "OnObjectKilled" //Called by 'undertaker' subsystem when an object is killed.                params ["_obj","_objType","_actualKiller","_isPlayerKiller"];
