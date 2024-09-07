@@ -13,6 +13,18 @@
 #define LOOT_ITEM_TYPE_ITEM "ITEM"  // Item
 #define LOOT_ITEM_TYPE_AMMO "AMMO"  // Ammo
 
+//Loot vehicles types
+#define LOOT_VEHC_TYPE_AAIR "AAIR"  // Anti-Air (EdSubcat_AAs)
+#define LOOT_VEHC_TYPE_APCS "APCS"  // Armored Personnel Carriers (EdSubcat_APCs)
+#define LOOT_VEHC_TYPE_ARTY "ARTY"  // Artillery (EdSubcat_Artillery)
+#define LOOT_VEHC_TYPE_BOAT "BOAT"  // Boats (EdSubcat_Boats)
+#define LOOT_VEHC_TYPE_CARS "CARS"  // Cars (EdSubcat_Cars)
+#define LOOT_VEHC_TYPE_DRON "DRON"  // Drones (EdSubcat_Drones)
+#define LOOT_VEHC_TYPE_HELI "HELI"  // Helicopters (EdSubcat_Helicopters)
+#define LOOT_VEHC_TYPE_PLAN "PLAN"  // Planes (EdSubcat_Planes)
+#define LOOT_VEHC_TYPE_SUBM "SUBM"  // Submersibles (EdSubcat_Submersibles)
+#define LOOT_VEHC_TYPE_TANK "TANK"  // Tanks (EdSubcat_Tanks)
+
 //Server events (arguments for NWG_fnc_subscribeToServerEvent and NWG_fnc_raiseServerEvent)
 #define EVENT_ON_OBJECT_KILLED "OnObjectKilled" //Called by 'undertaker' subsystem when an object is killed.                params ["_obj","_objType","_actualKiller","_isPlayerKiller"];
 #define EVENT_ON_DSPAWN_GROUP_SPAWNED "OnDynamicSpawnGroupSpawned" //Called by 'dspawn' subsystem when a group is spawned.  params ["_group","_vehicle","_units","_tags","_tier"];
