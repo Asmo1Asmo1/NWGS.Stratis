@@ -165,7 +165,7 @@ NWG_LS_CLI_ContainerItemsToLoot = {
     //Convert to loot
     private _loot = [[],[],[],[]];
     {
-        switch (_x call NWG_fnc_icGetItemType) do {
+        switch (_x call NWG_fnc_icatGetItemType) do {
             case ITEM_TYPE_CLTH: {(_loot#0) pushBack (_x call NWG_LS_CLI_GetBasicBackpack)};
             case ITEM_TYPE_WEPN: {(_loot#1) pushBack (_x call NWG_LS_CLI_GetBasicWeapon)};
             case ITEM_TYPE_ITEM: {(_loot#2) pushBack _x};
