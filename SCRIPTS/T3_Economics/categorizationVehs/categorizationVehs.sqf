@@ -38,3 +38,20 @@ NWG_VCAT_GetVehcType = {
     NWG_VCAT_vehTypeCache set [_veh,_vehcType];
     _vehcType
 };
+
+//BIS_fnc_baseVehicle (reworked)
+NWG_VCAT_GetBaseVehicle = {
+    private _input = _this;
+    private _cfg = configFile >> "CfgVehicles" >> _input;
+    if !(isClass _cfg) exitWith {_input};//Not a vehicle
+
+    private _base = getText (_cfg >> "baseVehicle");
+    if (isClass (configFile >> "CfgVehicles" >> _base)) exitWith {_base};
+
+    private _return = _input;
+    private _model = getText (_cfg >> "model");
+    {
+        if ((gettext (_x >> "model")) isEqualTo _model && {(getnumber (_x >> "scope")) == 2}) then {_return = configname _x};
+    } foreach (_cfg call BIS_fnc_returnParents);
+    _return
+};
