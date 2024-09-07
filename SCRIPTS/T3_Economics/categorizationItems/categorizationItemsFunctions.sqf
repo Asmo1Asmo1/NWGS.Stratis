@@ -1,4 +1,4 @@
-//Gets NWGS ITEM_TYPE (see SCRIPTS\globalDefines.h)
+//Gets NWGS LOOT_ITEM_TYPE (see SCRIPTS\globalDefines.h)
 //note: should be applied to inventory items only
 //params: _item - item to get type of (string for classname or object)
 //returns: string - NWGS ITEM_TYPE (LOOT_ITEM_TYPE_CLTH|LOOT_ITEM_TYPE_WEPN|LOOT_ITEM_TYPE_ITEM|LOOT_ITEM_TYPE_AMMO)
