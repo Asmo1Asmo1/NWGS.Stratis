@@ -145,6 +145,10 @@ _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\voting\votingFunctions.sq
 _clientModules pushBack ("SCRIPTS\T3_Economics\categorizationItems\categorizationItems.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\categorizationItems\categorizationItemsTests.sqf" call NWG_fnc_compile)};
 _clientFunctions pushBack ("SCRIPTS\T3_Economics\categorizationItems\categorizationItemsFunctions.sqf" call NWG_fnc_compile);
+//categorizationVehs
+_clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehs.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsTests.sqf" call NWG_fnc_compile)};
+_clientFunctions pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsFunctions.sqf" call NWG_fnc_compile);
 //lootStorage
 _serverModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageServer.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\lootStorage\missionMachineConnector.sqf" call NWG_fnc_compile);
