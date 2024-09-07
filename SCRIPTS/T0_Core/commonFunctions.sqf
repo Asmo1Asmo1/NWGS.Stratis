@@ -275,7 +275,8 @@ NWG_fnc_systemChatAll = {
 //Adds action to object on every client (MP and JIP compatible, action title localized)
 //note: action radius and conditions are hardcoded
 NWG_fnc_addActionGlobal = {
-    params ["_object","_title","_script"];
+    // params ["_object","_title","_script"];
+    params ["_object"];
     if (isNull _object) exitWith {
         "NWG_fnc_addActionGlobal: object is Null" call NWG_fnc_logError;
     };

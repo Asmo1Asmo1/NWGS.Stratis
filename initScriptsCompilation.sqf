@@ -18,15 +18,14 @@ private _clientModules = [];//Modules to be run on client only
 //Prepare compilation script
 NWG_fnc_compile = {
     // private _fileAddress = _this;
-    private _fileAddress = (if (NWG_SER_IsServermod) then {(format ["NWG\%1",_this])} else {_this});
-
-    //return
-    (if (fileExists _fileAddress) then {
-        (compileFinal preprocessFileLineNumbers _fileAddress)
-    } else {
+    private _fileAddress = if (NWG_SER_IsServermod) then {format ["NWG\%1",_this]} else {_this};
+    if !(fileExists _fileAddress) exitWith {
         diag_log formatText ["  [ERROR] #### File not found: %1", _fileAddress];
         {}//Return empty code block
-    })
+    };
+
+    //else - return compiled code
+    compileFinal (preprocessFileLineNumbers _fileAddress)
 };
 
 //================================================================================================================
