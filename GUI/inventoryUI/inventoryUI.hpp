@@ -1,5 +1,6 @@
-import RscText;
-import RscActivePictureKeepAspect;
+//moved to imports.hpp
+// import RscText;
+// import RscActivePictureKeepAspect;
 
 #define UI_GRID_X	(0.5)
 #define UI_GRID_Y	(0.5)
