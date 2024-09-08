@@ -169,6 +169,7 @@ _clientFunctions pushBack ("SCRIPTS\T3_Economics\vehCustomizationUI\vehCustomiza
 //wallet
 _clientModules pushBack ("SCRIPTS\T3_Economics\wallet\wallet.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T3_Economics\wallet\walletFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\wallet\walletTests.sqf" call NWG_fnc_compile)};
 
 //================================================================================================================
 //================================================================================================================
