@@ -4,10 +4,30 @@
 //================================================================================================================
 //Settings
 NWG_ISHOP_Settings = createHashMapFromArray [
-    ["DEFAULT_PRICE_CLTH",100],
-    ["DEFAULT_PRICE_WEAP",110],
-    ["DEFAULT_PRICE_ITEM",120],
-    ["DEFAULT_PRICE_AMMO",130],
+    ["DEFAULT_PRICE_CLTH",1000],
+    ["DEFAULT_PRICE_WEAP",2000],
+    ["DEFAULT_PRICE_ITEM",500],
+    ["DEFAULT_PRICE_AMMO",300],
+
+	["CLTH_ACTIVE_FACTOR",0.001],
+	["CLTH_PASSIVE_FACTOR",0.0002],
+	["CLTH_PRICE_MIN",500],
+	["CLTH_PRICE_MAX",2000],
+
+	["WEAP_ACTIVE_FACTOR",0.001],
+	["WEAP_PASSIVE_FACTOR",0.0002],
+	["WEAP_PRICE_MIN",1000],
+	["WEAP_PRICE_MAX",3000],
+
+	["ITEM_ACTIVE_FACTOR",0.001],
+	["ITEM_PASSIVE_FACTOR",0.0002],
+	["ITEM_PRICE_MIN",300],
+	["ITEM_PRICE_MAX",700],
+
+	["AMMO_ACTIVE_FACTOR",0.001],
+	["AMMO_PASSIVE_FACTOR",0.0002],
+	["AMMO_PRICE_MIN",100],
+	["AMMO_PRICE_MAX",500],
 
 	["",0]
 ];
@@ -16,21 +36,26 @@ NWG_ISHOP_Settings = createHashMapFromArray [
 //================================================================================================================
 //Prices
 //Loot items types
+#define CAT_CLTH 0
+#define CAT_WEAP 1
+#define CAT_ITEM 2
+#define CAT_AMMO 3
+
 #define CACHED_CATEGORY 0
 #define CACHED_INDEX 1
 #define CHART_ITEMS 0
 #define CHART_PRICES 1
-NWG_ISHOP_itemsInfoCache = createHashMap;//[_category,_index]
+NWG_ISHOP_itemsInfoCache = createHashMap;//[_categoryIndex,_itemIndex]
 NWG_ISHOP_itemsPriceChart = [
-	[[],[]],//LOOT_ITEM_TYPE_CLTH [items,prices]
-	[[],[]],//LOOT_ITEM_TYPE_WEPN [items,prices]
-	[[],[]],//LOOT_ITEM_TYPE_ITEM [items,prices]
-	[[],[]] //LOOT_ITEM_TYPE_AMMO [items,prices]
+	[[],[]],//CAT_CLTH [items,prices]
+	[[],[]],//CAT_WEAP [items,prices]
+	[[],[]],//CAT_ITEM [items,prices]
+	[[],[]] //CAT_AMMO [items,prices]
 ];
 
 NWG_ISHOP_EvaluateItems = {
-	params ["_items",["_knownCatg",""]];
-	private _isKnownCatg = _knownCatg isNotEqualTo "";
+	params ["_items",["_knownType",""]];
+	private _isKnownType = _knownType isNotEqualTo "";
 	private _getOrNew = {
 		// private _item = _this;
 
@@ -43,12 +68,12 @@ NWG_ISHOP_EvaluateItems = {
 		};
 
 		//Create new item info
-		private _category = if (_isKnownCatg)
-			then {_knownCatg}
+		private _itemType = if (_isKnownType)
+			then {_knownType}
 			else {_this call NWG_fnc_icatGetItemType};
 		private _categoryIndex = -1;
 		private _defaultPrice = 0;
-		switch (_category) do {
+		switch (_itemType) do {
 			case LOOT_ITEM_TYPE_AMMO: {
 				_categoryIndex = 3;
 				_defaultPrice = NWG_ISHOP_Settings get "DEFAULT_PRICE_AMMO";
@@ -66,15 +91,15 @@ NWG_ISHOP_EvaluateItems = {
 				_defaultPrice = NWG_ISHOP_Settings get "DEFAULT_PRICE_CLTH";
 			};
 			default {
-				(format["NWG_ISHOP_EvaluateItems: Invalid category %1",_category]) call NWG_fnc_logError;
+				(format["NWG_ISHOP_EvaluateItems: Invalid item type %1",_itemType]) call NWG_fnc_logError;
 			};
 		};
 		if (_categoryIndex == -1) exitWith {_defaultPrice};//<== EXIT WITH ZERO DEFAULT on error
 
 		//Add new item info to chart and cache
-		private _index = ((NWG_ISHOP_itemsPriceChart select _categoryIndex) select CHART_ITEMS) pushBack _this;
+		private _itemIndex = ((NWG_ISHOP_itemsPriceChart select _categoryIndex) select CHART_ITEMS) pushBack _this;
 		((NWG_ISHOP_itemsPriceChart select _categoryIndex) select CHART_PRICES) pushBack _defaultPrice;
-		NWG_ISHOP_itemsInfoCache set [_this,[_categoryIndex,_index]];
+		NWG_ISHOP_itemsInfoCache set [_this,[_categoryIndex,_itemIndex]];
 
 		//return price
 		_defaultPrice
@@ -82,4 +107,77 @@ NWG_ISHOP_EvaluateItems = {
 
 	//return
 	_items apply {round (_x call _getOrNew)}
+};
+
+NWG_ISHOP_UpdatePrices = {
+	params ["_item","_quantity","_isSoldToPlayer"];
+
+	//Get item info
+	private _cachedInfo = NWG_ISHOP_itemsInfoCache get _item;
+	if (isNil "_cachedInfo") exitWith {
+		(format["NWG_ISHOP_UpdatePrices: Item %1 is not cached, evaluate items before updating prices",_item]) call NWG_fnc_logError;
+		false
+	};
+	_cachedInfo params ["_categoryIndex","_itemIndex"];
+
+	//Get category settings
+	private _isError = false;
+	private ["_activeFactor","_passiveFactor","_priceMin","_priceMax"];
+	switch (_categoryIndex) do {
+		case CAT_CLTH: {
+			_activeFactor = NWG_ISHOP_Settings get "CLTH_ACTIVE_FACTOR";
+			_passiveFactor = NWG_ISHOP_Settings get "CLTH_PASSIVE_FACTOR";
+			_priceMin = NWG_ISHOP_Settings get "CLTH_PRICE_MIN";
+			_priceMax = NWG_ISHOP_Settings get "CLTH_PRICE_MAX";
+		};
+		case CAT_WEAP: {
+			_activeFactor = NWG_ISHOP_Settings get "WEAP_ACTIVE_FACTOR";
+			_passiveFactor = NWG_ISHOP_Settings get "WEAP_PASSIVE_FACTOR";
+			_priceMin = NWG_ISHOP_Settings get "WEAP_PRICE_MIN";
+			_priceMax = NWG_ISHOP_Settings get "WEAP_PRICE_MAX";
+		};
+		case CAT_ITEM: {
+			_activeFactor = NWG_ISHOP_Settings get "ITEM_ACTIVE_FACTOR";
+			_passiveFactor = NWG_ISHOP_Settings get "ITEM_PASSIVE_FACTOR";
+			_priceMin = NWG_ISHOP_Settings get "ITEM_PRICE_MIN";
+			_priceMax = NWG_ISHOP_Settings get "ITEM_PRICE_MAX";
+		};
+		case CAT_AMMO: {
+			_activeFactor = NWG_ISHOP_Settings get "AMMO_ACTIVE_FACTOR";
+			_passiveFactor = NWG_ISHOP_Settings get "AMMO_PASSIVE_FACTOR";
+			_priceMin = NWG_ISHOP_Settings get "AMMO_PRICE_MIN";
+			_priceMax = NWG_ISHOP_Settings get "AMMO_PRICE_MAX";
+		};
+		default {
+			_isError = true;
+			(format["NWG_ISHOP_UpdatePrices: Invalid category %1",_category]) call NWG_fnc_logError;
+		};
+	};
+	if (_isError) exitWith {
+		"NWG_ISHOP_UpdatePrices: Failed to update prices" call NWG_fnc_logError;
+		false
+	};
+
+	//Define price change
+	if (_isSoldToPlayer) then {
+		//Item is sold to player, so its price should be increased while others decreased
+		//_activeFactor //unchanged
+		_passiveFactor = -_passiveFactor;//Turned into negative value
+	} else {
+		//Item is bought from player, so its price should be decreased while others increased
+		_activeFactor = -_activeFactor;//Turned into negative value
+		//_passiveFactor //unchanged
+	};
+
+	//Process the update
+	private _priceChart = (NWG_ISHOP_itemsPriceChart select _categoryIndex) select CHART_PRICES;
+	private _activeMultiplier = 1 + (_activeFactor*_quantity);
+	private _passiveMultiplier = 1 + (_passiveFactor*_quantity);
+	//Process passive multipliers (overlap with active item is accepted)
+	{_priceChart set [_forEachIndex,(((_x*_passiveMultiplier) max _priceMin) min _priceMax)]} forEach _priceChart;
+	//Process active multiplier
+	_priceChart set [_itemIndex,(((_priceChart#_itemIndex)*_activeMultiplier) max _priceMin) min _priceMax];
+
+	//return
+	true
 };
