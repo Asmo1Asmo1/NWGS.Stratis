@@ -194,7 +194,7 @@ NWG_LS_CLI_GetBasicBackpack_Test_EqualWithBisFunc = {
     private ["_customResult","_bisfncResult"];
     //forEach testCase
     {
-        _customResult = _x call NWG_LS_CLI_GetBasicBackpack;
+        _customResult = _x call NWG_fnc_icatGetBaseBackpack;
         _bisfncResult = _x call BIS_fnc_basicBackpack;
 
         if (_customResult isNotEqualTo _bisfncResult)
