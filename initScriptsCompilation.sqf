@@ -157,6 +157,11 @@ _clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageCommon.sqf
 _clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageClient.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageTests.sqf" call NWG_fnc_compile)};
+//shopItems
+_serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsServerSide.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsClientSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsTests.sqf" call NWG_fnc_compile)};
 //vehCustomizationAppearance
 _serverModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationAppearance\vehCustomizationAppearanceCore.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationAppearance\vehCustomizationAppearanceCore.sqf" call NWG_fnc_compile);
