@@ -52,8 +52,9 @@ NWG_ICAT_GetItemType = {
                 else {LOOT_ITEM_TYPE_CLTH}/*Regular backpacks*/
         };
         default {
-            //Default to ITEM if not found in configs
-            LOOT_ITEM_TYPE_ITEM
+            //Return empty string if not found in configs (how is that even possible?)
+            (format["NWG_ICAT_GetItemType: Not found in configs: %1",_item]) call NWG_fnc_logError;
+            ""
         };
     };
 
