@@ -9,25 +9,11 @@ NWG_ISHOP_Settings = createHashMapFromArray [
     ["DEFAULT_PRICE_ITEM",500],
     ["DEFAULT_PRICE_AMMO",300],
 
-	["CLTH_ACTIVE_FACTOR",0.001],
-	["CLTH_PASSIVE_FACTOR",0.0002],
-	["CLTH_PRICE_MIN",500],
-	["CLTH_PRICE_MAX",2000],
-
-	["WEAP_ACTIVE_FACTOR",0.001],
-	["WEAP_PASSIVE_FACTOR",0.0002],
-	["WEAP_PRICE_MIN",1000],
-	["WEAP_PRICE_MAX",3000],
-
-	["ITEM_ACTIVE_FACTOR",0.001],
-	["ITEM_PASSIVE_FACTOR",0.0002],
-	["ITEM_PRICE_MIN",300],
-	["ITEM_PRICE_MAX",700],
-
-	["AMMO_ACTIVE_FACTOR",0.001],
-	["AMMO_PASSIVE_FACTOR",0.0002],
-	["AMMO_PRICE_MIN",100],
-	["AMMO_PRICE_MAX",500],
+	//[activeFactor,passiveFactor,priceMin,priceMax]
+	["PRICE_CLTH_SETTINGS",[0.001,0.0002,500,2000]],
+	["PRICE_WEAP_SETTINGS",[0.001,0.0002,1000,3000]],
+	["PRICE_ITEM_SETTINGS",[0.001,0.0002,300,700]],
+	["PRICE_AMMO_SETTINGS",[0.001,0.0002,100,500]],
 
 	["",0]
 ];
@@ -115,48 +101,27 @@ NWG_ISHOP_UpdatePrices = {
 	//Get item info
 	private _cachedInfo = NWG_ISHOP_itemsInfoCache get _item;
 	if (isNil "_cachedInfo") exitWith {
-		(format["NWG_ISHOP_UpdatePrices: Item %1 is not cached, evaluate items before updating prices",_item]) call NWG_fnc_logError;
+		(format["NWG_ISHOP_UpdatePrices: Item '%1' is not cached, evaluate items before updating prices",_item]) call NWG_fnc_logError;
 		false
 	};
 	_cachedInfo params ["_categoryIndex","_itemIndex"];
 
 	//Get category settings
-	private _isError = false;
-	private ["_activeFactor","_passiveFactor","_priceMin","_priceMax"];
-	switch (_categoryIndex) do {
-		case CAT_CLTH: {
-			_activeFactor = NWG_ISHOP_Settings get "CLTH_ACTIVE_FACTOR";
-			_passiveFactor = NWG_ISHOP_Settings get "CLTH_PASSIVE_FACTOR";
-			_priceMin = NWG_ISHOP_Settings get "CLTH_PRICE_MIN";
-			_priceMax = NWG_ISHOP_Settings get "CLTH_PRICE_MAX";
-		};
-		case CAT_WEAP: {
-			_activeFactor = NWG_ISHOP_Settings get "WEAP_ACTIVE_FACTOR";
-			_passiveFactor = NWG_ISHOP_Settings get "WEAP_PASSIVE_FACTOR";
-			_priceMin = NWG_ISHOP_Settings get "WEAP_PRICE_MIN";
-			_priceMax = NWG_ISHOP_Settings get "WEAP_PRICE_MAX";
-		};
-		case CAT_ITEM: {
-			_activeFactor = NWG_ISHOP_Settings get "ITEM_ACTIVE_FACTOR";
-			_passiveFactor = NWG_ISHOP_Settings get "ITEM_PASSIVE_FACTOR";
-			_priceMin = NWG_ISHOP_Settings get "ITEM_PRICE_MIN";
-			_priceMax = NWG_ISHOP_Settings get "ITEM_PRICE_MAX";
-		};
-		case CAT_AMMO: {
-			_activeFactor = NWG_ISHOP_Settings get "AMMO_ACTIVE_FACTOR";
-			_passiveFactor = NWG_ISHOP_Settings get "AMMO_PASSIVE_FACTOR";
-			_priceMin = NWG_ISHOP_Settings get "AMMO_PRICE_MIN";
-			_priceMax = NWG_ISHOP_Settings get "AMMO_PRICE_MAX";
-		};
+	private _settings = switch (_categoryIndex) do {
+		case CAT_CLTH: {NWG_ISHOP_Settings get "PRICE_CLTH_SETTINGS"};
+		case CAT_WEAP: {NWG_ISHOP_Settings get "PRICE_WEAP_SETTINGS"};
+		case CAT_ITEM: {NWG_ISHOP_Settings get "PRICE_ITEM_SETTINGS"};
+		case CAT_AMMO: {NWG_ISHOP_Settings get "PRICE_AMMO_SETTINGS"};
 		default {
-			_isError = true;
 			(format["NWG_ISHOP_UpdatePrices: Invalid category %1",_category]) call NWG_fnc_logError;
+			nil
 		};
 	};
-	if (_isError) exitWith {
-		"NWG_ISHOP_UpdatePrices: Failed to update prices" call NWG_fnc_logError;
+	if (isNil "_settings") exitWith {
+		(format["NWG_ISHOP_UpdatePrices: Failed to get category settings for index: '%1'",_categoryIndex]) call NWG_fnc_logError;
 		false
 	};
+	_settings params ["_activeFactor","_passiveFactor","_priceMin","_priceMax"];
 
 	//Define price change
 	if (_isSoldToPlayer) then {
@@ -176,7 +141,7 @@ NWG_ISHOP_UpdatePrices = {
 	//Process passive multipliers (overlap with active item is accepted)
 	{_priceChart set [_forEachIndex,(((_x*_passiveMultiplier) max _priceMin) min _priceMax)]} forEach _priceChart;
 	//Process active multiplier
-	_priceChart set [_itemIndex,(((_priceChart#_itemIndex)*_activeMultiplier) max _priceMin) min _priceMax];
+	_priceChart set [_itemIndex,((((_priceChart#_itemIndex)*_activeMultiplier) max _priceMin) min _priceMax)];
 
 	//return
 	true
