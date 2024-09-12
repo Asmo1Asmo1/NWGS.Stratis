@@ -146,3 +146,30 @@ NWG_ISHOP_UpdatePrices = {
 	//return
 	true
 };
+
+NWG_ISHOP_DownloadPrices = {
+	//return
+	NWG_ISHOP_itemsPriceChart
+};
+
+NWG_ISHOP_UploadPrices = {
+	private _pricesChart = _this;
+	if !(_pricesChart isEqualTypeParams [[],[],[],[]]) exitWith {
+		(format["NWG_ISHOP_UploadPrices: Invalid prices chart format"]) call NWG_fnc_logError;
+		false
+	};
+
+	//Update prices chart
+	NWG_ISHOP_itemsPriceChart = _pricesChart;
+
+	//Update item info cache
+	private _newCache = createHashMap;
+	{
+		private _categoryIndex = _forEachIndex;
+		{_newCache set [_x,[_categoryIndex,_forEachIndex]]} forEach (_x#CHART_ITEMS);
+	} forEach _pricesChart;
+	NWG_ISHOP_itemsInfoCache = _newCache;
+
+	//return
+	true
+};
