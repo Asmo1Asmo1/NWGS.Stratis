@@ -37,8 +37,10 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
 		[10,"30Rnd_65x39_caseless_mag",10,"30Rnd_762x39_Mag_F",10,"30Rnd_545x39_Mag_F"]
 	]],
 	["SHOP_CHECK_PERSISTENT_ITEMS",true],//Each interaction check validity of persistent items
-	["SHOP_SKIP_SENDING_PLAYER_LOOT",true],//If you're using 'lootStorage' module, player loot is synchronized between players and server already
+	["SHOP_CHECK_PERSISTENT_ITEMS_ONCE",true],//If flag 'SHOP_CHECK_PERSISTENT_ITEMS' set, fisrt check will set it to false
+	["SHOP_SKIP_SENDING_PLAYER_LOOT",true],//If you're using 'lootStorage' module, player loot is already synchronized between players and server
 	["SHOP_GET_PLAYER_LOOT_FUNC",{_this call NWG_fnc_lsGetPlayerLoot}],//Function that returns player loot
+	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",0.25],//Chance that item will be added to dynamic items when bought from player
 
 	["",0]
 ];
@@ -71,19 +73,19 @@ NWG_ISHOP_SER_EvaluateItem = {
 	private _defaultPrice = 0;
 	switch (_itemType) do {
 		case LOOT_ITEM_TYPE_AMMO: {
-			_categoryIndex = 3;
+			_categoryIndex = CAT_AMMO;
 			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_AMMO";
 		};
 		case LOOT_ITEM_TYPE_ITEM: {
-			_categoryIndex = 2;
+			_categoryIndex = CAT_ITEM;
 			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_ITEM";
 		};
 		case LOOT_ITEM_TYPE_WEPN: {
-			_categoryIndex = 1;
+			_categoryIndex = CAT_WEAP;
 			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_WEAP";
 		};
 		case LOOT_ITEM_TYPE_CLTH: {
-			_categoryIndex = 0;
+			_categoryIndex = CAT_CLTH;
 			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_CLTH";
 		};
 		default {
@@ -233,6 +235,11 @@ NWG_ISHOP_SER_OnShopRequest = {
 				_isError = true;
 			};
 		} forEach _persistentItems;
+
+		//Drop check flag on first success
+		if (!_isError && {NWG_ISHOP_SER_Settings get "SHOP_CHECK_PERSISTENT_ITEMS_ONCE"}) then {
+			NWG_ISHOP_SER_Settings set ["SHOP_CHECK_PERSISTENT_ITEMS",false];
+		};
 	};
 	if (_isError) exitWith {
 		false
@@ -268,4 +275,70 @@ NWG_ISHOP_SER_OnShopRequest = {
 
 	//return (mostly for testing)
 	_result
+};
+
+NWG_ISHOP_SER_OnTransaction = {
+	params ["_itemsSoldToPlayer","_itemsBoughtFromPlayer"];
+	//Update prices
+	private _updatePrices = {
+		params ["_items","_isSoldToPlayer"];
+		private _quantity = 1;
+		{
+			switch (true) do {
+				case (_x isEqualType 1): {
+					_quantity = _x;
+				};
+				case (_x isEqualType ""): {
+					[_x,_quantity,_isSoldToPlayer] call NWG_ISHOP_SER_UpdatePrices;
+					_quantity = 1;
+				};
+				default {
+					(format["NWG_ISHOP_SER_OnTransaction: Invalid item type '%1'",_x]) call NWG_fnc_logError;
+				};
+			};
+		} forEach _items;
+	};
+
+	//Update prices for items sold to player
+	[_itemsSoldToPlayer,true] call _updatePrices;
+	//Update prices for items bought from player
+	[_itemsBoughtFromPlayer,false] call _updatePrices;
+
+	//Select items bought from player to add them to dynamic items
+	private _chance = ((NWG_ISHOP_SER_Settings get "SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE") max 0) min 1;
+	private _itemsToAdd = switch (_chance) do {
+		case 0: {[]};
+		case 1: {(_itemsBoughtFromPlayer + []) call NWG_fnc_unCompactStringArray};
+		default {((_itemsBoughtFromPlayer + []) call NWG_fnc_unCompactStringArray) select {(random 1) <= _chance}};
+	};
+	if (_itemsToAdd isEqualTo []) exitWith {};//<== EXIT IF NO ITEMS TO ADD
+
+	//Add items to dynamic items
+	private _recompactFlags = [];
+	_recompactFlags resize (count NWG_ISHOP_SER_dynamicItems);
+	_recompactFlags = _recompactFlags apply {false};//Set default value
+	private ["_categoryIndex","_itemType"];
+	{
+		_itemType = _x call NWG_fnc_icatGetItemType;
+		_categoryIndex = switch (_itemType) do {
+			case LOOT_ITEM_TYPE_AMMO: {CAT_AMMO};
+			case LOOT_ITEM_TYPE_ITEM: {CAT_ITEM};
+			case LOOT_ITEM_TYPE_WEPN: {CAT_WEAP};
+			case LOOT_ITEM_TYPE_CLTH: {CAT_CLTH};
+			default {-1};
+		};
+		if (_categoryIndex == -1) then {
+			(format["NWG_ISHOP_SER_OnTransaction: Invalid item type '%1'-'%2'",_x,_itemType]) call NWG_fnc_logError;
+			continue;
+		};
+		(NWG_ISHOP_SER_dynamicItems#_categoryIndex) pushBack _x;
+		_recompactFlags set [_categoryIndex,true];
+	} forEach _itemsToAdd;
+
+	//Recompact dynamic items
+	{
+		if (_x) then {
+			((NWG_ISHOP_SER_dynamicItems#_forEachIndex) call NWG_fnc_unCompactStringArray) call NWG_fnc_compactStringArray;
+		};
+	} forEach _recompactFlags;
 };
