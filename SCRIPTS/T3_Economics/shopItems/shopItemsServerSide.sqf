@@ -17,7 +17,7 @@
 //================================================================================================================
 //================================================================================================================
 //Settings
-NWG_ISHOP_Settings = createHashMapFromArray [
+NWG_ISHOP_SER_Settings = createHashMapFromArray [
     ["DEFAULT_PRICE_CLTH",1000],
     ["DEFAULT_PRICE_WEAP",2000],
     ["DEFAULT_PRICE_ITEM",500],
@@ -46,21 +46,21 @@ NWG_ISHOP_Settings = createHashMapFromArray [
 //================================================================================================================
 //================================================================================================================
 //Prices
-NWG_ISHOP_itemsInfoCache = createHashMap;//[_categoryIndex,_itemIndex]
-NWG_ISHOP_itemsPriceChart = [
+NWG_ISHOP_SER_itemsInfoCache = createHashMap;//[_categoryIndex,_itemIndex]
+NWG_ISHOP_SER_itemsPriceChart = [
 	[[],[]],//CAT_CLTH [items,prices]
 	[[],[]],//CAT_WEAP [items,prices]
 	[[],[]],//CAT_ITEM [items,prices]
 	[[],[]] //CAT_AMMO [items,prices]
 ];
 
-NWG_ISHOP_EvaluateItem = {
+NWG_ISHOP_SER_EvaluateItem = {
 	// private _item = _this;
 
 	//Get cached item info if exists
-	private _c = NWG_ISHOP_itemsInfoCache get _this;
+	private _c = NWG_ISHOP_SER_itemsInfoCache get _this;
 	if (!isNil "_c") exitWith {
-		(((NWG_ISHOP_itemsPriceChart select (_c#CACHED_CATEGORY))/*Select category in chart*/
+		(((NWG_ISHOP_SER_itemsPriceChart select (_c#CACHED_CATEGORY))/*Select category in chart*/
 			select CHART_PRICES)/*Select prices row*/
 			select (_c#CACHED_INDEX))/*Select price by index in a row*/
 	};
@@ -72,59 +72,59 @@ NWG_ISHOP_EvaluateItem = {
 	switch (_itemType) do {
 		case LOOT_ITEM_TYPE_AMMO: {
 			_categoryIndex = 3;
-			_defaultPrice = NWG_ISHOP_Settings get "DEFAULT_PRICE_AMMO";
+			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_AMMO";
 		};
 		case LOOT_ITEM_TYPE_ITEM: {
 			_categoryIndex = 2;
-			_defaultPrice = NWG_ISHOP_Settings get "DEFAULT_PRICE_ITEM";
+			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_ITEM";
 		};
 		case LOOT_ITEM_TYPE_WEPN: {
 			_categoryIndex = 1;
-			_defaultPrice = NWG_ISHOP_Settings get "DEFAULT_PRICE_WEAP";
+			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_WEAP";
 		};
 		case LOOT_ITEM_TYPE_CLTH: {
 			_categoryIndex = 0;
-			_defaultPrice = NWG_ISHOP_Settings get "DEFAULT_PRICE_CLTH";
+			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_CLTH";
 		};
 		default {
-			(format["NWG_ISHOP_EvaluateItem: Invalid item type %1",_itemType]) call NWG_fnc_logError;
+			(format["NWG_ISHOP_SER_EvaluateItem: Invalid item type %1",_itemType]) call NWG_fnc_logError;
 		};
 	};
 	if (_categoryIndex == -1) exitWith {_defaultPrice};//<== EXIT WITH ZERO DEFAULT on error
 
 	//Add new item info to chart and cache
-	private _itemIndex = ((NWG_ISHOP_itemsPriceChart select _categoryIndex) select CHART_ITEMS) pushBack _this;
-	((NWG_ISHOP_itemsPriceChart select _categoryIndex) select CHART_PRICES) pushBack _defaultPrice;
-	NWG_ISHOP_itemsInfoCache set [_this,[_categoryIndex,_itemIndex]];
+	private _itemIndex = ((NWG_ISHOP_SER_itemsPriceChart select _categoryIndex) select CHART_ITEMS) pushBack _this;
+	((NWG_ISHOP_SER_itemsPriceChart select _categoryIndex) select CHART_PRICES) pushBack _defaultPrice;
+	NWG_ISHOP_SER_itemsInfoCache set [_this,[_categoryIndex,_itemIndex]];
 
 	//return price
 	_defaultPrice
 };
 
-NWG_ISHOP_UpdatePrices = {
+NWG_ISHOP_SER_UpdatePrices = {
 	params ["_item","_quantity","_isSoldToPlayer"];
 
 	//Get item info
-	private _cachedInfo = NWG_ISHOP_itemsInfoCache get _item;
+	private _cachedInfo = NWG_ISHOP_SER_itemsInfoCache get _item;
 	if (isNil "_cachedInfo") exitWith {
-		(format["NWG_ISHOP_UpdatePrices: Item '%1' is not cached, evaluate items before updating prices",_item]) call NWG_fnc_logError;
+		(format["NWG_ISHOP_SER_UpdatePrices: Item '%1' is not cached, evaluate items before updating prices",_item]) call NWG_fnc_logError;
 		false
 	};
 	_cachedInfo params ["_categoryIndex","_itemIndex"];
 
 	//Get category settings
 	private _settings = switch (_categoryIndex) do {
-		case CAT_CLTH: {NWG_ISHOP_Settings get "PRICE_CLTH_SETTINGS"};
-		case CAT_WEAP: {NWG_ISHOP_Settings get "PRICE_WEAP_SETTINGS"};
-		case CAT_ITEM: {NWG_ISHOP_Settings get "PRICE_ITEM_SETTINGS"};
-		case CAT_AMMO: {NWG_ISHOP_Settings get "PRICE_AMMO_SETTINGS"};
+		case CAT_CLTH: {NWG_ISHOP_SER_Settings get "PRICE_CLTH_SETTINGS"};
+		case CAT_WEAP: {NWG_ISHOP_SER_Settings get "PRICE_WEAP_SETTINGS"};
+		case CAT_ITEM: {NWG_ISHOP_SER_Settings get "PRICE_ITEM_SETTINGS"};
+		case CAT_AMMO: {NWG_ISHOP_SER_Settings get "PRICE_AMMO_SETTINGS"};
 		default {
-			(format["NWG_ISHOP_UpdatePrices: Invalid category %1",_category]) call NWG_fnc_logError;
+			(format["NWG_ISHOP_SER_UpdatePrices: Invalid category %1",_category]) call NWG_fnc_logError;
 			nil
 		};
 	};
 	if (isNil "_settings") exitWith {
-		(format["NWG_ISHOP_UpdatePrices: Failed to get category settings for index: '%1'",_categoryIndex]) call NWG_fnc_logError;
+		(format["NWG_ISHOP_SER_UpdatePrices: Failed to get category settings for index: '%1'",_categoryIndex]) call NWG_fnc_logError;
 		false
 	};
 	_settings params ["_activeFactor","_passiveFactor","_priceMin","_priceMax"];
@@ -141,7 +141,7 @@ NWG_ISHOP_UpdatePrices = {
 	};
 
 	//Process the update
-	private _priceChart = (NWG_ISHOP_itemsPriceChart select _categoryIndex) select CHART_PRICES;
+	private _priceChart = (NWG_ISHOP_SER_itemsPriceChart select _categoryIndex) select CHART_PRICES;
 	private _activeMultiplier = 1 + (_activeFactor*_quantity);
 	private _passiveMultiplier = 1 + (_passiveFactor*_quantity);
 	//Process passive multipliers (overlap with active item is accepted)
@@ -153,20 +153,20 @@ NWG_ISHOP_UpdatePrices = {
 	true
 };
 
-NWG_ISHOP_DownloadPrices = {
+NWG_ISHOP_SER_DownloadPrices = {
 	//return
-	NWG_ISHOP_itemsPriceChart
+	NWG_ISHOP_SER_itemsPriceChart
 };
 
-NWG_ISHOP_UploadPrices = {
+NWG_ISHOP_SER_UploadPrices = {
 	private _pricesChart = _this;
 	if !(_pricesChart isEqualTypeParams [[],[],[],[]]) exitWith {
-		(format["NWG_ISHOP_UploadPrices: Invalid prices chart format"]) call NWG_fnc_logError;
+		(format["NWG_ISHOP_SER_UploadPrices: Invalid prices chart format"]) call NWG_fnc_logError;
 		false
 	};
 
 	//Update prices chart
-	NWG_ISHOP_itemsPriceChart = _pricesChart;
+	NWG_ISHOP_SER_itemsPriceChart = _pricesChart;
 
 	//Update item info cache
 	private _newCache = createHashMap;
@@ -174,7 +174,7 @@ NWG_ISHOP_UploadPrices = {
 		private _categoryIndex = _forEachIndex;
 		{_newCache set [_x,[_categoryIndex,_forEachIndex]]} forEach (_x#CHART_ITEMS);
 	} forEach _pricesChart;
-	NWG_ISHOP_itemsInfoCache = _newCache;
+	NWG_ISHOP_SER_itemsInfoCache = _newCache;
 
 	//return
 	true
@@ -185,14 +185,14 @@ NWG_ISHOP_UploadPrices = {
 //Shop
 
 //Items that are added on top of persistent items
-NWG_ISHOP_dynamicItems = [
+NWG_ISHOP_SER_dynamicItems = [
 	[],
 	[],
 	[],
 	[]
 ];
 
-NWG_ISHOP_OnShopRequest = {
+NWG_ISHOP_SER_OnShopRequest = {
 	private _player = _this;
 
 	//So... what should I do here?
@@ -202,18 +202,18 @@ NWG_ISHOP_OnShopRequest = {
 	//[playerItems,shopItems,pricesMap]
 
 	//Get player loot
-	private _playerLoot = _player call (NWG_ISHOP_Settings get "SHOP_GET_PLAYER_LOOT_FUNC");
+	private _playerLoot = _player call (NWG_ISHOP_SER_Settings get "SHOP_GET_PLAYER_LOOT_FUNC");
 	if !(_playerLoot isEqualTypeParams [[],[],[],[]]) exitWith {
-		(format["NWG_ISHOP_OnShopRequest: Invalid player loot format"]) call NWG_fnc_logError;
+		(format["NWG_ISHOP_SER_OnShopRequest: Invalid player loot format"]) call NWG_fnc_logError;
 	};
 
 	//Get persistent shop items
-	private _persistentItems = NWG_ISHOP_Settings get "SHOP_PERSISTENT_ITEMS";
+	private _persistentItems = NWG_ISHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
 	private _isError = false;
-	if (NWG_ISHOP_Settings get "SHOP_CHECK_PERSISTENT_ITEMS") then {
+	if (NWG_ISHOP_SER_Settings get "SHOP_CHECK_PERSISTENT_ITEMS") then {
 		//Check overall structure
 		if !(_persistentItems isEqualTypeParams [[],[],[],[]]) exitWith {
-			(format["NWG_ISHOP_OnShopRequest: Invalid persistent shop items format"]) call NWG_fnc_logError;
+			(format["NWG_ISHOP_SER_OnShopRequest: Invalid persistent shop items format"]) call NWG_fnc_logError;
 			_isError = true;
 		};
 
@@ -229,7 +229,7 @@ NWG_ISHOP_OnShopRequest = {
 			};
 			_i = _x findIf {_x isEqualType "" && {(_x call NWG_fnc_icatGetItemType) isNotEqualTo _expected}};
 			if (_i != -1) exitWith {
-				(format["NWG_ISHOP_OnShopRequest: Invalid persistent item '%1'. Expected: '%2', Actual: '%3'",(_x#_i),_expected,((_x#_i) call NWG_fnc_icatGetItemType)]) call NWG_fnc_logError;
+				(format["NWG_ISHOP_SER_OnShopRequest: Invalid persistent item '%1'. Expected: '%2', Actual: '%3'",(_x#_i),_expected,((_x#_i) call NWG_fnc_icatGetItemType)]) call NWG_fnc_logError;
 				_isError = true;
 			};
 		} forEach _persistentItems;
@@ -239,7 +239,7 @@ NWG_ISHOP_OnShopRequest = {
 	};
 
 	//Get dynamic shop items
-	private _dynamicItems = NWG_ISHOP_dynamicItems;
+	private _dynamicItems = NWG_ISHOP_SER_dynamicItems;
 
 	//Combine shop items
 	private _shopItems = [
@@ -255,16 +255,16 @@ NWG_ISHOP_OnShopRequest = {
 	_allItems = _allItems arrayIntersect _allItems;//Remove dublicates
 
 	//Evaluate prices
-	private _allPrices = _allItems apply {_x call NWG_ISHOP_EvaluateItem};
+	private _allPrices = _allItems apply {_x call NWG_ISHOP_SER_EvaluateItem};
 
 	//Send back result
 	private _result = [
-		(if (NWG_ISHOP_Settings get "SHOP_SKIP_SENDING_PLAYER_LOOT") then {[]} else {_playerLoot}),
+		(if (NWG_ISHOP_SER_Settings get "SHOP_SKIP_SENDING_PLAYER_LOOT") then {[]} else {_playerLoot}),
 		_shopItems,
 		_allItems,
 		_allPrices
 	];
-	_result remoteExec ["NWG_ISHOP_OnShopResponse",_player];
+	_result remoteExec ["NWG_ISHOP_SER_OnShopResponse",_player];
 
 	//return (mostly for testing)
 	_result
