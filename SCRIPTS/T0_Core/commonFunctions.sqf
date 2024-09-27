@@ -156,6 +156,52 @@ NWG_fnc_unCompactStringArray = {
     _this
 };
 
+//Merges two compacted string arrays ["a",2,"b"]+[2,"b",3,"c"] = ["a",4,"b",3,"c"]
+//note: faster alternative to ((A+B) call NWG_fnc_unCompactStringArray) call NWG_fnc_compactStringArray;
+NWG_fnc_mergeCompactedStringArrays = {
+    params ["_array1","_array2"];
+
+    //Get compacted array but with unomitted '1' counts
+    private _result = [];
+    private _count = 1;
+    {
+        if (_x isEqualType 0) then {
+            _count = _x;
+        } else {
+            _result pushBack _count;
+            _result pushBack _x;
+            _count = 1;
+        };
+    } forEach _array1;
+
+    //Merge in the second array
+    private _i = -1;
+    _count = 1;//Reset count
+    {
+        if (_x isEqualType 0) then {
+            _count = _x;
+            continue;
+        };
+
+        _i = _result find _x;
+        if (_i == -1) then {
+            //Element not found, add it
+            _result pushBack _count;
+            _result pushBack _x;
+        } else {
+            //Element found, merge counts
+            _result set [(_i-1),((_result#(_i-1))+_count)];
+        };
+        _count = 1;
+    } forEach _array2;
+
+    //Omit '1' counts
+    _result = _result - [1];
+
+    //return
+    _result
+};
+
 //===============================================================
 //Range
 //Returns a random number within the range

@@ -37,7 +37,6 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
 		[10,"30Rnd_65x39_caseless_mag",10,"30Rnd_762x39_Mag_F",10,"30Rnd_545x39_Mag_F"]
 	]],
 	["SHOP_CHECK_PERSISTENT_ITEMS",true],//Each interaction check validity of persistent items
-	["SHOP_CHECK_PERSISTENT_ITEMS_ONCE",true],//If flag 'SHOP_CHECK_PERSISTENT_ITEMS' set, fisrt check will set it to false
 	["SHOP_SKIP_SENDING_PLAYER_LOOT",true],//If you're using 'lootStorage' module, player loot is already synchronized between players and server
 	["SHOP_GET_PLAYER_LOOT_FUNC",{_this call NWG_fnc_lsGetPlayerLoot}],//Function that returns player loot
 	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",0.25],//Chance that item will be added to dynamic items when bought from player
@@ -194,14 +193,55 @@ NWG_ISHOP_SER_dynamicItems = [
 	[]
 ];
 
+NWG_ISHOP_SER_prevPersistentItems = [];
+NWG_ISHOP_SER_prevPersistentItemsCheckResult = true;
+NWG_ISHOP_SER_CheckPersistentItems = {
+	// private _persistentItems = _this;
+
+	//Check settings
+	if !(NWG_ISHOP_SER_Settings get "SHOP_CHECK_PERSISTENT_ITEMS") exitWith {true};
+
+	//Check if persistent items changed since last check (settings were updated)
+	if (_this isEqualTo NWG_ISHOP_SER_prevPersistentItems) exitWith {NWG_ISHOP_SER_prevPersistentItemsCheckResult};
+	NWG_ISHOP_SER_prevPersistentItems = _this;
+
+	//Check overall structure
+	if !(_this isEqualTypeParams [[],[],[],[]]) exitWith {
+		(format["NWG_ISHOP_SER_CheckPersistentItems: Invalid persistent shop items format"]) call NWG_fnc_logError;
+		NWG_ISHOP_SER_prevPersistentItemsCheckResult = false;
+		false;
+	};
+
+	//Check that each element is of correct type
+	private _ok = true;
+	//foreach category
+	{
+		private _expected = switch (_forEachIndex) do {
+			case CAT_CLTH: {LOOT_ITEM_TYPE_CLTH};
+			case CAT_WEAP: {LOOT_ITEM_TYPE_WEPN};
+			case CAT_ITEM: {LOOT_ITEM_TYPE_ITEM};
+			case CAT_AMMO: {LOOT_ITEM_TYPE_AMMO};
+			default {""};
+		};
+
+		//foreach item in category
+		{
+			if (_x isEqualType "" && {(_x call NWG_fnc_icatGetItemType) isNotEqualTo _expected}) then {
+				(format["NWG_ISHOP_SER_CheckPersistentItems: Invalid persistent item '%1'. Expected: '%2', Actual: '%3'",_x,_expected,(_x call NWG_fnc_icatGetItemType)]) call NWG_fnc_logError;
+				_ok = false;
+			};
+		} forEach _x;
+	} forEach _this;
+
+	//Save
+	NWG_ISHOP_SER_prevPersistentItemsCheckResult = _ok;
+
+	//return
+	_ok
+};
+
 NWG_ISHOP_SER_OnShopRequest = {
 	private _player = _this;
-
-	//So... what should I do here?
-	//Well, first, we need a) player loot, b) persistent+dynaic shop items
-	//Then I guess we need to evaluate prices for all of these items
-	//And what will we return as a result?
-	//[playerItems,shopItems,pricesMap]
 
 	//Get player loot
 	private _playerLoot = _player call (NWG_ISHOP_SER_Settings get "SHOP_GET_PLAYER_LOOT_FUNC");
@@ -211,50 +251,23 @@ NWG_ISHOP_SER_OnShopRequest = {
 
 	//Get persistent shop items
 	private _persistentItems = NWG_ISHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
-	private _isError = false;
-	if (NWG_ISHOP_SER_Settings get "SHOP_CHECK_PERSISTENT_ITEMS") then {
-		//Check overall structure
-		if !(_persistentItems isEqualTypeParams [[],[],[],[]]) exitWith {
-			(format["NWG_ISHOP_SER_OnShopRequest: Invalid persistent shop items format"]) call NWG_fnc_logError;
-			_isError = true;
-		};
-
-		//Check that each element is of correct type
-		private ["_expected","_i"];
-		{
-			_expected = switch (_forEachIndex) do {
-				case CAT_CLTH: {LOOT_ITEM_TYPE_CLTH};
-				case CAT_WEAP: {LOOT_ITEM_TYPE_WEPN};
-				case CAT_ITEM: {LOOT_ITEM_TYPE_ITEM};
-				case CAT_AMMO: {LOOT_ITEM_TYPE_AMMO};
-				default {""};
-			};
-			_i = _x findIf {_x isEqualType "" && {(_x call NWG_fnc_icatGetItemType) isNotEqualTo _expected}};
-			if (_i != -1) exitWith {
-				(format["NWG_ISHOP_SER_OnShopRequest: Invalid persistent item '%1'. Expected: '%2', Actual: '%3'",(_x#_i),_expected,((_x#_i) call NWG_fnc_icatGetItemType)]) call NWG_fnc_logError;
-				_isError = true;
-			};
-		} forEach _persistentItems;
-
-		//Drop check flag on first success
-		if (!_isError && {NWG_ISHOP_SER_Settings get "SHOP_CHECK_PERSISTENT_ITEMS_ONCE"}) then {
-			NWG_ISHOP_SER_Settings set ["SHOP_CHECK_PERSISTENT_ITEMS",false];
-		};
-	};
-	if (_isError) exitWith {
-		false
+	if !(_persistentItems call NWG_ISHOP_SER_CheckPersistentItems) then {
+		(format["NWG_ISHOP_SER_OnShopRequest: Invalid persistent shop items"]) call NWG_fnc_logError;
+		_persistentItems = [[],[],[],[]];//<== Use empty items
 	};
 
 	//Get dynamic shop items
-	private _dynamicItems = NWG_ISHOP_SER_dynamicItems;
+	private _dynamicItems = NWG_ISHOP_SER_dynamicItems;//No need to check since we are the ones who update it
 
-	//Combine shop items
-	private _shopItems = [
-		((_persistentItems#CAT_CLTH) + (_dynamicItems#CAT_CLTH)),
-		((_persistentItems#CAT_WEAP) + (_dynamicItems#CAT_WEAP)),
-		((_persistentItems#CAT_ITEM) + (_dynamicItems#CAT_ITEM)),
-		((_persistentItems#CAT_AMMO) + (_dynamicItems#CAT_AMMO))
-	];
+	//Merge shop items
+	private _shopItems = [];
+	{
+		if ( ((count (_persistentItems#_x)) > 0) && {(count (_dynamicItems#_x)) > 0}) then {
+			_shopItems pushBack ([(_persistentItems#_x),(_dynamicItems#_x)] call NWG_fnc_mergeCompactedStringArrays);
+		} else {
+			_shopItems pushBack ((_persistentItems#_x) + (_dynamicItems#_x));
+		};
+	} forEach [CAT_CLTH,CAT_WEAP,CAT_ITEM,CAT_AMMO];
 
 	//Evaluate prices
 	private _allItems = _playerLoot + _shopItems;
@@ -271,7 +284,7 @@ NWG_ISHOP_SER_OnShopRequest = {
 		_allItems,
 		_allPrices
 	];
-	_result remoteExec ["NWG_ISHOP_SER_OnShopResponse",_player];
+	_result remoteExec ["NWG_ISHOP_CLI_OnShopResponse",_player];
 
 	//return (mostly for testing)
 	_result
@@ -314,10 +327,9 @@ NWG_ISHOP_SER_OnTransaction = {
 	if (_itemsToAdd isEqualTo []) exitWith {};//<== EXIT IF NO ITEMS TO ADD
 
 	//Add items to dynamic items
-	private _recompactFlags = [];
-	_recompactFlags resize (count NWG_ISHOP_SER_dynamicItems);
-	_recompactFlags = _recompactFlags apply {false};//Set default value
-	private ["_categoryIndex","_itemType"];
+	private _itemsToAddCategorized = [[],[],[],[]];
+	private ["_itemType","_categoryIndex"];
+	//foreach flat itemsToAdd - categorize
 	{
 		_itemType = _x call NWG_fnc_icatGetItemType;
 		_categoryIndex = switch (_itemType) do {
@@ -331,14 +343,28 @@ NWG_ISHOP_SER_OnTransaction = {
 			(format["NWG_ISHOP_SER_OnTransaction: Invalid item type '%1'-'%2'",_x,_itemType]) call NWG_fnc_logError;
 			continue;
 		};
-		(NWG_ISHOP_SER_dynamicItems#_categoryIndex) pushBack _x;
-		_recompactFlags set [_categoryIndex,true];
+		(_itemsToAddCategorized#_categoryIndex) pushBack _x;
 	} forEach _itemsToAdd;
-
-	//Recompact dynamic items
+	//foreach category of itemsToAdd
 	{
-		if (_x) then {
-			((NWG_ISHOP_SER_dynamicItems#_forEachIndex) call NWG_fnc_unCompactStringArray) call NWG_fnc_compactStringArray;
+		//Check if nothing to add - skip
+		if ((count _x) == 0) then {
+			continue;
 		};
-	} forEach _recompactFlags;
+
+		//Compact array
+		_x call NWG_fnc_compactStringArray;
+
+		//Check if nothing was stored - replace
+		if ((count (NWG_ISHOP_SER_dynamicItems#_forEachIndex)) == 0) then {
+			NWG_ISHOP_SER_dynamicItems set [_forEachIndex,_x];
+			continue;
+		};
+
+		//Both arrays are non-empty - merge
+		NWG_ISHOP_SER_dynamicItems set [
+			_forEachIndex,
+			([(NWG_ISHOP_SER_dynamicItems#_forEachIndex),_x] call NWG_fnc_mergeCompactedStringArrays)
+		];
+	} forEach _itemsToAddCategorized;
 };
