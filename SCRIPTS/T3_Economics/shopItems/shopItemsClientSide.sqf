@@ -44,7 +44,6 @@ NWG_ISHOP_CLI_Settings = createHashMapFromArray [
 	["SHOP_GET_PLAYER_LOOT_FUNC",{_this call NWG_fnc_lsGetPlayerLoot}],//Function that returns player loot
 	["SHOP_SET_PLAYER_LOOT_FUNC",{_this call NWG_fnc_lsSetPlayerLoot}],//Function that sets player loot
 
-	["PLAYER_MONEY_BLINK_COLOR_ORIGINAL",[0,0,0,1]],//'Fix' color stucking
 	["PLAYER_MONEY_BLINK_COLOR_ON_ERROR",[1,0,0,1]],
 	["PLAYER_MONEY_BLINK_COLOR_ON_SUCCESS",[0,1,0,1]],
 	["PLAYER_MONEY_BLINK_COLOR_INTERVAL_ON",0.3],
@@ -227,7 +226,11 @@ NWG_ISHOP_CLI_BlinkPlayerMoney = {
 		if (isNull _textCtrl) exitWith {
 			"NWG_ISHOP_CLI_BlinkPlayerMoney: Text control is null" call NWG_fnc_logError;
 		};
-		private _origColor = NWG_ISHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_ORIGINAL";//'Fix' color stucking
+		private _origColor = _textCtrl getVariable "origColor";
+		if (isNil "_origColor") then {
+			_origColor = ctrlBackgroundColor _textCtrl;
+			_textCtrl setVariable ["origColor",_origColor];
+		};
 
 		private _isOn = false;
 		private _blinkCount = 0;
