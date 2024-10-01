@@ -39,7 +39,7 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
 	["SHOP_CHECK_PERSISTENT_ITEMS",true],//Each interaction check validity of persistent items
 	["SHOP_SKIP_SENDING_PLAYER_LOOT",true],//If you're using 'lootStorage' module, player loot is already synchronized between players and server
 	["SHOP_GET_PLAYER_LOOT_FUNC",{_this call NWG_fnc_lsGetPlayerLoot}],//Function that returns player loot
-	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",0.25],//Chance that item will be added to dynamic items when bought from player
+	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",0.33],//Chance that item will be added to dynamic items when bought from player
 
 	["",0]
 ];
@@ -79,7 +79,7 @@ NWG_ISHOP_SER_EvaluateItem = {
 			_categoryIndex = CAT_ITEM;
 			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_ITEM";
 		};
-		case LOOT_ITEM_TYPE_WEPN: {
+		case LOOT_ITEM_TYPE_WEAP: {
 			_categoryIndex = CAT_WEAP;
 			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_WEAP";
 		};
@@ -218,7 +218,7 @@ NWG_ISHOP_SER_CheckPersistentItems = {
 	{
 		private _expected = switch (_forEachIndex) do {
 			case CAT_CLTH: {LOOT_ITEM_TYPE_CLTH};
-			case CAT_WEAP: {LOOT_ITEM_TYPE_WEPN};
+			case CAT_WEAP: {LOOT_ITEM_TYPE_WEAP};
 			case CAT_ITEM: {LOOT_ITEM_TYPE_ITEM};
 			case CAT_AMMO: {LOOT_ITEM_TYPE_AMMO};
 			default {""};
@@ -284,7 +284,7 @@ NWG_ISHOP_SER_OnShopRequest = {
 		_allItems,
 		_allPrices
 	];
-	_result remoteExec ["NWG_ISHOP_CLI_OnShopResponse",_player];
+	_result remoteExec ["NWG_fnc_ishopShopValuesResponse",_player];
 
 	//return (mostly for testing)
 	_result
@@ -335,7 +335,7 @@ NWG_ISHOP_SER_OnTransaction = {
 		_categoryIndex = switch (_itemType) do {
 			case LOOT_ITEM_TYPE_AMMO: {CAT_AMMO};
 			case LOOT_ITEM_TYPE_ITEM: {CAT_ITEM};
-			case LOOT_ITEM_TYPE_WEPN: {CAT_WEAP};
+			case LOOT_ITEM_TYPE_WEAP: {CAT_WEAP};
 			case LOOT_ITEM_TYPE_CLTH: {CAT_CLTH};
 			default {-1};
 		};

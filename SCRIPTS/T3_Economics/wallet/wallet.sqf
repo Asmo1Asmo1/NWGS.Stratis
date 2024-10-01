@@ -1,6 +1,6 @@
 NWG_WLT_Settings = createHashMapFromArray [
     ["MONEYSTR_PREFIX","$"],
-    ["MONEYSTR_SEPARATOR",46],//char "."
+    ["MONEYSTR_SEPARATOR",44],//char ","
 
     ["",0]
 ];
@@ -12,10 +12,6 @@ NWG_WLT_GetPlayerMoney = {
 };
 
 NWG_WLT_AddPlayerMoney = {
-    //TODO: Implement actual logic later
-};
-
-NWG_WLT_RemovePlayerMoney = {
     //TODO: Implement actual logic later
 };
 

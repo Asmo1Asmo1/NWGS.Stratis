@@ -99,7 +99,7 @@
     ]],
 
     /*WeaponBackpacks*/
-    ["WEPN",
+    ["WEAP",
     [
         //Turrets
         "O_HMG_02_high_weapon_F"	,
@@ -872,7 +872,7 @@
         "Laserdesignator"
     ]],
     /*Handguns*/
-    ["WEPN",
+    ["WEAP",
     [
         "hgun_Pistol_heavy_01_F"	,
         "hgun_Pistol_heavy_01_green_F"	,
@@ -887,7 +887,7 @@
         "hgun_Pistol_Signal_F"
     ]],
     /*SMGs*/
-    ["WEPN",
+    ["WEAP",
     [
         "hgun_PDW2000_F"	,
         "SMG_05_F"	,
@@ -895,7 +895,7 @@
         "SMG_01_F"
     ]],
     /*P90*/
-    ["WEPN",
+    ["WEAP",
     [
         "SMG_03_black"	,
         "SMG_03_camo"	,
@@ -911,13 +911,13 @@
         "SMG_03C_TR_hex"
     ]],
     /*Shotguns*/
-    ["WEPN",
+    ["WEAP",
     [
         "sgun_HunterShotgun_01_sawedoff_F"	,
         "sgun_HunterShotgun_01_F"
     ]],
     /*Carabines*/
-    ["WEPN",
+    ["WEAP",
     [
         "arifle_AKS_F"	,
         "arifle_AK12U_F"	,
@@ -930,13 +930,13 @@
         "arifle_TRG20_F"
     ]],
     /*AssaultRifles*/
-    ["WEPN",
+    ["WEAP",
     [
         "arifle_AKM_F"	,
         "arifle_SDAR_F"
     ]],
     /*AssaultRifles_noGL*/
-    ["WEPN",
+    ["WEAP",
     [
         "arifle_AK12_F"	,
         "arifle_AK12_lush_F"	,
@@ -957,7 +957,7 @@
         "arifle_TRG21_F"
     ]],
     /*AssaultRifles_GL*/
-    ["WEPN",
+    ["WEAP",
     [
         "arifle_AK12_GL_F"	,
         "arifle_AK12_GL_lush_F"	,
@@ -984,7 +984,7 @@
         "arifle_ARX_hex_F"
     ]],
     /*AT_AA_Launchers*/
-    ["WEPN",
+    ["WEAP",
     [
         "launch_O_Vorona_green_F"	,
         "launch_MRAWS_green_rail_F"	,
@@ -1004,7 +1004,7 @@
         "launch_B_Titan_tna_F"
     ]],
     /*Machineguns*/
-    ["WEPN",
+    ["WEAP",
     [
         "arifle_CTARS_blk_F"	,
         "arifle_CTARS_ghex_F"	,
@@ -1024,7 +1024,7 @@
         "LMG_Zafir_F"
     ]],
     /*MarksmanRifles*/
-    ["WEPN",
+    ["WEAP",
     [
         "srifle_DMR_07_blk_F"	,
         "srifle_DMR_07_ghex_F"	,
@@ -1047,7 +1047,7 @@
         "arifle_SPAR_03_khk_F"
     ]],
     /*SniperRifles*/
-    ["WEPN",
+    ["WEAP",
     [
         "srifle_DMR_04_F"	,
         "srifle_DMR_05_blk_F"	,

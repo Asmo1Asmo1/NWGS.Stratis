@@ -9,7 +9,7 @@
 
 //Loot items types
 #define LOOT_ITEM_TYPE_CLTH "CLTH"  // Clothing
-#define LOOT_ITEM_TYPE_WEPN "WEPN"  // Weapon
+#define LOOT_ITEM_TYPE_WEAP "WEAP"  // Weapon
 #define LOOT_ITEM_TYPE_ITEM "ITEM"  // Item
 #define LOOT_ITEM_TYPE_AMMO "AMMO"  // Ammo
 

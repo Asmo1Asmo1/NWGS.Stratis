@@ -59,6 +59,16 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //T3_Economics
     //lootStorage
     ["#LS_STORAGE_ACTION_TITLE#","Open Storage"],
+    //shopItems
+    ["#ISHOP_ACTION_TITLE#","Open Shop"],
+    ["#ISHOP_SELLER_MONEY_CONST#","$---"],
+    ["#ISHOP_CAT_ALL#","All"],
+    ["#ISHOP_CAT_CLTH#","Clothing"],
+    ["#ISHOP_CAT_WEAP#","Weapons"],
+    ["#ISHOP_CAT_ITEM#","Items"],
+    ["#ISHOP_CAT_AMMO#","Ammunition"],
+    ["#ISHOP_MULT_X10_TT#","Ctrl"],
+    ["#ISHOP_MULT_ALL_TT#","Shift"],
     //vehCustomizationAppearance
     ["#CAPP_LEFT_TITLE#","Color"],
     ["#CAPP_RIGHT_TITLE#","Components"],

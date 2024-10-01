@@ -25,7 +25,7 @@ NWG_ICAT_GetItemType = {
                 case (isClass (_cfg >> "WeaponSlotsInfo")) : {
                     if ((getNumber (_cfg >> "type")) == 4096)
                         then {LOOT_ITEM_TYPE_ITEM}/*Binoculars and such*/
-                        else {LOOT_ITEM_TYPE_WEPN}
+                        else {LOOT_ITEM_TYPE_WEAP}
                 };
                 case (isClass (_cfg >> "ItemInfo")) : {
                     if ((getNumber (_cfg >> "ItemInfo" >> "type")) in [801,701,605])/*Magic numbers by Claude AI*/
@@ -48,7 +48,7 @@ NWG_ICAT_GetItemType = {
         case "CfgVehicles": {
             //Backpacks
             if ((getText (_cfg >> "assembleInfo" >> "assembleTo")) isNotEqualTo "")
-                then {LOOT_ITEM_TYPE_WEPN}/*UAV/UGV and weapon backpacks*/
+                then {LOOT_ITEM_TYPE_WEAP}/*UAV/UGV and weapon backpacks*/
                 else {LOOT_ITEM_TYPE_CLTH}/*Regular backpacks*/
         };
         default {

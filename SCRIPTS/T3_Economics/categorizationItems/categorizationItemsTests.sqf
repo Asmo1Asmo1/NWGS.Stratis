@@ -23,7 +23,7 @@ NWG_ICAT_GetItemType_Test_VanillaCatalogue = {
     private _catalogue = call (_filePath call NWG_fnc_compile);
     if (isNil "_catalogue" || {!(_catalogue isEqualType [])}) exitWith {"Failed to load catalogue"};
 
-    private _itemCategories = [LOOT_ITEM_TYPE_CLTH,LOOT_ITEM_TYPE_WEPN,LOOT_ITEM_TYPE_ITEM,LOOT_ITEM_TYPE_AMMO];
+    private _itemCategories = [LOOT_ITEM_TYPE_CLTH,LOOT_ITEM_TYPE_WEAP,LOOT_ITEM_TYPE_ITEM,LOOT_ITEM_TYPE_AMMO];
     private ["_category","_entries","_xCat"];
     private _errors = [];
     {
@@ -54,7 +54,7 @@ NWG_ICAT_GetItemType_Test_VanillaCatalogue = {
 //================================================================================================================
 //================================================================================================================
 //Test utils
-NWG_ICAT_sortOrder = [LOOT_ITEM_TYPE_CLTH,LOOT_ITEM_TYPE_WEPN,LOOT_ITEM_TYPE_ITEM,LOOT_ITEM_TYPE_AMMO,false];//Order of sorting
+NWG_ICAT_sortOrder = [LOOT_ITEM_TYPE_CLTH,LOOT_ITEM_TYPE_WEAP,LOOT_ITEM_TYPE_ITEM,LOOT_ITEM_TYPE_AMMO,false];//Order of sorting
 NWG_ICAT_Sort = {
     // private _array = _this;
     private _sorted = _this apply {[(NWG_ICAT_sortOrder find (_x#0)),_x]};//Repack for sorting
