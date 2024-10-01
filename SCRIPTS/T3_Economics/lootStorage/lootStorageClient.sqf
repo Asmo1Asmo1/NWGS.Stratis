@@ -167,7 +167,7 @@ NWG_LS_CLI_ContainerItemsToLoot = {
     {
         switch (_x call NWG_fnc_icatGetItemType) do {
             case LOOT_ITEM_TYPE_CLTH: {(_loot#0) pushBack (_x call NWG_fnc_icatGetBaseBackpack)};
-            case LOOT_ITEM_TYPE_WEPN: {(_loot#1) pushBack (_x call NWG_fnc_icatGetBaseWeapon)};
+            case LOOT_ITEM_TYPE_WEAP: {(_loot#1) pushBack (_x call NWG_fnc_icatGetBaseWeapon)};
             case LOOT_ITEM_TYPE_ITEM: {(_loot#2) pushBack _x};
             case LOOT_ITEM_TYPE_AMMO: {(_loot#3) pushBack _x};
         };

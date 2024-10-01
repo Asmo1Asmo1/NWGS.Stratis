@@ -19,6 +19,8 @@ NWG_fnc_lsLootOpenedContainer = {
 /*Any->Any*/
 //Get loot storage of a player
 //params: _player - object
+//returns: array - player loot in format: [[clothes],[weapons],[items],[ammunition]]
+// each element is an array of items and optionsl counts: ["item1",countOfItem2,"item2",...]
 NWG_fnc_lsGetPlayerLoot = {
     // private _player = _this;
     _this call NWG_LS_COM_GetPlayerLoot;

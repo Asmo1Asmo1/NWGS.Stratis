@@ -142,13 +142,15 @@ _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\voting\votingFunctions.sq
 
 //T3_Economics
 //categorizationItems
+_serverModules pushBack ("SCRIPTS\T3_Economics\categorizationItems\categorizationItems.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\categorizationItems\categorizationItems.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\categorizationItems\categorizationItemsTests.sqf" call NWG_fnc_compile)};
-_clientFunctions pushBack ("SCRIPTS\T3_Economics\categorizationItems\categorizationItemsFunctions.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\categorizationItems\categorizationItemsFunctions.sqf" call NWG_fnc_compile);
 //categorizationVehs
+_serverModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehs.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehs.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsTests.sqf" call NWG_fnc_compile)};
-_clientFunctions pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsFunctions.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsFunctions.sqf" call NWG_fnc_compile);
 //lootStorage
 _serverModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageServer.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\lootStorage\missionMachineConnector.sqf" call NWG_fnc_compile);
@@ -157,6 +159,11 @@ _clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageCommon.sqf
 _clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageClient.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageTests.sqf" call NWG_fnc_compile)};
+//shopItems
+_serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsServerSide.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsClientSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsTests.sqf" call NWG_fnc_compile)};
 //vehCustomizationAppearance
 _serverModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationAppearance\vehCustomizationAppearanceCore.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationAppearance\vehCustomizationAppearanceCore.sqf" call NWG_fnc_compile);
@@ -171,8 +178,9 @@ _commonFunctions pushBack ("SCRIPTS\T3_Economics\vehCustomizationPylons\vehCusto
 _clientModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationUI\vehCustomizationUI.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T3_Economics\vehCustomizationUI\vehCustomizationUIFunctions.sqf" call NWG_fnc_compile);
 //wallet
+_serverModules pushBack ("SCRIPTS\T3_Economics\wallet\wallet.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\wallet\wallet.sqf" call NWG_fnc_compile);
-_clientFunctions pushBack ("SCRIPTS\T3_Economics\wallet\walletFunctions.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\wallet\walletFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\wallet\walletTests.sqf" call NWG_fnc_compile)};
 
 //================================================================================================================
