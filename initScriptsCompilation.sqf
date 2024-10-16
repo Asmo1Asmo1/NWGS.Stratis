@@ -177,6 +177,11 @@ _commonFunctions pushBack ("SCRIPTS\T3_Economics\vehCustomizationPylons\vehCusto
 //vehCustomizationUI
 _clientModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationUI\vehCustomizationUI.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T3_Economics\vehCustomizationUI\vehCustomizationUIFunctions.sqf" call NWG_fnc_compile);
+//vehOwnership
+_serverModules pushBack ("SCRIPTS\T3_Economics\vehOwnership\vehOwnershipCommon.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\vehOwnership\vehOwnershipCommon.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\vehOwnership\vehOwnershipClient.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\vehOwnership\vehOwnershipFunctions.sqf" call NWG_fnc_compile);
 //wallet
 _serverModules pushBack ("SCRIPTS\T3_Economics\wallet\wallet.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\wallet\wallet.sqf" call NWG_fnc_compile);
