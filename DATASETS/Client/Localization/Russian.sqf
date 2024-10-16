@@ -67,6 +67,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#CPYL_RIGHT_TITLE#","Владелец пилонов"],
     ["#CPYL_OWNER_PILOT#","Пилот"],
     ["#CPYL_OWNER_GUNNER#","Стрелок"],
+    //vehOwnership
+    ["#VEHOWN_MESSAGE_OWNER#","Владелец: %1"],
 
     ["",""]
 ];

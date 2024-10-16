@@ -289,7 +289,7 @@ NWG_fnc_translateMessage = {
 
     switch (true) do {
         /*Simple message*/
-        case (!(_this isEqualType [])): {_this call _translate};//Single string
+        case (!(_this isEqualType [])): {_this call _translate};//Single argument (string, int, bool, obj, etc.)
         case ((count _this) <= 1):      {(_this param [0,""]) call _translate};//Single element or empty array
         /*Formatted message*/
         default {format (_this apply {_x call _translate})};//Array of format arguments as [template,arg0,arg1...]
