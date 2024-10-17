@@ -183,8 +183,9 @@ _clientModules pushBack ("SCRIPTS\T3_Economics\vehOwnership\vehOwnershipCommon.s
 _clientModules pushBack ("SCRIPTS\T3_Economics\vehOwnership\vehOwnershipClient.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\vehOwnership\vehOwnershipFunctions.sqf" call NWG_fnc_compile);
 //wallet
-_serverModules pushBack ("SCRIPTS\T3_Economics\wallet\wallet.sqf" call NWG_fnc_compile);
-_clientModules pushBack ("SCRIPTS\T3_Economics\wallet\wallet.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\wallet\walletCommon.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\wallet\walletCommon.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\wallet\walletClient.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\wallet\walletFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\wallet\walletTests.sqf" call NWG_fnc_compile)};
 
