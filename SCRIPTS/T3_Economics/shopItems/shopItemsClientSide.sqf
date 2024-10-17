@@ -635,7 +635,7 @@ NWG_ISHOP_CLI_TRA_OnClose = {
 	private _playerActualMoney = player call NWG_fnc_wltGetPlayerMoney;
 	private _delta = _playerVirtualMoney - _playerActualMoney;
 	if (_delta != 0) then {
-		[player,_delta] call NWG_fnc_wltAddPlayerMoney;
+		[player,(round _delta)] call NWG_fnc_wltAddPlayerMoney;
 	};
 
 	//Update player loot
