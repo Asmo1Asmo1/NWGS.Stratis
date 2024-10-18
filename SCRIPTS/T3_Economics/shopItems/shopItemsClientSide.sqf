@@ -27,12 +27,6 @@
 #define BUTTON_MULTIPLIER_X10 10
 #define BUTTON_MULTIPLIER_ALL 1000
 
-//Loot items types
-#define CAT_CLTH 0
-#define CAT_WEAP 1
-#define CAT_ITEM 2
-#define CAT_AMMO 3
-
 //================================================================================================================
 //================================================================================================================
 //Settings
@@ -345,10 +339,10 @@ NWG_ISHOP_CLI_UpdateItemsList = {
 
 	private _itemsToShow = switch (_listCat) do {
 		case LOOT_ITEM_TYPE_ALL: {flatten _itemsCollection};
-		case LOOT_ITEM_TYPE_CLTH: {_itemsCollection#CAT_CLTH};
-		case LOOT_ITEM_TYPE_WEAP: {_itemsCollection#CAT_WEAP};
-		case LOOT_ITEM_TYPE_ITEM: {_itemsCollection#CAT_ITEM};
-		case LOOT_ITEM_TYPE_AMMO: {_itemsCollection#CAT_AMMO};
+		case LOOT_ITEM_TYPE_CLTH: {_itemsCollection#LOOT_CAT_CLTH};
+		case LOOT_ITEM_TYPE_WEAP: {_itemsCollection#LOOT_CAT_WEAP};
+		case LOOT_ITEM_TYPE_ITEM: {_itemsCollection#LOOT_CAT_ITEM};
+		case LOOT_ITEM_TYPE_AMMO: {_itemsCollection#LOOT_CAT_AMMO};
 		default {
 			"NWG_ISHOP_CLI_UpdateItemsList: Invalid category" call NWG_fnc_logError;
 			[]

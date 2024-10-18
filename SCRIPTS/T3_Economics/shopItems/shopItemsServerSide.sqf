@@ -3,12 +3,6 @@
 //================================================================================================================
 //================================================================================================================
 //Defines
-//Loot items types
-#define CAT_CLTH 0
-#define CAT_WEAP 1
-#define CAT_ITEM 2
-#define CAT_AMMO 3
-
 #define CACHED_CATEGORY 0
 #define CACHED_INDEX 1
 #define CHART_ITEMS 0
@@ -49,10 +43,10 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
 //Prices
 NWG_ISHOP_SER_itemsInfoCache = createHashMap;//[_categoryIndex,_itemIndex]
 NWG_ISHOP_SER_itemsPriceChart = [
-	[[],[]],//CAT_CLTH [items,prices]
-	[[],[]],//CAT_WEAP [items,prices]
-	[[],[]],//CAT_ITEM [items,prices]
-	[[],[]] //CAT_AMMO [items,prices]
+	[[],[]],//LOOT_CAT_CLTH [items,prices]
+	[[],[]],//LOOT_CAT_WEAP [items,prices]
+	[[],[]],//LOOT_CAT_ITEM [items,prices]
+	[[],[]] //LOOT_CAT_AMMO [items,prices]
 ];
 
 NWG_ISHOP_SER_EvaluateItem = {
@@ -72,19 +66,19 @@ NWG_ISHOP_SER_EvaluateItem = {
 	private _defaultPrice = 0;
 	switch (_itemType) do {
 		case LOOT_ITEM_TYPE_AMMO: {
-			_categoryIndex = CAT_AMMO;
+			_categoryIndex = LOOT_CAT_AMMO;
 			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_AMMO";
 		};
 		case LOOT_ITEM_TYPE_ITEM: {
-			_categoryIndex = CAT_ITEM;
+			_categoryIndex = LOOT_CAT_ITEM;
 			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_ITEM";
 		};
 		case LOOT_ITEM_TYPE_WEAP: {
-			_categoryIndex = CAT_WEAP;
+			_categoryIndex = LOOT_CAT_WEAP;
 			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_WEAP";
 		};
 		case LOOT_ITEM_TYPE_CLTH: {
-			_categoryIndex = CAT_CLTH;
+			_categoryIndex = LOOT_CAT_CLTH;
 			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_CLTH";
 		};
 		default {
@@ -115,10 +109,10 @@ NWG_ISHOP_SER_UpdatePrices = {
 
 	//Get category settings
 	private _settings = switch (_categoryIndex) do {
-		case CAT_CLTH: {NWG_ISHOP_SER_Settings get "PRICE_CLTH_SETTINGS"};
-		case CAT_WEAP: {NWG_ISHOP_SER_Settings get "PRICE_WEAP_SETTINGS"};
-		case CAT_ITEM: {NWG_ISHOP_SER_Settings get "PRICE_ITEM_SETTINGS"};
-		case CAT_AMMO: {NWG_ISHOP_SER_Settings get "PRICE_AMMO_SETTINGS"};
+		case LOOT_CAT_CLTH: {NWG_ISHOP_SER_Settings get "PRICE_CLTH_SETTINGS"};
+		case LOOT_CAT_WEAP: {NWG_ISHOP_SER_Settings get "PRICE_WEAP_SETTINGS"};
+		case LOOT_CAT_ITEM: {NWG_ISHOP_SER_Settings get "PRICE_ITEM_SETTINGS"};
+		case LOOT_CAT_AMMO: {NWG_ISHOP_SER_Settings get "PRICE_AMMO_SETTINGS"};
 		default {
 			(format["NWG_ISHOP_SER_UpdatePrices: Invalid category %1",_category]) call NWG_fnc_logError;
 			nil
@@ -217,10 +211,10 @@ NWG_ISHOP_SER_CheckPersistentItems = {
 	//foreach category
 	{
 		private _expected = switch (_forEachIndex) do {
-			case CAT_CLTH: {LOOT_ITEM_TYPE_CLTH};
-			case CAT_WEAP: {LOOT_ITEM_TYPE_WEAP};
-			case CAT_ITEM: {LOOT_ITEM_TYPE_ITEM};
-			case CAT_AMMO: {LOOT_ITEM_TYPE_AMMO};
+			case LOOT_CAT_CLTH: {LOOT_ITEM_TYPE_CLTH};
+			case LOOT_CAT_WEAP: {LOOT_ITEM_TYPE_WEAP};
+			case LOOT_CAT_ITEM: {LOOT_ITEM_TYPE_ITEM};
+			case LOOT_CAT_AMMO: {LOOT_ITEM_TYPE_AMMO};
 			default {""};
 		};
 
@@ -267,7 +261,7 @@ NWG_ISHOP_SER_OnShopRequest = {
 		} else {
 			_shopItems pushBack ((_persistentItems#_x) + (_dynamicItems#_x));
 		};
-	} forEach [CAT_CLTH,CAT_WEAP,CAT_ITEM,CAT_AMMO];
+	} forEach [LOOT_CAT_CLTH,LOOT_CAT_WEAP,LOOT_CAT_ITEM,LOOT_CAT_AMMO];
 
 	//Evaluate prices
 	private _allItems = _playerLoot + _shopItems;
@@ -333,10 +327,10 @@ NWG_ISHOP_SER_OnTransaction = {
 	{
 		_itemType = _x call NWG_fnc_icatGetItemType;
 		_categoryIndex = switch (_itemType) do {
-			case LOOT_ITEM_TYPE_AMMO: {CAT_AMMO};
-			case LOOT_ITEM_TYPE_ITEM: {CAT_ITEM};
-			case LOOT_ITEM_TYPE_WEAP: {CAT_WEAP};
-			case LOOT_ITEM_TYPE_CLTH: {CAT_CLTH};
+			case LOOT_ITEM_TYPE_AMMO: {LOOT_CAT_AMMO};
+			case LOOT_ITEM_TYPE_ITEM: {LOOT_CAT_ITEM};
+			case LOOT_ITEM_TYPE_WEAP: {LOOT_CAT_WEAP};
+			case LOOT_ITEM_TYPE_CLTH: {LOOT_CAT_CLTH};
 			default {-1};
 		};
 		if (_categoryIndex == -1) then {

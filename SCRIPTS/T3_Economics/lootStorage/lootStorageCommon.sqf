@@ -14,11 +14,9 @@ NWG_LS_COM_GetPlayerLoot = {
 NWG_LS_COM_SetPlayerLoot = {
     params ["_unit","_lootArray"];
 
-    if (isServer) then {
-        _unit setVariable ["NWG_LS_LootStorage",_lootArray];//Set for server
-        _unit setVariable ["NWG_LS_LootStorage",_lootArray,(owner _unit)];//Set for client
-    } else {
-        _unit setVariable ["NWG_LS_LootStorage",_lootArray];//Set for client
-        _unit setVariable ["NWG_LS_LootStorage",2];//Set for server
-    };
+    private _publicFlag = if (isServer)
+        then {owner _unit}/*Send to affected client*/
+        else {2};/*Send to server*/
+
+    _unit setVariable ["NWG_LS_LootStorage",_lootArray,_publicFlag];
 };

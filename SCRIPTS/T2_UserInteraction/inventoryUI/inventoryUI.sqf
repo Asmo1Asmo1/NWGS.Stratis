@@ -89,7 +89,7 @@ NWG_INVUI_UpdateWeight = {
 //Buttons
 NWG_INVUI_OnButtonLoot = {
     //Loot the container opened in inventory
-    private _ok = (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_lsLootOpenedContainer;
+    private _ok = (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_lsLootContainerByUI;
     if (_ok) then {
         (NWG_INVUI_Settings get "SOUND_BUTTON_LOOT") call NWG_INVUI_PlaySound;
     };

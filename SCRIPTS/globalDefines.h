@@ -13,6 +13,12 @@
 #define LOOT_ITEM_TYPE_ITEM "ITEM"  // Item
 #define LOOT_ITEM_TYPE_AMMO "AMMO"  // Ammo
 
+//Loot categories
+#define LOOT_CAT_CLTH 0
+#define LOOT_CAT_WEAP 1
+#define LOOT_CAT_ITEM 2
+#define LOOT_CAT_AMMO 3
+
 //Loot vehicles types
 #define LOOT_VEHC_TYPE_AAIR "AAIR"  // Anti-Air (EdSubcat_AAs)
 #define LOOT_VEHC_TYPE_APCS "APCS"  // Armored Personnel Carriers (EdSubcat_APCs)

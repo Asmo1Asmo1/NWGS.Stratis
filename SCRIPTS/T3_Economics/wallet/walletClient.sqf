@@ -7,6 +7,11 @@ NWG_WLT_Settings = createHashMapFromArray [
 
     ["INITIAL_MONEY",1000],//Initial amount of money a player has
 
+    ["MONEY_ADD_NOTIFY",true],//Notify player when money is added
+    ["MONEY_ADD_NOTIFY_SOUND","FD_Target_PopUp_Small_F"],//Sound to play when money is added
+    ["MONEY_SUB_NOTIFY",true],//Notify player when money is subtracted
+    ["MONEY_SUB_NOTIFY_SOUND","FD_Target_PopUp_Small_F"],//Sound to play when money is subtracted
+
     ["",0]
 ];
 
@@ -74,10 +79,23 @@ NWG_WLT_MoneyToString = {
 //Messaging
 NWG_WLT_NotifyMoneyChange = {
     params ["_player","_amount"];
-    [
-        (if (_amount >= 0) then {"#WLT_NOTIFY_MONEY_ADD#"} else {"#WLT_NOTIFY_MONEY_SUB#"}),
-        (_amount call NWG_WLT_MoneyToString)
-    ] call NWG_fnc_systemChatMe;
+
+    private _isAdd = _amount >= 0;
+    private ["_shouldNotify","_messageTemplate","_sound"];
+    if (_isAdd) then {
+        _shouldNotify = NWG_WLT_Settings get "MONEY_ADD_NOTIFY";
+        _messageTemplate = "#WLT_NOTIFY_MONEY_ADD#";
+        _sound = NWG_WLT_Settings get "MONEY_ADD_NOTIFY_SOUND";
+    } else {
+        _shouldNotify = NWG_WLT_Settings get "MONEY_SUB_NOTIFY";
+        _messageTemplate = "#WLT_NOTIFY_MONEY_SUB#";
+        _sound = NWG_WLT_Settings get "MONEY_SUB_NOTIFY_SOUND";
+    };
+
+    if (_shouldNotify) then {
+        [_messageTemplate,(_amount call NWG_WLT_MoneyToString)] call NWG_fnc_systemChatMe;
+        playSound _sound;
+    };
 };
 
 //================================================================================================================
