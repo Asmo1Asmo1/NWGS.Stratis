@@ -2,9 +2,23 @@
 
 //================================================================================================================
 //================================================================================================================
-//Settings (this time as defines - can not be changed in runtime anyway)
-#define INVISIBLE_BOX_TYPE "B_supplyCrate_F"
-#define CLOSE_INVENTORY_ON_LOOT true
+//Settings
+NWG_LS_CLI_Settings = createHashMapFromArray [
+    ["INVISIBLE_BOX_TYPE","B_supplyCrate_F"],//Classname of the object that will be used as a loot storage
+    ["CLOSE_INVENTORY_ON_LOOT",true],//Should the inventory be closed automatically when loot is taken
+
+    ["AUTO_SELL_LOOT",true],//Should the loot defined in the pricemap be automatically sold on moving to storage (+ on closing the storage just in case)
+    ["AUTO_SELL_ON_TAKE",true],//Should the loot be automatically sold when it is taken (uses 'Take' event handler)
+    ["AUTO_SELL_PRICE_MAP",createHashMapFromArray [
+        ["Money",7000],     /*Big pile of money*/
+        ["Money_bunch",150],/*Three $50 notes*/
+        ["Money_roll",1000],/*Money roll of $50 notes*/
+        ["Money_stack",2500]/*Money stack of $50 notes*/
+    ]],//Price map for the loot immediate sell without putting it into storage
+    ["AUTO_SELL_ADD_MONEY_FUNCTION",{_this call NWG_fnc_wltAddPlayerMoney}],//Function that adds money to the player params: [_player,_amount]
+
+    ["",0]
+];
 
 //================================================================================================================
 //================================================================================================================
@@ -16,6 +30,7 @@ NWG_LS_CLI_invisibleBox = objNull;
 //Init
 private _Init = {
     player addEventHandler ["InventoryClosed",{call NWG_LS_CLI_OnInventoryClose}];
+    player addEventHandler ["Take",{call NWG_LS_CLI_AutoSellOnTake}];
 };
 
 //================================================================================================================
@@ -25,7 +40,7 @@ NWG_LS_CLI_OpenMyStorage = {
     //Create new invisible box
     if (!isNull NWG_LS_CLI_invisibleBox)
         then {deleteVehicle NWG_LS_CLI_invisibleBox};
-    private _invisibleBox = createVehicleLocal [INVISIBLE_BOX_TYPE,player,[],0,"CAN_COLLIDE"];
+    private _invisibleBox = createVehicleLocal [(NWG_LS_CLI_Settings get "INVISIBLE_BOX_TYPE"),player,[],0,"CAN_COLLIDE"];
     _invisibleBox hideObject true;
     NWG_LS_CLI_invisibleBox = _invisibleBox;
 
@@ -72,13 +87,14 @@ NWG_LS_CLI_OnInventoryClose = {
     //Check if we closing the storage object
     if (isNull NWG_LS_CLI_invisibleBox) exitWith {};//Ignore if storage object does not exist
 
-    //Get loot records
-    private _playerLoot = player call NWG_fnc_lsGetPlayerLoot;
-    private _storageLoot = NWG_LS_CLI_invisibleBox call NWG_LS_CLI_ContainerItemsToLoot;
-    {_x call NWG_fnc_compactStringArray} forEach _storageLoot;//Compact the storage loot records
+    //Get storage loot
+    private _storageLoot = NWG_LS_CLI_invisibleBox call NWG_LS_CLI_GetAllContainerItems;
+    _storageLoot = _storageLoot call NWG_LS_CLI_AutoSell;//Auto sell (just in case something got there)
+    _storageLoot = _storageLoot call NWG_LS_CLI_ConvertToLoot;//Convert to loot structure
+    {_x call NWG_fnc_compactStringArray} forEach _storageLoot;//Compact storage loot structure
 
-    //Check if storage was modified
-    if (_storageLoot isNotEqualTo _playerLoot) then {
+    //Check if was modified
+    if (_storageLoot isNotEqualTo (player call NWG_fnc_lsGetPlayerLoot)) then {
         //Re-write the player loot based on what is left in the box
         [player,_storageLoot] call NWG_fnc_lsSetPlayerLoot;
     };
@@ -90,9 +106,9 @@ NWG_LS_CLI_OnInventoryClose = {
 //================================================================================================================
 //================================================================================================================
 //Looting utils
-//Converts container items into loot
-//returns: [[CLTH_array],[WEPN_array],[ITEM_array],[AMMO_array]]
-NWG_LS_CLI_ContainerItemsToLoot = {
+//Returns all container items uncompacted(works with both, the usual containers and units)
+//returns: array of strings
+NWG_LS_CLI_GetAllContainerItems = {
     private _container = _this;
     private _allContainerItems = [];
 
@@ -114,12 +130,12 @@ NWG_LS_CLI_ContainerItemsToLoot = {
             };
         } forEach [0,1,2];
 
-        //Loot weapons
-        private _cargo = (getWeaponCargo _container)#0;
-        private _wepns = weaponsItems _container;
-        _wepns = _wepns select {(_x#0) in _cargo};//Remove non-contained weapons (horn, etc.)
-        _wepns = (flatten _wepns) select {_x isEqualType "" && {_x isNotEqualTo ""}};//Flatten and filter
-        _allContainerItems append _wepns;
+        //Loot weapons with their attachments and magazines
+        private _weapCargoInfo = (getWeaponCargo _container)#0;//["weapon","weapon","weapon",...]
+        private _weapFullInfo = weaponsItems _container;//[["weapon","silencer","flashlight","optics",["mag",30],[],"bipod"],...]
+        _weapFullInfo = _weapFullInfo select {(_x#0) in _weapCargoInfo};//Remove non-containable weapons (horn, etc.)
+        _weapFullInfo = (flatten _weapFullInfo) select {_x isEqualType "" && {_x isNotEqualTo ""}};//Flatten and filter
+        _allContainerItems append _weapFullInfo;
     };
 
     //Get all items from the container
@@ -162,17 +178,24 @@ NWG_LS_CLI_ContainerItemsToLoot = {
     //Uncompact to array of strings
     _allContainerItems = _allContainerItems call NWG_fnc_unCompactStringArray;
 
-    //Convert to loot
+    //return
+    _allContainerItems
+};
+
+//Returns loot structure from array of strings (still uncompacted)
+NWG_LS_CLI_ConvertToLoot = {
+    // private _allContainerItems = _this;
+
     private _loot = [[],[],[],[]];
     {
         switch (_x call NWG_fnc_icatGetItemType) do {
-            case LOOT_ITEM_TYPE_CLTH: {(_loot#0) pushBack (_x call NWG_fnc_icatGetBaseBackpack)};
-            case LOOT_ITEM_TYPE_WEAP: {(_loot#1) pushBack (_x call NWG_fnc_icatGetBaseWeapon)};
-            case LOOT_ITEM_TYPE_ITEM: {(_loot#2) pushBack _x};
-            case LOOT_ITEM_TYPE_AMMO: {(_loot#3) pushBack _x};
+            case LOOT_ITEM_TYPE_CLTH: {(_loot#LOOT_CAT_CLTH) pushBack (_x call NWG_fnc_icatGetBaseBackpack)};
+            case LOOT_ITEM_TYPE_WEAP: {(_loot#LOOT_CAT_WEAP) pushBack (_x call NWG_fnc_icatGetBaseWeapon)};
+            case LOOT_ITEM_TYPE_ITEM: {(_loot#LOOT_CAT_ITEM) pushBack _x};
+            case LOOT_ITEM_TYPE_AMMO: {(_loot#LOOT_CAT_AMMO) pushBack _x};
         };
-    } forEach _allContainerItems;
-    _allContainerItems resize 0;//Clear
+    } forEach _this;
+    _this resize 0;//Clear
 
     //return
     _loot
@@ -197,9 +220,6 @@ NWG_LS_CLI_LootByInventoryUI = {
     disableSerialization;
     //params ["_unit","_mainContainer","_secdContainer"];
     params ["",["_mainContainer",objNull],["_secdContainer",objNull]];
-
-    //Check if we trying to loot the storage itself
-    if (!isNull NWG_LS_CLI_invisibleBox) exitWith {false};//Ignore if storage object exists (we're not looting it)
 
     //Get inventory display
     private _inventoryDisplay = findDisplay 602;
@@ -232,7 +252,7 @@ NWG_LS_CLI_LootByInventoryUI = {
     if (!_ok) exitWith {false};
 
     //Close the window
-    if (CLOSE_INVENTORY_ON_LOOT) then {
+    if (NWG_LS_CLI_Settings get "CLOSE_INVENTORY_ON_LOOT") then {
         (uiNamespace getVariable ["RscDisplayInventory", displayNull]) closeDisplay 2;
     };
 
@@ -241,44 +261,124 @@ NWG_LS_CLI_LootByInventoryUI = {
 };
 
 NWG_LS_CLI_LootByAction = {
-    //Get container loot
     private _container = _this;
-    private _loot = _container call NWG_LS_CLI_ContainerItemsToLoot;
-    private _flattenedLoot = flatten _loot;
-    if (_flattenedLoot isEqualTo []) exitWith {false};//Nothing to take
+
+    //Null check
+    if (isNull _container) exitWith {false};
+
+    //Check that we not trying to loot the storage itself (obviously forbidden)
+    if (!isNull NWG_LS_CLI_invisibleBox && {_container isEqualTo NWG_LS_CLI_invisibleBox}) exitWith {false};
+
+    //Check that we not trying to loot alive unit (also frowned upon)
+    private _i = [_container,(objectParent _container)] findIf {
+        !isNull _x && {
+        alive _x && {
+        _x isKindOf "Man" && {
+        _x isNotEqualTo player}}}
+    };
+    if (_i != -1) exitWith {false};
+
+    //Get container loot
+    private _allContainerItems = _container call NWG_LS_CLI_GetAllContainerItems;
+    if (_allContainerItems isEqualTo []) exitWith {false};//Nothing to take
+
+    //Auto sell (will remove sold items from the loot)
+    private _initialCount = count _allContainerItems;
+    _allContainerItems = _allContainerItems call NWG_LS_CLI_AutoSell;
+
+    //Define conditions for proceeding
+    private _mustClear = (count _allContainerItems) > 0 || {(count _allContainerItems) != _initialCount};
+    private _mustMerge = (count _allContainerItems) > 0;
+    if (!_mustClear && !_mustMerge) exitWith {false};//Nothing do here
+
+    //Convert to loot structure
+    private _loot = _allContainerItems call NWG_LS_CLI_ConvertToLoot;
 
     //Clear the container
-    if (_container isKindOf "Man") then {
-        //We were looting the body of a unit
-        private _uniform = uniform _container;//Get current uniform
-        if (_uniform isNotEqualTo "" && {_flattenedLoot isNotEqualTo [_uniform]}) then {
-            //If there was a uniform and it is not the only thing left
-            _container setUnitLoadout [[],[],[],[_uniform,[]],[],[],"","",[],["","","","","",""]];//Leave only the uniform
-            (_loot#0) deleteAt ((_loot#0) find _uniform);//Remove uniform from loot (we're not taking it)
+    if (_mustClear) then {
+        if (_container isKindOf "Man") then {
+            //We were looting the body of a unit
+            private _uniform = uniform _container;//Get current uniform
+            if (_uniform isNotEqualTo "" && {_flattenedLoot isNotEqualTo [_uniform]}) then {
+                //If there was a uniform and it is not the only thing left
+                _container setUnitLoadout [[],[],[],[_uniform,[]],[],[],"","",[],["","","","","",""]];//Leave only the uniform
+                (_loot#LOOT_CAT_CLTH) deleteAt ((_loot#LOOT_CAT_CLTH) find _uniform);//Remove uniform from loot (we're not taking it)
+            } else {
+                _container setUnitLoadout (configFile >> "EmptyLoadout");//Clear the inventory completely
+            };
+            //Delete weapons from weapon holders
+            {deleteVehicle _x} forEach (_container call NWG_LS_CLI_GetDeadUnitWeaponHolders);
         } else {
-            _container setUnitLoadout (configFile >> "EmptyLoadout");//Clear the inventory completely
+            //We were looting regular container (box/vehicle)
+            clearBackpackCargoGlobal _container;
+            clearItemCargoGlobal _container;
+            clearMagazineCargoGlobal _container;
+            clearWeaponCargoGlobal _container;
         };
-        //Delete weapons from weapon holders
-        {deleteVehicle _x} forEach (_container call NWG_LS_CLI_GetDeadUnitWeaponHolders);
-    } else {
-        //We were looting regular container (box/vehicle)
-        clearBackpackCargoGlobal _container;
-        clearItemCargoGlobal _container;
-        clearMagazineCargoGlobal _container;
-        clearWeaponCargoGlobal _container;
     };
 
     //Append to player loot storage
-    private _playerLoot = player call NWG_fnc_lsGetPlayerLoot;
-    {
-        _x call NWG_fnc_unCompactStringArray;//Uncompact
-        _x append (_loot#_forEachIndex);//Append
-        _x call NWG_fnc_compactStringArray;//Compact
-    } forEach _playerLoot;
-    [player,_playerLoot] call NWG_fnc_lsSetPlayerLoot;//Save
+    if (_mustMerge) then {
+        private _playerLoot = player call NWG_fnc_lsGetPlayerLoot;
+        {
+            _x call NWG_fnc_unCompactStringArray;//Uncompact
+            _x append (_loot#_forEachIndex);//Append
+            _x call NWG_fnc_compactStringArray;//Compact
+        } forEach _playerLoot;
+        [player,_playerLoot] call NWG_fnc_lsSetPlayerLoot;//Save
+    };
 
     //return
     true
+};
+
+//================================================================================================================
+//================================================================================================================
+//Auto sell logic
+NWG_LS_CLI_AutoSell = {
+    // private _allLootItems = _this;
+
+    //Check settings
+    if !(NWG_LS_CLI_Settings get "AUTO_SELL_LOOT") exitWith {_this};
+
+    //Prepare variables
+    private _priceMap = NWG_LS_CLI_Settings get "AUTO_SELL_PRICE_MAP";
+    private _price = 0;
+    private _sum = 0;
+
+    //Iterate over all loot items
+    {
+        _price = _priceMap getOrDefault [_x,0];
+        if (_price != 0) then {
+            _sum = _sum + _price;//Add to sum
+            _this deleteAt _forEachIndex;//Remove from loot
+        };
+    } forEachReversed _this;
+
+    //Add money to player
+    if (_sum != 0) then {
+        [player,_sum] call (NWG_LS_CLI_Settings get "AUTO_SELL_ADD_MONEY_FUNCTION");
+    };
+
+    //return
+    _this
+};
+
+NWG_LS_CLI_AutoSellOnTake = {
+    // params ["_player","_container","_item"];
+    private _item = _this param [2,""];
+
+    //Check settings
+    if !(NWG_LS_CLI_Settings get "AUTO_SELL_LOOT") exitWith {};
+    if !(NWG_LS_CLI_Settings get "AUTO_SELL_ON_TAKE") exitWith {};
+
+    //Get price
+    private _price = (NWG_LS_CLI_Settings get "AUTO_SELL_PRICE_MAP") getOrDefault [_item,0];
+    if (_price == 0) exitWith {};//No price found
+
+    //Remove item and add money
+    player removeItem _item;
+    [player,_price] call (NWG_LS_CLI_Settings get "AUTO_SELL_ADD_MONEY_FUNCTION");
 };
 
 //================================================================================================================

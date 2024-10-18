@@ -3,7 +3,16 @@
 //params: _storageObject - object
 NWG_fnc_lsSetLootStorageObject = {
     // private _storageObject = _this;
-    _this call NWG_LS_SER_SetStorageObject;
+    if !(_this isEqualType objNull) exitWith {
+        "NWG_fnc_lsSetLootStorageObject: Invalid storage object" call NWG_fnc_logError;
+    };
+    if (isNull _this) exitWith {
+        "NWG_fnc_lsSetLootStorageObject: Storage object is null" call NWG_fnc_logError;
+    };
+
+    if (isServer)
+        then {_this call NWG_LS_SER_SetStorageObject}
+        else {_this remoteExec ["NWG_fnc_lsSetLootStorageObject",2]};
 };
 
 /*UI->Client*/
@@ -11,7 +20,7 @@ NWG_fnc_lsSetLootStorageObject = {
 //params: "InventoryOpened" event args: ["_unit","_mainContainer","_secdContainer"];
 //note: this function must be called from within the inventory UI
 //returns: boolean - true if looting was successful, false if not
-NWG_fnc_lsLootOpenedContainer = {
+NWG_fnc_lsLootContainerByUI = {
     // params ["_unit","_mainContainer","_secdContainer"];
     _this call NWG_LS_CLI_LootByInventoryUI
 };
@@ -23,6 +32,15 @@ NWG_fnc_lsLootOpenedContainer = {
 // each element is an array of items and optionsl counts: ["item1",countOfItem2,"item2",...]
 NWG_fnc_lsGetPlayerLoot = {
     // private _player = _this;
+    if !(_this isEqualType objNull) exitWith {
+        "NWG_fnc_lsGetPlayerLoot: Invalid player" call NWG_fnc_logError;
+        [[],[],[],[]]
+    };
+    if (isNull _this) exitWith {
+        "NWG_fnc_lsGetPlayerLoot: Player is null" call NWG_fnc_logError;
+        [[],[],[],[]]
+    };
+
     _this call NWG_LS_COM_GetPlayerLoot;
 };
 
@@ -30,6 +48,16 @@ NWG_fnc_lsGetPlayerLoot = {
 //params: _player - object
 //params: _loot - array
 NWG_fnc_lsSetPlayerLoot = {
-    // params ["_player","_loot"];
+    params ["_player","_loot"];
+    if !(_player isEqualType objNull) exitWith {
+        "NWG_fnc_lsSetPlayerLoot: Invalid player" call NWG_fnc_logError;
+    };
+    if (isNull _player) exitWith {
+        "NWG_fnc_lsSetPlayerLoot: Player is null" call NWG_fnc_logError;
+    };
+    if !(_loot isEqualType []) exitWith {
+        "NWG_fnc_lsSetPlayerLoot: Invalid loot" call NWG_fnc_logError;
+    };
+
     _this call NWG_LS_COM_SetPlayerLoot;
 };

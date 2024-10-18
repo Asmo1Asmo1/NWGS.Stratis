@@ -57,3 +57,14 @@ NWG_INVUI_GetAllSounds = {
     "Orange_Lights_On"//Switch
     "Orange_Lights_Off"//Switch
 */
+
+/*
+    Money candidate sounds:
+    "FD_Target_PopUp_Small_F"
+    "soundExpand"
+    "soundCollapse"
+    "click"
+    "ClickSoft"
+    "WeaponRestedOn"
+    "WeaponRestedOff"
+*/

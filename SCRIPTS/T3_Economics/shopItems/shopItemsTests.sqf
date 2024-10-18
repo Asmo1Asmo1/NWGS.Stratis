@@ -58,10 +58,10 @@ NWG_ISHOP_PricesLifetime_Simulation = {
 	//Clear cache and prices
 	NWG_ISHOP_itemsInfoCache = createHashMap;//[_categoryIndex,_itemIndex]
 	NWG_ISHOP_itemsPriceChart = [
-		[[],[]],//CAT_CLTH [items,prices]
-		[[],[]],//CAT_WEAP [items,prices]
-		[[],[]],//CAT_ITEM [items,prices]
-		[[],[]] //CAT_AMMO [items,prices]
+		[[],[]],//LOOT_CAT_CLTH [items,prices]
+		[[],[]],//LOOT_CAT_WEAP [items,prices]
+		[[],[]],//LOOT_CAT_ITEM [items,prices]
+		[[],[]] //LOOT_CAT_AMMO [items,prices]
 	];
 
 	//Prepare operations selection

@@ -70,8 +70,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //vehOwnership
     ["#VEHOWN_MESSAGE_OWNER#","Владелец: %1"],
     //wallet
-    ["#WLT_NOTIFY_MONEY_ADD#","Деньги: +%1"],
-    ["#WLT_NOTIFY_MONEY_SUB#","Деньги: %1"],
+    ["#WLT_NOTIFY_MONEY_ADD#","[Деньги:  +%1]"],
+    ["#WLT_NOTIFY_MONEY_SUB#","[Деньги:  %1]"],
 
     ["",""]
 ];
