@@ -33,7 +33,8 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
 	["SHOP_CHECK_PERSISTENT_ITEMS",true],//Each interaction check validity of persistent items
 	["SHOP_SKIP_SENDING_PLAYER_LOOT",true],//If you're using 'lootStorage' module, player loot is already synchronized between players and server
 	["SHOP_GET_PLAYER_LOOT_FUNC",{_this call NWG_fnc_lsGetPlayerLoot}],//Function that returns player loot
-	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",0.33],//Chance that item will be added to dynamic items when bought from player
+	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",0.5],//Chance that item will be added to dynamic items when bought from player
+	["SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE",1],//Chance that item will be removed from dynamic items when sold to player
 
 	["",0]
 ];
@@ -286,7 +287,8 @@ NWG_ISHOP_SER_OnShopRequest = {
 
 NWG_ISHOP_SER_OnTransaction = {
 	params ["_itemsSoldToPlayer","_itemsBoughtFromPlayer"];
-	//Update prices
+
+	/* ==Update prices== */
 	private _updatePrices = {
 		params ["_items","_isSoldToPlayer"];
 		private _quantity = 1;
@@ -305,49 +307,52 @@ NWG_ISHOP_SER_OnTransaction = {
 			};
 		} forEach _items;
 	};
-
-	//Update prices for items sold to player
 	[_itemsSoldToPlayer,true] call _updatePrices;
-	//Update prices for items bought from player
 	[_itemsBoughtFromPlayer,false] call _updatePrices;
 
-	//Select items bought from player to add them to dynamic items
-	private _chance = ((NWG_ISHOP_SER_Settings get "SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE") max 0) min 1;
-	private _itemsToAdd = switch (_chance) do {
-		case 0: {[]};
-		case 1: {(_itemsBoughtFromPlayer + []) call NWG_fnc_unCompactStringArray};
-		default {((_itemsBoughtFromPlayer + []) call NWG_fnc_unCompactStringArray) select {(random 1) <= _chance}};
-	};
-	if (_itemsToAdd isEqualTo []) exitWith {};//<== EXIT IF NO ITEMS TO ADD
 
-	//Add items to dynamic items
-	private _itemsToAddCategorized = [[],[],[],[]];
-	private ["_itemType","_categoryIndex"];
-	//foreach flat itemsToAdd - categorize
-	{
-		_itemType = _x call NWG_fnc_icatGetItemType;
-		_categoryIndex = switch (_itemType) do {
-			case LOOT_ITEM_TYPE_AMMO: {LOOT_CAT_AMMO};
-			case LOOT_ITEM_TYPE_ITEM: {LOOT_CAT_ITEM};
-			case LOOT_ITEM_TYPE_WEAP: {LOOT_CAT_WEAP};
-			case LOOT_ITEM_TYPE_CLTH: {LOOT_CAT_CLTH};
-			default {-1};
+	/* ==Prepare script for categorization== */
+	private _getCategorizedItemsToProcess = {
+		params ["_items","_chanceName"];
+		if ((count _items) == 0) exitWith {[]};
+
+		private _chance = ((NWG_ISHOP_SER_Settings get _chanceName) max 0) min 1;
+		_items = switch (_chance) do {
+			case 0: {[]};
+			case 1: {(_items + []) call NWG_fnc_unCompactStringArray};
+			default {((_items + []) call NWG_fnc_unCompactStringArray) select {(random 1) <= _chance}};
 		};
-		if (_categoryIndex == -1) then {
-			(format["NWG_ISHOP_SER_OnTransaction: Invalid item type '%1'-'%2'",_x,_itemType]) call NWG_fnc_logError;
-			continue;
-		};
-		(_itemsToAddCategorized#_categoryIndex) pushBack _x;
-	} forEach _itemsToAdd;
+		if ((count _items) == 0) exitWith {[]};
+
+		private _itemsCategorized = [[],[],[],[]];
+		private ["_itemType","_categoryIndex"];
+		{
+			_itemType = _x call NWG_fnc_icatGetItemType;
+			_categoryIndex = switch (_itemType) do {
+				case LOOT_ITEM_TYPE_AMMO: {LOOT_CAT_AMMO};
+				case LOOT_ITEM_TYPE_ITEM: {LOOT_CAT_ITEM};
+				case LOOT_ITEM_TYPE_WEAP: {LOOT_CAT_WEAP};
+				case LOOT_ITEM_TYPE_CLTH: {LOOT_CAT_CLTH};
+				default {-1};
+			};
+			if (_categoryIndex == -1) then {
+				(format["NWG_ISHOP_SER_OnTransaction: Invalid item type '%1'-'%2'",_x,_itemType]) call NWG_fnc_logError;
+				continue;
+			};
+			(_itemsCategorized#_categoryIndex) pushBack _x;
+		} forEach _items;
+
+		{_x call NWG_fnc_compactStringArray} forEach _itemsCategorized;
+
+		//return
+		_itemsCategorized
+	};
+
+
+	/* ==Add dynamic items== */
 	//foreach category of itemsToAdd
 	{
-		//Check if nothing to add - skip
-		if ((count _x) == 0) then {
-			continue;
-		};
-
-		//Compact array
-		_x call NWG_fnc_compactStringArray;
+		if ((count _x) == 0) then {continue};
 
 		//Check if nothing was stored - replace
 		if ((count (NWG_ISHOP_SER_dynamicItems#_forEachIndex)) == 0) then {
@@ -360,5 +365,40 @@ NWG_ISHOP_SER_OnTransaction = {
 			_forEachIndex,
 			([(NWG_ISHOP_SER_dynamicItems#_forEachIndex),_x] call NWG_fnc_mergeCompactedStringArrays)
 		];
-	} forEach _itemsToAddCategorized;
+	} forEach ([_itemsBoughtFromPlayer,"SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE"] call _getCategorizedItemsToProcess);
+
+
+	/* ==Remove dynamic items== */
+	//foreach category of itemsToRemove
+	private ["_removeArray","_removeCount","_existingArray","_existingCount","_i","_remainingCount"];
+	{
+		_removeArray = _x;
+		if ((count _removeArray) == 0) then {continue};
+
+		_existingArray = NWG_ISHOP_SER_dynamicItems#_forEachIndex;
+		if ((count _existingArray) == 0) then {continue};
+
+		//foreach item in removeArray
+		_removeCount = 1;//Init
+		{
+			if (_x isEqualType 1) then {_removeCount = _x; continue};
+
+			_i = _existingArray find _x;
+			if (_i == -1) then {continue};//Item not found (could happen if 2 or more players report at the same time or if persistent items were sold)
+
+			_existingCount = _existingArray param [(_i-1),false];
+			_remainingCount = if (_existingCount isEqualType 1)
+				then {_existingCount - _removeCount}
+				else {0};
+			_removeCount = 1;//Reset
+
+			switch (true) do {
+				case (_existingCount isEqualTo false): {_existingArray deleteAt _i};//_i points to first element of array and we need to remove at least one element
+				case (_existingCount isEqualType ""): {_existingArray deleteAt _i};//_i points to element without count (so its count is '1') and we need to remove at least one element
+				case (_remainingCount <= 0): {_existingArray deleteAt _i; _existingArray deleteAt (_i-1)};//Remove >=all elements - remove element itself and its count
+				case (_remainingCount == 1): {_existingArray deleteAt (_i-1)};//Remove only count of the element (so its count becomes '1')
+				default {_existingArray set [(_i-1),_remainingCount]};//Decrease count
+			};
+		} forEach _removeArray;
+	} forEach ([_itemsSoldToPlayer,"SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE"] call _getCategorizedItemsToProcess);
 };
