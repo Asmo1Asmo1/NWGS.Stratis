@@ -26,13 +26,13 @@ NWG_LS_MMC_OnMissionStateChanged = {
         /* Base Loot Storage Init */
         case MSTATE_BASE_ECONOMY: {
             //Initialize loot storage at player base
-            (call NWG_fnc_mmGetPlayerBase) params ["","_baseDecor"];
+            (call NWG_fnc_mmGetPlayerBase) params ["",["_baseDecor",[]]];
             if !(_baseDecor isEqualType []) exitWith {
                 (format ["NWG_LS_MMC_OnMissionStateChanged: Invalid base decor '%1'",(typeOf _baseDecor)]) call NWG_fnc_logError;
             };
             _baseDecor = flatten _baseDecor;
             if (_baseDecor isEqualTo []) exitWith {
-                "NWG_LS_MMC_OnMissionStateChanged: Base decor not found" call NWG_fnc_logError;
+                "NWG_LS_MMC_OnMissionStateChanged: Base decor is empty" call NWG_fnc_logError;
             };
 
             private _lootStorageClassname = NWG_LS_MMC_Settings get "LOOT_STORAGE_OBJECT";
@@ -41,7 +41,7 @@ NWG_LS_MMC_OnMissionStateChanged = {
             };
 
             private _i = _baseDecor findIf {(typeOf _x) isEqualTo _lootStorageClassname};
-            if (_i isEqualTo -1) exitWith {
+            if (_i == -1) exitWith {
                 "NWG_LS_MMC_OnMissionStateChanged: Loot storage not found in base decor" call NWG_fnc_logError;
             };
 
