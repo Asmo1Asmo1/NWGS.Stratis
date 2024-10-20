@@ -357,15 +357,14 @@ NWG_VSHOP_SER_OnShopRequest = {
 	//Get dynamic shop items
 	private _dynamicItems = NWG_VSHOP_SER_dynamicItems;//No need to check since we are the ones who update it
 
-	//Merge shop items
+	//Merge shop items (omitting count)
 	private _shopItems = [];
+    private _toAdd = [];
 	{
-		if ( ((count (_persistentItems#_x)) > 0) && {(count (_dynamicItems#_x)) > 0}) then {
-			_shopItems pushBack ([(_persistentItems#_x),(_dynamicItems#_x)] call NWG_fnc_mergeCompactedStringArrays);
-		} else {
-			_shopItems pushBack ((_persistentItems#_x) + (_dynamicItems#_x));
-		};
-	} forEach [
+        _toAdd = ((_persistentItems#_x) + (_dynamicItems#_x)) select {_x isEqualType ""};
+        _toAdd = _toAdd arrayIntersect _toAdd;//Remove duplicates
+        _shopItems set [_x,_toAdd];
+    } forEach [
         LOOT_VEHC_CAT_AAIR,
         LOOT_VEHC_CAT_APCS,
         LOOT_VEHC_CAT_ARTY,
@@ -381,7 +380,7 @@ NWG_VSHOP_SER_OnShopRequest = {
 	//Evaluate prices
 	private _allItems = _ownedVehicles + _shopItems;
 	_allItems = (flatten _allItems) select {_x isEqualType ""};
-	_allItems = _allItems arrayIntersect _allItems;//Remove dublicates
+	_allItems = _allItems arrayIntersect _allItems;//Remove duplicates
 
 	//Evaluate prices
 	private _allPrices = _allItems apply {_x call NWG_VSHOP_SER_EvaluateVeh};

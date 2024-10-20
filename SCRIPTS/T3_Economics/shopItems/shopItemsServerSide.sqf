@@ -286,7 +286,7 @@ NWG_ISHOP_SER_OnShopRequest = {
 	//Evaluate prices
 	private _allItems = _playerLoot + _shopItems;
 	_allItems = (flatten _allItems) select {_x isEqualType ""};
-	_allItems = _allItems arrayIntersect _allItems;//Remove dublicates
+	_allItems = _allItems arrayIntersect _allItems;//Remove duplicates
 
 	//Evaluate prices
 	private _allPrices = _allItems apply {_x call NWG_ISHOP_SER_EvaluateItem};
