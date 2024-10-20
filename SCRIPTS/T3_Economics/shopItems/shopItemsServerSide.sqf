@@ -178,7 +178,7 @@ NWG_ISHOP_SER_UploadPrices = {
 
 //================================================================================================================
 //================================================================================================================
-//Shop
+//Dynamic items
 
 //Items that are added on top of persistent items
 NWG_ISHOP_SER_dynamicItems = [
@@ -188,27 +188,42 @@ NWG_ISHOP_SER_dynamicItems = [
 	[]
 ];
 
-NWG_ISHOP_SER_prevPersistentItems = [];
-NWG_ISHOP_SER_prevPersistentItemsCheckResult = true;
-NWG_ISHOP_SER_CheckPersistentItems = {
-	// private _persistentItems = _this;
+NWG_ISHOP_SER_DownloadDynamicItems = {
+	//return
+	NWG_ISHOP_SER_dynamicItems
+};
 
-	//Check settings
-	if !(NWG_ISHOP_SER_Settings get "SHOP_CHECK_PERSISTENT_ITEMS") exitWith {true};
+NWG_ISHOP_SER_UploadDynamicItems = {
+	private _dynamicItems = _this;
+	if !(_dynamicItems call NWG_ISHOP_SER_ValidateItemsChart) exitWith {
+		(format["NWG_ISHOP_SER_UploadDynamicItems: Invalid dynamic shop items format"]) call NWG_fnc_logError;
+		false
+	};
+	NWG_ISHOP_SER_dynamicItems = _dynamicItems;
+	true
+};
 
-	//Check if persistent items changed since last check (settings were updated)
-	if (_this isEqualTo NWG_ISHOP_SER_prevPersistentItems) exitWith {NWG_ISHOP_SER_prevPersistentItemsCheckResult};
-	NWG_ISHOP_SER_prevPersistentItems = _this;
+//================================================================================================================
+//================================================================================================================
+//Items chart validation
+NWG_ISHOP_SER_cachedValidateRequest = [];
+NWG_ISHOP_SER_cachedValidateResponse = true;
+NWG_ISHOP_SER_ValidateItemsChart = {
+	// private _itemsChart = _this;
+
+	//Check cache
+	if (_this isEqualTo NWG_ISHOP_SER_cachedValidateRequest) exitWith {NWG_ISHOP_SER_cachedValidateResponse};
+	NWG_ISHOP_SER_cachedValidateRequest = _this;
 
 	//Check overall structure
 	if !(_this isEqualTypeParams [[],[],[],[]]) exitWith {
-		(format["NWG_ISHOP_SER_CheckPersistentItems: Invalid persistent shop items format"]) call NWG_fnc_logError;
-		NWG_ISHOP_SER_prevPersistentItemsCheckResult = false;
+		(format["NWG_ISHOP_SER_ValidateItemsChart: Invalid items format"]) call NWG_fnc_logError;
+		NWG_ISHOP_SER_cachedValidateResponse = false;
 		false;
 	};
 
 	//Check that each element is of correct type
-	private _ok = true;
+	private _validationResult = true;
 	//foreach category
 	{
 		private _expected = switch (_forEachIndex) do {
@@ -222,18 +237,20 @@ NWG_ISHOP_SER_CheckPersistentItems = {
 		//foreach item in category
 		{
 			if (_x isEqualType "" && {(_x call NWG_fnc_icatGetItemType) isNotEqualTo _expected}) then {
-				(format["NWG_ISHOP_SER_CheckPersistentItems: Invalid persistent item '%1'. Expected: '%2', Actual: '%3'",_x,_expected,(_x call NWG_fnc_icatGetItemType)]) call NWG_fnc_logError;
-				_ok = false;
+				(format["NWG_ISHOP_SER_ValidateItemsChart: Invalid item '%1'. Expected: '%2', Actual: '%3'",_x,_expected,(_x call NWG_fnc_icatGetItemType)]) call NWG_fnc_logError;
+				_validationResult = false;
 			};
 		} forEach _x;
 	} forEach _this;
 
-	//Save
-	NWG_ISHOP_SER_prevPersistentItemsCheckResult = _ok;
-
-	//return
-	_ok
+	//Save and return
+	NWG_ISHOP_SER_cachedValidateResponse = _validationResult;
+	_validationResult
 };
+
+//================================================================================================================
+//================================================================================================================
+//Shop
 
 NWG_ISHOP_SER_OnShopRequest = {
 	private _player = _this;
@@ -246,9 +263,11 @@ NWG_ISHOP_SER_OnShopRequest = {
 
 	//Get persistent shop items
 	private _persistentItems = NWG_ISHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
-	if !(_persistentItems call NWG_ISHOP_SER_CheckPersistentItems) then {
-		(format["NWG_ISHOP_SER_OnShopRequest: Invalid persistent shop items"]) call NWG_fnc_logError;
-		_persistentItems = [[],[],[],[]];//<== Use empty items
+	if (NWG_ISHOP_SER_Settings get "SHOP_CHECK_PERSISTENT_ITEMS") then {
+		if !(_persistentItems call NWG_ISHOP_SER_ValidateItemsChart) then {
+			(format["NWG_ISHOP_SER_OnShopRequest: Invalid persistent shop items"]) call NWG_fnc_logError;
+			_persistentItems = [[],[],[],[]];//<== Use empty items
+		};
 	};
 
 	//Get dynamic shop items

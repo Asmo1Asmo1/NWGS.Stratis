@@ -63,20 +63,23 @@ NWG_VSHOP_SER_Settings = createHashMapFromArray [
 	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",1],//Chance that item will be added to dynamic items when bought from player
 	["SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE",0],//Chance that item will be removed from dynamic items when sold to player
 
+    ["SPAWN_PLATFORM_FUNC",{_this call NWG_fnc_spwnSpawnVehicleExact}],//Function to use for spawn on the platform. params ["_classname","_pos","_dir"]
+
 	["",0]
 ];
 
 //================================================================================================================
 //================================================================================================================
 //Fields
-NWG_VSHOP_SER_spawnPlatform = objNull;
+NWG_VSHOP_spawnPlatform = objNull;
 
 //================================================================================================================
 //================================================================================================================
 //Setup spawn platform object
 NWG_VSHOP_SER_SetSpawnPlatformObject = {
     // private _spawnPlatform = _this;
-    NWG_VSHOP_SER_spawnPlatform = _this;
+    NWG_VSHOP_spawnPlatform = _this;
+    publicVariable "NWG_VSHOP_spawnPlatform";
 };
 
 //================================================================================================================
@@ -168,7 +171,7 @@ NWG_VSHOP_SER_EvaluateVeh = {
 };
 
 NWG_VSHOP_SER_UpdatePrices = {
-	params ["_veh","_isSoldToPlayer"];
+	params ["_veh","_quantity","_isSoldToPlayer"];
 
 	//Get item info
 	private _cachedInfo = NWG_VSHOP_SER_vehsInfoCache get _veh;
@@ -214,8 +217,8 @@ NWG_VSHOP_SER_UpdatePrices = {
 
 	//Process the update
 	private _priceChart = (NWG_VSHOP_SER_vehsPriceChart select _categoryIndex) select CHART_PRICES;
-	private _activeMultiplier = 1 + _activeFactor;
-	private _passiveMultiplier = 1 + _passiveFactor;
+	private _activeMultiplier = 1 + (_activeFactor*_quantity);
+	private _passiveMultiplier = 1 + (_passiveFactor*_quantity);
 	//Process passive multipliers (overlap with active item is accepted)
 	{_priceChart set [_forEachIndex,(((_x*_passiveMultiplier) max _priceMin) min _priceMax)]} forEach _priceChart;
 	//Process active multiplier
@@ -250,4 +253,303 @@ NWG_VSHOP_SER_UploadPrices = {
 
 	//return
 	true
+};
+
+//================================================================================================================
+//================================================================================================================
+//Dynamic items
+
+//Vehicles that are added on top of persistent items
+NWG_VSHOP_SER_dynamicItems = [
+	[],/*AAIR*/
+	[],/*APCS*/
+	[],/*ARTY*/
+	[],/*BOAT*/
+	[],/*CARS*/
+	[],/*DRON*/
+	[],/*HELI*/
+	[],/*PLAN*/
+	[],/*SUBM*/
+	[]/*TANK*/
+];
+
+NWG_VSHOP_SER_DownloadDynamicItems = {
+	//return
+	NWG_VSHOP_SER_dynamicItems
+};
+
+NWG_VSHOP_SER_UploadDynamicItems = {
+	private _dynamicItems = _this;
+	if !(_dynamicItems call NWG_VSHOP_SER_ValidateItemsChart) exitWith {
+		(format["NWG_VSHOP_SER_UploadDynamicItems: Invalid dynamic shop items format"]) call NWG_fnc_logError;
+		false
+	};
+	NWG_VSHOP_SER_dynamicItems = _dynamicItems;
+	true
+};
+
+//================================================================================================================
+//================================================================================================================
+//Items chart validation
+NWG_VSHOP_SER_cachedValidateRequest = [];
+NWG_VSHOP_SER_cachedValidateResponse = true;
+NWG_VSHOP_SER_ValidateItemsChart = {
+	// private _itemsChart = _this;
+
+	//Check cache
+	if (_this isEqualTo NWG_VSHOP_SER_cachedValidateRequest) exitWith {NWG_VSHOP_SER_cachedValidateResponse};
+	NWG_VSHOP_SER_cachedValidateRequest = _this;
+
+	//Check overall structure
+	if !(_this isEqualTypeParams [[],[],[],[],[],[],[],[],[],[]]) exitWith {
+		(format["NWG_VSHOP_SER_ValidateItemsChart: Invalid items format"]) call NWG_fnc_logError;
+		NWG_VSHOP_SER_cachedValidateResponse = false;
+		false;
+	};
+
+	//Check that each element is of correct type
+	private _validationResult = true;
+	//foreach category
+	{
+		private _expected = switch (_forEachIndex) do {
+			case LOOT_VEHC_CAT_AAIR: {LOOT_VEHC_TYPE_AAIR};
+			case LOOT_VEHC_CAT_APCS: {LOOT_VEHC_TYPE_APCS};
+			case LOOT_VEHC_CAT_ARTY: {LOOT_VEHC_TYPE_ARTY};
+			case LOOT_VEHC_CAT_BOAT: {LOOT_VEHC_TYPE_BOAT};
+			case LOOT_VEHC_CAT_CARS: {LOOT_VEHC_TYPE_CARS};
+			case LOOT_VEHC_CAT_DRON: {LOOT_VEHC_TYPE_DRON};
+			case LOOT_VEHC_CAT_HELI: {LOOT_VEHC_TYPE_HELI};
+			case LOOT_VEHC_CAT_PLAN: {LOOT_VEHC_TYPE_PLAN};
+			case LOOT_VEHC_CAT_SUBM: {LOOT_VEHC_TYPE_SUBM};
+			case LOOT_VEHC_CAT_TANK: {LOOT_VEHC_TYPE_TANK};
+			default {""};
+		};
+
+		//foreach item in category
+		{
+			if (_x isEqualType "" && {(_x call NWG_fnc_vcatGetVehcType) isNotEqualTo _expected}) then {
+				(format["NWG_VSHOP_SER_ValidateItemsChart: Invalid item '%1'. Expected: '%2', Actual: '%3'",_x,_expected,(_x call NWG_fnc_vcatGetVehcType)]) call NWG_fnc_logError;
+				_validationResult = false;
+			};
+		} forEach _x;
+	} forEach _this;
+
+	//Save and return
+	NWG_VSHOP_SER_cachedValidateResponse = _validationResult;
+	_validationResult
+};
+
+//================================================================================================================
+//================================================================================================================
+//Shop
+NWG_VSHOP_SER_OnShopRequest = {
+	params ["_player","_ownedVehicles"];
+
+	//Get persistent shop items
+	private _persistentItems = NWG_VSHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
+	if (NWG_VSHOP_SER_Settings get "SHOP_CHECK_PERSISTENT_ITEMS") then {
+		if !(_persistentItems call NWG_VSHOP_SER_ValidateItemsChart) then {
+			(format["NWG_VSHOP_SER_OnShopRequest: Invalid persistent shop items"]) call NWG_fnc_logError;
+			_persistentItems = [[],[],[],[],[],[],[],[],[],[]];//<== Use empty items
+		};
+	};
+
+	//Get dynamic shop items
+	private _dynamicItems = NWG_VSHOP_SER_dynamicItems;//No need to check since we are the ones who update it
+
+	//Merge shop items
+	private _shopItems = [];
+	{
+		if ( ((count (_persistentItems#_x)) > 0) && {(count (_dynamicItems#_x)) > 0}) then {
+			_shopItems pushBack ([(_persistentItems#_x),(_dynamicItems#_x)] call NWG_fnc_mergeCompactedStringArrays);
+		} else {
+			_shopItems pushBack ((_persistentItems#_x) + (_dynamicItems#_x));
+		};
+	} forEach [
+        LOOT_VEHC_CAT_AAIR,
+        LOOT_VEHC_CAT_APCS,
+        LOOT_VEHC_CAT_ARTY,
+        LOOT_VEHC_CAT_BOAT,
+        LOOT_VEHC_CAT_CARS,
+        LOOT_VEHC_CAT_DRON,
+        LOOT_VEHC_CAT_HELI,
+        LOOT_VEHC_CAT_PLAN,
+        LOOT_VEHC_CAT_SUBM,
+        LOOT_VEHC_CAT_TANK
+    ];
+
+	//Evaluate prices
+	private _allItems = _ownedVehicles + _shopItems;
+	_allItems = (flatten _allItems) select {_x isEqualType ""};
+	_allItems = _allItems arrayIntersect _allItems;//Remove dublicates
+
+	//Evaluate prices
+	private _allPrices = _allItems apply {_x call NWG_VSHOP_SER_EvaluateVeh};
+
+	//Send back result
+	private _result = [
+		_shopItems,
+		_allItems,
+		_allPrices
+	];
+	_result remoteExec ["NWG_fnc_vshopShopValuesResponse",_player];
+
+	//return (mostly for testing)
+	_result
+};
+
+NWG_VSHOP_SER_OnTransaction = {
+	params ["_itemsSoldToPlayer","_itemsBoughtFromPlayer"];
+
+	/* ==Update prices== */
+	private _updatePrices = {
+		params ["_items","_isSoldToPlayer"];
+		private _quantity = 1;
+		{
+			switch (true) do {
+				case (_x isEqualType 1): {
+					_quantity = _x;
+				};
+				case (_x isEqualType ""): {
+					[_x,_quantity,_isSoldToPlayer] call NWG_VSHOP_SER_UpdatePrices;
+					_quantity = 1;
+				};
+				default {
+					(format["NWG_VSHOP_SER_OnTransaction: Invalid item type '%1'",_x]) call NWG_fnc_logError;
+				};
+			};
+		} forEach _items;
+	};
+	[_itemsSoldToPlayer,true] call _updatePrices;
+	[_itemsBoughtFromPlayer,false] call _updatePrices;
+
+
+	/* ==Prepare script for categorization== */
+	private _getCategorizedItemsToProcess = {
+		params ["_items","_chanceName"];
+		if ((count _items) == 0) exitWith {[]};
+
+		private _chance = ((NWG_VSHOP_SER_Settings get _chanceName) max 0) min 1;
+		_items = switch (_chance) do {
+			case 0: {[]};
+			case 1: {(_items + []) call NWG_fnc_unCompactStringArray};
+			default {((_items + []) call NWG_fnc_unCompactStringArray) select {(random 1) <= _chance}};
+		};
+		if ((count _items) == 0) exitWith {[]};
+
+		private _itemsCategorized = [[],[],[],[],[],[],[],[],[],[]];
+		private ["_itemType","_categoryIndex"];
+		{
+			_itemType = _x call NWG_fnc_vcatGetVehcType;
+			_categoryIndex = switch (_itemType) do {
+				case LOOT_VEHC_TYPE_AAIR: {LOOT_VEHC_CAT_AAIR};
+				case LOOT_VEHC_TYPE_APCS: {LOOT_VEHC_CAT_APCS};
+				case LOOT_VEHC_TYPE_ARTY: {LOOT_VEHC_CAT_ARTY};
+				case LOOT_VEHC_TYPE_BOAT: {LOOT_VEHC_CAT_BOAT};
+				case LOOT_VEHC_TYPE_CARS: {LOOT_VEHC_CAT_CARS};
+				case LOOT_VEHC_TYPE_DRON: {LOOT_VEHC_CAT_DRON};
+				case LOOT_VEHC_TYPE_HELI: {LOOT_VEHC_CAT_HELI};
+				case LOOT_VEHC_TYPE_PLAN: {LOOT_VEHC_CAT_PLAN};
+				case LOOT_VEHC_TYPE_SUBM: {LOOT_VEHC_CAT_SUBM};
+				case LOOT_VEHC_TYPE_TANK: {LOOT_VEHC_CAT_TANK};
+				default {-1};
+			};
+			if (_categoryIndex == -1) then {
+				(format["NWG_VSHOP_SER_OnTransaction: Invalid item type '%1'-'%2'",_x,_itemType]) call NWG_fnc_logError;
+				continue;
+			};
+			(_itemsCategorized#_categoryIndex) pushBack _x;
+		} forEach _items;
+
+		{_x call NWG_fnc_compactStringArray} forEach _itemsCategorized;
+
+		//return
+		_itemsCategorized
+	};
+
+
+	/* ==Add dynamic items== */
+	//foreach category of itemsToAdd
+	{
+		if ((count _x) == 0) then {continue};
+
+		//Check if nothing was stored - replace
+		if ((count (NWG_VSHOP_SER_dynamicItems#_forEachIndex)) == 0) then {
+			NWG_VSHOP_SER_dynamicItems set [_forEachIndex,_x];
+			continue;
+		};
+
+		//Both arrays are non-empty - merge
+		NWG_VSHOP_SER_dynamicItems set [
+			_forEachIndex,
+			([(NWG_VSHOP_SER_dynamicItems#_forEachIndex),_x] call NWG_fnc_mergeCompactedStringArrays)
+		];
+	} forEach ([_itemsBoughtFromPlayer,"SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE"] call _getCategorizedItemsToProcess);
+
+
+	/* ==Remove dynamic items== */
+	//foreach category of itemsToRemove
+	private ["_removeArray","_removeCount","_existingArray","_existingCount","_i","_remainingCount"];
+	{
+		_removeArray = _x;
+		if ((count _removeArray) == 0) then {continue};
+
+		_existingArray = NWG_VSHOP_SER_dynamicItems#_forEachIndex;
+		if ((count _existingArray) == 0) then {continue};
+
+		//foreach item in removeArray
+		_removeCount = 1;//Init
+		{
+			if (_x isEqualType 1) then {_removeCount = _x; continue};
+
+			_i = _existingArray find _x;
+			if (_i == -1) then {continue};//Item not found (could happen if 2 or more players report at the same time or if persistent items were sold)
+
+			_existingCount = _existingArray param [(_i-1),false];
+			_remainingCount = if (_existingCount isEqualType 1)
+				then {_existingCount - _removeCount}
+				else {0};
+			_removeCount = 1;//Reset
+
+			switch (true) do {
+				case (_existingCount isEqualTo false): {_existingArray deleteAt _i};//_i points to first element of array and we need to remove at least one element
+				case (_existingCount isEqualType ""): {_existingArray deleteAt _i};//_i points to element without count (so its count is '1') and we need to remove at least one element
+				case (_remainingCount <= 0): {_existingArray deleteAt _i; _existingArray deleteAt (_i-1)};//Remove >=all elements - remove element itself and its count
+				case (_remainingCount == 1): {_existingArray deleteAt (_i-1)};//Remove only count of the element (so its count becomes '1')
+				default {_existingArray set [(_i-1),_remainingCount]};//Decrease count
+			};
+		} forEach _removeArray;
+	} forEach ([_itemsSoldToPlayer,"SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE"] call _getCategorizedItemsToProcess);
+};
+
+//================================================================================================================
+//================================================================================================================
+//Vehicles processing
+NWG_VSHOP_SER_DeleteVehicle = {
+	// private _vehicle = _this;
+	deleteVehicle _this;
+};
+
+NWG_VSHOP_SER_SpawnVehicleAtPlatform = {
+	private _vehicleClassname = _this;
+    if (_vehicleClassname isEqualTo "" || {!(_vehicleClassname isEqualType "")}) exitWith {
+        (format["NWG_VSHOP_SER_SpawnVehicleAtPlatform: Invalid vehicle classname '%1'",_vehicleClassname]) call NWG_fnc_logError;
+        false
+    };
+
+    private _platform = NWG_VSHOP_spawnPlatform;
+    if (isNull _platform) exitWith {
+        (format["NWG_VSHOP_SER_SpawnVehicleAtPlatform: No platform found"]) call NWG_fnc_logError;
+        false
+    };
+
+    private _spwnFunc = (NWG_VSHOP_SER_Settings get "SPAWN_PLATFORM_FUNC");
+    if (isNil "_spwnFunc" || {!(_spwnFunc isEqualType {})}) exitWith {
+        (format["NWG_VSHOP_SER_SpawnVehicleAtPlatform: Invalid spawn function defined"]) call NWG_fnc_logError;
+        false
+    };
+
+    private _pos = getPosASL _platform;
+    private _dir = getDir _platform;
+    [_vehicleClassname,_pos,_dir] call _spwnFunc;
 };
