@@ -342,13 +342,14 @@ NWG_VSHOP_SER_DownloadDynamicItems = {
 };
 
 NWG_VSHOP_SER_UploadDynamicItems = {
-	private _dynamicItems = _this;
-	if !(_dynamicItems call NWG_VSHOP_SER_ValidateItemsChart) exitWith {
-		(format["NWG_VSHOP_SER_UploadDynamicItems: Invalid dynamic shop items format"]) call NWG_fnc_logError;
-		false
+	// private _dynamicItems = _this;
+	(_this call NWG_VSHOP_SER_ValidateItemsChart) params ["_chartAfterValidation","_isValid"];
+	if (!_isValid) then {
+		(format["NWG_VSHOP_SER_UploadDynamicItems: Invalid dynamic shop items, check logs and your NWG_VSHOP_SER_Settings"]) call NWG_fnc_logError;
 	};
-	NWG_VSHOP_SER_dynamicItems = _dynamicItems;
-	true
+	NWG_VSHOP_SER_dynamicItems = _chartAfterValidation;
+	//return
+	_isValid
 };
 
 //================================================================================================================
