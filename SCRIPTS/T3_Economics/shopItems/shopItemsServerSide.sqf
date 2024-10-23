@@ -30,7 +30,7 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
 		[5,"ItemRadio",3,"ItemCompass","O_UavTerminal",3,"acc_flashlight",1,"MineDetector",10,"FirstAidKit"],
 		[10,"30Rnd_65x39_caseless_mag",10,"30Rnd_762x39_Mag_F",10,"30Rnd_545x39_Mag_F"]
 	]],
-	["SHOP_CHECK_PERSISTENT_ITEMS",true],//Each interaction check validity of persistent items
+	["SHOP_CHECK_PERSISTENT_ITEMS_ON_INIT",false],//Check validity of persistent items on init
 	["SHOP_SKIP_SENDING_PLAYER_LOOT",true],//If you're using 'lootStorage' module, player loot is already synchronized between players and server
 	["SHOP_GET_PLAYER_LOOT_FUNC",{_this call NWG_fnc_lsGetPlayerLoot}],//Function that returns player loot
 	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",0.5],//Chance that item will be added to dynamic items when bought from player
@@ -38,6 +38,15 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
 
 	["",0]
 ];
+
+//================================================================================================================
+//================================================================================================================
+//Init
+private _Init = {
+	if (NWG_ISHOP_SER_Settings get "SHOP_CHECK_PERSISTENT_ITEMS_ON_INIT") then {
+		call NWG_ISHOP_SER_ValidatePersistentItems;
+	};
+};
 
 //================================================================================================================
 //================================================================================================================
@@ -178,6 +187,55 @@ NWG_ISHOP_SER_UploadPrices = {
 
 //================================================================================================================
 //================================================================================================================
+//Items chart validation
+#define DEFAULT_CHART [[],[],[],[]]
+NWG_ISHOP_SER_ValidateItemsChart = {
+	// private _itemsChart = _this;
+
+	//Check overall structure
+	if !(_this isEqualTypeArray DEFAULT_CHART) exitWith {
+		(format["NWG_ISHOP_SER_ValidateItemsChart: Invalid items chart format"]) call NWG_fnc_logError;
+		//return
+		[DEFAULT_CHART,false]
+	};
+
+	//Check that each element is of correct type
+	private _validationResult = true;
+	//foreach category
+	{
+		private _expected = switch (_forEachIndex) do {
+			case LOOT_CAT_CLTH: {LOOT_ITEM_TYPE_CLTH};
+			case LOOT_CAT_WEAP: {LOOT_ITEM_TYPE_WEAP};
+			case LOOT_CAT_ITEM: {LOOT_ITEM_TYPE_ITEM};
+			case LOOT_CAT_AMMO: {LOOT_ITEM_TYPE_AMMO};
+			default {""};
+		};
+
+		//foreach item in category
+		{
+			if (_x isEqualType "" && {(_x call NWG_fnc_icatGetItemType) isNotEqualTo _expected}) then {
+				(format["NWG_ISHOP_SER_ValidateItemsChart: Invalid item '%1'. Expected: '%2', Actual: '%3'",_x,_expected,(_x call NWG_fnc_icatGetItemType)]) call NWG_fnc_logError;
+				_validationResult = false;
+			};
+		} forEach _x;
+	} forEach _this;
+
+	//return
+	[_this,_validationResult]
+};
+
+NWG_ISHOP_SER_ValidatePersistentItems = {
+	private _persistentItems = NWG_ISHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
+	(_persistentItems call NWG_ISHOP_SER_ValidateItemsChart) params ["_chartAfterValidation","_isValid"];
+	if (!_isValid) then {
+		(format["NWG_ISHOP_SER_ValidatePersistentItems: Invalid persistent shop items, check logs and your NWG_ISHOP_SER_Settings"]) call NWG_fnc_logError;
+	};
+
+	NWG_ISHOP_SER_Settings set ["SHOP_PERSISTENT_ITEMS",_chartAfterValidation];
+};
+
+//================================================================================================================
+//================================================================================================================
 //Dynamic items
 
 //Items that are added on top of persistent items
@@ -205,51 +263,6 @@ NWG_ISHOP_SER_UploadDynamicItems = {
 
 //================================================================================================================
 //================================================================================================================
-//Items chart validation
-NWG_ISHOP_SER_cachedValidateRequest = [];
-NWG_ISHOP_SER_cachedValidateResponse = true;
-NWG_ISHOP_SER_ValidateItemsChart = {
-	// private _itemsChart = _this;
-
-	//Check cache
-	if (_this isEqualTo NWG_ISHOP_SER_cachedValidateRequest) exitWith {NWG_ISHOP_SER_cachedValidateResponse};
-	NWG_ISHOP_SER_cachedValidateRequest = _this;
-
-	//Check overall structure
-	if !(_this isEqualTypeParams [[],[],[],[]]) exitWith {
-		(format["NWG_ISHOP_SER_ValidateItemsChart: Invalid items format"]) call NWG_fnc_logError;
-		NWG_ISHOP_SER_cachedValidateResponse = false;
-		false;
-	};
-
-	//Check that each element is of correct type
-	private _validationResult = true;
-	//foreach category
-	{
-		private _expected = switch (_forEachIndex) do {
-			case LOOT_CAT_CLTH: {LOOT_ITEM_TYPE_CLTH};
-			case LOOT_CAT_WEAP: {LOOT_ITEM_TYPE_WEAP};
-			case LOOT_CAT_ITEM: {LOOT_ITEM_TYPE_ITEM};
-			case LOOT_CAT_AMMO: {LOOT_ITEM_TYPE_AMMO};
-			default {""};
-		};
-
-		//foreach item in category
-		{
-			if (_x isEqualType "" && {(_x call NWG_fnc_icatGetItemType) isNotEqualTo _expected}) then {
-				(format["NWG_ISHOP_SER_ValidateItemsChart: Invalid item '%1'. Expected: '%2', Actual: '%3'",_x,_expected,(_x call NWG_fnc_icatGetItemType)]) call NWG_fnc_logError;
-				_validationResult = false;
-			};
-		} forEach _x;
-	} forEach _this;
-
-	//Save and return
-	NWG_ISHOP_SER_cachedValidateResponse = _validationResult;
-	_validationResult
-};
-
-//================================================================================================================
-//================================================================================================================
 //Shop
 
 NWG_ISHOP_SER_OnShopRequest = {
@@ -261,22 +274,12 @@ NWG_ISHOP_SER_OnShopRequest = {
 		(format["NWG_ISHOP_SER_OnShopRequest: Invalid player loot format"]) call NWG_fnc_logError;
 	};
 
-	//Get persistent shop items
-	private _persistentItems = NWG_ISHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
-	if (NWG_ISHOP_SER_Settings get "SHOP_CHECK_PERSISTENT_ITEMS") then {
-		if !(_persistentItems call NWG_ISHOP_SER_ValidateItemsChart) then {
-			(format["NWG_ISHOP_SER_OnShopRequest: Invalid persistent shop items"]) call NWG_fnc_logError;
-			_persistentItems = [[],[],[],[]];//<== Use empty items
-		};
-	};
-
-	//Get dynamic shop items
-	private _dynamicItems = NWG_ISHOP_SER_dynamicItems;//No need to check since we are the ones who update it
-
 	//Merge shop items
+	private _persistentItems = NWG_ISHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
+	private _dynamicItems = NWG_ISHOP_SER_dynamicItems;
 	private _shopItems = [];
 	{
-		if ( ((count (_persistentItems#_x)) > 0) && {(count (_dynamicItems#_x)) > 0}) then {
+		if ((count (_persistentItems#_x)) > 0 && {(count (_dynamicItems#_x)) > 0}) then {
 			_shopItems pushBack ([(_persistentItems#_x),(_dynamicItems#_x)] call NWG_fnc_mergeCompactedStringArrays);
 		} else {
 			_shopItems pushBack ((_persistentItems#_x) + (_dynamicItems#_x));

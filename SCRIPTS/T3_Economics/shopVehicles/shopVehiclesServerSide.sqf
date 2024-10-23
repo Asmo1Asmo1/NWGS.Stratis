@@ -59,7 +59,7 @@ NWG_VSHOP_SER_Settings = createHashMapFromArray [
         ["B_SDV_01_F"],/*SUBM*/
         []/*TANK*/
 	]],
-	["SHOP_CHECK_PERSISTENT_ITEMS",true],//Each interaction check validity of persistent items
+	["SHOP_CHECK_PERSISTENT_ITEMS_ON_INIT",false],//Check validity of persistent items on init
 	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",1],//Chance that item will be added to dynamic items when bought from player
 	["SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE",0],//Chance that item will be removed from dynamic items when sold to player
 
@@ -72,6 +72,15 @@ NWG_VSHOP_SER_Settings = createHashMapFromArray [
 //================================================================================================================
 //Fields
 NWG_VSHOP_spawnPlatform = objNull;
+
+//================================================================================================================
+//================================================================================================================
+//Init
+private _Init = {
+	if (NWG_VSHOP_SER_Settings get "SHOP_CHECK_PERSISTENT_ITEMS_ON_INIT") then {
+		call NWG_VSHOP_SER_ValidatePersistentItems;
+	};
+};
 
 //================================================================================================================
 //================================================================================================================
@@ -257,6 +266,60 @@ NWG_VSHOP_SER_UploadPrices = {
 
 //================================================================================================================
 //================================================================================================================
+//Items chart validation
+#define DEFAULT_CHART [[],[],[],[],[],[],[],[],[],[]]
+NWG_VSHOP_SER_ValidateItemsChart = {
+	// private _itemsChart = _this;
+
+	//Check overall structure
+	if !(_this isEqualTypeArray DEFAULT_CHART) exitWith {
+		(format["NWG_VSHOP_SER_ValidateItemsChart: Invalid items chart format"]) call NWG_fnc_logError;
+		[DEFAULT_CHART,false]
+	};
+
+	//Check that each element is of correct type
+	private _validationResult = true;
+	//foreach category
+	{
+		private _expected = switch (_forEachIndex) do {
+			case LOOT_VEHC_CAT_AAIR: {LOOT_VEHC_TYPE_AAIR};
+			case LOOT_VEHC_CAT_APCS: {LOOT_VEHC_TYPE_APCS};
+			case LOOT_VEHC_CAT_ARTY: {LOOT_VEHC_TYPE_ARTY};
+			case LOOT_VEHC_CAT_BOAT: {LOOT_VEHC_TYPE_BOAT};
+			case LOOT_VEHC_CAT_CARS: {LOOT_VEHC_TYPE_CARS};
+			case LOOT_VEHC_CAT_DRON: {LOOT_VEHC_TYPE_DRON};
+			case LOOT_VEHC_CAT_HELI: {LOOT_VEHC_TYPE_HELI};
+			case LOOT_VEHC_CAT_PLAN: {LOOT_VEHC_TYPE_PLAN};
+			case LOOT_VEHC_CAT_SUBM: {LOOT_VEHC_TYPE_SUBM};
+			case LOOT_VEHC_CAT_TANK: {LOOT_VEHC_TYPE_TANK};
+			default {""};
+		};
+
+		//foreach item in category
+		{
+			if (_x isEqualType "" && {(_x call NWG_fnc_vcatGetVehcType) isNotEqualTo _expected}) then {
+				(format["NWG_VSHOP_SER_ValidateItemsChart: Invalid item '%1'. Expected: '%2', Actual: '%3'",_x,_expected,(_x call NWG_fnc_vcatGetVehcType)]) call NWG_fnc_logError;
+				_validationResult = false;
+			};
+		} forEach _x;
+	} forEach _this;
+
+	//return
+	[_this,_validationResult]
+};
+
+NWG_VSHOP_SER_ValidatePersistentItems = {
+	private _persistentItems = NWG_VSHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
+	(_persistentItems call NWG_VSHOP_SER_ValidateItemsChart) params ["_chartAfterValidation","_isValid"];
+	if (!_isValid) then {
+		(format["NWG_VSHOP_SER_ValidatePersistentItems: Invalid persistent shop items, check logs and your NWG_VSHOP_SER_Settings"]) call NWG_fnc_logError;
+	};
+
+	NWG_VSHOP_SER_Settings set ["SHOP_PERSISTENT_ITEMS",_chartAfterValidation];
+};
+
+//================================================================================================================
+//================================================================================================================
 //Dynamic items
 
 //Vehicles that are added on top of persistent items
@@ -290,76 +353,16 @@ NWG_VSHOP_SER_UploadDynamicItems = {
 
 //================================================================================================================
 //================================================================================================================
-//Items chart validation
-NWG_VSHOP_SER_cachedValidateRequest = [];
-NWG_VSHOP_SER_cachedValidateResponse = true;
-NWG_VSHOP_SER_ValidateItemsChart = {
-	// private _itemsChart = _this;
-
-	//Check cache
-	if (_this isEqualTo NWG_VSHOP_SER_cachedValidateRequest) exitWith {NWG_VSHOP_SER_cachedValidateResponse};
-	NWG_VSHOP_SER_cachedValidateRequest = _this;
-
-	//Check overall structure
-	if !(_this isEqualTypeParams [[],[],[],[],[],[],[],[],[],[]]) exitWith {
-		(format["NWG_VSHOP_SER_ValidateItemsChart: Invalid items format"]) call NWG_fnc_logError;
-		NWG_VSHOP_SER_cachedValidateResponse = false;
-		false;
-	};
-
-	//Check that each element is of correct type
-	private _validationResult = true;
-	//foreach category
-	{
-		private _expected = switch (_forEachIndex) do {
-			case LOOT_VEHC_CAT_AAIR: {LOOT_VEHC_TYPE_AAIR};
-			case LOOT_VEHC_CAT_APCS: {LOOT_VEHC_TYPE_APCS};
-			case LOOT_VEHC_CAT_ARTY: {LOOT_VEHC_TYPE_ARTY};
-			case LOOT_VEHC_CAT_BOAT: {LOOT_VEHC_TYPE_BOAT};
-			case LOOT_VEHC_CAT_CARS: {LOOT_VEHC_TYPE_CARS};
-			case LOOT_VEHC_CAT_DRON: {LOOT_VEHC_TYPE_DRON};
-			case LOOT_VEHC_CAT_HELI: {LOOT_VEHC_TYPE_HELI};
-			case LOOT_VEHC_CAT_PLAN: {LOOT_VEHC_TYPE_PLAN};
-			case LOOT_VEHC_CAT_SUBM: {LOOT_VEHC_TYPE_SUBM};
-			case LOOT_VEHC_CAT_TANK: {LOOT_VEHC_TYPE_TANK};
-			default {""};
-		};
-
-		//foreach item in category
-		{
-			if (_x isEqualType "" && {(_x call NWG_fnc_vcatGetVehcType) isNotEqualTo _expected}) then {
-				(format["NWG_VSHOP_SER_ValidateItemsChart: Invalid item '%1'. Expected: '%2', Actual: '%3'",_x,_expected,(_x call NWG_fnc_vcatGetVehcType)]) call NWG_fnc_logError;
-				_validationResult = false;
-			};
-		} forEach _x;
-	} forEach _this;
-
-	//Save and return
-	NWG_VSHOP_SER_cachedValidateResponse = _validationResult;
-	_validationResult
-};
-
-//================================================================================================================
-//================================================================================================================
 //Shop
 NWG_VSHOP_SER_OnShopRequest = {
 	params ["_player","_ownedVehicles"];
 
-	//Get persistent shop items
-	private _persistentItems = NWG_VSHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
-	if (NWG_VSHOP_SER_Settings get "SHOP_CHECK_PERSISTENT_ITEMS") then {
-		if !(_persistentItems call NWG_VSHOP_SER_ValidateItemsChart) then {
-			(format["NWG_VSHOP_SER_OnShopRequest: Invalid persistent shop items"]) call NWG_fnc_logError;
-			_persistentItems = [[],[],[],[],[],[],[],[],[],[]];//<== Use empty items
-		};
-	};
-
-	//Get dynamic shop items
-	private _dynamicItems = NWG_VSHOP_SER_dynamicItems;//No need to check since we are the ones who update it
-
 	//Merge shop items (omitting count)
+	private _persistentItems = NWG_VSHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
+	private _dynamicItems = NWG_VSHOP_SER_dynamicItems;
 	private _shopItems = [];
     private _toAdd = [];
+	//foreach category
 	{
         _toAdd = ((_persistentItems#_x) + (_dynamicItems#_x)) select {_x isEqualType ""};
         _toAdd = _toAdd arrayIntersect _toAdd;//Remove duplicates
@@ -552,3 +555,7 @@ NWG_VSHOP_SER_SpawnVehicleAtPlatform = {
     private _dir = getDir _platform;
     [_vehicleClassname,_pos,_dir] call _spwnFunc;
 };
+
+//================================================================================================================
+//================================================================================================================
+call _Init
