@@ -7,6 +7,7 @@
 //Settings
 NWG_VSHOP_MMC_Settings = createHashMapFromArray [
     ["VSHOP_SPAWN_PLATFORM","Land_JumpTarget_F"],//Classname of the object that will be used as a spawn platform
+    ["VSHOP_CHECK_PERSISTENT_ITEMS",true],//Check validity of persistent items on economy state
 
     ["",0]
 ];
@@ -25,6 +26,11 @@ NWG_VSHOP_MMC_OnMissionStateChanged = {
 
     //Check state
     if (_newState != MSTATE_BASE_ECONOMY) exitWith {/*Do nothing*/};
+
+    //Check persistent items
+    if (NWG_VSHOP_MMC_Settings get "VSHOP_CHECK_PERSISTENT_ITEMS") then {
+        call NWG_VSHOP_SER_ValidatePersistentItems;
+    };
 
     //Get player base
     (call NWG_fnc_mmGetPlayerBase) params ["","_baseDecor"];
