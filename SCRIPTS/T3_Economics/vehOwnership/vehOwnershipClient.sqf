@@ -32,7 +32,7 @@ NWG_VEHOWN_OnGetIn = {
 
 	//Try claiming vehicle
 	private _owner = _veh call NWG_VEHOWN_GetVehicleOwner;
-	if (isNull _owner && {!alive _owner}) then {
+	if (isNull _owner || {!alive _owner}) then {
 		[_veh,_player] call NWG_fnc_vownPairVehAndPlayer;
 		_owner = _player;
 	};

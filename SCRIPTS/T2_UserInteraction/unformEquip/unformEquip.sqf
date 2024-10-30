@@ -51,12 +51,27 @@ NWG_UNEQ_EquipSelectedUniform = {
     if ((getNumber (configFile >> "CfgWeapons" >> _selectedItem >> "ItemInfo" >> "type")) != 801) exitWith {false};//Not a uniform
 
     //Get physical container
-    private _container = if (_uiContainerID == MAIN_CONTAINER_LIST)
-        then {if (!isNull _mainContainer) then {_mainContainer} else {_secdContainer}}
-        else {if (!isNull _secdContainer) then {_secdContainer} else {_mainContainer}};//Fix looting corpses (switches the containers)
+    private _containers = if (_uiContainerID == MAIN_CONTAINER_LIST)
+        then {[_mainContainer,_secdContainer]}
+        else {[_secdContainer,_mainContainer]};
+    if (isNull (_containers#0)) then {
+        _containers pushBack (_containers deleteAt 0);//Swap (old fix for looting corpses)
+    };
+    private _container = _containers#0;
     if (isNull _container) exitWith {
-        "NWG_UNEQ_EquipSelectedUniform: Inventory containers are not available." call NWG_fnc_logError;
+        "NWG_LS_CLI_LootByInventoryUI: Inventory containers are not available." call NWG_fnc_logError;
         false
+    };
+
+    //Fix Arma 2.18 introducing weaponholders instead of actual units
+    _secdContainer = _containers#1;
+    if (_container isKindOf "WeaponHolder" || {_container isKindOf "WeaponHolderSimulated"}) then {
+        if (!isNull _secdContainer && {_secdContainer isNotEqualTo _container}) then {
+            if (_secdContainer isKindOf "Man" || {(objectParent _secdContainer) isKindOf "Man"}) then {
+                _container = _secdContainer;
+                _secdContainer = objNull;
+            };
+        };
     };
 
     //Get player's uniform

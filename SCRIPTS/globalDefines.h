@@ -13,11 +13,14 @@
 #define LOOT_ITEM_TYPE_ITEM "ITEM"  // Item
 #define LOOT_ITEM_TYPE_AMMO "AMMO"  // Ammo
 
-//Loot categories
-#define LOOT_CAT_CLTH 0
-#define LOOT_CAT_WEAP 1
-#define LOOT_CAT_ITEM 2
-#define LOOT_CAT_AMMO 3
+//Loot items categories
+#define LOOT_ITEM_CAT_CLTH 0
+#define LOOT_ITEM_CAT_WEAP 1
+#define LOOT_ITEM_CAT_ITEM 2
+#define LOOT_ITEM_CAT_AMMO 3
+
+//Default items chart
+#define LOOT_ITEM_DEFAULT_CHART [[],[],[],[]]
 
 //Loot vehicles types
 #define LOOT_VEHC_TYPE_AAIR "AAIR"  // Anti-Air (EdSubcat_AAs)
@@ -30,6 +33,21 @@
 #define LOOT_VEHC_TYPE_PLAN "PLAN"  // Planes (EdSubcat_Planes)
 #define LOOT_VEHC_TYPE_SUBM "SUBM"  // Submersibles (EdSubcat_Submersibles)
 #define LOOT_VEHC_TYPE_TANK "TANK"  // Tanks (EdSubcat_Tanks)
+
+//Loot vehicles categories
+#define LOOT_VEHC_CAT_AAIR 0
+#define LOOT_VEHC_CAT_APCS 1
+#define LOOT_VEHC_CAT_ARTY 2
+#define LOOT_VEHC_CAT_BOAT 3
+#define LOOT_VEHC_CAT_CARS 4
+#define LOOT_VEHC_CAT_DRON 5
+#define LOOT_VEHC_CAT_HELI 6
+#define LOOT_VEHC_CAT_PLAN 7
+#define LOOT_VEHC_CAT_SUBM 8
+#define LOOT_VEHC_CAT_TANK 9
+
+//Default vehicles chart
+#define LOOT_VEHC_DEFAULT_CHART [[],[],[],[],[],[],[],[],[],[]]
 
 //Server events (arguments for NWG_fnc_subscribeToServerEvent and NWG_fnc_raiseServerEvent)
 #define EVENT_ON_OBJECT_KILLED "OnObjectKilled" //Called by 'undertaker' subsystem when an object is killed.                params ["_obj","_objType","_actualKiller","_isPlayerKiller"];

@@ -58,10 +58,10 @@ NWG_ISHOP_PricesLifetime_Simulation = {
 	//Clear cache and prices
 	NWG_ISHOP_itemsInfoCache = createHashMap;//[_categoryIndex,_itemIndex]
 	NWG_ISHOP_itemsPriceChart = [
-		[[],[]],//LOOT_CAT_CLTH [items,prices]
-		[[],[]],//LOOT_CAT_WEAP [items,prices]
-		[[],[]],//LOOT_CAT_ITEM [items,prices]
-		[[],[]] //LOOT_CAT_AMMO [items,prices]
+		[[],[]],//LOOT_ITEM_CAT_CLTH [items,prices]
+		[[],[]],//LOOT_ITEM_CAT_WEAP [items,prices]
+		[[],[]],//LOOT_ITEM_CAT_ITEM [items,prices]
+		[[],[]] //LOOT_ITEM_CAT_AMMO [items,prices]
 	];
 
 	//Prepare operations selection
@@ -138,3 +138,48 @@ NWG_ISHOP_PricesLifetime_Simulation = {
 "Iteration 9800. Prices: [500,356,502,700,505,494,501,300,502,700]"
 "Iteration 9900. Prices: [499,355,502,699,509,493,501,300,500,700]"
 */
+
+//================================================================================================================
+//================================================================================================================
+//Items chart validation
+// call NWG_ISHOP_SER_ValidateItemsChart_Test
+NWG_ISHOP_SER_ValidateItemsChart_Test = {
+	private _testCases = [
+		["Empty chart",    LOOT_ITEM_DEFAULT_CHART,	LOOT_ITEM_DEFAULT_CHART,true],
+		["Invalid chart 1",[[],[],[],1],	LOOT_ITEM_DEFAULT_CHART,false],
+		["Invalid chart 2",[[],[],[]],		LOOT_ITEM_DEFAULT_CHART,false],
+		["Invalid chart 3",[[],[],[],[],[]],LOOT_ITEM_DEFAULT_CHART,false],
+		["Persistent items",(NWG_ISHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS"),(NWG_ISHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS"),true],
+		["Incorrect items",
+			[
+				["B_AssaultPack_mcamo_AT"],
+				["arifle_MXC_Holo_pointer_F",2,"arifle_MXC_F",2,"FirstAidKit"],
+				[5,"ItemRadio",3,"ItemCompass"],
+				[10,"30Rnd_65x39_caseless_mag",10,"30Rnd_762x39_Mag_F",10,"30Rnd_545x39_Mag_F"]
+			],
+			[
+				[],
+				[2,"arifle_MXC_F"],
+				[5,"ItemRadio",3,"ItemCompass"],
+				[10,"30Rnd_65x39_caseless_mag",10,"30Rnd_762x39_Mag_F",10,"30Rnd_545x39_Mag_F"]
+			],
+			false
+		]
+	];
+
+	private _errors = [];
+	{
+		_x params ["_name","_items","_expectedChart","_expectedValid"];
+		(_items call NWG_ISHOP_SER_ValidateItemsChart) params ["_actualChart","_actualValid"];
+		if (_actualChart isNotEqualTo _expectedChart || {_actualValid isNotEqualTo _expectedValid}) then {
+			_errors pushBack (format ["TestCase:'%1'. Expected: %2 %3. Actual: %4 %5",_name,_expectedChart,_expectedValid,_actualChart,_actualValid]);
+		};
+	} forEach _testCases;
+
+	if (_errors isNotEqualTo []) then {
+		_errors call NWG_fnc_testDumpToRptAndClipboard;
+		"Some tests failed, check the report!"
+	} else {
+		"All tests passed"
+	};
+};

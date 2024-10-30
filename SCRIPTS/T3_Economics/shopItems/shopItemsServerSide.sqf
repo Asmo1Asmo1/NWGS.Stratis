@@ -30,23 +30,33 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
 		[5,"ItemRadio",3,"ItemCompass","O_UavTerminal",3,"acc_flashlight",1,"MineDetector",10,"FirstAidKit"],
 		[10,"30Rnd_65x39_caseless_mag",10,"30Rnd_762x39_Mag_F",10,"30Rnd_545x39_Mag_F"]
 	]],
-	["SHOP_CHECK_PERSISTENT_ITEMS",true],//Each interaction check validity of persistent items
+	["SHOP_CHECK_PERSISTENT_ITEMS_ON_INIT",false],//Check validity of persistent items on init
 	["SHOP_SKIP_SENDING_PLAYER_LOOT",true],//If you're using 'lootStorage' module, player loot is already synchronized between players and server
 	["SHOP_GET_PLAYER_LOOT_FUNC",{_this call NWG_fnc_lsGetPlayerLoot}],//Function that returns player loot
-	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",0.33],//Chance that item will be added to dynamic items when bought from player
+	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",0.5],//Chance that item will be added to dynamic items when bought from player
+	["SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE",1],//Chance that item will be removed from dynamic items when sold to player
 
 	["",0]
 ];
 
 //================================================================================================================
 //================================================================================================================
+//Init
+private _Init = {
+	if (NWG_ISHOP_SER_Settings get "SHOP_CHECK_PERSISTENT_ITEMS_ON_INIT") then {
+		call NWG_ISHOP_SER_ValidatePersistentItems;
+	};
+};
+
+//================================================================================================================
+//================================================================================================================
 //Prices
 NWG_ISHOP_SER_itemsInfoCache = createHashMap;//[_categoryIndex,_itemIndex]
 NWG_ISHOP_SER_itemsPriceChart = [
-	[[],[]],//LOOT_CAT_CLTH [items,prices]
-	[[],[]],//LOOT_CAT_WEAP [items,prices]
-	[[],[]],//LOOT_CAT_ITEM [items,prices]
-	[[],[]] //LOOT_CAT_AMMO [items,prices]
+	[[],[]],//LOOT_ITEM_CAT_CLTH [items,prices]
+	[[],[]],//LOOT_ITEM_CAT_WEAP [items,prices]
+	[[],[]],//LOOT_ITEM_CAT_ITEM [items,prices]
+	[[],[]] //LOOT_ITEM_CAT_AMMO [items,prices]
 ];
 
 NWG_ISHOP_SER_EvaluateItem = {
@@ -66,19 +76,19 @@ NWG_ISHOP_SER_EvaluateItem = {
 	private _defaultPrice = 0;
 	switch (_itemType) do {
 		case LOOT_ITEM_TYPE_AMMO: {
-			_categoryIndex = LOOT_CAT_AMMO;
+			_categoryIndex = LOOT_ITEM_CAT_AMMO;
 			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_AMMO";
 		};
 		case LOOT_ITEM_TYPE_ITEM: {
-			_categoryIndex = LOOT_CAT_ITEM;
+			_categoryIndex = LOOT_ITEM_CAT_ITEM;
 			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_ITEM";
 		};
 		case LOOT_ITEM_TYPE_WEAP: {
-			_categoryIndex = LOOT_CAT_WEAP;
+			_categoryIndex = LOOT_ITEM_CAT_WEAP;
 			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_WEAP";
 		};
 		case LOOT_ITEM_TYPE_CLTH: {
-			_categoryIndex = LOOT_CAT_CLTH;
+			_categoryIndex = LOOT_ITEM_CAT_CLTH;
 			_defaultPrice = NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_CLTH";
 		};
 		default {
@@ -109,10 +119,10 @@ NWG_ISHOP_SER_UpdatePrices = {
 
 	//Get category settings
 	private _settings = switch (_categoryIndex) do {
-		case LOOT_CAT_CLTH: {NWG_ISHOP_SER_Settings get "PRICE_CLTH_SETTINGS"};
-		case LOOT_CAT_WEAP: {NWG_ISHOP_SER_Settings get "PRICE_WEAP_SETTINGS"};
-		case LOOT_CAT_ITEM: {NWG_ISHOP_SER_Settings get "PRICE_ITEM_SETTINGS"};
-		case LOOT_CAT_AMMO: {NWG_ISHOP_SER_Settings get "PRICE_AMMO_SETTINGS"};
+		case LOOT_ITEM_CAT_CLTH: {NWG_ISHOP_SER_Settings get "PRICE_CLTH_SETTINGS"};
+		case LOOT_ITEM_CAT_WEAP: {NWG_ISHOP_SER_Settings get "PRICE_WEAP_SETTINGS"};
+		case LOOT_ITEM_CAT_ITEM: {NWG_ISHOP_SER_Settings get "PRICE_ITEM_SETTINGS"};
+		case LOOT_ITEM_CAT_AMMO: {NWG_ISHOP_SER_Settings get "PRICE_AMMO_SETTINGS"};
 		default {
 			(format["NWG_ISHOP_SER_UpdatePrices: Invalid category %1",_category]) call NWG_fnc_logError;
 			nil
@@ -155,7 +165,7 @@ NWG_ISHOP_SER_DownloadPrices = {
 
 NWG_ISHOP_SER_UploadPrices = {
 	private _pricesChart = _this;
-	if !(_pricesChart isEqualTypeParams [[],[],[],[]]) exitWith {
+	if !(_pricesChart isEqualTypeArray LOOT_ITEM_DEFAULT_CHART) exitWith {
 		(format["NWG_ISHOP_SER_UploadPrices: Invalid prices chart format"]) call NWG_fnc_logError;
 		false
 	};
@@ -177,7 +187,106 @@ NWG_ISHOP_SER_UploadPrices = {
 
 //================================================================================================================
 //================================================================================================================
-//Shop
+//Items chart validation
+NWG_ISHOP_SER_ValidateItemsChart = {
+	// private _itemsChart = _this;
+
+	//Check empty chart
+	if (_this isEqualTo LOOT_ITEM_DEFAULT_CHART) exitWith {
+		[LOOT_ITEM_DEFAULT_CHART,true]
+	};
+
+	//Check overall structure
+	if !(_this isEqualTypeArray LOOT_ITEM_DEFAULT_CHART) exitWith {
+		(format["NWG_ISHOP_SER_ValidateItemsChart: Invalid items chart format"]) call NWG_fnc_logError;
+		//return
+		[LOOT_ITEM_DEFAULT_CHART,false]
+	};
+
+	//Check each element
+	private _validationResult = true;
+	//foreach category
+	{
+		if ((count _x) == 0) then {continue};//Skip empty categories
+
+		private _expectedCat = switch (_forEachIndex) do {
+			case LOOT_ITEM_CAT_CLTH: {LOOT_ITEM_TYPE_CLTH};
+			case LOOT_ITEM_CAT_WEAP: {LOOT_ITEM_TYPE_WEAP};
+			case LOOT_ITEM_CAT_ITEM: {LOOT_ITEM_TYPE_ITEM};
+			case LOOT_ITEM_CAT_AMMO: {LOOT_ITEM_TYPE_AMMO};
+			default {""};
+		};
+		if (_expectedCat isEqualTo "") then {
+			(format["NWG_ISHOP_SER_ValidateItemsChart: Invalid category index: '%1'",_forEachIndex]) call NWG_fnc_logError;
+			_validationResult = false;
+			continue;
+		};
+
+		private _getBaseClass = switch (_forEachIndex) do {
+            case LOOT_ITEM_CAT_CLTH: {{_this call NWG_fnc_icatGetBaseBackpack}};
+            case LOOT_ITEM_CAT_WEAP: {{_this call NWG_fnc_icatGetBaseWeapon}};
+            case LOOT_ITEM_CAT_ITEM: {{_this}};
+            case LOOT_ITEM_CAT_AMMO: {{_this}};
+		};
+
+		private _failedItems = [];
+		private ["_itemCat","_itemBaseClass"];
+		//foreach item in category
+		{
+			//Skip count
+			if (_x isEqualType 1) then {continue};
+
+			//Check that item is a string (just in case)
+			if !(_x isEqualType "") then {
+				(format["NWG_ISHOP_SER_ValidateItemsChart: Invalid item '%1'. Expected: 'STRING'",_x]) call NWG_fnc_logError;
+				_failedItems pushBackUnique _x;
+				continue;
+			};
+
+			//Check item category
+			_itemCat = _x call NWG_fnc_icatGetItemType;
+			if (_itemCat isNotEqualTo _expectedCat) then {
+				(format["NWG_ISHOP_SER_ValidateItemsChart: Invalid item '%1'. Expected: '%2', Actual: '%3'",_x,_expectedCat,_itemCat]) call NWG_fnc_logError;
+				_failedItems pushBackUnique _x;
+				continue;
+			};
+
+			//Check item base class
+			_itemBaseClass = _x call _getBaseClass;
+			if (_x isNotEqualTo _itemBaseClass) then {
+				(format["NWG_ISHOP_SER_ValidateItemsChart: Invalid item '%1'. Expected: '%2'",_x,_itemBaseClass]) call NWG_fnc_logError;
+				_failedItems pushBackUnique _x;
+			};
+		} forEach _x;
+
+		//Remove failed items if any
+		if ((count _failedItems) > 0) then {
+			_validationResult = false;
+			private _newItems = _x + [];//Shallow copy
+			_newItems = _newItems call NWG_fnc_unCompactStringArray;//Uncompact
+			_newItems = _newItems - _failedItems;//Remove failed items
+			_newItems = _newItems call NWG_fnc_compactStringArray;//Compact
+			_this set [_forEachIndex,_newItems];//Replace
+		};
+	} forEach _this;
+
+	//return
+	[_this,_validationResult]
+};
+
+NWG_ISHOP_SER_ValidatePersistentItems = {
+	private _persistentItems = NWG_ISHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
+	(_persistentItems call NWG_ISHOP_SER_ValidateItemsChart) params ["_chartAfterValidation","_isValid"];
+	if (!_isValid) then {
+		(format["NWG_ISHOP_SER_ValidatePersistentItems: Invalid persistent shop items, check logs and your NWG_ISHOP_SER_Settings"]) call NWG_fnc_logError;
+	};
+
+	NWG_ISHOP_SER_Settings set ["SHOP_PERSISTENT_ITEMS",_chartAfterValidation];
+};
+
+//================================================================================================================
+//================================================================================================================
+//Dynamic items
 
 //Items that are added on top of persistent items
 NWG_ISHOP_SER_dynamicItems = [
@@ -187,88 +296,51 @@ NWG_ISHOP_SER_dynamicItems = [
 	[]
 ];
 
-NWG_ISHOP_SER_prevPersistentItems = [];
-NWG_ISHOP_SER_prevPersistentItemsCheckResult = true;
-NWG_ISHOP_SER_CheckPersistentItems = {
-	// private _persistentItems = _this;
-
-	//Check settings
-	if !(NWG_ISHOP_SER_Settings get "SHOP_CHECK_PERSISTENT_ITEMS") exitWith {true};
-
-	//Check if persistent items changed since last check (settings were updated)
-	if (_this isEqualTo NWG_ISHOP_SER_prevPersistentItems) exitWith {NWG_ISHOP_SER_prevPersistentItemsCheckResult};
-	NWG_ISHOP_SER_prevPersistentItems = _this;
-
-	//Check overall structure
-	if !(_this isEqualTypeParams [[],[],[],[]]) exitWith {
-		(format["NWG_ISHOP_SER_CheckPersistentItems: Invalid persistent shop items format"]) call NWG_fnc_logError;
-		NWG_ISHOP_SER_prevPersistentItemsCheckResult = false;
-		false;
-	};
-
-	//Check that each element is of correct type
-	private _ok = true;
-	//foreach category
-	{
-		private _expected = switch (_forEachIndex) do {
-			case LOOT_CAT_CLTH: {LOOT_ITEM_TYPE_CLTH};
-			case LOOT_CAT_WEAP: {LOOT_ITEM_TYPE_WEAP};
-			case LOOT_CAT_ITEM: {LOOT_ITEM_TYPE_ITEM};
-			case LOOT_CAT_AMMO: {LOOT_ITEM_TYPE_AMMO};
-			default {""};
-		};
-
-		//foreach item in category
-		{
-			if (_x isEqualType "" && {(_x call NWG_fnc_icatGetItemType) isNotEqualTo _expected}) then {
-				(format["NWG_ISHOP_SER_CheckPersistentItems: Invalid persistent item '%1'. Expected: '%2', Actual: '%3'",_x,_expected,(_x call NWG_fnc_icatGetItemType)]) call NWG_fnc_logError;
-				_ok = false;
-			};
-		} forEach _x;
-	} forEach _this;
-
-	//Save
-	NWG_ISHOP_SER_prevPersistentItemsCheckResult = _ok;
-
+NWG_ISHOP_SER_DownloadDynamicItems = {
 	//return
-	_ok
+	NWG_ISHOP_SER_dynamicItems
 };
+
+NWG_ISHOP_SER_UploadDynamicItems = {
+	// private _dynamicItems = _this;
+	(_this call NWG_ISHOP_SER_ValidateItemsChart) params ["_chartAfterValidation","_isValid"];
+	if (!_isValid) then {
+		(format["NWG_ISHOP_SER_UploadDynamicItems: Invalid dynamic shop items, check logs and your NWG_ISHOP_SER_Settings"]) call NWG_fnc_logError;
+	};
+	NWG_ISHOP_SER_dynamicItems = _chartAfterValidation;
+	//return
+	_isValid
+};
+
+//================================================================================================================
+//================================================================================================================
+//Shop
 
 NWG_ISHOP_SER_OnShopRequest = {
 	private _player = _this;
 
 	//Get player loot
 	private _playerLoot = _player call (NWG_ISHOP_SER_Settings get "SHOP_GET_PLAYER_LOOT_FUNC");
-	if !(_playerLoot isEqualTypeParams [[],[],[],[]]) exitWith {
+	if !(_playerLoot isEqualTypeArray LOOT_ITEM_DEFAULT_CHART) exitWith {
 		(format["NWG_ISHOP_SER_OnShopRequest: Invalid player loot format"]) call NWG_fnc_logError;
 	};
 
-	//Get persistent shop items
-	private _persistentItems = NWG_ISHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
-	if !(_persistentItems call NWG_ISHOP_SER_CheckPersistentItems) then {
-		(format["NWG_ISHOP_SER_OnShopRequest: Invalid persistent shop items"]) call NWG_fnc_logError;
-		_persistentItems = [[],[],[],[]];//<== Use empty items
-	};
-
-	//Get dynamic shop items
-	private _dynamicItems = NWG_ISHOP_SER_dynamicItems;//No need to check since we are the ones who update it
-
 	//Merge shop items
+	private _persistentItems = NWG_ISHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
+	private _dynamicItems = NWG_ISHOP_SER_dynamicItems;
 	private _shopItems = [];
 	{
-		if ( ((count (_persistentItems#_x)) > 0) && {(count (_dynamicItems#_x)) > 0}) then {
+		if ((count (_persistentItems#_x)) > 0 && {(count (_dynamicItems#_x)) > 0}) then {
 			_shopItems pushBack ([(_persistentItems#_x),(_dynamicItems#_x)] call NWG_fnc_mergeCompactedStringArrays);
 		} else {
 			_shopItems pushBack ((_persistentItems#_x) + (_dynamicItems#_x));
 		};
-	} forEach [LOOT_CAT_CLTH,LOOT_CAT_WEAP,LOOT_CAT_ITEM,LOOT_CAT_AMMO];
+	} forEach [LOOT_ITEM_CAT_CLTH,LOOT_ITEM_CAT_WEAP,LOOT_ITEM_CAT_ITEM,LOOT_ITEM_CAT_AMMO];
 
 	//Evaluate prices
 	private _allItems = _playerLoot + _shopItems;
 	_allItems = (flatten _allItems) select {_x isEqualType ""};
-	_allItems = _allItems arrayIntersect _allItems;//Remove dublicates
-
-	//Evaluate prices
+	_allItems = _allItems arrayIntersect _allItems;//Remove duplicates
 	private _allPrices = _allItems apply {_x call NWG_ISHOP_SER_EvaluateItem};
 
 	//Send back result
@@ -286,7 +358,8 @@ NWG_ISHOP_SER_OnShopRequest = {
 
 NWG_ISHOP_SER_OnTransaction = {
 	params ["_itemsSoldToPlayer","_itemsBoughtFromPlayer"];
-	//Update prices
+
+	/* ==Update prices== */
 	private _updatePrices = {
 		params ["_items","_isSoldToPlayer"];
 		private _quantity = 1;
@@ -305,49 +378,47 @@ NWG_ISHOP_SER_OnTransaction = {
 			};
 		} forEach _items;
 	};
-
-	//Update prices for items sold to player
 	[_itemsSoldToPlayer,true] call _updatePrices;
-	//Update prices for items bought from player
 	[_itemsBoughtFromPlayer,false] call _updatePrices;
 
-	//Select items bought from player to add them to dynamic items
-	private _chance = ((NWG_ISHOP_SER_Settings get "SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE") max 0) min 1;
-	private _itemsToAdd = switch (_chance) do {
-		case 0: {[]};
-		case 1: {(_itemsBoughtFromPlayer + []) call NWG_fnc_unCompactStringArray};
-		default {((_itemsBoughtFromPlayer + []) call NWG_fnc_unCompactStringArray) select {(random 1) <= _chance}};
-	};
-	if (_itemsToAdd isEqualTo []) exitWith {};//<== EXIT IF NO ITEMS TO ADD
 
-	//Add items to dynamic items
-	private _itemsToAddCategorized = [[],[],[],[]];
-	private ["_itemType","_categoryIndex"];
-	//foreach flat itemsToAdd - categorize
-	{
-		_itemType = _x call NWG_fnc_icatGetItemType;
-		_categoryIndex = switch (_itemType) do {
-			case LOOT_ITEM_TYPE_AMMO: {LOOT_CAT_AMMO};
-			case LOOT_ITEM_TYPE_ITEM: {LOOT_CAT_ITEM};
-			case LOOT_ITEM_TYPE_WEAP: {LOOT_CAT_WEAP};
-			case LOOT_ITEM_TYPE_CLTH: {LOOT_CAT_CLTH};
-			default {-1};
+	/* ==Prepare script for categorization== */
+	private _getCategorizedItemsToProcess = {
+		params ["_items","_chanceName"];
+		if ((count _items) == 0) exitWith {[]};
+
+		private _chance = ((NWG_ISHOP_SER_Settings get _chanceName) max 0) min 1;
+		_items = switch (_chance) do {
+			case 0: {[]};
+			case 1: {(_items + []) call NWG_fnc_unCompactStringArray};
+			default {((_items + []) call NWG_fnc_unCompactStringArray) select {(random 1) <= _chance}};
 		};
-		if (_categoryIndex == -1) then {
-			(format["NWG_ISHOP_SER_OnTransaction: Invalid item type '%1'-'%2'",_x,_itemType]) call NWG_fnc_logError;
-			continue;
-		};
-		(_itemsToAddCategorized#_categoryIndex) pushBack _x;
-	} forEach _itemsToAdd;
+		if ((count _items) == 0) exitWith {[]};
+
+		private _itemsCategorized = LOOT_ITEM_DEFAULT_CHART;
+		{
+			switch (_x call NWG_fnc_icatGetItemType) do {
+				case LOOT_ITEM_TYPE_AMMO: {(_itemsCategorized#LOOT_ITEM_CAT_AMMO) pushBack _x};
+				case LOOT_ITEM_TYPE_ITEM: {(_itemsCategorized#LOOT_ITEM_CAT_ITEM) pushBack _x};
+				case LOOT_ITEM_TYPE_WEAP: {(_itemsCategorized#LOOT_ITEM_CAT_WEAP) pushBack _x};
+				case LOOT_ITEM_TYPE_CLTH: {(_itemsCategorized#LOOT_ITEM_CAT_CLTH) pushBack _x};
+				default {
+					(format["NWG_ISHOP_SER_OnTransaction: Invalid item type '%1'-'%2'",_x,(_x call NWG_fnc_icatGetItemType)]) call NWG_fnc_logError;
+				};
+			};
+		} forEach _items;
+
+		{_x call NWG_fnc_compactStringArray} forEach _itemsCategorized;
+
+		//return
+		_itemsCategorized
+	};
+
+
+	/* ==Add dynamic items== */
 	//foreach category of itemsToAdd
 	{
-		//Check if nothing to add - skip
-		if ((count _x) == 0) then {
-			continue;
-		};
-
-		//Compact array
-		_x call NWG_fnc_compactStringArray;
+		if ((count _x) == 0) then {continue};
 
 		//Check if nothing was stored - replace
 		if ((count (NWG_ISHOP_SER_dynamicItems#_forEachIndex)) == 0) then {
@@ -360,5 +431,40 @@ NWG_ISHOP_SER_OnTransaction = {
 			_forEachIndex,
 			([(NWG_ISHOP_SER_dynamicItems#_forEachIndex),_x] call NWG_fnc_mergeCompactedStringArrays)
 		];
-	} forEach _itemsToAddCategorized;
+	} forEach ([_itemsBoughtFromPlayer,"SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE"] call _getCategorizedItemsToProcess);
+
+
+	/* ==Remove dynamic items== */
+	//foreach category of itemsToRemove
+	private ["_removeArray","_removeCount","_existingArray","_existingCount","_i","_remainingCount"];
+	{
+		_removeArray = _x;
+		if ((count _removeArray) == 0) then {continue};
+
+		_existingArray = NWG_ISHOP_SER_dynamicItems#_forEachIndex;
+		if ((count _existingArray) == 0) then {continue};
+
+		//foreach item in removeArray
+		_removeCount = 1;//Init
+		{
+			if (_x isEqualType 1) then {_removeCount = _x; continue};
+
+			_i = _existingArray find _x;
+			if (_i == -1) then {continue};//Item not found (could happen if 2 or more players report at the same time or if persistent items were sold)
+
+			_existingCount = _existingArray param [(_i-1),false];
+			_remainingCount = if (_existingCount isEqualType 1)
+				then {_existingCount - _removeCount}
+				else {0};
+			_removeCount = 1;//Reset
+
+			switch (true) do {
+				case (_existingCount isEqualTo false): {_existingArray deleteAt _i};//_i points to first element of array and we need to remove at least one element
+				case (_existingCount isEqualType ""): {_existingArray deleteAt _i};//_i points to element without count (so its count is '1') and we need to remove at least one element
+				case (_remainingCount <= 0): {_existingArray deleteAt _i; _existingArray deleteAt (_i-1)};//Remove >=all elements - remove element itself and its count
+				case (_remainingCount == 1): {_existingArray deleteAt (_i-1)};//Remove only count of the element (so its count becomes '1')
+				default {_existingArray set [(_i-1),_remainingCount]};//Decrease count
+			};
+		} forEach _removeArray;
+	} forEach ([_itemsSoldToPlayer,"SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE"] call _getCategorizedItemsToProcess);
 };

@@ -13,3 +13,11 @@ NWG_fnc_vcatGetVehcType = {
 NWG_fnc_vcatGetBaseVehicle = {
     _this call NWG_VCAT_GetBaseVehicle
 };
+
+//Returns unified classname for the vehicle
+//unified classname: Base classname of the vehicle for BLUFOR side (so OPFOR quad bike will return B_Quadbike_01_F)
+//params: _classname - classname of vehicle to process
+//returns: string - unified classname or input itself if already unified or could not be unified
+NWG_fnc_vcatGetUnifiedClassname = {
+    _this call NWG_VCAT_GetUnifiedClassname
+};

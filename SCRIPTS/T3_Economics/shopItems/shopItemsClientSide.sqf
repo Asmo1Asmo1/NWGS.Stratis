@@ -70,13 +70,6 @@ NWG_ISHOP_CLI_OnServerResponse = {
 		_playerLoot = player call (NWG_ISHOP_CLI_Settings get "SHOP_GET_PLAYER_LOOT_FUNC");
 	};
 
-	//Save player loot and shop items for both UI and transaction logic
-	uiNamespace setVariable ["NWG_ISHOP_CLI_playerLoot",(+_playerLoot)];//Save as deep copy
-	uiNamespace setVariable ["NWG_ISHOP_CLI_shopItems",(+_shopItems)];//Save as deep copy
-
-	//Init transaction
-	[_allItems,_allPrices] call NWG_ISHOP_CLI_TRA_OnOpen;
-
 	//Check if shop dialog is already open
 	if (!isNull (findDisplay IDC_SHOPUI_DIALOGUE)) exitWith {
 		"NWG_ISHOP_CLI_OnServerResponse: Shop dialog is already open" call NWG_fnc_logError;
@@ -88,6 +81,13 @@ NWG_ISHOP_CLI_OnServerResponse = {
 		"NWG_ISHOP_CLI_OnServerResponse: Failed to create shop dialog" call NWG_fnc_logError;
 	};
 	uiNamespace setVariable ["NWG_ISHOP_CLI_shopGUI",_shopGUI];
+
+	//Save player loot and shop items for both UI and transaction logic
+	uiNamespace setVariable ["NWG_ISHOP_CLI_playerLoot",(+_playerLoot)];//Save as deep copy
+	uiNamespace setVariable ["NWG_ISHOP_CLI_shopItems",(+_shopItems)];//Save as deep copy
+
+	//Init transaction
+	[_allItems,_allPrices] call NWG_ISHOP_CLI_TRA_OnOpen;
 
 	//Initialize UI top to bottom
 	//Init player money
@@ -339,10 +339,10 @@ NWG_ISHOP_CLI_UpdateItemsList = {
 
 	private _itemsToShow = switch (_listCat) do {
 		case LOOT_ITEM_TYPE_ALL: {flatten _itemsCollection};
-		case LOOT_ITEM_TYPE_CLTH: {_itemsCollection#LOOT_CAT_CLTH};
-		case LOOT_ITEM_TYPE_WEAP: {_itemsCollection#LOOT_CAT_WEAP};
-		case LOOT_ITEM_TYPE_ITEM: {_itemsCollection#LOOT_CAT_ITEM};
-		case LOOT_ITEM_TYPE_AMMO: {_itemsCollection#LOOT_CAT_AMMO};
+		case LOOT_ITEM_TYPE_CLTH: {_itemsCollection#LOOT_ITEM_CAT_CLTH};
+		case LOOT_ITEM_TYPE_WEAP: {_itemsCollection#LOOT_ITEM_CAT_WEAP};
+		case LOOT_ITEM_TYPE_ITEM: {_itemsCollection#LOOT_ITEM_CAT_ITEM};
+		case LOOT_ITEM_TYPE_AMMO: {_itemsCollection#LOOT_ITEM_CAT_AMMO};
 		default {
 			"NWG_ISHOP_CLI_UpdateItemsList: Invalid category" call NWG_fnc_logError;
 			[]
@@ -362,9 +362,8 @@ NWG_ISHOP_CLI_UpdateItemsList = {
 
 		(_x call NWG_ISHOP_CLI_GetItemInfo) params ["_picture","_displayName"];
 		_price = [_x,_isPlayerSide] call NWG_ISHOP_CLI_TRA_GetPrice;
-		private _formatted = [_displayName,_count,_price] call NWG_ISHOP_CLI_FormatListRecord;
 
-		_i = _list lbAdd _formatted;//Add formatted record
+		_i = _list lbAdd ([_displayName,_count,_price] call NWG_ISHOP_CLI_FormatListRecord);//Add formatted record
 		_list lbSetData [_i,_x];//Set data (item classname)
 		_list lbSetPicture [_i, _picture];//Set picture
 		_count = 1;//Reset count

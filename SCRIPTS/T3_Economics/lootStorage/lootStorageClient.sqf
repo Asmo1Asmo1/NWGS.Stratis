@@ -186,16 +186,18 @@ NWG_LS_CLI_GetAllContainerItems = {
 NWG_LS_CLI_ConvertToLoot = {
     // private _allContainerItems = _this;
 
-    private _loot = [[],[],[],[]];
+    private _loot = LOOT_ITEM_DEFAULT_CHART;
     {
         switch (_x call NWG_fnc_icatGetItemType) do {
-            case LOOT_ITEM_TYPE_CLTH: {(_loot#LOOT_CAT_CLTH) pushBack (_x call NWG_fnc_icatGetBaseBackpack)};
-            case LOOT_ITEM_TYPE_WEAP: {(_loot#LOOT_CAT_WEAP) pushBack (_x call NWG_fnc_icatGetBaseWeapon)};
-            case LOOT_ITEM_TYPE_ITEM: {(_loot#LOOT_CAT_ITEM) pushBack _x};
-            case LOOT_ITEM_TYPE_AMMO: {(_loot#LOOT_CAT_AMMO) pushBack _x};
+            case LOOT_ITEM_TYPE_CLTH: {(_loot#LOOT_ITEM_CAT_CLTH) pushBack (_x call NWG_fnc_icatGetBaseBackpack)};
+            case LOOT_ITEM_TYPE_WEAP: {(_loot#LOOT_ITEM_CAT_WEAP) pushBack (_x call NWG_fnc_icatGetBaseWeapon)};
+            case LOOT_ITEM_TYPE_ITEM: {(_loot#LOOT_ITEM_CAT_ITEM) pushBack _x};
+            case LOOT_ITEM_TYPE_AMMO: {(_loot#LOOT_ITEM_CAT_AMMO) pushBack _x};
+            default {
+                (format ["NWG_LS_CLI_ConvertToLoot: Item: '%1', Unknown item type: '%2'",_x,(_x call NWG_fnc_icatGetItemType)]) call NWG_fnc_logError;
+            };
         };
     } forEach _this;
-    _this resize 0;//Clear
 
     //return
     _loot
@@ -239,12 +241,27 @@ NWG_LS_CLI_LootByInventoryUI = {
     };
 
     //Get physical container
-    private _container = if (_uiContainerID == MAIN_CONTAINER_LIST)
-        then {if (!isNull _mainContainer) then {_mainContainer} else {_secdContainer}}
-        else {if (!isNull _secdContainer) then {_secdContainer} else {_mainContainer}};//Fix looting corpses (switches the containers)
+    private _containers = if (_uiContainerID == MAIN_CONTAINER_LIST)
+        then {[_mainContainer,_secdContainer]}
+        else {[_secdContainer,_mainContainer]};
+    if (isNull (_containers#0)) then {
+        _containers pushBack (_containers deleteAt 0);//Swap (old fix for looting corpses)
+    };
+    private _container = _containers#0;
     if (isNull _container) exitWith {
         "NWG_LS_CLI_LootByInventoryUI: Inventory containers are not available." call NWG_fnc_logError;
         false
+    };
+
+    //Fix Arma 2.18 introducing weaponholders instead of actual units
+    _secdContainer = _containers#1;
+    if (_container isKindOf "WeaponHolder" || {_container isKindOf "WeaponHolderSimulated"}) then {
+        if (!isNull _secdContainer && {_secdContainer isNotEqualTo _container}) then {
+            if (_secdContainer isKindOf "Man" || {(objectParent _secdContainer) isKindOf "Man"}) then {
+                _container = _secdContainer;
+                _secdContainer = objNull;
+            };
+        };
     };
 
     //Loot the container by using existing code
@@ -299,10 +316,10 @@ NWG_LS_CLI_LootByAction = {
         if (_container isKindOf "Man") then {
             //We were looting the body of a unit
             private _uniform = uniform _container;//Get current uniform
-            if (_uniform isNotEqualTo "" && {_flattenedLoot isNotEqualTo [_uniform]}) then {
+            if (_uniform isNotEqualTo "" && {_allContainerItems isNotEqualTo [_uniform]}) then {
                 //If there was a uniform and it is not the only thing left
                 _container setUnitLoadout [[],[],[],[_uniform,[]],[],[],"","",[],["","","","","",""]];//Leave only the uniform
-                (_loot#LOOT_CAT_CLTH) deleteAt ((_loot#LOOT_CAT_CLTH) find _uniform);//Remove uniform from loot (we're not taking it)
+                (_loot#LOOT_ITEM_CAT_CLTH) deleteAt ((_loot#LOOT_ITEM_CAT_CLTH) find _uniform);//Remove uniform from loot (we're not taking it)
             } else {
                 _container setUnitLoadout (configFile >> "EmptyLoadout");//Clear the inventory completely
             };
