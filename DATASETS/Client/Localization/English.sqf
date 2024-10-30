@@ -59,6 +59,33 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //T3_Economics
     //lootStorage
     ["#LS_STORAGE_ACTION_TITLE#","Open Storage"],
+    ["#LS_DEPLETE_NOTIFICATION#","Lost %1%% of loot"],
+    //shopItems
+    ["#ISHOP_ACTION_TITLE#","Open Shop"],
+    ["#ISHOP_SELLER_MONEY_CONST#","€$---"],
+    ["#ISHOP_CAT_ALL#","All"],
+    ["#ISHOP_CAT_CLTH#","Clothing"],
+    ["#ISHOP_CAT_WEAP#","Weapons"],
+    ["#ISHOP_CAT_ITEM#","Items"],
+    ["#ISHOP_CAT_AMMO#","Ammunition"],
+    ["#ISHOP_MULT_X10_TT#","Ctrl"],
+    ["#ISHOP_MULT_ALL_TT#","Shift"],
+    //shopVehicles
+    ["#VSHOP_ACTION_TITLE#","Open Shop"],
+    ["#VSHOP_SELLER_MONEY_CONST#","€$---"],
+    ["#VSHOP_CAT_ALL#","All"],
+    ["#VSHOP_CAT_AAIR#","Anti-Air"],
+    ["#VSHOP_CAT_APCS#","APCs"],
+    ["#VSHOP_CAT_ARTY#","Artillery"],
+    ["#VSHOP_CAT_BOAT#","Boats"],
+    ["#VSHOP_CAT_CARS#","Cars"],
+    ["#VSHOP_CAT_DRON#","Drones"],
+    ["#VSHOP_CAT_HELI#","Helicopters"],
+    ["#VSHOP_CAT_PLAN#","Planes"],
+    ["#VSHOP_CAT_SUBM#","Submarines"],
+    ["#VSHOP_CAT_TANK#","Tanks"],
+    ["#VSHOP_PLATFORM_OCCUPIED#","Platform occupied"],
+    ["#VSHOP_CANNOT_SELL_VEHICLE#","Can not sell this vehicle"],
     //vehCustomizationAppearance
     ["#CAPP_LEFT_TITLE#","Color"],
     ["#CAPP_RIGHT_TITLE#","Components"],
@@ -67,6 +94,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#CPYL_RIGHT_TITLE#","Pylons owner"],
     ["#CPYL_OWNER_PILOT#","Pilot"],
     ["#CPYL_OWNER_GUNNER#","Gunner"],
+    //vehOwnership
+    ["#VEHOWN_MESSAGE_OWNER#","Owner: %1"],
+    //wallet
+    ["#WLT_NOTIFY_MONEY_ADD#","[Money:  +%1]"],
+    ["#WLT_NOTIFY_MONEY_SUB#","[Money:  %1]"],
 
     ["",""]
 ];

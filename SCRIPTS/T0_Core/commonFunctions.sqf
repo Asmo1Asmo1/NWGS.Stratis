@@ -156,6 +156,52 @@ NWG_fnc_unCompactStringArray = {
     _this
 };
 
+//Merges two compacted string arrays ["a",2,"b"]+[2,"b",3,"c"] = ["a",4,"b",3,"c"]
+//note: faster alternative to ((A+B) call NWG_fnc_unCompactStringArray) call NWG_fnc_compactStringArray;
+NWG_fnc_mergeCompactedStringArrays = {
+    params ["_array1","_array2"];
+
+    //Get compacted array but with unomitted '1' counts
+    private _result = [];
+    private _count = 1;
+    {
+        if (_x isEqualType 0) then {
+            _count = _x;
+        } else {
+            _result pushBack _count;
+            _result pushBack _x;
+            _count = 1;
+        };
+    } forEach _array1;
+
+    //Merge in the second array
+    private _i = -1;
+    _count = 1;//Reset count
+    {
+        if (_x isEqualType 0) then {
+            _count = _x;
+            continue;
+        };
+
+        _i = _result find _x;
+        if (_i == -1) then {
+            //Element not found, add it
+            _result pushBack _count;
+            _result pushBack _x;
+        } else {
+            //Element found, merge counts
+            _result set [(_i-1),((_result#(_i-1))+_count)];
+        };
+        _count = 1;
+    } forEach _array2;
+
+    //Omit '1' counts
+    _result = _result - [1];
+
+    //return
+    _result
+};
+
 //===============================================================
 //Range
 //Returns a random number within the range
@@ -185,13 +231,13 @@ NWG_fnc_getPlayersOrOccupiedVehicles = {
 
 //===============================================================
 //Animation
-NWG_fnc_playAnim = {
+NWG_fnc_playAnimGlobal = {
     params ["_unit","_animName"];
-    if (isNil "_unit" || {isNull _unit}) exitWith {"NWG_fnc_playAnim: unit is Null" call NWG_fnc_logError};
-    _this remoteExecCall ["NWG_fnc_playAnimRemote",0];
+    if (isNil "_unit" || {isNull _unit}) exitWith {"NWG_fnc_playAnimGlobal: unit is Null" call NWG_fnc_logError};
+    _this remoteExecCall ["NWG_fnc_playAnim",0];
 };
 
-NWG_fnc_playAnimRemote = {
+NWG_fnc_playAnim = {
     params ["_unit","_animName"];
     //Force unscheduled environment, see Leopard20's comment on https://community.bistudio.com/wiki/switchMove
     if (canSuspend)
@@ -243,7 +289,7 @@ NWG_fnc_translateMessage = {
 
     switch (true) do {
         /*Simple message*/
-        case (!(_this isEqualType [])): {_this call _translate};//Single string
+        case (!(_this isEqualType [])): {_this call _translate};//Single argument (string, int, bool, obj, etc.)
         case ((count _this) <= 1):      {(_this param [0,""]) call _translate};//Single element or empty array
         /*Formatted message*/
         default {format (_this apply {_x call _translate})};//Array of format arguments as [template,arg0,arg1...]
@@ -268,4 +314,40 @@ NWG_fnc_systemChatMe = {
 NWG_fnc_systemChatAll = {
     // private _message = _this;
     _this remoteExec ["NWG_fnc_systemChatMe"];
+};
+
+//===============================================================
+//Actions
+//Adds action to object on every client (MP and JIP compatible, action title localized)
+//note: action radius and conditions are hardcoded
+NWG_fnc_addActionGlobal = {
+    // params ["_object","_title","_script"];
+    params ["_object"];
+    if (isNull _object) exitWith {
+        "NWG_fnc_addActionGlobal: object is Null" call NWG_fnc_logError;
+    };
+
+    ["NWG_fnc_addAction",_this] remoteExec ["NWG_fnc_clientRemoteExecReliable",0,_object];
+};
+
+//Adds action to object
+//note: action radius and conditions are hardcoded
+NWG_fnc_addAction = {
+    params ["_object","_title","_script"];
+    if (!hasInterface || {isNull _object}) exitWith {};
+
+    _object addAction [
+        (_title call NWG_fnc_localize),
+        _script,
+        nil,   // arguments
+        1.5,   // priority
+        true,  // showWindow
+        true,  // hideOnUse
+        "",    // shortcut
+        "true",// condition
+        4,     // radius
+        false, // unconscious
+        "",    // selection
+        ""     // memoryPoint
+    ];
 };

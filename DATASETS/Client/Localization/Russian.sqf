@@ -59,6 +59,33 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //T3_Economics
     //lootStorage
     ["#LS_STORAGE_ACTION_TITLE#","Открыть Хранилище"],
+    ["#LS_DEPLETE_NOTIFICATION#","Потеряно %1%% добычи"],
+    //shopItems
+    ["#ISHOP_ACTION_TITLE#","Открыть Магазин"],
+    ["#ISHOP_SELLER_MONEY_CONST#","€$---"],
+    ["#ISHOP_CAT_ALL#","Все предметы"],
+    ["#ISHOP_CAT_CLTH#","Одежда"],
+    ["#ISHOP_CAT_WEAP#","Оружие"],
+    ["#ISHOP_CAT_ITEM#","Предметы"],
+    ["#ISHOP_CAT_AMMO#","Боеприпасы"],
+    ["#ISHOP_MULT_X10_TT#","Ctrl"],
+    ["#ISHOP_MULT_ALL_TT#","Shift"],
+    //shopVehicles
+    ["#VSHOP_ACTION_TITLE#","Открыть Магазин"],
+    ["#VSHOP_SELLER_MONEY_CONST#","€$---"],
+    ["#VSHOP_CAT_ALL#","Вся техника"],
+    ["#VSHOP_CAT_AAIR#","Противовоздушная"],
+    ["#VSHOP_CAT_APCS#","Бронетранспорт"],
+    ["#VSHOP_CAT_ARTY#","Артиллерия"],
+    ["#VSHOP_CAT_BOAT#","Лодки"],
+    ["#VSHOP_CAT_CARS#","Машины"],
+    ["#VSHOP_CAT_DRON#","Дроны"],
+    ["#VSHOP_CAT_HELI#","Вертолёты"],
+    ["#VSHOP_CAT_PLAN#","Самолёты"],
+    ["#VSHOP_CAT_SUBM#","Подводные лодки"],
+    ["#VSHOP_CAT_TANK#","Танки"],
+    ["#VSHOP_PLATFORM_OCCUPIED#","Платформа занята"],
+    ["#VSHOP_CANNOT_SELL_VEHICLE#","Нельзя продать эту технику"],
     //vehCustomizationAppearance
     ["#CAPP_LEFT_TITLE#","Цвет"],
     ["#CAPP_RIGHT_TITLE#","Компоненты"],
@@ -67,6 +94,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#CPYL_RIGHT_TITLE#","Владелец пилонов"],
     ["#CPYL_OWNER_PILOT#","Пилот"],
     ["#CPYL_OWNER_GUNNER#","Стрелок"],
+    //vehOwnership
+    ["#VEHOWN_MESSAGE_OWNER#","Владелец: %1"],
+    //wallet
+    ["#WLT_NOTIFY_MONEY_ADD#","[Деньги:  +%1]"],
+    ["#WLT_NOTIFY_MONEY_SUB#","[Деньги:  %1]"],
 
     ["",""]
 ];

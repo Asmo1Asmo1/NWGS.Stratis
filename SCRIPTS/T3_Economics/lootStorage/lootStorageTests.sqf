@@ -1,3 +1,5 @@
+#include "..\..\globalDefines.h"
+
 // call NWG_LS_CLI_LootByAction_Test
 NWG_LS_CLI_LootByAction_Test = {
 	private _target = cursorTarget;
@@ -7,7 +9,7 @@ NWG_LS_CLI_LootByAction_Test = {
 		private _target = _this;
 		sleep 1;
 
-		[player,[[],[],[],[]]] call NWG_fnc_lsSetPlayerLoot;//Clear player loot
+		[player,LOOT_ITEM_DEFAULT_CHART] call NWG_fnc_lsSetPlayerLoot;//Clear player loot
 		_target call NWG_LS_CLI_LootByAction;//Loot target
 		with missionNamespace do {
 			call NWG_LS_CLI_OpenMyStorage;//Open storage to see loot
@@ -194,7 +196,7 @@ NWG_LS_CLI_GetBasicBackpack_Test_EqualWithBisFunc = {
     private ["_customResult","_bisfncResult"];
     //forEach testCase
     {
-        _customResult = _x call NWG_LS_CLI_GetBasicBackpack;
+        _customResult = _x call NWG_fnc_icatGetBaseBackpack;
         _bisfncResult = _x call BIS_fnc_basicBackpack;
 
         if (_customResult isNotEqualTo _bisfncResult)

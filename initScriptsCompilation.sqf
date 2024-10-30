@@ -18,15 +18,14 @@ private _clientModules = [];//Modules to be run on client only
 //Prepare compilation script
 NWG_fnc_compile = {
     // private _fileAddress = _this;
-    private _fileAddress = (if (NWG_SER_IsServermod) then {(format ["NWG\%1",_this])} else {_this});
-
-    //return
-    (if (fileExists _fileAddress) then {
-        (compileFinal preprocessFileLineNumbers _fileAddress)
-    } else {
+    private _fileAddress = if (NWG_SER_IsServermod) then {format ["NWG\%1",_this]} else {_this};
+    if !(fileExists _fileAddress) exitWith {
         diag_log formatText ["  [ERROR] #### File not found: %1", _fileAddress];
         {}//Return empty code block
-    })
+    };
+
+    //else - return compiled code
+    compileFinal (preprocessFileLineNumbers _fileAddress)
 };
 
 //================================================================================================================
@@ -142,10 +141,16 @@ _clientModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingClientSide.sqf
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\voting\votingFunctions.sqf" call NWG_fnc_compile);
 
 //T3_Economics
-//itemsCategorization
-_clientModules pushBack ("SCRIPTS\T3_Economics\itemsCategorization\itemsCategorization.sqf" call NWG_fnc_compile);
-if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\itemsCategorization\itemsCategorizationTests.sqf" call NWG_fnc_compile)};
-_clientFunctions pushBack ("SCRIPTS\T3_Economics\itemsCategorization\itemsCategorizationFunctions.sqf" call NWG_fnc_compile);
+//categorizationItems
+_serverModules pushBack ("SCRIPTS\T3_Economics\categorizationItems\categorizationItems.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\categorizationItems\categorizationItems.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\categorizationItems\categorizationItemsTests.sqf" call NWG_fnc_compile)};
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\categorizationItems\categorizationItemsFunctions.sqf" call NWG_fnc_compile);
+//categorizationVehs
+_serverModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehs.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehs.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsTests.sqf" call NWG_fnc_compile)};
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsFunctions.sqf" call NWG_fnc_compile);
 //lootStorage
 _serverModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageServer.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\lootStorage\missionMachineConnector.sqf" call NWG_fnc_compile);
@@ -154,6 +159,18 @@ _clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageCommon.sqf
 _clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageClient.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageTests.sqf" call NWG_fnc_compile)};
+//shopItems
+_serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsServerSide.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\missionMachineConnector.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsClientSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsTests.sqf" call NWG_fnc_compile)};
+//shopVehicles
+_serverModules pushBack ("SCRIPTS\T3_Economics\shopVehicles\shopVehiclesServerSide.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\shopVehicles\missionMachineConnector.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\shopVehicles\shopVehiclesClientSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\shopVehicles\shopVehiclesFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\shopVehicles\shopVehiclesTests.sqf" call NWG_fnc_compile)};
 //vehCustomizationAppearance
 _serverModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationAppearance\vehCustomizationAppearanceCore.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationAppearance\vehCustomizationAppearanceCore.sqf" call NWG_fnc_compile);
@@ -167,6 +184,17 @@ _commonFunctions pushBack ("SCRIPTS\T3_Economics\vehCustomizationPylons\vehCusto
 //vehCustomizationUI
 _clientModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationUI\vehCustomizationUI.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T3_Economics\vehCustomizationUI\vehCustomizationUIFunctions.sqf" call NWG_fnc_compile);
+//vehOwnership
+_serverModules pushBack ("SCRIPTS\T3_Economics\vehOwnership\vehOwnershipCommon.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\vehOwnership\vehOwnershipCommon.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\vehOwnership\vehOwnershipClient.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\vehOwnership\vehOwnershipFunctions.sqf" call NWG_fnc_compile);
+//wallet
+_serverModules pushBack ("SCRIPTS\T3_Economics\wallet\walletCommon.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\wallet\walletCommon.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\wallet\walletClient.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\wallet\walletFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\wallet\walletTests.sqf" call NWG_fnc_compile)};
 
 //================================================================================================================
 //================================================================================================================
