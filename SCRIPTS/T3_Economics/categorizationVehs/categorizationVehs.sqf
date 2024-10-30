@@ -55,3 +55,37 @@ NWG_VCAT_GetBaseVehicle = {
     } foreach (_cfg call BIS_fnc_returnParents);
     _return
 };
+
+NWG_VCAT_GetUnifiedClassname = {
+	// private _classname = _this;
+
+	//Get base classname for the vehicle and disassemble it for analysis
+	private _classname =_this call NWG_VCAT_GetBaseVehicle;
+	private _classnameParts = _classname splitString "_";
+	if ((count _classnameParts) < 2) exitWith {
+		(format ["NWG_VCAT_GetUnifiedClassname: Invalid classname '%1'",_classname]) call NWG_fnc_logError;
+		_classname
+	};
+
+	//Get variables for further analysis
+	private _prefix1 = _classnameParts#0;
+	private _prefix2 = _classnameParts#1;
+	private _doublePrefix = (count _prefix2) == 1;
+	private _body = if (_doublePrefix)
+		then {_classnameParts select [2]} /*select [2:]*/
+		else {_classnameParts select [1]};/*select [1:]*/
+
+	//Check if we have BLUFOR prefix already
+	if (_prefix1 isEqualTo "B" && !_doublePrefix) exitWith {_classname};
+
+	//Try converting to BLUFOR
+	private _newClassname = (["B"] + _body) joinString "_";
+	if (isClass (configFile >> "CfgVehicles" >> _newClassname)) exitWith {_newClassname};
+
+	//Try converting to BLUFOR guerilla
+	_newClassname = (["B","G"] + _body) joinString "_";
+	if (isClass (configFile >> "CfgVehicles" >> _newClassname)) exitWith {_newClassname};
+
+	//Return original if all else fails
+	_classname
+};

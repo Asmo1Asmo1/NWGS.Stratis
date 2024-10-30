@@ -69,6 +69,7 @@ NWG_fnc_vownGetOwnedVehicles = {
 	// private _player = _this;
 	if (isNull _this || !alive _this) exitWith {
 		"NWG_fnc_vownGetOwnedVehicles: Player is null or dead" call NWG_fnc_logError;
+		[]
 	};
 
 	_this call NWG_VEHOWN_GetOwnedVehicles;

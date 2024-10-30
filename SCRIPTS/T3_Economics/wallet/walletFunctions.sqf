@@ -8,8 +8,8 @@ NWG_fnc_wltGetPlayerMoney = {
 		"NWG_fnc_wltGetPlayerMoney: Invalid player" call NWG_fnc_logError;
 		0
 	};
-	if (isNull _this) exitWith {
-		"NWG_fnc_wltGetPlayerMoney: Player is null" call NWG_fnc_logError;
+	if (!alive _this || {isNull _this}) exitWith {
+		"NWG_fnc_wltGetPlayerMoney: Player is dead or null" call NWG_fnc_logError;
 		0
 	};
 
@@ -26,9 +26,10 @@ NWG_fnc_wltAddPlayerMoney = {
 	if !(_player isEqualType objNull) exitWith {
 		"NWG_fnc_wltAddPlayerMoney: Invalid player" call NWG_fnc_logError;
 	};
-	if (isNull _player) exitWith {
-		"NWG_fnc_wltAddPlayerMoney: Player is null" call NWG_fnc_logError;
+	if (!alive _player || {isNull _player}) exitWith {
+		"NWG_fnc_wltAddPlayerMoney: Player is dead or null" call NWG_fnc_logError;
 	};
+	if (_amount == 0) exitWith {};//Do nothing, not even log
 
 	if (local _player)
 		then {_this call NWG_WLT_AddPlayerMoney}
@@ -44,8 +45,8 @@ NWG_fnc_wltSetPlayerMoney = {
 	if !(_player isEqualType objNull) exitWith {
 		"NWG_fnc_wltSetPlayerMoney: Invalid player" call NWG_fnc_logError;
 	};
-	if (isNull _player) exitWith {
-		"NWG_fnc_wltSetPlayerMoney: Player is null" call NWG_fnc_logError;
+	if (!alive _player || {isNull _player}) exitWith {
+		"NWG_fnc_wltSetPlayerMoney: Player is dead or null" call NWG_fnc_logError;
 	};
 
 	if (local _player)
@@ -77,8 +78,8 @@ NWG_fnc_wltNotifyMoneyChange = {
 	if !(_player isEqualType objNull) exitWith {
 		"NWG_fnc_wltNotifyMoneyChange: Invalid player" call NWG_fnc_logError;
 	};
-	if (isNull _player) exitWith {
-		"NWG_fnc_wltNotifyMoneyChange: Player is null" call NWG_fnc_logError;
+	if (!alive _player || {isNull _player}) exitWith {
+		"NWG_fnc_wltNotifyMoneyChange: Player is dead or null" call NWG_fnc_logError;
 	};
 
 	if (local _player)

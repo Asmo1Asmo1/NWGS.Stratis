@@ -32,8 +32,9 @@ NWG_VEHOWN_GetOwnedVehicles = {
 	//private _player = _this;
 	private _ownedVehicles = _this getVariable ["NWG_VEHOWN_OwnedVehicles",[]];
 	private _countBefore = count _ownedVehicles;
+	if (_countBefore == 0) exitWith {_ownedVehicles};//<= Exit if no vehicles owned
 
-	_ownedVehicles = _ownedVehicles select {!isNil "_x" && {!isNull _x} && {alive _x}};//Filter dead|sold vehicles
+	_ownedVehicles = _ownedVehicles select {!isNil "_x" && {!isNull _x && {alive _x}}};//Filter dead|sold vehicles
 	_ownedVehicles = _ownedVehicles arrayIntersect _ownedVehicles;//Remove duplicates
 	if ((count _ownedVehicles) != _countBefore) then {
 		[_this,_ownedVehicles] call NWG_fnc_vownSetOwnedVehicles;//Update the list

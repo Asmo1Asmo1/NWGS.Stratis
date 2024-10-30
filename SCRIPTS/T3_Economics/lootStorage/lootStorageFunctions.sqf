@@ -1,3 +1,5 @@
+#include "..\..\globalDefines.h"
+
 /*Other systems->Server*/
 //Setup loot storage object (object that gives access to loot storage via action)
 //params: _storageObject - object
@@ -34,11 +36,11 @@ NWG_fnc_lsGetPlayerLoot = {
     // private _player = _this;
     if !(_this isEqualType objNull) exitWith {
         "NWG_fnc_lsGetPlayerLoot: Invalid player" call NWG_fnc_logError;
-        [[],[],[],[]]
+        LOOT_ITEM_DEFAULT_CHART
     };
     if (isNull _this) exitWith {
         "NWG_fnc_lsGetPlayerLoot: Player is null" call NWG_fnc_logError;
-        [[],[],[],[]]
+        LOOT_ITEM_DEFAULT_CHART
     };
 
     _this call NWG_LS_COM_GetPlayerLoot;
