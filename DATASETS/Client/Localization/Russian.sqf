@@ -59,6 +59,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //T3_Economics
     //lootStorage
     ["#LS_STORAGE_ACTION_TITLE#","Открыть Хранилище"],
+    ["#LS_DEPLETE_NOTIFICATION#","Потеряно %1%% добычи"],
     //shopItems
     ["#ISHOP_ACTION_TITLE#","Открыть Магазин"],
     ["#ISHOP_SELLER_MONEY_CONST#","€$---"],

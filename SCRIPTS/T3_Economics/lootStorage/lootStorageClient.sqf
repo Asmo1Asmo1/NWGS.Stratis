@@ -17,6 +17,10 @@ NWG_LS_CLI_Settings = createHashMapFromArray [
     ]],//Price map for the loot immediate sell without putting it into storage
     ["AUTO_SELL_ADD_MONEY_FUNCTION",{_this call NWG_fnc_wltAddPlayerMoney}],//Function that adds money to the player params: [_player,_amount]
 
+    ["DEPLETE_LOOT_ON_RESPAWN",true],//Should the loot be deplete on respawn
+    ["DEPLETE_MULTIPLIER",0.5],//Multiplier for the loot deplete on respawn
+    ["DEPLETE_NOTIFICATION",true],//Should we notify player about the loot depletion
+
     ["",0]
 ];
 
@@ -31,6 +35,7 @@ NWG_LS_CLI_invisibleBox = objNull;
 private _Init = {
     player addEventHandler ["InventoryClosed",{call NWG_LS_CLI_OnInventoryClose}];
     player addEventHandler ["Take",{call NWG_LS_CLI_AutoSellOnTake}];
+    player addEventHandler ["Respawn",{_this call NWG_LS_CLI_OnRespawn}];
 };
 
 //================================================================================================================
@@ -396,6 +401,37 @@ NWG_LS_CLI_AutoSellOnTake = {
     //Remove item and add money
     player removeItem _item;
     [player,_price] call (NWG_LS_CLI_Settings get "AUTO_SELL_ADD_MONEY_FUNCTION");
+};
+
+//================================================================================================================
+//================================================================================================================
+//On respawn
+NWG_LS_CLI_OnRespawn = {
+    params ["_player","_corpse"];
+
+    //Get player loot from an old instance
+    private _loot = _corpse call NWG_fnc_lsGetPlayerLoot;
+    if (_loot isEqualTo LOOT_ITEM_DEFAULT_CHART) exitWith {};//No loot to transfer
+
+    //Deplete the loot
+    if (NWG_LS_CLI_Settings get "DEPLETE_LOOT_ON_RESPAWN") then {
+        private _multiplier = NWG_LS_CLI_Settings get "DEPLETE_MULTIPLIER";
+        {
+            _x call NWG_fnc_unCompactStringArray;//Uncompact
+            _x call NWG_fnc_arrayShuffle;//Shuffle
+            _x resize (floor ((count _x) * _multiplier));//Deplete
+            _x call NWG_fnc_compactStringArray;//Compact
+            _loot set [_forEachIndex,_x];//Save
+        } forEach _loot;
+
+        if (NWG_LS_CLI_Settings get "DEPLETE_NOTIFICATION") then {
+            private _percentage = (1 - _multiplier) * 100;
+            ["#LS_DEPLETE_NOTIFICATION#",_percentage] call NWG_fnc_systemChatMe;
+        };
+    };
+
+    //Transfer loot to the new entity
+    [_player,_loot] call NWG_fnc_lsSetPlayerLoot;
 };
 
 //================================================================================================================
