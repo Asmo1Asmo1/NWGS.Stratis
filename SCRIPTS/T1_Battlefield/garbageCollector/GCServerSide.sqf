@@ -7,9 +7,9 @@ NWG_GC_Settings = createHashMapFromArray [
     ["PLAYER_DELETION_DELAY",0.1],//Delay amount to wait before deleting the player (on respawn or disconnect)
     ["IMMEDIATE_DELETE_IF_PLAYER_DISTANCE",5000],//If vehicle/unit is killed not by player and there are no players closer than N - delete immediately (prevent bodies on the roads)
 
-    ["BODIES_MAX",[15,30]],//Min and max bodies count on the map allowed
-    ["WRECKS_MAX",[5,10]],//Min and max vehicle/turret wrecks
-    ["TRASH_MAX",[4,8]],//Min and max ground trash
+    ["BODIES_LIMITS",[15,30]],//Min and max bodies count on the map allowed
+    ["WRECKS_LIMITS",[5,10]],//Min and max vehicle/turret wrecks
+    ["TRASH_LIMITS",[4,8]],//Min and max ground trash
     ["PRESERVE_DISTANCE",25],//Distance from players to objects at which we will try to preserve them to not break immersion
 
     ["BUILDING_DECOR_DELETE",true],//Delete building decorations on building destroy
@@ -97,18 +97,24 @@ NWG_GC_AddToOriginalMarkers = {
 
 //======================================================================================================
 //======================================================================================================
+//Dead vehicle util
+NWG_GC_IsInDeadVehicle = {
+    // private _unit = _this;
+    !isNull (objectParent _this) && {!alive (objectParent _this)}
+};
+
+//======================================================================================================
+//======================================================================================================
 //Delete methods
 NWG_GC_DeleteUnit = {
     // private _unit = _this;
     if (isNull _this) exitWith {};
+    if (_this call NWG_GC_IsInDeadVehicle) exitWith {};//Ignore if inside dead vehicle - game will delete it itself
 
-    private _vehicle = vehicle _this;
-    switch (true) do {
-        case (isNull _vehicle): {deleteVehicle _this};//Just in case
-        case (_vehicle isEqualTo _this): {deleteVehicle _this};//Unit on foot
-        case (!alive _vehicle && {!alive _this}): {};//Game will delete on vehicle deletion (Fix possible game crash)
-        default {_vehicle deleteVehicleCrew _this};//Unit inside vehicle
-    };
+    private _vehicle = objectParent _this;
+    if (isNull _vehicle)
+        then {deleteVehicle _this}/*Unit on foot*/
+        else {_vehicle deleteVehicleCrew _this};/*Unit inside vehicle*/
 };
 
 NWG_GC_delayedUnitsQueue = [];
@@ -149,7 +155,7 @@ NWG_GC_DeleteGroup = {
 
     //Delete units and vehicles
     private _units = units _this;
-    private _vehicles = (_units select {(vehicle _x) isNotEqualTo _x}) apply {vehicle _x};
+    private _vehicles = (_units apply {objectParent _x}) select {!isNull _x};
     _vehicles = _vehicles arrayIntersect _vehicles;//Remove duplicates
     _vehicles = _vehicles select {((crew _x) findIf {isPlayer _x}) == -1};//Remove vehicles with players inside
     {_x call NWG_GC_DeleteUnit} forEach _units;
@@ -187,15 +193,13 @@ NWG_GC_OnObjectKilled = {
     params ["_object","_objType","_actualKiller","_isPlayerKiller"];
 
     private _binIndex = switch (_objType) do {
-        case OBJ_TYPE_UNIT: {
-            if ((vehicle _object) isNotEqualTo _object && {(!alive (vehicle _object))}) exitWith {-1};//Ignore dead crew inside dead vehicle
-            BIN_BODIES
-        };
+        case OBJ_TYPE_UNIT: {BIN_BODIES};
         case OBJ_TYPE_VEHC: {BIN_WRECKS};
         case OBJ_TYPE_TRRT: {BIN_WRECKS};
         default {-1};
     };
     if (_binIndex < 0) exitWith {};
+    if (_binIndex == BIN_BODIES && {_object call NWG_GC_IsInDeadVehicle}) exitWith {};//Ignore if inside dead vehicle - game will delete it itself
 
     private _immediateDelete = false;
     if (isNull _actualKiller || {!_isPlayerKiller}) then {
@@ -224,21 +228,20 @@ NWG_GC_OnReportTrash = {
 NWG_GC_Collect = {
     params ["_object","_binIndex"];
 
-    //Check if object is in the bin
+    //Add object to the bin
     private _bin = NWG_GC_garbageBin select _binIndex;
     if (_object in _bin) exitWith {};//Already in the bin
+    _bin pushBack _object;
 
-    //Update bin
-    private _updated = (_bin - [objNull]) + [_object];
-    if (_binIndex == BIN_BODIES) then {
-        //Forget bodies inside destroyed vehicles (game will take care of them itself)
-        _updated = _updated select {(vehicle _x) isEqualTo _x || {alive (vehicle _x)}};
+    //Filter out invalid bin objects
+    private _shouldDrop = switch (_binIndex) do {
+        case BIN_BODIES: {{ isNull _this || {_this call NWG_GC_IsInDeadVehicle} }};//Forget nulls AND bodies inside destroyed vehicles
+        default {{ isNull _this }};//Forget nulls
     };
-    _bin resize 0;
-    _bin append _updated;
+    {if (_x call _shouldDrop) then {_bin deleteAt _forEachIndex}} forEachReversed _bin;
 
     //Check bin limits
-    (NWG_GC_Settings get (["BODIES_MAX","WRECKS_MAX","TRASH_MAX"] select _binIndex)) params ["_min","_max"];
+    (NWG_GC_Settings get (["BODIES_LIMITS","WRECKS_LIMITS","TRASH_LIMITS"] select _binIndex)) params ["_min","_max"];
     if ((count _bin) <= _min) exitWith {};//Limit not reached
 
     //Prepare variables
@@ -406,10 +409,11 @@ NWG_GC_DeleteMission = {
 
             case OBJ_TYPE_VEHC;
             case OBJ_TYPE_TRRT: {
+                private _veh = _x;
                 //Just delete if destroyed
-                if (!alive _x) exitWith {_x call NWG_GC_DeleteVehicle};
+                if (!alive _veh) exitWith {_veh call NWG_GC_DeleteVehicle};
                 //Delete all the crew inside of alive vehicle
-                {(vehicle _x) deleteVehicleCrew _x} forEach ((crew _x) select {!unitIsUAV _x && {!alive _x || !isPlayer _x}});
+                {_veh deleteVehicleCrew _x} forEach ((crew _veh) select {!unitIsUAV _x && {!alive _x || !isPlayer _x}});
                 //Delete if no players inside
                 if (((crew _x) findIf {isPlayer _x}) == -1) then {_x call NWG_GC_DeleteVehicle};
             };
