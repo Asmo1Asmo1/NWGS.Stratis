@@ -501,7 +501,10 @@ NWG_MIS_SER_BuildPlayerBase = {
         /*adaptToGround:*/true,
         /*suppressEvent*/true
     ] call NWG_fnc_ukrpBuildAroundObject;
-    if (_buildResult isEqualTo false || {(flatten _buildResult) isEqualTo []}) exitWith {
+    private _buildResultFlatten = if (_buildResult isNotEqualTo false)
+        then {flatten _buildResult}
+        else {[]};
+    if (_buildResult isEqualTo false || {_buildResultFlatten isEqualTo []}) exitWith {
         (format ["NWG_MIS_SER_BuildPlayerBase: Failed to build a player base around object '%1' using blueprint '%2'",(NWG_MIS_SER_Settings get "PLAYER_BASE_ROOT"),_pageName]) call NWG_fnc_logError;
         false// <- Exit if failed to build a base
     };
@@ -511,7 +514,7 @@ NWG_MIS_SER_BuildPlayerBase = {
     call {
         //3.1 Disable damage for every object
         _playerBaseRoot allowDamage false;
-        {_x allowDamage false} forEach (flatten _buildResult);
+        {_x allowDamage false} forEach _buildResultFlatten;
 
         //3.2 Lock every vehicle
         {_x lock true} forEach (_buildResult param [UKREP_RESULT_VEHCS,[]]);
@@ -523,7 +526,7 @@ NWG_MIS_SER_BuildPlayerBase = {
             clearItemCargoGlobal _x;
             clearBackpackCargoGlobal _x;
             [_x,true] remoteExecCall ["lockInventory",0,_x];//Lock it JIP compatible
-        } forEach ((flatten _buildResult) select {
+        } forEach (_buildResultFlatten select {
             !(_x isKindOf "Man") && {
             !(isSimpleObject _x) && {
             _x canAdd "FirstAidKit"}}
@@ -531,6 +534,7 @@ NWG_MIS_SER_BuildPlayerBase = {
 
         //3.4 Configure base NPCs
         private _npcSettings = NWG_MIS_SER_Settings get "PLAYER_BASE_NPC_SETTINGS";
+        private _addActionQueue = [];
         {
             //Setup dynamic simulation regardless of the group rules for each agent
             _x enableDynamicSimulation true;
@@ -556,16 +560,25 @@ NWG_MIS_SER_BuildPlayerBase = {
                 _x disableAI "ANIM";//Fix AI switching out of the animation (works even for agents)
             };
 
-            //Add action
-            if (_addAction isNotEqualTo false && {_addAction isEqualType []}) then {
+            //Queue add action for each NPC in READY state
+            if (_addAction isNotEqualTo false) then {
                 _addAction params [["_title",""],["_script",{}]];
-                [_x,_title,_script] call NWG_fnc_addActionGlobal;
+                _addActionQueue pushBack [_x,_title,_script];
             };
         } forEach (_buildResult param [UKREP_RESULT_UNITS,[]]);
+
+        //3.5 Assign actions to NPCs (with delay)
+        if ((count _addActionQueue) > 0) then {
+            _addActionQueue spawn {
+                // private _addActionQueue = _this;
+                waitUntil {sleep 0.1; NWG_MIS_CurrentState >= MSTATE_READY};
+                {_x call NWG_fnc_addActionGlobal} forEach _this;
+            };
+        };
     };
 
     //4. Report to garbage collector that these objects are not to be deleted
-    (flatten _buildResult) call NWG_fnc_gcAddOriginalObjects;
+    _buildResultFlatten call NWG_fnc_gcAddOriginalObjects;
 
     //5. Place markers
     private _markers = call {

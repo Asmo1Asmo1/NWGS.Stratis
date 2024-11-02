@@ -1,11 +1,12 @@
 NWG_LocalizationDictionary = createHashMapFromArray [
     //T1_Battlefield
     //missionMachine
+    ["#MIS_ACTION_TITLE#","Выбрать миссию"],
     ["#MIS_DIF_EASY#","Легче"],
     ["#MIS_DIF_NORMAL#","Сложнее"],
     ["#MIS_CLI_CONFIRMED_SUBTITLE#","новое назначение..."],
     ["#MIS_CLI_CONFIRMED_PLAYER_TEMPLATE#","Оперативник: %1"],
-    ["#MIS_COMPLETED_MESSAGE#","МИССИЯ ВЫПОЛНЕНА"],
+    ["#MIS_COMPLETED_MESSAGE#","РЕЙД ЗАВЕРШЕН"],
     //worldConfig
     ["#WORLD_NAME_STRATIS#","Стратис"],
     ["#WORLD_NAME_ALTIS#","Алтис"],

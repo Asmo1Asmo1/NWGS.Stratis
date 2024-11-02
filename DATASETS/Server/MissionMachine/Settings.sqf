@@ -12,7 +12,7 @@
         /*MECH*/["I_G_Story_Protagonist_F",[/*disarm:*/true,/*anim:*/["HubBriefing_ext_Contact","HubBriefing_loop","Acts_Explaining_EW_Idle01"],["#VSHOP_ACTION_TITLE#",{call NWG_fnc_vshopOpenPlatformShop}]]],
         /*TRDR*/["I_G_resistanceLeader_F" ,[/*disarm:*/true,/*anim:*/["HubSittingChairUA_idle2","HubSittingChairUA_idle3"],/*addAction:*/["#ISHOP_ACTION_TITLE#",{call NWG_fnc_ishopOpenShop}]]],
         /*MEDC*/["I_C_Soldier_Camo_F",[/*disarm:*/true,/*anim:*/"Acts_Gallery_Visitor_02",/*addAction:*/false]],
-        /*COMM*/["I_E_Soldier_MP_F"  ,[/*disarm:*/false,/*anim:*/["Acts_millerCamp_A","Acts_millerCamp_C","acts_millerIdle"],/*addAction:*/["Select mission",{call NWG_MIS_CLI_RequestMissionSelection}]]],
+        /*COMM*/["I_E_Soldier_MP_F"  ,[/*disarm:*/false,/*anim:*/["Acts_millerCamp_A","Acts_millerCamp_C","acts_millerIdle"],/*addAction:*/["#MIS_ACTION_TITLE#",{call NWG_MIS_CLI_RequestMissionSelection}]]],
         /*ROOF*/["B_G_Captain_Ivan_F",[/*disarm:*/false,/*anim:*/false,/*addAction:*/false]]
     ]],
 
