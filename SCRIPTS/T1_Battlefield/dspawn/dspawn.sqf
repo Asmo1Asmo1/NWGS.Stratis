@@ -440,10 +440,10 @@ NWG_DSPAWN_REINF_SendReinforcements = {
     private _trySpawnVehGroup = {
         params ["_groupDescr","_spawnPointType"];
         private _spawnPoint = _spawnPointType call _getSpawnPoint;
-        if (_spawnPoint isEqualTo false) exitWith {};
+        if (_spawnPoint isEqualTo false) exitWith {false};
         private _groupToSpawn = [_groupDescr,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
         private _spawnResult = [_groupToSpawn,_spawnPoint,(_spawnPoint getDir _attackPos),false,_side] call NWG_DSPAWN_SpawnVehicledGroup;
-        if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) exitWith {};
+        if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) exitWith {false};
         [(_spawnResult#SPAWN_RESULT_GROUP),_attackPos] call NWG_DSPAWN_SendToAttack;
         true
     };
