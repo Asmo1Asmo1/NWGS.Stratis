@@ -230,7 +230,7 @@ NWG_GC_Collect = {
 
     //Add object to the bin
     private _bin = NWG_GC_garbageBin select _binIndex;
-    if (_object in _bin) exitWith {};//Already in the bin
+    if (_object in _bin) exitWith {};//<= EXIT if already in the bin
     _bin pushBack _object;
 
     //Filter out invalid bin objects
@@ -242,7 +242,7 @@ NWG_GC_Collect = {
 
     //Check bin limits
     (NWG_GC_Settings get (["BODIES_LIMITS","WRECKS_LIMITS","TRASH_LIMITS"] select _binIndex)) params ["_min","_max"];
-    if ((count _bin) <= _min) exitWith {};//Limit not reached
+    if ((count _bin) <= _min) exitWith {};//<= EXIT if lower limit not reached
 
     //Prepare variables
     private _allPlayers = call NWG_fnc_getPlayersOrOccupiedVehicles;
@@ -252,23 +252,29 @@ NWG_GC_Collect = {
         case BIN_WRECKS: {{_this call NWG_GC_DeleteVehicle}};
         default {{_this call NWG_GC_DeleteObject}};
     };
+    reverse _bin;//We will delete from the end to the beginning
 
     //Delete old->new based on distance to players until limit is reached
     private _cur = objNull;
-    private _index = 0;
-    while {true} do {
-        _cur = _bin select _index;
-        if ((_allPlayers findIf {(_x distance _cur) <= _preserveDistance}) == -1)
-            then {(_bin deleteAt _index) call _terminate}//Delete if no players nearby
-            else {_index = _index + 1};//Skip if players nearby
-        if ((count _bin) <= _min || {_index >= ((count _bin)-1)}) exitWith {};//-1 to fix 'kill->delete' situation
-    };
-    if ((count _bin) <= _max) exitWith {};//Even if nothing was deleted - max limit is not reached yet
+    {
+        if ((count _bin) <= _min) exitWith {};//Exit loop if limit reached
+        if (_forEachIndex == 0) exitWith {};//Skip last added object (prevent 'kill->delete' situation)
+
+        _cur = _x;
+        if ((_allPlayers findIf {(_x distance _cur) <= _preserveDistance}) == -1) then {
+            _bin deleteAt _forEachIndex;
+            _cur call _terminate;
+            _cur = nil;
+        };
+    } forEachReversed _bin;
+    if ((count _bin) <= _max) exitWith {reverse _bin};//<= EXIT if max limit not reached
 
     //Delete old->new until max limit is reached
-    while {(count _bin) > _max} do {
-        (_bin deleteAt 0) call _terminate;
-    };
+    {
+        if ((count _bin) <= _max) exitWith {};//Exit loop if max limit reached
+        (_bin deleteAt _forEachIndex) call _terminate;
+    } forEachReversed _bin;
+    reverse _bin;//Restore original order
 };
 
 //======================================================================================================
