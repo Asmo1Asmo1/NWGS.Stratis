@@ -5,7 +5,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MIS_DIF_NORMAL#","Normal"],
     ["#MIS_CLI_CONFIRMED_SUBTITLE#","new destination..."],
     ["#MIS_CLI_CONFIRMED_PLAYER_TEMPLATE#","Operator: %1"],
-    ["#MIS_COMPLETED_MESSAGE#","MISSION COMPLETED"],
+    ["#MIS_COMPLETED_MESSAGE#","RAID COMPLETED"],
     //worldConfig
     ["#WORLD_NAME_STRATIS#","Stratis"],
     ["#WORLD_NAME_ALTIS#","Altis"],
