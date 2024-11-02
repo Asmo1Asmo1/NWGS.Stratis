@@ -258,11 +258,22 @@ NWG_LS_CLI_LootByInventoryUI = {
         false
     };
 
-    //Fix Arma 2.18 introducing weaponholders instead of actual units
+    //Container fixes
     _secdContainer = _containers#1;
-    if (_container isKindOf "WeaponHolder" || {_container isKindOf "WeaponHolderSimulated"}) then {
-        if (!isNull _secdContainer && {_secdContainer isNotEqualTo _container}) then {
-            if (_secdContainer isKindOf "Man" || {(objectParent _secdContainer) isKindOf "Man"}) then {
+    switch (true) do {
+        //Fix Arma 2.18 introducing weaponholders instead of actual units
+        case (_container isKindOf "WeaponHolder");
+        case (_container isKindOf "WeaponHolderSimulated"): {
+            if (!isNull _secdContainer && {_secdContainer isNotEqualTo _container}) then {
+                if (_secdContainer isKindOf "Man" || {(objectParent _secdContainer) isKindOf "Man"}) then {
+                    _container = _secdContainer;
+                    _secdContainer = objNull;
+                };
+            };
+        };
+        //Fix secondary weapon pseudo container getting in the way
+        case (_container isKindOf "Library_WeaponHolder"): {
+            if (!isNull (attachedTo _container) && {(attachedTo _container) isKindOf "Man"}) then {
                 _container = _secdContainer;
                 _secdContainer = objNull;
             };

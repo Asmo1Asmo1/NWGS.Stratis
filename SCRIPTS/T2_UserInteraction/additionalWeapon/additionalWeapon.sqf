@@ -93,7 +93,7 @@ NWG_AW_CreateHolder = {
         _holder attachTo [_unit, [0,0.84,-0.2], "Spine3", true];
         _holder setVectorDirAndUp [[0, 0, 1], [0, 0.5, 0]];
         _holder addWeaponWithAttachmentsCargoGlobal [_config,1];
-        _holder setDamage 1;//Effectively 'close' the holder for any further interaction
+        _holder setDamage 1;//Prevent taking items out of the holder
     };
 
     //It's just much easier to go with get/setVariable than to grab an actual object and try to disect it
