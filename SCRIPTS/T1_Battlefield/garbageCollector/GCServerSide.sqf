@@ -397,6 +397,8 @@ NWG_GC_DeleteMission = {
     {_x call NWG_GC_DeleteGroup} forEach (allGroups select {!(_x in NWG_GC_originalGroups) && {((units _x) findIf {isPlayer _x}) == -1}});
 
     //4. Delete all mission objects
+    private _players = call NWG_fnc_getPlayersOrOccupiedVehicles;
+    private _preserveDistance = NWG_GC_Settings get "PRESERVE_DISTANCE";
     //do
     {
         switch (_x call NWG_fnc_ocGetObjectType) do {
@@ -416,12 +418,10 @@ NWG_GC_DeleteMission = {
             case OBJ_TYPE_VEHC;
             case OBJ_TYPE_TRRT: {
                 private _veh = _x;
-                //Just delete if destroyed
-                if (!alive _veh) exitWith {_veh call NWG_GC_DeleteVehicle};
-                //Delete all the crew inside of alive vehicle
-                {_veh deleteVehicleCrew _x} forEach ((crew _veh) select {!unitIsUAV _x && {!alive _x || !isPlayer _x}});
-                //Delete if no players inside
-                if (((crew _x) findIf {isPlayer _x}) == -1) then {_x call NWG_GC_DeleteVehicle};
+                if (!alive _veh) exitWith {_veh call NWG_GC_DeleteVehicle};//Just delete if destroyed
+                {_veh deleteVehicleCrew _x} forEach ((crew _veh) select {!unitIsUAV _x && {!alive _x || !isPlayer _x}});//Delete all the crew inside
+                if (_players findIf {(_veh distance _x) <= _preserveDistance} != -1) exitWith {};//Skip if near any player (will also trigger if player was inside)
+                _x call NWG_GC_DeleteVehicle;//Delete if no players around
             };
         };
     } forEach ((allMissionObjects "") select {!(_x in NWG_GC_originalObjects) && {!((typeOf _x) in NWG_GC_environmentExclude)}});
