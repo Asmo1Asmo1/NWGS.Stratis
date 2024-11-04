@@ -533,7 +533,7 @@ NWG_MED_CLI_SA_OnSelfHealStarted = {
 
     //Show message
     private _fakCount = FAKKIT call NWG_fnc_invGetItemCount;
-    private _myChance = (str NWG_MED_CLI_SA_selfHealSuccessChance)+"%";//Fix template unable to have '%' symbol
+    private _myChance = NWG_MED_CLI_SA_selfHealSuccessChance;
     ["#MED_ACTION_SELF_HEAL_HINT#",_fakCount,_myChance] call NWG_fnc_systemChatMe;
 
     //Play anim
@@ -712,7 +712,7 @@ NWG_MED_CLI_UA_OnHealStarted = {
         ["#MED_ACTION_HEAL_MED_HINT#",_hasMedkit,_fakCount] call NWG_fnc_systemChatMe;
     } else {
         private _fakCount = FAKKIT call NWG_fnc_invGetItemCount;
-        private _myChance = (str (NWG_MED_CLI_Settings get "HEAL_WITH_FAK_CHANCE"))+"%";//Fix template unable to have '%' symbol
+        private _myChance = NWG_MED_CLI_Settings get "HEAL_WITH_FAK_CHANCE";
         ["#MED_ACTION_HEAL_FAK_HINT#",_fakCount,_myChance] call NWG_fnc_systemChatMe;
     };
 
