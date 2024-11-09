@@ -14,7 +14,12 @@ NWG_fnc_testPlaceMarker = {
 
 NWG_fnc_testDumpToRptAndClipboard = {
     private _array = _this;
-    _array = _array apply {str _x};//Convert to strings
+
+    //Convert to strings
+    {
+        if !(_x isEqualType "")
+            then {_array set [_forEachIndex,(str _x)]};
+    } forEach _array;
 
     //Dump to RPT
     diag_log text "==========[       START       ]===========";

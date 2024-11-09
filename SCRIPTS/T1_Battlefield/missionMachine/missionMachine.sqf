@@ -121,12 +121,12 @@ NWG_MIS_SER_Cycle = {
                 _buildResult params ["_root","_objects"];
                 NWG_MIS_SER_playerBase = _root;//Save base root object
                 NWG_MIS_SER_playerBasePos = getPosASL _root;//Save base position
-                NWG_MIS_SER_playerBaseNPCs = _objects param [UKREP_RESULT_UNITS,[]];//Save base NPCs
+                NWG_MIS_SER_playerBaseNPCs = _objects param [OBJ_CAT_UNIT,[]];//Save base NPCs
                 NWG_MIS_SER_playerBaseDecoration = _objects;//Save base objects
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BASE_ECONOMY: {
-                //Expect: EVENT_ON_MISSION_STATE_CHANGED subscriber(s) made changes by this point (see: 'Update flags...' above)
+                //EVENT_ON_MISSION_STATE_CHANGED subscriber(s) did the job. We do nothing.
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BASE_QUESTS: {
@@ -197,7 +197,7 @@ NWG_MIS_SER_Cycle = {
                 //Escape injection
                 if (NWG_MIS_EscapeFlag) then {
                     //[_bldgs,_furns,_decos,_units,_vehcs,_trrts,_mines]
-                    private _escapeVehicle = (_ukrep#UKREP_RESULT_VEHCS) param [0,objNull];
+                    private _escapeVehicle = (_ukrep#OBJ_CAT_VEHC) param [0,objNull];
                     if (isNull _escapeVehicle || {!alive _escapeVehicle}) exitWith
                         {"NWG_MIS_SER_Cycle: Escape vehicle not found or dead - exiting." call NWG_fnc_logError; _exit = true};//Exit
                     _escapeVehicle allowDamage false;
@@ -208,7 +208,7 @@ NWG_MIS_SER_Cycle = {
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BUILD_ECONOMY: {
-                //TODO: Fill boxes and vehicles with loot using ECONOMY
+                //EVENT_ON_MISSION_STATE_CHANGED subscriber(s) did the job. We do nothing.
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BUILD_DSPAWN: {
@@ -517,7 +517,7 @@ NWG_MIS_SER_BuildPlayerBase = {
         {_x allowDamage false} forEach _buildResultFlatten;
 
         //3.2 Lock every vehicle
-        {_x lock true} forEach (_buildResult param [UKREP_RESULT_VEHCS,[]]);
+        {_x lock true} forEach (_buildResult param [OBJ_CAT_VEHC,[]]);
 
         //3.3 Clear and lock inventory of every object that has it
         {
@@ -565,7 +565,7 @@ NWG_MIS_SER_BuildPlayerBase = {
                 _addAction params [["_title",""],["_script",{}]];
                 _addActionQueue pushBack [_x,_title,_script];
             };
-        } forEach (_buildResult param [UKREP_RESULT_UNITS,[]]);
+        } forEach (_buildResult param [OBJ_CAT_UNIT,[]]);
 
         //3.5 Assign actions to NPCs (with delay)
         if ((count _addActionQueue) > 0) then {
@@ -654,7 +654,7 @@ NWG_MIS_SER_GenerateSelection = {
         private _ukrep = _missionsList deleteAt 0;
         private _settings = _missionPresets select _i;
         //_ukrep: [UkrepType,UkrepName,ABSPos,[0,0,0],Radius,0,Payload,Blueprint]
-        _ukrep params ["_","_name","_pos","_","_rad"];
+        _ukrep params ["","_name","_pos","","_rad"];
         _name = (_name splitString "_") param [0,"Unknown"];//Extract mission name 'Name_var01' -> 'Name'
         _selectionList pushBack [_name,_pos,_rad,_ukrep,_settings];
     };
@@ -738,6 +738,7 @@ NWG_MIS_SER_GenerateMissionInfo = {
     _missionInfo set ["Settings",_settings];
 
     //2. Extract some to the upper level to make it easier to use
+    _missionInfo set ["Difficulty",(_settings getOrDefault ["Difficulty",MISSION_DIFFICULTY_NORM])];
     _missionInfo set ["Marker",(_settings getOrDefault ["MapMarker","mil_dot"])];
     _missionInfo set ["MarkerColor",(_settings getOrDefault ["MapMarkerColor","ColorBlack"])];
     _missionInfo set ["MarkerSize",(_settings getOrDefault ["MapMarkerSize",1])];
@@ -853,7 +854,7 @@ NWG_MIS_SER_BuildMission_Dspawn = {
     private _groupsMin  = _settings getOrDefault ["DspawnGroupsMin",2];
     private _groupsMax  = _settings getOrDefault ["DspawnGroupsMax",5];
     // _ukrepObjects params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
-    private _ukrepGroups = ((_ukrepObjects#3) + (_ukrepObjects#4) + (_ukrepObjects#5)) apply {group _x};
+    private _ukrepGroups = ((_ukrepObjects#OBJ_CAT_UNIT) + (_ukrepObjects#OBJ_CAT_VEHC) + (_ukrepObjects#OBJ_CAT_TRRT)) apply {group _x};
     _ukrepGroups = _ukrepGroups arrayIntersect _ukrepGroups;//Remove duplicates
     private _groupsCount = round ((count _ukrepGroups) * _groupsMult);
     _groupsMin = if (_groupsMin isEqualType [])

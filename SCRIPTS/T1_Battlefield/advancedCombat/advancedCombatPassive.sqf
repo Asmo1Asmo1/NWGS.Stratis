@@ -38,7 +38,8 @@ private _Init = {
 //================================================================================================================
 //Handlers
 NWG_ACP_OnDspawnGroupSpawned = {
-    params ["_group","_vehicle","_units","_tags","_tier"];
+    // params ["_group","_vehicle","_units","_tags","_tier","_faction"];
+    params ["_group","_vehicle","_units","","_tier"];
 
     if (NWG_ACP_Settings get "ON_DSPAWN_SET_SKILL") then {[_group,_tier] call NWG_ACP_SetGroupSkills};
     if (NWG_ACP_Settings get "ON_DSPAWN_ALLOW_WOUNDED") then {_units call NWG_ACP_AllowWounded};

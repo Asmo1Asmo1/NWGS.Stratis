@@ -141,14 +141,14 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
         };
         private _spawnSelected = switch (true) do {
             case (_groupsIndex == G_INDEX_INF): {{
-                [_groupToSpawn,(_patrolRoute#0),_side] call NWG_DSPAWN_SpawnInfantryGroup
+                [_groupToSpawn,(_patrolRoute#0),_side,_faction] call NWG_DSPAWN_SpawnInfantryGroup
             }};
             case (_patrolLength == 1): {{
-                [_groupToSpawn,(_patrolRoute#0),(random 360),false,_side] call NWG_DSPAWN_SpawnVehicledGroup
+                [_groupToSpawn,(_patrolRoute#0),(random 360),false,_side,_faction] call NWG_DSPAWN_SpawnVehicledGroup
             }};
             default /*!INF && _patrolLength > 1*/ {{
                 private _dir = if ((count _patrolRoute)>1) then {(_patrolRoute#0) getDir (_patrolRoute#1)} else {random 360};
-                [_groupToSpawn,(_patrolRoute#0),_dir,false,_side] call NWG_DSPAWN_SpawnVehicledGroup
+                [_groupToSpawn,(_patrolRoute#0),_dir,false,_side,_faction] call NWG_DSPAWN_SpawnVehicledGroup
             }};
         };
 
@@ -229,7 +229,7 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
             _patrolRoute = _patrolRoute call NWG_fnc_arrayShuffle;
             private _groupToSpawn = [G_INDEX_INF,_groups,_groupsPointers] call _getNext;
             _groupToSpawn = [_groupToSpawn,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
-            private _spawnResult = [_groupToSpawn,(_patrolRoute#0),_side] call NWG_DSPAWN_SpawnInfantryGroup;
+            private _spawnResult = [_groupToSpawn,(_patrolRoute#0),_side,_faction] call NWG_DSPAWN_SpawnInfantryGroup;
             if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) then {continue};
             [(_spawnResult#SPAWN_RESULT_GROUP),_patrolRoute] call NWG_DSPAWN_SendToPatrol;
             _resultCount = _resultCount + 1;
@@ -257,7 +257,7 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
         {
             private _groupToSpawn = [G_INDEX_INF,_groups,_groupsPointers] call _getNext;
             _groupToSpawn = [_groupToSpawn,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
-            private _spawnResult = [_groupToSpawn,_x,_side] call NWG_DSPAWN_SpawnInfantryGroupInBuilding;
+            private _spawnResult = [_groupToSpawn,_x,_side,_faction] call NWG_DSPAWN_SpawnInfantryGroupInBuilding;
             if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) then {continue};
             _resultCount = _resultCount + 1;
             (_spawnResult#SPAWN_RESULT_GROUP) call _dynamicIfNeeded;
@@ -421,7 +421,7 @@ NWG_DSPAWN_REINF_SendReinforcements = {
         private _spawnPoint = "INF" call _getSpawnPoint;
         if (_spawnPoint isEqualTo false) exitWith {false};
         private _groupToSpawn = [_groupDescr,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
-        private _spawnResult = [_groupToSpawn,_spawnPoint,_side] call NWG_DSPAWN_SpawnInfantryGroup;
+        private _spawnResult = [_groupToSpawn,_spawnPoint,_side,_faction] call NWG_DSPAWN_SpawnInfantryGroup;
         if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) exitWith {false};
         [(_spawnResult#SPAWN_RESULT_GROUP),_attackPos] call NWG_DSPAWN_SendToAttack;
         true
@@ -431,7 +431,7 @@ NWG_DSPAWN_REINF_SendReinforcements = {
         private _spawnPoint = _spawnPointType call _getSpawnPoint;
         if (_spawnPoint isEqualTo false) exitWith {false};
         private _groupToSpawn = [_groupDescr,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
-        private _spawnResult = [_groupToSpawn,_spawnPoint,(_spawnPoint getDir _attackPos),true,_side] call NWG_DSPAWN_SpawnVehicledGroup;
+        private _spawnResult = [_groupToSpawn,_spawnPoint,(_spawnPoint getDir _attackPos),true,_side,_faction] call NWG_DSPAWN_SpawnVehicledGroup;
         if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) exitWith {false};
         [(_spawnResult#SPAWN_RESULT_VEHICLE),(selectRandom _paradropContainer)] call NWG_DSPAWN_ImitateParadrop;
         [(_spawnResult#SPAWN_RESULT_GROUP),_attackPos] call NWG_DSPAWN_SendToAttack;
@@ -442,7 +442,7 @@ NWG_DSPAWN_REINF_SendReinforcements = {
         private _spawnPoint = _spawnPointType call _getSpawnPoint;
         if (_spawnPoint isEqualTo false) exitWith {false};
         private _groupToSpawn = [_groupDescr,_passengersContainer] call NWG_DSPAWN_PrepareGroupForSpawn;
-        private _spawnResult = [_groupToSpawn,_spawnPoint,(_spawnPoint getDir _attackPos),false,_side] call NWG_DSPAWN_SpawnVehicledGroup;
+        private _spawnResult = [_groupToSpawn,_spawnPoint,(_spawnPoint getDir _attackPos),false,_side,_faction] call NWG_DSPAWN_SpawnVehicledGroup;
         if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) exitWith {false};
         [(_spawnResult#SPAWN_RESULT_GROUP),_attackPos] call NWG_DSPAWN_SendToAttack;
         true
@@ -670,7 +670,7 @@ NWG_DSPAWN_GeneratePassengers = {
 //================================================================================================================
 //Spawn
 NWG_DSPAWN_SpawnVehicledGroup = {
-    params ["_groupDescr","_pos","_dir",["_deferReveal",false],["_side", west]];
+    params ["_groupDescr","_pos","_dir",["_deferReveal",false],["_side",west],["_faction",""]];
 
     private _vehicleDescr = _groupDescr#DESCR_VEHICLE;
     _vehicleDescr params ["_vehicleClassname",["_vehicleAppearance",false],["_vehiclePylons",false]];
@@ -694,22 +694,22 @@ NWG_DSPAWN_SpawnVehicledGroup = {
     };
 
     //return
-    ([_groupDescr,[_group,_vehicle,_units]] call NWG_DSPAWN_SpawnGroupFinalize)
+    ([_groupDescr,[_group,_vehicle,_units],_faction] call NWG_DSPAWN_SpawnGroupFinalize)
 };
 
 NWG_DSPAWN_SpawnInfantryGroup = {
-    params ["_groupDescr","_pos",["_side", west]];
+    params ["_groupDescr","_pos",["_side",west],["_faction",""]];
 
     private _unitsDescr = _groupDescr#DESCR_UNITS;
     private _units = [_unitsDescr,_pos,_side] call NWG_fnc_spwnSpawnUnitsAround;
     private _group = group (_units#0);
 
     //return
-    ([_groupDescr,[_group,false,_units]] call NWG_DSPAWN_SpawnGroupFinalize)
+    ([_groupDescr,[_group,false,_units],_faction] call NWG_DSPAWN_SpawnGroupFinalize)
 };
 
 NWG_DSPAWN_SpawnInfantryGroupInBuilding = {
-    params ["_groupDescr","_building",["_side", west]];
+    params ["_groupDescr","_building",["_side",west],["_faction",""]];
 
     private _unitsDescr = _groupDescr#DESCR_UNITS;
     private _units = [_unitsDescr,_building,_side] call NWG_fnc_spwnSpawnUnitsIntoBuilding;
@@ -719,11 +719,11 @@ NWG_DSPAWN_SpawnInfantryGroupInBuilding = {
     _building call NWG_fnc_shAddOccupiedBuilding;
 
     //return
-    ([_groupDescr,[_group,false,_units]] call NWG_DSPAWN_SpawnGroupFinalize)
+    ([_groupDescr,[_group,false,_units],_faction] call NWG_DSPAWN_SpawnGroupFinalize)
 };
 
 NWG_DSPAWN_SpawnGroupFinalize = {
-    params ["_groupDescr","_spawnResult"];
+    params ["_groupDescr","_spawnResult","_faction"];
 
     //Run additional code
     private _additionalCode = _groupDescr param [DESCR_ADDITIONAL_CODE,{}];
@@ -743,7 +743,7 @@ NWG_DSPAWN_SpawnGroupFinalize = {
 
     //Raise event
     private _tier = _groupDescr#DESCR_TIER;
-    [EVENT_ON_DSPAWN_GROUP_SPAWNED,(_spawnResult + [_tags,_tier])] call NWG_fnc_raiseServerEvent;
+    [EVENT_ON_DSPAWN_GROUP_SPAWNED,(_spawnResult + [_tags,_tier,_faction])] call NWG_fnc_raiseServerEvent;
 
     //return
     _spawnResult
@@ -1426,7 +1426,7 @@ NWG_DSPAWN_ImitateParadrop = {
 
     //Spawn paradrop group
     private _groupDescr = [["AIR","MOT","PLANE"],1,[_paradropBy],(_paradropBy call NWG_fnc_spwnGetOriginalCrew)];
-    private _spawnResult = [_groupDescr,_paraFrom,(_paraFrom getDir _paraTo),false,civilian] call NWG_DSPAWN_SpawnVehicledGroup;
+    private _spawnResult = [_groupDescr,_paraFrom,(_paraFrom getDir _paraTo),false,civilian,"CIV"] call NWG_DSPAWN_SpawnVehicledGroup;
     if (isNil "_spawnResult" || {_spawnResult isEqualTo false}) exitWith {
         (format ["NWG_DSPAWN_ImitateParadrop: Could not spawn paradrop group '%1'",_groupDescr]) call NWG_fnc_logError;
         _object call NWG_fnc_spwnRevealObject;
