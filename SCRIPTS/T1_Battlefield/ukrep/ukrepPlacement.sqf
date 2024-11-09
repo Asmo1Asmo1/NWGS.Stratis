@@ -129,7 +129,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     private _fractalStep2 = _fractalSteps param [1,_fractalStep1];//Unpack or re-use upper step
     _fractalStep2 params [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""]];
     _groupRules = _groupRules call _groupRulesOverride;//Apply overrides if any
-    private _placedBldgs = (_result#UKREP_RESULT_BLDGS) select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup};
+    private _placedBldgs = (_result#OBJ_CAT_BLDG) select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup};
     //Re-check cached map buildings (we now have pageName and blueprintNameFilter)
     _mapBldgs = _mapBldgs select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup};
     if ((count _mapBldgs) > _mapBldgsLimit) then {_mapBldgs call NWG_fnc_arrayShuffle; _mapBldgs resize _mapBldgsLimit};
@@ -139,7 +139,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
         private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintNameFilter,_chances,_faction,_groupRules,/*_adaptToGround:*/true] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         if (_bldgResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _bldgResult;
-        if ((count (_bldgResult#UKREP_RESULT_UNITS)) > 0)
+        if ((count (_bldgResult#OBJ_CAT_UNIT)) > 0)
             then {_x call NWG_fnc_shAddOccupiedBuilding};//Mark building as occupied for other subsystems
     } forEach (_placedBldgs + _mapBldgs);
 
@@ -147,7 +147,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     private _fractalStep3 = _fractalSteps param [2,_fractalStep2];//Unpack or re-use upper step
     _fractalStep3 params [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""]];
     _groupRules = _groupRules call _groupRulesOverride;//Apply overrides if any
-    private _placedFurns = (_result#UKREP_RESULT_FURNS) select {[_x,OBJ_TYPE_FURN,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup};
+    private _placedFurns = (_result#OBJ_CAT_FURN) select {[_x,OBJ_TYPE_FURN,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup};
     //forEach furniture
     {
         private _furnPage = [_pageName,_x,OBJ_TYPE_FURN] call NWG_UKREP_FRACTAL_AutoGetPageName;
@@ -203,9 +203,9 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
         private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintNameFilter,_chances,_faction,_groupRules,/*_adaptToGround:*/true] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         if (_bldgResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _bldgResult;
-        if ((count (_bldgResult#UKREP_RESULT_UNITS)) > 0)
+        if ((count (_bldgResult#OBJ_CAT_UNIT)) > 0)
             then {_x call NWG_fnc_shAddOccupiedBuilding};//Mark building as occupied for other subsystems
-    } forEach ((_result#UKREP_RESULT_BLDGS) select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup});
+    } forEach ((_result#OBJ_CAT_BLDG) select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup});
 
     //5. Decorate furniture (fractal step 3)
     private _fractalStep3 = _fractalSteps param [2,_fractalStep2];//Unpack or re-use upper step
@@ -217,7 +217,7 @@ NWG_UKREP_FRACTAL_PlaceFractalREL = {
         private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintNameFilter,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
         if (_furnResult isEqualTo false) then {continue};//Error
         {(_result#_forEachIndex) append _x} forEach _furnResult;
-    } forEach ((_result#UKREP_RESULT_FURNS) select {[_x,OBJ_TYPE_FURN,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup});
+    } forEach ((_result#OBJ_CAT_FURN) select {[_x,OBJ_TYPE_FURN,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup});
 
     //return
     _result

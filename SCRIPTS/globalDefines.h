@@ -7,6 +7,14 @@
 #define OBJ_TYPE_TRRT  "TRRT"  // Turret
 #define OBJ_TYPE_MINE  "MINE"  // Mine
 
+#define OBJ_CAT_BLDG 0
+#define OBJ_CAT_FURN 1
+#define OBJ_CAT_DECO 2
+#define OBJ_CAT_UNIT 3
+#define OBJ_CAT_VEHC 4
+#define OBJ_CAT_TRRT 5
+#define OBJ_CAT_MINE 6
+
 //Loot items types
 #define LOOT_ITEM_TYPE_CLTH "CLTH"  // Clothing
 #define LOOT_ITEM_TYPE_WEAP "WEAP"  // Weapon
@@ -51,12 +59,13 @@
 
 //Server events (arguments for NWG_fnc_subscribeToServerEvent and NWG_fnc_raiseServerEvent)
 #define EVENT_ON_OBJECT_KILLED "OnObjectKilled" //Called by 'undertaker' subsystem when an object is killed.                params ["_obj","_objType","_actualKiller","_isPlayerKiller"];
-#define EVENT_ON_DSPAWN_GROUP_SPAWNED "OnDynamicSpawnGroupSpawned" //Called by 'dspawn' subsystem when a group is spawned.  params ["_group","_vehicle","_units","_tags","_tier"];
+#define EVENT_ON_DSPAWN_GROUP_SPAWNED "OnDynamicSpawnGroupSpawned" //Called by 'dspawn' subsystem when a group is spawned.  params ["_group","_vehicle","_units","_tags","_tier","_faction"];
 #define EVENT_ON_UKREP_OBJECT_DECORATED "OnUkrepObjectDecorated" //Called by 'ukrep' subsystem when composition is placed around object.     params ["_obj","_objType","_ukrepResult"]; _ukrepResult params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
 #define EVENT_ON_MISSION_STATE_CHANGED "OnMissionStateChanged" //Called by 'missionMachine' subsystem when mission state is changed.     params ["_oldState","_newState"];
 
 //Client events (arguments for NWG_fnc_subscribeToClientEvent and NWG_fnc_raiseClientEvent)
 #define EVENT_ON_LOADOUT_CHANGED "OnLoadoutChanged" //Called by 'inventoryManager' subsystem when a loadout is changed.     params ["_loadOut","_flattenLoadOut"];
+
 
 //Mission states
 /* initialization */
@@ -94,3 +103,13 @@
 #define MSTATE_ESCAPE_SETUP 20
 #define MSTATE_ESCAPE_ACTIVE 21
 #define MSTATE_ESCAPE_COMPLETED 22
+
+
+//Mission factions
+#define MISSION_FACTION_NATO "NATO"
+#define MISSION_FACTION_CSAT "CSAT"
+#define MISSION_FACTION_AAF "AAF"
+
+//Mission difficulties
+#define MISSION_DIFFICULTY_EASY "EASY"
+#define MISSION_DIFFICULTY_NORM "NORM"

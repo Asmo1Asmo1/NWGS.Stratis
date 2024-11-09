@@ -151,10 +151,16 @@ _serverModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorization
 _clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehs.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsTests.sqf" call NWG_fnc_compile)};
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsFunctions.sqf" call NWG_fnc_compile);
+//lootMission
+_serverModules pushBack ("SCRIPTS\T3_Economics\lootMission\lootMissionServer.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\lootMission\missionMachineConnector.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\lootMission\dspawnConnector.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\lootMission\lootMissionFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T3_Economics\lootMission\lootMissionDev.sqf" call NWG_fnc_compile)};
 //lootStorage
+_serverModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageCommon.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageServer.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\lootStorage\missionMachineConnector.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageCommon.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageCommon.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageClient.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageFunctions.sqf" call NWG_fnc_compile);

@@ -1,3 +1,5 @@
+#include "..\..\globalDefines.h"
+
 //=============================================================================
 /*Client->Server*/
 //Requests the server to send the mission selection options
@@ -72,4 +74,26 @@ NWG_fnc_mmGetStatus = {
 // - array - decorations in format ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"] or
 NWG_fnc_mmGetPlayerBase = {
     [NWG_MIS_SER_playerBase,NWG_MIS_SER_playerBaseDecoration]
+};
+
+//Returns mission objects
+//note: these exist only on MSTATE_BUILD_ECONOMY, MSTATE_BUILD_DSPAWN and MSTATE_BUILD_QUESTS mission states, use in EVENT_ON_MISSION_STATE_CHANGED subscriber(s)
+//returns: [array]
+// - array - mission objects in format ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"]
+NWG_fnc_mmGetMissionObjects = {
+    NWG_MIS_SER_missionObjects
+};
+
+//Returns mission faction (defined in globalDefines.h)
+//note: this command is reliable only starting from MSTATE_BUILD_UKREP mission state, otherwise it will either return empty string or previous mission faction
+//note: use in EVENT_ON_MISSION_STATE_CHANGED subscriber(s)
+//returns: string (MISSION_FACTION_NATO, MISSION_FACTION_CSAT, MISSION_FACTION_AAF, ...)
+NWG_fnc_mmGetMissionFaction = {
+    NWG_MIS_SER_missionInfo getOrDefault ["EnemyFaction",""]
+};
+
+//Returns mission difficulty
+//returns: string (MISSION_DIFFICULTY_EASY, MISSION_DIFFICULTY_NORM, ...)
+NWG_fnc_mmGetMissionDifficulty = {
+    NWG_MIS_SER_missionInfo getOrDefault ["Difficulty",MISSION_DIFFICULTY_NORM]
 };

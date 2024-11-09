@@ -29,6 +29,7 @@
     ["MISSIONS_PRESETS",[
         createHashMapFromArray [
             ["PresetName","#MIS_DIF_EASY#"],
+            ["Difficulty","EASY"],
             ["MapMarker","mil_objective"],
             ["MapMarkerColor","ColorOrange"],
             ["MapMarkerSize",1.25],
@@ -88,6 +89,7 @@
         ],
         createHashMapFromArray [
             ["PresetName","#MIS_DIF_NORMAL#"],
+            ["Difficulty","NORM"],
             ["MapMarker","mil_objective"],
             ["MapMarkerColor","ColorRed"],
             ["MapMarkerSize",1.25],

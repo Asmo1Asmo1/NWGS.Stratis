@@ -188,6 +188,7 @@ createHashMapFromArray [
         /*Loot crates*/
         ["Box_NATO_Wps_F",      /*payload:*/2],
         ["Box_NATO_Wps_F",      /*payload:*/2],
+        ["Box_NATO_Wps_F",      /*payload:*/2],
         ["Box_NATO_Ammo_F",     /*payload:*/2],
         ["Box_NATO_AmmoOrd_F",  /*payload:*/2],
         ["Box_NATO_Grenades_F", /*payload:*/2],

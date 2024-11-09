@@ -47,7 +47,8 @@ NWG_ICAT_GetItemType = {
         };
         case "CfgVehicles": {
             //Backpacks
-            if ((getText (_cfg >> "assembleInfo" >> "assembleTo")) isNotEqualTo "")
+            if ((getText (_cfg >> "assembleInfo" >> "assembleTo")) isNotEqualTo "" || {
+                (getText (_cfg >> "editorSubcategory")) isEqualTo "EdSubcat_DismantledWeapons"})
                 then {LOOT_ITEM_TYPE_WEAP}/*UAV/UGV and weapon backpacks*/
                 else {LOOT_ITEM_TYPE_CLTH}/*Regular backpacks*/
         };
