@@ -48,6 +48,9 @@ NWG_VSHOP_SER_Settings = createHashMapFromArray [
     ["PRICE_SUBM_SETTINGS",[0.01,0.002,20000,50000]],
     ["PRICE_TANK_SETTINGS",[0.01,0.002,40000,90000]],
 
+	["PRICE_MULTIPLIER_ARMED",1.5],//Multiplier for the price of an armed vehicle
+	["PRICE_MULTIPLIER_UNARMED",1],//Multiplier for the price of an unarmed vehicle
+
 	//Items that are added to each shop interaction
 	["SHOP_PERSISTENT_ITEMS",[
 		[],/*AAIR*/
@@ -58,7 +61,7 @@ NWG_VSHOP_SER_Settings = createHashMapFromArray [
         [],/*DRON*/
         ["B_Heli_Light_01_F"],/*HELI*/
         [],/*PLAN*/
-        ["B_SDV_01_F"],/*SUBM*/
+        [],/*SUBM*/
         []/*TANK*/
 	]],
 	["SHOP_CHECK_PERSISTENT_ITEMS_ON_INIT",false],//Check validity of persistent items on init
@@ -172,6 +175,11 @@ NWG_VSHOP_SER_EvaluateVeh = {
 	};
 	if (_categoryIndex == -1) exitWith {_defaultPrice};//<== EXIT WITH ZERO DEFAULT on error
 
+	//Apply armed/unarmed multiplier
+	_defaultPrice = if (_this call NWG_VSHOP_SER_IsArmedVehicle)
+		then {_defaultPrice * (NWG_VSHOP_SER_Settings get "PRICE_MULTIPLIER_ARMED")}
+		else {_defaultPrice * (NWG_VSHOP_SER_Settings get "PRICE_MULTIPLIER_UNARMED")};
+
 	//Add new item info to chart and cache
 	private _vehIndex = ((NWG_VSHOP_SER_vehsPriceChart select _categoryIndex) select CHART_ITEMS) pushBack _this;
 	((NWG_VSHOP_SER_vehsPriceChart select _categoryIndex) select CHART_PRICES) pushBack _defaultPrice;
@@ -179,6 +187,36 @@ NWG_VSHOP_SER_EvaluateVeh = {
 
 	//return price
 	_defaultPrice
+};
+
+NWG_VSHOP_SER_notWeapon = ["Horn","designator","Flare","Smoke"];
+NWG_VSHOP_SER_IsArmedVehicle = {
+	private _classname = _this;
+
+	//Get vehicle config
+	private _config = configFile >> "CfgVehicles" >> _classname;
+	if !(isClass _config) exitWith {
+		(format["NWG_VSHOP_SER_IsArmedVehicle: Invalid vehicle classname '%1'",_classname]) call NWG_fnc_logError;
+		false
+	};
+
+	//Check pylons
+    if ((count ("true" configClasses (_config >> "Components" >> "TransportPylonsComponent"))) > 0) exitWith {true};
+
+	//Check main weapon defined in root config
+	private _found = false;
+	private _mainWeapons = getArray (_config >> "weapons");
+	if (!isNil "_mainWeapons" && {_mainWeapons isEqualTypeArray []}) then {
+		_found = (_mainWeapons findIf {_cur = _x; (NWG_VSHOP_SER_notWeapon findIf {_x in _cur}) == -1}) != -1;
+	};
+	if (_found) exitWith {true};
+
+	//Get all turrets and their respective weapons
+	private _turrets = flatten (("true" configClasses (_config >> "Turrets")) apply {getArray (_x >> "weapons")});
+	_found = (_turrets findIf {_cur = _x; (NWG_VSHOP_SER_notWeapon findIf {_x in _cur}) == -1}) != -1;
+
+	//return
+	_found
 };
 
 NWG_VSHOP_SER_UpdatePrices = {

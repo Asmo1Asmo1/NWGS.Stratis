@@ -88,7 +88,26 @@ NWG_LM_MMC_OnMissionStateChanged = {
 			[_mFaction,_facVehs] call NWG_fnc_lmFillVehicles;
 
 			//Fill containers
-			[_mFaction,(_mObjects#OBJ_CAT_DECO)] call NWG_fnc_lmFillContainers;
+			private _containers = [_mFaction,(_mObjects#OBJ_CAT_DECO)] call NWG_fnc_lmFillContainers;
+
+			//Ensure underwater containers could be looted as well
+			//We are using anonymous functions as they will be transfered over the network and this connector exists only on the server
+			{
+				private _script = {
+					// params ["_target","_caller","_actionId","_arguments"];
+					params ["_container","","_actionId"];
+					if (isNil "NWG_fnc_lsLootContainer") exitWith {
+						"NWG_LM_MMC_OnMissionStateChanged: Loot container function undefined" call NWG_fnc_logError;
+						_container removeAction _actionId;
+					};
+					private _ok = _container call NWG_fnc_lsLootContainer;
+					if (_ok)
+						then {"#LM_ACTION_LOOT_SUCCESS#" call NWG_fnc_systemChatMe}
+						else {"#LM_ACTION_LOOT_FAILURE#" call NWG_fnc_systemChatMe};
+					_container removeAction _actionId;
+				};
+				[_x,"#LM_ACTION_LOOT_TITLE#",_script] call NWG_fnc_addActionGlobal;
+			} forEach (_containers select {((getPosASL _x)#2) < 0});
 		};
 
 		default {};
