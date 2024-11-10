@@ -396,6 +396,7 @@ NWG_LM_SER_FillObject = {
 NWG_LM_SER_FillContainers = {
     params [["_faction",""],["_containers",[]],["_setsEnrichment",NWG_LM_SER_setsEnrichment],["_itemEnrichment",NWG_LM_SER_itemEnrichment]];
 
+    private _result = [];
     private ["_type","_tag","_counts","_count","_lootSet"];
     //foreach container
     {
@@ -432,7 +433,11 @@ NWG_LM_SER_FillContainers = {
 
         //Fill container
         [_x,_lootSet] call NWG_LM_SER_FillObject;
+        _result pushBack _x;
     } forEach _containers;
+
+    //return
+    _result
 };
 
 NWG_LM_SER_FillVehicles = {

@@ -22,10 +22,10 @@ NWG_fnc_lmConfigureEnrichment = {
 //note: objects that are not containers will be safely ignored
 //params:
 // - _faction - faction to use for loot generation
-// - _containers - array of containers to fill
+// - _containers - array of containers to fill (it is safe to pass any objects, only containers will be filled)
 // - _setEnrichmentOverride - enrichment override for sets (optional, uses pre-configured enrichment by default, which is itself 0 by default)
 // - _itemEnrichmentOverride - enrichment override for items (optional, uses pre-configured enrichment by default, which is itself 0 by default)
-//returns: nothing
+//returns: array of objects that were filled with loot
 NWG_fnc_lmFillContainers = {
     // params [["_faction",""],["_containers",[]],["_setEnrichmentOverride",0],["_itemEnrichmentOverride",0]];
     _this call NWG_LM_SER_FillContainers
