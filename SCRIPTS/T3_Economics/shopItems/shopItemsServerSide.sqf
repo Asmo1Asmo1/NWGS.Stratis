@@ -36,6 +36,14 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
 	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",0.5],//Chance that item will be added to dynamic items when bought from player
 	["SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE",1],//Chance that item will be removed from dynamic items when sold to player
 
+	["SHOP_JUNK_ITEMS",[
+		"FlashDisk","Files","FilesSecret","FileTopSecret","FileNetworkStructure","DocumentsSecret",
+		"SatPhone","MobilePhone","SmartPhone",
+		"Money","Money_stack","Money_roll","Money_bunch",
+		"Laptop_Unfolded","Laptop_Closed","ButaneCanister","Keys","Wallet_ID",
+		"Bandage","Antimalaricum","Antibiotic","AntimalaricumVaccine"
+	]],//Items that will be ignored and never added to dynamic items on buy from player
+
 	["",0]
 ];
 
@@ -187,6 +195,39 @@ NWG_ISHOP_SER_UploadPrices = {
 
 //================================================================================================================
 //================================================================================================================
+//Items chart conversion
+NWG_ISHOP_SER_ArrayToChart = {
+	private _array = _this;
+	private _chart = LOOT_ITEM_DEFAULT_CHART;
+	if ((count _array) == 0) exitWith {_chart};
+
+	//Uncompact incoming array if needed
+	if ((_array findIf {_x isEqualType 1}) != -1) then {
+		_array = _array call NWG_fnc_unCompactStringArray;
+	};
+
+	//Sort items by category
+	{
+		switch (_x call NWG_fnc_icatGetItemType) do {
+			case LOOT_ITEM_TYPE_CLTH: {(_chart#LOOT_ITEM_CAT_CLTH) pushBack _x};
+			case LOOT_ITEM_TYPE_WEAP: {(_chart#LOOT_ITEM_CAT_WEAP) pushBack _x};
+			case LOOT_ITEM_TYPE_ITEM: {(_chart#LOOT_ITEM_CAT_ITEM) pushBack _x};
+			case LOOT_ITEM_TYPE_AMMO: {(_chart#LOOT_ITEM_CAT_AMMO) pushBack _x};
+			default {
+				(format["NWG_ISHOP_SER_ArrayToChart: Invalid item type '%1'-'%2'",_x,(_x call NWG_fnc_icatGetItemType)]) call NWG_fnc_logError;
+			};
+		};
+	} forEach _array;
+
+	//Compact each category
+	{_x call NWG_fnc_compactStringArray} forEach _chart;
+
+	//return
+	_chart
+};
+
+//================================================================================================================
+//================================================================================================================
 //Items chart validation
 NWG_ISHOP_SER_ValidateItemsChart = {
 	// private _itemsChart = _this;
@@ -225,8 +266,7 @@ NWG_ISHOP_SER_ValidateItemsChart = {
 		private _getBaseClass = switch (_forEachIndex) do {
             case LOOT_ITEM_CAT_CLTH: {{_this call NWG_fnc_icatGetBaseBackpack}};
             case LOOT_ITEM_CAT_WEAP: {{_this call NWG_fnc_icatGetBaseWeapon}};
-            case LOOT_ITEM_CAT_ITEM: {{_this}};
-            case LOOT_ITEM_CAT_AMMO: {{_this}};
+            default {{_this}};
 		};
 
 		private _failedItems = [];
@@ -276,12 +316,12 @@ NWG_ISHOP_SER_ValidateItemsChart = {
 
 NWG_ISHOP_SER_ValidatePersistentItems = {
 	private _persistentItems = NWG_ISHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
-	(_persistentItems call NWG_ISHOP_SER_ValidateItemsChart) params ["_chartAfterValidation","_isValid"];
+	(_persistentItems call NWG_ISHOP_SER_ValidateItemsChart) params ["_sanitizedChart","_isValid"];
 	if (!_isValid) then {
 		(format["NWG_ISHOP_SER_ValidatePersistentItems: Invalid persistent shop items, check logs and your NWG_ISHOP_SER_Settings"]) call NWG_fnc_logError;
+		NWG_ISHOP_SER_Settings set ["SHOP_PERSISTENT_ITEMS",_sanitizedChart];
 	};
 
-	NWG_ISHOP_SER_Settings set ["SHOP_PERSISTENT_ITEMS",_chartAfterValidation];
 	_isValid
 };
 
@@ -291,26 +331,106 @@ NWG_ISHOP_SER_ValidatePersistentItems = {
 
 //Items that are added on top of persistent items
 NWG_ISHOP_SER_dynamicItems = [
-	[],
-	[],
-	[],
-	[]
+	[],/*CLTH*/
+	[],/*WEAP*/
+	[],/*ITEM*/
+	[] /*AMMO*/
 ];
 
-NWG_ISHOP_SER_DownloadDynamicItems = {
-	//return
-	NWG_ISHOP_SER_dynamicItems
-};
+NWG_ISHOP_SER_AddDynamicItems = {
+	// private _itemsArray = _this;
+	if ((count _this) == 0) exitWith {};
 
-NWG_ISHOP_SER_UploadDynamicItems = {
-	// private _dynamicItems = _this;
-	(_this call NWG_ISHOP_SER_ValidateItemsChart) params ["_chartAfterValidation","_isValid"];
+	//Convert and validate
+	((_this call NWG_ISHOP_SER_ArrayToChart) call NWG_ISHOP_SER_ValidateItemsChart) params ["_sanitizedChart","_isValid"];
 	if (!_isValid) then {
-		(format["NWG_ISHOP_SER_UploadDynamicItems: Invalid dynamic shop items, check logs and your NWG_ISHOP_SER_Settings"]) call NWG_fnc_logError;
+		"NWG_ISHOP_SER_AddDynamicItems: Invalid items found, check RPT for details" call NWG_fnc_logError;
 	};
-	NWG_ISHOP_SER_dynamicItems = _chartAfterValidation;
+
+	//foreach category of itemsToAdd
+	{
+		switch (true) do {
+			case ((count _x) == 0): {
+				//Nothing to add - skip
+				/*Do nothing*/
+			};
+			case ((count (NWG_ISHOP_SER_dynamicItems#_forEachIndex)) == 0): {
+				//Nothing was stored - replace
+				NWG_ISHOP_SER_dynamicItems set [_forEachIndex,_x];
+			};
+			default {
+				//Both arrays are non-empty - merge
+				private _newItems = [(NWG_ISHOP_SER_dynamicItems#_forEachIndex),_x] call NWG_fnc_mergeCompactedStringArrays;
+				NWG_ISHOP_SER_dynamicItems set [_forEachIndex,_newItems];
+			};
+		};
+	} forEach _sanitizedChart;
+
 	//return
 	_isValid
+};
+
+NWG_ISHOP_SER_AddDynamicItemsExternal = {
+	private _items = _this;
+
+	if ((_items findIf {_x isEqualType 1}) != -1) then {
+		_items = _items call NWG_fnc_unCompactStringArray;
+	};
+
+	_items = _items call NWG_ISHOP_SER_RemoveJunkFromItems;
+	_items call NWG_ISHOP_SER_AddDynamicItems;
+};
+
+NWG_ISHOP_SER_RemoveDynamicItems = {
+	// private _itemsArray = _this;
+	if ((count _this) == 0) exitWith {};
+
+	//foreach category of itemsToRemove
+	//This whole logic is a bit complex, but it will execute faster than uncompacting both arrays and substracting one from another
+	//Also, we skip validation on purpose - if item is invalid, we will not find it in dynamic items in the first place and removal will be skipped
+	private ["_removeArray","_existingArray","_removeCount","_i","_existingCount","_remainingCount"];
+	{
+		_removeArray = _x;
+		if ((count _removeArray) == 0) then {continue};
+
+		_existingArray = NWG_ISHOP_SER_dynamicItems#_forEachIndex;
+		if ((count _existingArray) == 0) then {continue};
+
+		//foreach item in removeArray
+		_removeCount = 1;//Init
+		{
+			if (_x isEqualType 1) then {
+				_removeCount = _x;
+				continue
+			};
+
+			_i = _existingArray find _x;
+			if (_i == -1) then {
+				//Item not found (double report or trying to remove persistent or invalid items)
+				_removeCount = 1;
+				continue
+			};
+
+			_existingCount = _existingArray param [(_i-1),""];
+			_remainingCount = if (_existingCount isEqualType 1) then {_existingCount - _removeCount} else {0};
+			_removeCount = 1;//Reset
+
+			switch (true) do {
+				case (_existingCount isEqualType ""): {_existingArray deleteAt _i};//_i points to element without count (so its count is '1') and we need to remove at least one element
+				case (_remainingCount <= 0): {_existingArray deleteAt _i; _existingArray deleteAt (_i-1)};//Remove >=all elements - remove both element itself and its count
+				case (_remainingCount == 1): {_existingArray deleteAt (_i-1)};//Remove only the count of the element (so its count becomes '1')
+				default {_existingArray set [(_i-1),_remainingCount]};//Decrease count
+			};
+		} forEach _removeArray;
+	} forEach (_this call NWG_ISHOP_SER_ArrayToChart);
+};
+
+//================================================================================================================
+//================================================================================================================
+//Junk sanitaion
+NWG_ISHOP_SER_RemoveJunkFromItems = {
+	// private _items = _this;
+	_this - (NWG_ISHOP_SER_Settings get "SHOP_JUNK_ITEMS")
 };
 
 //================================================================================================================
@@ -360,7 +480,7 @@ NWG_ISHOP_SER_OnShopRequest = {
 NWG_ISHOP_SER_OnTransaction = {
 	params ["_itemsSoldToPlayer","_itemsBoughtFromPlayer"];
 
-	/* ==Update prices== */
+	//Update prices
 	private _updatePrices = {
 		params ["_items","_isSoldToPlayer"];
 		private _quantity = 1;
@@ -383,89 +503,24 @@ NWG_ISHOP_SER_OnTransaction = {
 	[_itemsBoughtFromPlayer,false] call _updatePrices;
 
 
-	/* ==Prepare script for categorization== */
-	private _getCategorizedItemsToProcess = {
+	//Prepare chance applying
+	private _applyChanceRemoveJunk = {
 		params ["_items","_chanceName"];
 		if ((count _items) == 0) exitWith {[]};
 
 		private _chance = ((NWG_ISHOP_SER_Settings get _chanceName) max 0) min 1;
-		_items = switch (_chance) do {
-			case 0: {[]};
-			case 1: {(_items + []) call NWG_fnc_unCompactStringArray};
-			default {((_items + []) call NWG_fnc_unCompactStringArray) select {(random 1) <= _chance}};
-		};
-		if ((count _items) == 0) exitWith {[]};
+		if (_chance == 0) exitWith {[]};
 
-		private _itemsCategorized = LOOT_ITEM_DEFAULT_CHART;
-		{
-			switch (_x call NWG_fnc_icatGetItemType) do {
-				case LOOT_ITEM_TYPE_AMMO: {(_itemsCategorized#LOOT_ITEM_CAT_AMMO) pushBack _x};
-				case LOOT_ITEM_TYPE_ITEM: {(_itemsCategorized#LOOT_ITEM_CAT_ITEM) pushBack _x};
-				case LOOT_ITEM_TYPE_WEAP: {(_itemsCategorized#LOOT_ITEM_CAT_WEAP) pushBack _x};
-				case LOOT_ITEM_TYPE_CLTH: {(_itemsCategorized#LOOT_ITEM_CAT_CLTH) pushBack _x};
-				default {
-					(format["NWG_ISHOP_SER_OnTransaction: Invalid item type '%1'-'%2'",_x,(_x call NWG_fnc_icatGetItemType)]) call NWG_fnc_logError;
-				};
-			};
-		} forEach _items;
-
-		{_x call NWG_fnc_compactStringArray} forEach _itemsCategorized;
+		_items = _items call NWG_fnc_unCompactStringArray;
+		_items = _items call NWG_ISHOP_SER_RemoveJunkFromItems;
+		if (_chance == 1) exitWith {_items};
 
 		//return
-		_itemsCategorized
+		_items select {(random 1) <= _chance}
 	};
 
-
-	/* ==Add dynamic items== */
-	//foreach category of itemsToAdd
-	{
-		if ((count _x) == 0) then {continue};
-
-		//Check if nothing was stored - replace
-		if ((count (NWG_ISHOP_SER_dynamicItems#_forEachIndex)) == 0) then {
-			NWG_ISHOP_SER_dynamicItems set [_forEachIndex,_x];
-			continue;
-		};
-
-		//Both arrays are non-empty - merge
-		NWG_ISHOP_SER_dynamicItems set [
-			_forEachIndex,
-			([(NWG_ISHOP_SER_dynamicItems#_forEachIndex),_x] call NWG_fnc_mergeCompactedStringArrays)
-		];
-	} forEach ([_itemsBoughtFromPlayer,"SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE"] call _getCategorizedItemsToProcess);
-
-
-	/* ==Remove dynamic items== */
-	//foreach category of itemsToRemove
-	private ["_removeArray","_removeCount","_existingArray","_existingCount","_i","_remainingCount"];
-	{
-		_removeArray = _x;
-		if ((count _removeArray) == 0) then {continue};
-
-		_existingArray = NWG_ISHOP_SER_dynamicItems#_forEachIndex;
-		if ((count _existingArray) == 0) then {continue};
-
-		//foreach item in removeArray
-		_removeCount = 1;//Init
-		{
-			if (_x isEqualType 1) then {_removeCount = _x; continue};
-
-			_i = _existingArray find _x;
-			if (_i == -1) then {continue};//Item not found (could happen if 2 or more players report at the same time or if persistent items were sold)
-
-			_existingCount = _existingArray param [(_i-1),false];
-			_remainingCount = if (_existingCount isEqualType 1)
-				then {_existingCount - _removeCount}
-				else {0};
-			_removeCount = 1;//Reset
-
-			switch (true) do {
-				case (_existingCount isEqualTo false): {_existingArray deleteAt _i};//_i points to first element of array and we need to remove at least one element
-				case (_existingCount isEqualType ""): {_existingArray deleteAt _i};//_i points to element without count (so its count is '1') and we need to remove at least one element
-				case (_remainingCount <= 0): {_existingArray deleteAt _i; _existingArray deleteAt (_i-1)};//Remove >=all elements - remove element itself and its count
-				case (_remainingCount == 1): {_existingArray deleteAt (_i-1)};//Remove only count of the element (so its count becomes '1')
-				default {_existingArray set [(_i-1),_remainingCount]};//Decrease count
-			};
-		} forEach _removeArray;
-	} forEach ([_itemsSoldToPlayer,"SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE"] call _getCategorizedItemsToProcess);
+	//Add dynamic items that were bought
+	([_itemsBoughtFromPlayer,"SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE"]  call _applyChanceRemoveJunk) call NWG_ISHOP_SER_AddDynamicItems;
+	//Remove dynamic items that were sold
+	([_itemsSoldToPlayer,"SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE"] call _applyChanceRemoveJunk) call NWG_ISHOP_SER_RemoveDynamicItems;
 };

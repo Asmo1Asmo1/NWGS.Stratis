@@ -274,8 +274,10 @@ NWG_VSHOP_SER_ArrayToChart = {
 	private _chart = LOOT_VEHC_DEFAULT_CHART;
 	if ((count _array) == 0) exitWith {_chart};
 
-	//Uncompact incoming array (its shallow copy to prevent side effects)
-	_array = (_array+[]) call NWG_fnc_unCompactStringArray;
+	//Uncompact incoming array if needed
+	if ((_array findIf {_x isEqualType 1}) != -1) then {
+		_array = _array call NWG_fnc_unCompactStringArray;
+	};
 
 	//Sort items by category
 	{
@@ -417,7 +419,7 @@ NWG_VSHOP_SER_dynamicItems = [
 	[],/*HELI*/
 	[],/*PLAN*/
 	[],/*SUBM*/
-	[]/*TANK*/
+	[] /*TANK*/
 ];
 
 NWG_VSHOP_SER_AddDynamicItems = {
@@ -457,14 +459,9 @@ NWG_VSHOP_SER_RemoveDynamicItems = {
 	// private _itemsArray = _this;
 	if ((count _this) == 0) exitWith {};
 
-	//Convert and validate
-	((_this call NWG_VSHOP_SER_ArrayToChart) call NWG_VSHOP_SER_ValidateItemsChart) params ["_sanitizedChart","_isValid"];
-	if (!_isValid) then {
-		"NWG_VSHOP_SER_RemoveDynamicItems: Invalid items found, check RPT for details" call NWG_fnc_logError;
-	};
-
 	//foreach category of itemsToRemove
 	//This whole logic is a bit complex, but it will execute faster than uncompacting both arrays and substracting one from another
+	//Also, we skip validation on purpose - if item is invalid, we will not find it in dynamic items in the first place and removal will be skipped
 	private ["_removeArray","_existingArray","_removeCount","_i","_existingCount","_remainingCount"];
 	{
 		_removeArray = _x;
@@ -483,7 +480,7 @@ NWG_VSHOP_SER_RemoveDynamicItems = {
 
 			_i = _existingArray find _x;
 			if (_i == -1) then {
-				//Item not found (double report or trying to remove persistent items)
+				//Item not found (double report or trying to remove persistent or invalid items)
 				_removeCount = 1;
 				continue
 			};
@@ -499,7 +496,7 @@ NWG_VSHOP_SER_RemoveDynamicItems = {
 				default {_existingArray set [(_i-1),_remainingCount]};//Decrease count
 			};
 		} forEach _removeArray;
-	} forEach _sanitizedChart;
+	} forEach (_this call NWG_VSHOP_SER_ArrayToChart);
 };
 
 NWG_VSHOP_SER_dynamicItemsCatalogue = nil;

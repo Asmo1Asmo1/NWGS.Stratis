@@ -183,3 +183,29 @@ NWG_ISHOP_SER_ValidateItemsChart_Test = {
 		"All tests passed"
 	};
 };
+
+//================================================================================================================
+//================================================================================================================
+//Validate loot mission catalogue (yes, it's from another module, but validation is done here)
+// call NWG_ISHOP_SER_ValidateLootMissionCatalogue_Test
+NWG_ISHOP_SER_ValidateLootMissionCatalogue_Test = {
+	private _filePath = "DATASETS\Server\LootMission\_Vanilla.sqf";
+	private _catalogue = call (_filePath call NWG_fnc_compile);
+	if (isNil "_catalogue" || {!(_catalogue isEqualType [])}) exitWith {"Failed to load catalogue"};
+
+	private _errors = [];
+	{
+		_x params ["_tags","_items"];
+		(_items call NWG_ISHOP_SER_ValidateItemsChart) params ["","_isValid"];
+		if (!_isValid) then {
+			_errors pushBack (format ["Invalid items chart found. Tags to find it: '%1'",_tags]);
+		};
+	} forEach _catalogue;
+
+	if (_errors isNotEqualTo []) then {
+		_errors call NWG_fnc_testDumpToRptAndClipboard;
+		"Some tests failed, check the report!"
+	} else {
+		"All tests passed"
+	};
+};
