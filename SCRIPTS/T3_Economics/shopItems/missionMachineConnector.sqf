@@ -1,6 +1,6 @@
 #include "..\..\globalDefines.h"
 /*
-    Connector between shopVehicles and missionMachine modules
+    Connector between shopItems and missionMachine modules
 */
 
 //================================================================================================================
@@ -28,7 +28,10 @@ NWG_ISHOP_MMC_OnMissionStateChanged = {
 
     //Check persistent items
     if (NWG_ISHOP_MMC_Settings get "ISHOP_CHECK_PERSISTENT_ITEMS") then {
-        call NWG_ISHOP_SER_ValidatePersistentItems;
+        private _ok = call NWG_ISHOP_SER_ValidatePersistentItems;
+        if !(_ok) then {
+            "NWG_ISHOP_MMC_OnMissionStateChanged: Persistent items are invalid" call NWG_fnc_logError;
+        };
     };
 };
 

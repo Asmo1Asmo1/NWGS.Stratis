@@ -23,6 +23,8 @@
 //================================================================================================================
 //Settings
 NWG_VSHOP_SER_Settings = createHashMapFromArray [
+	["CATALOGUE_PATH_VANILLA","DATASETS\Server\ShopVehicles\_Vanilla.sqf"],//Path to vanilla loot catalogue
+
     ["DEFAULT_PRICE_AAIR",50000],
     ["DEFAULT_PRICE_APCS",35000],
     ["DEFAULT_PRICE_ARTY",45000],
@@ -266,6 +268,43 @@ NWG_VSHOP_SER_UploadPrices = {
 
 //================================================================================================================
 //================================================================================================================
+//Items chart conversion
+NWG_VSHOP_SER_ArrayToChart = {
+	private _array = _this;
+	private _chart = LOOT_VEHC_DEFAULT_CHART;
+	if ((count _array) == 0) exitWith {_chart};
+
+	//Uncompact incoming array (its shallow copy to prevent side effects)
+	_array = (_array+[]) call NWG_fnc_unCompactStringArray;
+
+	//Sort items by category
+	{
+		switch (_x call NWG_fnc_vcatGetVehcType) do {
+			case LOOT_VEHC_TYPE_AAIR: {(_chart#LOOT_VEHC_CAT_AAIR) pushBack _x};
+			case LOOT_VEHC_TYPE_APCS: {(_chart#LOOT_VEHC_CAT_APCS) pushBack _x};
+			case LOOT_VEHC_TYPE_ARTY: {(_chart#LOOT_VEHC_CAT_ARTY) pushBack _x};
+			case LOOT_VEHC_TYPE_BOAT: {(_chart#LOOT_VEHC_CAT_BOAT) pushBack _x};
+			case LOOT_VEHC_TYPE_CARS: {(_chart#LOOT_VEHC_CAT_CARS) pushBack _x};
+			case LOOT_VEHC_TYPE_DRON: {(_chart#LOOT_VEHC_CAT_DRON) pushBack _x};
+			case LOOT_VEHC_TYPE_HELI: {(_chart#LOOT_VEHC_CAT_HELI) pushBack _x};
+			case LOOT_VEHC_TYPE_PLAN: {(_chart#LOOT_VEHC_CAT_PLAN) pushBack _x};
+			case LOOT_VEHC_TYPE_SUBM: {(_chart#LOOT_VEHC_CAT_SUBM) pushBack _x};
+			case LOOT_VEHC_TYPE_TANK: {(_chart#LOOT_VEHC_CAT_TANK) pushBack _x};
+			default {
+				(format["NWG_VSHOP_SER_ArrayToChart: Invalid item type '%1'-'%2'",_x,(_x call NWG_fnc_vcatGetVehcType)]) call NWG_fnc_logError;
+			};
+		};
+	} forEach _array;
+
+	//Compact each category
+	{_x call NWG_fnc_compactStringArray} forEach _chart;
+
+	//return
+	_chart
+};
+
+//================================================================================================================
+//================================================================================================================
 //Items chart validation
 NWG_VSHOP_SER_ValidateItemsChart = {
 	// private _itemsChart = _this;
@@ -353,12 +392,14 @@ NWG_VSHOP_SER_ValidateItemsChart = {
 
 NWG_VSHOP_SER_ValidatePersistentItems = {
 	private _persistentItems = NWG_VSHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS";
-	(_persistentItems call NWG_VSHOP_SER_ValidateItemsChart) params ["_chartAfterValidation","_isValid"];
+	(_persistentItems call NWG_VSHOP_SER_ValidateItemsChart) params ["_sanitizedChart","_isValid"];
 	if (!_isValid) then {
 		(format["NWG_VSHOP_SER_ValidatePersistentItems: Invalid persistent shop items, check logs and your NWG_VSHOP_SER_Settings"]) call NWG_fnc_logError;
+		NWG_VSHOP_SER_Settings set ["SHOP_PERSISTENT_ITEMS",_sanitizedChart];
 	};
 
-	NWG_VSHOP_SER_Settings set ["SHOP_PERSISTENT_ITEMS",_chartAfterValidation];
+	//return
+	_isValid
 };
 
 //================================================================================================================
@@ -379,20 +420,119 @@ NWG_VSHOP_SER_dynamicItems = [
 	[]/*TANK*/
 ];
 
-NWG_VSHOP_SER_DownloadDynamicItems = {
-	//return
-	NWG_VSHOP_SER_dynamicItems
-};
+NWG_VSHOP_SER_AddDynamicItems = {
+	// private _itemsArray = _this;
+	if ((count _this) == 0) exitWith {};
 
-NWG_VSHOP_SER_UploadDynamicItems = {
-	// private _dynamicItems = _this;
-	(_this call NWG_VSHOP_SER_ValidateItemsChart) params ["_chartAfterValidation","_isValid"];
+	//Convert and validate
+	((_this call NWG_VSHOP_SER_ArrayToChart) call NWG_VSHOP_SER_ValidateItemsChart) params ["_sanitizedChart","_isValid"];
 	if (!_isValid) then {
-		(format["NWG_VSHOP_SER_UploadDynamicItems: Invalid dynamic shop items, check logs and your NWG_VSHOP_SER_Settings"]) call NWG_fnc_logError;
+		"NWG_VSHOP_SER_AddDynamicItems: Invalid items found, check RPT for details" call NWG_fnc_logError;
 	};
-	NWG_VSHOP_SER_dynamicItems = _chartAfterValidation;
+
+	//foreach category of itemsToAdd
+	{
+		switch (true) do {
+			case ((count _x) == 0): {
+				//Nothing to add - skip
+				/*Do nothing*/
+			};
+			case ((count (NWG_VSHOP_SER_dynamicItems#_forEachIndex)) == 0): {
+				//Nothing was stored - replace
+				NWG_VSHOP_SER_dynamicItems set [_forEachIndex,_x];
+			};
+			default {
+				//Both arrays are non-empty - merge
+				private _newItems = [(NWG_VSHOP_SER_dynamicItems#_forEachIndex),_x] call NWG_fnc_mergeCompactedStringArrays;
+				NWG_VSHOP_SER_dynamicItems set [_forEachIndex,_newItems];
+			};
+		};
+	} forEach _sanitizedChart;
+
 	//return
 	_isValid
+};
+
+NWG_VSHOP_SER_RemoveDynamicItems = {
+	// private _itemsArray = _this;
+	if ((count _this) == 0) exitWith {};
+
+	//Convert and validate
+	((_this call NWG_VSHOP_SER_ArrayToChart) call NWG_VSHOP_SER_ValidateItemsChart) params ["_sanitizedChart","_isValid"];
+	if (!_isValid) then {
+		"NWG_VSHOP_SER_RemoveDynamicItems: Invalid items found, check RPT for details" call NWG_fnc_logError;
+	};
+
+	//foreach category of itemsToRemove
+	//This whole logic is a bit complex, but it will execute faster than uncompacting both arrays and substracting one from another
+	private ["_removeArray","_existingArray","_removeCount","_i","_existingCount","_remainingCount"];
+	{
+		_removeArray = _x;
+		if ((count _removeArray) == 0) then {continue};
+
+		_existingArray = NWG_VSHOP_SER_dynamicItems#_forEachIndex;
+		if ((count _existingArray) == 0) then {continue};
+
+		//foreach item in removeArray
+		_removeCount = 1;//Init
+		{
+			if (_x isEqualType 1) then {
+				_removeCount = _x;
+				continue
+			};
+
+			_i = _existingArray find _x;
+			if (_i == -1) then {
+				//Item not found (double report or trying to remove persistent items)
+				_removeCount = 1;
+				continue
+			};
+
+			_existingCount = _existingArray param [(_i-1),""];
+			_remainingCount = if (_existingCount isEqualType 1) then {_existingCount - _removeCount} else {0};
+			_removeCount = 1;//Reset
+
+			switch (true) do {
+				case (_existingCount isEqualType ""): {_existingArray deleteAt _i};//_i points to element without count (so its count is '1') and we need to remove at least one element
+				case (_remainingCount <= 0): {_existingArray deleteAt _i; _existingArray deleteAt (_i-1)};//Remove >=all elements - remove both element itself and its count
+				case (_remainingCount == 1): {_existingArray deleteAt (_i-1)};//Remove only the count of the element (so its count becomes '1')
+				default {_existingArray set [(_i-1),_remainingCount]};//Decrease count
+			};
+		} forEach _removeArray;
+	} forEach _sanitizedChart;
+};
+
+NWG_VSHOP_SER_dynamicItemsCatalogue = nil;
+NWG_VSHOP_SER_AddDynamicItemsFromCatalogue = {
+	private _addCount = _this;
+
+	//Check if need to compile catalogue
+	if (isNil "NWG_VSHOP_SER_dynamicItemsCatalogue") then {
+		private _cataloguePath = NWG_VSHOP_SER_Settings get "CATALOGUE_PATH_VANILLA";
+		private _catalogue = call (_cataloguePath call NWG_fnc_compile);
+		if (isNil "_catalogue" || {!(_catalogue isEqualType [])}) exitWith {
+			(format["NWG_VSHOP_SER_AddDynamicItemsFromCatalogue: Failed to compile catalogue: '%1'",_cataloguePath]) call NWG_fnc_logError;
+			NWG_VSHOP_SER_dynamicItemsCatalogue = [];
+		};
+		if ((count _catalogue) == 0) exitWith {
+			(format["NWG_VSHOP_SER_AddDynamicItemsFromCatalogue: Catalogue is empty: '%1'",_cataloguePath]) call NWG_fnc_logError;
+			NWG_VSHOP_SER_dynamicItemsCatalogue = [];
+		};
+		NWG_VSHOP_SER_dynamicItemsCatalogue = _catalogue;
+	};
+
+	//Get list of items that could be added
+	private _persistentItems = (flatten (NWG_VSHOP_SER_Settings get "SHOP_PERSISTENT_ITEMS")) select {_x isEqualType ""};
+	private _dynamicItems = (flatten NWG_VSHOP_SER_dynamicItems) select {_x isEqualType ""};
+	private _toAdd = (NWG_VSHOP_SER_dynamicItemsCatalogue - _persistentItems) - _dynamicItems;
+	if ((count _toAdd) == 0) exitWith {};//Nothing to add
+
+	//Shuffle and add
+	_toAdd = _toAdd call NWG_fnc_arrayShuffle;
+	if ((count _toAdd) > _addCount) then {
+		_toAdd resize _addCount;
+	};
+	_toAdd call NWG_VSHOP_SER_AddDynamicItems;
 };
 
 //================================================================================================================
@@ -445,7 +585,7 @@ NWG_VSHOP_SER_OnShopRequest = {
 NWG_VSHOP_SER_OnTransaction = {
 	params ["_itemsSoldToPlayer","_itemsBoughtFromPlayer"];
 
-	/* ==Update prices== */
+	//Update prices
 	private _updatePrices = {
 		params ["_items","_isSoldToPlayer"];
 		private _quantity = 1;
@@ -467,98 +607,23 @@ NWG_VSHOP_SER_OnTransaction = {
 	[_itemsSoldToPlayer,true] call _updatePrices;
 	[_itemsBoughtFromPlayer,false] call _updatePrices;
 
-
-	/* ==Prepare script for categorization== */
-	private _getCategorizedItemsToProcess = {
+	//Prepare chance applying
+	private _applyChance = {
 		params ["_items","_chanceName"];
 		if ((count _items) == 0) exitWith {[]};
-
 		private _chance = ((NWG_VSHOP_SER_Settings get _chanceName) max 0) min 1;
-		_items = switch (_chance) do {
-			case 0: {[]};
-			case 1: {(_items + []) call NWG_fnc_unCompactStringArray};
-			default {((_items + []) call NWG_fnc_unCompactStringArray) select {(random 1) <= _chance}};
-		};
-		if ((count _items) == 0) exitWith {[]};
-
-		private _itemsCategorized = LOOT_VEHC_DEFAULT_CHART;
-		{
-			switch (_x call NWG_fnc_vcatGetVehcType) do {
-				case LOOT_VEHC_TYPE_AAIR: {(_itemsCategorized#LOOT_VEHC_CAT_AAIR) pushBack _x};
-				case LOOT_VEHC_TYPE_APCS: {(_itemsCategorized#LOOT_VEHC_CAT_APCS) pushBack _x};
-				case LOOT_VEHC_TYPE_ARTY: {(_itemsCategorized#LOOT_VEHC_CAT_ARTY) pushBack _x};
-				case LOOT_VEHC_TYPE_BOAT: {(_itemsCategorized#LOOT_VEHC_CAT_BOAT) pushBack _x};
-				case LOOT_VEHC_TYPE_CARS: {(_itemsCategorized#LOOT_VEHC_CAT_CARS) pushBack _x};
-				case LOOT_VEHC_TYPE_DRON: {(_itemsCategorized#LOOT_VEHC_CAT_DRON) pushBack _x};
-				case LOOT_VEHC_TYPE_HELI: {(_itemsCategorized#LOOT_VEHC_CAT_HELI) pushBack _x};
-				case LOOT_VEHC_TYPE_PLAN: {(_itemsCategorized#LOOT_VEHC_CAT_PLAN) pushBack _x};
-				case LOOT_VEHC_TYPE_SUBM: {(_itemsCategorized#LOOT_VEHC_CAT_SUBM) pushBack _x};
-				case LOOT_VEHC_TYPE_TANK: {(_itemsCategorized#LOOT_VEHC_CAT_TANK) pushBack _x};
-				default {
-					(format["NWG_VSHOP_SER_OnTransaction: Invalid item type '%1'-'%2'",_x,(_x call NWG_fnc_vcatGetVehcType)]) call NWG_fnc_logError;
-				};
-			};
-		} forEach _items;
-
-		{_x call NWG_fnc_compactStringArray} forEach _itemsCategorized;
-
 		//return
-		_itemsCategorized
+		switch (_chance) do {
+			case 0: {[]};
+			case 1: {_items};
+			default {(_items call NWG_fnc_unCompactStringArray) select {(random 1) <= _chance}};
+		}
 	};
 
-
-	/* ==Add dynamic items== */
-	//foreach category of itemsToAdd
-	{
-		if ((count _x) == 0) then {continue};
-
-		//Check if nothing was stored - replace
-		if ((count (NWG_VSHOP_SER_dynamicItems#_forEachIndex)) == 0) then {
-			NWG_VSHOP_SER_dynamicItems set [_forEachIndex,_x];
-			continue;
-		};
-
-		//Both arrays are non-empty - merge
-		NWG_VSHOP_SER_dynamicItems set [
-			_forEachIndex,
-			([(NWG_VSHOP_SER_dynamicItems#_forEachIndex),_x] call NWG_fnc_mergeCompactedStringArrays)
-		];
-	} forEach ([_itemsBoughtFromPlayer,"SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE"] call _getCategorizedItemsToProcess);
-
-
-	/* ==Remove dynamic items== */
-	//foreach category of itemsToRemove
-	private ["_removeArray","_removeCount","_existingArray","_existingCount","_i","_remainingCount"];
-	{
-		_removeArray = _x;
-		if ((count _removeArray) == 0) then {continue};
-
-		_existingArray = NWG_VSHOP_SER_dynamicItems#_forEachIndex;
-		if ((count _existingArray) == 0) then {continue};
-
-		//foreach item in removeArray
-		_removeCount = 1;//Init
-		{
-			if (_x isEqualType 1) then {_removeCount = _x; continue};
-
-			_i = _existingArray find _x;
-			if (_i == -1) then {continue};//Item not found (could happen if 2 or more players report at the same time or if persistent items were sold)
-
-			_existingCount = _existingArray param [(_i-1),false];
-			_remainingCount = if (_existingCount isEqualType 1)
-				then {_existingCount - _removeCount}
-				else {0};
-			_removeCount = 1;//Reset
-
-			switch (true) do {
-				case (_existingCount isEqualTo false): {_existingArray deleteAt _i};//_i points to first element of array and we need to remove at least one element
-				case (_existingCount isEqualType ""): {_existingArray deleteAt _i};//_i points to element without count (so its count is '1') and we need to remove at least one element
-				case (_remainingCount <= 0): {_existingArray deleteAt _i; _existingArray deleteAt (_i-1)};//Remove >=all elements - remove element itself and its count
-				case (_remainingCount == 1): {_existingArray deleteAt (_i-1)};//Remove only count of the element (so its count becomes '1')
-				default {_existingArray set [(_i-1),_remainingCount]};//Decrease count
-			};
-		} forEach _removeArray;
-	} forEach ([_itemsSoldToPlayer,"SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE"] call _getCategorizedItemsToProcess);
+	//Add dynamic items that were bought
+	([_itemsBoughtFromPlayer,"SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE"]  call _applyChance) call NWG_VSHOP_SER_AddDynamicItems;
+	//Remove dynamic items that were sold
+	([_itemsSoldToPlayer,"SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE"] call _applyChance) call NWG_VSHOP_SER_RemoveDynamicItems;
 };
 
 //================================================================================================================
