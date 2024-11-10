@@ -86,7 +86,7 @@ NWG_UKREP_GetBlueprintsREL = {
 //================================================================================================================
 //FRACTAL placement
 NWG_UKREP_FRACTAL_PlaceFractalABS = {
-    params ["_fractalSteps",["_faction",""],["_mapBldgsLimit",10],["_overrides",[]]];
+    params ["_fractalSteps",["_faction",""],["_overrides",[]]];
 
     //1. Get root blueprint
     private _fractalStep1 = _fractalSteps param [0,[]];
@@ -101,14 +101,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     };
     if (_blueprint isEqualTo []) exitWith {false};//Error
 
-    //2. Scan and save objects on the map
-    private _mapBldgs = if (_mapBldgsLimit > 0) then {
-        private _bpPos = _blueprint#BPCONTAINER_POS;
-        private _bpRad = _blueprint#BPCONTAINER_RADIUS;
-        (_bpPos nearObjects _bpRad) select {_x call NWG_fnc_ocIsBuilding}
-    } else {[]};
-
-    //3. Prepare group rules override
+    //2. Prepare group rules override
     private _groupRulesOverride = {
         // private _groupRules = _this;
         if ("GroupsMembership" in _overrides)  then {_this set [GRP_RULES_MEMBERSHIP,(_overrides get "GroupsMembership")]};//Override group membership
@@ -117,7 +110,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
         _this
     };
 
-    //4. Place root blueprint (fractal step 1)
+    //3. Place root blueprint (fractal step 1)
     _blueprint = _blueprint#BPCONTAINER_BLUEPRINT;
     _blueprint = +_blueprint;//Clone
     _groupRules = _groupRules call _groupRulesOverride;//Apply overrides if any
@@ -125,14 +118,11 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     if (_result isEqualTo false) exitWith {false};//Error
     //result is: [_bldgs,_furns,_decos,_units,_vehcs,_trrts,_mines]
 
-    //5. Decorate buildings (fractal step 2)
+    //4. Decorate buildings (fractal step 2)
     private _fractalStep2 = _fractalSteps param [1,_fractalStep1];//Unpack or re-use upper step
     _fractalStep2 params [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""]];
     _groupRules = _groupRules call _groupRulesOverride;//Apply overrides if any
     private _placedBldgs = (_result#OBJ_CAT_BLDG) select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup};
-    //Re-check cached map buildings (we now have pageName and blueprintNameFilter)
-    _mapBldgs = _mapBldgs select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup};
-    if ((count _mapBldgs) > _mapBldgsLimit) then {_mapBldgs call NWG_fnc_arrayShuffle; _mapBldgs resize _mapBldgsLimit};
     //forEach building
     {
         private _bldgPage = [_pageName,_x,OBJ_TYPE_BLDG] call NWG_UKREP_FRACTAL_AutoGetPageName;
@@ -141,7 +131,54 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
         {(_result#_forEachIndex) append _x} forEach _bldgResult;
         if ((count (_bldgResult#OBJ_CAT_UNIT)) > 0)
             then {_x call NWG_fnc_shAddOccupiedBuilding};//Mark building as occupied for other subsystems
-    } forEach (_placedBldgs + _mapBldgs);
+    } forEach _placedBldgs;
+
+    //5. Decorate furniture (fractal step 3)
+    private _fractalStep3 = _fractalSteps param [2,_fractalStep2];//Unpack or re-use upper step
+    _fractalStep3 params [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""]];
+    _groupRules = _groupRules call _groupRulesOverride;//Apply overrides if any
+    private _placedFurns = (_result#OBJ_CAT_FURN) select {[_x,OBJ_TYPE_FURN,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup};
+    //forEach furniture
+    {
+        private _furnPage = [_pageName,_x,OBJ_TYPE_FURN] call NWG_UKREP_FRACTAL_AutoGetPageName;
+        private _adaptToGround = _x call NWG_UKREP_FRACTAL_IsFurnitureOutside;//Adapt chairs around table only if table itself is not inside a building
+        private _furnResult = [_furnPage,_x,OBJ_TYPE_FURN,_blueprintNameFilter,_chances,_faction,_groupRules,_adaptToGround] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        if (_furnResult isEqualTo false) then {continue};//Error
+        {(_result#_forEachIndex) append _x} forEach _furnResult;
+    } forEach _placedFurns;
+
+    //return
+    _result
+};
+
+NWG_UKREP_FRACTAL_DecorateFractalBuildings = {
+    params ["_buildings","_fractalSteps",["_faction",""],["_overrides",[]]];
+
+    //1. Prepare group rules override
+    private _groupRulesOverride = {
+        // private _groupRules = _this;
+        if ("GroupsMembership" in _overrides)  then {_this set [GRP_RULES_MEMBERSHIP,(_overrides get "GroupsMembership")]};//Override group membership
+        if ("GroupsDynasim" in _overrides)     then {_this set [GRP_RULES_DYNASIM,(_overrides get "GroupsDynasim")]};//Override group dynamic simulation
+        if ("GroupsDisablePath" in _overrides) then {_this set [GRP_RULES_DISABLEPATH,(_overrides get "GroupsDisablePath")]};//Override group pathfinding
+        _this
+    };
+
+    //2. Decorate buildings (fractal step 2)
+    private _result = OBJ_DEFAULT_CHART;
+    private _fractalStep1 = _fractalSteps param [0,[]];
+    private _fractalStep2 = _fractalSteps param [1,_fractalStep1];//Unpack or re-use upper step
+    _fractalStep2 params [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""]];
+    _groupRules = _groupRules call _groupRulesOverride;//Apply overrides if any
+    _buildings = _buildings select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup};
+    //forEach building
+    {
+        private _bldgPage = [_pageName,_x,OBJ_TYPE_BLDG] call NWG_UKREP_FRACTAL_AutoGetPageName;
+        private _bldgResult = [_bldgPage,_x,OBJ_TYPE_BLDG,_blueprintNameFilter,_chances,_faction,_groupRules,/*_adaptToGround:*/true] call NWG_UKREP_PUBLIC_PlaceREL_Object;
+        if (_bldgResult isEqualTo false) then {continue};//Error
+        {(_result#_forEachIndex) append _x} forEach _bldgResult;
+        if ((count (_bldgResult#OBJ_CAT_UNIT)) > 0)
+            then {_x call NWG_fnc_shAddOccupiedBuilding};//Mark building as occupied for other subsystems
+    } forEach _buildings;
 
     //6. Decorate furniture (fractal step 3)
     private _fractalStep3 = _fractalSteps param [2,_fractalStep2];//Unpack or re-use upper step

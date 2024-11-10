@@ -81,7 +81,6 @@ NWG_fnc_ukrpHasRelSetup = {
 //      1: bldg - each building:             [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""]];
 //      2: furn - each furniture:            [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""]];
 // _faction - (optional) faction replacement to be applied (e.g.: "NATO") (default: "")
-// _mapBldgsLimit - (optional) max number of pre-existing map buildings in ukrep area to include as if they are a part of the blueprint itself (default: 10)
 // _overrides - (optional) hashmap of overrides for fractal steps (default: empty hashmap). Overrides are:
 //      - "RootBlueprint":[] - blueprint container to use as a root, skips catalogue search for the 'root' fractal step
 //      - "GroupsMembership":side|group|"AGENT" - sets common membership value for all _groupRules of each fractal step
@@ -90,8 +89,21 @@ NWG_fnc_ukrpHasRelSetup = {
 //returns:
 // [_bldgs,_furns,_decos,_units,_vehcs,_trrts,_mines] - array of spawned objects OR false if failed
 NWG_fnc_ukrpBuildFractalABS = {
-    // params ["_fractalSteps",["_faction",""],["_mapBldgsLimit",10],["_overrides",createHashMap]];
+    // params ["_fractalSteps",["_faction",""],["_overrides",createHashMap]];
     _this call NWG_UKREP_FRACTAL_PlaceFractalABS
+};
+
+//Decorates buildings as if they were a part of fractal ABS composition
+//params:
+// _buildings - array of buildings to decorate
+// _fractalSteps - array of fractal steps describing each step of the building process
+// _faction - (optional) faction replacement to be applied (e.g.: "NATO") (default: "")
+// _overrides - (optional) hashmap of overrides for fractal steps (default: empty hashmap)
+//returns:
+// array of spawned objects OR false if failed
+NWG_fnc_ukrpDecorateFractalBuildings = {
+    // params ["_buildings","_fractalSteps",["_faction",""],["_overrides",createHashMap]];
+    _this call NWG_UKREP_FRACTAL_DecorateFractalBuildings
 };
 
 //Builds composition around given object

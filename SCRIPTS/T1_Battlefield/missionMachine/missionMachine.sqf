@@ -651,11 +651,23 @@ NWG_MIS_SER_GenerateSelection = {
     //By that stage we already have a randomized list of missions with unique positions, so we can just take the first N elements
     private _selectionList = [];
     for "_i" from 0 to (_selectionCount-1) do {
+        //Get ingredients of this selection
         private _ukrep = _missionsList deleteAt 0;
         private _settings = _missionPresets select _i;
+
+        //Extract raw data from blueprint
         //_ukrep: [UkrepType,UkrepName,ABSPos,[0,0,0],Radius,0,Payload,Blueprint]
         _ukrep params ["","_name","_pos","","_rad"];
-        _name = (_name splitString "_") param [0,"Unknown"];//Extract mission name 'Name_var01' -> 'Name'
+
+        //Refine mission name ('LZConnor_var01' -> 'LZConnor')
+        _name = (_name splitString "_") param [0,"Unknown"];
+
+        //Refine mission radius
+        _rad = if (NWG_MIS_SER_Settings get "MISSIONS_USE_ACTUAL_BLUEPRINT_RAD")
+            then {_rad}
+            else {(_settings getOrDefault ["Radius",100])};
+
+        //Add to the list
         _selectionList pushBack [_name,_pos,_rad,_ukrep,_settings];
     };
 
@@ -679,14 +691,12 @@ NWG_MIS_SER_OnSelectionOptionsRequest = {
     private _options = NWG_MIS_SER_selectionList apply {[
             _x#SELECTION_NAME,
             _x#SELECTION_POS,
+            _x#SELECTION_RAD,
             ((_x#SELECTION_SETTINGS) getOrDefault ["PresetName","Unknown"]),
             ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarker","mil_dot"]),
             ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarkerColor","ColorBlack"]),
             ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarkerSize",1]),
-            ((_x#SELECTION_SETTINGS) getOrDefault ["MapOutlineAlpha",0.5]),
-            if (NWG_MIS_SER_Settings get "MISSIONS_OUTLINE_USE_ACTUAL_RAD")
-                then {_x#SELECTION_RAD}
-                else {((_x#SELECTION_SETTINGS) getOrDefault ["MapOutlineRadius",100])}
+            ((_x#SELECTION_SETTINGS) getOrDefault ["MapOutlineAlpha",0.5])
     ]};
 
     //Send options to the client
@@ -743,11 +753,7 @@ NWG_MIS_SER_GenerateMissionInfo = {
     _missionInfo set ["MarkerColor",(_settings getOrDefault ["MapMarkerColor","ColorBlack"])];
     _missionInfo set ["MarkerSize",(_settings getOrDefault ["MapMarkerSize",1])];
     _missionInfo set ["OutlineAlpha",(_settings getOrDefault ["MapOutlineAlpha",0.5])];
-    _missionInfo set ["OutlineRadius",(
-        if (NWG_MIS_SER_Settings get "MISSIONS_OUTLINE_USE_ACTUAL_RAD")
-            then {_rad}
-            else {(_settings getOrDefault ["MapOutlineRadius",100])}
-    )];
+    _missionInfo set ["OutlineRadius",_rad];
     _missionInfo set ["ExhaustAfter",(_settings getOrDefault ["ExhaustAfter",900])];
 
     //3. Extract values from mission machine and settings
@@ -769,8 +775,6 @@ NWG_MIS_SER_GenerateMissionInfo = {
 NWG_MIS_SER_BuildMission_Markers = {
     // private _missionInfo = _this;
     private _pos = _this get "Position";
-    private _rad = _this get "Radius";
-
     private _markerType   = _this get "Marker";
     private _markerColor  = _this get "MarkerColor";
     private _markerSize   = _this get "MarkerSize";
@@ -795,34 +799,50 @@ NWG_MIS_SER_BuildMission_Ukrep = {
     // private _missionInfo = _this;
 
     //Cache map buildings in the area
-    private _mapEmptyBldgs = ((_this get "Position") nearObjects (_this get "Radius")) select {_x call NWG_fnc_ocIsBuilding};
+    private _mapBldgs = ((_this get "Position") nearObjects (_this get "Radius")) select {_x call NWG_fnc_ocIsBuilding};
 
     //Build the mission by the blueprint
     private _fractalSteps = (_this get "Settings") getOrDefault ["UkrepFractalSteps",[]];
     private _faction = _this get "EnemyFaction";
-    private _mapBldgsLimit = (_this get "Settings") getOrDefault ["UkrepMapBldgsLimit",10];
     private _overrides = createHashMapFromArray [
         ["RootBlueprint",(_this get "Blueprint")],
         ["GroupsMembership",(_this get "EnemySide")]
     ];
-    private _bldResult = [_fractalSteps,_faction,_mapBldgsLimit,_overrides] call NWG_fnc_ukrpBuildFractalABS;
+    private _bldResult = [_fractalSteps,_faction,_overrides] call NWG_fnc_ukrpBuildFractalABS;
 
-    //Find any map buildings that were left unused
-    private _occupiedBldgs = call NWG_fnc_shGetOccupiedBuildings;
+    //Decorate existing map buildings
+    private _mapBldgsLimit = (_this get "Settings") getOrDefault ["UkrepMapBldgsLimit",10];
+    private _toDecorate = _mapBldgs select {
+        !(isObjectHidden _x) && {
+        [_x,OBJ_TYPE_BLDG,"AUTO"] call NWG_fnc_ukrpHasRelSetup}
+    };
+    if ((count _toDecorate) > _mapBldgsLimit) then {
+        _toDecorate = _toDecorate call NWG_fnc_arrayShuffle;
+        _toDecorate resize _mapBldgsLimit;
+    };
+    if ((count _toDecorate) > 0) then {
+        _mapBldgs = _mapBldgs - _toDecorate;
+        private _decResult = [_toDecorate,_fractalSteps,_faction,_overrides] call NWG_fnc_ukrpDecorateFractalBuildings;
+        if (_decResult isEqualTo false) exitWith {};//Skip if failed to decorate
+        {(_bldResult#_forEachIndex) append _x} forEach _decResult;
+    };
+
+    //Decorate empty buildings
     private _emptyBldgPageName = NWG_MIS_SER_Settings get "MISSIONS_EMPTY_BLDG_PAGENAME";
     private _emptyBldgsLimit = (_this get "Settings") getOrDefault ["UkrepMapBldgsEmptyLimit",5];
-    _mapEmptyBldgs = _mapEmptyBldgs select {
-        !(_x in _occupiedBldgs) && {
+    _toDecorate = _mapBldgs select {
+        !(isObjectHidden _x) && {
         [_x,OBJ_TYPE_BLDG,_emptyBldgPageName] call NWG_fnc_ukrpHasRelSetup}
     };
-    if ((count _mapEmptyBldgs) > _emptyBldgsLimit) then {_mapEmptyBldgs call NWG_fnc_arrayShuffle; _mapEmptyBldgs resize _emptyBldgsLimit};//Shuffle and limit
-
-    //Fill unused buildings with 'empty' decor (partial, low object number decorations just for the looks)
+    if ((count _toDecorate) > _emptyBldgsLimit) then {
+        _toDecorate = _toDecorate call NWG_fnc_arrayShuffle;
+        _toDecorate resize _emptyBldgsLimit;
+    };
     {
-        private _emptResult = [_emptyBldgPageName,_x,OBJ_TYPE_BLDG] call NWG_fnc_ukrpBuildAroundObject;
+        private _emptResult = [_emptyBldgPageName,_x,OBJ_TYPE_BLDG] call NWG_fnc_ukrpBuildAroundObject;//Build
         if (_emptResult isEqualTo false) then {continue};//Skip if failed to build
-        {(_bldResult#_forEachIndex) append _x} forEach _emptResult;
-    } forEach _mapEmptyBldgs;
+        {(_bldResult#_forEachIndex) append _x} forEach _emptResult;//Append to final result
+    } forEach _toDecorate;
 
     //Return the result
     _bldResult
