@@ -28,9 +28,9 @@ NWG_VSHOP_MMC_OnMissionStateChanged = {
     // params ["_oldState","_newState"];
     params ["","_newState"];
 
-	switch (_newState) do {
-		/*Base building economy state - Initialize vehicle shop module*/
-		case MSTATE_BASE_ECONOMY: {
+    switch (_newState) do {
+        /*Base building economy state - Initialize vehicle shop module*/
+        case MSTATE_BASE_ECONOMY: {
             //Check persistent items
             if (NWG_VSHOP_MMC_Settings get "CHECK_PERSISTENT_ITEMS") then {
                 private _ok = call NWG_VSHOP_SER_ValidatePersistentItems;
@@ -65,10 +65,10 @@ NWG_VSHOP_MMC_OnMissionStateChanged = {
 
             //Set spawn platform object
             _spawnPlatform call NWG_fnc_vshopSetSpawnPlatformObject;
-		};
+        };
 
-		/*Mission building economy state - Add vehicles to dynamic shop items*/
-		case MSTATE_BUILD_ECONOMY: {
+        /*Mission building economy state - Add vehicles to dynamic shop items*/
+        case MSTATE_BUILD_ECONOMY: {
             //Add vehicles to dynamic shop items
             private _mDiffclt = call NWG_fnc_mmGetMissionDifficulty;
             private _addItems = switch (_mDiffclt) do {
@@ -81,10 +81,10 @@ NWG_VSHOP_MMC_OnMissionStateChanged = {
             };
             _addItems = _addItems call NWG_fnc_randomRangeInt;
             _addItems call NWG_fnc_vshopAddDynamicItems;
-		};
+        };
 
-		default {};
-	};
+        default {};
+    };
 };
 
 //================================================================================================================

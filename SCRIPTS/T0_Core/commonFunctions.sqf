@@ -94,7 +94,8 @@ NWG_fnc_selectRandomGuaranteed = {
         default {
             //There is no free space left - reset history and pick new random index
             private _newIndex = -1;
-            while {_newIndex = floor (random _arrayCount); _newIndex == _lastPick} do {};
+            private _tries = 99;//Just in case, apply NASA standards
+            while {_newIndex = floor (random _arrayCount); _newIndex == _lastPick && {_tries > 0}} do {_tries = _tries - 1};
             _history = _history apply {0};
             _history set [_newIndex,2];
             _newIndex
