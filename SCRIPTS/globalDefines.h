@@ -15,6 +15,8 @@
 #define OBJ_CAT_TRRT 5
 #define OBJ_CAT_MINE 6
 
+#define OBJ_DEFAULT_CHART [[],[],[],[],[],[],[]]
+
 //Loot items types
 #define LOOT_ITEM_TYPE_CLTH "CLTH"  // Clothing
 #define LOOT_ITEM_TYPE_WEAP "WEAP"  // Weapon
