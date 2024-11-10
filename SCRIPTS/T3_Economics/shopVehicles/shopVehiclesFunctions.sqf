@@ -15,6 +15,13 @@ NWG_fnc_vshopSetSpawnPlatformObject = {
         else {_this remoteExec ["NWG_fnc_vshopSetSpawnPlatformObject",2]};
 };
 
+//Add N dynamic items to shop from inner catalogue
+//params: _count - number of items to add
+NWG_fnc_vshopAddDynamicItems = {
+    // private _count = _this;
+    _this call NWG_VSHOP_SER_AddDynamicItemsFromCatalogue;
+};
+
 /*Other systems->Client*/
 //Open shop
 NWG_fnc_vshopOpenPlatformShop = {

@@ -70,13 +70,25 @@ NWG_VCAT_GetUnifiedClassname = {
 	//Get variables for further analysis
 	private _prefix1 = _classnameParts#0;
 	private _prefix2 = _classnameParts#1;
-	private _doublePrefix = (count _prefix2) == 1;
+	private _doublePrefix = ((count _prefix2) == 1) || {_prefix2 isEqualTo "IDAP"};
 	private _body = if (_doublePrefix)
 		then {_classnameParts select [2]} /*select [2:]*/
 		else {_classnameParts select [1]};/*select [1:]*/
 
-	//Check if we have BLUFOR prefix already
+	//Check if we already dealing with BLUFOR standard vehicle
 	if (_prefix1 isEqualTo "B" && !_doublePrefix) exitWith {_classname};
+
+    //Try getting unified classname of whatever faction it is now
+    if (_doublePrefix) then {
+        private _tempBody = _body + [];
+        _tempBody deleteAt (_tempBody find "ghex");//CSAT pacific
+
+        private _newClassname = ([_prefix1] + _tempBody) joinString "_";
+        if (isClass (configFile >> "CfgVehicles" >> _newClassname)) then {
+            _body = _tempBody;
+            _classname = _newClassname;
+        };
+    };
 
 	//Try converting to BLUFOR
 	private _newClassname = (["B"] + _body) joinString "_";
@@ -86,6 +98,6 @@ NWG_VCAT_GetUnifiedClassname = {
 	_newClassname = (["B","G"] + _body) joinString "_";
 	if (isClass (configFile >> "CfgVehicles" >> _newClassname)) exitWith {_newClassname};
 
-	//Return original if all else fails
+	//Return original name or original within its faction (if were able to convert)
 	_classname
 };

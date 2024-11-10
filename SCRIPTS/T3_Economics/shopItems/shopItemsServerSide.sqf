@@ -282,6 +282,7 @@ NWG_ISHOP_SER_ValidatePersistentItems = {
 	};
 
 	NWG_ISHOP_SER_Settings set ["SHOP_PERSISTENT_ITEMS",_chartAfterValidation];
+	_isValid
 };
 
 //================================================================================================================
