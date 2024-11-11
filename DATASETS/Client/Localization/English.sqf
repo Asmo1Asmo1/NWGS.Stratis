@@ -100,7 +100,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#CPYL_OWNER_PILOT#","Pilot"],
     ["#CPYL_OWNER_GUNNER#","Gunner"],
     //vehOwnership
-    ["#VEHOWN_MESSAGE_OWNER#","Owner: %1"],
+    ["#VEHOWN_MESSAGE_OWNER#","['%1'] Owner: %2"],
     //wallet
     ["#WLT_NOTIFY_MONEY_ADD#","[Money:  +%1]"],
     ["#WLT_NOTIFY_MONEY_SUB#","[Money:  %1]"],
