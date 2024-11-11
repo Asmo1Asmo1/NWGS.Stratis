@@ -362,18 +362,9 @@ NWG_LM_SER_ApplyEnrichment = {
 //================================================================================================================
 //================================================================================================================
 //Objects filling
-NWG_LM_SER_ClearObject = {
-    // private _object = _this;
-    //Clear in a JIP-friendly manner - only clear what is needed
-    if ((count ((getWeaponCargo _this)   param [0,[]])) > 0) then {clearWeaponCargoGlobal _this};
-    if ((count ((getMagazineCargo _this) param [0,[]])) > 0) then {clearMagazineCargoGlobal _this};
-    if ((count ((getItemCargo _this)     param [0,[]])) > 0) then {clearItemCargoGlobal _this};
-    if ((count ((getBackpackCargo _this) param [0,[]])) > 0) then {clearBackpackCargoGlobal _this};
-};
-
 NWG_LM_SER_FillObject = {
     params ["_object","_lootSet"];
-    _object call NWG_LM_SER_ClearObject;//Clear object
+    _object call NWG_fnc_clearContainerCargo;//Clear object
     private _count = 1;
     //forEach ["clth1",2,"clth2",3,"wepn1",...]
     {
@@ -419,7 +410,7 @@ NWG_LM_SER_FillContainers = {
         //Select random count
         _count = selectRandom _counts;
         if (_count == 0) then {
-            _x call NWG_LM_SER_ClearObject;
+            _x call NWG_fnc_clearContainerCargo;
             continue;//<== Bad luck, clear and skip this container
         };
 
@@ -427,7 +418,7 @@ NWG_LM_SER_FillContainers = {
         _lootSet = [_faction,_tag,_count,_itemEnrichment] call NWG_LM_SER_GenerateLootSet;
         if (_lootSet isEqualTo false) then {
             (format ["NWG_LM_SER_FillContainers: Failed to generate loot set for: %1",[_faction,_tag,_count,_itemEnrichment]]) call NWG_fnc_logError;
-            _x call NWG_LM_SER_ClearObject;
+            _x call NWG_fnc_clearContainerCargo;
             continue;//<== Error, clear and skip this container
         };
 
@@ -464,7 +455,7 @@ NWG_LM_SER_FillVehicles = {
         //Select random count
         _count = selectRandom _counts;
         if (_count == 0) then {
-            _x call NWG_LM_SER_ClearObject;
+            _x call NWG_fnc_clearContainerCargo;
             continue;//<== Bad luck, clear and skip this vehicle
         };
 
@@ -472,7 +463,7 @@ NWG_LM_SER_FillVehicles = {
         _lootSet = [_faction,_tag,_count,_itemEnrichment] call NWG_LM_SER_GenerateLootSet;
         if (_lootSet isEqualTo false) then {
             (format ["NWG_LM_SER_FillVehicles: Failed to generate loot set for: %1",[_faction,_tag,_count,_itemEnrichment]]) call NWG_fnc_logError;
-            _x call NWG_LM_SER_ClearObject;
+            _x call NWG_fnc_clearContainerCargo;
             continue;//<== Error, clear and skip this vehicle
         };
 

@@ -352,3 +352,15 @@ NWG_fnc_addAction = {
         ""     // memoryPoint
     ];
 };
+
+//===============================================================
+//Containers
+//Clears container cargo in a JIP-friendly manner - only clear what is needed
+NWG_fnc_clearContainerCargo = {
+    // private _object = _this;
+    //Clear in a JIP-friendly manner - only clear what is needed
+    if ((count ((getWeaponCargo _this)   param [0,[]])) > 0) then {clearWeaponCargoGlobal _this};
+    if ((count ((getMagazineCargo _this) param [0,[]])) > 0) then {clearMagazineCargoGlobal _this};
+    if ((count ((getItemCargo _this)     param [0,[]])) > 0) then {clearItemCargoGlobal _this};
+    if ((count ((getBackpackCargo _this) param [0,[]])) > 0) then {clearBackpackCargoGlobal _this};
+};

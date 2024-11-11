@@ -343,10 +343,7 @@ NWG_LS_CLI_LootByAction = {
             {deleteVehicle _x} forEach (_container call NWG_LS_CLI_GetDeadUnitWeaponHolders);
         } else {
             //We were looting regular container (box/vehicle)
-            clearBackpackCargoGlobal _container;
-            clearItemCargoGlobal _container;
-            clearMagazineCargoGlobal _container;
-            clearWeaponCargoGlobal _container;
+            _container call NWG_fnc_clearContainerCargo;
         };
     };
 
