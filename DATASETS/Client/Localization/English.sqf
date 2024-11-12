@@ -58,11 +58,10 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_HINT_VOTE_RECEIVED#","Vote sent"],
     ["#VOTE_HINT_TIMEOUT#","Vote timeout"],
     //T3_Economics
-    //lootMission
-    ["#LM_ACTION_LOOT_TITLE#","Loot"],
-    ["#LM_ACTION_LOOT_SUCCESS#","Looted"],
-    ["#LM_ACTION_LOOT_FAILURE#","Nothing to take"],
     //lootStorage
+    ["#LS_ACTION_LOOT_TITLE#","Loot"],
+    ["#LS_ACTION_LOOT_SUCCESS#","Looted"],
+    ["#LS_ACTION_LOOT_FAILURE#","Nothing to take"],
     ["#LS_STORAGE_ACTION_TITLE#","Open Storage"],
     ["#LS_DEPLETE_NOTIFICATION#","Lost %1%% of loot"],
     //shopItems

@@ -281,7 +281,7 @@ NWG_LS_CLI_LootByInventoryUI = {
     };
 
     //Loot the container by using existing code
-    private _ok = _container call NWG_LS_CLI_LootByAction;
+    private _ok = _container call NWG_LS_CLI_LootContainer_Core;
     if (!_ok) exitWith {false};
 
     //Close the window
@@ -294,6 +294,16 @@ NWG_LS_CLI_LootByInventoryUI = {
 };
 
 NWG_LS_CLI_LootByAction = {
+    // private _container = _this;
+    private _ok = _this call NWG_LS_CLI_LootContainer_Core;
+    if (_ok)
+        then {"#LS_ACTION_LOOT_SUCCESS#" call NWG_fnc_systemChatMe}
+        else {"#LS_ACTION_LOOT_FAILURE#" call NWG_fnc_systemChatMe};
+    //return
+    _ok
+};
+
+NWG_LS_CLI_LootContainer_Core = {
     private _container = _this;
 
     //Null check

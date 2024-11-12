@@ -96,7 +96,9 @@ _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKingFunction
 //T2_UserInteraction
 //additionalWeapon
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additionalWeapon.sqf" call NWG_fnc_compile);
-_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additionalWeaponFunctions.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additionalWeaponCommon.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additionalWeaponCommon.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additionalWeaponFunctions.sqf" call NWG_fnc_compile);
 //inventoryManager
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\inventoryManager\inventoryManager.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\inventoryManager\inventoryManagerFunctions.sqf" call NWG_fnc_compile);
@@ -124,6 +126,12 @@ if (_isDevBuild || MEDICINE_TESTS_ON_DEDICATED) then {_clientModules pushBack ("
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadar.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadarFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadarTests.sqf" call NWG_fnc_compile)};
+//playerStateHolder
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderClient.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\clientEventsConnector.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderServer.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\missionMachineConnector.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderFunctions.sqf" call NWG_fnc_compile);
 //playerTraits
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerTraits\playerTraits.sqf" call NWG_fnc_compile);
 //stickyBombs

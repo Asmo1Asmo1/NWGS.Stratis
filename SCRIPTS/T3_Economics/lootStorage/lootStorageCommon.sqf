@@ -15,16 +15,17 @@ NWG_LS_COM_GetPlayerLoot = {
 
 NWG_LS_COM_SetPlayerLoot = {
     params ["_unit","_lootArray"];
-
     if !(_lootArray isEqualTypeArray LOOT_ITEM_DEFAULT_CHART) exitWith {
         (format["NWG_LS_COM_SetPlayerLoot: Invalid loot array '%1' for unit '%2'",_lootArray,_unit]) call NWG_fnc_logError;
         false
     };
 
-    private _publicFlag = if (isServer)
-        then {owner _unit}/*Send to affected client*/
-        else {2};/*Send to server*/
-
+    //Set new loot
+    private _publicFlag = if (isServer) then {[(owner _unit),2]} else {[clientOwner,2]};
     _unit setVariable ["NWG_LS_LootStorage",_lootArray,_publicFlag];
-    true
+
+    //Raise event
+    if (local _unit && {_unit isEqualTo player}) then {
+        [EVENT_ON_LOOT_CHANGED,_lootArray] call NWG_fnc_raiseClientEvent;
+    };
 };
