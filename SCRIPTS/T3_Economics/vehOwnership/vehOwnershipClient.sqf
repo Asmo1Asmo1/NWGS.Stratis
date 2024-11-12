@@ -39,7 +39,9 @@ NWG_VEHOWN_OnGetIn = {
 
 	//Show message
 	if (NWG_VEHOWN_Settings get "SHOW_OWNERSHIP_ON_GETIN") then {
-		["#VEHOWN_MESSAGE_OWNER#",(name _owner)] call NWG_fnc_systemChatMe;
+		private _displayName = getText (configOf _veh >> "displayName");
+		private _ownerName = name _owner;
+		["#VEHOWN_MESSAGE_OWNER#",_displayName,_ownerName] call NWG_fnc_systemChatMe;
 	};
 };
 

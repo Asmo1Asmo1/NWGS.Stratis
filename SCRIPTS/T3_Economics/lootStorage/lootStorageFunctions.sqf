@@ -27,11 +27,19 @@ NWG_fnc_lsLootContainerByUI = {
     _this call NWG_LS_CLI_LootByInventoryUI
 };
 
+/*Other systems->Client*/
+//Loot the container
+//params: _container - object
+//returns: boolean - true if looting was successful, false if not
+NWG_fnc_lsLootContainer = {
+    _this call NWG_LS_CLI_LootByAction;
+};
+
 /*Any->Any*/
 //Get loot storage of a player
 //params: _player - object
 //returns: array - player loot in format: [[clothes],[weapons],[items],[ammunition]]
-// each element is an array of items and optionsl counts: ["item1",countOfItem2,"item2",...]
+// each element is an array of items and optional counts: ["item1",countOfItem2,"item2",...]
 NWG_fnc_lsGetPlayerLoot = {
     // private _player = _this;
     if !(_this isEqualType objNull) exitWith {

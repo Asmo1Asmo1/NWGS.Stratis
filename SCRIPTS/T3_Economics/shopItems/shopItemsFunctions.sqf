@@ -4,6 +4,16 @@ NWG_fnc_ishopOpenShop = {
 	call NWG_ISHOP_CLI_OpenShop;
 };
 
+/*Other systems->Server*/
+//Add items to dynamic shop items
+//params:
+// - _items - array of items to add
+//returns: nothing
+NWG_fnc_ishopAddDynamicItems = {
+	// private _items = _this;
+	_this call NWG_ISHOP_SER_AddDynamicItemsExternal;
+};
+
 /*Client<->Server*/
 //Request shop values from server
 NWG_fnc_ishopShopValuesRequest = {

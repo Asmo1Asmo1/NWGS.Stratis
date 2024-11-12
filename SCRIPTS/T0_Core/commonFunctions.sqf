@@ -1,5 +1,5 @@
 //===============================================================
-//Error logging
+//Logging
 
 //Logs an error to the server's RPT file even if called from a client
 //params: _message - message to log
@@ -7,6 +7,13 @@ NWG_fnc_logError = {
     // private _message = _this;
     diag_log formatText ["  [ERROR] #### %1",_this];
     if (!isServer) then {_this remoteExec ["NWG_fnc_logError",2]};
+};
+
+//Logs info message (without sending it over the network)
+//params: _message - message to log
+NWG_fnc_logInfo = {
+    // private _message = _this;
+    diag_log formatText ["  [INFO] #### %1",_this];
 };
 
 //===============================================================
@@ -94,7 +101,8 @@ NWG_fnc_selectRandomGuaranteed = {
         default {
             //There is no free space left - reset history and pick new random index
             private _newIndex = -1;
-            while {_newIndex = floor (random _arrayCount); _newIndex == _lastPick} do {};
+            private _tries = 99;//Just in case, apply NASA standards
+            while {_newIndex = floor (random _arrayCount); _newIndex == _lastPick && {_tries > 0}} do {_tries = _tries - 1};
             _history = _history apply {0};
             _history set [_newIndex,2];
             _newIndex
@@ -350,4 +358,16 @@ NWG_fnc_addAction = {
         "",    // selection
         ""     // memoryPoint
     ];
+};
+
+//===============================================================
+//Containers
+//Clears container cargo in a JIP-friendly manner - only clear what is needed
+NWG_fnc_clearContainerCargo = {
+    // private _object = _this;
+    //Clear in a JIP-friendly manner - only clear what is needed
+    if ((count ((getWeaponCargo _this)   param [0,[]])) > 0) then {clearWeaponCargoGlobal _this};
+    if ((count ((getMagazineCargo _this) param [0,[]])) > 0) then {clearMagazineCargoGlobal _this};
+    if ((count ((getItemCargo _this)     param [0,[]])) > 0) then {clearItemCargoGlobal _this};
+    if ((count ((getBackpackCargo _this) param [0,[]])) > 0) then {clearBackpackCargoGlobal _this};
 };

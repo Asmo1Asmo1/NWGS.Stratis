@@ -1,11 +1,12 @@
 NWG_LocalizationDictionary = createHashMapFromArray [
     //T1_Battlefield
     //missionMachine
+    ["#MIS_ACTION_TITLE#","Выбрать миссию"],
     ["#MIS_DIF_EASY#","Легче"],
     ["#MIS_DIF_NORMAL#","Сложнее"],
     ["#MIS_CLI_CONFIRMED_SUBTITLE#","новое назначение..."],
     ["#MIS_CLI_CONFIRMED_PLAYER_TEMPLATE#","Оперативник: %1"],
-    ["#MIS_COMPLETED_MESSAGE#","МИССИЯ ВЫПОЛНЕНА"],
+    ["#MIS_COMPLETED_MESSAGE#","РЕЙД ЗАВЕРШЕН"],
     //worldConfig
     ["#WORLD_NAME_STRATIS#","Стратис"],
     ["#WORLD_NAME_ALTIS#","Алтис"],
@@ -28,7 +29,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_CLI_BLEEDING_UI_CLOSEST_PLAYER#","Рядом: %1 (%2m)"],
     ["#MED_CLI_BLEEDING_UI_NO_CLOSEST#","Никого поблизости"],
     ["#MED_ACTION_SELF_HEAL_TITLE#","Вылечить себя"],
-    ["#MED_ACTION_SELF_HEAL_HINT#","Перевязок: %1  Шанс успеха: %2"],
+    ["#MED_ACTION_SELF_HEAL_HINT#","Перевязок: %1  Шанс успеха: %2%%"],
     ["#MED_ACTION_SELF_HEAL_PATCHED#","%1 перевязал себя"],
     ["#MED_ACTION_SELF_HEAL_SUCCESS#","%1 вылечил себя"],
     ["#MED_ACTION_SELF_HEAL_FAILURE#","%1 не смог вылечить себя"],
@@ -37,7 +38,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_HAS_MEDKIT#","[+]"],
     ["#MED_NO_MEDKIT#","[-]"],
     ["#MED_ACTION_HEAL_MED_HINT#","Аптечка: %1  Перевязок: %2"],
-    ["#MED_ACTION_HEAL_FAK_HINT#","Перевязок: %1  Шанс успеха: %2"],
+    ["#MED_ACTION_HEAL_FAK_HINT#","Перевязок: %1  Шанс успеха: %2%%"],
     ["#MED_ACTION_HEAL_PATCHED#","%2 перевязан %1"],
     ["#MED_ACTION_HEAL_SUCCESS#","%2 вылечен %1"],
     ["#MED_ACTION_HEAL_FAILURE#","%1 не смог вылечить %2"],
@@ -57,6 +58,10 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_HINT_VOTE_RECEIVED#","Голос отправлен"],
     ["#VOTE_HINT_TIMEOUT#","Время вышло"],
     //T3_Economics
+    //lootMission
+    ["#LS_ACTION_LOOT_TITLE#","Забрать добычу"],
+    ["#LS_ACTION_LOOT_SUCCESS#","Забрал"],
+    ["#LS_ACTION_LOOT_FAILURE#","Ящик пуст"],
     //lootStorage
     ["#LS_STORAGE_ACTION_TITLE#","Открыть Хранилище"],
     ["#LS_DEPLETE_NOTIFICATION#","Потеряно %1%% добычи"],
@@ -95,7 +100,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#CPYL_OWNER_PILOT#","Пилот"],
     ["#CPYL_OWNER_GUNNER#","Стрелок"],
     //vehOwnership
-    ["#VEHOWN_MESSAGE_OWNER#","Владелец: %1"],
+    ["#VEHOWN_MESSAGE_OWNER#","['%1'] Владелец: %2"],
     //wallet
     ["#WLT_NOTIFY_MONEY_ADD#","[Деньги:  +%1]"],
     ["#WLT_NOTIFY_MONEY_SUB#","[Деньги:  %1]"],

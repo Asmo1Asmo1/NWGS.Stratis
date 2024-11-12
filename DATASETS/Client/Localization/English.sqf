@@ -1,11 +1,12 @@
 NWG_LocalizationDictionary = createHashMapFromArray [
     //T1_Battlefield
     //missionMachine
+    ["#MIS_ACTION_TITLE#","Select mission"],
     ["#MIS_DIF_EASY#","Easy"],
     ["#MIS_DIF_NORMAL#","Normal"],
     ["#MIS_CLI_CONFIRMED_SUBTITLE#","new destination..."],
     ["#MIS_CLI_CONFIRMED_PLAYER_TEMPLATE#","Operator: %1"],
-    ["#MIS_COMPLETED_MESSAGE#","MISSION COMPLETED"],
+    ["#MIS_COMPLETED_MESSAGE#","RAID COMPLETED"],
     //worldConfig
     ["#WORLD_NAME_STRATIS#","Stratis"],
     ["#WORLD_NAME_ALTIS#","Altis"],
@@ -28,7 +29,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_CLI_BLEEDING_UI_CLOSEST_PLAYER#","Nearby: %1 (%2m)"],
     ["#MED_CLI_BLEEDING_UI_NO_CLOSEST#","Nobody nearby"],
     ["#MED_ACTION_SELF_HEAL_TITLE#","Heal yourself"],
-    ["#MED_ACTION_SELF_HEAL_HINT#","FAKs left: %1  Success chance: %2"],
+    ["#MED_ACTION_SELF_HEAL_HINT#","FAKs left: %1  Success chance: %2%%"],
     ["#MED_ACTION_SELF_HEAL_PATCHED#","%1 patched themself"],
     ["#MED_ACTION_SELF_HEAL_SUCCESS#","%1 revived themself"],
     ["#MED_ACTION_SELF_HEAL_FAILURE#","%1 failed to revive themself"],
@@ -37,7 +38,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_HAS_MEDKIT#","[+]"],
     ["#MED_NO_MEDKIT#","[-]"],
     ["#MED_ACTION_HEAL_MED_HINT#","Medkit: %1  FAKs left: %2"],
-    ["#MED_ACTION_HEAL_FAK_HINT#","FAKs left: %1  Success chance: %2"],
+    ["#MED_ACTION_HEAL_FAK_HINT#","FAKs left: %1  Success chance: %2%%"],
     ["#MED_ACTION_HEAL_PATCHED#","%2 patched by %1"],
     ["#MED_ACTION_HEAL_SUCCESS#","%2 revived by %1"],
     ["#MED_ACTION_HEAL_FAILURE#","%1 failed to revive %2"],
@@ -58,6 +59,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_HINT_TIMEOUT#","Vote timeout"],
     //T3_Economics
     //lootStorage
+    ["#LS_ACTION_LOOT_TITLE#","Loot"],
+    ["#LS_ACTION_LOOT_SUCCESS#","Looted"],
+    ["#LS_ACTION_LOOT_FAILURE#","Nothing to take"],
     ["#LS_STORAGE_ACTION_TITLE#","Open Storage"],
     ["#LS_DEPLETE_NOTIFICATION#","Lost %1%% of loot"],
     //shopItems
@@ -95,7 +99,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#CPYL_OWNER_PILOT#","Pilot"],
     ["#CPYL_OWNER_GUNNER#","Gunner"],
     //vehOwnership
-    ["#VEHOWN_MESSAGE_OWNER#","Owner: %1"],
+    ["#VEHOWN_MESSAGE_OWNER#","['%1'] Owner: %2"],
     //wallet
     ["#WLT_NOTIFY_MONEY_ADD#","[Money:  +%1]"],
     ["#WLT_NOTIFY_MONEY_SUB#","[Money:  %1]"],

@@ -121,12 +121,12 @@ NWG_MIS_SER_Cycle = {
                 _buildResult params ["_root","_objects"];
                 NWG_MIS_SER_playerBase = _root;//Save base root object
                 NWG_MIS_SER_playerBasePos = getPosASL _root;//Save base position
-                NWG_MIS_SER_playerBaseNPCs = _objects param [UKREP_RESULT_UNITS,[]];//Save base NPCs
+                NWG_MIS_SER_playerBaseNPCs = _objects param [OBJ_CAT_UNIT,[]];//Save base NPCs
                 NWG_MIS_SER_playerBaseDecoration = _objects;//Save base objects
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BASE_ECONOMY: {
-                //Expect: EVENT_ON_MISSION_STATE_CHANGED subscriber(s) made changes by this point (see: 'Update flags...' above)
+                //EVENT_ON_MISSION_STATE_CHANGED subscriber(s) did the job. We do nothing.
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BASE_QUESTS: {
@@ -197,7 +197,7 @@ NWG_MIS_SER_Cycle = {
                 //Escape injection
                 if (NWG_MIS_EscapeFlag) then {
                     //[_bldgs,_furns,_decos,_units,_vehcs,_trrts,_mines]
-                    private _escapeVehicle = (_ukrep#UKREP_RESULT_VEHCS) param [0,objNull];
+                    private _escapeVehicle = (_ukrep#OBJ_CAT_VEHC) param [0,objNull];
                     if (isNull _escapeVehicle || {!alive _escapeVehicle}) exitWith
                         {"NWG_MIS_SER_Cycle: Escape vehicle not found or dead - exiting." call NWG_fnc_logError; _exit = true};//Exit
                     _escapeVehicle allowDamage false;
@@ -208,7 +208,7 @@ NWG_MIS_SER_Cycle = {
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BUILD_ECONOMY: {
-                //TODO: Fill boxes and vehicles with loot using ECONOMY
+                //EVENT_ON_MISSION_STATE_CHANGED subscriber(s) did the job. We do nothing.
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BUILD_DSPAWN: {
@@ -501,7 +501,10 @@ NWG_MIS_SER_BuildPlayerBase = {
         /*adaptToGround:*/true,
         /*suppressEvent*/true
     ] call NWG_fnc_ukrpBuildAroundObject;
-    if (_buildResult isEqualTo false || {(flatten _buildResult) isEqualTo []}) exitWith {
+    private _buildResultFlatten = if (_buildResult isNotEqualTo false)
+        then {flatten _buildResult}
+        else {[]};
+    if (_buildResult isEqualTo false || {_buildResultFlatten isEqualTo []}) exitWith {
         (format ["NWG_MIS_SER_BuildPlayerBase: Failed to build a player base around object '%1' using blueprint '%2'",(NWG_MIS_SER_Settings get "PLAYER_BASE_ROOT"),_pageName]) call NWG_fnc_logError;
         false// <- Exit if failed to build a base
     };
@@ -511,19 +514,16 @@ NWG_MIS_SER_BuildPlayerBase = {
     call {
         //3.1 Disable damage for every object
         _playerBaseRoot allowDamage false;
-        {_x allowDamage false} forEach (flatten _buildResult);
+        {_x allowDamage false} forEach _buildResultFlatten;
 
         //3.2 Lock every vehicle
-        {_x lock true} forEach (_buildResult param [UKREP_RESULT_VEHCS,[]]);
+        {_x lock true} forEach (_buildResult param [OBJ_CAT_VEHC,[]]);
 
         //3.3 Clear and lock inventory of every object that has it
         {
-            clearWeaponCargoGlobal _x;
-            clearMagazineCargoGlobal _x;
-            clearItemCargoGlobal _x;
-            clearBackpackCargoGlobal _x;
+            _x call NWG_fnc_clearContainerCargo;
             [_x,true] remoteExecCall ["lockInventory",0,_x];//Lock it JIP compatible
-        } forEach ((flatten _buildResult) select {
+        } forEach (_buildResultFlatten select {
             !(_x isKindOf "Man") && {
             !(isSimpleObject _x) && {
             _x canAdd "FirstAidKit"}}
@@ -531,6 +531,7 @@ NWG_MIS_SER_BuildPlayerBase = {
 
         //3.4 Configure base NPCs
         private _npcSettings = NWG_MIS_SER_Settings get "PLAYER_BASE_NPC_SETTINGS";
+        private _addActionQueue = [];
         {
             //Setup dynamic simulation regardless of the group rules for each agent
             _x enableDynamicSimulation true;
@@ -556,16 +557,25 @@ NWG_MIS_SER_BuildPlayerBase = {
                 _x disableAI "ANIM";//Fix AI switching out of the animation (works even for agents)
             };
 
-            //Add action
-            if (_addAction isNotEqualTo false && {_addAction isEqualType []}) then {
+            //Queue add action for each NPC in READY state
+            if (_addAction isNotEqualTo false) then {
                 _addAction params [["_title",""],["_script",{}]];
-                [_x,_title,_script] call NWG_fnc_addActionGlobal;
+                _addActionQueue pushBack [_x,_title,_script];
             };
-        } forEach (_buildResult param [UKREP_RESULT_UNITS,[]]);
+        } forEach (_buildResult param [OBJ_CAT_UNIT,[]]);
+
+        //3.5 Assign actions to NPCs (with delay)
+        if ((count _addActionQueue) > 0) then {
+            _addActionQueue spawn {
+                // private _addActionQueue = _this;
+                waitUntil {sleep 0.1; NWG_MIS_CurrentState >= MSTATE_READY};
+                {_x call NWG_fnc_addActionGlobal} forEach _this;
+            };
+        };
     };
 
     //4. Report to garbage collector that these objects are not to be deleted
-    (flatten _buildResult) call NWG_fnc_gcAddOriginalObjects;
+    _buildResultFlatten call NWG_fnc_gcAddOriginalObjects;
 
     //5. Place markers
     private _markers = call {
@@ -638,11 +648,23 @@ NWG_MIS_SER_GenerateSelection = {
     //By that stage we already have a randomized list of missions with unique positions, so we can just take the first N elements
     private _selectionList = [];
     for "_i" from 0 to (_selectionCount-1) do {
+        //Get ingredients of this selection
         private _ukrep = _missionsList deleteAt 0;
         private _settings = _missionPresets select _i;
+
+        //Extract raw data from blueprint
         //_ukrep: [UkrepType,UkrepName,ABSPos,[0,0,0],Radius,0,Payload,Blueprint]
-        _ukrep params ["_","_name","_pos","_","_rad"];
-        _name = (_name splitString "_") param [0,"Unknown"];//Extract mission name 'Name_var01' -> 'Name'
+        _ukrep params ["","_name","_pos","","_rad"];
+
+        //Refine mission name ('LZConnor_var01' -> 'LZConnor')
+        _name = (_name splitString "_") param [0,"Unknown"];
+
+        //Refine mission radius
+        _rad = if (NWG_MIS_SER_Settings get "MISSIONS_USE_ACTUAL_BLUEPRINT_RAD")
+            then {_rad}
+            else {(_settings getOrDefault ["Radius",100])};
+
+        //Add to the list
         _selectionList pushBack [_name,_pos,_rad,_ukrep,_settings];
     };
 
@@ -666,14 +688,12 @@ NWG_MIS_SER_OnSelectionOptionsRequest = {
     private _options = NWG_MIS_SER_selectionList apply {[
             _x#SELECTION_NAME,
             _x#SELECTION_POS,
+            _x#SELECTION_RAD,
             ((_x#SELECTION_SETTINGS) getOrDefault ["PresetName","Unknown"]),
             ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarker","mil_dot"]),
             ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarkerColor","ColorBlack"]),
             ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarkerSize",1]),
-            ((_x#SELECTION_SETTINGS) getOrDefault ["MapOutlineAlpha",0.5]),
-            if (NWG_MIS_SER_Settings get "MISSIONS_OUTLINE_USE_ACTUAL_RAD")
-                then {_x#SELECTION_RAD}
-                else {((_x#SELECTION_SETTINGS) getOrDefault ["MapOutlineRadius",100])}
+            ((_x#SELECTION_SETTINGS) getOrDefault ["MapOutlineAlpha",0.5])
     ]};
 
     //Send options to the client
@@ -725,15 +745,12 @@ NWG_MIS_SER_GenerateMissionInfo = {
     _missionInfo set ["Settings",_settings];
 
     //2. Extract some to the upper level to make it easier to use
+    _missionInfo set ["Difficulty",(_settings getOrDefault ["Difficulty",MISSION_DIFFICULTY_NORM])];
     _missionInfo set ["Marker",(_settings getOrDefault ["MapMarker","mil_dot"])];
     _missionInfo set ["MarkerColor",(_settings getOrDefault ["MapMarkerColor","ColorBlack"])];
     _missionInfo set ["MarkerSize",(_settings getOrDefault ["MapMarkerSize",1])];
     _missionInfo set ["OutlineAlpha",(_settings getOrDefault ["MapOutlineAlpha",0.5])];
-    _missionInfo set ["OutlineRadius",(
-        if (NWG_MIS_SER_Settings get "MISSIONS_OUTLINE_USE_ACTUAL_RAD")
-            then {_rad}
-            else {(_settings getOrDefault ["MapOutlineRadius",100])}
-    )];
+    _missionInfo set ["OutlineRadius",_rad];
     _missionInfo set ["ExhaustAfter",(_settings getOrDefault ["ExhaustAfter",900])];
 
     //3. Extract values from mission machine and settings
@@ -755,8 +772,6 @@ NWG_MIS_SER_GenerateMissionInfo = {
 NWG_MIS_SER_BuildMission_Markers = {
     // private _missionInfo = _this;
     private _pos = _this get "Position";
-    private _rad = _this get "Radius";
-
     private _markerType   = _this get "Marker";
     private _markerColor  = _this get "MarkerColor";
     private _markerSize   = _this get "MarkerSize";
@@ -781,34 +796,50 @@ NWG_MIS_SER_BuildMission_Ukrep = {
     // private _missionInfo = _this;
 
     //Cache map buildings in the area
-    private _mapEmptyBldgs = ((_this get "Position") nearObjects (_this get "Radius")) select {_x call NWG_fnc_ocIsBuilding};
+    private _mapBldgs = ((_this get "Position") nearObjects (_this get "Radius")) select {_x call NWG_fnc_ocIsBuilding};
 
     //Build the mission by the blueprint
     private _fractalSteps = (_this get "Settings") getOrDefault ["UkrepFractalSteps",[]];
     private _faction = _this get "EnemyFaction";
-    private _mapBldgsLimit = (_this get "Settings") getOrDefault ["UkrepMapBldgsLimit",10];
     private _overrides = createHashMapFromArray [
         ["RootBlueprint",(_this get "Blueprint")],
         ["GroupsMembership",(_this get "EnemySide")]
     ];
-    private _bldResult = [_fractalSteps,_faction,_mapBldgsLimit,_overrides] call NWG_fnc_ukrpBuildFractalABS;
+    private _bldResult = [_fractalSteps,_faction,_overrides] call NWG_fnc_ukrpBuildFractalABS;
 
-    //Find any map buildings that were left unused
-    private _occupiedBldgs = call NWG_fnc_shGetOccupiedBuildings;
+    //Decorate existing map buildings
+    private _mapBldgsLimit = (_this get "Settings") getOrDefault ["UkrepMapBldgsLimit",10];
+    private _toDecorate = _mapBldgs select {
+        !(isObjectHidden _x) && {
+        [_x,OBJ_TYPE_BLDG,"AUTO"] call NWG_fnc_ukrpHasRelSetup}
+    };
+    if ((count _toDecorate) > _mapBldgsLimit) then {
+        _toDecorate = _toDecorate call NWG_fnc_arrayShuffle;
+        _toDecorate resize _mapBldgsLimit;
+    };
+    if ((count _toDecorate) > 0) then {
+        _mapBldgs = _mapBldgs - _toDecorate;
+        private _decResult = [_toDecorate,_fractalSteps,_faction,_overrides] call NWG_fnc_ukrpDecorateFractalBuildings;
+        if (_decResult isEqualTo false) exitWith {};//Skip if failed to decorate
+        {(_bldResult#_forEachIndex) append _x} forEach _decResult;
+    };
+
+    //Decorate empty buildings
     private _emptyBldgPageName = NWG_MIS_SER_Settings get "MISSIONS_EMPTY_BLDG_PAGENAME";
     private _emptyBldgsLimit = (_this get "Settings") getOrDefault ["UkrepMapBldgsEmptyLimit",5];
-    _mapEmptyBldgs = _mapEmptyBldgs select {
-        !(_x in _occupiedBldgs) && {
+    _toDecorate = _mapBldgs select {
+        !(isObjectHidden _x) && {
         [_x,OBJ_TYPE_BLDG,_emptyBldgPageName] call NWG_fnc_ukrpHasRelSetup}
     };
-    if ((count _mapEmptyBldgs) > _emptyBldgsLimit) then {_mapEmptyBldgs call NWG_fnc_arrayShuffle; _mapEmptyBldgs resize _emptyBldgsLimit};//Shuffle and limit
-
-    //Fill unused buildings with 'empty' decor (partial, low object number decorations just for the looks)
+    if ((count _toDecorate) > _emptyBldgsLimit) then {
+        _toDecorate = _toDecorate call NWG_fnc_arrayShuffle;
+        _toDecorate resize _emptyBldgsLimit;
+    };
     {
-        private _emptResult = [_emptyBldgPageName,_x,OBJ_TYPE_BLDG] call NWG_fnc_ukrpBuildAroundObject;
+        private _emptResult = [_emptyBldgPageName,_x,OBJ_TYPE_BLDG] call NWG_fnc_ukrpBuildAroundObject;//Build
         if (_emptResult isEqualTo false) then {continue};//Skip if failed to build
-        {(_bldResult#_forEachIndex) append _x} forEach _emptResult;
-    } forEach _mapEmptyBldgs;
+        {(_bldResult#_forEachIndex) append _x} forEach _emptResult;//Append to final result
+    } forEach _toDecorate;
 
     //Return the result
     _bldResult
@@ -840,7 +871,7 @@ NWG_MIS_SER_BuildMission_Dspawn = {
     private _groupsMin  = _settings getOrDefault ["DspawnGroupsMin",2];
     private _groupsMax  = _settings getOrDefault ["DspawnGroupsMax",5];
     // _ukrepObjects params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
-    private _ukrepGroups = ((_ukrepObjects#3) + (_ukrepObjects#4) + (_ukrepObjects#5)) apply {group _x};
+    private _ukrepGroups = ((_ukrepObjects#OBJ_CAT_UNIT) + (_ukrepObjects#OBJ_CAT_VEHC) + (_ukrepObjects#OBJ_CAT_TRRT)) apply {group _x};
     _ukrepGroups = _ukrepGroups arrayIntersect _ukrepGroups;//Remove duplicates
     private _groupsCount = round ((count _ukrepGroups) * _groupsMult);
     _groupsMin = if (_groupsMin isEqualType [])

@@ -633,7 +633,7 @@ NWG_VSHOP_CLI_GetVehicleFromSellPool = {
 	_sellPool params ["_vehicles","_classnames"];//[_ownedVehicles,_ownedVehiclesClassnames]
 	private _i = _classnames find _classname;
 	if (_i == -1) exitWith {
-		"NWG_VSHOP_CLI_GetVehicleFromSellPool: Item not found in sell pool" call NWG_fnc_logError;
+		// Do not log error here - happens all the time with freshly bought vehicle
 		objNull
 	};
 

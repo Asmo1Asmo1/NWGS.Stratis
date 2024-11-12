@@ -360,7 +360,9 @@ NWG_ISHOP_CLI_UpdateItemsList = {
 	{
 		if (_x isEqualType 0) then {_count = _x; continue};//If array elemnt is number (else string)
 
-		(_x call NWG_ISHOP_CLI_GetItemInfo) params ["_picture","_displayName"];
+		private _itemInfo = _x call NWG_ISHOP_CLI_GetItemInfo;
+		if (_itemInfo isEqualTo false) then {_count = 1; continue};//Gracefully ignore trying to buy/sell mod items when player doesn't have mod installed
+		_itemInfo params ["_picture","_displayName"];
 		_price = [_x,_isPlayerSide] call NWG_ISHOP_CLI_TRA_GetPrice;
 
 		_i = _list lbAdd ([_displayName,_count,_price] call NWG_ISHOP_CLI_FormatListRecord);//Add formatted record
@@ -387,6 +389,11 @@ NWG_ISHOP_CLI_GetItemInfo = {
 		_cfg = configFile >> _x >> _this;
 		if (isClass _cfg) exitWith {};//Found
 	} forEach ["CfgWeapons","CfgMagazines","CfgGlasses","CfgVehicles"];
+	if (isNull _cfg || {!isClass _cfg}) exitWith {
+		(format ["NWG_ISHOP_CLI_GetItemInfo: Item not found in config: %1",_this]) call NWG_fnc_logError;
+		NWG_ISHOP_CLI_itemInfoCache set [_this,false];
+		false
+	};
 
 	//Picture
 	private _picture = getText (_cfg >> "picture");

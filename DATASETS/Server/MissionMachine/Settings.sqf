@@ -12,14 +12,14 @@
         /*MECH*/["I_G_Story_Protagonist_F",[/*disarm:*/true,/*anim:*/["HubBriefing_ext_Contact","HubBriefing_loop","Acts_Explaining_EW_Idle01"],["#VSHOP_ACTION_TITLE#",{call NWG_fnc_vshopOpenPlatformShop}]]],
         /*TRDR*/["I_G_resistanceLeader_F" ,[/*disarm:*/true,/*anim:*/["HubSittingChairUA_idle2","HubSittingChairUA_idle3"],/*addAction:*/["#ISHOP_ACTION_TITLE#",{call NWG_fnc_ishopOpenShop}]]],
         /*MEDC*/["I_C_Soldier_Camo_F",[/*disarm:*/true,/*anim:*/"Acts_Gallery_Visitor_02",/*addAction:*/false]],
-        /*COMM*/["I_E_Soldier_MP_F"  ,[/*disarm:*/false,/*anim:*/["Acts_millerCamp_A","Acts_millerCamp_C","acts_millerIdle"],/*addAction:*/["Select mission",{call NWG_MIS_CLI_RequestMissionSelection}]]],
+        /*COMM*/["I_E_Soldier_MP_F"  ,[/*disarm:*/false,/*anim:*/["Acts_millerCamp_A","Acts_millerCamp_C","acts_millerIdle"],/*addAction:*/["#MIS_ACTION_TITLE#",{call NWG_MIS_CLI_RequestMissionSelection}]]],
         /*ROOF*/["B_G_Captain_Ivan_F",[/*disarm:*/false,/*anim:*/false,/*addAction:*/false]]
     ]],
 
     //==================================================================================================
     // Mission settings
     ["MISSIONS_LIST_MIN_DISTANCE",100],//Min distance between missions to be added to the list (example: several variants of the same mission, only one will be added by distance rule)
-    ["MISSIONS_OUTLINE_USE_ACTUAL_RAD",false],//If true - an actual radius of a mission will be used for map outline radius (may be misleading)
+    ["MISSIONS_USE_ACTUAL_BLUEPRINT_RAD",false],//If true - an actual radius of a blueprint will be used for map outline, dspawn, buildings, etc.
     ["MISSIONS_ENEMY_SIDE",west],//Side of the enemy groups (will it be always the same?)
     ["MISSIONS_ENEMY_FACTION","NATO"],//Faction of enemy groups (how will we add more factions? postponed question)
     ["MISSIONS_EMPTY_BLDG_PAGENAME","BldgEmpty"],//Pagename with blueprints to fill empty buildings with
@@ -29,11 +29,12 @@
     ["MISSIONS_PRESETS",[
         createHashMapFromArray [
             ["PresetName","#MIS_DIF_EASY#"],
+            ["Difficulty","EASY"],
+            ["Radius",110],
             ["MapMarker","mil_objective"],
             ["MapMarkerColor","ColorOrange"],
             ["MapMarkerSize",1.25],
             ["MapOutlineAlpha",0.6],
-            ["MapOutlineRadius",100],
             ["UkrepFractalSteps",[
                 /*root:*/[/*pageName:*/nil,   /*chances:*/[],   /*groupRules:*/[nil,nil,/*disablePath:*/false]],
                 /*bldg:*/[/*pageName:*/"AUTO",/*chances:*/[
@@ -88,11 +89,12 @@
         ],
         createHashMapFromArray [
             ["PresetName","#MIS_DIF_NORMAL#"],
+            ["Difficulty","NORM"],
+            ["Radius",160],
             ["MapMarker","mil_objective"],
             ["MapMarkerColor","ColorRed"],
             ["MapMarkerSize",1.25],
             ["MapOutlineAlpha",0.6],
-            ["MapOutlineRadius",150],
             ["UkrepFractalSteps",[
                 /*root:*/[/*pageName:*/nil,   /*chances:*/[],   /*groupRules:*/[nil,nil,/*disablePath:*/false]],
                 /*bldg:*/[/*pageName:*/"AUTO",/*chances:*/[

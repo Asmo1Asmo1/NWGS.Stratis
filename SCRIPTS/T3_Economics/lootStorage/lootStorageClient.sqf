@@ -258,11 +258,22 @@ NWG_LS_CLI_LootByInventoryUI = {
         false
     };
 
-    //Fix Arma 2.18 introducing weaponholders instead of actual units
+    //Container fixes
     _secdContainer = _containers#1;
-    if (_container isKindOf "WeaponHolder" || {_container isKindOf "WeaponHolderSimulated"}) then {
-        if (!isNull _secdContainer && {_secdContainer isNotEqualTo _container}) then {
-            if (_secdContainer isKindOf "Man" || {(objectParent _secdContainer) isKindOf "Man"}) then {
+    switch (true) do {
+        //Fix Arma 2.18 introducing weaponholders instead of actual units
+        case (_container isKindOf "WeaponHolder");
+        case (_container isKindOf "WeaponHolderSimulated"): {
+            if (!isNull _secdContainer && {_secdContainer isNotEqualTo _container}) then {
+                if (_secdContainer isKindOf "Man" || {(objectParent _secdContainer) isKindOf "Man"}) then {
+                    _container = _secdContainer;
+                    _secdContainer = objNull;
+                };
+            };
+        };
+        //Fix secondary weapon pseudo container getting in the way
+        case (_container isKindOf "Library_WeaponHolder"): {
+            if (!isNull (attachedTo _container) && {(attachedTo _container) isKindOf "Man"}) then {
                 _container = _secdContainer;
                 _secdContainer = objNull;
             };
@@ -270,7 +281,7 @@ NWG_LS_CLI_LootByInventoryUI = {
     };
 
     //Loot the container by using existing code
-    private _ok = _container call NWG_LS_CLI_LootByAction;
+    private _ok = _container call NWG_LS_CLI_LootContainer_Core;
     if (!_ok) exitWith {false};
 
     //Close the window
@@ -283,6 +294,16 @@ NWG_LS_CLI_LootByInventoryUI = {
 };
 
 NWG_LS_CLI_LootByAction = {
+    // private _container = _this;
+    private _ok = _this call NWG_LS_CLI_LootContainer_Core;
+    if (_ok)
+        then {"#LS_ACTION_LOOT_SUCCESS#" call NWG_fnc_systemChatMe}
+        else {"#LS_ACTION_LOOT_FAILURE#" call NWG_fnc_systemChatMe};
+    //return
+    _ok
+};
+
+NWG_LS_CLI_LootContainer_Core = {
     private _container = _this;
 
     //Null check
@@ -332,10 +353,7 @@ NWG_LS_CLI_LootByAction = {
             {deleteVehicle _x} forEach (_container call NWG_LS_CLI_GetDeadUnitWeaponHolders);
         } else {
             //We were looting regular container (box/vehicle)
-            clearBackpackCargoGlobal _container;
-            clearItemCargoGlobal _container;
-            clearMagazineCargoGlobal _container;
-            clearWeaponCargoGlobal _container;
+            _container call NWG_fnc_clearContainerCargo;
         };
     };
 
