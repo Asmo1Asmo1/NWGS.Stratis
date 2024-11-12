@@ -4,8 +4,8 @@
 //======================================================================================================
 //Settings
 NWG_GC_Settings = createHashMapFromArray [
-    ["PLAYER_DELETION_DELAY",0.1],//Delay amount to wait before deleting the player (on respawn or disconnect)
-    ["IMMEDIATE_DELETE_IF_PLAYER_DISTANCE",5000],//If vehicle/unit is killed not by player and there are no players closer than N - delete immediately (prevent bodies on the roads)
+    ["PLAYER_DELETION_DELAY",0.25],//Delay amount to wait before deleting the player (on respawn or disconnect)
+    ["IMMEDIATE_DELETE_IF_PLAYER_DISTANCE",2500],//If vehicle/unit is killed not by player and there are no players closer than N - delete immediately (prevent bodies on the roads)
 
     ["BODIES_LIMITS",[15,30]],//Min and max bodies count on the map allowed
     ["WRECKS_LIMITS",[5,10]],//Min and max vehicle/turret wrecks
@@ -123,7 +123,7 @@ NWG_GC_DeleteUnitAfterDelay = {
     // private _unit = _this;
     if (isNull _this) exitWith {};
 
-    NWG_GC_delayedUnitsQueue pushBack [(time + (NWG_GC_Settings get "PLAYER_DELETION_DELAY")), _this];
+    NWG_GC_delayedUnitsQueue pushBack _this;
     if (isNull NWG_GC_delayedUnitsHandle || {scriptDone NWG_GC_delayedUnitsHandle}) then {
         NWG_GC_delayedUnitsHandle = [] spawn NWG_GC_DeleteUnitAfterDelay_Core;
     };
@@ -131,9 +131,7 @@ NWG_GC_DeleteUnitAfterDelay = {
 NWG_GC_DeleteUnitAfterDelay_Core = {
     while {(count NWG_GC_delayedUnitsQueue) > 0} do {
         sleep (NWG_GC_Settings get "PLAYER_DELETION_DELAY");
-        while {(count NWG_GC_delayedUnitsQueue) > 0 && {((NWG_GC_delayedUnitsQueue#0)#0) <= time}} do {
-            ((NWG_GC_delayedUnitsQueue deleteAt 0)#1) call NWG_GC_DeleteUnit;
-        };
+        (NWG_GC_delayedUnitsQueue deleteAt 0) call NWG_GC_DeleteUnit;
     };
 };
 

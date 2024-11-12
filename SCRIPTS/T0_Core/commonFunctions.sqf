@@ -1,5 +1,5 @@
 //===============================================================
-//Error logging
+//Logging
 
 //Logs an error to the server's RPT file even if called from a client
 //params: _message - message to log
@@ -7,6 +7,13 @@ NWG_fnc_logError = {
     // private _message = _this;
     diag_log formatText ["  [ERROR] #### %1",_this];
     if (!isServer) then {_this remoteExec ["NWG_fnc_logError",2]};
+};
+
+//Logs info message (without sending it over the network)
+//params: _message - message to log
+NWG_fnc_logInfo = {
+    // private _message = _this;
+    diag_log formatText ["  [INFO] #### %1",_this];
 };
 
 //===============================================================

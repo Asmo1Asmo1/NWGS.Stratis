@@ -96,17 +96,12 @@ NWG_LM_MMC_OnMissionStateChanged = {
 				private _script = {
 					// params ["_target","_caller","_actionId","_arguments"];
 					params ["_container","","_actionId"];
-					if (isNil "NWG_fnc_lsLootContainer") exitWith {
-						"NWG_LM_MMC_OnMissionStateChanged: Loot container function undefined" call NWG_fnc_logError;
-						_container removeAction _actionId;
-					};
-					private _ok = _container call NWG_fnc_lsLootContainer;
-					if (_ok)
-						then {"#LM_ACTION_LOOT_SUCCESS#" call NWG_fnc_systemChatMe}
-						else {"#LM_ACTION_LOOT_FAILURE#" call NWG_fnc_systemChatMe};
+					if (!isNil "NWG_fnc_lsLootContainer")
+						then {_container call NWG_fnc_lsLootContainer}
+						else {"NWG_LM_MMC_OnMissionStateChanged: Loot container function undefined" call NWG_fnc_logError};
 					_container removeAction _actionId;
 				};
-				[_x,"#LM_ACTION_LOOT_TITLE#",_script] call NWG_fnc_addActionGlobal;
+				[_x,"#LS_ACTION_LOOT_TITLE#",_script] call NWG_fnc_addActionGlobal;
 			} forEach (_containers select {((getPosASL _x)#2) < 0});
 		};
 

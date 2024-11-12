@@ -59,9 +59,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_HINT_TIMEOUT#","Время вышло"],
     //T3_Economics
     //lootMission
-    ["#LM_ACTION_LOOT_TITLE#","Забрать добычу"],
-    ["#LM_ACTION_LOOT_SUCCESS#","Забрал"],
-    ["#LM_ACTION_LOOT_FAILURE#","Ящик пуст"],
+    ["#LS_ACTION_LOOT_TITLE#","Забрать добычу"],
+    ["#LS_ACTION_LOOT_SUCCESS#","Забрал"],
+    ["#LS_ACTION_LOOT_FAILURE#","Ящик пуст"],
     //lootStorage
     ["#LS_STORAGE_ACTION_TITLE#","Открыть Хранилище"],
     ["#LS_DEPLETE_NOTIFICATION#","Потеряно %1%% добычи"],
