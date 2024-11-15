@@ -32,7 +32,7 @@ NWG_fnc_lsLootContainerByUI = {
 //params: _container - object
 //returns: boolean - true if looting was successful, false if not
 NWG_fnc_lsLootContainer = {
-    _this call NWG_LS_CLI_LootByAction;
+    _this call NWG_LS_CLI_LootByAction
 };
 
 /*Any->Any*/
@@ -51,7 +51,7 @@ NWG_fnc_lsGetPlayerLoot = {
         LOOT_ITEM_DEFAULT_CHART
     };
 
-    _this call NWG_LS_COM_GetPlayerLoot;
+    _this call NWG_LS_COM_GetPlayerLoot
 };
 
 //Set loot storage for a player
@@ -70,4 +70,16 @@ NWG_fnc_lsSetPlayerLoot = {
     };
 
     _this call NWG_LS_COM_SetPlayerLoot;
+};
+
+//Deplete loot
+//params:
+//  _loot - array
+//  _multiplier - number (0..1)
+//  _notify - [optional] boolean, send system chat notification where method was called from (so prefer to use 'true' only for client side) (default: true)
+//returns:
+//  array - modified loot array
+NWG_fnc_lsDepleteLoot = {
+    // params ["_loot","_multiplier",["_notify",true]];
+    _this call NWG_LS_COM_DepleteLoot
 };

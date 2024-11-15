@@ -131,6 +131,7 @@ _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerSta
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\clientEventsConnector.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderServer.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\missionMachineConnector.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\lootDepleterOnDisconnect.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderFunctions.sqf" call NWG_fnc_compile);
 //playerTraits
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerTraits\playerTraits.sqf" call NWG_fnc_compile);
