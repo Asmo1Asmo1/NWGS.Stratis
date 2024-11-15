@@ -18,7 +18,8 @@
 #define TAG_MED "MED"
 
 #define SET_TAGS 0
-#define SET_ITEMS 1
+#define SET_TIER 1
+#define SET_ITEMS 2
 
 //================================================================================================================
 //================================================================================================================
@@ -26,6 +27,15 @@
 NWG_LM_SER_Settings = createHashMapFromArray [
     ["CATALOGUE_PATH_VANILLA","DATASETS\Server\LootMission\_Vanilla.sqf"],//Path to vanilla loot catalogue
     ["CATALOGUE_COMPILE_ON_INIT",false],//If true, catalogue will be compiled on init, otherwise you should call NWG_fnc_lmCompileCatalogue
+/*
+    Tier to counts conversion - array of possible multipliers for set in catalogue (the more - the more often it will be selected)
+    0 - Common
+    1 - Uncommon
+    2 - Rare
+*/
+    ["TIER_TO_RARITY_COMMON",[4]],
+    ["TIER_TO_RARITY_UNCOMMON",[2,3]],
+    ["TIER_TO_RARITY_RARE",[1]],
 
 /*
     Set types and their filling rules
@@ -175,18 +185,40 @@ private _Init = {
 //================================================================================================================
 //Catalogue compilation
 NWG_LM_SER_CompileCatalogue = {
+    //Check if already compiled
     if !(NWG_LM_SER_lootCatalogue isEqualTo []) exitWith {
         "NWG_LM_SER_CompileCatalogue: Catalogue already compiled" call NWG_fnc_logError;
         false
     };
 
+    //Compile raw data
     private _filePath = NWG_LM_SER_Settings get "CATALOGUE_PATH_VANILLA";
-    private _catalogue = call (_filePath call NWG_fnc_compile);
-    if (isNil "_catalogue" || {!(_catalogue isEqualType [])}) exitWith {
+    private _catalogueRaw = call (_filePath call NWG_fnc_compile);
+    if (isNil "_catalogueRaw" || {!(_catalogueRaw isEqualType [])}) exitWith {
         (format ["NWG_LM_SER_CompileCatalogue: Failed to compile catalogue: '%1'",_filePath]) call NWG_fnc_logError;
         false
     };
 
+    //Repack according to rarity
+    private _catalogue = [];
+    private ["_tier","_counts"];
+    {
+        _tier = _x#SET_TIER;
+        _counts = switch (_tier) do {
+            case 0: {NWG_LM_SER_Settings get "TIER_TO_RARITY_COMMON"};
+            case 1: {NWG_LM_SER_Settings get "TIER_TO_RARITY_UNCOMMON"};
+            case 2: {NWG_LM_SER_Settings get "TIER_TO_RARITY_RARE"};
+            default {
+                (format ["NWG_LM_SER_CompileCatalogue: Unexpected tier: %1, set tags to find it: %2",_tier,_x#SET_TAGS]) call NWG_fnc_logError;
+                continue;
+            };
+        };
+        for "_i" from 1 to (selectRandom _counts) do {
+            _catalogue pushBack _x
+        };
+    } forEach _catalogueRaw;
+
+    //Save and return
     NWG_LM_SER_lootCatalogue = _catalogue;
     true
 };
@@ -280,7 +312,7 @@ NWG_LM_SER_GenerateLootSet = {
     private ["_setType","_setRules","_itemsProb","_countProb"];
     for "_i" from 1 to _setsCount do {
         //Select random set and define its type
-        ([_catalogue,"NWG_LM_SER_GenerateLootSet"] call NWG_fnc_selectRandomGuaranteed) params ["_setTags","_setItems"];
+        (selectRandom _catalogue) params ["_setTags","","_setItems"];
         _setType = (_setItems apply {if ((count _x) > 0) then {1} else {0}}) call NWG_LM_SER_EncodeFlags;//Binary flags encoding
 
         //Select rules
@@ -312,8 +344,7 @@ NWG_LM_SER_GenerateLootSet = {
             _countProb = (_setRules#_x)#1;
 
             if (_enrichment != 0) then {
-                //Enrich shallow copy of array
-                _itemsProb = [(_itemsProb+[]),_enrichment] call NWG_LM_SER_ApplyEnrichment;
+                _itemsProb = [_itemsProb,_enrichment] call NWG_LM_SER_ApplyEnrichment;
             };
 
             //I've tested and seems like 'to (selectRandom ...)' is evaluated only once, so it is safe to use it that way
@@ -348,15 +379,16 @@ NWG_LM_SER_EncodeFlags = {
 //[[1,1,2,3],-1] -> [0,1,1,2]
 NWG_LM_SER_ApplyEnrichment = {
     params ["_probabilities","_enrichment"];
+    private _result = _probabilities + [];//Shallow copy
 
     private _min = 0;
     {
-        _probabilities set [_forEachIndex,((_x + _enrichment) max _min)];
+        _result set [_forEachIndex,((_x + _enrichment) max _min)];
         _min = _x;
-    } forEach _probabilities;
+    } forEach _result;
 
     //return
-    _probabilities
+    _result
 };
 
 //================================================================================================================
@@ -403,8 +435,7 @@ NWG_LM_SER_FillContainers = {
 
         //Apply enrichment if needed
         if (_setsEnrichment != 0) then {
-            //Enrich shallow copy of array to prevent settings modification
-            _counts = [(_counts+[]),_setsEnrichment] call NWG_LM_SER_ApplyEnrichment;
+            _counts = [_counts,_setsEnrichment] call NWG_LM_SER_ApplyEnrichment;
         };
 
         //Select random count
@@ -448,8 +479,7 @@ NWG_LM_SER_FillVehicles = {
 
         //Apply enrichment if needed
         if (_setsEnrichment != 0) then {
-            //Enrich shallow copy of array to prevent settings modification
-            _counts = [(_counts+[]),_setsEnrichment] call NWG_LM_SER_ApplyEnrichment;
+            _counts = [_counts,_setsEnrichment] call NWG_LM_SER_ApplyEnrichment;
         };
 
         //Select random count

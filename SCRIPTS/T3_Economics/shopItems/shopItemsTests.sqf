@@ -195,7 +195,12 @@ NWG_ISHOP_SER_ValidateLootMissionCatalogue_Test = {
 
 	private _errors = [];
 	{
-		_x params ["_tags","_items"];
+		if !(_x isEqualTypeArray [[],0,[]]) then {
+			_errors pushBack (format ["Invalid catalogue format. Expected: [[],0,[]]. Actual: %1",_x]);
+			continue;
+		};
+
+		_x params ["_tags","_tier","_items"];
 		(_items call NWG_ISHOP_SER_ValidateItemsChart) params ["","_isValid"];
 		if (!_isValid) then {
 			_errors pushBack (format ["Invalid items chart found. Tags to find it: '%1'",_tags]);
