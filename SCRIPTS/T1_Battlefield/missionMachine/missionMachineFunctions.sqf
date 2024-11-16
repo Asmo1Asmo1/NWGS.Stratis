@@ -97,3 +97,14 @@ NWG_fnc_mmGetMissionFaction = {
 NWG_fnc_mmGetMissionDifficulty = {
     NWG_MIS_SER_missionInfo getOrDefault ["Difficulty",MISSION_DIFFICULTY_NORM]
 };
+
+//Returns if this unit is currently in the base area
+//params: _unit - object
+//returns: boolean
+NWG_fnc_mmIsUnitInBase = {
+    // private _unit = _this;
+    private _basePos = NWG_MIS_SER_playerBasePos;
+    if (_basePos isEqualTo []) exitWith {true};//Fallback to true if base position is not set yet
+    private _baseRad = NWG_MIS_SER_Settings get "PLAYER_BASE_RADIUS";
+    (_this distance _basePos) <= _baseRad
+};
