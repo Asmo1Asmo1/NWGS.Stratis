@@ -103,17 +103,17 @@ Iteration 9900. Prices: [487,353,491,700,525,500,510,300,496,699]
 //================================================================================================================
 //Mission profit syntetic test
 NWG_ECOT_MissionProfit_Settings = createHashMapFromArray [
-	["LOOT_CHANCE_VEH_CAR",0.95],//Hypothetical chance for players to loot vehicle instead of destroying it
+	["LOOT_CHANCE_VEH_CAR",0.85],//Hypothetical chance for players to loot vehicle instead of destroying it
 	["LOOT_CHANCE_VEH_ARM",0.75],//Hypothetical chance for players to loot vehicle instead of destroying it
-	["LOOT_CHANCE_VEH_AIR",0.05],//Hypothetical chance for players to loot vehicle instead of destroying it
+	["LOOT_CHANCE_VEH_AIR",0.10],//Hypothetical chance for players to loot vehicle instead of destroying it
 	["LOOT_CHANCE_VEH_BOAT",0.25],//Hypothetical chance for players to loot vehicle instead of destroying it
 
 	["LOOT_CHANCE_CONTAINER",1],//Hypothetical chance for players to find and loot container
 	["LOOT_CHANCE_UNIT",1],//Hypothetical chance for players to loot unit
 
-	["SELL_CHANCE_VEH_CAR",0.90],//Hypothetical chance for players to sell vehicle instead of destroying it
-	["SELL_CHANCE_VEH_ARM",0.75],//Hypothetical chance for players to sell vehicle instead of destroying it
-	["SELL_CHANCE_VEH_AIR",0.04],//Hypothetical chance for players to sell vehicle instead of destroying it
+	["SELL_CHANCE_VEH_CAR",0.65],//Hypothetical chance for players to sell vehicle instead of destroying it
+	["SELL_CHANCE_VEH_ARM",0.55],//Hypothetical chance for players to sell vehicle instead of destroying it
+	["SELL_CHANCE_VEH_AIR",0.05],//Hypothetical chance for players to sell vehicle instead of destroying it
 	["SELL_CHANCE_VEH_BOAT",0.05],//Hypothetical chance for players to sell vehicle instead of destroying it
 
 	["",0]
@@ -242,7 +242,7 @@ NWG_ECOT_MissionProfit_Test = {
 	"Looting vehicles" call _showMessage;
 	private _lootVehicles = {
 		params ["_vehicles","_lootChanceName"];
-		private _lootChance = NWG_ECOT_MissionProfit_Settings get _lootChanceName;
+		_lootChance = NWG_ECOT_MissionProfit_Settings get _lootChanceName;
 		private _toLoot= if (_lootChance < 1) then {
 			_vehicles call NWG_fnc_arrayShuffle;
 			_vehicles select {(random 1) <= _lootChance};
@@ -264,7 +264,7 @@ NWG_ECOT_MissionProfit_Test = {
 	//9. Loot every enemy unit
 	"Looting units" call _showMessage;
 	NWG_LS_CLI_Settings set ["ALLOW_LOOTING_ALIVE_UNITS",true];//Allow looting of alive units
-	private _lootChance = NWG_ECOT_MissionProfit_Settings get "LOOT_CHANCE_UNIT";
+	_lootChance = NWG_ECOT_MissionProfit_Settings get "LOOT_CHANCE_UNIT";
 	private _toLoot = if (_lootChance < 1) then {
 		_units call NWG_fnc_arrayShuffle;
 		_units select {(random 1) <= _lootChance};
@@ -277,6 +277,9 @@ NWG_ECOT_MissionProfit_Test = {
 	"Selling units loot" call _showMessage;
 	call _sellLoot;
 	"Units loot sold" call _showMessage;
+
+	/*Loot selling result*/
+	private _lootYield = player call NWG_fnc_wltGetPlayerMoney;
 
 	//10. Sell vehicles
 	"Selling vehicles" call _showMessage;
@@ -312,20 +315,18 @@ NWG_ECOT_MissionProfit_Test = {
 	{deleteVehicle _x} forEach _sellPool;
 	"Sold vehicles" call _showMessage;
 
+	/*Vehicle selling result*/
+	private _sellYield = (player call NWG_fnc_wltGetPlayerMoney) - _lootYield;
+
 	//11. Form report
 	private _playerMoney = player call NWG_fnc_wltGetPlayerMoney;
 	private _misDifficulty = call NWG_fnc_mmGetMissionDifficulty;
-	private _buyMultiplier = NWG_VSHOP_CLI_Settings get "PRICE_SELL_TO_PLAYER_MULTIPLIER";
 	private _report = [];
 
 	/*Add header*/
 	_report pushBack "===== [Mission Profit Test] =====";
 	_report pushBack (format ["Mission difficulty: '%1'",_misDifficulty]);
-	_report pushBack (format ["Player earned: '%1'",(_playerMoney toFixed 0)]);
-	_report pushBack (format ["Buy multiplier: '%1'",_buyMultiplier]);
-	_report pushBack "For this money player can buy:";
-
-	/*Add items report*/
+	_report pushBack (format ["Player earned: '%1' (Loot sell: '%2' | Vehicles sell: '%3')",(_playerMoney toFixed 0),(_lootYield toFixed 0),(_sellYield toFixed 0)]);
 	private _toFixedStringLength = {
 		private _string = _this;
 		for "_i" from 1 to (7 - (count _string)) do {
@@ -333,7 +334,11 @@ NWG_ECOT_MissionProfit_Test = {
 		};
 		_string
 	};
-	private _addToReport = {
+
+	/*Add vehicles to report*/
+	private _buyMultiplier = NWG_VSHOP_CLI_Settings get "PRICE_SELL_TO_PLAYER_MULTIPLIER";
+	_report pushBack (format ["== Vehicles player can buy (Buy multiplier: '%1')",_buyMultiplier]);
+	private _addToReportVeh = {
 		params ["_type","_isArmed"];
 		private _settingsSuffix = if (_isArmed) then {"ARMED"} else {"UNARMED"};
 		private _reportSuffix = if (_isArmed)
@@ -354,12 +359,98 @@ NWG_ECOT_MissionProfit_Test = {
 	};
 
 	{
-		[_x,true] call _addToReport;
-		[_x,false] call _addToReport;
+		[_x,true] call _addToReportVeh;
+		[_x,false] call _addToReportVeh;
 	} forEach ["AAIR","APCS","ARTY","BOAT","CARS","DRON","HELI","PLAN","SUBM","TANK"];
+
+	/*Add items to report*/
+	_buyMultiplier = NWG_ISHOP_CLI_Settings get "PRICE_SELL_TO_PLAYER_MULTIPLIER";
+	_report pushBack (format ["== Items player can buy (Buy multiplier: '%1')",_buyMultiplier]);
+	private _addToReportItem = {
+		private _type = _this;
+		private _rawPrice = NWG_ISHOP_SER_Settings get (format ["DEFAULT_PRICE_%1",_type]);
+		private _buyPrice = _rawPrice * _buyMultiplier;
+		private _buyCount = _playerMoney / _buyPrice;
+		_report pushBack (format [
+			"[%1] Raw price: '%2' | Price for player: '%3' | Can buy: %4",
+			_type,
+			((_rawPrice toFixed 0) call _toFixedStringLength),
+			((_buyPrice toFixed 0) call _toFixedStringLength),
+			(_buyCount toFixed 2)
+		]);
+	};
+	{
+		_x call _addToReportItem;
+	} forEach ["CLTH","WEAP","ITEM","AMMO"];
 
 	/*Add footer*/
 	_report pushBack "================================================";
 	_report call NWG_fnc_testDumpToRptAndClipboard;
 	"Report generated" call _showMessage;
 };
+
+/*
+===== [Mission Profit Test] =====
+Mission difficulty: 'EASY'
+Player earned: '486780' (Loot sell: '480030' | Vehicles sell: '6750')
+== Vehicles player can buy (Buy multiplier: '1.5')
+[AAIR ARMED  ] Raw price: '200000 ' | Price for player: '300000 ' | Can buy: 1.62
+[AAIR UNARMED] Raw price: '140000 ' | Price for player: '210000 ' | Can buy: 2.32
+[APCS ARMED  ] Raw price: '125000 ' | Price for player: '187500 ' | Can buy: 2.60
+[APCS UNARMED] Raw price: '85000  ' | Price for player: '127500 ' | Can buy: 3.82
+[ARTY ARMED  ] Raw price: '200000 ' | Price for player: '300000 ' | Can buy: 1.62
+[ARTY UNARMED] Raw price: '140000 ' | Price for player: '210000 ' | Can buy: 2.32
+[BOAT ARMED  ] Raw price: '15000  ' | Price for player: '22500  ' | Can buy: 21.63
+[BOAT UNARMED] Raw price: '9000   ' | Price for player: '13500  ' | Can buy: 36.06
+[CARS ARMED  ] Raw price: '15000  ' | Price for player: '22500  ' | Can buy: 21.63
+[CARS UNARMED] Raw price: '9000   ' | Price for player: '13500  ' | Can buy: 36.06
+[DRON ARMED  ] Raw price: '27000  ' | Price for player: '40500  ' | Can buy: 12.02
+[DRON UNARMED] Raw price: '9000   ' | Price for player: '13500  ' | Can buy: 36.06
+[HELI ARMED  ] Raw price: '250000 ' | Price for player: '375000 ' | Can buy: 1.30
+[HELI UNARMED] Raw price: '50000  ' | Price for player: '75000  ' | Can buy: 6.49
+[PLAN ARMED  ] Raw price: '300000 ' | Price for player: '450000 ' | Can buy: 1.08
+[PLAN UNARMED] Raw price: '150000 ' | Price for player: '225000 ' | Can buy: 2.16
+[SUBM ARMED  ] Raw price: '24000  ' | Price for player: '36000  ' | Can buy: 13.52
+[SUBM UNARMED] Raw price: '12000  ' | Price for player: '18000  ' | Can buy: 27.04
+[TANK ARMED  ] Raw price: '240000 ' | Price for player: '360000 ' | Can buy: 1.35
+[TANK UNARMED] Raw price: '150000 ' | Price for player: '225000 ' | Can buy: 2.16
+== Items player can buy (Buy multiplier: '1.5')
+[CLTH] Raw price: '1000   ' | Price for player: '1500   ' | Can buy: 324.52
+[WEAP] Raw price: '2000   ' | Price for player: '3000   ' | Can buy: 162.26
+[ITEM] Raw price: '500    ' | Price for player: '750    ' | Can buy: 649.04
+[AMMO] Raw price: '300    ' | Price for player: '450    ' | Can buy: 1081.73
+================================================
+*/
+
+/*
+===== [Mission Profit Test] =====
+Mission difficulty: 'NORM'
+Player earned: '851968' (Loot sell: '800218' | Vehicles sell: '51750')
+== Vehicles player can buy (Buy multiplier: '1.5')
+[AAIR ARMED  ] Raw price: '200000 ' | Price for player: '300000 ' | Can buy: 2.84
+[AAIR UNARMED] Raw price: '140000 ' | Price for player: '210000 ' | Can buy: 4.06
+[APCS ARMED  ] Raw price: '125000 ' | Price for player: '187500 ' | Can buy: 4.54
+[APCS UNARMED] Raw price: '85000  ' | Price for player: '127500 ' | Can buy: 6.68
+[ARTY ARMED  ] Raw price: '200000 ' | Price for player: '300000 ' | Can buy: 2.84
+[ARTY UNARMED] Raw price: '140000 ' | Price for player: '210000 ' | Can buy: 4.06
+[BOAT ARMED  ] Raw price: '15000  ' | Price for player: '22500  ' | Can buy: 37.87
+[BOAT UNARMED] Raw price: '9000   ' | Price for player: '13500  ' | Can buy: 63.11
+[CARS ARMED  ] Raw price: '15000  ' | Price for player: '22500  ' | Can buy: 37.87
+[CARS UNARMED] Raw price: '9000   ' | Price for player: '13500  ' | Can buy: 63.11
+[DRON ARMED  ] Raw price: '27000  ' | Price for player: '40500  ' | Can buy: 21.04
+[DRON UNARMED] Raw price: '9000   ' | Price for player: '13500  ' | Can buy: 63.11
+[HELI ARMED  ] Raw price: '250000 ' | Price for player: '375000 ' | Can buy: 2.27
+[HELI UNARMED] Raw price: '50000  ' | Price for player: '75000  ' | Can buy: 11.36
+[PLAN ARMED  ] Raw price: '300000 ' | Price for player: '450000 ' | Can buy: 1.89
+[PLAN UNARMED] Raw price: '150000 ' | Price for player: '225000 ' | Can buy: 3.79
+[SUBM ARMED  ] Raw price: '24000  ' | Price for player: '36000  ' | Can buy: 23.67
+[SUBM UNARMED] Raw price: '12000  ' | Price for player: '18000  ' | Can buy: 47.33
+[TANK ARMED  ] Raw price: '240000 ' | Price for player: '360000 ' | Can buy: 2.37
+[TANK UNARMED] Raw price: '150000 ' | Price for player: '225000 ' | Can buy: 3.79
+== Items player can buy (Buy multiplier: '1.5')
+[CLTH] Raw price: '1000   ' | Price for player: '1500   ' | Can buy: 567.98
+[WEAP] Raw price: '2000   ' | Price for player: '3000   ' | Can buy: 283.99
+[ITEM] Raw price: '500    ' | Price for player: '750    ' | Can buy: 1135.96
+[AMMO] Raw price: '300    ' | Price for player: '450    ' | Can buy: 1893.26
+================================================
+*/

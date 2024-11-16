@@ -35,8 +35,8 @@
 //================================================================================================================
 //Settings
 NWG_VSHOP_CLI_Settings = createHashMapFromArray [
-	["PRICE_SELL_TO_PLAYER_MULTIPLIER",1.3],
-	["PRICE_BUY_FROM_PLAYER_MULTIPLIER",0.7],
+	["PRICE_SELL_TO_PLAYER_MULTIPLIER",1.5],
+	["PRICE_BUY_FROM_PLAYER_MULTIPLIER",0.75],
 	["PRICE_REDUCE_BY_DAMAGE",true],//If true, price will be reduced by damage of the vehicle
 
 	["GROUP_LEADER_MANAGES_GROUP_VEHICLES",true],//If true, group leader will be able to sell all vehicles of the group

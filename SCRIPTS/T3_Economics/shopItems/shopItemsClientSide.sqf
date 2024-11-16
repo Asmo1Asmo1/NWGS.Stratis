@@ -31,8 +31,8 @@
 //================================================================================================================
 //Settings
 NWG_ISHOP_CLI_Settings = createHashMapFromArray [
-	["PRICE_SELL_TO_PLAYER_MULTIPLIER",1.3],
-	["PRICE_BUY_FROM_PLAYER_MULTIPLIER",0.7],
+	["PRICE_SELL_TO_PLAYER_MULTIPLIER",1.5],
+	["PRICE_BUY_FROM_PLAYER_MULTIPLIER",0.5],
 
 	["SHOP_SKIP_SENDING_PLAYER_LOOT",true],//If you're using 'lootStorage' module, player loot is already synchronized between players and server
 	["SHOP_GET_PLAYER_LOOT_FUNC",{_this call NWG_fnc_lsGetPlayerLoot}],//Function that returns player loot

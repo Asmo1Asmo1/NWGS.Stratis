@@ -73,6 +73,8 @@
 "O_MBT_02_railgun_F",
 "O_MBT_04_cannon_F",
 "O_MBT_04_command_F",
+"O_T_VTOL_02_infantry_dynamicLoadout_F",
+"O_T_VTOL_02_vehicle_dynamicLoadout_F",
 /*AAF*/
 "I_LT_01_AA_F",
 "B_APC_Wheeled_03_cannon_F",
