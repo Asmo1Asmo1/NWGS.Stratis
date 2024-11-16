@@ -108,7 +108,8 @@ NWG_LM_SER_Settings = createHashMapFromArray [
     MED	1-1-2 sets	Med. container
 */
     /*Vehicle containers*/
-    ["VEH_CAR_SETS_COUNTS",  [2,3,4]],  // Cars, trucks
+    ["VEH_CAR_SETS_COUNTS",  [2,3,4]],  // Cars
+    ["VEH_TRK_SETS_COUNTS",  [3,3,4]],  // Trucks
     ["VEH_AIR_SETS_COUNTS",  [1,2,2,3]],// Planes and helicopters
     ["VEH_ARM_SETS_COUNTS",  [2,3,4]],  // Tanks and APCs
     ["VEH_BOAT_SETS_COUNTS", [1,2,2,3]],// Boats
@@ -380,8 +381,8 @@ NWG_LM_SER_EncodeFlags = {
 NWG_LM_SER_ApplyEnrichment = {
     params ["_probabilities","_enrichment"];
     private _result = _probabilities + [];//Shallow copy
+    private _min = if ((_result param [0,0]) > 0) then {1} else {0};
 
-    private _min = 0;
     {
         _result set [_forEachIndex,((_x + _enrichment) max _min)];
         _min = _x;
@@ -474,6 +475,7 @@ NWG_LM_SER_FillVehicles = {
             case (_x isKindOf "Wheeled_APC_F"): {_tag = TAG_ARM;  _counts = NWG_LM_SER_Settings get "VEH_ARM_SETS_COUNTS"};//Just count it as armoured vehicle here
             case (_x isKindOf "Air"):           {_tag = TAG_AIR;  _counts = NWG_LM_SER_Settings get "VEH_AIR_SETS_COUNTS"};
             case (_x isKindOf "Ship"):          {_tag = TAG_BOAT; _counts = NWG_LM_SER_Settings get "VEH_BOAT_SETS_COUNTS"};
+            case ((getMass _x) > 10000):        {_tag = TAG_CAR;  _counts = NWG_LM_SER_Settings get "VEH_TRK_SETS_COUNTS"};//Trucks
             default                             {_tag = TAG_CAR;  _counts = NWG_LM_SER_Settings get "VEH_CAR_SETS_COUNTS"};//Fallback to car
         };
 

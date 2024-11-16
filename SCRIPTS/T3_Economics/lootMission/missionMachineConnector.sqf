@@ -6,8 +6,9 @@
 //================================================================================================================
 //Settings
 NWG_LM_MMC_Settings = createHashMapFromArray [
-    ["ENRICHMENT_EASY",[0,0]],//Loot enrichment for easy missions
-    ["ENRICHMENT_NORM",[1,0]],//Loot enrichment for normal missions
+	/*[_setEnrichment,_itemEnrichment]*/
+    ["ENRICHMENT_EASY",[-1,-1]],//Loot enrichment for easy missions
+    ["ENRICHMENT_NORM",[0,0]],//Loot enrichment for normal missions
 
     ["",0]
 ];
