@@ -25,31 +25,38 @@
 NWG_VSHOP_SER_Settings = createHashMapFromArray [
 	["CATALOGUE_PATH_VANILLA","DATASETS\Server\ShopVehicles\_Vanilla.sqf"],//Path to vanilla loot catalogue
 
-    ["DEFAULT_PRICE_AAIR",50000],
-    ["DEFAULT_PRICE_APCS",35000],
-    ["DEFAULT_PRICE_ARTY",45000],
-    ["DEFAULT_PRICE_BOAT",15000],
-    ["DEFAULT_PRICE_CARS",5000],
-    ["DEFAULT_PRICE_DRON",10000],
-    ["DEFAULT_PRICE_HELI",40000],
-    ["DEFAULT_PRICE_PLAN",60000],
-    ["DEFAULT_PRICE_SUBM",30000],
-    ["DEFAULT_PRICE_TANK",55000],
+    ["DEFAULT_PRICE_AAIR_ARMED",75000],
+	["DEFAULT_PRICE_AAIR_UNARMED",50000],
+    ["DEFAULT_PRICE_APCS_ARMED",50000],
+	["DEFAULT_PRICE_APCS_UNARMED",35000],
+    ["DEFAULT_PRICE_ARTY_ARMED",60000],
+	["DEFAULT_PRICE_ARTY_UNARMED",45000],
+    ["DEFAULT_PRICE_BOAT_ARMED",8000],
+	["DEFAULT_PRICE_BOAT_UNARMED",5000],
+    ["DEFAULT_PRICE_CARS_ARMED",8000],
+	["DEFAULT_PRICE_CARS_UNARMED",5000],
+    ["DEFAULT_PRICE_DRON_ARMED",15000],
+	["DEFAULT_PRICE_DRON_UNARMED",10000],
+    ["DEFAULT_PRICE_HELI_ARMED",60000],
+	["DEFAULT_PRICE_HELI_UNARMED",40000],
+    ["DEFAULT_PRICE_PLAN_ARMED",90000],
+	["DEFAULT_PRICE_PLAN_UNARMED",60000],
+    ["DEFAULT_PRICE_SUBM_ARMED",45000],
+	["DEFAULT_PRICE_SUBM_UNARMED",30000],
+    ["DEFAULT_PRICE_TANK_ARMED",90000],
+	["DEFAULT_PRICE_TANK_UNARMED",60000],
 
     //[activeFactor,passiveFactor,priceMin,priceMax]
-    ["PRICE_AAIR_SETTINGS",[0.01,0.002,40000,80000]],
-    ["PRICE_APCS_SETTINGS",[0.01,0.002,25000,50000]],
-    ["PRICE_ARTY_SETTINGS",[0.01,0.002,35000,70000]],
-    ["PRICE_BOAT_SETTINGS",[0.01,0.002,10000,25000]],
-    ["PRICE_CARS_SETTINGS",[0.01,0.002,3000,10000]],
-    ["PRICE_DRON_SETTINGS",[0.01,0.002,7000,20000]],
-    ["PRICE_HELI_SETTINGS",[0.01,0.002,30000,60000]],
-    ["PRICE_PLAN_SETTINGS",[0.01,0.002,45000,100000]],
-    ["PRICE_SUBM_SETTINGS",[0.01,0.002,20000,50000]],
-    ["PRICE_TANK_SETTINGS",[0.01,0.002,40000,90000]],
-
-	["PRICE_MULTIPLIER_ARMED",1.5],//Multiplier for the price of an armed vehicle
-	["PRICE_MULTIPLIER_UNARMED",1],//Multiplier for the price of an unarmed vehicle
+    ["PRICE_AAIR_SETTINGS",[0.01,0.002,5000,100000]],
+    ["PRICE_APCS_SETTINGS",[0.01,0.002,5000,100000]],
+    ["PRICE_ARTY_SETTINGS",[0.01,0.002,5000,100000]],
+    ["PRICE_BOAT_SETTINGS",[0.01,0.002,5000,100000]],
+    ["PRICE_CARS_SETTINGS",[0.01,0.002,5000,100000]],
+    ["PRICE_DRON_SETTINGS",[0.01,0.002,5000,100000]],
+    ["PRICE_HELI_SETTINGS",[0.01,0.002,5000,100000]],
+    ["PRICE_PLAN_SETTINGS",[0.01,0.002,5000,100000]],
+    ["PRICE_SUBM_SETTINGS",[0.01,0.002,5000,100000]],
+    ["PRICE_TANK_SETTINGS",[0.01,0.002,5000,100000]],
 
 	//Items that are added to each shop interaction
 	["SHOP_PERSISTENT_ITEMS",[
@@ -126,59 +133,55 @@ NWG_VSHOP_SER_EvaluateVeh = {
 
 	//Create new item info
 	private _vehType = _this call NWG_fnc_vcatGetVehcType;
+	private _isArmed = _this call NWG_VSHOP_SER_IsArmedVehicle;
 	private _categoryIndex = -1;
 	private _defaultPrice = 0;
 	switch (_vehType) do {
 		case LOOT_VEHC_TYPE_AAIR: {
 			_categoryIndex = LOOT_VEHC_CAT_AAIR;
-			_defaultPrice = NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_AAIR";
+			_defaultPrice = [(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_AAIR_UNARMED"),(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_AAIR_ARMED")] select _isArmed;
 		};
 		case LOOT_VEHC_TYPE_APCS: {
 			_categoryIndex = LOOT_VEHC_CAT_APCS;
-			_defaultPrice = NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_APCS";
+			_defaultPrice = [(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_APCS_UNARMED"),(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_APCS_ARMED")] select _isArmed;
 		};
 		case LOOT_VEHC_TYPE_ARTY: {
 			_categoryIndex = LOOT_VEHC_CAT_ARTY;
-			_defaultPrice = NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_ARTY";
+			_defaultPrice = [(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_ARTY_UNARMED"),(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_ARTY_ARMED")] select _isArmed;
 		};
 		case LOOT_VEHC_TYPE_BOAT: {
 			_categoryIndex = LOOT_VEHC_CAT_BOAT;
-			_defaultPrice = NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_BOAT";
+			_defaultPrice = [(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_BOAT_UNARMED"),(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_BOAT_ARMED")] select _isArmed;
 		};
 		case LOOT_VEHC_TYPE_CARS: {
 			_categoryIndex = LOOT_VEHC_CAT_CARS;
-			_defaultPrice = NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_CARS";
+			_defaultPrice = [(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_CARS_UNARMED"),(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_CARS_ARMED")] select _isArmed;
 		};
 		case LOOT_VEHC_TYPE_DRON: {
 			_categoryIndex = LOOT_VEHC_CAT_DRON;
-			_defaultPrice = NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_DRON";
+			_defaultPrice = [(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_DRON_UNARMED"),(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_DRON_ARMED")] select _isArmed;
 		};
 		case LOOT_VEHC_TYPE_HELI: {
 			_categoryIndex = LOOT_VEHC_CAT_HELI;
-			_defaultPrice = NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_HELI";
+			_defaultPrice = [(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_HELI_UNARMED"),(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_HELI_ARMED")] select _isArmed;
 		};
 		case LOOT_VEHC_TYPE_PLAN: {
 			_categoryIndex = LOOT_VEHC_CAT_PLAN;
-			_defaultPrice = NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_PLAN";
+			_defaultPrice = [(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_PLAN_UNARMED"),(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_PLAN_ARMED")] select _isArmed;
 		};
 		case LOOT_VEHC_TYPE_SUBM: {
 			_categoryIndex = LOOT_VEHC_CAT_SUBM;
-			_defaultPrice = NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_SUBM";
+			_defaultPrice = [(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_SUBM_UNARMED"),(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_SUBM_ARMED")] select _isArmed;
 		};
 		case LOOT_VEHC_TYPE_TANK: {
 			_categoryIndex = LOOT_VEHC_CAT_TANK;
-			_defaultPrice = NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_TANK";
+			_defaultPrice = [(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_TANK_UNARMED"),(NWG_VSHOP_SER_Settings get "DEFAULT_PRICE_TANK_ARMED")] select _isArmed;
 		};
 		default {
 			(format["NWG_VSHOP_SER_EvaluateVeh: Invalid veh type %1",_vehType]) call NWG_fnc_logError;
 		};
 	};
 	if (_categoryIndex == -1) exitWith {_defaultPrice};//<== EXIT WITH ZERO DEFAULT on error
-
-	//Apply armed/unarmed multiplier
-	_defaultPrice = if (_this call NWG_VSHOP_SER_IsArmedVehicle)
-		then {_defaultPrice * (NWG_VSHOP_SER_Settings get "PRICE_MULTIPLIER_ARMED")}
-		else {_defaultPrice * (NWG_VSHOP_SER_Settings get "PRICE_MULTIPLIER_UNARMED")};
 
 	//Add new item info to chart and cache
 	private _vehIndex = ((NWG_VSHOP_SER_vehsPriceChart select _categoryIndex) select CHART_ITEMS) pushBack _this;

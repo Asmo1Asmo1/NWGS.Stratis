@@ -352,8 +352,8 @@ NWG_ISHOP_CLI_UpdateItemsList = {
 		else {_list setVariable ["listCat",_listCat]};
 
 	private _itemsCollection = if (_isPlayerSide)
-		then {uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",[]]}
-		else {uiNamespace getVariable ["NWG_ISHOP_CLI_shopItems",[]]};
+		then {uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",LOOT_ITEM_DEFAULT_CHART]}
+		else {uiNamespace getVariable ["NWG_ISHOP_CLI_shopItems",LOOT_ITEM_DEFAULT_CHART]};
 
 	private _itemsToShow = switch (_listCat) do {
 		case LOOT_ITEM_TYPE_ALL: {flatten _itemsCollection};
@@ -445,8 +445,8 @@ NWG_ISHOP_CLI_OnListDobuleClick = {
 
 	//Find item in 'source' collection
 	private _sourceCollection = if (_isPlayerSide)
-		then {uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",[]]}
-		else {uiNamespace getVariable ["NWG_ISHOP_CLI_shopItems",[]]};
+		then {uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",LOOT_ITEM_DEFAULT_CHART]}
+		else {uiNamespace getVariable ["NWG_ISHOP_CLI_shopItems",LOOT_ITEM_DEFAULT_CHART]};
 	([_item,_sourceCollection] call _findInCollection) params ["_categoryIndex","_itemIndex","_itemCountIndex","_itemCount"];
 	if (_categoryIndex == -1) exitWith {
 		"NWG_ISHOP_CLI_OnListDobuleClick: Item not found in collection" call NWG_fnc_logError;
@@ -482,8 +482,8 @@ NWG_ISHOP_CLI_OnListDobuleClick = {
 
 	//Move to 'target' collection
 	private _targetCollection = if (_isPlayerSide)
-		then {uiNamespace getVariable ["NWG_ISHOP_CLI_shopItems",[]]}
-		else {uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",[]]};
+		then {uiNamespace getVariable ["NWG_ISHOP_CLI_shopItems",LOOT_ITEM_DEFAULT_CHART]}
+		else {uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",LOOT_ITEM_DEFAULT_CHART]};
 	([_item,_targetCollection] call _findInCollection) params ["","_itemIndex","_itemCountIndex","_itemCount"];
 	private _catArray = _targetCollection#_categoryIndex;
 	switch (true) do {
@@ -689,7 +689,7 @@ NWG_ISHOP_CLI_TRA_OnClose = {
 	};
 
 	//Update player loot
-	private _playerVirtualLoot = uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",[]];
+	private _playerVirtualLoot = uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",LOOT_ITEM_DEFAULT_CHART];
 	private _playerActualLoot = player call (NWG_ISHOP_CLI_Settings get "SHOP_GET_PLAYER_LOOT_FUNC");
 	if (_playerVirtualLoot isNotEqualTo _playerActualLoot) then {
 		//We have a new loot

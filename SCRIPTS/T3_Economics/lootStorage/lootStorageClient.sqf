@@ -7,6 +7,8 @@ NWG_LS_CLI_Settings = createHashMapFromArray [
     ["INVISIBLE_BOX_TYPE","B_supplyCrate_F"],//Classname of the object that will be used as a loot storage
     ["CLOSE_INVENTORY_ON_LOOT",true],//Should the inventory be closed automatically when loot is taken
 
+    ["ALLOW_LOOTING_ALIVE_UNITS",false],//Should we allow looting of alive units
+
     ["AUTO_SELL_LOOT",true],//Should the loot defined in the pricemap be automatically sold on moving to storage (+ on closing the storage just in case)
     ["AUTO_SELL_ON_TAKE",true],//Should the loot be automatically sold when it is taken (uses 'Take' event handler)
     ["AUTO_SELL_PRICE_MAP",createHashMapFromArray [
@@ -148,6 +150,10 @@ NWG_LS_CLI_GetAllContainerItems = {
 
         /*--- Looting the body of a unit ---*/
         private _loadout = getUnitLoadout _container;
+        if (_loadout isEqualTo []) exitWith {
+            (format ["NWG_LS_CLI_GetAllContainerItems: getUnitLoadout returned [] for unit '%1'",_container]) call NWG_fnc_logError;
+        };
+
         //Extract items from uniform,vest and backpack (they have structure: [class,count])
         for "_i" from 3 to 5 do {
             if ((_loadout#_i) isEqualTo []) then {continue};//Skip empty
@@ -163,9 +169,11 @@ NWG_LS_CLI_GetAllContainerItems = {
                 _allContainerItems pushBack _class;
             } forEach ((_loadout#_i) deleteAt 1);//Extract what is stored inside
         };
-        //Extract everything else that is left in loadout (can be imagied as just a flat list of items)
+
+        //Extract everything else that is left in loadout (can be imagined as just a flat list of items)
         _loadout = (flatten _loadout) select {_x isEqualType "" && {_x isNotEqualTo ""}};//Flatten and filter
         _allContainerItems append _loadout;
+
         //Extract weapons from weapon holders
         {_x call _scanContainer} forEach (call NWG_LS_CLI_GetDeadUnitWeaponHolders);
 
@@ -313,13 +321,17 @@ NWG_LS_CLI_LootContainer_Core = {
     if (!isNull NWG_LS_CLI_invisibleBox && {_container isEqualTo NWG_LS_CLI_invisibleBox}) exitWith {false};
 
     //Check that we not trying to loot alive unit (also frowned upon)
-    private _i = [_container,(objectParent _container)] findIf {
-        !isNull _x && {
-        alive _x && {
-        _x isKindOf "Man" && {
-        _x isNotEqualTo player}}}
+    private _allowed = true;
+    if !(NWG_LS_CLI_Settings get "ALLOW_LOOTING_ALIVE_UNITS") then {
+        private _i = [_container,(objectParent _container)] findIf {
+            !isNull _x && {
+            alive _x && {
+            _x isKindOf "Man" && {
+            _x isNotEqualTo player}}}
+        };
+        if (_i != -1) then {_allowed = false};
     };
-    if (_i != -1) exitWith {false};
+    if (!_allowed) exitWith {false};
 
     //Get container loot
     private _allContainerItems = _container call NWG_LS_CLI_GetAllContainerItems;

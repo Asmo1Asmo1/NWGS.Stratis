@@ -160,6 +160,8 @@ _serverModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorization
 _clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehs.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsTests.sqf" call NWG_fnc_compile)};
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsFunctions.sqf" call NWG_fnc_compile);
+//economicsTest
+if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T3_Economics\economicsTest\economicsTest.sqf" call NWG_fnc_compile)};
 //lootMission
 _serverModules pushBack ("SCRIPTS\T3_Economics\lootMission\lootMissionServer.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\lootMission\missionMachineConnector.sqf" call NWG_fnc_compile);
