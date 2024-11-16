@@ -294,7 +294,7 @@ NWG_VSHOP_CLI_CanSellOwnedVehicle = {
 
 	//Vehicle state checks
 	if !(alive _this) exitWith {false};//Check that vehicle is alive
-	if ((count (crew _this)) > 0) exitWith {false};//Check that vehicle is not occupied
+	if ((count ((crew _this) select {!unitIsUAV _x})) > 0) exitWith {false};//Check that vehicle is not occupied by units (except UAVs)
 
 	//Check that vehicle is in the sell distance to the platform
 	private _platform = NWG_VSHOP_spawnPlatform;

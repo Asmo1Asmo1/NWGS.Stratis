@@ -713,6 +713,11 @@ NWG_VSHOP_SER_SpawnVehicleAtPlatform = {
 	//Clear vehicle cargo
 	_vehicle call NWG_fnc_clearContainerCargo;
 
+	//Create AI crew for UAVs
+	if (unitIsUAV _vehicle) then {
+		(side (group _player)) createVehicleCrew _vehicle;
+	};
+
 	//return
 	true
 };
