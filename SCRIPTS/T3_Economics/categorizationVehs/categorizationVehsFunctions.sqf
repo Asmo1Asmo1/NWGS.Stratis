@@ -6,14 +6,6 @@ NWG_fnc_vcatGetVehcType = {
     _this call NWG_VCAT_GetVehcType
 };
 
-//Returns base vehicle classname (if applicable) - vehicle without specializations for which input is a variation (inheritor) of
-//note: this function is a rework of BIS_fnc_baseVehicle
-//params: _classname - classname of vehicle to process
-//returns: string - classname of base vehicle or input itself if not a vehicle or is already a base
-NWG_fnc_vcatGetBaseVehicle = {
-    _this call NWG_VCAT_GetBaseVehicle
-};
-
 //Returns unified classname for the vehicle
 //unified classname: Base classname of the vehicle for BLUFOR side (so OPFOR quad bike will return B_Quadbike_01_F)
 //params: _classname - classname of vehicle to process

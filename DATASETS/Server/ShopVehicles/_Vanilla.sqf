@@ -90,7 +90,7 @@
 "I_LT_01_cannon_F",
 "I_MBT_03_cannon_F",
 /*Syndikat*/
-"B_G_Boat_Transport_02_F",
+"I_C_Boat_Transport_02_F",
 "I_C_Offroad_02_unarmed_F",
 "I_C_Offroad_02_AT_F",
 "I_C_Offroad_02_LMG_F"
