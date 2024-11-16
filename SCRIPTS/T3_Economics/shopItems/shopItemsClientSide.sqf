@@ -82,9 +82,27 @@ NWG_ISHOP_CLI_OnServerResponse = {
 	};
 	uiNamespace setVariable ["NWG_ISHOP_CLI_shopGUI",_shopGUI];
 
+	//Filter and sort categories
+	_playerLoot = +_playerLoot;//Deep copy
+	_shopItems = +_shopItems;//Deep copy
+	{
+		_x = _x call NWG_fnc_unCompactStringArray;
+		_x = [_x,/*isCompacted:*/false] call NWG_ISHOP_CLI_FilterCategory;
+		_x = [_x,/*isCompacted:*/false] call NWG_ISHOP_CLI_SortCategory;
+		_x = _x call NWG_fnc_compactStringArray;
+		_playerLoot set [_forEachIndex,_x];
+	} forEach _playerLoot;
+	{
+		_x = _x call NWG_fnc_unCompactStringArray;
+		_x = [_x,/*isCompacted:*/false] call NWG_ISHOP_CLI_FilterCategory;
+		_x = [_x,/*isCompacted:*/false] call NWG_ISHOP_CLI_SortCategory;
+		_x = _x call NWG_fnc_compactStringArray;
+		_shopItems set [_forEachIndex,_x];
+	} forEach _shopItems;
+
 	//Save player loot and shop items for both UI and transaction logic
-	uiNamespace setVariable ["NWG_ISHOP_CLI_playerLoot",(+_playerLoot)];//Save as deep copy
-	uiNamespace setVariable ["NWG_ISHOP_CLI_shopItems",(+_shopItems)];//Save as deep copy
+	uiNamespace setVariable ["NWG_ISHOP_CLI_playerLoot",_playerLoot];
+	uiNamespace setVariable ["NWG_ISHOP_CLI_shopItems",_shopItems];
 
 	//Init transaction
 	[_allItems,_allPrices] call NWG_ISHOP_CLI_TRA_OnOpen;
@@ -360,9 +378,7 @@ NWG_ISHOP_CLI_UpdateItemsList = {
 	{
 		if (_x isEqualType 0) then {_count = _x; continue};//If array elemnt is number (else string)
 
-		private _itemInfo = _x call NWG_ISHOP_CLI_GetItemInfo;
-		if (_itemInfo isEqualTo false) then {_count = 1; continue};//Gracefully ignore trying to buy/sell mod items when player doesn't have mod installed
-		_itemInfo params ["_picture","_displayName"];
+		(_x call NWG_ISHOP_CLI_GetItemInfo) params [["_displayName",""],["_picture",""]];
 		_price = [_x,_isPlayerSide] call NWG_ISHOP_CLI_TRA_GetPrice;
 
 		_i = _list lbAdd ([_displayName,_count,_price] call NWG_ISHOP_CLI_FormatListRecord);//Add formatted record
@@ -373,39 +389,6 @@ NWG_ISHOP_CLI_UpdateItemsList = {
 
 	//Drop selection
 	if (_dropSelection) then {_list lbSetCurSel -1};
-};
-
-NWG_ISHOP_CLI_itemInfoCache = createHashMap;
-NWG_ISHOP_CLI_GetItemInfo = {
-	// private _item = _this;
-
-	//Try cache first
-	private _cached = NWG_ISHOP_CLI_itemInfoCache get _this;
-	if (!isNil "_cached") exitWith {_cached};
-
-	//Get info from config
-	private _cfg = configNull;
-	{
-		_cfg = configFile >> _x >> _this;
-		if (isClass _cfg) exitWith {};//Found
-	} forEach ["CfgWeapons","CfgMagazines","CfgGlasses","CfgVehicles"];
-	if (isNull _cfg || {!isClass _cfg}) exitWith {
-		(format ["NWG_ISHOP_CLI_GetItemInfo: Item not found in config: %1",_this]) call NWG_fnc_logError;
-		NWG_ISHOP_CLI_itemInfoCache set [_this,false];
-		false
-	};
-
-	//Picture
-	private _picture = getText (_cfg >> "picture");
-	if (_picture isEqualTo "") then {_picture = getText (_cfg >> "icon")};
-
-	//DisplayName
-	private _displayName = getText (_cfg >> "displayName");
-
-	//Cache and return
-	private _itemInfo = [_picture,_displayName];
-	NWG_ISHOP_CLI_itemInfoCache set [_this,_itemInfo];
-	_itemInfo
 };
 
 NWG_ISHOP_CLI_FormatListRecord = {
@@ -508,6 +491,7 @@ NWG_ISHOP_CLI_OnListDobuleClick = {
 			//Item not found in target collection, add new
 			if (_moveCount > 1) then {_catArray pushBack _moveCount};
 			_catArray pushBack _item;
+			_catArray = [_catArray,/*isCompacted:*/true] call NWG_ISHOP_CLI_SortCategory;
 		};
 		case (_itemCountIndex == -1): {
 			//Item found, but only one instance - we must insert new count
@@ -536,6 +520,72 @@ NWG_ISHOP_CLI_OnListDobuleClick = {
 	[!_isPlayerSide,"",false] call NWG_ISHOP_CLI_UpdateItemsList;//Update target list
 	(call NWG_ISHOP_CLI_TRA_GetPlayerMoney) call NWG_ISHOP_CLI_UpdatePlayerMoneyText;//Update player money text
 	[(NWG_ISHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_ON_SUCCESS"),1] call NWG_ISHOP_CLI_BlinkPlayerMoney;//Blink player money
+};
+
+//================================================================================================================
+//================================================================================================================
+//Items info (+filtering and sorting)
+NWG_ISHOP_CLI_itemInfoCache = createHashMap;
+NWG_ISHOP_CLI_GetItemInfo = {
+	// private _item = _this;
+
+	//Try cache first
+	private _cached = NWG_ISHOP_CLI_itemInfoCache get _this;
+	if (!isNil "_cached") exitWith {_cached};
+
+	//Get info from config
+	private _cfg = configNull;
+	{
+		_cfg = configFile >> _x >> _this;
+		if (isClass _cfg) exitWith {};//Found
+	} forEach ["CfgWeapons","CfgMagazines","CfgGlasses","CfgVehicles"];
+	if (isNull _cfg || {!isClass _cfg}) exitWith {
+		(format ["NWG_ISHOP_CLI_GetItemInfo: Item not found in config: %1",_this]) call NWG_fnc_logError;
+		NWG_ISHOP_CLI_itemInfoCache set [_this,false];
+		false
+	};
+
+	//DisplayName
+	private _displayName = getText (_cfg >> "displayName");
+
+	//Picture
+	private _picture = getText (_cfg >> "picture");
+	if (_picture isEqualTo "") then {_picture = getText (_cfg >> "icon")};
+
+	//Cache and return
+	private _itemInfo = [_displayName,_picture];
+	NWG_ISHOP_CLI_itemInfoCache set [_this,_itemInfo];
+	_itemInfo
+};
+
+NWG_ISHOP_CLI_FilterCategory = {
+	params ["_category","_isCompacted"];
+
+	if (_isCompacted) then {_category = _category call NWG_fnc_unCompactStringArray};
+	{
+		if ((_x call NWG_ISHOP_CLI_GetItemInfo) isEqualTo false)
+			then {_category deleteAt _forEachIndex};
+	} forEachReversed _category;
+	if (_isCompacted) then {_category = _category call NWG_fnc_compactStringArray};
+
+	_category
+};
+
+NWG_ISHOP_CLI_SortCategory = {
+	params ["_category","_isCompacted"];
+
+	if (_isCompacted) then {_category = _category call NWG_fnc_unCompactStringArray};
+
+	//Sort by display name (alphabetically)
+	private _sorting = _category apply {[((_x call NWG_ISHOP_CLI_GetItemInfo) param [0,""]),_x]};
+	_sorting sort true;
+	_sorting = _sorting apply {_x#1};
+	_category resize 0;
+	_category append _sorting;
+
+	if (_isCompacted) then {_category = _category call NWG_fnc_compactStringArray};
+
+	_category
 };
 
 //================================================================================================================

@@ -438,6 +438,8 @@ NWG_VSHOP_CLI_UpdateItemsList = {
 		};
 	};
 
+	_itemsToShow = _itemsToShow call NWG_VSHOP_CLI_SortItems;
+
 	//Clear list
 	lbClear _list;
 
@@ -445,7 +447,7 @@ NWG_VSHOP_CLI_UpdateItemsList = {
 	private _i = -1;
 	//forEach _itemsToShow
 	{
-		(_x call NWG_VSHOP_CLI_GetItemInfo) params ["_picture","_displayName"];
+		(_x call NWG_VSHOP_CLI_GetItemInfo) params [["_displayName",""],["_picture",""]];
 		([_x,_isPlayerSide] call NWG_VSHOP_CLI_TRA_GetPrice) params ["_price","_condition"];
 
 		_i = _list lbAdd ([_displayName,_price,_condition] call NWG_VSHOP_CLI_FormatListRecord);//Add formatted record
@@ -455,31 +457,6 @@ NWG_VSHOP_CLI_UpdateItemsList = {
 
 	//Drop selection
 	if (_dropSelection) then {_list lbSetCurSel -1};
-};
-
-NWG_VSHOP_CLI_itemInfoCache = createHashMap;
-NWG_VSHOP_CLI_GetItemInfo = {
-	// private _item = _this;
-
-	//Try cache first
-	private _cached = NWG_VSHOP_CLI_itemInfoCache get _this;
-	if (!isNil "_cached") exitWith {_cached};
-
-	//Get vehicle config
-	private _cfg = configFile >> "CfgVehicles" >> _this;
-	if !(isClass _cfg) exitWith {
-		(format ["NWG_VSHOP_CLI_GetItemInfo: Item '%1' not found in CfgVehicles",_this]) call NWG_fnc_logError;
-		["",""]
-	};
-
-	//Get config values
-	private _picture = getText (_cfg >> (NWG_VSHOP_CLI_Settings get "ITEM_LIST_PICTURE_TYPE"));
-	private _displayName = getText (_cfg >> "displayName");
-
-	//Cache and return
-	private _itemInfo = [_picture,_displayName];
-	NWG_VSHOP_CLI_itemInfoCache set [_this,_itemInfo];
-	_itemInfo
 };
 
 NWG_VSHOP_CLI_FormatListRecord = {
@@ -660,6 +637,47 @@ NWG_VSHOP_CLI_AddVehicleToSellPool = {
 	_vehicles pushBack _vehicle;
 	_classnames pushBack ((typeOf _vehicle) call NWG_fnc_vcatGetUnifiedClassname);
 	uiNamespace setVariable ["NWG_VSHOP_CLI_sellPool",[_vehicles,_classnames]];
+};
+
+//================================================================================================================
+//================================================================================================================
+//Items info (+sorting)
+NWG_VSHOP_CLI_itemInfoCache = createHashMap;
+NWG_VSHOP_CLI_GetItemInfo = {
+	// private _item = _this;
+
+	//Try cache first
+	private _cached = NWG_VSHOP_CLI_itemInfoCache get _this;
+	if (!isNil "_cached") exitWith {_cached};
+
+	//Get vehicle config
+	private _cfg = configFile >> "CfgVehicles" >> _this;
+	if !(isClass _cfg) exitWith {
+		(format ["NWG_VSHOP_CLI_GetItemInfo: Item '%1' not found in CfgVehicles",_this]) call NWG_fnc_logError;
+		["",""]
+	};
+
+	//Get config values
+	private _picture = getText (_cfg >> (NWG_VSHOP_CLI_Settings get "ITEM_LIST_PICTURE_TYPE"));
+	private _displayName = getText (_cfg >> "displayName");
+
+	//Cache and return
+	private _itemInfo = [_displayName,_picture];
+	NWG_VSHOP_CLI_itemInfoCache set [_this,_itemInfo];
+	_itemInfo
+};
+
+NWG_VSHOP_CLI_SortItems = {
+	// private _items = _this;
+
+	//Sort by display name (alphabetically)
+	private _sorting = _this apply {[((_x call NWG_VSHOP_CLI_GetItemInfo) param [0,""]),_x]};
+	_sorting sort true;
+	_sorting = _sorting apply {_x#1};
+	_this resize 0;
+	_this append _sorting;
+
+	_this
 };
 
 //================================================================================================================
