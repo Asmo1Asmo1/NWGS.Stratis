@@ -10,32 +10,33 @@
 #define UI_GRID_HAbs	(0)
 
 //--- userPlanshetMainMenu
-#define IDC_TEXT_MONEY 20470
-#define IDC_TEXT_INFO 20471
-#define IDC_BUTTON_MOBLSHOP 20675
-#define IDC_BUTTON_MTRANSFR 20670
-#define IDC_BUTTON_GROUPMNG 20676
-#define IDC_BUTTON_DOCMENTS 20672
-#define IDC_BUTTON_PLR_INFO 20671
-#define IDC_BUTTON_SETTINGS 20673
+#define IDC_TEXT_LEFT 1000
+#define IDC_TEXT_RIGHT 1001
+
+#define IDC_BUTTON_01 1200
+#define IDC_BUTTON_02 1201
+#define IDC_BUTTON_03 1202
+#define IDC_BUTTON_04 1203
+#define IDC_BUTTON_05 1204
+#define IDC_BUTTON_06 1205
 
 
 ////////////////////////////////////////////////////////
 // GUI EDITOR OUTPUT START (by Asmo, v1.063, #Wytoco)
 ////////////////////////////////////////////////////////
 
-class UPMM_PlayerMoneyText: RscText
+class UPMM_TextLeft: RscText
 {
-	idc = IDC_TEXT_MONEY;
+	idc = IDC_TEXT_LEFT;
 	text = "";
 	x = -15 * UI_GRID_W + UI_GRID_X;
 	y = -9.5 * UI_GRID_H + UI_GRID_Y;
 	w = 12 * UI_GRID_W;
 	h = 1 * UI_GRID_H;
 };
-class UPMM_PlayerInfoText: RscText
+class UPMM_TextRight: RscText
 {
-	idc = IDC_TEXT_INFO;
+	idc = IDC_TEXT_RIGHT;
 	style = 1;//1: align right
 	text = "";
 	x = 3.5 * UI_GRID_W + UI_GRID_X;
@@ -48,39 +49,39 @@ class UPMM_ButtonCommon: RscActivePictureKeepAspect
 	w = 4 * UI_GRID_W;
 	h = 4 * UI_GRID_H;
 };
-class UPMM_MobileShopButton: UPMM_ButtonCommon
+class UPMM_Button01: UPMM_ButtonCommon
 {
-	idc = IDC_BUTTON_MOBLSHOP;
+	idc = IDC_BUTTON_01;
 	x = -9.5 * UI_GRID_W + UI_GRID_X;
 	y = -5 * UI_GRID_H + UI_GRID_Y;
 };
-class UPMM_MoneyTransferButton: UPMM_ButtonCommon
+class UPMM_Button02: UPMM_ButtonCommon
 {
-	idc = IDC_BUTTON_MTRANSFR;
+	idc = IDC_BUTTON_02;
 	x = -2 * UI_GRID_W + UI_GRID_X;
 	y = -5 * UI_GRID_H + UI_GRID_Y;
 };
-class UPMM_GroupManagementButton: UPMM_ButtonCommon
+class UPMM_Button03: UPMM_ButtonCommon
 {
-	idc = IDC_BUTTON_GROUPMNG;
+	idc = IDC_BUTTON_03;
 	x = 5.5 * UI_GRID_W + UI_GRID_X;
 	y = -5 * UI_GRID_H + UI_GRID_Y;
 };
-class UPMM_DocumentsButton: UPMM_ButtonCommon
+class UPMM_Button04: UPMM_ButtonCommon
 {
-	idc = IDC_BUTTON_DOCMENTS;
+	idc = IDC_BUTTON_04;
 	x = -9.5 * UI_GRID_W + UI_GRID_X;
 	y = 2.5 * UI_GRID_H + UI_GRID_Y;
 };
-class UPMM_InfoButton: UPMM_ButtonCommon
+class UPMM_Button05: UPMM_ButtonCommon
 {
-	idc = IDC_BUTTON_PLR_INFO;
+	idc = IDC_BUTTON_05;
 	x = -2 * UI_GRID_W + UI_GRID_X;
 	y = 2.5 * UI_GRID_H + UI_GRID_Y;
 };
-class UPMM_SettingsButton: UPMM_ButtonCommon
+class UPMM_Button06: UPMM_ButtonCommon
 {
-	idc = IDC_BUTTON_SETTINGS;
+	idc = IDC_BUTTON_06;
 	x = 5.5 * UI_GRID_W + UI_GRID_X;
 	y = 2.5 * UI_GRID_H + UI_GRID_Y;
 };

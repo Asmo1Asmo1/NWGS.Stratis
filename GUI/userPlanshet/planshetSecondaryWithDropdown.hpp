@@ -14,35 +14,35 @@
 #define UI_GRID_HAbs	(0)
 
 //--- userPlanshetUIBase
-#define IDC_SHOPUI_PLAYERMONEYTEXT 1000
-#define IDC_SHOPUI_SHOPDROPDOWN 2101
-#define IDC_SHOPUI_SHOPLIST 1501
+#define IDC_TEXT_LEFT 1000
+#define IDC_DROPDOWN 2101
+#define IDC_LISTBOX 1501
 
 ////////////////////////////////////////////////////////
 // GUI EDITOR OUTPUT START (by Asmo, v1.063, #Kacege)
 ////////////////////////////////////////////////////////
 
-class UPVS_PlayerMoneyText: RscText
+class UPSWD_TextLeft: RscText
 {
-	idc = IDC_SHOPUI_PLAYERMONEYTEXT;
+	idc = IDC_TEXT_LEFT;
 	text = "";
 	x = -15 * UI_GRID_W + UI_GRID_X;
 	y = -9.5 * UI_GRID_H + UI_GRID_Y;
 	w = 12 * UI_GRID_W;
 	h = 1 * UI_GRID_H;
 };
-class UPVS_ShopDropdown: RscCombo
+class UPSWD_Dropdown: RscCombo
 {
-	idc = IDC_SHOPUI_SHOPDROPDOWN;
+	idc = IDC_DROPDOWN;
 	style = 1;//1: align right
 	x = 4 * UI_GRID_W + UI_GRID_X;
 	y = -9.5 * UI_GRID_H + UI_GRID_Y;
 	w = 11 * UI_GRID_W;
 	h = 1 * UI_GRID_H;
 };
-class UPVS_ShopList: RscListbox
+class UPSWD_ListBox: RscListbox
 {
-	idc = IDC_SHOPUI_SHOPLIST;
+	idc = IDC_LISTBOX;
 	x = -15 * UI_GRID_W + UI_GRID_X;
 	y = -8 * UI_GRID_H + UI_GRID_Y;
 	w = 30 * UI_GRID_W;

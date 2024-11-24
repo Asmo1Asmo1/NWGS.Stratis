@@ -9,7 +9,7 @@
 #include "GUI\userPlanshet\planshetBackground.hpp"
 #include "GUI\userPlanshet\planshetMainMenu.hpp"
 #include "GUI\userPlanshet\planshetSecondaryMenu.hpp"
-#include "GUI\userPlanshet\planshetVehiclesShop.hpp"
+#include "GUI\userPlanshet\planshetSecondaryWithDropdown.hpp"
 
 //===========================================================
 //Loading screen
