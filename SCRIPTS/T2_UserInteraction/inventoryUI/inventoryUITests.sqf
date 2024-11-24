@@ -25,6 +25,15 @@ NWG_INVUI_GetAllTaskIcons = {
     _icons call NWG_fnc_testDumpToRptAndClipboard;
 };
 
+/*
+["airdrop","\A3\ui_f_orange\data\cfgTaskTypes\airdrop_ca.paa"]
+["help","\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa"]
+["meet","\A3\ui_f\data\igui\cfg\simpleTasks\types\meet_ca.paa"]
+["documents","\A3\ui_f\data\igui\cfg\simpleTasks\types\documents_ca.paa"]
+["whiteboard","\A3\ui_f\data\igui\cfg\simpleTasks\types\whiteboard_ca.paa"]
+["use","\A3\ui_f\data\igui\cfg\simpleTasks\types\use_ca.paa"]
+*/
+
 //Get all sounds from CfgSound (configfile >> "CfgSounds" >> "WoundedGuyB_07") <- "WoundedGuyB_07" is the sound file name
 // call NWG_INVUI_GetAllSounds
 NWG_INVUI_GetAllSounds = {

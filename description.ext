@@ -6,6 +6,10 @@
 #include "GUI\vehicleCustomization\vehicleCustomization.hpp"
 #include "GUI\inventoryUI\inventoryUI.hpp"
 #include "GUI\shopUI\shopUI.hpp"
+#include "GUI\userPlanshet\planshetBackground.hpp"
+#include "GUI\userPlanshet\planshetMainMenu.hpp"
+#include "GUI\userPlanshet\planshetSecondaryMenu.hpp"
+#include "GUI\userPlanshet\planshetVehiclesShop.hpp"
 
 //===========================================================
 //Loading screen

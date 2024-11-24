@@ -1,0 +1,20 @@
+/* #Somige
+$[
+	1.063,
+	["userPlanshetUIBase",[["0.5","0.5","0","0"],"2.5 * pixelW * pixelGrid","2.5 * pixelH * pixelGrid","UI_GRID"],0,0,0],
+	[1200,"",[2,"#(argb,8,8,3)color(0,0,0,1)",["-19.5 * UI_GRID_W + UI_GRID_X","-13.5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1201,"",[2,"#(argb,8,8,3)color(0,0,0,1)",["15.5 * UI_GRID_W + UI_GRID_X","-13.5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1202,"",[2,"#(argb,8,8,3)color(0,0,0,1)",["-19.5 * UI_GRID_W + UI_GRID_X","9.5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1203,"",[2,"#(argb,8,8,3)color(0,0,0,1)",["15.5 * UI_GRID_W + UI_GRID_X","9.5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1204,"",[2,"#(argb,8,8,3)color(0.10,0.10,0.15,1)",["-16 * UI_GRID_W + UI_GRID_X","-10 * UI_GRID_H + UI_GRID_Y","32 * UI_GRID_W","20 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1205,"",[2,"a3\missions_f_exp\data\img\lobby\ui_campaign_lobby_background_tablet_left_co.paa",["-19 * UI_GRID_W + UI_GRID_X","-10 * UI_GRID_H + UI_GRID_Y","3 * UI_GRID_W","20 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1206,"",[2,"a3\missions_f_exp\data\img\lobby\ui_campaign_lobby_background_tablet_right_co.paa",["16 * UI_GRID_W + UI_GRID_X","-10 * UI_GRID_H + UI_GRID_Y","3 * UI_GRID_W","20 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1207,"",[2,"a3\missions_f_exp\data\img\lobby\ui_campaign_lobby_background_tablet_top_co.paa",["-16 * UI_GRID_W + UI_GRID_X","-13 * UI_GRID_H + UI_GRID_Y","32 * UI_GRID_W","3 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1208,"",[2,"a3\missions_f_exp\data\img\lobby\ui_campaign_lobby_background_tablet_bottom_co.paa",["-16 * UI_GRID_W + UI_GRID_X","10 * UI_GRID_H + UI_GRID_Y","32 * UI_GRID_W","3 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1209,"",[2,"a3\missions_f_exp\data\img\lobby\ui_campaign_lobby_background_tablet_topleftcorner_co.paa",["-19 * UI_GRID_W + UI_GRID_X","-13 * UI_GRID_H + UI_GRID_Y","3 * UI_GRID_W","3 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1210,"",[2,"a3\missions_f_exp\data\img\lobby\ui_campaign_lobby_background_tablet_toprightcorner_co.paa",["16 * UI_GRID_W + UI_GRID_X","-13 * UI_GRID_H + UI_GRID_Y","3 * UI_GRID_W","3 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1211,"",[2,"a3\missions_f_exp\data\img\lobby\ui_campaign_lobby_background_tablet_bottomleftcorner_co.paa",["-19 * UI_GRID_W + UI_GRID_X","10 * UI_GRID_H + UI_GRID_Y","3 * UI_GRID_W","3 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1212,"",[2,"a3\missions_f_exp\data\img\lobby\ui_campaign_lobby_background_tablet_bottomrightcorner_co.paa",["16 * UI_GRID_W + UI_GRID_X","10 * UI_GRID_H + UI_GRID_Y","3 * UI_GRID_W","3 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1213,"",[2,"a3\missions_f_exp\data\img\lobby\ui_campaign_lobby_background_tablet_buttonbar_co.paa",["-3 * UI_GRID_W + UI_GRID_X","-11.5 * UI_GRID_H + UI_GRID_Y","6 * UI_GRID_W","3 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]]
+]
+*/
