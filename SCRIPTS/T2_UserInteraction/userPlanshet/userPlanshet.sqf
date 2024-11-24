@@ -10,12 +10,34 @@
 //================================================================================================================
 //Settings
 NWG_UP_Settings = createHashMapFromArray [
-	["BUTTON_MOBLSHOP_ICON","\A3\ui_f_orange\data\cfgTaskTypes\airdrop_ca.paa"],
-	["BUTTON_MTRANSFR_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa"],
-	["BUTTON_GROUPMNG_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\meet_ca.paa"],
-	["BUTTON_DOCUMNTS_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\documents_ca.paa"],
-	["BUTTON_PLR_INFO_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\whiteboard_ca.paa"],
-	["BUTTON_SETTINGS_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\use_ca.paa"],
+	/*Main menu layout*/
+	["MM_TextLeft_FILL_FUNC", {(player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney}],
+	["MM_TextRight_FILL_FUNC",{name player}],
+
+	["MM_BUTTON_01_ICON","\A3\ui_f_orange\data\cfgTaskTypes\airdrop_ca.paa"],
+	["MM_BUTTON_02_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa"],
+	["MM_BUTTON_03_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\meet_ca.paa"],
+	["MM_BUTTON_04_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\documents_ca.paa"],
+	["MM_BUTTON_05_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\whiteboard_ca.paa"],
+	["MM_BUTTON_06_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\use_ca.paa"],
+
+	["MM_BUTTON_01_TOOLTIP","#UP_BUTTON_MOBLSHOP_TOOLTIP#"],
+	["MM_BUTTON_02_TOOLTIP","#UP_BUTTON_MTRANSFR_TOOLTIP#"],
+	["MM_BUTTON_03_TOOLTIP","#UP_BUTTON_GROUPMNG_TOOLTIP#"],
+	["MM_BUTTON_04_TOOLTIP","#UP_BUTTON_DOCUMNTS_TOOLTIP#"],
+	["MM_BUTTON_05_TOOLTIP","#UP_BUTTON_PLR_INFO_TOOLTIP#"],
+	["MM_BUTTON_06_TOOLTIP","#UP_BUTTON_SETTINGS_TOOLTIP#"],
+
+	["MM_BUTTON_01_ONCLICK",{systemChat "Not implemented"}],
+	["MM_BUTTON_02_ONCLICK",{systemChat "Not implemented"}],
+	["MM_BUTTON_03_ONCLICK",{systemChat "Not implemented"}],
+	["MM_BUTTON_04_ONCLICK",{systemChat "Not implemented"}],
+	["MM_BUTTON_05_ONCLICK",{systemChat "Not implemented"}],
+	["MM_BUTTON_06_ONCLICK",{systemChat "Not implemented"}],
+
+	/*Secondary menu layout*/
+	["SM_TextLeft_FILL_FUNC", {(player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney}],
+	["SM_TextRight_FILL_FUNC",{name player}],
 
     ["",0]
 ];
@@ -26,25 +48,14 @@ NWG_UP_Settings = createHashMapFromArray [
 NWG_UP_OpenBackground = {
 	disableSerialization;
 
-	private _backgroundGUI = createDialog [BACKGROUND_DIALOGUE_NAME,true];
-	if (isNull _backgroundGUI) exitWith {
+	private _planshetGUI = createDialog [BACKGROUND_DIALOGUE_NAME,true];
+	if (isNull _planshetGUI) exitWith {
 		"NWG_UP_OpenBackground: Failed to create dialog" call NWG_fnc_logError;
 		false
 	};
 
 	//return
-	_backgroundGUI
-};
-
-//================================================================================================================
-//================================================================================================================
-//Top panel utils
-NWG_UP_GetPlayerMoneyString = {
-	(player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney
-};
-
-NWG_UP_GetPlayerInfoString = {
-	name player
+	_planshetGUI
 };
 
 //================================================================================================================
@@ -54,71 +65,42 @@ NWG_UP_OpenMainMenu = {
 	disableSerialization;
 
 	//Open background
-	private _backgroundGUI = call NWG_UP_OpenBackground;
-	if (_backgroundGUI isEqualTo false) exitWith {
+	private _planshetGUI = call NWG_UP_OpenBackground;
+	if (_planshetGUI isEqualTo false) exitWith {
 		"NWG_UP_OpenMainMenu: Failed to open background" call NWG_fnc_logError;
 		false
 	};
 
-	//Add controls
-	private _playerMoneyText = _backgroundGUI ctrlCreate ["UPMM_PlayerMoneyText",-1];
-	private _playerInfoText = _backgroundGUI ctrlCreate ["UPMM_PlayerInfoText",-1];
+	//Add top panel texts
+	{
+		private _ctrlName = format ["UPMM_%1",_x];
+		private _textFunc = format ["MM_%1_FILL_FUNC",_x];
 
-	private _buttonMobileShop      = _backgroundGUI ctrlCreate ["UPMM_MobileShopButton",-1];
-	private _buttonMoneyTransfer   = _backgroundGUI ctrlCreate ["UPMM_MoneyTransferButton",-1];
-	private _buttonGroupManagement = _backgroundGUI ctrlCreate ["UPMM_GroupManagementButton",-1];
-	private _buttonDocuments       = _backgroundGUI ctrlCreate ["UPMM_DocumentsButton",-1];
-	private _buttonPlayerInfo      = _backgroundGUI ctrlCreate ["UPMM_InfoButton",-1];
-	private _buttonSettings        = _backgroundGUI ctrlCreate ["UPMM_SettingsButton",-1];
+		_textFunc = NWG_UP_Settings get _textFunc;
 
-	//Top panel: Add text
-	_playerMoneyText ctrlSetText (call NWG_UP_GetPlayerMoneyString);
-	_playerInfoText ctrlSetText (call NWG_UP_GetPlayerInfoString);
+		private _textCtrl = _planshetGUI ctrlCreate [_ctrlName,-1];
+		_textCtrl ctrlSetText (call _textFunc);
+	} forEach ["TextLeft","TextRight"];
 
-	//Buttons: Add pictures
-	_buttonMobileShop      ctrlSetText (NWG_UP_Settings get "BUTTON_MOBLSHOP_ICON");
-	_buttonMoneyTransfer   ctrlSetText (NWG_UP_Settings get "BUTTON_MTRANSFR_ICON");
-	_buttonGroupManagement ctrlSetText (NWG_UP_Settings get "BUTTON_GROUPMNG_ICON");
-	_buttonDocuments       ctrlSetText (NWG_UP_Settings get "BUTTON_DOCUMNTS_ICON");
-	_buttonPlayerInfo      ctrlSetText (NWG_UP_Settings get "BUTTON_PLR_INFO_ICON");
-	_buttonSettings        ctrlSetText (NWG_UP_Settings get "BUTTON_SETTINGS_ICON");
+	//Add central buttons
+	{
+		private _ctrlName = format ["UPMM_Button0%1",_x];
+		private _icon     = format ["MM_BUTTON_0%1_ICON",_x];
+		private _tooltip  = format ["MM_BUTTON_0%1_TOOLTIP",_x];
+		private _onClick  = format ["MM_BUTTON_0%1_ONCLICK",_x];
 
-	//Buttons: Add tooltips
-	_buttonMobileShop      ctrlSetTooltip ("#UP_BUTTON_MOBLSHOP_TOOLTIP#" call NWG_fnc_localize);
-	_buttonMoneyTransfer   ctrlSetTooltip ("#UP_BUTTON_MTRANSFR_TOOLTIP#" call NWG_fnc_localize);
-	_buttonGroupManagement ctrlSetTooltip ("#UP_BUTTON_GROUPMNG_TOOLTIP#" call NWG_fnc_localize);
-	_buttonDocuments       ctrlSetTooltip ("#UP_BUTTON_DOCUMNTS_TOOLTIP#" call NWG_fnc_localize);
-	_buttonPlayerInfo      ctrlSetTooltip ("#UP_BUTTON_PLR_INFO_TOOLTIP#" call NWG_fnc_localize);
-	_buttonSettings        ctrlSetTooltip ("#UP_BUTTON_SETTINGS_TOOLTIP#" call NWG_fnc_localize);
+		_icon    = NWG_UP_Settings get _icon;
+		_tooltip = NWG_UP_Settings get _tooltip;
+		_onClick = NWG_UP_Settings get _onClick;
 
-	//Buttons: Add click handlers
-	_buttonMobileShop ctrlAddEventHandler ["ButtonClick",{
-		//TODO
-		systemChat "Mobile shop: Will be added later...";
-	}];
-	_buttonMoneyTransfer ctrlAddEventHandler ["ButtonClick",{
-		//TODO
-		systemChat "Money transfer: Will be added later...";
-	}];
-	_buttonGroupManagement ctrlAddEventHandler ["ButtonClick",{
-		//TODO
-		systemChat "Group management: Will be added later...";
-	}];
-	_buttonDocuments ctrlAddEventHandler ["ButtonClick",{
-		//TODO
-		systemChat "Documents: Will be added later...";
-	}];
-	_buttonPlayerInfo ctrlAddEventHandler ["ButtonClick",{
-		//TODO
-		systemChat "Player info: Will be added later...";
-	}];
-	_buttonSettings ctrlAddEventHandler ["ButtonClick",{
-		//TODO
-		systemChat "Settings: Will be added later...";
-	}];
+		private _buttonCtrl = _planshetGUI ctrlCreate [_ctrlName,-1];
+		_buttonCtrl ctrlSetText _icon;
+		_buttonCtrl ctrlSetTooltip (_tooltip call NWG_fnc_localize);
+		_buttonCtrl ctrlAddEventHandler ["ButtonClick",_onClick];
+	} forEach [1,2,3,4,5,6];
 
 	//return
-	true
+	_planshetGUI
 };
 
 //================================================================================================================
@@ -127,43 +109,48 @@ NWG_UP_OpenMainMenu = {
 NWG_UP_OpenSecondaryMenu = {
 	disableSerialization;
 
-	private _backgroundGUI = call NWG_UP_OpenBackground;
-	if (_backgroundGUI isEqualTo false) exitWith {
+	private _planshetGUI = call NWG_UP_OpenBackground;
+	if (_planshetGUI isEqualTo false) exitWith {
 		"NWG_UP_OpenSecondaryMenu: Failed to open background" call NWG_fnc_logError;
 		false
 	};
 
-	//Add controls
-	private _playerMoneyText = _backgroundGUI ctrlCreate ["UPSM_PlayerMoneyText",-1];
-	private _playerInfoText = _backgroundGUI ctrlCreate ["UPSM_PlayerInfoText",-1];
-	private _listBox = _backgroundGUI ctrlCreate ["UPSM_ListBox",-1];
+	//Add top panel texts
+	{
+		private _ctrlName = format ["UPSM_%1",_x];
+		private _textFunc = format ["SM_%1_FILL_FUNC",_x];
 
-	//Top panel: Add text
-	_playerMoneyText ctrlSetText (call NWG_UP_GetPlayerMoneyString);
-	_playerInfoText  ctrlSetText (call NWG_UP_GetPlayerInfoString);
+		_textFunc = NWG_UP_Settings get _textFunc;
+
+		private _textCtrl = _planshetGUI ctrlCreate [_ctrlName,-1];
+		_textCtrl ctrlSetText (call _textFunc);
+	} forEach ["TextLeft","TextRight"];
+
+	//Add listbox in the middle
+	private _listBox = _planshetGUI ctrlCreate ["UPSM_ListBox",-1];
 
 	//return
-	[_backgroundGUI,_listBox]
+	_planshetGUI
 };
 
 //================================================================================================================
 //================================================================================================================
-//Vehicles shop
-NWG_UP_OpenVehiclesShop = {
+//Secondary with dropdown
+NWG_UP_OpenSecondaryWithDropdown = {
 	disableSerialization;
 
 	//Open background
-	private _backgroundGUI = call NWG_UP_OpenBackground;
-	if (_backgroundGUI isEqualTo false) exitWith {
-		"NWG_UP_OpenVehiclesShop: Failed to open background" call NWG_fnc_logError;
+	private _planshetGUI = call NWG_UP_OpenBackground;
+	if (_planshetGUI isEqualTo false) exitWith {
+		"NWG_UP_OpenSecondaryWithDropdown: Failed to open background" call NWG_fnc_logError;
 		false
 	};
 
 	//Add controls
-	private _playerMoneyText = _backgroundGUI ctrlCreate ["UPVS_PlayerMoneyText",-1];
-	private _shopDropdown = _backgroundGUI ctrlCreate ["UPVS_ShopDropdown",-1];
-	private _shopList = _backgroundGUI ctrlCreate ["UPVS_ShopList",-1];
+	_planshetGUI ctrlCreate ["UPSWD_TextLeft",-1];
+	_planshetGUI ctrlCreate ["UPSWD_Dropdown",-1];
+	_planshetGUI ctrlCreate ["UPSWD_ListBox",-1];
 
 	//return
-	[_backgroundGUI,_shopList]
+	_planshetGUI
 };

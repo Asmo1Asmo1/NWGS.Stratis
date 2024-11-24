@@ -2,13 +2,13 @@
 $[
 	1.063,
 	["userPlanshetUIBase",[["0.5","0.5","0","0"],"2.5 * pixelW * pixelGrid","2.5 * pixelH * pixelGrid","UI_GRID"],0,0,0],
-	[1000,"PlayerMoneyText",[2,"1,100,100",["-15.5 * UI_GRID_W + UI_GRID_X","-9.5 * UI_GRID_H + UI_GRID_Y","12.5 * UI_GRID_W","1 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
-	[1001,"PlayerInfoText",[2,"[lvl85] Player",["3 * UI_GRID_W + UI_GRID_X","-9.5 * UI_GRID_H + UI_GRID_Y","12.5 * UI_GRID_W","1 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
-	[1200,"MoneyTransferButton",[2,"\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa",["-2 * UI_GRID_W + UI_GRID_X","-5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
-	[1201,"InfoButton",[2,"\A3\ui_f\data\igui\cfg\simpleTasks\types\whiteboard_ca.paa",["-2 * UI_GRID_W + UI_GRID_X","2.5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
-	[1202,"DocumentsButton",[2,"\A3\ui_f\data\igui\cfg\simpleTasks\types\documents_ca.paa",["-9.5 * UI_GRID_W + UI_GRID_X","2.5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
-	[1203,"SettingsButton",[2,"\A3\ui_f\data\igui\cfg\simpleTasks\types\use_ca.paa",["5.5 * UI_GRID_W + UI_GRID_X","2.5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
-	[1205,"MobileShopButton",[2,"\A3\ui_f_orange\data\cfgTaskTypes\airdrop_ca.paa",["-9.5 * UI_GRID_W + UI_GRID_X","-5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
-	[1206,"GroupManagementButton",[2,"\A3\ui_f\data\igui\cfg\simpleTasks\types\meet_ca.paa",["5.5 * UI_GRID_W + UI_GRID_X","-5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]]
+	[1000,"UPMM_TextLeft",[2,"1,100,100",["-15.5 * UI_GRID_W + UI_GRID_X","-9.5 * UI_GRID_H + UI_GRID_Y","12.5 * UI_GRID_W","1 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1001,"UPMM_TextRight",[2,"[lvl85] Player",["3 * UI_GRID_W + UI_GRID_X","-9.5 * UI_GRID_H + UI_GRID_Y","12.5 * UI_GRID_W","1 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1200,"UPMM_Button01",[2,"\A3\ui_f_orange\data\cfgTaskTypes\airdrop_ca.paa",["-9.5 * UI_GRID_W + UI_GRID_X","-5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1201,"UPMM_Button02",[2,"\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa",["-2 * UI_GRID_W + UI_GRID_X","-5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1202,"UPMM_Button03",[2,"\A3\ui_f\data\igui\cfg\simpleTasks\types\meet_ca.paa",["5.5 * UI_GRID_W + UI_GRID_X","-5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1203,"UPMM_Button04",[2,"\A3\ui_f\data\igui\cfg\simpleTasks\types\documents_ca.paa",["-9.5 * UI_GRID_W + UI_GRID_X","2.5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1204,"UPMM_Button05",[2,"\A3\ui_f\data\igui\cfg\simpleTasks\types\whiteboard_ca.paa",["-2 * UI_GRID_W + UI_GRID_X","2.5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]],
+	[1205,"UPMM_Button06",[2,"\A3\ui_f\data\igui\cfg\simpleTasks\types\use_ca.paa",["5.5 * UI_GRID_W + UI_GRID_X","2.5 * UI_GRID_H + UI_GRID_Y","4 * UI_GRID_W","4 * UI_GRID_H"],[-1,-1,-1,-1],[-1,-1,-1,-1],[-1,-1,-1,-1],"","-1"],[]]
 ]
 */
