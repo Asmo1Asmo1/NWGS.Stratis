@@ -52,6 +52,13 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_BLAME_WOUND_DAMAGER#","%2 ранен %1"],
     ["#MED_BLAME_KILL_NOBODYS#","%1 казнён"],
     ["#MED_BLAME_KILL_DAMAGER#","%2 казнён %1"],
+    //userPlanshet
+    ["#UP_BUTTON_MOBLSHOP_TOOLTIP#","Мобильный магазин"],
+    ["#UP_BUTTON_MTRANSFR_TOOLTIP#","Перевод денег"],
+    ["#UP_BUTTON_GROUPMNG_TOOLTIP#","Управление группой"],
+    ["#UP_BUTTON_DOCUMNTS_TOOLTIP#","Документы"],
+    ["#UP_BUTTON_PLR_INFO_TOOLTIP#","Информация об игроке"],
+    ["#UP_BUTTON_SETTINGS_TOOLTIP#","Настройки"],
     //voting
     ["#VOTE_COUNTER_TEMPLATE#","Введите + или - в чат\n[+]:%2 [-]:%3 (%4)сек"],
     ["#VOTE_HINT_ABORTED#","Голосование отменено"],

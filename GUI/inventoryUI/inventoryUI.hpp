@@ -11,7 +11,7 @@
 // GUI EDITOR OUTPUT START (by Asmo, v1.063, #Synixy)
 ////////////////////////////////////////////////////////
 
-class TextWeight: RscText
+class IUI_TextWeight: RscText
 {
 	idc = 1000;
 	text = "17kg"; //--- ToDo: Localize;
@@ -21,30 +21,30 @@ class TextWeight: RscText
 	w = 3.5 * UI_GRID_W;
 	h = 1.5 * UI_GRID_H;
 };
-class ButtonCommon: RscActivePictureKeepAspect
+class IUI_ButtonCommon: RscActivePictureKeepAspect
 {
 	w = 2.5 * UI_GRID_W;
 	h = 2.5 * UI_GRID_H;
 };
-class ButtonWeaponSwitch: ButtonCommon
+class IUI_ButtonWeaponSwitch: IUI_ButtonCommon
 {
 	idc = 1600;
 	x = 17.2 * UI_GRID_W + UI_GRID_X;
 	y = -5.7 * UI_GRID_H + UI_GRID_Y;
 };
-class ButtonLoot: ButtonCommon
+class IUI_ButtonLoot: IUI_ButtonCommon
 {
 	idc = 1601;
 	x = -20.5 * UI_GRID_W + UI_GRID_X;
 	y = -10.1 * UI_GRID_H + UI_GRID_Y;
 };
-class ButtonUniform: ButtonCommon
+class IUI_ButtonUniform: IUI_ButtonCommon
 {
 	idc = 1602;
 	x = -20.5 * UI_GRID_W + UI_GRID_X;
 	y = -7.1 * UI_GRID_H + UI_GRID_Y;
 };
-class ButtonMagRepack: ButtonCommon
+class IUI_ButtonMagRepack: IUI_ButtonCommon
 {
 	idc = 1603;
 	x = -20.5 * UI_GRID_W + UI_GRID_X;

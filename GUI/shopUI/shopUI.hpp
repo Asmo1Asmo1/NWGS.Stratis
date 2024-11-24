@@ -36,7 +36,7 @@ class shopUI {
 		// GUI EDITOR OUTPUT START (by Asmo, v1.063, #Difake)
 		////////////////////////////////////////////////////////
 
-		class PlayerList: RscListbox
+		class SUI_PlayerList: RscListbox
 		{
 			idc = 1500;
 			x = -29 * UI_GRID_W + UI_GRID_X;
@@ -45,7 +45,7 @@ class shopUI {
 			h = 32 * UI_GRID_H;
 			rowHeight = 2.0 * UI_GRID_H;
 		};
-		class ShopList: RscListbox
+		class SUI_ShopList: RscListbox
 		{
 			idc = 1501;
 			x = 13 * UI_GRID_W + UI_GRID_X;
@@ -54,17 +54,17 @@ class shopUI {
 			h = 32 * UI_GRID_H;
 			rowHeight = 2.0 * UI_GRID_H;
 		};
-		class PlayerMoneyText: RscText
+		class SUI_PlayerMoneyText: RscText
 		{
 			idc = 1000;
-			text = "$1.100.100";
+			text = "$€1,100,100";
 			x = -29 * UI_GRID_W + UI_GRID_X;
 			y = -18 * UI_GRID_H + UI_GRID_Y;
 			w = 16 * UI_GRID_W;
 			h = 1 * UI_GRID_H;
 			colorBackground[] = {0,0,0,1};
 		};
-		class ShopMoneyText: RscText
+		class SUI_ShopMoneyText: RscText
 		{
 			idc = 1001;
 			text = "$1.100.100";
@@ -74,7 +74,7 @@ class shopUI {
 			h = 1 * UI_GRID_H;
 			colorBackground[] = {0,0,0,1};
 		};
-		class PlayerX1Button: RscButton
+		class SUI_PlayerX1Button: RscButton
 		{
 			idc = 1600;
 			text = "x1"; //--- ToDo: Localize;
@@ -83,7 +83,7 @@ class shopUI {
 			w = 2 * UI_GRID_W;
 			h = 1 * UI_GRID_H;
 		};
-		class PlayerX10Button: RscButton
+		class SUI_PlayerX10Button: RscButton
 		{
 			idc = 1601;
 			text = "x10"; //--- ToDo: Localize;
@@ -92,7 +92,7 @@ class shopUI {
 			w = 2 * UI_GRID_W;
 			h = 1 * UI_GRID_H;
 		};
-		class PlayerAllButton: RscButton
+		class SUI_PlayerAllButton: RscButton
 		{
 			idc = 1602;
 			text = "All"; //--- ToDo: Localize;
@@ -101,7 +101,7 @@ class shopUI {
 			w = 2 * UI_GRID_W;
 			h = 1 * UI_GRID_H;
 		};
-		class PlayerDropdown: RscCombo
+		class SUI_PlayerDropdown: RscCombo
 		{
 			idc = 2100;
 			x = -29 * UI_GRID_W + UI_GRID_X;
@@ -109,7 +109,7 @@ class shopUI {
 			w = 8.5 * UI_GRID_W;
 			h = 1 * UI_GRID_H;
 		};
-		class ShopDropdonw: RscCombo
+		class SUI_ShopDropdown: RscCombo
 		{
 			idc = 2101;
 			x = 13 * UI_GRID_W + UI_GRID_X;
@@ -117,7 +117,7 @@ class shopUI {
 			w = 8.5 * UI_GRID_W;
 			h = 1 * UI_GRID_H;
 		};
-		class ShopX1Button: RscButton
+		class SUI_ShopX1Button: RscButton
 		{
 			idc = 1603;
 			text = "x1"; //--- ToDo: Localize;
@@ -126,7 +126,7 @@ class shopUI {
 			w = 2 * UI_GRID_W;
 			h = 1 * UI_GRID_H;
 		};
-		class ShopX10Button: RscButton
+		class SUI_ShopX10Button: RscButton
 		{
 			idc = 1604;
 			text = "x10"; //--- ToDo: Localize;
@@ -135,7 +135,7 @@ class shopUI {
 			w = 2 * UI_GRID_W;
 			h = 1 * UI_GRID_H;
 		};
-		class ShopAllButton: RscButton
+		class SUI_ShopAllButton: RscButton
 		{
 			idc = 1605;
 			text = "All"; //--- ToDo: Localize;
