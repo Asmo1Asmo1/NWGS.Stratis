@@ -38,24 +38,55 @@ NWG_UP_Settings = createHashMapFromArray [
 	/*Secondary menu layout*/
 	["SM_TextLeft_FILL_FUNC", {(player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney}],
 	["SM_TextRight_FILL_FUNC",{name player}],
+	["SM_ADD_CLOSING_TITLE_TO_LIST",true],
 
     ["",0]
 ];
 
 //================================================================================================================
 //================================================================================================================
-//Background
-NWG_UP_OpenBackground = {
+//Background and window management
+#define WINDOW_OBJ 0
+#define WINDOW_NAME 1
+#define EMPTY_NAME false
+
+NWG_UP_OpenWindow = {
+	private _windowName = _this;
 	disableSerialization;
 
 	private _planshetGUI = createDialog [BACKGROUND_DIALOGUE_NAME,true];
 	if (isNull _planshetGUI) exitWith {
-		"NWG_UP_OpenBackground: Failed to create dialog" call NWG_fnc_logError;
+		"NWG_UP_OpenWindow: Failed to create dialog" call NWG_fnc_logError;
 		false
 	};
 
+	private _curWindows = uiNamespace getVariable ["NWG_UP_Windows",[]];
+	_curWindows pushBack [_planshetGUI,_windowName];
+	uiNamespace setVariable ["NWG_UP_Windows",_curWindows];
+
+	_planshetGUI addEventHandler ["Unload",{
+		private _curWindows = uiNamespace getVariable ["NWG_UP_Windows",[]];
+		if ((count _curWindows) > 0) then {
+			_curWindows deleteAt ((count _curWindows) - 1);
+			uiNamespace setVariable ["NWG_UP_Windows",_curWindows];
+		};
+	}];
+
 	//return
 	_planshetGUI
+};
+
+NWG_UP_GetAllWindowNames = {
+	disableSerialization;
+	((uiNamespace getVariable ["NWG_UP_Windows",[]]) apply {_x select WINDOW_NAME}) select {_x isEqualType ""}
+};
+
+NWG_UP_CloseAllWindows = {
+	disableSerialization;
+	private _curWindows = uiNamespace getVariable ["NWG_UP_Windows",[]];
+	uiNamespace setVariable ["NWG_UP_Windows",[]];
+	{(_x select WINDOW_OBJ) closeDisplay 2} forEachReversed _curWindows;
+	_curWindows resize 0;
 };
 
 //================================================================================================================
@@ -65,7 +96,7 @@ NWG_UP_OpenMainMenu = {
 	disableSerialization;
 
 	//Open background
-	private _planshetGUI = call NWG_UP_OpenBackground;
+	private _planshetGUI = EMPTY_NAME call NWG_UP_OpenWindow;
 	if (_planshetGUI isEqualTo false) exitWith {
 		"NWG_UP_OpenMainMenu: Failed to open background" call NWG_fnc_logError;
 		false
@@ -107,9 +138,10 @@ NWG_UP_OpenMainMenu = {
 //================================================================================================================
 //Secondary menu
 NWG_UP_OpenSecondaryMenu = {
+	private _windowName = _this;
 	disableSerialization;
 
-	private _planshetGUI = call NWG_UP_OpenBackground;
+	private _planshetGUI = _windowName call NWG_UP_OpenWindow;
 	if (_planshetGUI isEqualTo false) exitWith {
 		"NWG_UP_OpenSecondaryMenu: Failed to open background" call NWG_fnc_logError;
 		false
@@ -129,18 +161,30 @@ NWG_UP_OpenSecondaryMenu = {
 	//Add listbox in the middle
 	private _listBox = _planshetGUI ctrlCreate ["UPSM_ListBox",-1];
 
+	//Add 'Window title'+'Close window' at the same time in form of the first line of the listbox
+	if (NWG_UP_Settings get "SM_ADD_CLOSING_TITLE_TO_LIST") then {
+		private _windowNames = (call NWG_UP_GetAllWindowNames) apply {_x call NWG_fnc_localize};
+		private _topLine = _windowNames joinString " > ";
+		_listBox lbAdd _topLine;
+		_listBox ctrlAddEventHandler ["LBDblClick",{
+			params ["_listBox","_selectedIndex"];
+			if (_selectedIndex == 0)
+				then {(ctrlParent  _listBox) closeDisplay 2};
+		}];
+	};
+
 	//return
 	_planshetGUI
 };
 
 //================================================================================================================
 //================================================================================================================
-//Secondary with dropdown
+//Secondary with dropdown (combination of planshet UI and shopUI so does not support window names)
 NWG_UP_OpenSecondaryWithDropdown = {
 	disableSerialization;
 
 	//Open background
-	private _planshetGUI = call NWG_UP_OpenBackground;
+	private _planshetGUI = EMPTY_NAME call NWG_UP_OpenWindow;
 	if (_planshetGUI isEqualTo false) exitWith {
 		"NWG_UP_OpenSecondaryWithDropdown: Failed to open background" call NWG_fnc_logError;
 		false
