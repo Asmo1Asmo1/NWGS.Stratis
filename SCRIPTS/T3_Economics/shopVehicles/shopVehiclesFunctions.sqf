@@ -28,6 +28,16 @@ NWG_fnc_vshopOpenPlatformShop = {
 	call NWG_VSHOP_CLI_OpenPlatformShop;
 };
 
+//Open custom shop
+//params:
+// - _interface - interface to use (must contain IDC_SHOPUI_PLAYERMONEYTEXT, IDC_SHOPUI_SHOPDROPDOWN and IDC_SHOPUI_SHOPLIST)
+// - _callback - function to call when player bought vehicle (params: _vehicleClassname)
+//note: this type of shop supports buying vehicles only, not selling
+NWG_fnc_vshopOpenCustomShop = {
+    // params ["_interface","_callback"];
+	call NWG_VSHOP_CLI_OpenCustomShop;
+};
+
 /*Client<->Server*/
 //Request shop values from server
 NWG_fnc_vshopShopValuesRequest = {

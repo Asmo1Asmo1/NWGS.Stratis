@@ -2,8 +2,24 @@
 //================================================================================================================
 //Defines
 //--- userPlanshetBackground
-#define IDC_PLANSHET_BACKGROUND 7102
+// #define IDC_PLANSHET_BACKGROUND 7102
 #define BACKGROUND_DIALOGUE_NAME "planshetBackground"
+
+//--- userPlanshetMainMenu
+// #define IDC_TEXT_LEFT 1000
+// #define IDC_TEXT_RIGHT 1001
+
+// #define IDC_BUTTON_01 1200
+// #define IDC_BUTTON_02 1201
+// #define IDC_BUTTON_03 1202
+// #define IDC_BUTTON_04 1203
+// #define IDC_BUTTON_05 1204
+// #define IDC_BUTTON_06 1205
+
+//--- userPlanshetUIBase
+// #define IDC_TEXT_LEFT 1000
+// #define IDC_TEXT_RIGHT 1001
+// #define IDC_LISTBOX	1501
 
 
 //================================================================================================================
@@ -164,6 +180,7 @@ NWG_UP_OpenSecondaryMenu = {
 	//Add 'Window title'+'Close window' at the same time in form of the first line of the listbox
 	if (NWG_UP_Settings get "SM_ADD_CLOSING_TITLE_TO_LIST") then {
 		private _windowNames = (call NWG_UP_GetAllWindowNames) apply {_x call NWG_fnc_localize};
+		_windowNames = [""] + _windowNames + [""];//Add empty entries at the beginning and at the end for the looks
 		private _topLine = _windowNames joinString " > ";
 		_listBox lbAdd _topLine;
 		_listBox ctrlAddEventHandler ["LBDblClick",{
