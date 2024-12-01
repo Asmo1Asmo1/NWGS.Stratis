@@ -19,8 +19,8 @@ NWG_MIS_SER_ShowAllMissionsOnMap = {
         _pos = _x select 2;
         _rad = _x select 4;
         _markerName = format ["%1_%2",_pageName,_forEachIndex];
-        _marker = createMarker [_markerName,_pos];
-        _marker setMarkerSize [_rad,_rad];
+        _marker = createMarkerLocal [_markerName,_pos];
+        _marker setMarkerSizeLocal [_rad,_rad];
         _marker setMarkerShape "ELLIPSE";
     } forEach _blueprints;
 };
@@ -57,10 +57,10 @@ NWG_MIS_SER_ShowDecoratedBuildings = {
         params ["_bldg","_color"];
         private _markerName = format ["bldg_mrk_%1",_counter];
         _counter = _counter + 1;
-        _marker = createMarker [_markerName,_bldg];
-        _marker setMarkerShape "icon";
-        _marker setMarkerSize [1.25,1.25];
-        _marker setMarkerType "loc_Tourism";
+        _marker = createMarkerLocal [_markerName,_bldg];
+        _marker setMarkerShapeLocal "icon";
+        _marker setMarkerSizeLocal [1.25,1.25];
+        _marker setMarkerTypeLocal "loc_Tourism";
         _marker setMarkerColor _color;
     };
 

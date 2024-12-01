@@ -584,9 +584,9 @@ NWG_MIS_SER_BuildPlayerBase = {
         private ["_markerName","_marker"];
         (NWG_MIS_SER_Settings get "PLAYER_BASE_MARKERS") apply {
             _markerName = format ["playerBase_%1",_i]; _i = _i + 1;
-            _marker = createMarker [_markerName,_playerBaseRoot];
-            _marker setMarkerShape "icon";
-            _marker setMarkerType _x;
+            _marker = createMarkerLocal [_markerName,_playerBaseRoot];
+            _marker setMarkerShapeLocal "icon";
+            _marker setMarkerTypeLocal _x;
             _marker setMarkerSize [_markerSize,_markerSize];
             _markerName
         }
@@ -779,16 +779,16 @@ NWG_MIS_SER_BuildMission_Markers = {
     private _outlineRad   = _this get "OutlineRadius";
 
     //Create background outline
-    private _outline = createMarker ["MIS_BuildMission_Outline",_pos];
-    _outline setMarkerSize [_outlineRad,_outlineRad];
-    _outline setMarkerShape "ELLIPSE";
-    _outline setMarkerColor _markerColor;
+    private _outline = createMarkerLocal ["MIS_BuildMission_Outline",_pos];
+    _outline setMarkerSizeLocal [_outlineRad,_outlineRad];
+    _outline setMarkerShapeLocal "ELLIPSE";
+    _outline setMarkerColorLocal _markerColor;
     _outline setMarkerAlpha _outlineAlpha;
 
     //Create mission marker
-    private _marker = createMarker ["MIS_BuildMission_Marker",_pos];
-    _marker setMarkerType _markerType;
-    _marker setMarkerSize [_markerSize,_markerSize];
+    private _marker = createMarkerLocal ["MIS_BuildMission_Marker",_pos];
+    _marker setMarkerTypeLocal _markerType;
+    _marker setMarkerSizeLocal [_markerSize,_markerSize];
     _marker setMarkerColor _markerColor;
 };
 
@@ -1019,10 +1019,10 @@ NWG_MIS_SER_MarkMissionDone = {
 
     //Create background outline marker
     private _missionName = format ["MIS_%1_Done",(count NWG_MIS_SER_missionsList)];//A little hack to get a unique marker name
-    private _marker = createMarker [_missionName,_pos];
-    _marker setMarkerSize [_outlineRad,_outlineRad];
-    _marker setMarkerShape "ELLIPSE";
-    _marker setMarkerColor (NWG_MIS_SER_Settings get "MISSIONS_DONE_COLOR");
+    private _marker = createMarkerLocal [_missionName,_pos];
+    _marker setMarkerSizeLocal [_outlineRad,_outlineRad];
+    _marker setMarkerShapeLocal "ELLIPSE";
+    _marker setMarkerColorLocal (NWG_MIS_SER_Settings get "MISSIONS_DONE_COLOR");
     _marker setMarkerAlpha (NWG_MIS_SER_Settings get "MISSIONS_DONE_ALPHA");
 
     //Save it to not be deleted
