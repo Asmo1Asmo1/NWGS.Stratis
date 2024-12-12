@@ -142,6 +142,7 @@ _clientModules pushBack ("SCRIPTS\T2_UserInteraction\unformEquip\unformEquip.sqf
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\unformEquip\unformEquipFunctions.sqf" call NWG_fnc_compile);
 //userPlanshet
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\userPlanshet.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\userPlanshetFunctions.sqf" call NWG_fnc_compile);
 //viewDistance
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistance.sqf" call NWG_fnc_compile);
 //voting
@@ -184,6 +185,12 @@ _serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\missionMachineConnector
 _clientModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsTests.sqf" call NWG_fnc_compile)};
+//shopMobile
+_serverModules pushBack ("SCRIPTS\T3_Economics\shopMobile\shopMobileServerSide.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\shopMobile\missionMachineConnector.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\shopMobile\dspawnConnector.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\shopMobile\shopMobileClientSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\shopMobile\shopMobileFunctions.sqf" call NWG_fnc_compile);
 //shopVehicles
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopVehicles\shopVehiclesServerSide.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopVehicles\missionMachineConnector.sqf" call NWG_fnc_compile);
