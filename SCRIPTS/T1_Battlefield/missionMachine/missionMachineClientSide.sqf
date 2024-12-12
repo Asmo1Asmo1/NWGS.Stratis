@@ -66,19 +66,19 @@ NWG_MIS_CLI_OnSelectionOptionsReceived = {
 
         //Create background outline marker
         _markerName = format ["selection_outline_%1",_forEachIndex];
-        _marker = createMarker [_markerName,_pos];
-        _marker setMarkerSize [_radius,_radius];
-        _marker setMarkerShape "ELLIPSE";
-        _marker setMarkerColor _markerColor;
+        _marker = createMarkerLocal [_markerName,_pos];
+        _marker setMarkerSizeLocal [_radius,_radius];
+        _marker setMarkerShapeLocal "ELLIPSE";
+        _marker setMarkerColorLocal _markerColor;
         _marker setMarkerAlpha _outlineAlpha;
         _markers pushBack _marker;
 
         //Create main marker
         _markerName = format ["selection_%1",_forEachIndex];
-        _marker = createMarker [_markerName,_pos];
-        _marker setMarkerType _markerType;
-        _marker setMarkerSize [_markerSize,_markerSize];
-        _marker setMarkerText (format [(NWG_MIS_CLI_Settings get "SELECTION_MARKER_TEXT_TEMPLATE"),_name,_difficulty]);
+        _marker = createMarkerLocal [_markerName,_pos];
+        _marker setMarkerTypeLocal _markerType;
+        _marker setMarkerSizeLocal [_markerSize,_markerSize];
+        _marker setMarkerTextLocal (format [(NWG_MIS_CLI_Settings get "SELECTION_MARKER_TEXT_TEMPLATE"),_name,_difficulty]);
         _marker setMarkerColor _markerColor;
         _markers pushBack _marker;
     } forEach _selections;

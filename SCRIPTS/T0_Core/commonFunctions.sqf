@@ -371,3 +371,48 @@ NWG_fnc_clearContainerCargo = {
     if ((count ((getItemCargo _this)     param [0,[]])) > 0) then {clearItemCargoGlobal _this};
     if ((count ((getBackpackCargo _this) param [0,[]])) > 0) then {clearBackpackCargoGlobal _this};
 };
+
+//===============================================================
+//Modules (lightweight version of BIS modules)
+NWG_fnc_moduleLightning = {
+	private _object = _this;
+	private _pos = position _object;
+    private _owner = _object getVariable ["NWG_owner",objNull];
+
+	//Create explosion effect
+	private _bolt = createVehicle ["LightningBolt",_pos,[],0,"CAN_COLLIDE"];
+    if (!isNull _owner) then {_bolt setShotParents [_owner, _owner]};
+	_bolt setPosATL _pos;
+	_bolt setDamage 1;
+
+	//Create lightning effect on every machine (because sleep and because commands are LA LE)
+	_pos remoteExec ["NWG_fnc_moduleLightning_Local",0];
+};
+
+NWG_fnc_moduleLightning_Local = {
+	private _pos = _this;
+	if (!hasInterface) exitWith {};
+
+	private _light = "#lightpoint" createVehicleLocal _pos;
+	_light setPosATL (_pos vectorAdd [0,0,10]);
+	_light setLightDayLight true;
+	_light setLightBrightness 300;
+	_light setLightAmbient [0.05, 0.05, 0.1];
+	_light setLightColor [1, 1, 2];
+
+	sleep 0.15;
+	_light setLightBrightness 0;
+	sleep (random 0.15);
+
+	private _class = selectRandom ["lightning1_F","lightning2_F"];
+	private _lightning = _class createVehicleLocal [100,100,100];
+	_lightning setDir (random 360);
+	_lightning setPos _pos;
+	for "_i" from 0 to 3 do {
+		_light setLightBrightness (100 + random 100);
+		sleep 0.15;
+	};
+
+	deleteVehicle _lightning;
+	deleteVehicle _light;
+};

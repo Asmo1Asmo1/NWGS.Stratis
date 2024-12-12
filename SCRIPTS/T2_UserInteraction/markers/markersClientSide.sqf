@@ -4,6 +4,7 @@
 NWG_MARKERS_Settings = createHashMapFromArray [
     ["REFRESH_RATE",1],//How often to refresh markers
     ["HEIGHT_DELTA",5],//If unit is higer/lower than N meters - change marker type
+    ["ALLOW_AI_UNITS",true],//Allow AI units to be visible on the map
 
     ["",0]
 ];
@@ -93,6 +94,10 @@ NWG_MARKERS_Draw = {
     private _newMarkers = [];
     private _playerAltitude = (getPosASL player)#2;
     private _units = (call NWG_fnc_getPlayersAll) select {alive _x && {(side (group _x)) isEqualTo (side (group player))}};
+    if (NWG_MARKERS_Settings get "ALLOW_AI_UNITS") then {
+        _units append ((units (group player)) select {alive _x && {!isPlayer _x}});
+    };
+
     private _onFoot = _units select {(vehicle _x) isEqualTo _x};
     private _vehicles = (_units - _onFoot) apply {vehicle _x};
     _vehicles = _vehicles arrayIntersect _vehicles;//Remove duplicates

@@ -118,3 +118,10 @@ NWG_fnc_dtsGenerateDotsCloud = {
     //params ["_pos","_rad","_count"];
     _this call NWG_DOTS_GenerateDotsCloud
 };
+
+//Returns configured air height for air spawn points
+//returns:
+//number
+NWG_fnc_dtsGetAirHeight = {
+    (selectRandom (NWG_DOTS_Settings get "AREA_AIR_HEIGHT"))
+};

@@ -24,7 +24,7 @@
 
 //Shop types
 #define SHOP_TYPE_PLATFM "PLATFM"
-#define SHOP_TYPE_MOBILE "MOBILE"
+#define SHOP_TYPE_CUSTOM "CUSTOM"
 
 //Platform check result
 #define PLATFORM_ERROR -1
@@ -79,9 +79,49 @@ NWG_VSHOP_CLI_OpenPlatformShop = {
 	//The rest will be done once server responds
 };
 
+NWG_VSHOP_CLI_OpenCustomShop = {
+	params [["_interface",displayNull],["_callback",{}]];
+
+	//Save shop type for when server responds
+	NWG_VSHOP_CLI_shopType = SHOP_TYPE_CUSTOM;
+
+	//Save custom shop interface and callback
+	uiNamespace setVariable ["NWG_VSHOP_CLI_customShopInterface",_interface];
+	uiNamespace setVariable ["NWG_VSHOP_CLI_customShopCallback",_callback];
+
+	//Request shop values from server (with empty list of owned vehicles)
+	[player,[]] remoteExec ["NWG_fnc_vshopShopValuesRequest",2];
+
+	//The rest will be done once server responds
+};
+
 NWG_VSHOP_CLI_OnServerResponse = {
+	// params ["_shopItems","_allItems","_allPrices"];
+
+	switch (NWG_VSHOP_CLI_shopType) do {
+		case SHOP_TYPE_PLATFM: {_this call NWG_VSHOP_CLI_OnServerResponse_Platform};
+		case SHOP_TYPE_CUSTOM: {_this call NWG_VSHOP_CLI_OnServerResponse_Custom};
+		default {
+			(format ["NWG_VSHOP_CLI_OnServerResponse: Unknown shop type '%1'",NWG_VSHOP_CLI_shopType]) call NWG_fnc_logError;
+		};
+	};
+};
+
+NWG_VSHOP_CLI_OnServerResponse_Platform = {
 	disableSerialization;
 	params ["_shopItems","_allItems","_allPrices"];
+
+	//Check if shop dialog already open
+	if (!isNull (findDisplay IDC_SHOPUI_DIALOGUE)) exitWith {
+		"NWG_VSHOP_CLI_OnServerResponse: Shop dialog is already open" call NWG_fnc_logError;
+	};
+
+	//Create shop dialog
+	private _shopGUI = createDialog [SHOP_UI_DIALOGUE_NAME,true];
+	if (isNull _shopGUI) exitWith {
+		"NWG_VSHOP_CLI_OnServerResponse: Failed to create shop dialog" call NWG_fnc_logError;
+	};
+	uiNamespace setVariable ["NWG_VSHOP_CLI_shopGUI",_shopGUI];
 
 	//Re-get owned vehicles (things could have changed since request)
 	private _ownedVehicles = call NWG_VSHOP_CLI_GetOwnedVehicles;
@@ -113,21 +153,8 @@ NWG_VSHOP_CLI_OnServerResponse = {
 		};
 	} forEach _ownedVehiclesClassnames;
 
-	//Check if shop dialog is already open
-	if (!isNull (findDisplay IDC_SHOPUI_DIALOGUE)) exitWith {
-		"NWG_VSHOP_CLI_OnServerResponse: Shop dialog is already open" call NWG_fnc_logError;
-	};
-
-	//Create shop dialog
-	private _shopGUI = createDialog [SHOP_UI_DIALOGUE_NAME,true];
-	if (isNull _shopGUI) exitWith {
-		"NWG_VSHOP_CLI_OnServerResponse: Failed to create shop dialog" call NWG_fnc_logError;
-	};
-	uiNamespace setVariable ["NWG_VSHOP_CLI_shopGUI",_shopGUI];
-
 	//Save shop arguments
-	private _sellPool = [_ownedVehicles,_ownedVehiclesClassnames];//Relation between unified classnames and actual vehicle objects
-	uiNamespace setVariable ["NWG_VSHOP_CLI_sellPool",_sellPool];
+	uiNamespace setVariable ["NWG_VSHOP_CLI_sellPool",[_ownedVehicles,_ownedVehiclesClassnames]];//Relation between unified classnames and actual vehicle objects
 	uiNamespace setVariable ["NWG_VSHOP_CLI_playerLoot",_playerLoot];
 	uiNamespace setVariable ["NWG_VSHOP_CLI_shopItems",_shopItems];
 
@@ -217,6 +244,80 @@ NWG_VSHOP_CLI_OnServerResponse = {
 		uiNamespace setVariable ["NWG_VSHOP_CLI_shListCat",nil];
 		uiNamespace setVariable ["NWG_VSHOP_CLI_plList",nil];
 		uiNamespace setVariable ["NWG_VSHOP_CLI_shList",nil];
+    }];
+};
+
+NWG_VSHOP_CLI_OnServerResponse_Custom = {
+	disableSerialization;
+	params ["_shopItems","_allItems","_allPrices"];
+
+	//Check if shop dialog is still open
+	private _shopGUI = uiNamespace getVariable ["NWG_VSHOP_CLI_customShopInterface",displayNull];
+	if (isNull _shopGUI) exitWith {
+		"NWG_VSHOP_CLI_OnServerResponse: Custom shop dialog is null" call NWG_fnc_logError;
+	};
+
+	//Save shop arguments
+	uiNamespace setVariable ["NWG_VSHOP_CLI_shopGUI",_shopGUI];
+	uiNamespace setVariable ["NWG_VSHOP_CLI_sellPool",[[],[]]];
+	uiNamespace setVariable ["NWG_VSHOP_CLI_playerLoot",LOOT_VEHC_DEFAULT_CHART];
+	uiNamespace setVariable ["NWG_VSHOP_CLI_shopItems",_shopItems];
+
+	//Init transaction
+	[_allItems,_allPrices] call NWG_VSHOP_CLI_TRA_OnOpen;
+
+	//Initialize UI top to bottom
+	//Init player money
+	(call NWG_VSHOP_CLI_TRA_GetPlayerMoney) call NWG_VSHOP_CLI_UpdatePlayerMoneyText;
+
+	//Init shop category dropdown
+	private _dropdown = _shopGUI displayCtrl IDC_SHOPUI_SHOPDROPDOWN;
+	private _index = -1;
+	{
+		_x params ["_cat","_title"];
+		_index = _dropdown lbAdd (_title call NWG_fnc_localize);
+		_dropdown lbSetData [_index,_cat];
+	} forEach [
+		[LOOT_VEHC_TYPE_ALL,"#VSHOP_CAT_ALL#"],
+		[LOOT_VEHC_TYPE_AAIR,"#VSHOP_CAT_AAIR#"],
+		[LOOT_VEHC_TYPE_APCS,"#VSHOP_CAT_APCS#"],
+		[LOOT_VEHC_TYPE_ARTY,"#VSHOP_CAT_ARTY#"],
+		[LOOT_VEHC_TYPE_BOAT,"#VSHOP_CAT_BOAT#"],
+		[LOOT_VEHC_TYPE_CARS,"#VSHOP_CAT_CARS#"],
+		[LOOT_VEHC_TYPE_DRON,"#VSHOP_CAT_DRON#"],
+		[LOOT_VEHC_TYPE_HELI,"#VSHOP_CAT_HELI#"],
+		[LOOT_VEHC_TYPE_PLAN,"#VSHOP_CAT_PLAN#"],
+		[LOOT_VEHC_TYPE_SUBM,"#VSHOP_CAT_SUBM#"],
+		[LOOT_VEHC_TYPE_TANK,"#VSHOP_CAT_TANK#"]
+	];
+	_dropdown lbSetCurSel 0;
+	_dropdown setVariable ["isPlayerSide",false];
+	_dropdown ctrlAddEventHandler ["LBSelChanged",{_this call NWG_VSHOP_CLI_OnDropdownSelect}];
+	uiNamespace setVariable ["NWG_VSHOP_CLI_shListCat",LOOT_VEHC_TYPE_ALL];
+
+	//Init shop list
+	private _shList = (_shopGUI displayCtrl IDC_SHOPUI_SHOPLIST);
+	_shList setVariable ["isPlayerSide",false];
+	uiNamespace setVariable ["NWG_VSHOP_CLI_shList",_shList];
+	[false,LOOT_VEHC_TYPE_ALL] call NWG_VSHOP_CLI_UpdateItemsList;
+	_shList ctrlAddEventHandler ["LBDblClick",{_this call NWG_VSHOP_CLI_OnListDobuleClick}];
+
+	//On close
+	_shopGUI displayAddEventHandler ["Unload",{
+		//Finalize transaction
+		call NWG_VSHOP_CLI_TRA_OnClose;
+
+		//Dispose variables
+		uiNamespace setVariable ["NWG_VSHOP_CLI_shopGUI",nil];
+		uiNamespace setVariable ["NWG_VSHOP_CLI_sellPool",nil];
+		uiNamespace setVariable ["NWG_VSHOP_CLI_playerLoot",nil];
+		uiNamespace setVariable ["NWG_VSHOP_CLI_shopItems",nil];
+		uiNamespace setVariable ["NWG_VSHOP_CLI_shListCat",nil];
+		uiNamespace setVariable ["NWG_VSHOP_CLI_shList",nil];
+
+		//Dispose custom shop interface and callback
+		uiNamespace setVariable ["NWG_VSHOP_CLI_customShopInterface",nil];
+		uiNamespace setVariable ["NWG_VSHOP_CLI_customShopCallback",nil];
     }];
 };
 
@@ -417,8 +518,8 @@ NWG_VSHOP_CLI_UpdateItemsList = {
 		else {_list setVariable ["listCat",_listCat]};
 
 	private _itemsCollection = if (_isPlayerSide)
-		then {uiNamespace getVariable ["NWG_VSHOP_CLI_playerLoot",[]]}
-		else {uiNamespace getVariable ["NWG_VSHOP_CLI_shopItems",[]]};
+		then {uiNamespace getVariable ["NWG_VSHOP_CLI_playerLoot",LOOT_VEHC_DEFAULT_CHART]}
+		else {uiNamespace getVariable ["NWG_VSHOP_CLI_shopItems", LOOT_VEHC_DEFAULT_CHART]};
 
 	private _itemsToShow = switch (_listCat) do {
 		case LOOT_VEHC_TYPE_ALL: {flatten _itemsCollection};
@@ -480,7 +581,6 @@ NWG_VSHOP_CLI_FormatListRecord = {
 //================================================================================================================
 //================================================================================================================
 //Buy|Sell logic (on list double click)
-
 NWG_VSHOP_CLI_OnListDobuleClick = {
 	params ["_control","_selectedIndex"];
 
@@ -508,8 +608,8 @@ NWG_VSHOP_CLI_OnListDobuleClick = {
 
 	//Find item in 'source' collection
 	private _sourceCollection = if (_isPlayerSide)
-		then {uiNamespace getVariable ["NWG_VSHOP_CLI_playerLoot",[]]}
-		else {uiNamespace getVariable ["NWG_VSHOP_CLI_shopItems",[]]};
+		then {uiNamespace getVariable ["NWG_VSHOP_CLI_playerLoot",LOOT_VEHC_DEFAULT_CHART]}
+		else {uiNamespace getVariable ["NWG_VSHOP_CLI_shopItems", LOOT_VEHC_DEFAULT_CHART]};
 	([_item,_sourceCollection] call _findInCollection) params ["_categoryIndex","_itemIndex"];
 	if (_categoryIndex == -1) exitWith {
 		"NWG_VSHOP_CLI_OnListDobuleClick: Item not found in collection" call NWG_fnc_logError;
@@ -558,8 +658,8 @@ NWG_VSHOP_CLI_OnListDobuleClick = {
 
 	//Move to 'target' collection
 	private _targetCollection = if (_isPlayerSide)
-		then {uiNamespace getVariable ["NWG_VSHOP_CLI_shopItems",[]]}
-		else {uiNamespace getVariable ["NWG_VSHOP_CLI_playerLoot",[]]};
+		then {uiNamespace getVariable ["NWG_VSHOP_CLI_shopItems", LOOT_VEHC_DEFAULT_CHART]}
+		else {uiNamespace getVariable ["NWG_VSHOP_CLI_playerLoot",LOOT_VEHC_DEFAULT_CHART]};
 	([_item,_targetCollection] call _findInCollection) params ["","_itemIndex"];
 	if (_itemIndex != -1) then {
 		//Insert item into target collection
@@ -582,27 +682,40 @@ NWG_VSHOP_CLI_OnListDobuleClick = {
 		uiNamespace setVariable ["NWG_VSHOP_CLI_playerLoot",_targetCollection];
 	};
 
-	//Update UI
-	[_isPlayerSide,"",true] call NWG_VSHOP_CLI_UpdateItemsList;//Update source list
-	[!_isPlayerSide,"",false] call NWG_VSHOP_CLI_UpdateItemsList;//Update target list
-	(call NWG_VSHOP_CLI_TRA_GetPlayerMoney) call NWG_VSHOP_CLI_UpdatePlayerMoneyText;//Update player money text
-	[(NWG_VSHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_ON_SUCCESS"),1] call NWG_VSHOP_CLI_BlinkPlayerMoney;//Blink player money
+	//Finalize buy/sell
+	switch (NWG_VSHOP_CLI_shopType) do {
+		case SHOP_TYPE_PLATFM: {
+			//Update UI
+			[_isPlayerSide,"",true] call NWG_VSHOP_CLI_UpdateItemsList;//Update source list
+			[!_isPlayerSide,"",false] call NWG_VSHOP_CLI_UpdateItemsList;//Update target list
+			(call NWG_VSHOP_CLI_TRA_GetPlayerMoney) call NWG_VSHOP_CLI_UpdatePlayerMoneyText;//Update player money text
+			[(NWG_VSHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_ON_SUCCESS"),1] call NWG_VSHOP_CLI_BlinkPlayerMoney;//Blink player money
 
-	//Delete sold vehicle
-	if (_isPlayerSide) exitWith {
-		private _vehicle = [_item,true] call NWG_VSHOP_CLI_GetVehicleFromSellPool;
-		if (isNull _vehicle) exitWith {
-			"NWG_VSHOP_CLI_OnListDobuleClick: Vehicle not found in sell pool after check" call NWG_fnc_logError;
+			if (_isPlayerSide) then {
+				//Delete sold vehicle
+				private _vehicle = [_item,true] call NWG_VSHOP_CLI_GetVehicleFromSellPool;
+				if (isNull _vehicle) exitWith {"NWG_VSHOP_CLI_OnListDobuleClick: Vehicle not found in sell pool after check" call NWG_fnc_logError};
+				_vehicle remoteExec ["NWG_fnc_vshopDeleteVehicle",2];
+			} else {
+				//Place bought vehicle
+				[player,_item] remoteExec ["NWG_fnc_vshopSpawnVehicleAtPlatform",2];
+			};
 		};
-		_vehicle remoteExec ["NWG_fnc_vshopDeleteVehicle",2];
-	};
 
-	//Place bought vehicle
-	if (!_isPlayerSide) exitWith {
-		[player,_item] remoteExec ["NWG_fnc_vshopSpawnVehicleAtPlatform",2];
+		case SHOP_TYPE_CUSTOM: {
+			if (_isPlayerSide) exitWith {"NWG_VSHOP_CLI_OnListDobuleClick: Player side is not supported in custom shop, how did you even get here?" call NWG_fnc_logError};
+			_item call (uiNamespace getVariable ["NWG_VSHOP_CLI_customShopCallback",{}]);
+		};
+
+		default {
+			"NWG_VSHOP_CLI_OnListDobuleClick: Unknown shop type" call NWG_fnc_logError;
+		};
 	};
 };
 
+//================================================================================================================
+//================================================================================================================
+//Sell pool utils
 NWG_VSHOP_CLI_GetVehicleFromSellPool = {
 	params ["_classname",["_withDelete",false]];
 
