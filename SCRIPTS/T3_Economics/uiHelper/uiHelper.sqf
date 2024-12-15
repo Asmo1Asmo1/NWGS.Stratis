@@ -18,7 +18,7 @@ NWG_UIH_Settings = createHashMapFromArray [
 //Player money text
 NWG_UIH_FillTextWithPlayerMoney = {
 	disableSerialization;
-	params ["_gui","_idc"];
+	params ["_gui","_idc",["_money",false]];
 	if (isNull _gui) exitWith {
 		"NWG_UIH_FillTextWithPlayerMoney: GUI is null" call NWG_fnc_logError;
 		false
@@ -30,7 +30,11 @@ NWG_UIH_FillTextWithPlayerMoney = {
 		false
 	};
 
-	_textCtrl ctrlSetText ((player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney);
+	if (_money isEqualTo false) then {
+		_money = player call NWG_fnc_wltGetPlayerMoney;
+	};
+
+	_textCtrl ctrlSetText (_money call NWG_fnc_wltFormatMoney);
 	true
 };
 
