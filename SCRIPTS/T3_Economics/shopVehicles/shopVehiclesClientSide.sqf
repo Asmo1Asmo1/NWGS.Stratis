@@ -163,7 +163,7 @@ NWG_VSHOP_CLI_OnServerResponse_Platform = {
 
 	//Initialize UI top to bottom
 	//Init player money
-	(call NWG_VSHOP_CLI_TRA_GetPlayerMoney) call NWG_VSHOP_CLI_UpdatePlayerMoneyText;
+	call NWG_VSHOP_CLI_UpdatePlayerMoneyText;
 	//Init shop money (does not change)
 	(_shopGUI displayCtrl IDC_SHOPUI_SHOPMONEYTEXT) ctrlSetText ("#VSHOP_SELLER_MONEY_CONST#" call NWG_fnc_localize);
 
@@ -268,7 +268,7 @@ NWG_VSHOP_CLI_OnServerResponse_Custom = {
 
 	//Initialize UI top to bottom
 	//Init player money
-	(call NWG_VSHOP_CLI_TRA_GetPlayerMoney) call NWG_VSHOP_CLI_UpdatePlayerMoneyText;
+	call NWG_VSHOP_CLI_UpdatePlayerMoneyText;
 
 	//Init shop category dropdown
 	private _dropdown = _shopGUI displayCtrl IDC_SHOPUI_SHOPDROPDOWN;
@@ -435,61 +435,19 @@ NWG_VSHOP_CLI_GetDamageOfOwnedVehicle = {
 //Player money indicator
 NWG_VSHOP_CLI_UpdatePlayerMoneyText = {
 	disableSerialization;
-	private _playerMoney = _this;
 	private _shopGUI = uiNamespace getVariable ["NWG_VSHOP_CLI_shopGUI",displayNull];
-	if (isNull _shopGUI) exitWith {
-		"NWG_VSHOP_CLI_UpdatePlayerMoneyText: Shop GUI is null" call NWG_fnc_logError;
-	};
-	(_shopGUI displayCtrl IDC_SHOPUI_PLAYERMONEYTEXT) ctrlSetText (_playerMoney call NWG_fnc_wltFormatMoney);
+	private _idc = IDC_SHOPUI_PLAYERMONEYTEXT;
+	private _playerMoney = call NWG_VSHOP_CLI_TRA_GetPlayerMoney;
+	[_shopGUI,_idc,_playerMoney] call NWG_fnc_uiHelperFillTextWithPlayerMoney;
 };
 
-NWG_VSHOP_CLI_blinkHandle = scriptNull;
 NWG_VSHOP_CLI_BlinkPlayerMoney = {
-	// params ["_color","_times"];
-	if (!isNull NWG_VSHOP_CLI_blinkHandle && {!scriptDone NWG_VSHOP_CLI_blinkHandle}) then {
-		terminate NWG_VSHOP_CLI_blinkHandle;
-	};
-
-	NWG_VSHOP_CLI_blinkHandle = _this spawn {
-		disableSerialization;
-		params ["_color","_times"];
-		private _shopGUI = uiNamespace getVariable ["NWG_VSHOP_CLI_shopGUI",displayNull];
-		if (isNull _shopGUI) exitWith {
-			"NWG_VSHOP_CLI_BlinkPlayerMoney: Shop GUI is null" call NWG_fnc_logError;
-		};
-		private _textCtrl = _shopGUI displayCtrl IDC_SHOPUI_PLAYERMONEYTEXT;
-		if (isNull _textCtrl) exitWith {
-			"NWG_VSHOP_CLI_BlinkPlayerMoney: Text control is null" call NWG_fnc_logError;
-		};
-		private _origColor = _textCtrl getVariable "origColor";
-		if (isNil "_origColor") then {
-			_origColor = ctrlBackgroundColor _textCtrl;
-			_textCtrl setVariable ["origColor",_origColor];
-		};
-
-		private _isOn = false;
-		private _blinkCount = 0;
-		waitUntil {
-			_textCtrl = if (!isNull _shopGUI)
-				then {_shopGUI displayCtrl IDC_SHOPUI_PLAYERMONEYTEXT}
-				else {controlNull};
-			if (isNull _textCtrl) exitWith {true};//Could be closed at this point and that's ok
-
-			if (!_isOn && {_blinkCount >= _times}) exitWith {true};//Exit loop
-			if (!_isOn) then {
-				//Turn on
-				_textCtrl ctrlSetBackgroundColor _color;
-				sleep (NWG_VSHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_INTERVAL_ON");
-			} else {
-				//Turn off
-				_textCtrl ctrlSetBackgroundColor _origColor;
-				sleep (NWG_VSHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_INTERVAL_OFF");
-			};
-			_blinkCount = _blinkCount + 0.5;//Increment (each blink is two steps - ON and OFF, that is why we add 0.5)
-			_isOn = !_isOn;//Toggle
-			false//Get to the next iteration
-		};
-	};
+	private _success = _this;
+	private _shopGUI = uiNamespace getVariable ["NWG_VSHOP_CLI_shopGUI",displayNull];
+	private _idc = IDC_SHOPUI_PLAYERMONEYTEXT;
+	if (_success)
+		then {[_shopGUI,_idc] call NWG_fnc_uiHelperBlinkOnSuccess}
+		else {[_shopGUI,_idc] call NWG_fnc_uiHelperBlinkOnError};
 };
 
 //================================================================================================================
@@ -627,7 +585,7 @@ NWG_VSHOP_CLI_OnListDobuleClick = {
 	};
 	if (!_ok) exitWith {
 		//Platform is occupied
-		[(NWG_VSHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_ON_ERROR"),2] call NWG_VSHOP_CLI_BlinkPlayerMoney;
+		false call NWG_VSHOP_CLI_BlinkPlayerMoney;
 		"#VSHOP_PLATFORM_OCCUPIED#" call NWG_fnc_systemChatMe;
 	};
 
@@ -641,7 +599,7 @@ NWG_VSHOP_CLI_OnListDobuleClick = {
 	};
 	if (!_ok) exitWith {
 		//Vehicle can not be sold
-		[(NWG_VSHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_ON_ERROR"),2] call NWG_VSHOP_CLI_BlinkPlayerMoney;
+		false call NWG_VSHOP_CLI_BlinkPlayerMoney;
 		"#VSHOP_CANNOT_SELL_VEHICLE#" call NWG_fnc_systemChatMe;
 	};
 
@@ -649,7 +607,7 @@ NWG_VSHOP_CLI_OnListDobuleClick = {
 	_ok = [_item,!_isPlayerSide] call NWG_VSHOP_CLI_TRA_TryAddToTransaction;
 	if (!_ok) exitWith {
 		//Not enough money
-		[(NWG_VSHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_ON_ERROR"),2] call NWG_VSHOP_CLI_BlinkPlayerMoney;
+		false call NWG_VSHOP_CLI_BlinkPlayerMoney;
 	};
 
 	//Remove from 'source' collection
@@ -688,8 +646,8 @@ NWG_VSHOP_CLI_OnListDobuleClick = {
 			//Update UI
 			[_isPlayerSide,"",true] call NWG_VSHOP_CLI_UpdateItemsList;//Update source list
 			[!_isPlayerSide,"",false] call NWG_VSHOP_CLI_UpdateItemsList;//Update target list
-			(call NWG_VSHOP_CLI_TRA_GetPlayerMoney) call NWG_VSHOP_CLI_UpdatePlayerMoneyText;//Update player money text
-			[(NWG_VSHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_ON_SUCCESS"),1] call NWG_VSHOP_CLI_BlinkPlayerMoney;//Blink player money
+			call NWG_VSHOP_CLI_UpdatePlayerMoneyText;//Update player money text
+			true call NWG_VSHOP_CLI_BlinkPlayerMoney;//Blink player money
 
 			if (_isPlayerSide) then {
 				//Delete sold vehicle

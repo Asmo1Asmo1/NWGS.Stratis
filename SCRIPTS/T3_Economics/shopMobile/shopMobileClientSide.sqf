@@ -45,15 +45,6 @@ NWG_MSHOP_CLI_Settings =  createHashMapFromArray [
 		{_this call NWG_MSHOP_CLI_OpenVehiclesTab}
 	]],
 
-	/*Player money text*/
-	["EXPECT_PLAYER_MONEY_TEXT_PREFILLED",true],//If true, we won't attempt to fill it
-
-	/*Player money text blinking*/
-	["PLAYER_MONEY_BLINK_COLOR_ON_ERROR",[1,0,0,1]],
-	["PLAYER_MONEY_BLINK_TIMES",2],
-	["PLAYER_MONEY_BLINK_COLOR_INTERVAL_ON",0.3],
-	["PLAYER_MONEY_BLINK_COLOR_INTERVAL_OFF",0.2],
-
 	["",0]
 ];
 
@@ -76,56 +67,15 @@ private _Init = {
 //================================================================================================================
 //Player money text
 NWG_MSHOP_CLI_FillPlayerMoneyText = {
-	// private _gui = _this;
-	if (NWG_MSHOP_CLI_Settings get "EXPECT_PLAYER_MONEY_TEXT_PREFILLED") exitWith {true};//Skip if should be prefilled
-	if (isNull _this) exitWith {"NWG_MSHOP_CLI_FillPlayerMoneyText: GUI is null" call NWG_fnc_logError; false};
-	private _playerMoneyText = _this displayCtrl IDC_TEXT_LEFT;
-	if (isNull _playerMoneyText) exitWith {"NWG_MSHOP_CLI_FillPlayerMoneyText: Player money text is null" call NWG_fnc_logError; false};
-	_playerMoneyText ctrlSetText ((player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney);
-	true
+	private _gui = _this;
+	private _idc = IDC_TEXT_LEFT;
+	[_gui,_idc] call NWG_fnc_uiHelperFillTextWithPlayerMoney;
 };
 
-NWG_MSHOP_CLI_blinkHandle = scriptNull;
 NWG_MSHOP_CLI_BlinkPlayerMoneyTextOnError = {
-	// private _gui = _this;
-	if (isNull _this) exitWith {"NWG_MSHOP_CLI_BlinkPlayerMoneyTextOnError: GUI is null" call NWG_fnc_logError};
-	private _playerMoneyText = _this displayCtrl IDC_TEXT_LEFT;
-	if (isNull _playerMoneyText) exitWith {"NWG_MSHOP_CLI_BlinkPlayerMoneyTextOnError: Player money text is null" call NWG_fnc_logError};
-
-	if (!isNull NWG_MSHOP_CLI_blinkHandle && {!scriptDone NWG_MSHOP_CLI_blinkHandle}) then {
-		terminate NWG_MSHOP_CLI_blinkHandle;
-	};
-
-	NWG_MSHOP_CLI_blinkHandle = _playerMoneyText spawn {
-		disableSerialization;
-		private _playerMoneyText = _this;
-		private _origColor = _playerMoneyText getVariable "origColor";
-		if (isNil "_origColor") then {
-			_origColor = ctrlBackgroundColor _playerMoneyText;
-			_playerMoneyText setVariable ["origColor",_origColor];
-		};
-		private _color = NWG_MSHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_ON_ERROR";
-		private _times = NWG_MSHOP_CLI_Settings get "PLAYER_MONEY_BLINK_TIMES";
-
-		private _isOn = false;
-		private _blinkCount = 0;
-		waitUntil {
-			if (isNull _playerMoneyText) exitWith {true};//Could be closed at this point and that's ok
-			if (!_isOn && {_blinkCount >= _times}) exitWith {true};//Exit loop when done
-			if (!_isOn) then {
-				//Turn on
-				_playerMoneyText ctrlSetBackgroundColor _color;
-				sleep (NWG_MSHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_INTERVAL_ON");
-			} else {
-				//Turn off
-				_playerMoneyText ctrlSetBackgroundColor _origColor;
-				sleep (NWG_MSHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_INTERVAL_OFF");
-			};
-			_blinkCount = _blinkCount + 0.5;//Increment (each blink is two steps - ON and OFF, that is why we add 0.5)
-			_isOn = !_isOn;//Toggle
-			false//Get to the next iteration
-		};
-	};
+	private _gui = _this;
+	private _idc = IDC_TEXT_LEFT;
+	[_gui,_idc] call NWG_fnc_uiHelperBlinkOnError;
 };
 
 //================================================================================================================

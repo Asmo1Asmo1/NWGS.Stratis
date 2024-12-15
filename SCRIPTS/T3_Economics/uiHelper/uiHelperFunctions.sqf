@@ -2,10 +2,11 @@
 //params:
 // 0: gui - ui display
 // 1: idc - idc of the text
+// 2: (optional) money - money amount to fill in, if not provided, player's actual money will be used
 //returns:
 // true if successful, false otherwise
 NWG_fnc_uiHelperFillTextWithPlayerMoney = {
-	// params ["_gui","_idc"];
+	// params ["_gui","_idc",["_money",false]];
 	_this call NWG_UIH_FillTextWithPlayerMoney;
 };
 
