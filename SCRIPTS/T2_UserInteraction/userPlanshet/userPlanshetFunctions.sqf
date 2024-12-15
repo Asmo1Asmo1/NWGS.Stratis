@@ -21,6 +21,12 @@ NWG_fnc_upOpenSecondaryWithDropdown = {
 	_this call NWG_UP_OpenSecondaryWithDropdown
 };
 
+//Get all opened menus
+//returns: array of opened menus
+NWG_fnc_upGetAllMenus = {
+	call NWG_UP_GetAllWindows
+};
+
 //Close all menus
 NWG_fnc_upCloseAllMenus = {
 	call NWG_UP_CloseAllWindows

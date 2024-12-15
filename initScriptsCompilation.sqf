@@ -179,6 +179,9 @@ _clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageCommon.sqf
 _clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageClient.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageTests.sqf" call NWG_fnc_compile)};
+//moneyTransfer
+_clientModules pushBack ("SCRIPTS\T3_Economics\moneyTransfer\moneyTransfer.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T3_Economics\moneyTransfer\moneyTransferFunctions.sqf" call NWG_fnc_compile);
 //shopItems
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsServerSide.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\missionMachineConnector.sqf" call NWG_fnc_compile);
@@ -197,6 +200,9 @@ _serverModules pushBack ("SCRIPTS\T3_Economics\shopVehicles\missionMachineConnec
 _clientModules pushBack ("SCRIPTS\T3_Economics\shopVehicles\shopVehiclesClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\shopVehicles\shopVehiclesFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\shopVehicles\shopVehiclesTests.sqf" call NWG_fnc_compile)};
+//uiHelper
+_clientModules pushBack ("SCRIPTS\T3_Economics\uiHelper\uiHelper.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T3_Economics\uiHelper\uiHelperFunctions.sqf" call NWG_fnc_compile);
 //vehCustomizationAppearance
 _serverModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationAppearance\vehCustomizationAppearanceCore.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationAppearance\vehCustomizationAppearanceCore.sqf" call NWG_fnc_compile);
