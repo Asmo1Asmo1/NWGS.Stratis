@@ -72,6 +72,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //lootStorage
     ["#LS_STORAGE_ACTION_TITLE#","Открыть Хранилище"],
     ["#LS_DEPLETE_NOTIFICATION#","Потеряно %1%% добычи"],
+    //moneyTransfer
+    ["#MT_ACTION_TITLE#","Перевод денег"],
+    ["#MT_PLAYER_NOT_FOUND#","Игрок не найден"],
     //shopItems
     ["#ISHOP_ACTION_TITLE#","Открыть Магазин"],
     ["#ISHOP_SELLER_MONEY_CONST#","€$---"],

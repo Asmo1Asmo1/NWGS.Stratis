@@ -71,6 +71,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#LS_ACTION_LOOT_FAILURE#","Nothing to take"],
     ["#LS_STORAGE_ACTION_TITLE#","Open Storage"],
     ["#LS_DEPLETE_NOTIFICATION#","Lost %1%% of loot"],
+    //moneyTransfer
+    ["#MT_ACTION_TITLE#","Money transfer"],
+    ["#MT_PLAYER_NOT_FOUND#","Player not found"],
     //shopItems
     ["#ISHOP_ACTION_TITLE#","Open Shop"],
     ["#ISHOP_SELLER_MONEY_CONST#","€$---"],

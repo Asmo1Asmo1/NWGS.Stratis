@@ -49,7 +49,7 @@ NWG_UP_Settings = createHashMapFromArray [
 	["MM_BUTTON_06_TOOLTIP","#UP_BUTTON_SETTINGS_TOOLTIP#"],
 
 	["MM_BUTTON_01_ONCLICK",{call NWG_fnc_mshopOpenShop}],
-	["MM_BUTTON_02_ONCLICK",{systemChat "Not implemented"}],
+	["MM_BUTTON_02_ONCLICK",{call NWG_fnc_mtOpenTransferUI}],
 	["MM_BUTTON_03_ONCLICK",{systemChat "Not implemented"}],
 	["MM_BUTTON_04_ONCLICK",{systemChat "Not implemented"}],
 	["MM_BUTTON_05_ONCLICK",{systemChat "Not implemented"}],
@@ -111,6 +111,11 @@ NWG_UP_OpenWindow = {
 
 	//return
 	_planshetGUI
+};
+
+NWG_UP_GetAllWindows = {
+	disableSerialization;
+	(uiNamespace getVariable ["NWG_UP_Windows",[]]) apply {_x select WINDOW_OBJ}
 };
 
 NWG_UP_GetAllWindowNames = {
