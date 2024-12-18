@@ -185,9 +185,7 @@ MRO_CreateDialog =
 
 	//Localize
 	if (!isNil "NWG_fnc_localize" && !MRO_isTextLocalized) then {
-		for "_i" from 0 to ((count MRO_text)-1) do {
-			MRO_text set [_i,((MRO_text#_i) call NWG_fnc_localize)];
-		};
+		{MRO_text set [_forEachIndex,(_x call NWG_fnc_localize)]} forEach MRO_text;
 		MRO_isTextLocalized = true;
 	};
 

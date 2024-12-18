@@ -17,6 +17,7 @@
 //Keybindings
 /*params ["_key","_expression","_locDescr","_code","_blockKeyDown"]*/
 NWG_KB_Keybindings = [
+	[62,"F4","",{call NWG_fnc_vdOpenMenu},true]
 ];
 
 //================================================================================================================
