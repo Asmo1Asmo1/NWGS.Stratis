@@ -11,12 +11,15 @@
 #define EXPRESSION_NOT_SET ""
 
 #define SAVE_IN_DEBUG_MODE false
+#define PROTECTED_INDEX 0
 
 //================================================================================================================
 //================================================================================================================
 //Keybindings
 /*params ["_key","_expression","_locDescr","_code","_blockKeyDown"]*/
+/*note: first keybinding is protected from being unassigned*/
 NWG_KB_Keybindings = [
+	[61,"F3","",{call NWG_fnc_upOpenMainMenu},true],
 	[62,"F4","",{call NWG_fnc_vdOpenMenu},true]
 ];
 
@@ -24,7 +27,7 @@ NWG_KB_Keybindings = [
 //================================================================================================================
 //Fields
 /*Key to button mapping*//*see: https://community.bistudio.com/wiki/DIK_KeyCodes*/
-NWG_KB_KeyToButtonMap = createHashMapFromArray [
+NWG_KB_keyToButtonMap = createHashMapFromArray [
 	/*Function Keys F1..F15*/
 	[59,"F1"],// F1	F1..F15	DIK_F1	0x3B	59	N/A
 	[60,"F2"],// F2	F1..F15	DIK_F2	0x3C	60	N/A
@@ -179,7 +182,7 @@ NWG_KB_OnKeyDown = {
 //Key to expression
 NWG_KB_KeyToExpression = {
 	params ["_key","_isShift","_isCtrl","_isAlt"];
-	private _button = NWG_KB_KeyToButtonMap get _key;
+	private _button = NWG_KB_keyToButtonMap get _key;
 	if (isNil "_button") exitWith {false};
 
 	//Ctrl > Alt > Shift > Default
@@ -203,14 +206,14 @@ NWG_KB_UpdateKeybinding = {
 	params ["_index","_newKey","_isShift","_isCtrl","_isAlt"];
 	//Check arguments
 	if (_index < 0 || _index >= (count NWG_KB_Keybindings)) exitWith {false};
-	if !(_newKey in NWG_KB_KeyToButtonMap) exitWith {false};
+	if !(_newKey in NWG_KB_keyToButtonMap) exitWith {false};
 
 	//Generate new expression
 	private _newExpression = [_newKey,_isShift,_isCtrl,_isAlt] call NWG_KB_KeyToExpression;
 
 	//Iterate over all keybindings, drop those that have the same expression, set new expression
 	{
-		if ((_x#KEY_EXPRESSION) isEqualTo _newExpression) then {
+		if (_forEachIndex != PROTECTED_INDEX && {(_x#KEY_EXPRESSION) isEqualTo _newExpression}) then {
 			_x set [KEY_CODE,KEY_NOT_SET];
 			_x set [KEY_EXPRESSION,EXPRESSION_NOT_SET];
 		};
@@ -230,7 +233,9 @@ NWG_KB_UpdateKeybinding = {
 
 NWG_KB_DropKeybinding = {
 	private _index = _this;
+	if (_index == PROTECTED_INDEX) exitWith {false};
 	if (_index < 0 || _index >= (count NWG_KB_Keybindings)) exitWith {false};
+
 	private _keybinding = NWG_KB_Keybindings#_index;
 	_keybinding set [KEY_CODE,KEY_NOT_SET];
 	_keybinding set [KEY_EXPRESSION,EXPRESSION_NOT_SET];

@@ -28,7 +28,7 @@
 //Settings
 NWG_UP_Settings = createHashMapFromArray [
 	/*Hotkeys*/
-	["HOTKEY_OPEN_PLANSHET",61],
+	["HOTKEY_OPEN_PLANSHET",false],
 
 	/*Main menu layout*/
 	["MM_TextLeft_FILL_FUNC", {(player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney}],
