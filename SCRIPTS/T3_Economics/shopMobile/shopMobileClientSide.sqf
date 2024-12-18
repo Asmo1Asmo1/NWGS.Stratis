@@ -228,7 +228,11 @@ NWG_MSHOP_CLI_OnItemSelected = {
 	NWG_MSHOP_CLI_selectedItem = _itemName;//Save
 	NWG_MSHOP_CLI_moneySpent = _itemPrice;//Save
 	call (NWG_MSHOP_CLI_Settings get "FUNC_CLOSE_ALL_INTERFACES");//Close all open interfaces
-	openMap [true,true];//Force open map
+
+	//Force open map
+	if ( (((getUnitLoadout player) param [9,[]]) param [0,""]) isEqualTo "")
+		then {player addItem "ItemMap"; player assignItem "ItemMap"};
+	openMap [true,true];
 	hint ((NWG_MSHOP_CLI_Settings get "LOC_MAP_ITEM_HINT") call NWG_fnc_localize);//Show hint
 	//... to be continued in map click handler 'NWG_MSHOP_CLI_OnMapClick'
 };
@@ -277,7 +281,10 @@ NWG_MSHOP_CLI_OnVehicleBought = {
 
 	NWG_MSHOP_CLI_selectedVehicle = _this;//Save
 	call (NWG_MSHOP_CLI_Settings get "FUNC_CLOSE_ALL_INTERFACES");//Close all open interfaces (will also trigger money deduction for bought vehicle)
-	openMap [true,true];//Force open map
+	//Force open map
+	if ( (((getUnitLoadout player) param [9,[]]) param [0,""]) isEqualTo "")
+		then {player addItem "ItemMap"; player assignItem "ItemMap"};
+	openMap [true,true];
 	hint ((NWG_MSHOP_CLI_Settings get "LOC_MAP_VEHICLE_HINT") call NWG_fnc_localize);//Show hint
 
 	//... to be continued in map click handler 'NWG_MSHOP_CLI_OnMapClick'

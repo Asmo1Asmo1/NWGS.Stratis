@@ -88,7 +88,9 @@ NWG_MIS_CLI_OnSelectionOptionsReceived = {
     NWG_MIS_CLI_selections = _selections;
 
     //Force open map
-    openMap [true, true];
+	if ( (((getUnitLoadout player) param [9,[]]) param [0,""]) isEqualTo "")
+		then {player addItem "ItemMap"; player assignItem "ItemMap"};
+	openMap [true,true];
 
     //... to be continued in map click handler 'NWG_MIS_CLI_OnMapClick'
 };
