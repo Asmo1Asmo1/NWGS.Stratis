@@ -106,6 +106,10 @@ if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\inve
 //inventoryUI
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\inventoryUI\inventoryUI.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\inventoryUI\inventoryUITests.sqf" call NWG_fnc_compile)};
+//keybindings
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\keybindings\keybindings.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\keybindings\keybindingsFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\keybindings\keybindingsTests.sqf" call NWG_fnc_compile)};
 //magrepack
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepack.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepackFunctions.sqf" call NWG_fnc_compile);
