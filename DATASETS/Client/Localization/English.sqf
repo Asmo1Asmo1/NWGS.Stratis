@@ -21,6 +21,13 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#INV_BUTTON_WEAP_TOOLTIP#","Switch weapon"],
     ["#INV_BUTTON_UNIF_TOOLTIP#","Change uniform"],
     ["#INV_BUTTON_MAGR_TOOLTIP#","Repack magazines"],
+    //keybindings
+    ["#KB_USER_PLANSHET#","User Tablet"],
+    ["#KB_VIEW_DISTANCE#","View Distance"],
+    ["#UP_SETTINGS_KEYBINDINGS_HINT_1#","Press new key or key combination to assign"],
+    ["#UP_SETTINGS_KEYBINDINGS_HINT_2#","Ctrl, Shift, Alt - modifiers"],
+    ["#UP_SETTINGS_KEYBINDINGS_HINT_3#",'"Delete" or "BackSpace" - delete keybinding'],
+    ["#UP_SETTINGS_KEYBINDINGS_HINT_4#",'"Tab" - toggle key bypass'],
     //medicine
     ["#MED_CLI_BLEEDING_UI_TITLE_LOW#","Patched"],
     ["#MED_CLI_BLEEDING_UI_TITLE_MID#","Bleeding"],
@@ -59,6 +66,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_BUTTON_DOCUMNTS_TOOLTIP#","Documents"],
     ["#UP_BUTTON_PLR_INFO_TOOLTIP#","Player info"],
     ["#UP_BUTTON_SETTINGS_TOOLTIP#","Settings"],
+    //06Settings
+    ["#UP_SETTINGS_TITLE#","Settings"],
+    ["#UP_SETTINGS_KEYBINDINGS#","Keybindings"],
     //voting
     ["#VOTE_COUNTER_TEMPLATE#","Enter + or - in chat\n[+]:%2 [-]:%3 (%4)sec"],
     ["#VOTE_HINT_ABORTED#","Vote aborted"],

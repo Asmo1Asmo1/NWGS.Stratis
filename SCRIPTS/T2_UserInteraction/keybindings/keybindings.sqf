@@ -17,10 +17,11 @@
 //================================================================================================================
 //Keybindings
 /*params ["_key","_expression","_locDescr","_code","_blockKeyDown"]*/
+/*note: we use separate missionNamespace variable instead of settings to speed things up, this logic runs every key press after all*/
 /*note: first keybinding is protected from being unassigned*/
 NWG_KB_Keybindings = [
-	[61,"F3","",{call NWG_fnc_upOpenMainMenu},true],
-	[62,"F4","",{call NWG_fnc_vdOpenMenu},true]
+	[61,"F3","#KB_USER_PLANSHET#",{call NWG_fnc_upOpenMainMenu},true],
+	[62,"F4","#KB_VIEW_DISTANCE#",{call NWG_fnc_vdOpenMenu},true]
 ];
 
 //================================================================================================================
@@ -127,8 +128,7 @@ NWG_KB_keyToButtonMap = createHashMapFromArray [
 	[207,"End"],// ArrowKeypad	DIK_END	0xCF	207	End on arrow keypad
 	[208,"Down"],// ArrowKeypad	DIK_DOWN	0xD0	208	DownArrow on arrow keypad
 	[209,"PgDn"],// ArrowKeypad	DIK_NEXT	0xD1	209	PgDn on arrow keypad
-	[210,"Insert"],// ArrowKeypad	DIK_INSERT	0xD2	210	Insert on arrow keypad
-	[211,"Delete"]// ArrowKeypad	DIK_DELETE	0xD3	211	Delete on arrow keypad
+	[210,"Insert"]// ArrowKeypad	DIK_INSERT	0xD2	210	Insert on arrow keypad
 ];
 
 //================================================================================================================
@@ -153,7 +153,7 @@ NWG_KB_OnKeyDown = {
 	// params ["_displayOrControl","_key","_shift","_ctrl","_alt"];
 	params ["","_key","_s","_c","_a"];
 
-	//Simple check if that key is part of any keybindings
+	//Simple check that key is part of any keybindings
 	if ((NWG_KB_Keybindings findIf {(_x#KEY_CODE) == _key}) == -1) exitWith {false};
 
 	//Find exact keybinding by expression (can overlap, e.g.: "Ctrl + F2" and "F2")

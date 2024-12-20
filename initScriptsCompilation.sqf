@@ -147,6 +147,7 @@ _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\unformEquip\unformEquipFu
 //userPlanshet
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\userPlanshet.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\userPlanshetFunctions.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\06Settings.sqf" call NWG_fnc_compile);
 //viewDistance
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistance.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistanceFunctions.sqf" call NWG_fnc_compile);

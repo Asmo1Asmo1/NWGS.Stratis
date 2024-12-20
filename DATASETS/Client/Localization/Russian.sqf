@@ -21,6 +21,13 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#INV_BUTTON_WEAP_TOOLTIP#","Сменить оружие"],
     ["#INV_BUTTON_UNIF_TOOLTIP#","Сменить форму"],
     ["#INV_BUTTON_MAGR_TOOLTIP#","Перепаковать магазины"],
+    //keybindings
+    ["#KB_USER_PLANSHET#","Планшет оператора"],
+    ["#KB_VIEW_DISTANCE#","Дальность видимости"],
+    ["#UP_SETTINGS_KEYBINDINGS_HINT_1#","Нажмите новую клавишу или комбинацию клавиш"],
+    ["#UP_SETTINGS_KEYBINDINGS_HINT_2#","Ctrl, Shift, Alt - модификаторы"],
+    ["#UP_SETTINGS_KEYBINDINGS_HINT_3#",'"Delete" или "BackSpace" - удалить сочетание'],
+    ["#UP_SETTINGS_KEYBINDINGS_HINT_4#",'"Tab" - переключить проброс в игру'],
     //magrepack (direct translation)
     ["Mag Repack","Перепаковка"],
 	[" Source"," Источник"],
@@ -73,6 +80,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_BUTTON_DOCUMNTS_TOOLTIP#","Документы"],
     ["#UP_BUTTON_PLR_INFO_TOOLTIP#","Информация об игроке"],
     ["#UP_BUTTON_SETTINGS_TOOLTIP#","Настройки"],
+    //06Settings
+    ["#UP_SETTINGS_TITLE#","Настройки"],
+    ["#UP_SETTINGS_KEYBINDINGS#","Горячие клавиши"],
     //voting
     ["#VOTE_COUNTER_TEMPLATE#","Введите + или - в чат\n[+]:%2 [-]:%3 (%4)сек"],
     ["#VOTE_HINT_ABORTED#","Голосование отменено"],

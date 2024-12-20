@@ -140,16 +140,11 @@ NWG_MSHOP_CLI_OnServerResponse = {
 		private _expected = if (_withTitleRow) then {1} else {0};
 		if (_selectedIndex >= _expected) then {
 			if (_withTitleRow) then {_selectedIndex = _selectedIndex - 1};
-			_selectedIndex call NWG_MSHOP_CLI_OnCategorySelected;
+			_selectedIndex call ((NWG_MSHOP_CLI_Settings get "FUNCS_ON_CATEGORY_SELECTED") select _selectedIndex);
 		};
 	}];
 
 	true
-};
-
-NWG_MSHOP_CLI_OnCategorySelected = {
-	private _categoryIndex = _this;
-	_categoryIndex call ((NWG_MSHOP_CLI_Settings get "FUNCS_ON_CATEGORY_SELECTED") select _categoryIndex);
 };
 
 //================================================================================================================
