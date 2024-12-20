@@ -28,7 +28,7 @@
 //Settings
 NWG_UP_Settings = createHashMapFromArray [
 	/*Hotkeys*/
-	["HOTKEY_OPEN_PLANSHET",61],
+	["HOTKEY_OPEN_PLANSHET",false],
 
 	/*Main menu layout*/
 	["MM_TextLeft_FILL_FUNC", {(player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney}],
@@ -53,12 +53,13 @@ NWG_UP_Settings = createHashMapFromArray [
 	["MM_BUTTON_03_ONCLICK",{systemChat "Not implemented"}],
 	["MM_BUTTON_04_ONCLICK",{systemChat "Not implemented"}],
 	["MM_BUTTON_05_ONCLICK",{systemChat "Not implemented"}],
-	["MM_BUTTON_06_ONCLICK",{systemChat "Not implemented"}],
+	["MM_BUTTON_06_ONCLICK",{call NWG_UP_06Settings_Open}],
 
 	/*Secondary menu layout*/
 	["SM_TextLeft_FILL_FUNC", {(player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney}],
 	["SM_TextRight_FILL_FUNC",{name player}],
-	["SM_ADD_CLOSING_TITLE_TO_LIST",true],
+	["SM_ADD_CLOSING_TITLE_ROW_TO_LIST",true],
+	["SM_TITLE_ROW_SEPARATOR","  >  "],
 
     ["",0]
 ];
@@ -210,18 +211,75 @@ NWG_UP_OpenSecondaryMenu = {
 	//Add listbox in the middle
 	private _listBox = _planshetGUI ctrlCreate ["UPSM_ListBox",IDC_LISTBOX];
 
-	//Add 'Window title'+'Close window' at the same time in form of the first line of the listbox
-	if (NWG_UP_Settings get "SM_ADD_CLOSING_TITLE_TO_LIST") then {
+	//Add 'Window Title Row' (a.k.a. 'Close Window' UI element)
+	if (NWG_UP_Settings get "SM_ADD_CLOSING_TITLE_ROW_TO_LIST") then {
 		private _windowNames = (call NWG_UP_GetAllWindowNames) apply {_x call NWG_fnc_localize};
-		_windowNames = [""] + _windowNames + [""];//Add empty entries at the beginning and at the end for the looks
-		private _topLine = _windowNames joinString "  >  ";
-		_listBox lbAdd _topLine;
+		private _separator = NWG_UP_Settings get "SM_TITLE_ROW_SEPARATOR";
+		private _titleRow = format ["%1%2%3",_separator,(_windowNames joinString _separator),_separator];
+		_listBox lbAdd _titleRow;
 		_listBox ctrlAddEventHandler ["LBDblClick",{
 			params ["_listBox","_selectedIndex"];
-			if (_selectedIndex == 0)
-				then {(ctrlParent  _listBox) closeDisplay 2};
+			if (_selectedIndex == 0 && {NWG_UP_Settings get "SM_ADD_CLOSING_TITLE_ROW_TO_LIST"}) then {
+				(ctrlParent _listBox) closeDisplay 2;
+			};
 		}];
 	};
+
+	//return
+	_planshetGUI
+};
+
+//================================================================================================================
+//================================================================================================================
+//Secondary menu prefilled with items
+NWG_UP_OpenSecondaryMenuPrefilled = {
+	params ["_windowName",["_items",[]],["_data",[]],["_callback",{}]];
+	disableSerialization;
+
+	private _planshetGUI = _windowName call NWG_UP_OpenWindow;
+	if (_planshetGUI isEqualTo false) exitWith {
+		"NWG_UP_OpenSecondaryMenuPrefilled: Failed to open background" call NWG_fnc_logError;
+		false
+	};
+
+	//Add top panel texts
+	{
+		_x params ["_ctrlNameShort","_idc"];
+		private _ctrlName = format ["UPSM_%1",_ctrlNameShort];
+		private _textFunc = format ["SM_%1_FILL_FUNC",_ctrlNameShort];
+		_textFunc = NWG_UP_Settings get _textFunc;
+		private _textCtrl = _planshetGUI ctrlCreate [_ctrlName,_idc];
+		_textCtrl ctrlSetText (call _textFunc);
+	} forEach [["TextLeft",IDC_TEXT_LEFT],["TextRight",IDC_TEXT_RIGHT]];
+
+	//Add listbox in the middle
+	private _listBox = _planshetGUI ctrlCreate ["UPSM_ListBox",IDC_LISTBOX];
+
+	//Add 'Window Title Row' (a.k.a. 'Close Window' UI element)
+	if (NWG_UP_Settings get "SM_ADD_CLOSING_TITLE_ROW_TO_LIST") then {
+		private _windowNames = (call NWG_UP_GetAllWindowNames) apply {_x call NWG_fnc_localize};
+		private _separator = NWG_UP_Settings get "SM_TITLE_ROW_SEPARATOR";
+		private _titleRow = format ["%1%2%3",_separator,(_windowNames joinString _separator),_separator];
+		_listBox lbAdd _titleRow;
+	};
+
+	//Add items to listbox
+	private _index = -1;
+	{
+		_index = _listBox lbAdd _x;
+		_listBox lbSetData [_index,(_data param [_forEachIndex,""])];
+	} forEach _items;
+
+	//Setup callback
+	_listBox setVariable ["NWG_UP_Callback",_callback];
+	_listBox ctrlAddEventHandler ["LBDblClick",{
+		params ["_listBox","_selectedIndex"];
+		private _withTitleRow = NWG_UP_Settings get "SM_ADD_CLOSING_TITLE_ROW_TO_LIST";
+		private _callback = if (_withTitleRow && {_selectedIndex == 0})
+			then {{params ["_listBox"]; (ctrlParent _listBox) closeDisplay 2}}
+			else {_listBox getVariable ["NWG_UP_Callback",{}]};
+		[_listBox,_selectedIndex,_withTitleRow] call _callback;
+	}];
 
 	//return
 	_planshetGUI

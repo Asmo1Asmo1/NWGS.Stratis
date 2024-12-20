@@ -106,6 +106,10 @@ if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\inve
 //inventoryUI
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\inventoryUI\inventoryUI.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\inventoryUI\inventoryUITests.sqf" call NWG_fnc_compile)};
+//keybindings
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\keybindings\keybindings.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\keybindings\keybindingsFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\keybindings\keybindingsTests.sqf" call NWG_fnc_compile)};
 //magrepack
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepack.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepackFunctions.sqf" call NWG_fnc_compile);
@@ -143,8 +147,10 @@ _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\unformEquip\unformEquipFu
 //userPlanshet
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\userPlanshet.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\userPlanshetFunctions.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\06Settings.sqf" call NWG_fnc_compile);
 //viewDistance
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistance.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistanceFunctions.sqf" call NWG_fnc_compile);
 //voting
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingCommon.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingServerSide.sqf" call NWG_fnc_compile);

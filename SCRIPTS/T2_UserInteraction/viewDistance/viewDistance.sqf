@@ -10,7 +10,7 @@
 //==============================================
 //Settings
 /*Standalone module option*/
-#define SETUP_HOTKEY true
+#define SETUP_HOTKEY false
 #define HOTKEY 62 //F4
 
 /*Limits*/

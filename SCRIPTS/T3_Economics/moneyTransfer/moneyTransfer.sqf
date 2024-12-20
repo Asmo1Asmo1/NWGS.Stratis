@@ -4,7 +4,7 @@
 //--- userPlanshetUIBase
 #define IDC_TEXT_LEFT 1000
 // #define IDC_TEXT_RIGHT 1001
-#define IDC_LISTBOX	1501
+// #define IDC_LISTBOX	1501
 
 //================================================================================================================
 //================================================================================================================
@@ -14,11 +14,8 @@ NWG_MT_Settings = createHashMapFromArray [
 	["LOC_ACTION_TITLE","#MT_ACTION_TITLE#"],
 	["LOC_PLAYER_NOT_FOUND","#MT_PLAYER_NOT_FOUND#"],
 
-	/*List settings*/
-	["TITLE_ROW_EXPECTED",true],
-
 	/*External functions*/
-	["FUNC_OPEN_INTERFACE", {_this call NWG_fnc_upOpenSecondaryMenu}], //params: _windowName, returns: _interface
+	["FUNC_OPEN_INTERFACE", {_this call NWG_fnc_upOpenSecondaryMenuPrefilled}], //params ["_windowName",["_items",[]],["_data",[]],["_callback",{}]]; | returns: _interface
 	["FUNC_GET_ALL_INTERFACES", {call NWG_fnc_upGetAllMenus}], //returns: array of opened menus
 
 	/*Money transfer*/
@@ -29,15 +26,33 @@ NWG_MT_Settings = createHashMapFromArray [
 
 //================================================================================================================
 //================================================================================================================
-//Money transfer
+//Fields
 NWG_MT_selectedPlayer = "";
 
+//================================================================================================================
+//================================================================================================================
+//Money transfer
 NWG_MT_OpenTransferUI = {
 	disableSerialization;
 
-	//Open interface
+	//Prepare items, data and callback
 	private _windowName = NWG_MT_Settings get "LOC_ACTION_TITLE";
-	private _interface = _windowName call (NWG_MT_Settings get "FUNC_OPEN_INTERFACE");
+	private _playerNames = call {
+		private _players = (call NWG_fnc_getPlayersAll) select {alive _x};
+		private _isDevBuild = (is3DENPreview || {is3DENMultiplayer});
+		if (!_isDevBuild) then {_players = _players - [player]};
+		_players apply {name _x}
+	};
+	private _callback = {
+		// params ["_listBox","_selectedIndex","_withTitleRow"];
+		params ["_listBox","_selectedIndex"];
+		private _name = _listBox lbData _selectedIndex;
+		private _gui = ctrlParent _listBox;
+		[_name,_gui] call NWG_MT_OnPlayerSelected;
+	};
+
+	//Open interface
+	private _interface = [_windowName,_playerNames,_playerNames,_callback] call (NWG_MT_Settings get "FUNC_OPEN_INTERFACE");
 	if (isNil "_interface" || {_interface isEqualTo false || {isNull _interface}}) exitWith {
 		"NWG_MT_OpenTransferUI: Failed to open interface" call NWG_fnc_logError;
 		false
@@ -50,39 +65,6 @@ NWG_MT_OpenTransferUI = {
 		false
 	};
 
-	//Get listbox
-	private _listBox = _interface displayCtrl IDC_LISTBOX;
-	if (isNull _listBox) exitWith {
-		"NWG_MT_OpenTransferUI: Listbox is null" call NWG_fnc_logError;
-		false
-	};
-
-	//Fill listbox
-	private _players = (call NWG_fnc_getPlayersAll) select {alive _x};
-	private _isDevBuild = (is3DENPreview || {is3DENMultiplayer});
-	if (!_isDevBuild) then {
-		_players = _players - [player];
-	};
-
-	private ["_name","_index"];
-	{
-		_name = name _x;
-		_index = _listBox lbAdd _name;
-		_listBox lbSetData [_index,_name];
-	} forEach _players;
-
-	//Setup event handlers
-	_listBox ctrlAddEventHandler ["LBDblClick",{
-		params ["_listBox","_selectedIndex"];
-		private _withTitleRow = NWG_MT_Settings get "TITLE_ROW_EXPECTED";
-		private _expected = if (_withTitleRow) then {1} else {0};
-		if (_selectedIndex >= _expected) then {
-			private _name = _listBox lbData _selectedIndex;
-			private _gui = ctrlParent _listBox;
-			[_name,_gui] call NWG_MT_OnPlayerSelected;
-		};
-	}];
-
 	//return
 	true
 };
@@ -91,7 +73,7 @@ NWG_MT_OnPlayerSelected = {
 	disableSerialization;
 	params ["_name","_gui"];
 
-	//Check target player online
+	//Check if target player is online
 	private _players = (call NWG_fnc_getPlayersAll) select {alive _x};
 	private _index = _players findIf {(name _x) isEqualTo _name};
 	if (_index == -1) exitWith {
@@ -105,8 +87,21 @@ NWG_MT_OnPlayerSelected = {
 	//Save for later use
 	NWG_MT_selectedPlayer = _name;
 
+	//Prepare items, data and callback
+	private _windowName = _name;
+	private _amounts = (NWG_MT_Settings get "TRANSFER_MONEY_AMOUNTS");
+	private _items = _amounts apply {_x call NWG_fnc_wltFormatMoney};
+	private _data = _amounts apply {str _x};
+	private _callback = {
+		// params ["_listBox","_selectedIndex","_withTitleRow"];
+		params ["_listBox","_selectedIndex"];
+		private _amount = _listBox lbData _selectedIndex;
+		private _gui = ctrlParent _listBox;
+		[_amount,_gui] call NWG_MT_OnAmountSelected;
+	};
+
 	//Open interface
-	private _interface = _name call (NWG_MT_Settings get "FUNC_OPEN_INTERFACE");
+	private _interface = [_windowName,_items,_data,_callback] call (NWG_MT_Settings get "FUNC_OPEN_INTERFACE");
 	if (isNil "_interface" || {_interface isEqualTo false || {isNull _interface}}) exitWith {
 		"NWG_MT_OnPlayerSelected: Failed to open interface" call NWG_fnc_logError;
 		false
@@ -118,32 +113,6 @@ NWG_MT_OnPlayerSelected = {
 		"NWG_MT_OnPlayerSelected: Failed to fill target player money text" call NWG_fnc_logError;
 		false
 	};
-
-	//Get listbox
-	private _listBox = _interface displayCtrl IDC_LISTBOX;
-	if (isNull _listBox) exitWith {
-		"NWG_MT_OnPlayerSelected: Listbox is null" call NWG_fnc_logError;
-		false
-	};
-
-	//Fill listbox
-	private _amounts = NWG_MT_Settings get "TRANSFER_MONEY_AMOUNTS";
-	{
-		private _index = _listBox lbAdd (_x call NWG_fnc_wltFormatMoney);
-		_listBox lbSetData [_index,(str _x)];
-	} forEach _amounts;
-
-	//Setup event handlers
-	_listBox ctrlAddEventHandler ["LBDblClick",{
-		params ["_listBox","_selectedIndex"];
-		private _withTitleRow = NWG_MT_Settings get "TITLE_ROW_EXPECTED";
-		private _expected = if (_withTitleRow) then {1} else {0};
-		if (_selectedIndex >= _expected) then {
-			private _amount = _listBox lbData _selectedIndex;
-			private _gui = ctrlParent _listBox;
-			[_amount,_gui] call NWG_MT_OnAmountSelected;
-		};
-	}];
 
 	//return
 	true
@@ -186,7 +155,7 @@ NWG_MT_OnAmountSelected = {
 
 	//Update UI
 	[_gui,IDC_TEXT_LEFT] call NWG_fnc_uiHelperBlinkOnSuccess;
-	private _allWindows = call NWG_fnc_upGetAllMenus;
+	private _allWindows = call (NWG_MT_Settings get "FUNC_GET_ALL_INTERFACES");
 	{
 		[_x,IDC_TEXT_LEFT] call NWG_fnc_uiHelperFillTextWithPlayerMoney;
 	} forEach _allWindows;
