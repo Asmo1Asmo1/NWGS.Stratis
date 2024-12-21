@@ -160,6 +160,14 @@ NWG_UP_06Settings_Keybindings_OnKeyDown = {
 	private _listBox = _display displayCtrl IDC_LISTBOX;
 	if (isNull _listBox) exitWith {};
 
+	/*Fix for 'space' key*/
+	/*Arma seems to have hardcoded 'space' key handler 'jump to the start of the list' that works BEFORE this handler*/
+	if (_key == 57) then {
+		private _selected = NWG_UP_06Settings_Keybindings_selectedKB;
+		if (NWG_UP_Settings get "SM_ADD_CLOSING_TITLE_ROW_TO_LIST") then {_selected = _selected + 1};
+		_listBox lbSetCurSel _selected;
+	};
+
 	//Get selected keybinding index
 	if (NWG_UP_06Settings_Keybindings_selectedKB == -1) exitWith {};//No row selected
 	private _curSel = lbCurSel _listBox;

@@ -29,6 +29,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#KB_ACT_EARPLUGS#","Беруши"],
     ["#KB_ACT_WEAPONS_AWAY#","Оружие за спину"],
     ["#KB_VIEW_DISTANCE#","Дальность видимости"],
+    ["#KB_ACT_PARACHUTE_DEPLOYMENT#","Раскрыть парашют"],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_1#","Нажмите новую клавишу или комбинацию клавиш"],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_2#","Ctrl, Shift, Alt - модификаторы"],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_3#",'"Delete" или "BackSpace" - удалить сочетание'],
