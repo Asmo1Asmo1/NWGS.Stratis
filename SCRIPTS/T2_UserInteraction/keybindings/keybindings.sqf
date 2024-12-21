@@ -21,6 +21,7 @@
 /*note: first keybinding is protected from being unassigned*/
 NWG_KB_Keybindings = [
 	[61,"F3","#KB_USER_PLANSHET#",{call NWG_fnc_upOpenMainMenu},true],
+	[59,"F1","#KB_ACT_EARPLUGS#",{call NWG_fnc_akToggleEarPlugs},true],
 	[62,"F4","#KB_VIEW_DISTANCE#",{call NWG_fnc_vdOpenMenu},true]
 ];
 
