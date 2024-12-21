@@ -16,6 +16,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#WORLD_NAME_VR#","VR"],
     ["#WORLD_NAME_UNKNOWN#","Unknown"],
     //T2_UserInteraction
+    //actionsKeybind
+    ["#AK_EARPLUGS_ON#","Earplugs on"],
+    ["#AK_EARPLUGS_OFF#","Earplugs off"],
     //inventoryUI
     ["#INV_BUTTON_LOOT_TOOLTIP#","Loot to storage"],
     ["#INV_BUTTON_WEAP_TOOLTIP#","Switch weapon"],
@@ -23,6 +26,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#INV_BUTTON_MAGR_TOOLTIP#","Repack magazines"],
     //keybindings
     ["#KB_USER_PLANSHET#","User Tablet"],
+    ["#KB_ACT_EARPLUGS#","Earplugs"],
+    ["#KB_ACT_WEAPONS_AWAY#","Weapons away"],
     ["#KB_VIEW_DISTANCE#","View Distance"],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_1#","Press new key or key combination to assign"],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_2#","Ctrl, Shift, Alt - modifiers"],

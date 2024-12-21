@@ -94,6 +94,9 @@ _serverModules pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKing.sqf" call
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKingFunctions.sqf" call NWG_fnc_compile);
 
 //T2_UserInteraction
+//actionsKeybind
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\actionsKeybind\actionsKeybind.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\actionsKeybind\actionsKeybindFunctions.sqf" call NWG_fnc_compile);
 //additionalWeapon
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additionalWeapon.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additionalWeaponCommon.sqf" call NWG_fnc_compile);

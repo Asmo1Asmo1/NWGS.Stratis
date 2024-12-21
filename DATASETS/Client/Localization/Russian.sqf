@@ -16,6 +16,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#WORLD_NAME_VR#","VR"],
     ["#WORLD_NAME_UNKNOWN#","Неизвест."],
     //T2_UserInteraction
+    //actionsKeybind
+    ["#AK_EARPLUGS_ON#","Беруши надеты"],
+    ["#AK_EARPLUGS_OFF#","Беруши сняты"],
     //inventoryUI
     ["#INV_BUTTON_LOOT_TOOLTIP#","Отправить в хранилище"],
     ["#INV_BUTTON_WEAP_TOOLTIP#","Сменить оружие"],
@@ -23,6 +26,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#INV_BUTTON_MAGR_TOOLTIP#","Перепаковать магазины"],
     //keybindings
     ["#KB_USER_PLANSHET#","Планшет оператора"],
+    ["#KB_ACT_EARPLUGS#","Беруши"],
+    ["#KB_ACT_WEAPONS_AWAY#","Оружие за спину"],
     ["#KB_VIEW_DISTANCE#","Дальность видимости"],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_1#","Нажмите новую клавишу или комбинацию клавиш"],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_2#","Ctrl, Shift, Alt - модификаторы"],
