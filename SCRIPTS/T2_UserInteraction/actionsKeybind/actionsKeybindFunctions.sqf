@@ -8,3 +8,7 @@ NWG_fnc_akWeaponsAway = {
 	call NWG_AK_WeaponsAway;
 };
 
+//Parachute deployment
+NWG_fnc_akParachuteDeployment = {
+	call NWG_AK_ParachuteDeployment;
+};

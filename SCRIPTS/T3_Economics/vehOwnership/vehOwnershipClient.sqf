@@ -29,6 +29,7 @@ NWG_VEHOWN_OnGetIn = {
 	//Check if _veh is a legit vehicle
 	private _i = ["Car","Tank","Helicopter","Plane","Ship"] findIf {_veh isKindOf _x};
 	if (_i == -1) exitWith {};//Not a vehicle
+	if (_veh isKindOf "ParachuteBase") exitWith {};//Ignore parachutes
 
 	//Try claiming vehicle
 	private _owner = _veh call NWG_VEHOWN_GetVehicleOwner;

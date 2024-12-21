@@ -23,13 +23,14 @@ NWG_KB_Keybindings = [
 	[61,"F3","#KB_USER_PLANSHET#",{call NWG_fnc_upOpenMainMenu},true],
 	[59,"F1","#KB_ACT_EARPLUGS#",{call NWG_fnc_akToggleEarPlugs},true],
 	[60,"F2","#KB_ACT_WEAPONS_AWAY#",{call NWG_fnc_akWeaponsAway},true],
-	[62,"F4","#KB_VIEW_DISTANCE#",{call NWG_fnc_vdOpenMenu},true]
+	[62,"F4","#KB_VIEW_DISTANCE#",{call NWG_fnc_vdOpenMenu},true],
+	[57,"Space","#KB_ACT_PARACHUTE_DEPLOYMENT#",{call NWG_fnc_akParachuteDeployment},false]
 ];
 
 //================================================================================================================
 //================================================================================================================
 //Fields
-/*Key to button mapping*//*see: https://community.bistudio.com/wiki/DIK_KeyCodes*/
+/*Key to button mapping*//*see: https://community.bistudio.com/wiki/DIK_KeyCodes */
 NWG_KB_keyToButtonMap = createHashMapFromArray [
 	/*Function Keys F1..F15*/
 	[59,"F1"],// F1	F1..F15	DIK_F1	0x3B	59	N/A
@@ -130,7 +131,10 @@ NWG_KB_keyToButtonMap = createHashMapFromArray [
 	[207,"End"],// ArrowKeypad	DIK_END	0xCF	207	End on arrow keypad
 	[208,"Down"],// ArrowKeypad	DIK_DOWN	0xD0	208	DownArrow on arrow keypad
 	[209,"PgDn"],// ArrowKeypad	DIK_NEXT	0xD1	209	PgDn on arrow keypad
-	[210,"Insert"]// ArrowKeypad	DIK_INSERT	0xD2	210	Insert on arrow keypad
+	[210,"Insert"],// ArrowKeypad	DIK_INSERT	0xD2	210	Insert on arrow keypad
+
+	/*Other Keys*/
+	[57,"Space"]// Space		Graphics	DIK_SPACE		0x39	57	N/A
 ];
 
 //================================================================================================================
