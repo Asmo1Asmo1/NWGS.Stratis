@@ -160,34 +160,28 @@ NWG_UP_06Settings_Keybindings_OnKeyDown = {
 	private _listBox = _display displayCtrl IDC_LISTBOX;
 	if (isNull _listBox) exitWith {};
 
-	/*Fix for 'space' key*/
-	/*Arma seems to have hardcoded 'space' key handler 'jump to the start of the list' that works BEFORE this handler*/
-	if (_key == 57) then {
-		private _selected = NWG_UP_06Settings_Keybindings_selectedKB;
-		if (NWG_UP_Settings get "SM_ADD_CLOSING_TITLE_ROW_TO_LIST") then {_selected = _selected + 1};
-		_listBox lbSetCurSel _selected;
-	};
 
 	//Get selected keybinding index
 	if (NWG_UP_06Settings_Keybindings_selectedKB == -1) exitWith {};//No row selected
-	private _curSel = lbCurSel _listBox;
-	if (NWG_UP_Settings get "SM_ADD_CLOSING_TITLE_ROW_TO_LIST") then {_curSel = _curSel - 1};
-	if (NWG_UP_06Settings_Keybindings_selectedKB != _curSel) exitWith {};//Player changed row but did not double click on it
-	private _kbIndex = NWG_UP_06Settings_Keybindings_selectedKB;
+	private _selected = NWG_UP_06Settings_Keybindings_selectedKB;
+
+	//Place listbox cursor to the selected row (fix for space key and player changing row but not double clicking it)
+	private _listCurSel = if (NWG_UP_Settings get "SM_ADD_CLOSING_TITLE_ROW_TO_LIST") then {_selected + 1} else {_selected};
+	_listBox lbSetCurSel _listCurSel;
 
 	//Update keybinding
 	private _update = switch (true) do {
 		case (_key == (NWG_UP_06Settings_Settings get "KB_KEY_DELETE")): {
-			_kbIndex call NWG_fnc_kbDropKeybinding
+			_selected call NWG_fnc_kbDropKeybinding
 		};
 		case (_key == (NWG_UP_06Settings_Settings get "KB_KEY_DELETE_ALT")): {
-			_kbIndex call NWG_fnc_kbDropKeybinding
+			_selected call NWG_fnc_kbDropKeybinding
 		};
 		case (_key == (NWG_UP_06Settings_Settings get "KB_KEY_TOGGLE_BYPASS")): {
-			_kbIndex call NWG_fnc_kbToggleKeybindingKeyDownBlock
+			_selected call NWG_fnc_kbToggleKeybindingKeyDownBlock
 		};
 		case (_key call NWG_fnc_kbIsKeySupported): {
-			[_kbIndex,_key,_shift,_ctrl,_alt] call NWG_fnc_kbUpdateKeybinding
+			[_selected,_key,_shift,_ctrl,_alt] call NWG_fnc_kbUpdateKeybinding
 		};
 		default {false};
 	};
