@@ -29,3 +29,12 @@ NWG_AK_ToggleEarPlugs = {
     };
     localNamespace setVariable ["NWG_AK_EarPlugsOn",!_earplugsOn];//Toggle earplugs state
 };
+
+//================================================================================================================
+//================================================================================================================
+//Weapons away
+NWG_AK_WeaponsAway = {
+	if (isNull player || {!alive player || {!isNull objectParent player}}) exitWith {};
+	if (!isNil "NWG_fnc_medIsWounded" && {player call NWG_fnc_medIsWounded}) exitWith {};
+	player action ["SwitchWeapon",player,player,-1];
+};

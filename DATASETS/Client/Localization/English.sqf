@@ -27,6 +27,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //keybindings
     ["#KB_USER_PLANSHET#","User Tablet"],
     ["#KB_ACT_EARPLUGS#","Earplugs"],
+    ["#KB_ACT_WEAPONS_AWAY#","Weapons away"],
     ["#KB_VIEW_DISTANCE#","View Distance"],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_1#","Press new key or key combination to assign"],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_2#","Ctrl, Shift, Alt - modifiers"],
