@@ -16,6 +16,12 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#WORLD_NAME_VR#","VR"],
     ["#WORLD_NAME_UNKNOWN#","Неизвест."],
     //T2_UserInteraction
+    //actionsInVehicle
+    ["#AV_JUMP_OUT_TITLE#","Выпрыгнуть"],
+    ["#AV_SEAT_SWITCH_NEXT_TITLE#","Следующее место"],
+    ["#AV_SEAT_SWITCH_PREV_TITLE#","Предыдущее место"],
+    ["#AV_ALL_WHEEL_TITLE_ON#","Полный привод ВКЛ"],
+    ["#AV_ALL_WHEEL_TITLE_OFF#","Полный привод ВЫКЛ"],
     //actionsKeybind
     ["#AK_EARPLUGS_ON#","Беруши надеты"],
     ["#AK_EARPLUGS_OFF#","Беруши сняты"],
@@ -33,7 +39,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_SETTINGS_KEYBINDINGS_HINT_1#","Нажмите новую клавишу или комбинацию клавиш"],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_2#","Ctrl, Shift, Alt - модификаторы"],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_3#",'"Delete" или "BackSpace" - удалить сочетание'],
-    ["#UP_SETTINGS_KEYBINDINGS_HINT_4#",'"Tab" - переключить проброс в игру'],
+    ["#UP_SETTINGS_KEYBINDINGS_HINT_4#",'"Tab" - переключить проброс нажатия'],
     //magrepack (direct translation)
     ["Mag Repack","Перепаковка"],
 	[" Source"," Источник"],
