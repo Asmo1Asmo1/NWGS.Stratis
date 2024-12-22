@@ -6,6 +6,10 @@
 //================================================================================================================
 //Settings
 NWG_AV_Settings = createHashMapFromArray [
+	["JUMP_OUT_ACTION_ASSIGN",true],
+	["JUMP_OUT_ACTION_TITLE","#AV_JUMP_OUT_TITLE#"],
+	["JUMP_OUT_ACTION_PRIORITY",0],
+
 	["",0]
 ];
 
@@ -33,19 +37,58 @@ NWG_AV_GeneralCondition = {
 //Actions assign/unassign
 NWG_AV_OnGetIn = {
 	// params ["_unit","_role","_vehicle","_turret"];
+	private _vehicle = _this select 2;
+
+	//Global check
 	if !(call NWG_AV_GeneralCondition) exitWith {};
+
+	//Prepare assignment
 	private _actionIDs = [];
+	private _assignAction = {
+		params ["_title","_code","_priority","_condition"];
+		private _actionID = player addAction [
+			(_title call NWG_fnc_localize),// title
+			_code,      // script
+			nil,        // arguments
+			_priority,  // priority
+			false,      // showWindow
+			true,       // hideOnUse
+			"",         // shortcut
+			_condition, // condition
+			-1,         // radius
+			false       // unconscious
+		];
+		_actionIDs pushBack _actionID;
+	};
 
-	//TODO: Implement
+	//Assign actions
+	private ["_title","_code","_priority","_condition"];
 
+	/*Jump Out*/
+	if (NWG_AV_Settings get "JUMP_OUT_ACTION_ASSIGN" && {_vehicle isKindOf "Air"}) then {
+		_title = NWG_AV_Settings get "JUMP_OUT_ACTION_TITLE";
+		_code = {call NWG_AV_JumpOut_Action};
+		_priority = NWG_AV_Settings get "JUMP_OUT_ACTION_PRIORITY";
+		_condition = "true";
+		[_title,_code,_priority,_condition] call _assignAction;
+	};
+
+	//Save action IDs for later removal
 	player setVariable ["NWG_AV_actionIDs", _actionIDs];
 };
 
 NWG_AV_OnGetOut = {
 	// params ["_unit","_role","_vehicle","_turret","_isEject"];
 	private _actionIDs = player getVariable ["NWG_AV_actionIDs", []];
-	{removeAction _x} forEach _actionIDs;
+	{player removeAction _x} forEach _actionIDs;
 	player setVariable ["NWG_AV_actionIDs", []];
+};
+
+//================================================================================================================
+//================================================================================================================
+//Jump out
+NWG_AV_JumpOut_Action = {
+	player action ["getOut",(vehicle player)];
 };
 
 //================================================================================================================

@@ -16,6 +16,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#WORLD_NAME_VR#","VR"],
     ["#WORLD_NAME_UNKNOWN#","Unknown"],
     //T2_UserInteraction
+    //actionsInVehicle
+    ["#AV_JUMP_OUT_TITLE#","Jump out"],
     //actionsKeybind
     ["#AK_EARPLUGS_ON#","Earplugs on"],
     ["#AK_EARPLUGS_OFF#","Earplugs off"],
