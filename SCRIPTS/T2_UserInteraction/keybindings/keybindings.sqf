@@ -27,7 +27,9 @@ NWG_KB_Keybindings = [
 	[57,"Space","#KB_ACT_PARACHUTE_DEPLOYMENT#",{call NWG_fnc_akParachuteDeployment},false],
 	[18,"Shift + E","#AV_JUMP_OUT_TITLE#",{call NWG_fnc_avJumpOut},false],
 	[24,"O","#AV_SEAT_SWITCH_NEXT_TITLE#",{call NWG_fnc_avSeatSwitchNext},false],
-	[25,"P","#AV_SEAT_SWITCH_PREV_TITLE#",{call NWG_fnc_avSeatSwitchPrev},false]
+	[25,"P","#AV_SEAT_SWITCH_PREV_TITLE#",{call NWG_fnc_avSeatSwitchPrev},false],
+	[KEY_NOT_SET,EXPRESSION_NOT_SET,"#AV_ALL_WHEEL_TITLE_ON#",{call NWG_fnc_avAllWheelOn},false],
+	[KEY_NOT_SET,EXPRESSION_NOT_SET,"#AV_ALL_WHEEL_TITLE_OFF#",{call NWG_fnc_avAllWheelOff},false]
 ];
 
 //================================================================================================================
