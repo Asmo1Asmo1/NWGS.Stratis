@@ -16,6 +16,16 @@ NWG_AV_Settings = createHashMapFromArray [
 	["SEAT_SWITCH_ACTION_PRIORITY",0],
 	["SEAT_SWITCH_SEATS_ORDER",["driver","gunner","commander","turret","cargo"]],
 
+	["ALL_WHEEL_ACTION_ASSIGN",true],
+	["ALL_WHEEL_ACTION_TITLE_ON","#AV_ALL_WHEEL_TITLE_ON#"],
+	["ALL_WHEEL_ACTION_TITLE_OFF","#AV_ALL_WHEEL_TITLE_OFF#"],
+	["ALL_WHEEL_ACTION_PRIORITY",0],
+	["ALL_WHEEL_SUPPORTED_VEH_TYPES",["Car","Tank","Wheeled_APC_F"]],
+	["ALL_WHEEL_MIN_MASS",1000],
+	["ALL_WHEEL_MASS_MULTIPLIER",0.25],
+	["ALL_WHEEL_MASS_CENTER_ADD",-1],
+	["ALL_WHEEL_FUEL_MULTIPLIER",4],
+
 	["",0]
 ];
 
@@ -89,6 +99,19 @@ NWG_AV_OnGetIn = {
 
 		_title = NWG_AV_Settings get "SEAT_SWITCH_ACTION_PREV_TITLE";
 		_code = {false call NWG_AV_SeatSwitch_Action};
+		[_title,_code,_priority,_condition] call _assignAction;
+	};
+
+	/*All wheel*/
+	if (NWG_AV_Settings get "ALL_WHEEL_ACTION_ASSIGN" && {call NWG_AV_AllWheel_ConditionAssign}) then {
+		_title = NWG_AV_Settings get "ALL_WHEEL_ACTION_TITLE_ON";
+		_code = {call NWG_AV_AllWheel_ToggleAction};
+		_priority = NWG_AV_Settings get "ALL_WHEEL_ACTION_PRIORITY";
+		_condition = "false call NWG_AV_AllWheel_ConditionToggle";
+		[_title,_code,_priority,_condition] call _assignAction;
+
+		_title = NWG_AV_Settings get "ALL_WHEEL_ACTION_TITLE_OFF";
+		_condition = "true call NWG_AV_AllWheel_ConditionToggle";
 		[_title,_code,_priority,_condition] call _assignAction;
 	};
 
@@ -180,6 +203,84 @@ NWG_AV_SeatSwitch_Action = {
 			player moveInCargo [_vehicle,(_newSeat#FULL_CREW_CARGO_INDEX)];
 		};
 	};
+};
+
+//================================================================================================================
+//================================================================================================================
+//All wheel (Mass reduction)
+NWG_AV_AllWheel_ConditionAssign = {
+	if (!alive player || {isNull (objectParent player)}) exitWith {false};
+
+	//Check vehicle type
+	private _vehicle = objectParent player;
+	private _supportedVehicles = NWG_AV_Settings get "ALL_WHEEL_SUPPORTED_VEH_TYPES";
+	if ((_supportedVehicles findIf {_vehicle isKindOf _x}) == -1) exitWith {false};
+
+	//Check vehicle mass
+	private _origMass = _vehicle getVariable "NWG_AV_AllWheel_origMass";
+	if (isNil "_origMass") then {
+		_origMass = getMass _vehicle;
+		_vehicle setVariable ["NWG_AV_AllWheel_origMass",_origMass,true];
+	};
+	private _minMass = NWG_AV_Settings get "ALL_WHEEL_MIN_MASS";
+	if (_origMass < _minMass) exitWith {false};
+
+	//All checks passed
+	true
+};
+
+NWG_AV_AllWheel_ConditionToggle = {
+	// private _expectedOn = _this;
+	(driver (objectParent player)) isEqualTo player && {
+	local (objectParent player) && {
+	((objectParent player) getVariable ["NWG_AV_AllWheel_isOn",false]) == _this}}
+};
+
+NWG_AV_AllWheel_ToggleAction = {
+	private _vehicle = objectParent player;
+	if (isNull _vehicle) exitWith {};
+	if !(local _vehicle) exitWith {};
+
+	//Get values
+	private _isOn = _vehicle getVariable ["NWG_AV_AllWheel_isOn",false];
+	private _origMass = _vehicle getVariable "NWG_AV_AllWheel_origMass";
+	if (isNil "_origMass") then {
+		_origMass = getMass _vehicle;
+		_vehicle setVariable ["NWG_AV_AllWheel_origMass",_origMass,true];
+	};
+	private _origMassCenter = _vehicle getVariable "NWG_AV_AllWheel_origMassCenter";
+	if (isNil "_origMassCenter") then {
+		_origMassCenter = (getCenterOfMass _vehicle)#2;
+		_vehicle setVariable ["NWG_AV_AllWheel_origMassCenter",_origMassCenter,true];
+	};
+
+	//Calculate new values
+	private _newMassCenter = getCenterOfMass _vehicle;
+	private ["_newMass","_newFuel"];
+	if (_isOn) then {
+		//Revert to original
+		_newMassCenter set [2,_origMassCenter];
+		_newMass = _origMass;
+		_newFuel = 1;
+	} else {
+		//Set new values
+		_newMassCenter set [2,(_origMassCenter + (NWG_AV_Settings get "ALL_WHEEL_MASS_CENTER_ADD"))];
+
+		private _minMass = NWG_AV_Settings get "ALL_WHEEL_MIN_MASS";
+		_newMass = _origMass * (NWG_AV_Settings get "ALL_WHEEL_MASS_MULTIPLIER");
+		if (_origMass > _minMass && {_newMass < _minMass})
+			then {_newMass = _minMass};
+
+		private _fuelMultBase = NWG_AV_Settings get "ALL_WHEEL_FUEL_MULTIPLIER";
+		private _fuelMultByMass = round (_origMass / 10000);
+		_newFuel = _fuelMultBase max _fuelMultByMass;
+	};
+
+	//Set new values
+	_vehicle setMass _newMass;
+	_vehicle setCenterOfMass _newMassCenter;
+	_vehicle setFuelConsumptionCoef _newFuel;
+	_vehicle setVariable ["NWG_AV_AllWheel_isOn",!_isOn,true];
 };
 
 //================================================================================================================

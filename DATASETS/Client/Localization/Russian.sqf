@@ -20,6 +20,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AV_JUMP_OUT_TITLE#","Выпрыгнуть"],
     ["#AV_SEAT_SWITCH_NEXT_TITLE#","Следующее место"],
     ["#AV_SEAT_SWITCH_PREV_TITLE#","Предыдущее место"],
+    ["#AV_ALL_WHEEL_TITLE_ON#","Полный привод ВКЛ"],
+    ["#AV_ALL_WHEEL_TITLE_OFF#","Полный привод ВЫКЛ"],
     //actionsKeybind
     ["#AK_EARPLUGS_ON#","Беруши надеты"],
     ["#AK_EARPLUGS_OFF#","Беруши сняты"],
