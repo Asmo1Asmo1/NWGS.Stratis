@@ -37,7 +37,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_SETTINGS_KEYBINDINGS_HINT_1#","Нажмите новую клавишу или комбинацию клавиш"],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_2#","Ctrl, Shift, Alt - модификаторы"],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_3#",'"Delete" или "BackSpace" - удалить сочетание'],
-    ["#UP_SETTINGS_KEYBINDINGS_HINT_4#",'"Tab" - переключить проброс в игру'],
+    ["#UP_SETTINGS_KEYBINDINGS_HINT_4#",'"Tab" - переключить проброс нажатия'],
     //magrepack (direct translation)
     ["Mag Repack","Перепаковка"],
 	[" Source"," Источник"],
