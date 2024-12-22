@@ -24,7 +24,8 @@ NWG_KB_Keybindings = [
 	[59,"F1","#KB_ACT_EARPLUGS#",{call NWG_fnc_akToggleEarPlugs},true],
 	[60,"F2","#KB_ACT_WEAPONS_AWAY#",{call NWG_fnc_akWeaponsAway},true],
 	[62,"F4","#KB_VIEW_DISTANCE#",{call NWG_fnc_vdOpenMenu},true],
-	[57,"Space","#KB_ACT_PARACHUTE_DEPLOYMENT#",{call NWG_fnc_akParachuteDeployment},false]
+	[57,"Space","#KB_ACT_PARACHUTE_DEPLOYMENT#",{call NWG_fnc_akParachuteDeployment},false],
+	[18,"Shift + E","#AV_JUMP_OUT_TITLE#",{call NWG_fnc_avJumpOut},false]
 ];
 
 //================================================================================================================
