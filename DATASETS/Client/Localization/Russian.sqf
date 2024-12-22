@@ -18,6 +18,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //T2_UserInteraction
     //actionsInVehicle
     ["#AV_JUMP_OUT_TITLE#","Выпрыгнуть"],
+    ["#AV_SEAT_SWITCH_NEXT_TITLE#","Следующее место"],
+    ["#AV_SEAT_SWITCH_PREV_TITLE#","Предыдущее место"],
     //actionsKeybind
     ["#AK_EARPLUGS_ON#","Беруши надеты"],
     ["#AK_EARPLUGS_OFF#","Беруши сняты"],

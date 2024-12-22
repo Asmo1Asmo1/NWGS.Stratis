@@ -32,13 +32,18 @@ NWG_VEHOWN_OnGetIn = {
 
 	//Try claiming vehicle
 	private _owner = _veh call NWG_VEHOWN_GetVehicleOwner;
+	private _ownerChanged = false;
 	if (isNull _owner || {!alive _owner}) then {
 		[_veh,_player] call NWG_fnc_vownPairVehAndPlayer;
+		_ownerChanged = true;
 		_owner = _player;
 	};
 
 	//Show message
 	if (NWG_VEHOWN_Settings get "SHOW_OWNERSHIP_ON_GETIN") then {
+		if (!_ownerChanged && {_veh isEqualTo (player getVariable ["NWG_VEHOWN_lastVehicle",objNull])}) exitWith {};//Fix repeating messages
+		player setVariable ["NWG_VEHOWN_lastVehicle",_veh];
+
 		private _displayName = getText (configOf _veh >> "displayName");
 		private _ownerName = name _owner;
 		["#VEHOWN_MESSAGE_OWNER#",_displayName,_ownerName] call NWG_fnc_systemChatMe;
