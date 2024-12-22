@@ -27,9 +27,8 @@ NWG_VEHOWN_OnGetIn = {
 	if !(NWG_VEHOWN_Settings get "ASSIGN_OWNERSHIP_ON_GETIN") exitWith {};
 
 	//Check if _veh is a legit vehicle
-	private _i = ["Car","Tank","Helicopter","Plane","Ship"] findIf {_veh isKindOf _x};
-	if (_i == -1) exitWith {};//Not a vehicle
-	if (_veh isKindOf "ParachuteBase") exitWith {};//Ignore parachutes
+	private _i = ["ParachuteBase","Car","Tank","Helicopter","Plane","Ship"] findIf {_veh isKindOf _x};
+	if (_i <= 0) exitWith {};//Not a vehicle
 
 	//Try claiming vehicle
 	private _owner = _veh call NWG_VEHOWN_GetVehicleOwner;
