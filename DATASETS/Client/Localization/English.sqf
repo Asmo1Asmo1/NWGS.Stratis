@@ -27,6 +27,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AK_EARPLUGS_OFF#","Earplugs off"],
     //engineering
     ["#ENG_REPAIR_TITLE#","Repair"],
+    ["#ENG_UNFLIP_TITLE#","Unflip"],
     //inventoryUI
     ["#INV_BUTTON_LOOT_TOOLTIP#","Loot to storage"],
     ["#INV_BUTTON_WEAP_TOOLTIP#","Switch weapon"],

@@ -19,6 +19,13 @@ NWG_ENG_Settings = createHashMapFromArray [
         [0.50,  0.50,  0.97,    0.97,   0.97,   0.33]
     ]],
 
+    //Vehicle unflip
+    ["UNFLIP_ACTION_ASSIGN",true],
+    ["UNFLIP_ACTION_TITLE","#ENG_UNFLIP_TITLE#"],
+    ["UNFLIP_ACTION_ICON","a3\ui_f\data\igui\cfg\actions\repair_ca.paa"],
+    ["UNFLIP_ACTION_PRIORITY",20],
+    ["UNFLIP_ACTION_DURATION",12],
+
     ["",0]
 ];
 
@@ -93,6 +100,19 @@ NWG_ENG_AssignActions = {
         _onCompleted = {call NWG_ENG_VehicleFix_OnCompleted};
         [_title,_icon,_priority,_duration,_condition,_onStarted,_onInterrupted,_onCompleted] call _assignAction;
     };
+
+    /*Vehicle unflip*/
+    if (NWG_ENG_Settings get "UNFLIP_ACTION_ASSIGN") then {
+        _title = NWG_ENG_Settings get "UNFLIP_ACTION_TITLE";
+        _icon = NWG_ENG_Settings get "UNFLIP_ACTION_ICON";
+        _priority = NWG_ENG_Settings get "UNFLIP_ACTION_PRIORITY";
+        _duration = NWG_ENG_Settings get "UNFLIP_ACTION_DURATION";
+        _condition = "call NWG_ENG_VehicleUnflip_Condition";
+        _onStarted = {call NWG_ENG_VehicleFix_OnStarted};//Reuse same animation
+        _onInterrupted = {call NWG_ENG_VehicleFix_OnInterrupted};//Reuse same interrupt logic
+        _onCompleted = {call NWG_ENG_VehicleUnflip_OnCompleted};
+        [_title,_icon,_priority,_duration,_condition,_onStarted,_onInterrupted,_onCompleted] call _assignAction;
+    };
 };
 
 NWG_ENG_ResetAnimation = {
@@ -142,6 +162,23 @@ NWG_ENG_VehicleFix_OnCompleted = {
         _fixDownTo = _downToRules param [(_partsRules findIf {_x in (_vehParts#_forEachIndex)}),0];
         if (_x > _fixDownTo) then {_vehicle setHitIndex [_forEachIndex,_fixDownTo]};
     } forEach _vehDamages;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Vehicle unflip
+NWG_ENG_VehicleUnflip_Condition = {
+    if (!NWG_ENG_hasToolkit) exitWith {false};
+    if (isNull (call NWG_fnc_radarGetVehInFront)) exitWith {false};
+    private _vehicle = call NWG_fnc_radarGetVehInFront;
+    private _upsideDown = ((vectorUp _vehicle) select 2) < 0.5;
+    _upsideDown
+};
+NWG_ENG_VehicleUnflip_OnCompleted = {
+    call NWG_ENG_ResetAnimation;
+    private _vehicle = call NWG_fnc_radarGetVehInFront;
+    if (isNull _vehicle) exitWith {};
+    [player,_vehicle] call BIS_fnc_unflipThing;
 };
 
 //================================================================================================================
