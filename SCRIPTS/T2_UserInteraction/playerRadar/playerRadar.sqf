@@ -8,8 +8,9 @@
 //================================================================================================================
 //Settings
 /*This module drops fps a little so instead of regular approach, we will optimize the shit out of it*/
-#define RADAR_RADIUS 3
-#define RADAR_HEIGHT_DELTA 3
+#define RADAR_RADIUS_UNIT 3
+#define RADAR_RADIUS_VEH 4
+#define RADAR_HEIGHT_DELTA 2
 #define RADAR_FORWARD_ANGLE 20
 
 #define IS_SAME_HEIGHT(ARG) ((abs (((getPosASL ARG) select 2) - ((getPosASL player) select 2))) < RADAR_HEIGHT_DELTA)
@@ -39,7 +40,7 @@ NWG_RADAR_OnEachFrame = {
     };
 
     //Search for units
-    private _units = (player nearEntities [["Man"],RADAR_RADIUS]) select {
+    private _units = (player nearEntities [["Man"],RADAR_RADIUS_UNIT]) select {
         alive _x && {
         _x isNotEqualTo player && {
         IS_SAME_HEIGHT(_x) && {
@@ -57,7 +58,7 @@ NWG_RADAR_OnEachFrame = {
     };
 
     //Search for vehicles
-    private _vehicles = player nearEntities [["Car","Tank","Helicopter","Plane","Ship"],RADAR_RADIUS] select {
+    private _vehicles = player nearEntities [["Car","Tank","Helicopter","Plane","Ship"],RADAR_RADIUS_VEH] select {
         alive _x && {
         IS_SAME_HEIGHT(_x)}
     };

@@ -27,3 +27,9 @@ NWG_fnc_invRemoveItem = {
     // private _itemClassname = _this;
     _this call NWG_INV_RemoveItem
 };
+
+//Invoke inventory change check
+//note: use it when doing 'setUnitLoadout' on player
+NWG_fnc_invInvokeChangeCheck = {
+    call NWG_INV_CheckLoadoutChange;
+};
