@@ -41,7 +41,7 @@ NWG_PSH_SER_Settings = createHashMapFromArray [
 //================================================================================================================
 //================================================================================================================
 //Fields
-NWG_PSH_SER_playerStateMap = createHashMap;
+NWG_PSH_SER_playerStateCache = createHashMap;
 
 //================================================================================================================
 //================================================================================================================
@@ -53,13 +53,13 @@ NWG_PSH_SER_OnPlayerJoin = {
 	private _playerId = _player call NWG_PSH_SER_GetPlayerId;
 	private _playerState = call {
 		//Try getting state from cache
-		private _cached = NWG_PSH_SER_playerStateMap get _playerId;
+		private _cached = NWG_PSH_SER_playerStateCache get _playerId;
 		if (!isNil "_cached") exitWith {_cached};
 
 		//Try getting state from database
 		private _stored = _playerId call (NWG_PSH_SER_Settings get "FUNC_LOAD_STATE_BY_ID");
 		if (!isNil "_stored" && {_stored isNotEqualTo false}) exitWith {
-			NWG_PSH_SER_playerStateMap set [_playerId,_stored];
+			NWG_PSH_SER_playerStateCache set [_playerId,_stored];
 			_stored
 		};
 
@@ -69,7 +69,7 @@ NWG_PSH_SER_OnPlayerJoin = {
 
 	//If state not found - create new and invoke state update
 	if (isNil "_playerState" || {_playerState isEqualTo false}) exitWith {
-		NWG_PSH_SER_playerStateMap set [_playerId,createHashMap];
+		NWG_PSH_SER_playerStateCache set [_playerId,createHashMap];
 		_player call NWG_PSH_SER_OnStateUpdateRequest;
 	};
 
@@ -89,7 +89,7 @@ NWG_PSH_SER_OnPlayerJoin = {
 NWG_PSH_SER_OnStateUpdateRequest = {
 	private _player = _this;
 	private _playerId = _player call NWG_PSH_SER_GetPlayerId;
-	private _playerState = NWG_PSH_SER_playerStateMap get _playerId;
+	private _playerState = NWG_PSH_SER_playerStateCache get _playerId;
 	if (isNil "_playerState") exitWith {
 		(format ["NWG_PSH_SER_OnStateUpdateRequest: Player state not found, init player first: '%1'",_playerId]) call NWG_fnc_logError;
 		false
@@ -98,7 +98,7 @@ NWG_PSH_SER_OnStateUpdateRequest = {
 	{
 		_playerState set [_x,(_player call (_y#STATE_GET_CODE))];
 	} forEach (NWG_PSH_SER_Settings get "STATES_TO_CARRY");
-	NWG_PSH_SER_playerStateMap set [_playerId,_playerState];
+	NWG_PSH_SER_playerStateCache set [_playerId,_playerState];
 };
 
 //================================================================================================================
@@ -136,6 +136,7 @@ NWG_PSH_SER_GetLoadout = {
 NWG_PSH_SER_SetLoadout = {
 	params ["_player","_loadout"];
 	_player setUnitLoadout _loadout;
+	remoteExec ["NWG_fnc_invInvokeChangeCheck",_player];
 };
 
 //================================================================================================================
@@ -144,5 +145,24 @@ NWG_PSH_SER_SetLoadout = {
 NWG_PSH_SER_SyncStates = {
 	{
 		[_x,_y] call (NWG_PSH_SER_Settings get "FUNC_SAVE_STATE_BY_ID");
-	} forEach NWG_PSH_SER_playerStateMap;
+	} forEach NWG_PSH_SER_playerStateCache;
+};
+
+//================================================================================================================
+//================================================================================================================
+//State get/set for other modules
+NWG_PSH_SER_GetState = {
+	params ["_playerId","_stateName"];
+	private _playerState = NWG_PSH_SER_playerStateCache get _playerId;
+	if (isNil "_playerState") exitWith {false};
+	_playerState getOrDefault [_stateName,false]
+};
+
+NWG_PSH_SER_SetState = {
+	params ["_playerId","_stateName","_stateValue"];
+	private _playerState = NWG_PSH_SER_playerStateCache get _playerId;
+	if (isNil "_playerState") exitWith {false};
+	_playerState set [_stateName,_stateValue];
+	NWG_PSH_SER_playerStateCache set [_playerId,_playerState];
+	true
 };

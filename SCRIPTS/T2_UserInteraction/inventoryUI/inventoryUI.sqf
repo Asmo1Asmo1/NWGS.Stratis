@@ -40,11 +40,11 @@ NWG_INVUI_OnInventoryOpen = {
     };
 
     //Create our custom inventory UI additons
-    private _textWeight = _inventoryDisplay ctrlCreate ["TextWeight",-1];
-    private _buttonLoot = _inventoryDisplay ctrlCreate ["ButtonLoot",-1];
-    private _buttonWeap = _inventoryDisplay ctrlCreate ["ButtonWeaponSwitch",-1];
-    private _buttonUnif = _inventoryDisplay ctrlCreate ["ButtonUniform",-1];
-    private _buttonMagR = _inventoryDisplay ctrlCreate ["ButtonMagRepack",-1];
+    private _textWeight = _inventoryDisplay ctrlCreate ["IUI_TextWeight",-1];
+    private _buttonLoot = _inventoryDisplay ctrlCreate ["IUI_ButtonLoot",-1];
+    private _buttonWeap = _inventoryDisplay ctrlCreate ["IUI_ButtonWeaponSwitch",-1];
+    private _buttonUnif = _inventoryDisplay ctrlCreate ["IUI_ButtonUniform",-1];
+    private _buttonMagR = _inventoryDisplay ctrlCreate ["IUI_ButtonMagRepack",-1];
 
     //Handle data store and cleanup
     uiNamespace setVariable ["NWG_INVUI_textWeight",_textWeight];//Store weight text control

@@ -56,15 +56,28 @@ NWG_VCAT_GetBaseVehicle = {
     _return
 };
 
+NWG_VCAT_unifiedClassnameCache = createHashMapFromArray [
+    ["I_C_Boat_Transport_02_F","I_C_Boat_Transport_02_F"]/*Exception: B_G_... class exists, but is hidden, that breaks getting its picture for shop UI*/
+];
 NWG_VCAT_GetUnifiedClassname = {
-	// private _classname = _this;
+	private _input = _this;
+
+    //Check cache
+    private _cached = NWG_VCAT_unifiedClassnameCache get _input;
+    if (!isNil "_cached") exitWith {_cached};
+
+    //Prepare caching on function exit
+    private _cacheAndReturn = {
+        NWG_VCAT_unifiedClassnameCache set [_input,_this];
+        _this
+    };
 
 	//Get base classname for the vehicle and disassemble it for analysis
 	private _classname =_this call NWG_VCAT_GetBaseVehicle;
 	private _classnameParts = _classname splitString "_";
 	if ((count _classnameParts) < 2) exitWith {
 		(format ["NWG_VCAT_GetUnifiedClassname: Invalid classname '%1'",_classname]) call NWG_fnc_logError;
-		_classname
+		_input call _cacheAndReturn
 	};
 
 	//Get variables for further analysis
@@ -76,7 +89,7 @@ NWG_VCAT_GetUnifiedClassname = {
 		else {_classnameParts select [1]};/*select [1:]*/
 
 	//Check if we already dealing with BLUFOR standard vehicle
-	if (_prefix1 isEqualTo "B" && !_doublePrefix) exitWith {_classname};
+	if (_prefix1 isEqualTo "B" && !_doublePrefix) exitWith {_classname call _cacheAndReturn};
 
     //Try getting unified classname of whatever faction it is now
     if (_doublePrefix) then {
@@ -92,12 +105,12 @@ NWG_VCAT_GetUnifiedClassname = {
 
 	//Try converting to BLUFOR
 	private _newClassname = (["B"] + _body) joinString "_";
-	if (isClass (configFile >> "CfgVehicles" >> _newClassname)) exitWith {_newClassname};
+	if (isClass (configFile >> "CfgVehicles" >> _newClassname)) exitWith {_newClassname call _cacheAndReturn};
 
 	//Try converting to BLUFOR guerilla
 	_newClassname = (["B","G"] + _body) joinString "_";
-	if (isClass (configFile >> "CfgVehicles" >> _newClassname)) exitWith {_newClassname};
+	if (isClass (configFile >> "CfgVehicles" >> _newClassname)) exitWith {_newClassname call _cacheAndReturn};
 
 	//Return original name or original within its faction (if were able to convert)
-	_classname
+	_classname call _cacheAndReturn
 };

@@ -7,10 +7,16 @@
 //================================================================================================================
 //================================================================================================================
 //Settings
-/*This module drops fps a little so instead of regular approach, we will optimize the shit out of it*/
-#define RADAR_RADIUS 3
-#define RADAR_HEIGHT_DELTA 3
+/*This module is affecting fps, so instead of regular approach, we will optimize the shit out of it*/
+#define RADAR_RADIUS_UNIT 3
+#define RADAR_RADIUS_VEH 4
+#define RADAR_HEIGHT_DELTA_UNIT 2
+#define RADAR_HEIGHT_DELTA_VEH 3
 #define RADAR_FORWARD_ANGLE 20
+
+#define IS_SAME_HEIGHT_UNIT(ARG) ((abs (((getPosASL ARG) select 2) - ((getPosASL player) select 2))) < RADAR_HEIGHT_DELTA_UNIT)
+#define IS_SAME_HEIGHT_VEH(ARG) ((abs (((getPosASL ARG) select 2) - ((getPosASL player) select 2))) < RADAR_HEIGHT_DELTA_VEH)
+#define IS_IN_FRONT(ARG) ((player getRelDir ARG) < RADAR_FORWARD_ANGLE || {(player getRelDir ARG) > (360 - RADAR_FORWARD_ANGLE)})
 
 //================================================================================================================
 //================================================================================================================
@@ -29,30 +35,18 @@ NWG_RADAR_vehcFront = NWG_RADAR_objNull;
 NWG_RADAR_vehcArond = NWG_RADAR_objNull;
 
 NWG_RADAR_OnEachFrame = {
-    if (isNull player || {!alive player || {(vehicle player) isNotEqualTo player}}) exitWith {
+    if (isNull player || {!alive player || {!isNull objectParent player}}) exitWith {
         NWG_RADAR_unitFront = NWG_RADAR_objNull;
         NWG_RADAR_vehcFront = NWG_RADAR_objNull;
         NWG_RADAR_vehcArond = NWG_RADAR_objNull;
     };
 
-    //Prepare
-    private _playerAltitude = (getPosASL player)#2;
-    private _isOnSameHeight = {
-        // private _object = _this;
-        (abs (((getPosASL _this)#2) - _playerAltitude)) < RADAR_HEIGHT_DELTA
-    };
-    private _isInFront = {
-        // private _object = _this;
-        private _relDir = player getRelDir _this;
-        (_relDir < RADAR_FORWARD_ANGLE || {_relDir > (360 - RADAR_FORWARD_ANGLE)})
-    };
-
     //Search for units
-    private _units = (player nearEntities [["Man"],RADAR_RADIUS]) select {
+    private _units = (player nearEntities [["Man"],RADAR_RADIUS_UNIT]) select {
         alive _x && {
         _x isNotEqualTo player && {
-        _x call _isOnSameHeight && {
-        _x call _isInFront}}}
+        IS_SAME_HEIGHT_UNIT(_x) && {
+        IS_IN_FRONT(_x) }}}
     };
     switch (count _units) do {
         case 0: {NWG_RADAR_unitFront = NWG_RADAR_objNull};
@@ -66,9 +60,9 @@ NWG_RADAR_OnEachFrame = {
     };
 
     //Search for vehicles
-    private _vehicles = player nearEntities [["Car","Tank","Helicopter","Plane","Ship"],RADAR_RADIUS] select {
+    private _vehicles = player nearEntities [["Car","Tank","Helicopter","Plane","Ship"],RADAR_RADIUS_VEH] select {
         alive _x && {
-        _x call _isOnSameHeight}
+        IS_SAME_HEIGHT_VEH(_x)}
     };
     switch (count _vehicles) do {
         case 0: {
@@ -77,7 +71,7 @@ NWG_RADAR_OnEachFrame = {
         };
         case 1: {
             private _veh = _vehicles#0;
-            if (_veh call _isInFront)
+            if (IS_IN_FRONT(_veh))
                 then {NWG_RADAR_vehcFront = _veh; NWG_RADAR_vehcArond = NWG_RADAR_objNull}
                 else {NWG_RADAR_vehcFront = NWG_RADAR_objNull; NWG_RADAR_vehcArond = _veh};
         };
@@ -86,7 +80,7 @@ NWG_RADAR_OnEachFrame = {
             _vehicles = _vehicles apply {[(_x distance player),_x]};
             _vehicles sort true;
             private _veh = (_vehicles#0)#1;
-            if (_veh call _isInFront)
+            if (IS_IN_FRONT(_veh))
                 then {NWG_RADAR_vehcFront = _veh; NWG_RADAR_vehcArond = NWG_RADAR_objNull}
                 else {NWG_RADAR_vehcFront = NWG_RADAR_objNull; NWG_RADAR_vehcArond = _veh};
         };

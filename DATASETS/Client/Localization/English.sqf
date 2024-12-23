@@ -16,11 +16,33 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#WORLD_NAME_VR#","VR"],
     ["#WORLD_NAME_UNKNOWN#","Unknown"],
     //T2_UserInteraction
+    //actionsInVehicle
+    ["#AV_JUMP_OUT_TITLE#","Jump out"],
+    ["#AV_SEAT_SWITCH_NEXT_TITLE#","Next seat"],
+    ["#AV_SEAT_SWITCH_PREV_TITLE#","Previous seat"],
+    ["#AV_ALL_WHEEL_TITLE_ON#","All wheel drive ON"],
+    ["#AV_ALL_WHEEL_TITLE_OFF#","All wheel drive OFF"],
+    //actionsKeybind
+    ["#AK_EARPLUGS_ON#","Earplugs on"],
+    ["#AK_EARPLUGS_OFF#","Earplugs off"],
+    //engineering
+    ["#ENG_REPAIR_TITLE#","Repair"],
+    ["#ENG_UNFLIP_TITLE#","Unflip"],
     //inventoryUI
     ["#INV_BUTTON_LOOT_TOOLTIP#","Loot to storage"],
     ["#INV_BUTTON_WEAP_TOOLTIP#","Switch weapon"],
     ["#INV_BUTTON_UNIF_TOOLTIP#","Change uniform"],
     ["#INV_BUTTON_MAGR_TOOLTIP#","Repack magazines"],
+    //keybindings
+    ["#KB_USER_PLANSHET#","User Tablet"],
+    ["#KB_ACT_EARPLUGS#","Earplugs"],
+    ["#KB_ACT_WEAPONS_AWAY#","Weapons away"],
+    ["#KB_VIEW_DISTANCE#","View Distance"],
+    ["#KB_ACT_PARACHUTE_DEPLOYMENT#","Parachute deployment"],
+    ["#UP_SETTINGS_KEYBINDINGS_HINT_1#","Press new key or key combination to assign"],
+    ["#UP_SETTINGS_KEYBINDINGS_HINT_2#","Ctrl, Shift, Alt - modifiers"],
+    ["#UP_SETTINGS_KEYBINDINGS_HINT_3#",'"Delete" or "BackSpace" - delete keybinding'],
+    ["#UP_SETTINGS_KEYBINDINGS_HINT_4#",'"Tab" - toggle key bypass'],
     //medicine
     ["#MED_CLI_BLEEDING_UI_TITLE_LOW#","Patched"],
     ["#MED_CLI_BLEEDING_UI_TITLE_MID#","Bleeding"],
@@ -52,6 +74,16 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_BLAME_WOUND_DAMAGER#","%2 incapacitated by %1"],
     ["#MED_BLAME_KILL_NOBODYS#","%1 executed"],
     ["#MED_BLAME_KILL_DAMAGER#","%2 executed by %1"],
+    //userPlanshet
+    ["#UP_BUTTON_MOBLSHOP_TOOLTIP#","Mobile shop"],
+    ["#UP_BUTTON_MTRANSFR_TOOLTIP#","Money transfer"],
+    ["#UP_BUTTON_GROUPMNG_TOOLTIP#","Group management"],
+    ["#UP_BUTTON_DOCUMNTS_TOOLTIP#","Documents"],
+    ["#UP_BUTTON_PLR_INFO_TOOLTIP#","Player info"],
+    ["#UP_BUTTON_SETTINGS_TOOLTIP#","Settings"],
+    //06Settings
+    ["#UP_SETTINGS_TITLE#","Settings"],
+    ["#UP_SETTINGS_KEYBINDINGS#","Keybindings"],
     //voting
     ["#VOTE_COUNTER_TEMPLATE#","Enter + or - in chat\n[+]:%2 [-]:%3 (%4)sec"],
     ["#VOTE_HINT_ABORTED#","Vote aborted"],
@@ -64,6 +96,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#LS_ACTION_LOOT_FAILURE#","Nothing to take"],
     ["#LS_STORAGE_ACTION_TITLE#","Open Storage"],
     ["#LS_DEPLETE_NOTIFICATION#","Lost %1%% of loot"],
+    //moneyTransfer
+    ["#MT_ACTION_TITLE#","Money transfer"],
+    ["#MT_PLAYER_NOT_FOUND#","Player not found"],
     //shopItems
     ["#ISHOP_ACTION_TITLE#","Open Shop"],
     ["#ISHOP_SELLER_MONEY_CONST#","€$---"],
@@ -74,6 +109,32 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#ISHOP_CAT_AMMO#","Ammunition"],
     ["#ISHOP_MULT_X10_TT#","Ctrl"],
     ["#ISHOP_MULT_ALL_TT#","Shift"],
+    //shopMobile
+    ["#MSHOP_ROOT_TITLE#","Mobile shop"],
+    ["#MSHOP_CAT0_TITLE#","Drones"],
+    ["#MSHOP_C0I0#","Scout drone"],
+    ["#MSHOP_C0I1#","Suicide drone (Heat 44)"],
+    ["#MSHOP_C0I2#","Suicide drone (Heat 55)"],
+    ["#MSHOP_C0I3#","Suicide drone (Heat 75)"],
+    ["#MSHOP_C0I4#","Thunder EMI drone"],
+    ["#MSHOP_C0I4_ActionTitle#","Activate"],
+    ["#MSHOP_C0I5#","Bomber drone"],
+    ["#MSHOP_C0I6#","Ababil"],
+    ["#MSHOP_CAT1_TITLE#","Mortar strike"],
+    ["#MSHOP_C1I0#","Single strike"],
+    ["#MSHOP_C1I1#","Double tap"],
+    ["#MSHOP_C1I2#","Three in a row"],
+    ["#MSHOP_C1I3#","Barrage"],
+    ["#MSHOP_C1I4#","Illumination shells"],
+    ["#MSHOP_C1I5#","Smoke shells"],
+    ["#MSHOP_CAT2_TITLE#","Infantry support"],
+    ["#MSHOP_C2I0#","Team (2)"],
+    ["#MSHOP_C2I1#","Squad (3)"],
+    ["#MSHOP_C2I2#","Company (5)"],
+    ["#MSHOP_C2I3#","Fire team (8)"],
+    ["#MSHOP_CAT3_TITLE#","Vehicle drop"],
+    ["#MSHOP_MAP_ITEM_HINT#","Select destination point"],
+    ["#MSHOP_MAP_VEHICLE_HINT#","Select vehicle delivery point"],
     //shopVehicles
     ["#VSHOP_ACTION_TITLE#","Open Shop"],
     ["#VSHOP_SELLER_MONEY_CONST#","€$---"],

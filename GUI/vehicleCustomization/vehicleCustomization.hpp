@@ -16,7 +16,7 @@ class vehicleCustomization {
 		// GUI EDITOR OUTPUT START (by Asmo, v1.063, #Rifoga)
 		////////////////////////////////////////////////////////
 
-		class LeftBox: RscListbox
+		class VCUI_LeftBox: RscListbox
 		{
 			idc = 1500;
 			x = -29 * UI_GRID_W + UI_GRID_X;
@@ -25,7 +25,7 @@ class vehicleCustomization {
 			h = 34 * UI_GRID_H;
 			rowHeight = 2.5 * UI_GRID_H;
 		};
-		class RightBox: RscListbox
+		class VCUI_RightBox: RscListbox
 		{
 			idc = 1501;
 			x = 16 * UI_GRID_W + UI_GRID_X;

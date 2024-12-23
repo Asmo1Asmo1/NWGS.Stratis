@@ -4,3 +4,4 @@ import RscActivePictureKeepAspect;
 import RscListbox;
 import RscButton;
 import RscCombo;
+import RscPicture;

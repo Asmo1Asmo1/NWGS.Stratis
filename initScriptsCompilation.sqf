@@ -94,11 +94,19 @@ _serverModules pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKing.sqf" call
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKingFunctions.sqf" call NWG_fnc_compile);
 
 //T2_UserInteraction
+//actionsInVehicle
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\actionsInVehicle\actionsInVehicle.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\actionsInVehicle\actionsInVehicleFunctions.sqf" call NWG_fnc_compile);
+//actionsKeybind
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\actionsKeybind\actionsKeybind.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\actionsKeybind\actionsKeybindFunctions.sqf" call NWG_fnc_compile);
 //additionalWeapon
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additionalWeapon.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additionalWeaponCommon.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additionalWeaponCommon.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additionalWeaponFunctions.sqf" call NWG_fnc_compile);
+//engineering
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\engineering\engineering.sqf" call NWG_fnc_compile);
 //inventoryManager
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\inventoryManager\inventoryManager.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\inventoryManager\inventoryManagerFunctions.sqf" call NWG_fnc_compile);
@@ -106,6 +114,10 @@ if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\inve
 //inventoryUI
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\inventoryUI\inventoryUI.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\inventoryUI\inventoryUITests.sqf" call NWG_fnc_compile)};
+//keybindings
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\keybindings\keybindings.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\keybindings\keybindingsFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\keybindings\keybindingsTests.sqf" call NWG_fnc_compile)};
 //magrepack
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepack.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepackFunctions.sqf" call NWG_fnc_compile);
@@ -131,6 +143,7 @@ _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerSta
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\clientEventsConnector.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderServer.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\missionMachineConnector.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\lootDepleterOnDisconnect.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderFunctions.sqf" call NWG_fnc_compile);
 //playerTraits
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerTraits\playerTraits.sqf" call NWG_fnc_compile);
@@ -139,8 +152,13 @@ _clientModules pushBack ("SCRIPTS\T2_UserInteraction\stickyBombs\stickyBombs.sqf
 //unformEquip
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\unformEquip\unformEquip.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\unformEquip\unformEquipFunctions.sqf" call NWG_fnc_compile);
+//userPlanshet
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\userPlanshet.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\userPlanshetFunctions.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\06Settings.sqf" call NWG_fnc_compile);
 //viewDistance
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistance.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistanceFunctions.sqf" call NWG_fnc_compile);
 //voting
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingCommon.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingServerSide.sqf" call NWG_fnc_compile);
@@ -159,6 +177,8 @@ _serverModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorization
 _clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehs.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsTests.sqf" call NWG_fnc_compile)};
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsFunctions.sqf" call NWG_fnc_compile);
+//economicsTest
+if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T3_Economics\economicsTest\economicsTest.sqf" call NWG_fnc_compile)};
 //lootMission
 _serverModules pushBack ("SCRIPTS\T3_Economics\lootMission\lootMissionServer.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\lootMission\missionMachineConnector.sqf" call NWG_fnc_compile);
@@ -173,18 +193,30 @@ _clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageCommon.sqf
 _clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageClient.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageTests.sqf" call NWG_fnc_compile)};
+//moneyTransfer
+_clientModules pushBack ("SCRIPTS\T3_Economics\moneyTransfer\moneyTransfer.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T3_Economics\moneyTransfer\moneyTransferFunctions.sqf" call NWG_fnc_compile);
 //shopItems
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsServerSide.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\missionMachineConnector.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsTests.sqf" call NWG_fnc_compile)};
+//shopMobile
+_serverModules pushBack ("SCRIPTS\T3_Economics\shopMobile\shopMobileServerSide.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\shopMobile\missionMachineConnector.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\shopMobile\dspawnConnector.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\shopMobile\shopMobileClientSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\shopMobile\shopMobileFunctions.sqf" call NWG_fnc_compile);
 //shopVehicles
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopVehicles\shopVehiclesServerSide.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopVehicles\missionMachineConnector.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\shopVehicles\shopVehiclesClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\shopVehicles\shopVehiclesFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\shopVehicles\shopVehiclesTests.sqf" call NWG_fnc_compile)};
+//uiHelper
+_clientModules pushBack ("SCRIPTS\T3_Economics\uiHelper\uiHelper.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T3_Economics\uiHelper\uiHelperFunctions.sqf" call NWG_fnc_compile);
 //vehCustomizationAppearance
 _serverModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationAppearance\vehCustomizationAppearanceCore.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\vehCustomizationAppearance\vehCustomizationAppearanceCore.sqf" call NWG_fnc_compile);

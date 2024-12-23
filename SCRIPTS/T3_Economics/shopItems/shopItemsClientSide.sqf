@@ -31,17 +31,12 @@
 //================================================================================================================
 //Settings
 NWG_ISHOP_CLI_Settings = createHashMapFromArray [
-	["PRICE_SELL_TO_PLAYER_MULTIPLIER",1.3],
-	["PRICE_BUY_FROM_PLAYER_MULTIPLIER",0.7],
+	["PRICE_SELL_TO_PLAYER_MULTIPLIER",1.5],
+	["PRICE_BUY_FROM_PLAYER_MULTIPLIER",0.5],
 
 	["SHOP_SKIP_SENDING_PLAYER_LOOT",true],//If you're using 'lootStorage' module, player loot is already synchronized between players and server
 	["SHOP_GET_PLAYER_LOOT_FUNC",{_this call NWG_fnc_lsGetPlayerLoot}],//Function that returns player loot
 	["SHOP_SET_PLAYER_LOOT_FUNC",{_this call NWG_fnc_lsSetPlayerLoot}],//Function that sets player loot
-
-	["PLAYER_MONEY_BLINK_COLOR_ON_ERROR",[1,0,0,1]],
-	["PLAYER_MONEY_BLINK_COLOR_ON_SUCCESS",[0,1,0,1]],
-	["PLAYER_MONEY_BLINK_COLOR_INTERVAL_ON",0.3],
-	["PLAYER_MONEY_BLINK_COLOR_INTERVAL_OFF",0.2],
 
 	["MULTIPLIER_BUTTON_ACTIVE_COLOR",[1,1,1,1]],
 	["MULTIPLIER_BUTTON_INACTIVE_COLOR",[1,1,1,0.2]],
@@ -82,16 +77,34 @@ NWG_ISHOP_CLI_OnServerResponse = {
 	};
 	uiNamespace setVariable ["NWG_ISHOP_CLI_shopGUI",_shopGUI];
 
+	//Filter and sort categories
+	_playerLoot = +_playerLoot;//Deep copy
+	_shopItems = +_shopItems;//Deep copy
+	{
+		_x = _x call NWG_fnc_unCompactStringArray;
+		_x = [_x,/*isCompacted:*/false] call NWG_ISHOP_CLI_FilterCategory;
+		_x = [_x,/*isCompacted:*/false] call NWG_ISHOP_CLI_SortCategory;
+		_x = _x call NWG_fnc_compactStringArray;
+		_playerLoot set [_forEachIndex,_x];
+	} forEach _playerLoot;
+	{
+		_x = _x call NWG_fnc_unCompactStringArray;
+		_x = [_x,/*isCompacted:*/false] call NWG_ISHOP_CLI_FilterCategory;
+		_x = [_x,/*isCompacted:*/false] call NWG_ISHOP_CLI_SortCategory;
+		_x = _x call NWG_fnc_compactStringArray;
+		_shopItems set [_forEachIndex,_x];
+	} forEach _shopItems;
+
 	//Save player loot and shop items for both UI and transaction logic
-	uiNamespace setVariable ["NWG_ISHOP_CLI_playerLoot",(+_playerLoot)];//Save as deep copy
-	uiNamespace setVariable ["NWG_ISHOP_CLI_shopItems",(+_shopItems)];//Save as deep copy
+	uiNamespace setVariable ["NWG_ISHOP_CLI_playerLoot",_playerLoot];
+	uiNamespace setVariable ["NWG_ISHOP_CLI_shopItems",_shopItems];
 
 	//Init transaction
 	[_allItems,_allPrices] call NWG_ISHOP_CLI_TRA_OnOpen;
 
 	//Initialize UI top to bottom
 	//Init player money
-	(call NWG_ISHOP_CLI_TRA_GetPlayerMoney) call NWG_ISHOP_CLI_UpdatePlayerMoneyText;
+	call NWG_ISHOP_CLI_UpdatePlayerMoneyText;
 	//Init shop money (does not change)
 	(_shopGUI displayCtrl IDC_SHOPUI_SHOPMONEYTEXT) ctrlSetText ("#ISHOP_SELLER_MONEY_CONST#" call NWG_fnc_localize);
 
@@ -194,61 +207,19 @@ NWG_ISHOP_CLI_OnServerResponse = {
 //Player money indicator
 NWG_ISHOP_CLI_UpdatePlayerMoneyText = {
 	disableSerialization;
-	private _playerMoney = _this;
 	private _shopGUI = uiNamespace getVariable ["NWG_ISHOP_CLI_shopGUI",displayNull];
-	if (isNull _shopGUI) exitWith {
-		"NWG_ISHOP_CLI_UpdatePlayerMoneyText: Shop GUI is null" call NWG_fnc_logError;
-	};
-	(_shopGUI displayCtrl IDC_SHOPUI_PLAYERMONEYTEXT) ctrlSetText (_playerMoney call NWG_fnc_wltFormatMoney);
+	private _idc = IDC_SHOPUI_PLAYERMONEYTEXT;
+	private _playerMoney = call NWG_ISHOP_CLI_TRA_GetPlayerMoney;
+	[_shopGUI,_idc,_playerMoney] call NWG_fnc_uiHelperFillTextWithPlayerMoney;
 };
 
-NWG_ISHOP_CLI_blinkHandle = scriptNull;
 NWG_ISHOP_CLI_BlinkPlayerMoney = {
-	// params ["_color","_times"];
-	if (!isNull NWG_ISHOP_CLI_blinkHandle && {!scriptDone NWG_ISHOP_CLI_blinkHandle}) then {
-		terminate NWG_ISHOP_CLI_blinkHandle;
-	};
-
-	NWG_ISHOP_CLI_blinkHandle = _this spawn {
-		disableSerialization;
-		params ["_color","_times"];
-		private _shopGUI = uiNamespace getVariable ["NWG_ISHOP_CLI_shopGUI",displayNull];
-		if (isNull _shopGUI) exitWith {
-			"NWG_ISHOP_CLI_BlinkPlayerMoney: Shop GUI is null" call NWG_fnc_logError;
-		};
-		private _textCtrl = _shopGUI displayCtrl IDC_SHOPUI_PLAYERMONEYTEXT;
-		if (isNull _textCtrl) exitWith {
-			"NWG_ISHOP_CLI_BlinkPlayerMoney: Text control is null" call NWG_fnc_logError;
-		};
-		private _origColor = _textCtrl getVariable "origColor";
-		if (isNil "_origColor") then {
-			_origColor = ctrlBackgroundColor _textCtrl;
-			_textCtrl setVariable ["origColor",_origColor];
-		};
-
-		private _isOn = false;
-		private _blinkCount = 0;
-		waitUntil {
-			_textCtrl = if (!isNull _shopGUI)
-				then {_shopGUI displayCtrl IDC_SHOPUI_PLAYERMONEYTEXT}
-				else {controlNull};
-			if (isNull _textCtrl) exitWith {true};//Could be closed at this point and that's ok
-
-			if (!_isOn && {_blinkCount >= _times}) exitWith {true};//Exit loop
-			if (!_isOn) then {
-				//Turn on
-				_textCtrl ctrlSetBackgroundColor _color;
-				sleep (NWG_ISHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_INTERVAL_ON");
-			} else {
-				//Turn off
-				_textCtrl ctrlSetBackgroundColor _origColor;
-				sleep (NWG_ISHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_INTERVAL_OFF");
-			};
-			_blinkCount = _blinkCount + 0.5;//Increment (each blink is two steps - ON and OFF, that is why we add 0.5)
-			_isOn = !_isOn;//Toggle
-			false//Get to the next iteration
-		};
-	};
+	private _success = _this;
+	private _shopGUI = uiNamespace getVariable ["NWG_ISHOP_CLI_shopGUI",displayNull];
+	private _idc = IDC_SHOPUI_PLAYERMONEYTEXT;
+	if (_success)
+		then {[_shopGUI,_idc] call NWG_fnc_uiHelperBlinkOnSuccess}
+		else {[_shopGUI,_idc] call NWG_fnc_uiHelperBlinkOnError};
 };
 
 //================================================================================================================
@@ -334,8 +305,8 @@ NWG_ISHOP_CLI_UpdateItemsList = {
 		else {_list setVariable ["listCat",_listCat]};
 
 	private _itemsCollection = if (_isPlayerSide)
-		then {uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",[]]}
-		else {uiNamespace getVariable ["NWG_ISHOP_CLI_shopItems",[]]};
+		then {uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",LOOT_ITEM_DEFAULT_CHART]}
+		else {uiNamespace getVariable ["NWG_ISHOP_CLI_shopItems",LOOT_ITEM_DEFAULT_CHART]};
 
 	private _itemsToShow = switch (_listCat) do {
 		case LOOT_ITEM_TYPE_ALL: {flatten _itemsCollection};
@@ -360,9 +331,7 @@ NWG_ISHOP_CLI_UpdateItemsList = {
 	{
 		if (_x isEqualType 0) then {_count = _x; continue};//If array elemnt is number (else string)
 
-		private _itemInfo = _x call NWG_ISHOP_CLI_GetItemInfo;
-		if (_itemInfo isEqualTo false) then {_count = 1; continue};//Gracefully ignore trying to buy/sell mod items when player doesn't have mod installed
-		_itemInfo params ["_picture","_displayName"];
+		(_x call NWG_ISHOP_CLI_GetItemInfo) params [["_displayName",""],["_picture",""]];
 		_price = [_x,_isPlayerSide] call NWG_ISHOP_CLI_TRA_GetPrice;
 
 		_i = _list lbAdd ([_displayName,_count,_price] call NWG_ISHOP_CLI_FormatListRecord);//Add formatted record
@@ -373,39 +342,6 @@ NWG_ISHOP_CLI_UpdateItemsList = {
 
 	//Drop selection
 	if (_dropSelection) then {_list lbSetCurSel -1};
-};
-
-NWG_ISHOP_CLI_itemInfoCache = createHashMap;
-NWG_ISHOP_CLI_GetItemInfo = {
-	// private _item = _this;
-
-	//Try cache first
-	private _cached = NWG_ISHOP_CLI_itemInfoCache get _this;
-	if (!isNil "_cached") exitWith {_cached};
-
-	//Get info from config
-	private _cfg = configNull;
-	{
-		_cfg = configFile >> _x >> _this;
-		if (isClass _cfg) exitWith {};//Found
-	} forEach ["CfgWeapons","CfgMagazines","CfgGlasses","CfgVehicles"];
-	if (isNull _cfg || {!isClass _cfg}) exitWith {
-		(format ["NWG_ISHOP_CLI_GetItemInfo: Item not found in config: %1",_this]) call NWG_fnc_logError;
-		NWG_ISHOP_CLI_itemInfoCache set [_this,false];
-		false
-	};
-
-	//Picture
-	private _picture = getText (_cfg >> "picture");
-	if (_picture isEqualTo "") then {_picture = getText (_cfg >> "icon")};
-
-	//DisplayName
-	private _displayName = getText (_cfg >> "displayName");
-
-	//Cache and return
-	private _itemInfo = [_picture,_displayName];
-	NWG_ISHOP_CLI_itemInfoCache set [_this,_itemInfo];
-	_itemInfo
 };
 
 NWG_ISHOP_CLI_FormatListRecord = {
@@ -462,8 +398,8 @@ NWG_ISHOP_CLI_OnListDobuleClick = {
 
 	//Find item in 'source' collection
 	private _sourceCollection = if (_isPlayerSide)
-		then {uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",[]]}
-		else {uiNamespace getVariable ["NWG_ISHOP_CLI_shopItems",[]]};
+		then {uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",LOOT_ITEM_DEFAULT_CHART]}
+		else {uiNamespace getVariable ["NWG_ISHOP_CLI_shopItems",LOOT_ITEM_DEFAULT_CHART]};
 	([_item,_sourceCollection] call _findInCollection) params ["_categoryIndex","_itemIndex","_itemCountIndex","_itemCount"];
 	if (_categoryIndex == -1) exitWith {
 		"NWG_ISHOP_CLI_OnListDobuleClick: Item not found in collection" call NWG_fnc_logError;
@@ -483,7 +419,7 @@ NWG_ISHOP_CLI_OnListDobuleClick = {
 	private _ok = [_item,_moveCount,!_isPlayerSide] call NWG_ISHOP_CLI_TRA_TryAddToTransaction;
 	if (!_ok) exitWith {
 		//Not enough money
-		[(NWG_ISHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_ON_ERROR"),2] call NWG_ISHOP_CLI_BlinkPlayerMoney;
+		false call NWG_ISHOP_CLI_BlinkPlayerMoney;
 	};
 
 	//Remove from 'source' collection (_itemCount can be only >= _moveCount and never less)
@@ -499,8 +435,8 @@ NWG_ISHOP_CLI_OnListDobuleClick = {
 
 	//Move to 'target' collection
 	private _targetCollection = if (_isPlayerSide)
-		then {uiNamespace getVariable ["NWG_ISHOP_CLI_shopItems",[]]}
-		else {uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",[]]};
+		then {uiNamespace getVariable ["NWG_ISHOP_CLI_shopItems",LOOT_ITEM_DEFAULT_CHART]}
+		else {uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",LOOT_ITEM_DEFAULT_CHART]};
 	([_item,_targetCollection] call _findInCollection) params ["","_itemIndex","_itemCountIndex","_itemCount"];
 	private _catArray = _targetCollection#_categoryIndex;
 	switch (true) do {
@@ -508,6 +444,7 @@ NWG_ISHOP_CLI_OnListDobuleClick = {
 			//Item not found in target collection, add new
 			if (_moveCount > 1) then {_catArray pushBack _moveCount};
 			_catArray pushBack _item;
+			_catArray = [_catArray,/*isCompacted:*/true] call NWG_ISHOP_CLI_SortCategory;
 		};
 		case (_itemCountIndex == -1): {
 			//Item found, but only one instance - we must insert new count
@@ -534,8 +471,74 @@ NWG_ISHOP_CLI_OnListDobuleClick = {
 	//Update UI
 	[_isPlayerSide,"",_moveAll] call NWG_ISHOP_CLI_UpdateItemsList;//Update source list
 	[!_isPlayerSide,"",false] call NWG_ISHOP_CLI_UpdateItemsList;//Update target list
-	(call NWG_ISHOP_CLI_TRA_GetPlayerMoney) call NWG_ISHOP_CLI_UpdatePlayerMoneyText;//Update player money text
-	[(NWG_ISHOP_CLI_Settings get "PLAYER_MONEY_BLINK_COLOR_ON_SUCCESS"),1] call NWG_ISHOP_CLI_BlinkPlayerMoney;//Blink player money
+	call NWG_ISHOP_CLI_UpdatePlayerMoneyText;//Update player money text
+	true call NWG_ISHOP_CLI_BlinkPlayerMoney;//Blink player money
+};
+
+//================================================================================================================
+//================================================================================================================
+//Items info (+filtering and sorting)
+NWG_ISHOP_CLI_itemInfoCache = createHashMap;
+NWG_ISHOP_CLI_GetItemInfo = {
+	// private _item = _this;
+
+	//Try cache first
+	private _cached = NWG_ISHOP_CLI_itemInfoCache get _this;
+	if (!isNil "_cached") exitWith {_cached};
+
+	//Get info from config
+	private _cfg = configNull;
+	{
+		_cfg = configFile >> _x >> _this;
+		if (isClass _cfg) exitWith {};//Found
+	} forEach ["CfgWeapons","CfgMagazines","CfgGlasses","CfgVehicles"];
+	if (isNull _cfg || {!isClass _cfg}) exitWith {
+		(format ["NWG_ISHOP_CLI_GetItemInfo: Item not found in config: %1",_this]) call NWG_fnc_logError;
+		NWG_ISHOP_CLI_itemInfoCache set [_this,false];
+		false
+	};
+
+	//DisplayName
+	private _displayName = getText (_cfg >> "displayName");
+
+	//Picture
+	private _picture = getText (_cfg >> "picture");
+	if (_picture isEqualTo "") then {_picture = getText (_cfg >> "icon")};
+
+	//Cache and return
+	private _itemInfo = [_displayName,_picture];
+	NWG_ISHOP_CLI_itemInfoCache set [_this,_itemInfo];
+	_itemInfo
+};
+
+NWG_ISHOP_CLI_FilterCategory = {
+	params ["_category","_isCompacted"];
+
+	if (_isCompacted) then {_category = _category call NWG_fnc_unCompactStringArray};
+	{
+		if ((_x call NWG_ISHOP_CLI_GetItemInfo) isEqualTo false)
+			then {_category deleteAt _forEachIndex};
+	} forEachReversed _category;
+	if (_isCompacted) then {_category = _category call NWG_fnc_compactStringArray};
+
+	_category
+};
+
+NWG_ISHOP_CLI_SortCategory = {
+	params ["_category","_isCompacted"];
+
+	if (_isCompacted) then {_category = _category call NWG_fnc_unCompactStringArray};
+
+	//Sort by display name (alphabetically)
+	private _sorting = _category apply {[((_x call NWG_ISHOP_CLI_GetItemInfo) param [0,""]),_x]};
+	_sorting sort true;
+	_sorting = _sorting apply {_x#1};
+	_category resize 0;
+	_category append _sorting;
+
+	if (_isCompacted) then {_category = _category call NWG_fnc_compactStringArray};
+
+	_category
 };
 
 //================================================================================================================
@@ -639,7 +642,7 @@ NWG_ISHOP_CLI_TRA_OnClose = {
 	};
 
 	//Update player loot
-	private _playerVirtualLoot = uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",[]];
+	private _playerVirtualLoot = uiNamespace getVariable ["NWG_ISHOP_CLI_playerLoot",LOOT_ITEM_DEFAULT_CHART];
 	private _playerActualLoot = player call (NWG_ISHOP_CLI_Settings get "SHOP_GET_PLAYER_LOOT_FUNC");
 	if (_playerVirtualLoot isNotEqualTo _playerActualLoot) then {
 		//We have a new loot

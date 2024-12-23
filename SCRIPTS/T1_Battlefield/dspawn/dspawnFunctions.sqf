@@ -2,12 +2,13 @@
 /*Server->Server*/
 
 //Populates the given trigger with the given number of groups of the given faction
+//WARNING: This function is quite heavy. It is advised to use 'spawn' instead of 'call'
 //params:
 // _trigger - trigger to populate
 // _groupsCount - number of groups to populate
 // _faction - faction of the groups
-// _filter - array of groups to filter out (optional)
-// _side - side of the groups (optional, default: west)
+// _filter - (optional, default: []) array to filter catalogue by (_filter params [["_tagsWhiteList",[]],["_tagsBlackList",[]],["_tierWhiteList",[]]];)
+// _side - (optional, default: west) side of the groups (also supports argument of group to spawn into, but it is not recommended)
 //returns:
 // number of groups actually spawned OR false in case of error
 NWG_fnc_dsPopulateTrigger = {
@@ -21,14 +22,29 @@ NWG_fnc_dsPopulateTrigger = {
 // _attackPos - position to send the reinforcements to
 // _groupsCount - number of groups to send
 // _faction - faction of the reinforcements
-// _filter - array of groups to filter out (optional)
-// _side - side of the reinforcements (optional, default: west)
-// _spawnMap - array positions to spawn the reinforcements on (optional, default: [nil,nil,nil,nil] for [INF,VEH,BOAT,AIR])
+// _filter - (optional, default: []) array to filter catalogue by (_filter params [["_tagsWhiteList",[]],["_tagsBlackList",[]],["_tierWhiteList",[]]];)
+// _side - (optional, default: west) side of the reinforcements (also supports argument of group to spawn into, but it is not recommended)
+// _spawnMap - (optional, default: [nil,nil,nil,nil] for [INF,VEH,BOAT,AIR]) array positions to spawn the reinforcements on, if left empty, script will calculate them automatically
 //returns:
 // number of groups actually spawned OR false in case of error
 NWG_fnc_dsSendReinforcements = {
     // params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west],["_spawnMap",[nil,nil,nil,nil]]];
     _this call NWG_DSPAWN_REINF_SendReinforcements
+};
+
+//Spawns a single group around the given position without setting any behavior
+//params:
+// _pos - position to spawn the group around
+// _radius - radius to spawn the group
+// _faction - catalogue faction to choose the group from
+// _filter - (optional, default: []) array to filter catalogue by (_filter params [["_tagsWhiteList",[]],["_tagsBlackList",[]],["_tierWhiteList",[]]];)
+// _membership - (optional, default: west) side or group to spawn into
+// _skipFinalize - (optional, default: false) if true, will skip: additional code, dspawn tags, dspawn ownership, group behavior and event propagation
+//returns:
+// spawned group OR false in case of error
+NWG_fnc_dsSpawnSingleGroup = {
+    // params ["_pos","_radius","_faction",["_filter",[]],["_membership",west],["_skipFinalize",false]];
+    _this call NWG_DSPAWN_SpawnSingleGroup
 };
 
 //Checks if the given group is spawned by 'dspawn' subsystem
@@ -68,6 +84,18 @@ NWG_fnc_dsAdoptGroup = {
 NWG_fnc_dsSendToAttack = {
     // params ["_group","_attackPos"];
     _this call NWG_DSPAWN_SendToAttack
+};
+
+//Imitates paradrop of the given object/vehicle
+//note: while not mandatory, it is recommended to hide the object/vehicle before calling this function by either 'NWG_fnc_spwnHideObject' or '_deferReveal' argument of spawning functions
+//params:
+// _object - object/vehicle to imitate paradrop for
+// _paradropBy - classname of the vehicle to use for paradrop
+//returns:
+// true if success, false otherwise
+NWG_fnc_dsImitateParadrop = {
+    // params ["_object","_paradropBy"];
+    _this call NWG_DSPAWN_ImitateParadrop
 };
 
 /*Exposure of inner utilities (sorry, not sorry)*/

@@ -76,8 +76,8 @@
                     /*OBJ_TYPE_MINE:*/1
                 ]]
             ]],
-            ["UkrepMapBldgsLimit",7],//How many buildings in the mission area to decorate properly
-            ["UkrepMapBldgsEmptyLimit",5],//How many leftover empty buildings to fill with partial, low object number decorations
+            ["UkrepMapBldgsLimit",8],//How many buildings in the mission area to decorate properly
+            ["UkrepMapBldgsEmptyLimit",8],//How many leftover empty buildings to fill with partial, low object number decorations
             ["DspawnRadiusMult",1.5],//Multiply ukrep radius by X to get dspawn radius (trigger)
             ["DspawnRadiusMin",150],
             ["DspawnRadiusMax",250],
@@ -136,8 +136,8 @@
                     /*OBJ_TYPE_MINE:*/1
                 ]]
             ]],
-            ["UkrepMapBldgsLimit",9],//How many buildings in the mission area to decorate properly
-            ["UkrepMapBldgsEmptyLimit",3],//How many leftover empty buildings to fill with partial, low object number decorations
+            ["UkrepMapBldgsLimit",10],//How many buildings in the mission area to decorate properly
+            ["UkrepMapBldgsEmptyLimit",6],//How many leftover empty buildings to fill with partial, low object number decorations
             ["DspawnRadiusMult",1.5],//Multiply ukrep radius by X to get dspawn radius (trigger)
             ["DspawnRadiusMin",150],
             ["DspawnRadiusMax",250],

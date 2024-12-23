@@ -13,6 +13,27 @@ NWG_fnc_pshInvokeSync = {
 	call NWG_PSH_SER_SyncStates;
 };
 
+//Get state from server cache
+//params:
+// _playerId - string - player id
+// _stateName - string - state name
+//returns:
+// _stateValue - any - state value or false if player or state not found
+NWG_fnc_pshGetState = {
+	// params ["_playerId","_stateName"];
+	_this call NWG_PSH_SER_GetState;
+};
+
+//Set state to server cache
+//params:
+// _playerId - string - player id
+// _stateName - string - state name
+// _stateValue - any - state value
+NWG_fnc_pshSetState = {
+	// params ["_playerId","_stateName","_stateValue"];
+	_this call NWG_PSH_SER_SetState;
+};
+
 /*Client<->Server*/
 //Invoke state apply to the player on player join
 NWG_fnc_pshInvokePlayerJoin = {
