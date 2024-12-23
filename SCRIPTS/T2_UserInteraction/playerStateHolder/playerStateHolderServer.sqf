@@ -136,6 +136,7 @@ NWG_PSH_SER_GetLoadout = {
 NWG_PSH_SER_SetLoadout = {
 	params ["_player","_loadout"];
 	_player setUnitLoadout _loadout;
+	remoteExec ["NWG_fnc_invInvokeChangeCheck",_player];
 };
 
 //================================================================================================================

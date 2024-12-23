@@ -118,7 +118,7 @@ NWG_MED_CLI_OnDamage = {
         private _unit = _this#0;
         switch (true) do {
             case (!alive _unit): {};
-            case (!alive (vehicle _unit)): {_this call NWG_MED_CLI_OnVehicleDestroy};
+            case (!alive (vehicle _unit) && {!((vehicle _unit) isKindOf "ParachuteBase")}): {_this call NWG_MED_CLI_OnVehicleDestroy};
             case (time < NWG_MED_CLI_nextDamageAllowedAt): {};
             case (_unit call NWG_MED_COM_IsWounded): {_this call NWG_MED_CLI_OnDamageWhileWounded};
             default {_this call NWG_MED_CLI_OnDamageWhileHealthy};

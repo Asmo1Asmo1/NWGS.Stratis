@@ -20,7 +20,7 @@ NWG_TRAITS_OnPlayerSpawn = {
     player enableStamina false;
     player setCustomAimCoef 0.5;
 
-    player setUnitTrait ["engineer",true];
+    player setUnitTrait ["engineer",false];
     player setUnitTrait ["explosiveSpecialist",true];
     player setUnitTrait ["medic",true];
     player setUnitTrait ["UAVHacker",true];
