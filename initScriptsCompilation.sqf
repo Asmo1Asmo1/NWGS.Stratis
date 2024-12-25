@@ -242,6 +242,13 @@ _clientModules pushBack ("SCRIPTS\T3_Economics\wallet\walletClient.sqf" call NWG
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\wallet\walletFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\wallet\walletTests.sqf" call NWG_fnc_compile)};
 
+//T4_Dialogues
+//dialogueSystem
+_serverModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemServerSide.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemClientSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemTests.sqf" call NWG_fnc_compile)};
+
 //================================================================================================================
 //================================================================================================================
 //ServerSide
