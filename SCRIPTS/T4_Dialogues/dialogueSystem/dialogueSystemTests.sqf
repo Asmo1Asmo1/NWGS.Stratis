@@ -86,3 +86,18 @@ NWG_Dialogue_Test_FillListboxes = {
 		_aListbox lbSetData [_i,_x];
 	} forEach _answers;
 };
+
+//===========================================
+//===========================================
+//Answers generation
+NWG_Dialogue_Test_GenerateAnswers = {
+	private _array = ["Apple","Orange","Banana","Pineapple","Kiwi","Mango","Peach","Pear","Plum","Cherry"];
+	private _count = (round (random 5)) max 1;
+	private _generated = [];
+	for "_i" from 1 to _count do {
+		_generated pushBack [(selectRandom _array),"TEST_08"];
+	};
+	_generated
+};
+
+
