@@ -245,6 +245,7 @@ if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\wallet\wal
 //T4_Dialogues
 //dialogueSystem
 _serverModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemServerSide.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\missionMachineConnector.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("DATASETS\Client\Dialogues\Dialogues.sqf" call NWG_fnc_compile);//Compile dialogues data alongside modules
 _clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemFunctions.sqf" call NWG_fnc_compile);

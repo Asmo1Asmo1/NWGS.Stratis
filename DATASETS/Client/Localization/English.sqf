@@ -1,7 +1,7 @@
 NWG_LocalizationDictionary = createHashMapFromArray [
     //T1_Battlefield
     //missionMachine
-    ["#MIS_ACTION_TITLE#","Select mission"],
+    // ["#MIS_ACTION_TITLE#","Select mission"],//not used anymore
     ["#MIS_DIF_EASY#","Easy"],
     ["#MIS_DIF_NORMAL#","Normal"],
     ["#MIS_CLI_CONFIRMED_SUBTITLE#","new destination..."],
@@ -102,7 +102,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MT_ACTION_TITLE#","Money transfer"],
     ["#MT_PLAYER_NOT_FOUND#","Player not found"],
     //shopItems
-    ["#ISHOP_ACTION_TITLE#","Open Shop"],
+    // ["#ISHOP_ACTION_TITLE#","Open Shop"],//not used anymore
     ["#ISHOP_SELLER_MONEY_CONST#","€$---"],
     ["#ISHOP_CAT_ALL#","All"],
     ["#ISHOP_CAT_CLTH#","Clothing"],
@@ -138,7 +138,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MSHOP_MAP_ITEM_HINT#","Select destination point"],
     ["#MSHOP_MAP_VEHICLE_HINT#","Select vehicle delivery point"],
     //shopVehicles
-    ["#VSHOP_ACTION_TITLE#","Open Shop"],
+    // ["#VSHOP_ACTION_TITLE#","Open Shop"],//not used anymore
     ["#VSHOP_SELLER_MONEY_CONST#","€$---"],
     ["#VSHOP_CAT_ALL#","All"],
     ["#VSHOP_CAT_AAIR#","Anti-Air"],
@@ -169,6 +169,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
 
     //T4_Dialogues
     //dialogueSystem
+    /*Action title*/
+    ["#DLG_OPEN_TITLE#","<img image='a3\ui_f\data\igui\cfg\actions\talk_ca.paa' size='1.5'/> <t size='1.5'>Talk</t>"],
     /*NPC names*/
     ["#NPC_TEST_NAME#","Test NPC"],
     ["#NPC_TAXI_NAME#","Taxi"],

@@ -1,7 +1,7 @@
 NWG_LocalizationDictionary = createHashMapFromArray [
     //T1_Battlefield
     //missionMachine
-    ["#MIS_ACTION_TITLE#","Выбрать миссию"],
+    // ["#MIS_ACTION_TITLE#","Выбрать миссию"],//not used anymore
     ["#MIS_DIF_EASY#","Легче"],
     ["#MIS_DIF_NORMAL#","Сложнее"],
     ["#MIS_CLI_CONFIRMED_SUBTITLE#","новое назначение..."],
@@ -136,7 +136,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MT_ACTION_TITLE#","Перевод денег"],
     ["#MT_PLAYER_NOT_FOUND#","Игрок не найден"],
     //shopItems
-    ["#ISHOP_ACTION_TITLE#","Открыть Магазин"],
+    // ["#ISHOP_ACTION_TITLE#","Открыть Магазин"],//not used anymore
     ["#ISHOP_SELLER_MONEY_CONST#","€$---"],
     ["#ISHOP_CAT_ALL#","Все предметы"],
     ["#ISHOP_CAT_CLTH#","Одежда"],
@@ -172,7 +172,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MSHOP_MAP_ITEM_HINT#","Выберите пункт назначения"],
     ["#MSHOP_MAP_VEHICLE_HINT#","Выберите точку доставки техники"],
     //shopVehicles
-    ["#VSHOP_ACTION_TITLE#","Открыть Магазин"],
+    // ["#VSHOP_ACTION_TITLE#","Открыть Магазин"],//not used anymore
     ["#VSHOP_SELLER_MONEY_CONST#","€$---"],
     ["#VSHOP_CAT_ALL#","Вся техника"],
     ["#VSHOP_CAT_AAIR#","Противовоздушная"],
@@ -200,6 +200,18 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //wallet
     ["#WLT_NOTIFY_MONEY_ADD#","[Деньги:  +%1]"],
     ["#WLT_NOTIFY_MONEY_SUB#","[Деньги:  %1]"],
+
+    //T4_Dialogues
+    //dialogueSystem
+    /*Action title*/
+    ["#DLG_OPEN_TITLE#","<img image='a3\ui_f\data\igui\cfg\actions\talk_ca.paa' size='1.5'/> <t size='1.5'>Говорить</t>"],
+    /*NPC names*/
+    ["#NPC_TAXI_NAME#","Таксист"],
+    ["#NPC_MECH_NAME#","Механик"],
+    ["#NPC_TRDR_NAME#","Торговец"],
+    ["#NPC_MEDC_NAME#","Док"],
+    ["#NPC_COMM_NAME#","Командир"],
+    ["#NPC_ROOF_NAME#","Иван Крыша"],
 
     ["",""]
 ];
