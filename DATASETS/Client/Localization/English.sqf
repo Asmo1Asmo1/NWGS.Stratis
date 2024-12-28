@@ -179,8 +179,73 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#NPC_MEDC_NAME#","Doc"],
     ["#NPC_COMM_NAME#","Commander"],
     ["#NPC_ROOF_NAME#","Ivan the Roof"],
-    /*Test NPC*/
-    /*Common answers*/
+    /*Common NPC answers*/
+    ["#XXX_HELP_A_01#","What is this place?"],
+    ["#XXX_HELP_A_02#","Who are you?"],
+    ["#XXX_HELP_A_03#","Who should I talk to?"],
+    ["#XXX_HELP_A_04#","How things are done here?"],
+    ["#XXX_HELP_A_05#","Another question"],
+    ["#XXX_HELP_A_06#","Got it"],
+    ["#XXX_HELP_A_07#","Thanks, bye"],
+    /*Taxi - logic*/
+    ["#NPC_TAXI_CAT_SQD#","To my Squad Mates"],
+    ["#NPC_TAXI_CAT_VHC#","To my Vehicle"],
+    ["#NPC_TAXI_CAT_CMP#","To my Camp"],
+    ["#NPC_TAXI_CAT_AIR#","Paradrop me, I'll show on the map"],
+    ["#NPC_TAXI_NO_DROP_POINTS#","Sorry, guess there are none..."],
+    ["#NPC_TAXI_INV_DROP_POINT#","Failed to drop you"],
+    ["#NPC_TAXI_PARADROP_HINT#","Select drop point on the map"],
+    /*Taxi - common answers*/
+    ["#TAXI_0X_A_BACK1#","No, actually..."],
+    ["#TAXI_0X_A_BACK2#","I've changed my mind"],
+    ["#TAXI_0X_A_EXIT1#","Never mind, bye"],
+    /*Taxi - TAXI_00*/
+    ["#TAXI_00_Q_01#","Always good to see new faces"],
+    ["#TAXI_00_Q_02#","How's it going, boss?"],
+    ["#TAXI_00_Q_03#","Need a ride?"],
+    ["#TAXI_00_Q_04#","Hey, what's up, boss?"],
+    ["#TAXI_00_A_01#","Drop me by..."],
+    ["#TAXI_00_A_02#","What should I know?"],
+    ["#TAXI_00_A_03#","Any advice?"],
+    /*Taxi - TAXI_01*/
+    ["#TAXI_01_Q_01#","Anything else?"],
+    ["#TAXI_01_Q_02#","So?"],
+    /*Taxi - TAXI_CS*/
+    ["#TAXI_CS_Q_01#","Where to, boss?"],
+    ["#TAXI_CS_Q_02#","Sure thing, boss|Where do you need to?"],
+    ["#TAXI_CS_Q_03#","Okay, where to?"],
+    /*Taxi - TAXI_PS*/
+    ["#TAXI_PS_Q_01#","Which one?"],
+    /*Taxi - TAXI_PAY*/
+    ["#TAXI_PAY_Q_01#","That would be %1"],
+    ["#TAXI_PAY_A_01#","Here you go"],
+    ["#TAXI_PAY_A_02#","Sorry, I don't have that"],
+    /*Taxi - TAXI_LOW*/
+    ["#TAXI_LOW_Q_01#","That's a shame, boss"],
+    ["#TAXI_LOW_Q_02#","Come back when you have it, boss|Or check other options"],
+    ["#TAXI_LOW_Q_03#","Low on cash, boss?|Try selling some stuff"],
+    ["#TAXI_LOW_Q_04#","Sorry, boss, no discounts"],
+    ["#TAXI_LOW_A_01#","Yeah, right..."],
+    ["#TAXI_LOW_A_02#","See you later"],
+    /*Taxi - TAXI_HELP*/
+    ["#TAXI_HELP_Q_01#","Specific or in general?"],
+    ["#TAXI_HELP_Q_02#","Depends. What would you like to know, boss?"],
+    ["#TAXI_HELP_Q_03#","A lot of things, boss|But is there anything specific?"],
+    ["#TAXI_HELP_Q_04#","Shoot your question, boss"],
+    /*Taxi - TAXI_HELP_PLACE*/
+    ["#TAXI_HELP_PLACE_Q_01#","This is a place where you can get a ride to any point on the map"],
+    /*Taxi - TAXI_HELP_WHO*/
+    ["#TAXI_HELP_WHO_Q_01#","I am a taxi driver, and I am here to help you get to your destination"],
+    /*Taxi - TAXI_HELP_TALK*/
+    ["#TAXI_HELP_TALK_Q_01#","Others are not taxi drivers"],
+    /*Taxi - TAXI_HELP_USERFLOW*/
+    ["#TAXI_HELP_USERFLOW_Q_01#","You can get a ride to any point on the map"],
+    /*Taxi - TAXI_ADV*/
+    ["#TAXI_ADV_Q_01#","Alyways plan your exit route|As much as I like doing my job and getting my cut|As much I want my customers to become regulars|You know what I mean?"],
+    ["#TAXI_ADV_Q_02#","Don't rush into the fight|If you want me drop you near you squad|Ask them first if it is safe"],
+    ["#TAXI_ADV_Q_03#","Always tip your driver|That would be me"],
+    ["#TAXI_ADV_A_01#","That is a good wisdom"],
+    /*Test - Common answers*/
     ["#TEST_0X_A_BACK#","Back"],
     ["#TEST_0X_A_EXIT#","Exit"],
     ["#TEST_0X_A_AGAIN#","Yes, again"],

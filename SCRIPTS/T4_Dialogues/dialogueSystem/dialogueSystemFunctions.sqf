@@ -1,4 +1,5 @@
-/*Other systems->Client*/
+/*Other systems->Any*/
+/*Functions that can be called from both server and client sides*/
 //Set NPC name
 //params:
 // - _npc - npc object
@@ -23,6 +24,7 @@ NWG_fnc_dlgGetNpcName = {
     _this getVariable ["NWG_DLG_NpcName",""];
 };
 
+/*Other systems->Client side*/
 //Open dialogue by npc name
 //params:
 // - _npcName - npc name

@@ -71,7 +71,7 @@ NWG_DLG_CLI_Settings = createHashMapFromArray [
 	["TEXT_RIGHT_FILL_FUNC",{name player}],
 
 	/*Formatting settings*/
-	["TEMPLATE_FIRST_ROW","[%1]: %2"],
+	["TEMPLATE_SPEAKER_NAME","[%1]:"],
 	["TEMPLATE_ANSWER","%1: %2"],
 
 	/*Delay settings - make dialogues appear more natural*/
@@ -239,12 +239,17 @@ NWG_DLG_CLI_LoadNextNode = {
 	};
 	forceUnicode 1;//Fix splitString for unicode
 	_question = _question splitString STRING_SEPARATOR;
+	if ((count _question) == 0) exitWith {
+		(format ["NWG_DLG_CLI_LoadNextNode: Question is empty for node '%1'",_nodeName]) call NWG_fnc_logError;
+		false
+	};
 
 	//Show next question
 	private _qListbox = uiNamespace getVariable ["NWG_DLG_qListbox",controlNull];
 	private _npcNameLoc = uiNamespace getVariable ["NWG_DLG_npcNameLoc",""];
 	_qListbox lbAdd "";//Add empty line to separate records
-	_qListbox lbAdd (format [(NWG_DLG_CLI_Settings get "TEMPLATE_FIRST_ROW"),_npcNameLoc,(_question deleteAt 0)]);
+	_qListbox lbAdd (format [(NWG_DLG_CLI_Settings get "TEMPLATE_SPEAKER_NAME"),_npcNameLoc]);//Add speaker name
+	_qListbox lbAdd (_question deleteAt 0);//Add first question line
 	_qListbox ctrlSetScrollValues [1,-1];//Scroll to bottom
 	private _rowDelayCur = (NWG_DLG_CLI_Settings get "DELAY_NEXT_QUESTION_ROW") call NWG_fnc_randomRangeFloat;
 	private _isCascade = NWG_DLG_CLI_Settings get "DELAY_NEXT_QUESTION_ROW_SPEED_CASCADE";
@@ -342,6 +347,10 @@ NWG_DLG_CLI_OnAnswerSelected = {
 	//Extract selected answer
 	(_answers#_answerIndex) params ["","_nextNode",["_code",{}]];
 
+	//Extract selected answer as string
+	private _aListbox = uiNamespace getVariable ["NWG_DLG_aListbox",controlNull];
+	private _answerString = _aListbox lbData _answerIndex;
+
 	//If back - go to previous node
 	if (_nextNode isEqualTo NODE_BACK) then {
 		private _nodeHistory = uiNamespace getVariable ["NWG_DLG_nodeHistory",[]];
@@ -354,15 +363,15 @@ NWG_DLG_CLI_OnAnswerSelected = {
 	//If end of dialogue - exit
 	if (_nextNode isEqualTo NODE_EXIT) exitWith {
 		closeDialog 0;//Close dialogue
-		call _code;//Run code as callback
+		_answerString call _code;//Run code as callback
 		true
 	};
 
 	//Display selected answer in UI
-	private _aListbox = uiNamespace getVariable ["NWG_DLG_aListbox",controlNull];
 	private _qListbox = uiNamespace getVariable ["NWG_DLG_qListbox",controlNull];
 	_qListbox lbAdd "";//Add empty line to separate records
-	_qListbox lbAdd (format [(NWG_DLG_CLI_Settings get "TEMPLATE_FIRST_ROW"),(name player),(_aListbox lbData _answerIndex)]);
+	_qListbox lbAdd (format [(NWG_DLG_CLI_Settings get "TEMPLATE_SPEAKER_NAME"),(name player)]);//Add speaker name
+	_qListbox lbAdd _answerString;//Add answer
 	_qListbox ctrlSetScrollValues [1,-1];//Scroll to bottom
 
 	//Clear answers
@@ -370,7 +379,7 @@ NWG_DLG_CLI_OnAnswerSelected = {
 	lbClear _aListbox;
 
 	//Run code
-	call _code;
+	_answerString call _code;
 
 	//Load next node
 	[_nextNode,/*withDelays:*/true] spawn NWG_DLG_CLI_LoadNextNode;

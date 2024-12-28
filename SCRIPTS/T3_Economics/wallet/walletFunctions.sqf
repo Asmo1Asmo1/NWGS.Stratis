@@ -17,6 +17,17 @@ NWG_fnc_wltGetPlayerMoney = {
     _this call NWG_WLT_GetPlayerMoney
 };
 
+//Returns initial money amount that player starts with
+//note: initial money setting exists only on client side
+//return: Number - The initial money amount
+NWG_fnc_wltGetInitialMoney = {
+	if (isNil "NWG_WLT_Settings") exitWith {
+		"NWG_fnc_wltGetInitialMoney: NWG_WLT_Settings is not defined, make sure you call this function on client side" call NWG_fnc_logError;
+		0
+	};
+	NWG_WLT_Settings get "INITIAL_MONEY"
+};
+
 //Adds money to a player (+sends notification)
 //params:
 //	_player: Object - The player to add the money to
