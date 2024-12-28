@@ -17,6 +17,7 @@ NWG_AV_Settings = createHashMapFromArray [
 	["SEAT_SWITCH_SEATS_ORDER",["driver","gunner","commander","turret","cargo"]],
 
 	["ALL_WHEEL_ACTION_ASSIGN",true],
+	["ALL_WHEEL_ACTION_SIGNATURE_REQUIRED",true],//If true, only signed vehicles will get this action
 	["ALL_WHEEL_ACTION_TITLE_ON","#AV_ALL_WHEEL_TITLE_ON#"],
 	["ALL_WHEEL_ACTION_TITLE_OFF","#AV_ALL_WHEEL_TITLE_OFF#"],
 	["ALL_WHEEL_ACTION_PRIORITY",0],
@@ -208,11 +209,22 @@ NWG_AV_SeatSwitch_Action = {
 //================================================================================================================
 //================================================================================================================
 //All wheel (Mass reduction)
-NWG_AV_AllWheel_ConditionAssign = {
-	if (!alive player || {isNull (objectParent player)}) exitWith {false};
+NWG_AV_AllWheel_SignVehicle = {
+	// private _vehicle = _this;
+	if (isNull _this) exitWith {false};
+	_this setVariable ["NWG_AV_AllWheel_Sign",true,true];
+	true
+};
+NWG_AV_AllWheel_IsSigned = {
+	// private _vehicle = _this;
+	if (isNull _this) exitWith {false};
+	_this getVariable ["NWG_AV_AllWheel_Sign",false]
+};
+NWG_AV_AllWheel_IsSupported = {
+	private _vehicle = _this;
+	if (!alive _vehicle || {isNull _vehicle}) exitWith {false};
 
 	//Check vehicle type
-	private _vehicle = objectParent player;
 	private _supportedVehicles = NWG_AV_Settings get "ALL_WHEEL_SUPPORTED_VEH_TYPES";
 	if ((_supportedVehicles findIf {_vehicle isKindOf _x}) == -1) exitWith {false};
 
@@ -226,6 +238,14 @@ NWG_AV_AllWheel_ConditionAssign = {
 	if (_origMass < _minMass) exitWith {false};
 
 	//All checks passed
+	true
+};
+
+NWG_AV_AllWheel_ConditionAssign = {
+	if (!alive player || {isNull (objectParent player)}) exitWith {false};
+	private _vehicle = objectParent player;
+	if !(_vehicle call NWG_AV_AllWheel_IsSupported) exitWith {false};
+	if (NWG_AV_Settings get "ALL_WHEEL_ACTION_SIGNATURE_REQUIRED" && {!(_vehicle call NWG_AV_AllWheel_IsSigned)}) exitWith {false};
 	true
 };
 

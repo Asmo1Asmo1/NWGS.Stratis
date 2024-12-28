@@ -50,7 +50,7 @@ NWG_VSHOP_CLI_Settings = createHashMapFromArray [
 	["PLAYER_MONEY_BLINK_COLOR_INTERVAL_ON",0.3],
 	["PLAYER_MONEY_BLINK_COLOR_INTERVAL_OFF",0.2],
 
-	["ITEM_LIST_NAME_LIMIT",30],//Max number of letters for the item name
+	["ITEM_LIST_NAME_LIMIT",26],//Max number of letters for the item name
 	["ITEM_LIST_TEMPLATE_W_CONDITION","%1 [%2%%] (%3)"],//Item list format string
 	["ITEM_LIST_TEMPLATE_NO_CONDITION","%1 (%2)"],//Item list format string
 	["ITEM_LIST_PICTURE_TYPE","editorPreview"],//Type of picture to use for the item (options: "picture", "icon", "editorPreview")

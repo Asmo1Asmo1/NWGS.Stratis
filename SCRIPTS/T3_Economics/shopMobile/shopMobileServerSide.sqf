@@ -394,8 +394,8 @@ NWG_MSHOP_BomberDrone_FiredDeletion = {
 	};
 
 	//Check if drone still has some ammo left
-	private _mags = (magazinesAmmo [_drone,false]) select {(_x#1 > 0) && {!("Laser" in _x#0)}};
-	if ((count _mags) > 0) exitWith {};//Drone still has some ammo left - do nothing
+	private _hasMags = ((magazinesAmmo [_drone,false]) findIf {(_x#1 > 0) && {!("Laser" in _x#0)}}) != -1;
+	if (_hasMags) exitWith {};//Drone still has some ammo left - do nothing
 
 	//Start counting down delay
 	[_drone,_projectile] spawn {
@@ -442,8 +442,8 @@ NWG_MSHOP_BomberDrone_TimerDeletion_Core = {
 			};
 
 			//Check if drone has any ammo left - mark for deletion on next iteration
-			private _mags = (magazinesAmmo [_x,false]) select {(_x#1 > 0) && {!("Laser" in _x#0)}};
-			if ((count _mags) == 0) then {
+			private _hasMags = ((magazinesAmmo [_x,false]) findIf {(_x#1 > 0) && {!("Laser" in _x#0)}}) != -1;
+			if (!_hasMags) then {
 				_x setVariable ["NWG_MSHOP_markedForDeletion",true];
 			};
 		} forEachReversed NWG_MSHOP_BomberDrone_deletionQueue;

@@ -41,6 +41,7 @@ in other words:
 
 NWG_DialogueTree = createHashMapFromArray [
 	//================================================================================================================
+	//================================================================================================================
 	//Taxi
 	/*Actual root of the dialogue*/
 /*
@@ -62,8 +63,9 @@ TAXI_00	Q_CND	$<1000	"Always good to see new faces"
 			],
 			A_DEF,	[
 				["#TAXI_00_A_01#","TAXI_CS"],
-				["#TAXI_00_A_02#","TAXI_HELP"],
-				["#TAXI_00_A_03#","TAXI_ADV"]
+				["#XXX_HELP_A_01#","TAXI_HELP"],
+				["#XXX_HELP_A_02#","TAXI_ADV"],
+				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
 			]
 		]
 	],
@@ -83,8 +85,9 @@ TAXI_01	Q_RND		"Anything else?"
 			],
 			A_DEF,	[
 				["#TAXI_00_A_01#","TAXI_CS"],
-				["#TAXI_00_A_02#","TAXI_HELP"],
-				["#TAXI_00_A_03#","TAXI_ADV"]
+				["#XXX_HELP_A_01#","TAXI_HELP"],
+				["#XXX_HELP_A_02#","TAXI_ADV"],
+				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
 			]
 		]
 	],
@@ -189,10 +192,10 @@ TAXI_HELP	Q_RND		"Specific or in general?"
 				"#TAXI_HELP_Q_04#"
 			],
 			A_DEF,	[
-				["#XXX_HELP_A_01#","TAXI_HELP_PLACE"],
-				["#XXX_HELP_A_02#","TAXI_HELP_WHO"],
-				["#XXX_HELP_A_03#","TAXI_HELP_TALK"],
-				["#XXX_HELP_A_04#","TAXI_HELP_USERFLOW"]
+				["#XXX_HELP_A_03#","TAXI_HELP_PLACE"],
+				["#XXX_HELP_A_04#","TAXI_HELP_WHO"],
+				["#XXX_HELP_A_05#","TAXI_HELP_TALK"],
+				["#XXX_HELP_A_06#","TAXI_HELP_USERFLOW"]
 			]
 		]
 	],
@@ -207,9 +210,9 @@ TAXI_HELP_PLACE	Q_ONE		"Taxi driver describes the place the way he sees it..."
 		"TAXI_HELP_PLACE",	[
 			Q_ONE,	"#TAXI_HELP_PLACE_Q_01#",
 			A_DEF,	[
-				["#XXX_HELP_A_05#","TAXI_HELP"],
-				["#XXX_HELP_A_06#","TAXI_01"],
-				["#XXX_HELP_A_07#",NODE_EXIT]
+				["#XXX_HELP_A_07#","TAXI_HELP"],
+				["#XXX_HELP_A_08#","TAXI_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
 			]
 		]
 	],
@@ -224,9 +227,9 @@ TAXI_HELP_WHO	Q_ONE		"Describes himself..."
 		"TAXI_HELP_WHO",	[
 			Q_ONE,	"#TAXI_HELP_WHO_Q_01#",
 			A_DEF,	[
-				["#XXX_HELP_A_05#","TAXI_HELP"],
-				["#XXX_HELP_A_06#","TAXI_01"],
-				["#XXX_HELP_A_07#",NODE_EXIT]
+				["#XXX_HELP_A_07#","TAXI_HELP"],
+				["#XXX_HELP_A_08#","TAXI_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
 			]
 		]
 	],
@@ -241,9 +244,9 @@ TAXI_HELP_TALK	Q_ONE		"Describes others..."
 		"TAXI_HELP_TALK",	[
 			Q_ONE,	"#TAXI_HELP_TALK_Q_01#",
 			A_DEF,	[
-				["#XXX_HELP_A_05#","TAXI_HELP"],
-				["#XXX_HELP_A_06#","TAXI_01"],
-				["#XXX_HELP_A_07#",NODE_EXIT]
+				["#XXX_HELP_A_07#","TAXI_HELP"],
+				["#XXX_HELP_A_08#","TAXI_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
 			]
 		]
 	],
@@ -258,9 +261,9 @@ TAXI_HELP_USERFLOW	Q_ONE		"Describes gameplay loop..."
 		"TAXI_HELP_USERFLOW",	[
 			Q_ONE,	"#TAXI_HELP_USERFLOW_Q_01#",
 			A_DEF,	[
-				["#XXX_HELP_A_05#","TAXI_HELP"],
-				["#XXX_HELP_A_06#","TAXI_01"],
-				["#XXX_HELP_A_07#",NODE_EXIT]
+				["#XXX_HELP_A_07#","TAXI_HELP"],
+				["#XXX_HELP_A_08#","TAXI_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
 			]
 		]
 	],
@@ -282,12 +285,386 @@ TAXI_ADV	Q_RND		"Alyways plan your exit route|As much as I like doing my job and
 			],
 			A_CND,	[
 				{[1,10] call NWG_DLGHLP_Dice},["#TAXI_ADV_A_01#","TAXI_01"],
-				{true},["#XXX_HELP_A_06#","TAXI_01"],
-				{true},["#XXX_HELP_A_07#",NODE_EXIT]
+				{true},["#XXX_HELP_A_08#","TAXI_01"],
+				{true},["#XXX_HELP_A_09#",NODE_EXIT]
 			]
 		]
 	],
 
+	//================================================================================================================
+	//================================================================================================================
+	//Mech
+	/*Actual root of the dialogue*/
+/*
+MECH_00	Q_CND	$<1000	"Newcomer?|Don't scratch anything here"
+		rand	"Yes?"
+		rand	"What can I help you with?"
+		rand	"Hey, have you seen...|a guy with a red crowbar?|The fucker owns me|That's MY fucking crowbar|And it is my favorite|You meet him - you let me know|Okay?"
+		{true}	"Buy? Sell? Repair?"
+	A_DEF		"Open the shop"			{close dialogue, open vehicle shop}
+			"I need your services"			MECH_SERV
+			"What should I know?"			MECH_HELP
+			"Any advice?"			MECH_ADV
+*/
+	[
+		"MECH_00",	[
+			Q_CND,	[
+				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#MECH_00_Q_01#",
+				{[1,3] call NWG_DLGHLP_Dice},"#MECH_00_Q_02#",
+				{[1,3] call NWG_DLGHLP_Dice},"#MECH_00_Q_03#",
+				{[1,15] call NWG_DLGHLP_Dice},"#MECH_00_Q_04#",
+				{true},"#MECH_00_Q_05#"
+			],
+			A_DEF,	[
+				["#MECH_00_A_01#",NODE_EXIT,{call NWG_DLG_MECH_OpenShop}],
+				["#MECH_00_A_02#","MECH_SERV"],
+				["#XXX_HELP_A_01#","MECH_HELP"],
+				["#XXX_HELP_A_02#","MECH_ADV"],
+				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			]
+		]
+	],
+	/*Pseudo root for getting back in dialogue*/
+/*
+MECH_01	Q_RND		"Anything else?"
+			"What?"
+			"Yeah, what?"
+	A_DEF		"Open the shop"			{close dialogue, open vehicle shop}
+			"I need your services"			MECH_SERV
+			"What should I know?"			MECH_HELP
+			"Any advice?"			MECH_ADV
+*/
+	[
+		"MECH_01",	[
+			Q_RND,	[
+				"#MECH_01_Q_01#",
+				"#MECH_01_Q_02#",
+				"#MECH_01_Q_03#"
+			],
+			A_DEF,	[
+				["#MECH_00_A_01#",NODE_EXIT,{call NWG_DLG_MECH_OpenShop}],
+				["#MECH_00_A_02#","MECH_SERV"],
+				["#XXX_HELP_A_01#","MECH_HELP"],
+				["#XXX_HELP_A_02#","MECH_ADV"],
+				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			]
+		]
+	],
+	/*Services - category selection*/
+/*
+MECH_SERV	Q_ONE		"What kind of?"
+	A_DEF		"I need repair"			MECH_REPAIR
+			"I need refuel"			MECH_REFUEL
+			"Rearm"			MECH_REARM
+			"Can you customize my vehicle?"			MECH_APRNC
+			"New pylons"			MECH_PYLON
+			"Install 'All Wheel' drive gear"			MECH_ALWHL
+			"On the second thought"			MECH_01
+			"No, nothing"			NODE_EXIT
+*/
+	[
+		"MECH_SERV",	[
+			Q_ONE,	"#MECH_SERV_Q_01#",
+			A_DEF,	[
+				["#MECH_SERV_A_01#","MECH_REPAIR"],
+				["#MECH_SERV_A_02#","MECH_REFUEL"],
+				["#MECH_SERV_A_03#","MECH_REARM"],
+				["#MECH_SERV_A_04#","MECH_APRNC"],
+				["#MECH_SERV_A_05#","MECH_PYLON"],
+				["#MECH_SERV_A_06#","MECH_ALWHL"],
+				["#MECH_0X_A_BACK1#","MECH_01"],
+				["#MECH_0X_A_EXIT1#",NODE_EXIT]
+			]
+		]
+	],
+	/*Services - repair choice*/
+/*
+MECH_REPAIR	Q_RND		"Sure thing, which vehicle?"
+			"Repairs is what I do. Which one to look at?
+	A_GEN		{call XXX}
+			"On the second thought"			MECH_01
+			"No, forget it"			NODE_EXIT
+*/
+	[
+		"MECH_REPAIR",	[
+			Q_RND,	[
+				"#MECH_REPAIR_Q_01#",
+				"#MECH_REPAIR_Q_02#"
+			],
+			A_GEN,	[
+				{"REPR" call NWG_DLG_MECH_GenerateChoices},
+				["#MECH_0X_A_BACK1#","MECH_01"],
+				["#MECH_0X_A_EXIT2#",NODE_EXIT]
+			]
+		]
+	],
+	/*Services - refuel choice*/
+/*
+MECH_REFUEL	Q_RND		"You're lucky I have some. Which one?"
+			"Yeah, got some fuel. Which one?"
+	A_GEN		{call XXX}			MECH_PAY
+			"On the second thought"			MECH_01
+			"No, forget it"			NODE_EXIT
+*/
+	[
+		"MECH_REFUEL",	[
+			Q_RND,	[
+				"#MECH_REFUEL_Q_01#",
+				"#MECH_REFUEL_Q_02#"
+			],
+			A_GEN,	[
+				{"FUEL" call NWG_DLG_MECH_GenerateChoices},
+				["#MECH_0X_A_BACK1#","MECH_01"],
+				["#MECH_0X_A_EXIT2#",NODE_EXIT]
+			]
+		]
+	],
+	/*Services - rearm choice*/
+/*
+MECH_REARM	Q_RND		"Got some ammo. Which one to top up?"
+			"Sure thing"
+	A_GEN		{call XXX}			MECH_PAY
+			"On the second thought"			MECH_01
+			"No, forget it"			NODE_EXIT
+*/
+	[
+		"MECH_REARM",	[
+			Q_RND,	[
+				"#MECH_REARM_Q_01#",
+				"#MECH_REARM_Q_02#"
+			],
+			A_GEN,	[
+				{"RARM" call NWG_DLG_MECH_GenerateChoices},
+				["#MECH_0X_A_BACK1#","MECH_01"],
+				["#MECH_0X_A_EXIT2#",NODE_EXIT]
+			]
+		]
+	],
+	/*Services - appearance choice*/
+/*
+MECH_APRNC	Q_RND		"Drive with a style kinda guy?|Sure thing"
+			"You want me to pimp your ride?"
+	A_GEN		{call XXX}			MECH_PAY
+			"On the second thought"			MECH_01
+			"No, forget it"			NODE_EXIT
+*/
+	[
+		"MECH_APRNC",	[
+			Q_RND,	[
+				"#MECH_APRNC_Q_01#",
+				"#MECH_APRNC_Q_02#"
+			],
+			A_GEN,	[
+				{"APPR" call NWG_DLG_MECH_GenerateChoices},
+				["#MECH_0X_A_BACK1#","MECH_01"],
+				["#MECH_0X_A_EXIT2#",NODE_EXIT]
+			]
+		]
+	],
+	/*Services - pylon choice*/
+/*
+MECH_PYLON	Q_RND		"Let's do some heavy lifting then"
+			"I don't mind heavy lifting, but this missiles are pain in the ass|But sure, let's do it"
+			"Guess we've got a real pilot here, huh?"
+	A_GEN		{call XXX}			MECH_PAY
+			"On the second thought"			MECH_01
+			"No, forget it"			NODE_EXIT
+*/
+	[
+		"MECH_PYLON",	[
+			Q_RND,	[
+				"#MECH_PYLON_Q_01#",
+				"#MECH_PYLON_Q_02#",
+				"#MECH_PYLON_Q_03#"
+			],
+			A_GEN,	[
+				{"PYLN" call NWG_DLG_MECH_GenerateChoices},
+				["#MECH_0X_A_BACK1#","MECH_01"],
+				["#MECH_0X_A_EXIT2#",NODE_EXIT]
+			]
+		]
+	],
+	/*Services - all wheel choice*/
+/*
+MECH_ALWHL	Q_RND		"Yeah, crazy stuff|But extremely useful"
+			"So you like my invetion?|It ain't cheap"
+			"Yeah, let's make you a monster truck"
+			"Glad someone appreciates it"
+	A_GEN		{call XXX}			MECH_PAY
+			"On the second thought"			MECH_01
+			"No, forget it"			NODE_EXIT
+*/
+	[
+		"MECH_ALWHL",	[
+			Q_RND,	[
+				"#MECH_ALWHL_Q_01#",
+				"#MECH_ALWHL_Q_02#",
+				"#MECH_ALWHL_Q_03#",
+				"#MECH_ALWHL_Q_04#"
+			],
+			A_GEN,	[
+				{"AWHL" call NWG_DLG_MECH_GenerateChoices},
+				["#MECH_0X_A_BACK1#","MECH_01"],
+				["#MECH_0X_A_EXIT2#",NODE_EXIT]
+			]
+		]
+	],
+	/*Services - payment*/
+/*
+MECH_PAY	Q_ONE		"That would be {X}"
+	A_CND	$>=X	"Take it"			{close dialogue, deplete cash, perform action}
+		$<X	"That's more than I have"			MECH_LOW
+		{true}	"I've changed my mind"			MECH_01
+		{true}	"Never mind"			NODE_EXIT
+*/
+	[
+		"MECH_PAY",	[
+			Q_ONE,	["#MECH_PAY_Q_01#",{call NWG_DLG_MECH_GetPriceStr}],
+			A_CND,	[
+				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasEnoughMoney},["#MECH_PAY_A_01#",NODE_EXIT,{call NWG_DLG_MECH_DoService}],
+				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasLessMoney},["#MECH_PAY_A_02#","MECH_LOW"],
+				{true},["#MECH_0X_A_BACK2#","MECH_01"],
+				{true},["#MECH_0X_A_EXIT3#",NODE_EXIT]
+			]
+		]
+	],
+	/*Services - not enough money*/
+/*
+MECH_LOW	Q_RND		"Told you it ain't cheap"
+			"Sorry, no discounts"
+	A_DEF		"I guess"			MECH_01
+			"Well, see you"			NODE_EXIT
+*/
+	[
+		"MECH_LOW",	[
+			Q_RND,	[
+				"#MECH_LOW_Q_01#",
+				"#MECH_LOW_Q_02#"
+			],
+			A_DEF,	[
+				["#MECH_LOW_A_01#","MECH_01"],
+				["#MECH_LOW_A_02#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - cat selection*/
+/*
+MECH_HELP	Q_RND		"About what?"
+			"Yeah? About what?"
+			"In particular?"
+	A_DEF		"What is this place?"			MECH_HELP_PLACE
+			"Who are you?"			MECH_HELP_WHO
+			"Who are others?"			MECH_HELP_TALK
+			"How things are done here?"			MECH_HELP_USERFLOW
+*/
+	[
+		"MECH_HELP",	[
+			Q_RND,	[
+				"#MECH_HELP_Q_01#",
+				"#MECH_HELP_Q_02#",
+				"#MECH_HELP_Q_03#"
+			],
+			A_DEF,	[
+				["#XXX_HELP_A_03#","MECH_HELP_PLACE"],
+				["#XXX_HELP_A_04#","MECH_HELP_WHO"],
+				["#XXX_HELP_A_05#","MECH_HELP_TALK"],
+				["#XXX_HELP_A_06#","MECH_HELP_USERFLOW"]
+			]
+		]
+	],
+	/*What should I know - What is this place*/
+/*
+MECH_HELP_PLACE	Q_ONE		"Describes the place..."
+	A_DEF		"Another question"			MECH_HELP
+			"Got it"			MECH_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"MECH_HELP_PLACE",	[
+			Q_ONE,	"#MECH_HELP_PLACE_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","MECH_HELP"],
+				["#XXX_HELP_A_08#","MECH_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - Who are you*/
+/*
+MECH_HELP_WHO	Q_ONE		"Describes himself..."
+	A_DEF		"Another question"			MECH_HELP
+			"Got it"			MECH_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"MECH_HELP_WHO",	[
+			Q_ONE,	"#MECH_HELP_WHO_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","MECH_HELP"],
+				["#XXX_HELP_A_08#","MECH_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - Who should I talk to*/
+/*
+MECH_HELP_TALK	Q_ONE		"Describes others..."
+	A_DEF		"Another question"			MECH_HELP
+			"Got it"			MECH_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"MECH_HELP_TALK",	[
+			Q_ONE,	"#MECH_HELP_TALK_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","MECH_HELP"],
+				["#XXX_HELP_A_08#","MECH_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - How things are done here*/
+/*
+MECH_HELP_USERFLOW	Q_ONE		"Describes gameplay loop..."
+	A_DEF		"Another question"			MECH_HELP
+			"Got it"			MECH_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"MECH_HELP_USERFLOW",	[
+			Q_ONE,	"#MECH_HELP_USERFLOW_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","MECH_HELP"],
+				["#XXX_HELP_A_08#","MECH_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*Any advice*/
+/*
+MECH_ADV	Q_RND		"Avoid drowning your vehicle|You can repair it if it's broken|Refuel it if it's empty|Hell, even flip it back on ot's wheels|But drownning?|That's a 'no return' and 'warranty void'|Nothing you can do"
+			"I'm not sure if I should tell it|But hell, there's so much work|So listen|Repair your own vehicle before selling it|I will buy it for more|And won't have to spend much time with it|A win-win, right?"
+			"Don't get greedy|If you see you need to sacrifice your ride|Do it|You can always get a new one|Better loose some additionals|Than half of what you got so far"
+			"Keep your toolkit with you|If you go on wheels|Yeah, that simple"
+	A_DEF		"Got it"			MECH_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"MECH_ADV",	[
+			Q_RND,	[
+				"#MECH_ADV_Q_01#",
+				"#MECH_ADV_Q_02#",
+				"#MECH_ADV_Q_03#",
+				"#MECH_ADV_Q_04#"
+			],
+			A_DEF,	[
+				["#XXX_HELP_A_08#","MECH_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+
+	//================================================================================================================
 	//================================================================================================================
 	//Test
 	/*Test00 - "Choose what to test"*/

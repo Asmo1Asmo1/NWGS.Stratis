@@ -179,14 +179,18 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#NPC_MEDC_NAME#","Doc"],
     ["#NPC_COMM_NAME#","Commander"],
     ["#NPC_ROOF_NAME#","Ivan the Roof"],
-    /*Common NPC answers*/
-    ["#XXX_HELP_A_01#","What is this place?"],
-    ["#XXX_HELP_A_02#","Who are you?"],
-    ["#XXX_HELP_A_03#","Who should I talk to?"],
-    ["#XXX_HELP_A_04#","How things are done here?"],
-    ["#XXX_HELP_A_05#","Another question"],
-    ["#XXX_HELP_A_06#","Got it"],
-    ["#XXX_HELP_A_07#","Thanks, bye"],
+    /*Common answers to any NPC*/
+    ["#XXX_QUIT_DIALOGUE#","No, nothing"],
+    ["#XXX_HELP_A_01#","What should I know?"],
+    ["#XXX_HELP_A_02#","Any advice?"],
+    ["#XXX_HELP_A_03#","What is this place?"],
+    ["#XXX_HELP_A_04#","Who are you?"],
+    ["#XXX_HELP_A_05#","Who should I talk to?"],
+    ["#XXX_HELP_A_06#","How things are done here?"],
+    ["#XXX_HELP_A_07#","Another question"],
+    ["#XXX_HELP_A_08#","Got it"],
+    ["#XXX_HELP_A_09#","Thanks, bye"],
+    /*====== TAXI =====*/
     /*Taxi - logic*/
     ["#NPC_TAXI_CAT_SQD#","To my Squad Mates"],
     ["#NPC_TAXI_CAT_VHC#","To my Vehicle"],
@@ -205,8 +209,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_00_Q_03#","Need a ride?"],
     ["#TAXI_00_Q_04#","Hey, what's up, boss?"],
     ["#TAXI_00_A_01#","Drop me by..."],
-    ["#TAXI_00_A_02#","What should I know?"],
-    ["#TAXI_00_A_03#","Any advice?"],
     /*Taxi - TAXI_01*/
     ["#TAXI_01_Q_01#","Anything else?"],
     ["#TAXI_01_Q_02#","So?"],
@@ -245,6 +247,84 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_ADV_Q_02#","Don't rush into the fight|If you want me drop you near you squad|Ask them first if it is safe"],
     ["#TAXI_ADV_Q_03#","Always tip your driver|That would be me"],
     ["#TAXI_ADV_A_01#","That is a good wisdom"],
+    /*====== MECH =====*/
+    /*Mech - logic*/
+    ["#MECH_NO_VEHICLES#","Sorry, guess there are none..."],
+    ["#MECH_INV_VEH#","Failed to service vehicle"],
+    /*Mech - common answers*/
+    ["#MECH_0X_A_BACK1#","On the second thought"],
+    ["#MECH_0X_A_BACK2#","I've changed my mind"],
+    ["#MECH_0X_A_EXIT1#","No, nothing"],
+    ["#MECH_0X_A_EXIT2#","No, forget it"],
+    ["#MECH_0X_A_EXIT3#","Never mind"],
+    /*Mech - MECH_00*/
+    ["#MECH_00_Q_01#","Newcomer?|Don't scratch anything here"],
+    ["#MECH_00_Q_02#","Yes?"],
+    ["#MECH_00_Q_03#","What can I help you with?"],
+    ["#MECH_00_Q_04#","Hey, have you seen...|A guy with a red crowbar?|The fucker owns me|That's MY fucking crowbar|And it is my favorite|You meet him - you let me know|Okay?"],
+    ["#MECH_00_Q_05#","Buy? Sell? Repair?"],
+    ["#MECH_00_A_01#","Open the shop"],
+    ["#MECH_00_A_02#","I need your services"],
+    /*Mech - MECH_01*/
+    ["#MECH_01_Q_01#","Anything else?"],
+    ["#MECH_01_Q_02#","What?"],
+    ["#MECH_01_Q_03#","Yeah, what?"],
+    /*Mech - MECH_SERV*/
+    ["#MECH_SERV_Q_01#","What kind of?"],
+    ["#MECH_SERV_A_01#","I need repair"],
+    ["#MECH_SERV_A_02#","I need refuel"],
+    ["#MECH_SERV_A_03#","Rearm"],
+    ["#MECH_SERV_A_04#","Can you customize my vehicle?"],
+    ["#MECH_SERV_A_05#","New pylons"],
+    ["#MECH_SERV_A_06#","Install that 'All Wheel' drive gear"],
+    /*Mech - MECH_REPAIR*/
+    ["#MECH_REPAIR_Q_01#","Sure thing, which vehicle?"],
+    ["#MECH_REPAIR_Q_02#","Repairs is what I do. Which one to look at?"],
+    /*Mech - MECH_REFUEL*/
+    ["#MECH_REFUEL_Q_01#","You're lucky I have some. Which one?"],
+    ["#MECH_REFUEL_Q_02#","Yeah, got some fuel. Which one?"],
+    /*Mech - MECH_REARM*/
+    ["#MECH_REARM_Q_01#","Got some ammo. Which one to top up?"],
+    ["#MECH_REARM_Q_02#","Sure thing"],
+    /*Mech - MECH_APRNC*/
+    ["#MECH_APRNC_Q_01#","Drive with a style kinda guy?|Sure thing, which one?"],
+    ["#MECH_APRNC_Q_02#","Want me to pimp your ride?"],
+    /*Mech - MECH_PYLON*/
+    ["#MECH_PYLON_Q_01#","Let's do some heavy lifting then"],
+    ["#MECH_PYLON_Q_02#","I don't mind heavy lifting, but those missiles are pain in the ass|But sure, let's do it, which one?"],
+    ["#MECH_PYLON_Q_03#","Guess we've got an actual pilot here, huh?"],
+    /*Mech - MECH_ALWHL*/
+    ["#MECH_ALWHL_Q_01#","Yeah, crazy stuff|But extremely useful"],
+    ["#MECH_ALWHL_Q_02#","So you like my invetion?|It ain't cheap"],
+    ["#MECH_ALWHL_Q_03#","Yeah, let's make you a monster truck"],
+    ["#MECH_ALWHL_Q_04#","Glad someone appreciates it"],
+    /*Mech - MECH_PAY*/
+    ["#MECH_PAY_Q_01#","That would be %1"],
+    ["#MECH_PAY_A_01#","Take it"],
+    ["#MECH_PAY_A_02#","That's more than I have"],
+    /*Mech - MECH_LOW*/
+    ["#MECH_LOW_Q_01#","Well, yeah, it ain't cheap"],
+    ["#MECH_LOW_Q_02#","Sorry, bud, no discounts"],
+    ["#MECH_LOW_A_01#","I guess"],
+    ["#MECH_LOW_A_02#","Well, see you"],
+    /*Mech - MECH_HELP*/
+    ["#MECH_HELP_Q_01#","About what?"],
+    ["#MECH_HELP_Q_02#","Yeah? About what?"],
+    ["#MECH_HELP_Q_03#","In particular?"],
+    /*Mech - MECH_HELP_PLACE*/
+    ["#MECH_HELP_PLACE_Q_01#","This is a place where you can get your vehicle repaired, refueled, rearmed, and customized"],
+    /*Mech - MECH_HELP_WHO*/
+    ["#MECH_HELP_WHO_Q_01#","I am a mechanic, and I am here to help you get your vehicle repaired, refueled, rearmed, and customized"],
+    /*Mech - MECH_HELP_TALK*/
+    ["#MECH_HELP_TALK_Q_01#","Others are not mechanics"],
+    /*Mech - MECH_HELP_USERFLOW*/
+    ["#MECH_HELP_USERFLOW_Q_01#","You can get your vehicle repaired, refueled, rearmed, and customized"],
+    /*Mech - MECH_ADV*/
+    ["#MECH_ADV_Q_01#","Avoid drowning your vehicle|You can repair it if it's broken|Refuel it if it's empty|Hell, even flip it back on ot's wheels|But drownning?|That's a 'no return' and 'warranty void'|Nothing you can do"],
+    ["#MECH_ADV_Q_02#","I'm not sure if I should tell it|But hell, there's so much work|So listen|Repair your own vehicle before selling it|I will buy it for more|And won't have to spend much time with it|A win-win, right?"],
+    ["#MECH_ADV_Q_03#","Don't get greedy|If you see you need to sacrifice your ride|Do it|You can always get a new one|Better loose some additionals|Than half of what you got so far"],
+    ["#MECH_ADV_Q_04#","Keep your toolkit with you|If you go on wheels|Yeah, that simple"],
+    /*====== TEST =====*/
     /*Test - Common answers*/
     ["#TEST_0X_A_BACK#","Back"],
     ["#TEST_0X_A_EXIT#","Exit"],
