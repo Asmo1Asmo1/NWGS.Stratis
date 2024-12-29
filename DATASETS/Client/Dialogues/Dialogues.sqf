@@ -885,6 +885,198 @@ TRDR_LOW	Q_ONE		"Don't waste my time then|Advice... pfft"
 
 	//================================================================================================================
 	//================================================================================================================
+	//Medc
+	/*Actual root of the dialogue*/
+/*
+MEDC_00	Q_CND	{health<100 && rand}	"Are you injured? Need my help?"
+		{health<100}	"You don't look good, son"
+		rand	"Yes? Yes?"
+		rand	"Did you bring your med card?"
+		{true}	"Need pills?|Me too, son, me too"
+	A_CND	{health<100}	"Yeah, I am. Can you patch me up?"			MEDC_PATCH
+		{true}	"What should I know?"			MEDC_HELP
+		{true}	"Any advice?"			MEDC_ADV
+		{true}	"No, nothing"			NODE_EXIT
+*/
+	[
+		"MEDC_00",	[
+			Q_CND,	[
+				{(call NWG_DLG_MEDC_IsInjured) && {call NWG_DLGHLP_Coin}},"#MEDC_00_Q_01#",
+				{call NWG_DLG_MEDC_IsInjured},"#MEDC_00_Q_02#",
+				{[1,3] call NWG_DLGHLP_Dice},"#MEDC_00_Q_03#",
+				{[1,3] call NWG_DLGHLP_Dice},"#MEDC_00_Q_04#",
+				{true},"#MEDC_00_Q_05#"
+			],
+			A_CND,	[
+				{call NWG_DLG_MEDC_IsInjured},["#MEDC_00_A_01#","MEDC_PATCH"],
+				{true},["#XXX_HELP_A_01#","MEDC_HELP"],
+				{true},["#XXX_HELP_A_02#","MEDC_ADV"],
+				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			]
+		]
+	],
+	/*Pseudo root for getting back in dialogue*/
+/*
+MEDC_01	Q_RND		"You look tired, son"
+			"Make sure you eat well"
+			"You need some sleep schedule"
+	A_CND	{health<100}	"Can you patch me up?"			MEDC_PATCH
+		{true}	"What should I know?"			MEDC_HELP
+		{true}	"Any advice?"			MEDC_ADV
+		{true}	"No, nothing"			NODE_EXIT
+*/
+	[
+		"MEDC_01",	[
+			Q_RND,	[
+				"#MEDC_01_Q_01#",
+				"#MEDC_01_Q_02#",
+				"#MEDC_01_Q_03#"
+			],
+			A_CND,	[
+				{call NWG_DLG_MEDC_IsInjured},["#MEDC_01_A_01#","MEDC_PATCH"],
+				{true},["#XXX_HELP_A_01#","MEDC_HELP"],
+				{true},["#XXX_HELP_A_02#","MEDC_ADV"],
+				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			]
+		]
+	],
+	/*Medic patch*/
+/*
+MEDC_PATCH	Q_CND	$<1000	"Sure thing, son|And since you're new here|Let's say your insurance covers it|Shall we?"
+		{true}	"Sure thing|It will cost you just {X}"
+	A_CND	$<1000	"Thanks,doc"			{close dialogue, patch player}
+		$>1000	"Yeah, here you go"			{close dialogue, deplete money, patch player}
+			"Never mind"			NODE_EXIT
+*/
+	[
+		"MEDC_PATCH",	[
+			Q_CND,	[
+				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#MEDC_PATCH_Q_01#",
+				{1 call NWG_DLGHLP_HasMoreMoneyStartSum},["#MEDC_PATCH_Q_02#",{call NWG_DLG_MEDC_GetPatchPriceStr}]
+			],
+			A_CND,	[
+				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#MEDC_PATCH_A_01#",NODE_EXIT,{true call NWG_DLG_MEDC_Patch}],
+				{1 call NWG_DLGHLP_HasMoreMoneyStartSum},["#MEDC_PATCH_A_02#",NODE_EXIT,{false call NWG_DLG_MEDC_Patch}],
+				{true},["#MEDC_0X_A_EXIT1#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - cat selection*/
+/*
+MEDC_HELP	Q_RND		"What would you like to know, son?"
+			"Sure, what is it?"
+	A_DEF		"What is this place?"			MEDC_HELP_PLACE
+			"Who are you?"			MEDC_HELP_WHO
+			"Who are others?"			MEDC_HELP_TALK
+			"How things are done here?"			MEDC_HELP_USERFLOW
+*/
+	[
+		"MEDC_HELP",	[
+			Q_RND,	[
+				"#MEDC_HELP_Q_01#",
+				"#MEDC_HELP_Q_02#"
+			],
+			A_DEF,	[
+				["#XXX_HELP_A_03#","MEDC_HELP_PLACE"],
+				["#XXX_HELP_A_04#","MEDC_HELP_WHO"],
+				["#XXX_HELP_A_05#","MEDC_HELP_TALK"],
+				["#XXX_HELP_A_06#","MEDC_HELP_USERFLOW"]
+			]
+		]
+	],
+	/*What should I know - What is this place*/
+/*
+MEDC_HELP_PLACE	Q_ONE		"Describes the place..."
+	A_DEF		"Another question"			MEDC_HELP
+			"Got it"			MEDC_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"MEDC_HELP_PLACE",	[
+			Q_ONE,	"#MEDC_HELP_PLACE_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","MEDC_HELP"],
+				["#XXX_HELP_A_08#","MEDC_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - Who are you*/
+/*
+MEDC_HELP_WHO	Q_ONE		"Describes himself..."
+	A_DEF		"Another question"			MEDC_HELP
+			"Got it"			MEDC_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"MEDC_HELP_WHO",	[
+			Q_ONE,	"#MEDC_HELP_WHO_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","MEDC_HELP"],
+				["#XXX_HELP_A_08#","MEDC_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - Who should I talk to*/
+/*
+MEDC_HELP_TALK	Q_ONE		"Describes others..."
+	A_DEF		"Another question"			MEDC_HELP
+			"Got it"			MEDC_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"MEDC_HELP_TALK",	[
+			Q_ONE,	"#MEDC_HELP_TALK_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","MEDC_HELP"],
+				["#XXX_HELP_A_08#","MEDC_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - How things are done here*/
+/*
+MEDC_HELP_USERFLOW	Q_ONE		"Describes gameplay loop..."
+	A_DEF		"Another question"			MEDC_HELP
+			"Got it"			MEDC_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"MEDC_HELP_USERFLOW",	[
+			Q_ONE,	"#MEDC_HELP_USERFLOW_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","MEDC_HELP"],
+				["#XXX_HELP_A_08#","MEDC_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*Any advice*/
+/*
+MEDC_ADV	Q_RND		"There is...|There are...|(stares above your head)|Some... things..."
+			"Don't mix those|I did|But that's okay..."
+			"Just keep an eye out for each other|Hmm...."
+	A_DEF		"Hello?"			MEDC_01
+			"All right"			MEDC_01
+			"Ok, bye"			NODE_EXIT
+*/
+	[
+		"MEDC_ADV",	[
+			Q_RND,	[
+				"#MEDC_ADV_Q_01#",
+				"#MEDC_ADV_Q_02#",
+				"#MEDC_ADV_Q_03#"
+			],
+			A_DEF,	[
+				["#XXX_HELP_A_08#","MEDC_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+
+	//================================================================================================================
+	//================================================================================================================
 	//Test
 	/*Test00 - "Choose what to test"*/
 	[

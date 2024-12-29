@@ -3,39 +3,35 @@
 	It contains logic unique to this NPC and is not mandatory for dialogue system to work.
 	So we can safely omit all the connectors and safety logic. For example, here we can freely use functions and inner methods from other systems and subsystems directly without precautions.
 	Same goes the other way around - there are no 'functions' with documentation declared, methods of this module are used directly in dialogue tree structure.
+	Reminder: Each answer is array of [%ANSWER_STR%,%NEXT_NODE%,(optional:%CODE%)]
 */
+//================================================================================================================
+//================================================================================================================
+//Defiens
+#define MEDC_PATCH_PRICE 500
 
 //================================================================================================================
 //================================================================================================================
-//dice logic
-NWG_DLGHLP_Dice = {
-	params ["_req","_dice"];
-	(_req > (random _dice))
+//Patch
+NWG_DLG_MEDC_IsInjured = {
+	if ((damage player) > 0.1) exitWith {true};
+	if (NWG_MED_CLI_SA_selfHealSuccessChance < (NWG_MED_CLI_Settings get "SELF_HEAL_INITIAL_CHANCE")) exitWith {true};//Inner kitchen of 'medicineClientSide.sqf'
+	false
 };
 
-NWG_DLGHLP_Coin = {
-	[1,2] call NWG_DLGHLP_Dice
-};
+NWG_DLG_MEDC_GetPatchPrice = {MEDC_PATCH_PRICE};
+NWG_DLG_MEDC_GetPatchPriceStr = {MEDC_PATCH_PRICE call NWG_fnc_wltFormatMoney};
+// NWG_DLG_MEDC_PayForPatch = {[player,-MEDC_PATCH_PRICE] call NWG_fnc_wltAddPlayerMoney};
 
-//================================================================================================================
-//================================================================================================================
-//money logic
-NWG_DLGHLP_HasEnoughMoney = {
-	// private _moneyReq = _this;
-	(player call NWG_fnc_wltGetPlayerMoney) >= _this
-};
+NWG_DLG_MEDC_Patch = {
+	private _isFree = _this;
 
-NWG_DLGHLP_HasLessMoney = {
-	// private _moneyReq = _this;
-	(player call NWG_fnc_wltGetPlayerMoney) < _this
-};
+	//Payment
+	if (!_isFree) then {
+		[player,-MEDC_PATCH_PRICE] call NWG_fnc_wltAddPlayerMoney;
+	};
 
-NWG_DLGHLP_HasMoreMoneyStartSum = {
-	params [["_multiplier",1]];
-	(player call NWG_fnc_wltGetPlayerMoney) > ((call NWG_fnc_wltGetInitialMoney)*_multiplier)
-};
-
-NWG_DLGHLP_HasLessOrEqMoneyStartSum = {
-	params [["_multiplier",1]];
-	(player call NWG_fnc_wltGetPlayerMoney) <= ((call NWG_fnc_wltGetInitialMoney)*_multiplier)
+	//Patch
+	player setDamage 0;
+	player call NWG_fnc_medReloadSelfHealChance;
 };

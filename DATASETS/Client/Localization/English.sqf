@@ -369,6 +369,41 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TRDR_LOW_A_01#","Not like I wanted your stupid advice anyway"],
     ["#TRDR_LOW_A_02#","Yeah, right..."],
     ["#TRDR_LOW_A_03#","I'll be back"],
+    /*====== MEDC =====*/
+    /*Medc - common answers*/
+    ["#MEDC_0X_A_EXIT1#","Never mind"],
+    /*Medc - MEDC_00*/
+    ["#MEDC_00_Q_01#","Are you injured? Need my help?"],
+    ["#MEDC_00_Q_02#","You don't look good, son"],
+    ["#MEDC_00_Q_03#","Yes? Yes?"],
+    ["#MEDC_00_Q_04#","Did you bring your med card?"],
+    ["#MEDC_00_Q_05#","Need pills?|Me too, son, me too"],
+    ["#MEDC_00_A_01#","Yeah, I am. Can you patch me up?"],
+    /*Medc - MEDC_01*/
+    ["#MEDC_01_Q_01#","You look tired, son"],
+    ["#MEDC_01_Q_02#","Make sure you eat well"],
+    ["#MEDC_01_Q_03#","You need some sleep schedule"],
+    ["#MEDC_01_A_01#","Can you patch me up?"],
+    /*Medc - MEDC_PATCH*/
+    ["#MEDC_PATCH_Q_01#","Sure thing, son|And since you're new here|Let's say your insurance covers it|Shall we?"],
+    ["#MEDC_PATCH_Q_02#","Sure thing|It will cost you just %1"],
+    ["#MEDC_PATCH_A_01#","Thanks,doc"],
+    ["#MEDC_PATCH_A_02#","Yeah, here you go"],
+    /*Medc - MEDC_HELP*/
+    ["#MEDC_HELP_Q_01#","What would you like to know, son?"],
+    ["#MEDC_HELP_Q_02#","Sure, what is it?"],
+    /*Medc - MEDC_HELP_PLACE*/
+    ["#MEDC_HELP_PLACE_Q_01#","This is a place where you can get your injuries patched up"],
+    /*Medc - MEDC_HELP_WHO*/
+    ["#MEDC_HELP_WHO_Q_01#","I am a doctor, and I am here to help you get your injuries patched up"],
+    /*Medc - MEDC_HELP_TALK*/
+    ["#MEDC_HELP_TALK_Q_01#","Others are not doctors"],
+    /*Medc - MEDC_HELP_USERFLOW*/
+    ["#MEDC_HELP_USERFLOW_Q_01#","You can get your injuries patched up"],
+    /*Medc - MEDC_ADV*/
+    ["#MEDC_ADV_Q_01#","There is...|There are...|(stares above your head)|Some... things..."],
+    ["#MEDC_ADV_Q_02#","Don't mix those|I did|But that's okay..."],
+    ["#MEDC_ADV_Q_03#","Just keep an eye out for each other|Hmm...."],
     /*====== TEST =====*/
     /*Test - Common answers*/
     ["#TEST_0X_A_BACK#","Back"],
