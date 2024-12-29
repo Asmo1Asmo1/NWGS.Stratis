@@ -15,6 +15,7 @@
 //Patch
 NWG_DLG_MEDC_IsInjured = {
 	if ((damage player) > 0.1) exitWith {true};
+	if ((((getAllHitPointsDamage player)#2) findIf {_x >= 0.1}) != -1) exitWith {true};
 	if (NWG_MED_CLI_SA_selfHealSuccessChance < (NWG_MED_CLI_Settings get "SELF_HEAL_INITIAL_CHANCE")) exitWith {true};//Inner kitchen of 'medicineClientSide.sqf'
 	false
 };

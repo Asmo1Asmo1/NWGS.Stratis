@@ -1276,6 +1276,495 @@ COMM_ADV	Q_RND		"Always communicate|Make sure you know where others are|And that
 
 	//================================================================================================================
 	//================================================================================================================
+	//Roof
+	/*Actual root of the dialogue*/
+/*
+ROOF_00	Q_CND	$<1000	"New guy, eh?"
+		rand	"What's up?"
+		rand	"Yeah?"
+		rand	"You need something?"
+		{true}	"Stupid barrels..."
+	A_CND	$<10000	"What are you doing here?"			ROOF_WHAT
+		$<10000	"What else can you tell?"			ROOF_NO_TRUST
+		$>10000	"What else can you tell?"			ROOF_KNOW
+		$<10000	"Is there something I should know?"			ROOF_NO_TRUST
+		$>10000	"Is there something I should know?"			ROOF_HELP
+		$<10000	"Any advice?"			ROOF_NO_TRUST
+		$>10000	"Any advice?"			ROOF_ADV
+			"No, nothing"			NODE_EXIT
+*/
+	[
+		"ROOF_00",	[
+			Q_CND,	[
+				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#ROOF_00_Q_01#",
+				{[1,4] call NWG_DLGHLP_Dice},"#ROOF_00_Q_02#",
+				{[1,4] call NWG_DLGHLP_Dice},"#ROOF_00_Q_03#",
+				{[1,4] call NWG_DLGHLP_Dice},"#ROOF_00_Q_04#",
+				{true},"#ROOF_00_Q_05#"
+			],
+			A_CND,	[
+				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_01#","ROOF_WHAT"],
+				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_02#","ROOF_NO_TRUST"],
+				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#ROOF_00_A_02#","ROOF_KNOW"],
+				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#XXX_HELP_A_01#","ROOF_NO_TRUST"],
+				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#XXX_HELP_A_01#","ROOF_HELP"],
+				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#XXX_HELP_A_02#","ROOF_NO_TRUST"],
+				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#XXX_HELP_A_02#","ROOF_ADV"],
+				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			]
+		]
+	],
+	/*Pseudo root for getting back in dialogue*/
+/*
+ROOF_01	Q_RND		"Shouldn't you do something?"
+			"Shouldn't you be somewhere?"
+			"Anyway, how about you be on your way?"
+	A_CND	$<10000	"What else do you know?"			ROOF_NO_TRUST
+		$<10000	"What else do you know?"			ROOF_NO_TRUST
+		$>10000	"What else do you know?"			ROOF_KNOW
+		$<10000	"Is there something I should know?"			ROOF_NO_TRUST
+		$>10000	"Is there something I should know?"			ROOF_HELP
+		$<10000	"Any advice?"			ROOF_NO_TRUST
+		$>10000	"Any advice?"			ROOF_ADV
+			"No, nothing"			NODE_EXIT
+*/
+	[
+		"ROOF_01",	[
+			Q_RND,	[
+				"#ROOF_01_Q_01#",
+				"#ROOF_01_Q_02#",
+				"#ROOF_01_Q_03#"
+			],
+			A_CND,	[
+				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_01#","ROOF_WHAT"],
+				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_02#","ROOF_NO_TRUST"],
+				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#ROOF_00_A_02#","ROOF_KNOW"],
+				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#XXX_HELP_A_01#","ROOF_NO_TRUST"],
+				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#XXX_HELP_A_01#","ROOF_HELP"],
+				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#XXX_HELP_A_02#","ROOF_NO_TRUST"],
+				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#XXX_HELP_A_02#","ROOF_ADV"],
+				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			]
+		]
+	],
+	/*What are you doing here*/
+/*
+ROOF_WHAT	Q_ONE		"Describes the role..."
+	A_DEF		"Got it"			ROOF_01
+			"Ok, bye"			NODE_EXIT
+*/
+	[
+		"ROOF_WHAT",	[
+			Q_ONE,	"#ROOF_WHAT_Q_01#",
+			A_DEF,	[
+				["#ROOF_0X_A_BACK2#","ROOF_01"],
+				["#ROOF_0X_A_EXIT1#",NODE_EXIT]
+			]
+		]
+	],
+	/*Doesn't trust you*/
+/*
+ROOF_NO_TRUST	Q_RND		"Sorry 'bratan'|I don't know you|You don't know me|It is how it is"
+			"Mhm...|Maybe later|Not now|Not right now"
+			"Is there no work for you?"
+			"I'm busy|And so should be you|Right?"
+	A_DEF		"That's ok"			ROOF_01
+			"Ok, bye"			NODE_EXIT
+*/
+	[
+		"ROOF_NO_TRUST",	[
+			Q_RND,	[
+				"#ROOF_NO_TRUST_Q_01#",
+				"#ROOF_NO_TRUST_Q_02#",
+				"#ROOF_NO_TRUST_Q_03#",
+				"#ROOF_NO_TRUST_Q_04#"
+			],
+			A_DEF,	[
+				["#ROOF_NO_TRUST_A_01#","ROOF_01"],
+				["#ROOF_NO_TRUST_A_02#",NODE_EXIT]
+			]
+		]
+	],
+	/*What else do you know?*/
+/*
+ROOF_KNOW	Q_RND		"I know may things|This place's history|Local legends|Some rumors|What is it for you?"
+			"Well, not like I have nothing to do|But why not|Go on|What's you interested in?"
+			"I know a litttle bit of this|A little bit of that|What do you need to know?"
+	A_DEF		"History of this place"			ROOF_HIST00
+			"Local legends"			ROOF_LGND00
+			"Local rumors"			ROOF_RUMR
+			"Something else"			ROOF_01
+			"Actually, no, forget it"			NODE_EXIT
+*/
+	[
+		"ROOF_KNOW",	[
+			Q_RND,	[
+				"#ROOF_KNOW_Q_01#",
+				"#ROOF_KNOW_Q_02#",
+				"#ROOF_KNOW_Q_03#"
+			],
+			A_DEF,	[
+				["#ROOF_KNOW_A_01#","ROOF_HIST00"],
+				["#ROOF_KNOW_A_02#","ROOF_LGND00"],
+				["#ROOF_KNOW_A_03#","ROOF_RUMR"],
+				["#ROOF_KNOW_A_04#","ROOF_01"],
+				["#ROOF_KNOW_A_05#",NODE_EXIT]
+			]
+		]
+	],
+	/*History - category selection*/
+/*
+ROOF_HIST00	Q_ONE		"A short story or a long one?"
+	A_DEF		"Short story"			ROOF_HIST01
+			"Long story"			ROOF_HIST02
+*/
+	[
+		"ROOF_HIST00",	[
+			Q_ONE,	"#ROOF_HIST00_Q_01#",
+			A_DEF,	[
+				["#ROOF_HIST00_A_01#","ROOF_HIST01"],
+				["#ROOF_HIST00_A_02#","ROOF_HIST02"]
+			]
+		]
+	],
+	/*History - short story*/
+/*
+ROOF_HIST01	Q_ONE		"Tells short story..."
+	A_CND	rand	"That's interesting"			ROOF_KNOW
+		rand	"Hm. Got that"			ROOF_KNOW
+		rand 	"That story sucks"			ROOF_KNOW
+		{true}	"Got it"			ROOF_KNOW
+			"I need to go"			NODE_EXIT
+*/
+	[
+		"ROOF_HIST01",	[
+			Q_ONE,	"#ROOF_HIST01_Q_01#",
+			A_CND,	[
+				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_HIST01_A_01#","ROOF_KNOW"],
+				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_HIST01_A_02#","ROOF_KNOW"],
+				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_HIST01_A_03#","ROOF_KNOW"],
+				{true},["#ROOF_0X_A_BACK3#","ROOF_KNOW"],
+				{true},["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+			]
+		]
+	],
+	/*History - long story*/
+/*
+ROOF_HIST02	Q_ONE		"Tells longest story..."
+	A_CND	rand	"That's interesting"			ROOF_KNOW
+		rand	"Hm. Got that"			ROOF_KNOW
+		rand	"I almost fell asleep"			ROOF_KNOW
+		rand 	"That story sucks"			ROOF_KNOW
+		{true}	"Got it"			ROOF_KNOW
+			"I need to go"			NODE_EXIT
+*/
+	[
+		"ROOF_HIST02",	[
+			Q_ONE,	"#ROOF_HIST02_Q_01#",
+			A_CND,	[
+				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_HIST02_A_01#","ROOF_KNOW"],
+				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_HIST02_A_02#","ROOF_KNOW"],
+				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_HIST02_A_03#","ROOF_KNOW"],
+				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_HIST02_A_04#","ROOF_KNOW"],
+				{true},["#ROOF_0X_A_BACK3#","ROOF_KNOW"],
+				{true},["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+			]
+		]
+	],
+	/*Local legends - category selection*/
+/*
+ROOF_LGND00	Q_RND		"It's not like 'legends' legends|Not like 'dwarfs and fairies'|There are guys here who we call local legends|So who do you want to know about?"
+			"Local legendary operators|Who do you want to hear about?"
+			"Yep, local legends they are|Nice guys|Well, most of them|Some of them... it depends"
+	A_DEF		"Operator HOPA"			ROOF_LGND_HOPA
+			"Who's Bit... Rayman? Raymon?"			ROOF_LGND_BIT
+			"Can of RedBull?"			ROOF_LGND_BANKA
+			"What was his name... Hui? Huy? Huiyui?"			ROOF_LGND_HUI
+			"Asmo"			ROOF_LGND_ASMO
+*/
+	[
+		"ROOF_LGND00",	[
+			Q_RND,	[
+				"#ROOF_LGND00_Q_01#",
+				"#ROOF_LGND00_Q_02#",
+				"#ROOF_LGND00_Q_03#"
+			],
+			A_DEF,	[
+				["#ROOF_LGND00_A_01#","ROOF_LGND_HOPA"],
+				["#ROOF_LGND00_A_02#","ROOF_LGND_BIT"],
+				["#ROOF_LGND00_A_03#","ROOF_LGND_BANKA"],
+				["#ROOF_LGND00_A_04#","ROOF_LGND_HUI"],
+				["#ROOF_LGND00_A_05#","ROOF_LGND_ASMO"],
+				["#ROOF_0X_A_BACK3#","ROOF_01"],
+				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			]
+		]
+	],
+	/*Local legends - someone else*/
+/*
+ROOF_LGND01	Q_RND		"It's not like 'legends' legends|Not like 'dwarfs and fairies'|There are guys here who we call local legends|So who do you want to know about?"
+			"Local legendary operators|Who do you want to hear about?"
+			"Yep, local legends they are|Nice guys|Well, most of them|Some of them... it depends"
+	A_DEF		"Operator HOPA"			ROOF_LGND_HOPA
+			"Who's Bit... Rayman? Raymon?"			ROOF_LGND_BIT
+			"Can of RedBull?"			ROOF_LGND_BANKA
+			"What was his name... Hui? Huy? Huiyui?"			ROOF_LGND_HUI
+			"Asmo"			ROOF_LGND_ASMO
+*/
+	[
+		"ROOF_LGND01",	[
+			Q_RND,	[
+				"#ROOF_LGND01_Q_01#",
+				"#ROOF_LGND01_Q_02#",
+				"#ROOF_LGND01_Q_03#"
+			],
+			A_DEF,	[
+				["#ROOF_LGND00_A_01#","ROOF_LGND_HOPA"],
+				["#ROOF_LGND00_A_02#","ROOF_LGND_BIT"],
+				["#ROOF_LGND00_A_03#","ROOF_LGND_BANKA"],
+				["#ROOF_LGND00_A_04#","ROOF_LGND_HUI"],
+				["#ROOF_LGND00_A_05#","ROOF_LGND_ASMO"],
+				["#ROOF_0X_A_BACK3#","ROOF_01"],
+				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			]
+		]
+	],
+	/*Local legends - Operator HOPA*/
+/*
+ROOF_LGND_HOPA	Q_ONE		"Fucking genius that's who he is|That guy could attach anything to anyone|Build entire systems overnight|All with duct tape, sticks and shit|Legendary engineer"
+	A_DEF		"Got it"			ROOF_KNOW
+			"Thanks, but I need to go now"			NODE_EXIT
+*/
+	[
+		"ROOF_LGND_HOPA",	[
+			Q_ONE,	"#ROOF_LGND_HOPA_Q_01#",
+			A_DEF,	[
+				["#ROOF_LGND_A_01#","ROOF_LGND01"],
+				["#ROOF_0X_A_BACK3#","ROOF_KNOW"],
+				["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+			]
+		]
+	],
+	/*Local legends - Who's Bit... Rayman? Raymon?*/
+/*
+ROOF_LGND_BIT	Q_ONE		"No, Rayman is another guy|But that Bit-Ramon?|Fucking lunatic|Would crash his heli into the building|Just to get there a 'Bit' faster|And annihilate everyone inside|We thought he and MoshPit where the most badass fuckers out there|And were kinda expecting them to meet|Turns out|It was the same guy|Fighting for both sides|Just for shit and giggles|Oh, and fuck load of money of course"
+	A_DEF		"Got it"			ROOF_KNOW
+			"Thanks, but I need to go now"			NODE_EXIT
+*/
+	[
+		"ROOF_LGND_BIT",	[
+			Q_ONE,	"#ROOF_LGND_BIT_Q_01#",
+			A_DEF,	[
+				["#ROOF_LGND_A_01#","ROOF_LGND01"],
+				["#ROOF_0X_A_BACK3#","ROOF_KNOW"],
+				["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+			]
+		]
+	],
+	/*Local legends - Can of RedBull?*/
+/*
+ROOF_LGND_BANKA	Q_ONE		"No, 'Banka RedBulla'|A strange name I know|He would spend hours in the arsenal|Trying to match his outfit to some 1969 brigade only he heard about|Quite a passion for history, eh?|Most fun was when he was put in charge|Everyone were dressing up|No exceptions|People kinda liked it even|He would also tell you much more than I could ever|Walking talking history book and enthusiast"
+	A_DEF		"Got it"			ROOF_KNOW
+			"Thanks, but I need to go now"			NODE_EXIT
+*/
+	[
+		"ROOF_LGND_BANKA",	[
+			Q_ONE,	"#ROOF_LGND_BANKA_Q_01#",
+			A_DEF,	[
+				["#ROOF_LGND_A_01#","ROOF_LGND01"],
+				["#ROOF_0X_A_BACK3#","ROOF_KNOW"],
+				["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+			]
+		]
+	],
+	/*Local legends - What was his name... Hui? Huy? Huiyui?*/
+/*
+ROOF_LGND_HUI	Q_ONE		"Don't look at me|I still have no idea how to spell his name|Legendary pilot who could give you a ride|In and out|With ANY airbourne machine available|Planes, choppers, vtols - the guy knew them all|And could land a mohawk on a satan's dick|If he wanted to"
+	A_DEF		"Got it"			ROOF_KNOW
+			"Thanks, but I need to go now"			NODE_EXIT
+*/
+	[
+		"ROOF_LGND_HUI",	[
+			Q_ONE,	"#ROOF_LGND_HUI_Q_01#",
+			A_DEF,	[
+				["#ROOF_LGND_A_01#","ROOF_LGND01"],
+				["#ROOF_0X_A_BACK3#","ROOF_KNOW"],
+				["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+			]
+		]
+	],
+	/*Local legends - Asmo*/
+/*
+ROOF_LGND_ASMO	Q_ONE		"Who the fuck is Asmo?"
+	A_DEF		"Got it"			ROOF_KNOW
+			"Thanks, but I need to go now"			NODE_EXIT
+*/
+	[
+		"ROOF_LGND_ASMO",	[
+			Q_ONE,	"#ROOF_LGND_ASMO_Q_01#",
+			A_DEF,	[
+				["#ROOF_LGND_A_01#","ROOF_LGND01"],
+				["#ROOF_0X_A_BACK3#","ROOF_KNOW"],
+				["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+			]
+		]
+	],
+	/*Rumors - selection*/
+/*
+ROOF_RUMR	Q_RND		"Have you seen the bones yet?|Some guys been talking|How there are bones|Just scattered around the house|And worst part|Different people point to different sites|So shit might be widespread|And we have no idea why|Or who's doing this"
+			"Some locals caught some...|Sort of flu or smallpox|But now they are quaranteed|At military guarded camps|I don't know what it is|But that's no good news|That's for sure"
+			"Let's see...|We do have a problem with some|Maniac who kills people|And strips their meat from bones|And plays with the skulls|How about that kind of rumor?|Scared?|Don't be|You have a gun|He might have too"
+			"Sorry, nothing comes to mind"
+			"Radio towers|I'm telling you|They emit radiation|Can you believe that?|So glad we have none of those here"
+			"Don't drink local water|They put something into it"
+			"There was a shipwreck nearby|A hundred meters off the coast|And no survivors|Can you imagine?|Who... or what killed those people?"
+			"Hey, I won't tell where and what|You WILL know when you see it|Just|Don't look it in the eyes, ok?"
+			"We do have some occult shit happening here|Not sure what it is|Not sure if we have to worry"
+			"There is a secret cave somwhere on this island|What?|Yeah, I'm telling that no matter the island|There is always at least one"
+	A_DEF		"Got it"			ROOF_KNOW
+			"Thanks, but I need to go now"			NODE_EXIT
+*/
+	[
+		"ROOF_RUMR",	[
+			Q_RND,	[
+				"#ROOF_RUMR_Q_01#",
+				"#ROOF_RUMR_Q_02#",
+				"#ROOF_RUMR_Q_03#",
+				"#ROOF_RUMR_Q_04#",
+				"#ROOF_RUMR_Q_05#",
+				"#ROOF_RUMR_Q_06#",
+				"#ROOF_RUMR_Q_07#",
+				"#ROOF_RUMR_Q_08#",
+				"#ROOF_RUMR_Q_09#",
+				"#ROOF_RUMR_Q_10#"
+			],
+			A_CND,	[
+				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_RUMR_A_01#","ROOF_KNOW"],
+				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_RUMR_A_02#","ROOF_KNOW"],
+				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_RUMR_A_03#","ROOF_KNOW"],
+				{true},["#ROOF_RUMR_A_04#","ROOF_RUMR"],
+				{true},["#ROOF_0X_A_BACK2#","ROOF_KNOW"],
+				{true},["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - cat selection*/
+/*
+ROOF_HELP	Q_RND		"What would you like to know?"
+			"Yeah, what is it?"
+			"So? Any specific questions?"
+	A_DEF		"What is this place?"			ROOF_HELP_PLACE
+			"Who are you?"			ROOF_HELP_WHO
+			"Who are others?"			ROOF_HELP_TALK
+			"How things are done here?"			ROOF_HELP_USERFLOW
+*/
+	[
+		"ROOF_HELP",	[
+			Q_RND,	[
+				"#ROOF_HELP_Q_01#",
+				"#ROOF_HELP_Q_02#",
+				"#ROOF_HELP_Q_03#"
+			],
+			A_DEF,	[
+				["#XXX_HELP_A_03#","ROOF_HELP_PLACE"],
+				["#XXX_HELP_A_04#","ROOF_HELP_WHO"],
+				["#XXX_HELP_A_05#","ROOF_HELP_TALK"],
+				["#XXX_HELP_A_06#","ROOF_HELP_USERFLOW"]
+			]
+		]
+	],
+	/*What should I know - What is this place*/
+/*
+ROOF_HELP_PLACE	Q_ONE		"Describes the place..."
+	A_DEF		"Another question"			ROOF_HELP
+			"Got it"			ROOF_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"ROOF_HELP_PLACE",	[
+			Q_ONE,	"#ROOF_HELP_PLACE_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","ROOF_HELP"],
+				["#XXX_HELP_A_08#","ROOF_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - Who are you*/
+/*
+ROOF_HELP_WHO	Q_ONE		"Describes himself..."
+	A_DEF		"Another question"			ROOF_HELP
+			"Got it"			ROOF_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"ROOF_HELP_WHO",	[
+			Q_ONE,	"#ROOF_HELP_WHO_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","ROOF_HELP"],
+				["#XXX_HELP_A_08#","ROOF_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - Who should I talk to*/
+/*
+ROOF_HELP_TALK	Q_ONE		"Describes others..."
+	A_DEF		"Another question"			ROOF_HELP
+			"Got it"			ROOF_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"ROOF_HELP_TALK",	[
+			Q_ONE,	"#ROOF_HELP_TALK_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","ROOF_HELP"],
+				["#XXX_HELP_A_08#","ROOF_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - How things are done here*/
+/*
+ROOF_HELP_USERFLOW	Q_ONE		"Describes gameplay loop..."
+	A_DEF		"Another question"			ROOF_HELP
+			"Got it"			ROOF_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"ROOF_HELP_USERFLOW",	[
+			Q_ONE,	"#ROOF_HELP_USERFLOW_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","ROOF_HELP"],
+				["#XXX_HELP_A_08#","ROOF_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*Any advice*/
+/*
+ROOF_ADV	Q_RND		"Do your thing|That's my advice"
+			"Make sure you have everything you need before going into wilderness"
+			"Don't tell anyone you saw me here|Don't tell anyone anything actually"
+	A_DEF		"Got it"			ROOF_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"ROOF_ADV",	[
+			Q_RND,	[
+				"#ROOF_ADV_Q_01#",
+				"#ROOF_ADV_Q_02#",
+				"#ROOF_ADV_Q_03#"
+			],
+			A_DEF,	[
+				["#XXX_HELP_A_08#","ROOF_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+
+	//================================================================================================================
+	//================================================================================================================
 	//Test
 	/*Test00 - "Choose what to test"*/
 	[

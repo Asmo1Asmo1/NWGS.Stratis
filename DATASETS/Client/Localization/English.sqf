@@ -444,6 +444,114 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_ADV_Q_01#","Always communicate|Make sure you know where others are|And that they know where you are|To avoid friendly fire and privide support"],
     ["#COMM_ADV_Q_02#","Keep radio channels busy with info|And free from garbage"],
     ["#COMM_ADV_Q_03#","Plan everything|How will you approach the target|Where will you strike|How will you exfil"],
+    /*====== ROOF =====*/
+    /*Roof - Common answers*/
+    ["#ROOF_0X_A_BACK1#","I've changed my mind"],
+    ["#ROOF_0X_A_BACK2#","Got it"],
+    ["#ROOF_0X_A_BACK3#","Something else"],
+    ["#ROOF_0X_A_EXIT1#","I need to go"],
+    ["#ROOF_0X_A_EXIT2#","Thanks, but I need to go now"],
+    /*Roof - ROOF_00*/
+    ["#ROOF_00_Q_01#","New guy, eh?"],
+    ["#ROOF_00_Q_02#","What's up?"],
+    ["#ROOF_00_Q_03#","Yeah?"],
+    ["#ROOF_00_Q_04#","You need something?"],
+    ["#ROOF_00_Q_05#","Stupid barrels..."],
+    ["#ROOF_00_A_01#","What are you doing here?"],
+    ["#ROOF_00_A_02#","What else can you tell?"],
+    /*Roof - ROOF_01*/
+    ["#ROOF_01_Q_01#","You're ain't a busy bee, are you?"],
+    ["#ROOF_01_Q_02#","Shouldn't you be somewhere else?"],
+    ["#ROOF_01_Q_03#","What?"],
+    /*Roof - ROOF_WHAT*/
+    ["#ROOF_WHAT_Q_01#","Describes the role..."],
+    /*Roof - ROOF_NO_TRUST*/
+    ["#ROOF_NO_TRUST_Q_01#","Sorry 'bratan'|I don't know you|You don't know me|It is how it is"],
+    ["#ROOF_NO_TRUST_Q_02#","Mhm...|Maybe later|Not now|Not right now"],
+    ["#ROOF_NO_TRUST_Q_03#","Is there no work for you?"],
+    ["#ROOF_NO_TRUST_Q_04#","I'm busy|And so should be you|Right?"],
+    ["#ROOF_NO_TRUST_A_01#","That's ok"],
+    ["#ROOF_NO_TRUST_A_02#","Ok, bye"],
+    /*Roof - ROOF_KNOW*/
+    ["#ROOF_KNOW_Q_01#","I know may things|This place's history|Local legends|Some rumors|What is it for you?"],
+    ["#ROOF_KNOW_Q_02#","Well, not like I have nothing to do|But why not|Go on|What's you interested in?"],
+    ["#ROOF_KNOW_Q_03#","I know a litttle bit of this|A little bit of that|What do you need to know?"],
+    ["#ROOF_KNOW_A_01#","History of this place"],
+    ["#ROOF_KNOW_A_02#","Local legends"],
+    ["#ROOF_KNOW_A_03#","Local rumors"],
+    ["#ROOF_KNOW_A_04#","Something else"],
+    ["#ROOF_KNOW_A_05#","Actually, no, forget it"],
+    /*Roof - ROOF_HIST00*/
+    ["#ROOF_HIST00_Q_01#","A short story or a long one?"],
+    ["#ROOF_HIST00_A_01#","Short story"],
+    ["#ROOF_HIST00_A_02#","Long story"],
+    /*Roof - ROOF_HIST01*/
+    ["#ROOF_HIST01_Q_01#","Tells short story..."],
+    ["#ROOF_HIST01_A_01#","Okay, didn't know that, thanks"],
+    ["#ROOF_HIST01_A_02#","Hm. Got that"],
+    ["#ROOF_HIST01_A_03#","You're a terrible story teller"],
+    /*Roof - ROOF_HIST02*/
+    ["#ROOF_HIST02_Q_01#","Tells longest story..."],
+    ["#ROOF_HIST02_A_01#","That was entertaining"],
+    ["#ROOF_HIST02_A_02#","Hm. So that's what happened"],
+    ["#ROOF_HIST02_A_03#","I almost fell asleep, honestly"],
+    ["#ROOF_HIST02_A_04#","Dude, that whole story thing sucks"],
+    /*Roof - ROOF_LGND00*/
+    ["#ROOF_LGND00_Q_01#","It's not like 'legends' legends|Not like 'dwarfs and fairies'|There are guys here who we call local legends|So who do you want to know about?"],
+    ["#ROOF_LGND00_Q_02#","Local legendary operators|Who do you want to hear about?"],
+    ["#ROOF_LGND00_Q_03#","Yep, local legends they are|Nice guys|Well, most of them|Some of them... it depends"],
+    ["#ROOF_LGND00_A_01#","Operator HOPA"],
+    ["#ROOF_LGND00_A_02#","Who's Bit... Rayman? Raymon?"],
+    ["#ROOF_LGND00_A_03#","Can of RedBull?"],
+    ["#ROOF_LGND00_A_04#","What was his name... Hui? Huy? Huiyui?"],
+    ["#ROOF_LGND00_A_05#","Asmo"],
+    /*Roof - ROOF_LGND01*/
+    ["#ROOF_LGND01_Q_01#","Yeah, who?"],
+    ["#ROOF_LGND01_Q_02#","Who?"],
+    ["#ROOF_LGND01_Q_03#","Oh I know them all right"],
+    /*Roof - another legend*/
+    ["#ROOF_LGND_A_01#","What about others?"],
+    /*Roof - ROOF_LGND_HOPA*/
+    ["#ROOF_LGND_HOPA_Q_01#","Fucking genius that's who he is|That guy could attach anything to anyone|Build entire systems overnight|All with duct tape, sticks and shit|Legendary engineer"],
+    /*Roof - ROOF_LGND_BIT*/
+    ["#ROOF_LGND_BIT_Q_01#","No, Rayman is another guy|But that Bit-Ramon?|Fucking lunatic|Would crash his heli into the building|Just to get there a 'Bit' faster|And annihilate everyone inside|We thought he and MoshPit where the most badass fuckers out there|And were kinda expecting them to meet|Turns out|It was the same guy|Fighting for both sides|Just for shit and giggles|Oh, and fuck load of money of course"],
+    /*Roof - ROOF_LGND_BANKA*/
+    ["#ROOF_LGND_BANKA_Q_01#","No, 'Banka RedBulla'|A strange name I know|He would spend hours in the arsenal|Trying to match his outfit to some 1969 brigade only he heard about|Quite a passion for history, eh?|Most fun was when he was put in charge|Everyone were dressing up|No exceptions|People kinda liked it even|He would also tell you much more than I could ever|Walking talking history book and enthusiast"],
+    /*Roof - ROOF_LGND_HUI*/
+    ["#ROOF_LGND_HUI_Q_01#","Don't look at me|I still have no idea how to spell his name|Legendary pilot who could give you a ride|In and out|With ANY airbourne machine available|Planes, choppers, vtols - the guy knew them all|And could land a mohawk on a satan's dick|If he wanted to"],
+    /*Roof - ROOF_LGND_ASMO*/
+    ["#ROOF_LGND_ASMO_Q_01#","Who the fuck is Asmo?"],
+    /*Roof - ROOF_RUMR*/
+    ["#ROOF_RUMR_Q_01#","Have you seen the bones yet?"],
+    ["#ROOF_RUMR_Q_02#","Some locals caught some...|Sort of flu or smallpox|But now they are quaranteed|At military guarded camps|I don't know what it is|But that's no good news|That's for sure"],
+    ["#ROOF_RUMR_Q_03#","Let's see...|We do have a problem with some|Maniac who kills people|And strips their meat from bones|And plays with the skulls|How about that kind of rumor?|Scared?|Don't be|You have a gun|He might have too"],
+    ["#ROOF_RUMR_Q_04#","Sorry, nothing comes to mind"],
+    ["#ROOF_RUMR_Q_05#","Radio towers|I'm telling you|They emit radiation|Can you believe that?|So glad we have none of those here"],
+    ["#ROOF_RUMR_Q_06#","Don't drink local water|They put something into it"],
+    ["#ROOF_RUMR_Q_07#","There was a shipwreck nearby|A hundred meters off the coast|And no survivors|Can you imagine?|Who... or what killed those people?"],
+    ["#ROOF_RUMR_Q_08#","Hey, I won't tell where and what|You WILL know when you see it|Just|Don't look it in the eyes, ok?"],
+    ["#ROOF_RUMR_Q_09#","We do have some occult shit happening here|Not sure what it is|Not sure if we have to worry"],
+    ["#ROOF_RUMR_Q_10#","There is a secret cave somwhere on this island|What?|Yeah, I'm telling that no matter the island|There is always at least one"],
+    ["#ROOF_RUMR_A_01#","Wait? For real?"],
+    ["#ROOF_RUMR_A_02#","So they say, huh?"],
+    ["#ROOF_RUMR_A_03#","Sounds like bullshit"],
+    ["#ROOF_RUMR_A_04#","Any other rumors?"],
+    /*Roof - ROOF_HELP*/
+    ["#ROOF_HELP_Q_01#","What would you like to know?"],
+    ["#ROOF_HELP_Q_02#","Yeah, what is it?"],
+    ["#ROOF_HELP_Q_03#","So? Any specific questions?"],
+    /*Roof - ROOF_HELP_PLACE*/
+    ["#ROOF_HELP_PLACE_Q_01#","Describes the place..."],
+    /*Roof - ROOF_HELP_WHO*/
+    ["#ROOF_HELP_WHO_Q_01#","Describes himself..."],
+    /*Roof - ROOF_HELP_TALK*/
+    ["#ROOF_HELP_TALK_Q_01#","Describes others..."],
+    /*Roof - ROOF_HELP_USERFLOW*/
+    ["#ROOF_HELP_USERFLOW_Q_01#","Describes gameplay loop..."],
+    /*Roof - ROOF_ADV*/
+    ["#ROOF_ADV_Q_01#","Do your thing|That's my advice"],
+    ["#ROOF_ADV_Q_02#","Make sure you have everything you need before going into wilderness"],
+    ["#ROOF_ADV_Q_03#","Don't tell anyone you saw me here|Don't tell anyone anything actually"],
     /*====== TEST =====*/
     /*Test - Common answers*/
     ["#TEST_0X_A_BACK#","Back"],
