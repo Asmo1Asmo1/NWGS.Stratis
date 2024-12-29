@@ -552,45 +552,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#ROOF_ADV_Q_01#","Do your thing|That's my advice"],
     ["#ROOF_ADV_Q_02#","Make sure you have everything you need before going into wilderness"],
     ["#ROOF_ADV_Q_03#","Don't tell anyone you saw me here|Don't tell anyone anything actually"],
-    /*====== TEST =====*/
-    /*Test - Common answers*/
-    ["#TEST_0X_A_BACK#","Back"],
-    ["#TEST_0X_A_EXIT#","Exit"],
-    ["#TEST_0X_A_AGAIN#","Yes, again"],
-    /*Test00 - Choose what to test*/
-    ["#TEST_00_Q#","Choose what to test"],
-    ["#TEST_00_A_01#","Single question"],
-    ["#TEST_00_A_02#","Random questions"],
-    ["#TEST_00_A_03#","Conditioned questions"],
-    ["#TEST_00_A_04#","Predefined answers"],
-    ["#TEST_00_A_05#","Conditioned answers"],
-    ["#TEST_00_A_06#","Answer with template"],
-    ["#TEST_00_A_07#","Answer with code execution"],
-    ["#TEST_00_A_08#","Generated answers"],
-    /*Test01 - Single question*/
-    ["#TEST_01_Q#","This is a single question|Separated into several lines|To show it properly|And try delays"],
-    /*Test02 - Random questions*/
-    ["#TEST_02_Q_01#","Knock knock|Who is there?|Chicken butt"],
-    ["#TEST_02_Q_02#","Do androids dream of electric sheep?"],
-    ["#TEST_02_Q_03#","Hasta la vista, baby|Chicka chicka chicka|Boom boom"],
-    /*Test03 - Conditioned questions*/
-    ["#TEST_03_Q_01#","Less than $1000?|Come back when you have more"],
-    ["#TEST_03_Q_02#","More than $1000?|Come back when you have less"],
-    /*Test04 - Predefined answers*/
-    ["#TEST_04_Q_01#","Do you want to play again?|You lost"],
-    ["#TEST_04_Q_02#","Do you want to play again?|You won"],
-    /*Test05 - Conditioned answers*/
-    ["#TEST_05_Q#","Do you have more than $1000?"],
-    ["#TEST_05_A_01#","Yes, I have more than $1000"],
-    /*Test06 - Answer with template*/
-    ["#TEST_06_Q#","Introduce yourself"],
-    ["#TEST_06_A_01#","My name is %1 and I have %2 with me"],
-    /*Test07 - Answer with code execution*/
-    ["#TEST_07_Q#","Do you want to play again?"],
-    ["#TEST_07_A_01#","Yes, again"],
-    ["#TEST_07_A_02#","No, I don't want to play again"],
-    /*Test08 - Generated answers*/
-    ["#TEST_08_Q#","What is your favorite fruit?"],
 
     ["",""]
 ];
