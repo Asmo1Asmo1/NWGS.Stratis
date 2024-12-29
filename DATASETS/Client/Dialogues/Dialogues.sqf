@@ -1069,7 +1069,206 @@ MEDC_ADV	Q_RND		"There is...|There are...|(stares above your head)|Some... thing
 				"#MEDC_ADV_Q_03#"
 			],
 			A_DEF,	[
-				["#XXX_HELP_A_08#","MEDC_01"],
+				["#MEDC_ADV_A_01#","MEDC_01"],
+				["#MEDC_ADV_A_02#","MEDC_01"],
+				["#MEDC_ADV_A_03#",NODE_EXIT]
+			]
+		]
+	],
+
+	//================================================================================================================
+	//================================================================================================================
+	//Comm (Commander)
+	/*Actual root of the dialogue*/
+/*
+COMM_00	Q_CND	mis>READY	"We're in a middle of an OP|Go join the others|And make it fast"
+		$<1000	"Newcomer?|You know how to fight?|Good
+		rand	"I'm listening"
+		rand	"Report, soldier"
+		rand	"At ease, soldier"
+		{true}	"Make it quick"
+	A_CND	mis==READY	"Ready to fight, sir"			COMM_MIS
+		mis>READY	"Moving out"			NODE_EXIT
+			"Can you explain me something?"			COMM_HELP
+			"Any advice, sir?"			COMM_ADV
+			"No, nothing"			NODE_EXIT
+*/
+	[
+		"COMM_00",	[
+			Q_CND,	[
+				{call NWG_DLG_COMM_IsMissionStarted},"#COMM_00_Q_01#",
+				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#COMM_00_Q_02#",
+				{[1,4] call NWG_DLGHLP_Dice},"#COMM_00_Q_03#",
+				{[1,4] call NWG_DLGHLP_Dice},"#COMM_00_Q_04#",
+				{[1,4] call NWG_DLGHLP_Dice},"#COMM_00_Q_05#",
+				{true},"#COMM_00_Q_06#"
+			],
+			A_CND,	[
+				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_MIS"],
+				{call NWG_DLG_COMM_IsMissionStarted},["#COMM_00_A_02#",NODE_EXIT],
+				{true},["#COMM_00_A_03#","COMM_HELP"],
+				{true},["#COMM_00_A_04#","COMM_ADV"],
+				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			]
+		]
+	],
+	/*Pseudo root for getting back in dialogue*/
+/*
+COMM_01	Q_RND		"Make it quick"
+			"Anything else?"
+	A_CND	mis==READY	"Ready to fight, sir"			COMM_MIS
+		mis>READY	"I'll be on my way"			NODE_EXIT
+			"Can you explain me something?"			COMM_HELP
+			"Any advice, sir?"			COMM_ADV
+			"No, nothing"			NODE_EXIT
+*/
+	[
+		"COMM_01",	[
+			Q_RND,	[
+				"#COMM_00_Q_03#",
+				"#COMM_00_Q_06#",
+				"#COMM_01_Q_01#"
+			],
+			A_CND,	[
+				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_MIS"],
+				{call NWG_DLG_COMM_IsMissionStarted},["#COMM_01_A_02#",NODE_EXIT],
+				{true},["#COMM_00_A_03#","COMM_HELP"],
+				{true},["#COMM_00_A_04#","COMM_ADV"],
+				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			]
+		]
+	],
+	/*Mission select*/
+/*
+COMM_MIS	Q_RND		"Goodspeed, soldier|Here's what we dealing with"
+			"Here are the options"
+			"Intelligence hinted on several points"
+	A_DEF		"Show me"			{close dialogue, open mission select}
+			"Something else first, sir"			COMM_01
+			"Need more time for preparations"			NODE_EXIT
+*/
+	[
+		"COMM_MIS",	[
+			Q_RND,	[
+				"#COMM_MIS_Q_01#",
+				"#COMM_MIS_Q_02#",
+				"#COMM_MIS_Q_03#"
+			],
+			A_DEF,	[
+				["#COMM_MIS_A_01#",NODE_EXIT,{call NWG_DLG_COMM_StartMission}],
+				["#COMM_MIS_A_02#","COMM_01"],
+				["#COMM_MIS_A_03#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - cat selection*/
+/*
+COMM_HELP	Q_RND		"What is it?"
+			"Sure, what is it?"
+	A_DEF		"What is this place?"			COMM_HELP_PLACE
+			"Who are you?"			COMM_HELP_WHO
+			"Who are others?"			COMM_HELP_TALK
+			"How things are done here?"			COMM_HELP_USERFLOW
+*/
+	[
+		"COMM_HELP",	[
+			Q_RND,	[
+				"#COMM_HELP_Q_01#",
+				"#COMM_HELP_Q_02#"
+			],
+			A_DEF,	[
+				["#XXX_HELP_A_03#","COMM_HELP_PLACE"],
+				["#XXX_HELP_A_04#","COMM_HELP_WHO"],
+				["#XXX_HELP_A_05#","COMM_HELP_TALK"],
+				["#XXX_HELP_A_06#","COMM_HELP_USERFLOW"]
+			]
+		]
+	],
+	/*What should I know - What is this place*/
+/*
+COMM_HELP_PLACE	Q_ONE		"Describes the place..."
+	A_DEF		"Another question"			COMM_HELP
+			"Got it"			COMM_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"COMM_HELP_PLACE",	[
+			Q_ONE,	"#COMM_HELP_PLACE_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","COMM_HELP"],
+				["#XXX_HELP_A_08#","COMM_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - Who are you*/
+/*
+COMM_HELP_WHO	Q_ONE		"Describes himself..."
+	A_DEF		"Another question"			COMM_HELP
+			"Got it"			COMM_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"COMM_HELP_WHO",	[
+			Q_ONE,	"#COMM_HELP_WHO_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","COMM_HELP"],
+				["#XXX_HELP_A_08#","COMM_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - Who should I talk to*/
+/*
+COMM_HELP_TALK	Q_ONE		"Describes others..."
+	A_DEF		"Another question"			COMM_HELP
+			"Got it"			COMM_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"COMM_HELP_TALK",	[
+			Q_ONE,	"#COMM_HELP_TALK_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","COMM_HELP"],
+				["#XXX_HELP_A_08#","COMM_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - How things are done here*/
+/*
+COMM_HELP_USERFLOW	Q_ONE		"Describes gameplay loop..."
+	A_DEF		"Another question"			COMM_HELP
+			"Got it"			COMM_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"COMM_HELP_USERFLOW",	[
+			Q_ONE,	"#COMM_HELP_USERFLOW_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","COMM_HELP"],
+				["#XXX_HELP_A_08#","COMM_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*Any advice*/
+/*
+COMM_ADV	Q_RND		"Always communicate|Make sure you know where others are|And that they know where you are|To avoid friendly fire and privide support"
+			"Keep radio channels busy with info|And free from garbage"
+			"Plan everything|How will you approach the target|Where will you strike|How will you exfil"
+		{true}	"All right"			COMM_01
+		{true}	"Ok, bye"			NODE_EXIT
+*/
+	[
+		"COMM_ADV",	[
+			Q_RND,	[
+				"#COMM_ADV_Q_01#",
+				"#COMM_ADV_Q_02#",
+				"#COMM_ADV_Q_03#"
+			],
+			A_DEF,	[
+				["#XXX_HELP_A_08#","COMM_01"],
 				["#XXX_HELP_A_09#",NODE_EXIT]
 			]
 		]

@@ -1,6 +1,13 @@
 #include "..\..\globalDefines.h"
 
 //=============================================================================
+/*Any->Client*/
+//Open mission selection UI
+NWG_fnc_mmOpenSelectionUI = {
+    call NWG_MIS_CLI_RequestMissionSelection
+};
+
+//=============================================================================
 /*Client->Server*/
 //Requests the server to send the mission selection options
 NWG_fnc_mmRequestSelectionOptions = {

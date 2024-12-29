@@ -404,6 +404,46 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MEDC_ADV_Q_01#","There is...|There are...|(stares above your head)|Some... things..."],
     ["#MEDC_ADV_Q_02#","Don't mix those|I did|But that's okay..."],
     ["#MEDC_ADV_Q_03#","Just keep an eye out for each other|Hmm...."],
+    ["#MEDC_ADV_A_01#","Hello?"],
+    ["#MEDC_ADV_A_02#","All right"],
+    ["#MEDC_ADV_A_03#","Ok, bye"],
+    /*====== COMM =====*/
+    /*Comm - COMM_00*/
+    ["#COMM_00_Q_01#","We're in a middle of an OP|Go join the others|And make it fast"],
+    ["#COMM_00_Q_02#","Newcomer?|You know how to fight?|Good"],
+    ["#COMM_00_Q_03#","I'm listening"],
+    ["#COMM_00_Q_04#","Report, soldier"],
+    ["#COMM_00_Q_05#","At ease, soldier"],
+    ["#COMM_00_Q_06#","Make it quick"],
+    ["#COMM_00_A_01#","Ready to fight, sir"],
+    ["#COMM_00_A_02#","Moving out"],
+    ["#COMM_00_A_03#","Can you explain me something?"],
+    ["#COMM_00_A_04#","Any advice, sir?"],
+    /*Comm - COMM_01*/
+    ["#COMM_01_Q_01#","Anything else?"],
+    ["#COMM_01_A_02#","I'll be on my way"],
+    /*Comm - COMM_MIS*/
+    ["#COMM_MIS_Q_01#","Goodspeed, soldier|Here's what we dealing with"],
+    ["#COMM_MIS_Q_02#","Here are the options"],
+    ["#COMM_MIS_Q_03#","Intelligence hinted on several points"],
+    ["#COMM_MIS_A_01#","Show me"],
+    ["#COMM_MIS_A_02#","Something else first, sir"],
+    ["#COMM_MIS_A_03#","Need more time for preparations"],
+    /*Comm - COMM_HELP*/
+    ["#COMM_HELP_Q_01#","What is it?"],
+    ["#COMM_HELP_Q_02#","Sure, what is it?"],
+    /*Comm - COMM_HELP_PLACE*/
+    ["#COMM_HELP_PLACE_Q_01#","This is a place where you select the mission"],
+    /*Comm - COMM_HELP_WHO*/
+    ["#COMM_HELP_WHO_Q_01#","I am a commander|And I am here to help you select the mission"],
+    /*Comm - COMM_HELP_TALK*/
+    ["#COMM_HELP_TALK_Q_01#","Others are not commanders"],
+    /*Comm - COMM_HELP_USERFLOW*/
+    ["#COMM_HELP_USERFLOW_Q_01#","You can select the mission"],
+    /*Comm - COMM_ADV*/
+    ["#COMM_ADV_Q_01#","Always communicate|Make sure you know where others are|And that they know where you are|To avoid friendly fire and privide support"],
+    ["#COMM_ADV_Q_02#","Keep radio channels busy with info|And free from garbage"],
+    ["#COMM_ADV_Q_03#","Plan everything|How will you approach the target|Where will you strike|How will you exfil"],
     /*====== TEST =====*/
     /*Test - Common answers*/
     ["#TEST_0X_A_BACK#","Back"],
