@@ -324,6 +324,51 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_ADV_Q_02#","I'm not sure if I should tell it|But hell, there's so much work|So listen|Repair your own vehicle before selling it|I will buy it for more|And won't have to spend much time with it|A win-win, right?"],
     ["#MECH_ADV_Q_03#","Don't get greedy|If you see you need to sacrifice your ride|Do it|You can always get a new one|Better loose some additionals|Than half of what you got so far"],
     ["#MECH_ADV_Q_04#","Keep your toolkit with you|If you go on wheels|Yeah, that simple"],
+    /*====== TRDR =====*/
+    /*Trdr - Common answers*/
+    ["#TRDR_0X_A_BACK1#","I've changed my mind"],
+    ["#TRDR_0X_A_EXIT1#","Never mind"],
+    /*Trdr - TRDR_00*/
+    ["#TRDR_00_Q_01#","Broke?|Have something to sell at least?"],
+    ["#TRDR_00_Q_02#","Newcomer?|Look but don't touch"],
+    ["#TRDR_00_Q_03#","Welcome to my shop, friend"],
+    ["#TRDR_00_Q_04#","My favorite customer|How are you today?"],
+    ["#TRDR_00_Q_05#","Yes?"],
+    ["#TRDR_00_Q_06#","Look who we got here"],
+    ["#TRDR_00_Q_07#","Buy or sell?"],
+    ["#TRDR_00_Q_08#","Come on in"],
+    ["#TRDR_00_A_01#","Let's trade"],
+    /*Trdr - TRDR_01*/
+    ["#TRDR_01_Q_01#","Made your mind?"],
+    ["#TRDR_01_Q_02#","So what it will be?"],
+    ["#TRDR_01_Q_03#","Something else?"],
+    /*Trdr - TRDR_HELP*/
+    ["#TRDR_HELP_Q_01#","About what?"],
+    ["#TRDR_HELP_Q_02#","Yeah? About what?"],
+    ["#TRDR_HELP_Q_03#","I'm a busy man, keep it short"],
+    /*Trdr - TRDR_HELP_PLACE*/
+    ["#TRDR_HELP_PLACE_Q_01#","This is a place where you can buy and sell items"],
+    /*Trdr - TRDR_HELP_WHO*/
+    ["#TRDR_HELP_WHO_Q_01#","I am a trader, and I am here to help you buy and sell items"],
+    /*Trdr - TRDR_HELP_TALK*/
+    ["#TRDR_HELP_TALK_Q_01#","Others are not traders"],
+    /*Trdr - TRDR_HELP_USERFLOW*/
+    ["#TRDR_HELP_USERFLOW_Q_01#","You can buy and sell items"],
+    /*Trdr - TRDR_ADV1*/
+    ["#TRDR_ADV1_Q_01#","Advice?|Put your money on the table|That's my advice|Next advice will cost you %1"],
+    ["#TRDR_ADV1_Q_02#","Heard 'Advices are cheap'?|Well|Not mine though|How about %1?"],
+    ["#TRDR_ADV1_Q_03#","%1"],
+    ["#TRDR_ADV1_A_01#","Here"],
+    ["#TRDR_ADV1_A_02#","Don't have that much right now"],
+    /*Trdr - TRDR_ADV2*/
+    ["#TRDR_ADV2_Q_01#","Don't stick with just one gun|There is always something to shoot from|But if you stick with one and only|You'll have a hard time finding ammo"],
+    ["#TRDR_ADV2_Q_02#","Always share with others|Might sound stupid, I know|But they can get your ass out|Or frag you|And say you were like that when they found you|Always remember that"],
+    ["#TRDR_ADV2_Q_03#","Found a pile of bodies?|Loot them|Only then move on|You never know if you see them again|Animals, loyal frineds, fire|So many things can get your loot spoiled"],
+    /*Trdr - TRDR_LOW*/
+    ["#TRDR_LOW_Q_01#","Don't waste my time then|Advice he needs... pfft"],
+    ["#TRDR_LOW_A_01#","Not like I wanted your stupid advice anyway"],
+    ["#TRDR_LOW_A_02#","Yeah, right..."],
+    ["#TRDR_LOW_A_03#","I'll be back"],
     /*====== TEST =====*/
     /*Test - Common answers*/
     ["#TEST_0X_A_BACK#","Back"],

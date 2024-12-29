@@ -666,6 +666,225 @@ MECH_ADV	Q_RND		"Avoid drowning your vehicle|You can repair it if it's broken|Re
 
 	//================================================================================================================
 	//================================================================================================================
+	//Trdr
+	/*Actual root of the dialogue*/
+/*
+TRDR_00	Q_CND	$<100	"Hope you worth my time"
+		$<1000	"Newcomer?|Look but don't touch"
+		$>100000	"Welcome to my shop, friend"
+		$>1000000	"My favorite customer|How are you today?"
+		rand	"Yes?"
+		rand	"Look who we got here"
+		rand	"Buy or sell?"
+		{true}	"Come on in"
+	A_DEF		"Let's trade"			{close dialogue, open vehicle shop}
+			"What should I know?"			TRDR_HELP
+			"Any advice?"			TRDR_ADV
+			"No, nothing"			NODE_EXIT
+*/
+	[
+		"TRDR_00",	[
+			Q_CND,	[
+				{0.1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#TRDR_00_Q_01#",
+				{1   call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#TRDR_00_Q_02#",
+				{10  call NWG_DLGHLP_HasMoreMoneyStartSum},"#TRDR_00_Q_03#",
+				{100 call NWG_DLGHLP_HasMoreMoneyStartSum},"#TRDR_00_Q_04#",
+				{[1,4] call NWG_DLGHLP_Dice},"#TRDR_00_Q_05#",
+				{[1,4] call NWG_DLGHLP_Dice},"#TRDR_00_Q_06#",
+				{[1,4] call NWG_DLGHLP_Dice},"#TRDR_00_Q_07#",
+				{true},"#TRDR_00_Q_08#"
+			],
+			A_DEF,	[
+				["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
+				["#XXX_HELP_A_01#","TRDR_HELP"],
+				["#XXX_HELP_A_02#","TRDR_ADV1"],
+				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			]
+		]
+	],
+	/*Pseudo root for getting back in dialogue*/
+/*
+TRDR_01	Q_RND		"Made your mind?"
+			"So what it will be?"
+			"Something else?"
+	A_DEF		"Let's trade"			{close dialogue, open items shop}
+			"What should I know?"			TRDR_HELP
+			"Any advice?"			TRDR_ADV1
+			"No, nothing"			NODE_EXIT
+*/
+	[
+		"TRDR_01",	[
+			Q_RND,	[
+				"#TRDR_01_Q_01#",
+				"#TRDR_01_Q_02#",
+				"#TRDR_01_Q_03#"
+			],
+			A_DEF,	[
+				["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
+				["#XXX_HELP_A_01#","TRDR_HELP"],
+				["#XXX_HELP_A_02#","TRDR_ADV1"],
+				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - cat selection*/
+/*
+TRDR_HELP	Q_RND		"About what?"
+			"Yeah? About what?"
+			"Keep it short"
+	A_DEF		"What is this place?"			TRDR_HELP_PLACE
+			"Who are you?"			TRDR_HELP_WHO
+			"Who are others?"			TRDR_HELP_TALK
+			"How things are done here?"			TRDR_HELP_USERFLOW
+*/
+	[
+		"TRDR_HELP",	[
+			Q_RND,	[
+				"#TRDR_HELP_Q_01#",
+				"#TRDR_HELP_Q_02#",
+				"#TRDR_HELP_Q_03#"
+			],
+			A_DEF,	[
+				["#XXX_HELP_A_03#","TRDR_HELP_PLACE"],
+				["#XXX_HELP_A_04#","TRDR_HELP_WHO"],
+				["#XXX_HELP_A_05#","TRDR_HELP_TALK"],
+				["#XXX_HELP_A_06#","TRDR_HELP_USERFLOW"]
+			]
+		]
+	],
+	/*What should I know - What is this place*/
+/*
+TRDR_HELP_PLACE	Q_ONE		"Describes the place..."
+	A_DEF		"Another question"			TRDR_HELP
+			"Got it"			TRDR_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"TRDR_HELP_PLACE",	[
+			Q_ONE,	"#TRDR_HELP_PLACE_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","TRDR_HELP"],
+				["#XXX_HELP_A_08#","TRDR_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - Who are you*/
+/*
+TRDR_HELP_WHO	Q_ONE		"Describes himself..."
+	A_DEF		"Another question"			TRDR_HELP
+			"Got it"			TRDR_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"TRDR_HELP_WHO",	[
+			Q_ONE,	"#TRDR_HELP_WHO_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","TRDR_HELP"],
+				["#XXX_HELP_A_08#","TRDR_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - Who should I talk to*/
+/*
+TRDR_HELP_TALK	Q_ONE		"Describes others..."
+	A_DEF		"Another question"			TRDR_HELP
+			"Got it"			TRDR_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"TRDR_HELP_TALK",	[
+			Q_ONE,	"#TRDR_HELP_TALK_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","TRDR_HELP"],
+				["#XXX_HELP_A_08#","TRDR_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*What should I know - How things are done here*/
+/*
+TRDR_HELP_USERFLOW	Q_ONE		"Describes gameplay loop..."
+	A_DEF		"Another question"			TRDR_HELP
+			"Got it"			TRDR_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"TRDR_HELP_USERFLOW",	[
+			Q_ONE,	"#TRDR_HELP_USERFLOW_Q_01#",
+			A_DEF,	[
+				["#XXX_HELP_A_07#","TRDR_HELP"],
+				["#XXX_HELP_A_08#","TRDR_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*Any advice - Pay for advice*/
+/*
+TRDR_ADV1	Q_RND		"Advice?|Put your money on the table|That's my advice|Next advice will cost you {X}"
+			"Heard 'Advices are cheap'?|Well|Not mine though|How about {X}?"
+			"{X}"
+	A_CND	$>=X	"Here"			TRDR_ADV2
+		$<X	"Don't have that much right now"			TRDR_LOW
+		{true}	"I've changed my mind"			TRDR_01
+		{true}	"Never mind"			NODE_EXIT
+*/
+	[
+		"TRDR_ADV1",	[
+			Q_RND,	[
+				["#TRDR_ADV1_Q_01#",{call NWG_DLG_TRDR_GetAdvPriceStr}],
+				["#TRDR_ADV1_Q_02#",{call NWG_DLG_TRDR_GetAdvPriceStr}],
+				["#TRDR_ADV1_Q_03#",{call NWG_DLG_TRDR_GetAdvPriceStr}]
+			],
+			A_CND,	[
+				{(call NWG_DLG_TRDR_GetAdvPrice) call NWG_DLGHLP_HasEnoughMoney},["#TRDR_ADV1_A_01#","TRDR_ADV2",{call NWG_DLG_TRDR_PayForAdvice}],
+				{(call NWG_DLG_TRDR_GetAdvPrice) call NWG_DLGHLP_HasLessMoney},["#TRDR_ADV1_A_02#","TRDR_LOW"],
+				{true},["#TRDR_0X_A_BACK1#","TRDR_01"],
+				{true},["#TRDR_0X_A_EXIT1#",NODE_EXIT]
+			]
+		]
+	],
+	/*Any advice - Get advice*/
+/*
+TRDR_ADV2	Q_RND		"Don't stick with just one gun|There is always something to shoot from|But if you stick with one and only|You'll have a hard time finding ammo"
+			"Always share with others|Might sound stupid, I know|But they can get your ass out|Or frag you|And say you were like that when they found you|Always remember that"
+			"Found a pile of bodies?|Loot them|Only then move on|You never know if you see them again|Animals, loyal frineds, fire|So many things can get your loot spoiled"
+	A_DEF		"Got it"			TRDR_01
+			"Thanks, bye"			NODE_EXIT
+*/
+	[
+		"TRDR_ADV2",	[
+			Q_RND,	[
+				"#TRDR_ADV2_Q_01#",
+				"#TRDR_ADV2_Q_02#",
+				"#TRDR_ADV2_Q_03#"
+			],
+			A_DEF,	[
+				["#XXX_HELP_A_08#","TRDR_01"],
+				["#XXX_HELP_A_09#",NODE_EXIT]
+			]
+		]
+	],
+	/*Any advice - Not enough money*/
+/*
+TRDR_LOW	Q_ONE		"Don't waste my time then|Advice... pfft"
+	A_DEF		"Something else"			TRDR_01
+			"Never mind"			NODE_EXIT
+*/
+	[
+		"TRDR_LOW",	[
+			Q_ONE,	"#TRDR_LOW_Q_01#",
+			A_CND,	[
+				{[1,3] call NWG_DLGHLP_Dice},["#TRDR_LOW_A_01#","TRDR_01"],
+				{true},["#TRDR_LOW_A_02#","TRDR_01"],
+				{true},["#TRDR_LOW_A_03#",NODE_EXIT]
+			]
+		]
+	],
+
+	//================================================================================================================
+	//================================================================================================================
 	//Test
 	/*Test00 - "Choose what to test"*/
 	[

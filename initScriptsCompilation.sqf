@@ -252,6 +252,7 @@ _clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\00NpcCommon.sqf" c
 _clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\01NpcTaxi.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\02NpcMech.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\02NpcMechServer.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\03NpcTrdr.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemTests.sqf" call NWG_fnc_compile)};
 
