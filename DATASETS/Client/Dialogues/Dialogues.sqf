@@ -10,13 +10,18 @@ Each question may be of type
 
 A	A_DEF	Predefined array of answers
 	A_CND	Array of [{condition},answer,...] - whichever condition returns 'true' - (_i+1) will be added to list of answers
-	A_GEN	Code that will generate array of answers (also supported to have [CODE,DEF_ANSER1,DEF_ANSER2,...] to generate answers in addition to predefined ones)
+	A_GEN	Either single code block or array of [{code},{code},answer,...] where each code block is expected to return array of answers (yes, mix with predefined answers is supported)
 Each answer is array of [%ANSWER_STR%,%NEXT_NODE%,(optional:%CODE%)]
-%ANSWER_STR%	string - single localization key
+%ANSWER_STR%
+	string - single localization key
 	array - format ["template",{code to return arg},...]
-%NEXT_NODE%	string - id of the next node
-	"" - end of dialogue, close UI
-%CODE%	optional code to execute AFTER selecting the next node or closing the UI
+%NEXT_NODE%
+	string - id of the next node
+	NODE_BACK - get back to the previous node
+	NODE_EXIT - end of dialogue, close UI
+%CODE%	optional code to execute in order:
+	- IF %NEXT_NODE% is NODE_EXIT - after closing the UI (serves as a callback)
+	- IF %NEXT_NODE% is NODE_BACK or Defined Node - before loading the next node (e.g.: setting some variables that will affect the next node)
 
 Dialogue node structure:
 [
@@ -52,11 +57,9 @@ NWG_DialogueTree = createHashMapFromArray [
 				{[1,3] call NWG_DLGHLP_Dice},"#TAXI_00_Q_03#",
 				{true},"#TAXI_00_Q_04#"
 			],
-			A_DEF,	[
+			A_GEN,	[
 				["#TAXI_00_A_01#","TAXI_CS"],
-				["#XXX_HELP_A_01#","TAXI_HELP"],
-				["#XXX_HELP_A_02#","TAXI_ADV"],
-				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+				{"TAXI" call NWG_DLGHLP_GenerateRoot}/*["TAXI_HELP","TAXI_ADV",NODE_EXIT]*/
 			]
 		]
 	],
@@ -64,14 +67,12 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"TAXI_01",	[
 			Q_RND,	[
-				"#TAXI_01_Q_01#",
+				"#XXX_01_Q_01#",
 				"#TAXI_01_Q_02#"
 			],
-			A_DEF,	[
+			A_GEN,	[
 				["#TAXI_00_A_01#","TAXI_CS"],
-				["#XXX_HELP_A_01#","TAXI_HELP"],
-				["#XXX_HELP_A_02#","TAXI_ADV"],
-				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+				{"TAXI" call NWG_DLGHLP_GenerateRoot}/*["TAXI_HELP","TAXI_ADV",NODE_EXIT]*/
 			]
 		]
 	],
@@ -85,8 +86,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{call NWG_DLG_TAXI_GenerateDropCategories},
-				["#TAXI_0X_A_BACK1#","TAXI_01"],
-				["#TAXI_0X_A_EXIT1#",NODE_EXIT]
+				{"TAXI_01" call NWG_DLGHLP_GenerateDoubtExit}/*["TAXI_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -96,20 +96,19 @@ NWG_DialogueTree = createHashMapFromArray [
 			Q_ONE,	"#TAXI_PS_Q_01#",
 			A_GEN,	[
 				{call NWG_DLG_TAXI_GenerateDropPoints},
-				["#TAXI_0X_A_BACK2#","TAXI_CS"],
-				["#TAXI_0X_A_EXIT1#",NODE_EXIT]
+				{"TAXI_CS" call NWG_DLGHLP_GenerateDoubtExit}/*["TAXI_CS",NODE_EXIT]*/
 			]
 		]
 	],
 	/*Drop me by - payment*/
 	[
 		"TAXI_PAY",	[
-			Q_ONE,	["#TAXI_PAY_Q_01#",{call NWG_DLG_TAXI_GetPriceStr}],
+			Q_ONE,	["#XXX_PAY_Q_01#",{call NWG_DLG_TAXI_GetPriceStr}],
 			A_CND,	[
 				{(call NWG_DLG_TAXI_GetPrice) call NWG_DLGHLP_HasEnoughMoney},["#TAXI_PAY_A_01#",NODE_EXIT,{call NWG_DLG_TAXI_Teleport}],
 				{(call NWG_DLG_TAXI_GetPrice) call NWG_DLGHLP_HasLessMoney},["#TAXI_PAY_A_02#","TAXI_LOW"],
-				{true},["#TAXI_0X_A_BACK2#","TAXI_CS"],
-				{true},["#TAXI_0X_A_EXIT1#",NODE_EXIT]
+				{true},["#XXX_PAY_REFUSE#","TAXI_CS"],
+				{true},["#TAXI_PAY_A_03#",NODE_EXIT]
 			]
 		]
 	],
@@ -137,56 +136,35 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#TAXI_HELP_Q_03#",
 				"#TAXI_HELP_Q_04#"
 			],
-			A_DEF,	[
-				["#XXX_HELP_A_03#","TAXI_HELP_PLACE"],
-				["#XXX_HELP_A_04#","TAXI_HELP_WHO"],
-				["#XXX_HELP_A_05#","TAXI_HELP_TALK"],
-				["#XXX_HELP_A_06#","TAXI_HELP_USERFLOW"]
-			]
+			A_GEN,	{"TAXI" call NWG_DLGHLP_GenerateHelp}/*["TAXI_HELP_PLACE","TAXI_HELP_WHO","TAXI_HELP_TALK","TAXI_HELP_USERFLOW"]*/
 		]
 	],
 	/*What should I know - What is this place*/
 	[
 		"TAXI_HELP_PLACE",	[
 			Q_ONE,	"#TAXI_HELP_PLACE_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","TAXI_HELP"],
-				["#XXX_HELP_A_08#","TAXI_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["TAXI_HELP","TAXI_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["TAXI_HELP","TAXI_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - Who are you*/
 	[
 		"TAXI_HELP_WHO",	[
 			Q_ONE,	"#TAXI_HELP_WHO_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","TAXI_HELP"],
-				["#XXX_HELP_A_08#","TAXI_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["TAXI_HELP","TAXI_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["TAXI_HELP","TAXI_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - Who should I talk to*/
 	[
 		"TAXI_HELP_TALK",	[
 			Q_ONE,	"#TAXI_HELP_TALK_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","TAXI_HELP"],
-				["#XXX_HELP_A_08#","TAXI_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["TAXI_HELP","TAXI_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["TAXI_HELP","TAXI_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - How things are done here*/
 	[
 		"TAXI_HELP_USERFLOW",	[
 			Q_ONE,	"#TAXI_HELP_USERFLOW_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","TAXI_HELP"],
-				["#XXX_HELP_A_08#","TAXI_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["TAXI_HELP","TAXI_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["TAXI_HELP","TAXI_01",NODE_EXIT]*/
 		]
 	],
 	/*Any advice*/
@@ -199,8 +177,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_CND,	[
 				{[1,10] call NWG_DLGHLP_Dice},["#TAXI_ADV_A_01#","TAXI_01"],
-				{true},["#XXX_HELP_A_08#","TAXI_01"],
-				{true},["#XXX_HELP_A_09#",NODE_EXIT]
+				{true},["#AGEN_BACK_01#","TAXI_01"],
+				{true},["#AGEN_EXIT_03#",NODE_EXIT]
 			]
 		]
 	],
@@ -218,12 +196,10 @@ NWG_DialogueTree = createHashMapFromArray [
 				{[1,15] call NWG_DLGHLP_Dice},"#MECH_00_Q_04#",
 				{true},"#MECH_00_Q_05#"
 			],
-			A_DEF,	[
+			A_GEN,	[
 				["#MECH_00_A_01#",NODE_EXIT,{call NWG_DLG_MECH_OpenShop}],
 				["#MECH_00_A_02#","MECH_SERV"],
-				["#XXX_HELP_A_01#","MECH_HELP"],
-				["#XXX_HELP_A_02#","MECH_ADV"],
-				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+				{"MECH" call NWG_DLGHLP_GenerateRoot}/*["MECH_HELP","MECH_ADV",NODE_EXIT]*/
 			]
 		]
 	],
@@ -231,16 +207,14 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"MECH_01",	[
 			Q_RND,	[
-				"#MECH_01_Q_01#",
+				"#XXX_01_Q_01#",
 				"#MECH_01_Q_02#",
 				"#MECH_01_Q_03#"
 			],
-			A_DEF,	[
+			A_GEN,	[
 				["#MECH_00_A_01#",NODE_EXIT,{call NWG_DLG_MECH_OpenShop}],
 				["#MECH_00_A_02#","MECH_SERV"],
-				["#XXX_HELP_A_01#","MECH_HELP"],
-				["#XXX_HELP_A_02#","MECH_ADV"],
-				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+				{"MECH" call NWG_DLGHLP_GenerateRoot}/*["MECH_HELP","MECH_ADV",NODE_EXIT]*/
 			]
 		]
 	],
@@ -248,15 +222,14 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"MECH_SERV",	[
 			Q_ONE,	"#MECH_SERV_Q_01#",
-			A_DEF,	[
+			A_GEN,	[
 				["#MECH_SERV_A_01#","MECH_REPAIR"],
 				["#MECH_SERV_A_02#","MECH_REFUEL"],
 				["#MECH_SERV_A_03#","MECH_REARM"],
 				["#MECH_SERV_A_04#","MECH_APRNC"],
 				["#MECH_SERV_A_05#","MECH_PYLON"],
 				["#MECH_SERV_A_06#","MECH_ALWHL"],
-				["#MECH_0X_A_BACK1#","MECH_01"],
-				["#MECH_0X_A_EXIT1#",NODE_EXIT]
+				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -269,8 +242,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"REPR" call NWG_DLG_MECH_GenerateChoices},
-				["#MECH_0X_A_BACK1#","MECH_01"],
-				["#MECH_0X_A_EXIT2#",NODE_EXIT]
+				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -283,8 +255,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"FUEL" call NWG_DLG_MECH_GenerateChoices},
-				["#MECH_0X_A_BACK1#","MECH_01"],
-				["#MECH_0X_A_EXIT2#",NODE_EXIT]
+				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -297,8 +268,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"RARM" call NWG_DLG_MECH_GenerateChoices},
-				["#MECH_0X_A_BACK1#","MECH_01"],
-				["#MECH_0X_A_EXIT2#",NODE_EXIT]
+				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -311,8 +281,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"APPR" call NWG_DLG_MECH_GenerateChoices},
-				["#MECH_0X_A_BACK1#","MECH_01"],
-				["#MECH_0X_A_EXIT2#",NODE_EXIT]
+				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -326,8 +295,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"PYLN" call NWG_DLG_MECH_GenerateChoices},
-				["#MECH_0X_A_BACK1#","MECH_01"],
-				["#MECH_0X_A_EXIT2#",NODE_EXIT]
+				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -342,20 +310,19 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"AWHL" call NWG_DLG_MECH_GenerateChoices},
-				["#MECH_0X_A_BACK1#","MECH_01"],
-				["#MECH_0X_A_EXIT2#",NODE_EXIT]
+				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
 	/*Services - payment*/
 	[
 		"MECH_PAY",	[
-			Q_ONE,	["#MECH_PAY_Q_01#",{call NWG_DLG_MECH_GetPriceStr}],
+			Q_ONE,	["#XXX_PAY_Q_01#",{call NWG_DLG_MECH_GetPriceStr}],
 			A_CND,	[
 				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasEnoughMoney},["#MECH_PAY_A_01#",NODE_EXIT,{call NWG_DLG_MECH_DoService}],
 				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasLessMoney},["#MECH_PAY_A_02#","MECH_LOW"],
-				{true},["#MECH_0X_A_BACK2#","MECH_01"],
-				{true},["#MECH_0X_A_EXIT3#",NODE_EXIT]
+				{true},["#XXX_PAY_REFUSE#","MECH_01"],
+				{true},["#AGEN_EXIT_06#",NODE_EXIT]
 			]
 		]
 	],
@@ -380,56 +347,35 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#MECH_HELP_Q_02#",
 				"#MECH_HELP_Q_03#"
 			],
-			A_DEF,	[
-				["#XXX_HELP_A_03#","MECH_HELP_PLACE"],
-				["#XXX_HELP_A_04#","MECH_HELP_WHO"],
-				["#XXX_HELP_A_05#","MECH_HELP_TALK"],
-				["#XXX_HELP_A_06#","MECH_HELP_USERFLOW"]
-			]
+			A_GEN,	{"MECH" call NWG_DLGHLP_GenerateHelp}/*["MECH_HELP_PLACE","MECH_HELP_WHO","MECH_HELP_TALK","MECH_HELP_USERFLOW"]*/
 		]
 	],
 	/*What should I know - What is this place*/
 	[
 		"MECH_HELP_PLACE",	[
 			Q_ONE,	"#MECH_HELP_PLACE_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","MECH_HELP"],
-				["#XXX_HELP_A_08#","MECH_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["MECH_HELP","MECH_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["MECH_HELP","MECH_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - Who are you*/
 	[
 		"MECH_HELP_WHO",	[
 			Q_ONE,	"#MECH_HELP_WHO_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","MECH_HELP"],
-				["#XXX_HELP_A_08#","MECH_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["MECH_HELP","MECH_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["MECH_HELP","MECH_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - Who should I talk to*/
 	[
 		"MECH_HELP_TALK",	[
 			Q_ONE,	"#MECH_HELP_TALK_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","MECH_HELP"],
-				["#XXX_HELP_A_08#","MECH_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["MECH_HELP","MECH_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["MECH_HELP","MECH_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - How things are done here*/
 	[
 		"MECH_HELP_USERFLOW",	[
 			Q_ONE,	"#MECH_HELP_USERFLOW_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","MECH_HELP"],
-				["#XXX_HELP_A_08#","MECH_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["MECH_HELP","MECH_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["MECH_HELP","MECH_01",NODE_EXIT]*/
 		]
 	],
 	/*Any advice*/
@@ -441,10 +387,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#MECH_ADV_Q_03#",
 				"#MECH_ADV_Q_04#"
 			],
-			A_DEF,	[
-				["#XXX_HELP_A_08#","MECH_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{"MECH_01" call NWG_DLGHLP_GenerateBackExit}/*["MECH_01",NODE_EXIT]*/
 		]
 	],
 
@@ -466,8 +409,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_DEF,	[
 				["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
-				["#XXX_HELP_A_01#","TRDR_HELP"],
-				["#XXX_HELP_A_02#","TRDR_ADV1"],
+				["#AGEN_HELP_01#","TRDR_HELP"],
+				["#AGEN_ADV_01#","TRDR_ADV1"],
 				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
 			]
 		]
@@ -482,8 +425,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_DEF,	[
 				["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
-				["#XXX_HELP_A_01#","TRDR_HELP"],
-				["#XXX_HELP_A_02#","TRDR_ADV1"],
+				["#AGEN_HELP_01#","TRDR_HELP"],
+				["#AGEN_ADV_01#","TRDR_ADV1"],
 				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
 			]
 		]
@@ -496,56 +439,35 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#TRDR_HELP_Q_02#",
 				"#TRDR_HELP_Q_03#"
 			],
-			A_DEF,	[
-				["#XXX_HELP_A_03#","TRDR_HELP_PLACE"],
-				["#XXX_HELP_A_04#","TRDR_HELP_WHO"],
-				["#XXX_HELP_A_05#","TRDR_HELP_TALK"],
-				["#XXX_HELP_A_06#","TRDR_HELP_USERFLOW"]
-			]
+			A_GEN,	{"TRDR" call NWG_DLGHLP_GenerateHelp}/*["TRDR_HELP_PLACE","TRDR_HELP_WHO","TRDR_HELP_TALK","TRDR_HELP_USERFLOW"]*/
 		]
 	],
 	/*What should I know - What is this place*/
 	[
 		"TRDR_HELP_PLACE",	[
 			Q_ONE,	"#TRDR_HELP_PLACE_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","TRDR_HELP"],
-				["#XXX_HELP_A_08#","TRDR_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["TRDR_HELP","TRDR_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["TRDR_HELP","TRDR_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - Who are you*/
 	[
 		"TRDR_HELP_WHO",	[
 			Q_ONE,	"#TRDR_HELP_WHO_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","TRDR_HELP"],
-				["#XXX_HELP_A_08#","TRDR_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["TRDR_HELP","TRDR_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["TRDR_HELP","TRDR_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - Who should I talk to*/
 	[
 		"TRDR_HELP_TALK",	[
 			Q_ONE,	"#TRDR_HELP_TALK_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","TRDR_HELP"],
-				["#XXX_HELP_A_08#","TRDR_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["TRDR_HELP","TRDR_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["TRDR_HELP","TRDR_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - How things are done here*/
 	[
 		"TRDR_HELP_USERFLOW",	[
 			Q_ONE,	"#TRDR_HELP_USERFLOW_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","TRDR_HELP"],
-				["#XXX_HELP_A_08#","TRDR_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["TRDR_HELP","TRDR_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["TRDR_HELP","TRDR_01",NODE_EXIT]*/
 		]
 	],
 	/*Any advice - Pay for advice*/
@@ -559,8 +481,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_CND,	[
 				{(call NWG_DLG_TRDR_GetAdvPrice) call NWG_DLGHLP_HasEnoughMoney},["#TRDR_ADV1_A_01#","TRDR_ADV2",{call NWG_DLG_TRDR_PayForAdvice}],
 				{(call NWG_DLG_TRDR_GetAdvPrice) call NWG_DLGHLP_HasLessMoney},["#TRDR_ADV1_A_02#","TRDR_LOW"],
-				{true},["#TRDR_0X_A_BACK1#","TRDR_01"],
-				{true},["#TRDR_0X_A_EXIT1#",NODE_EXIT]
+				{true},["#XXX_PAY_REFUSE#","TRDR_01"],
+				{true},["#AGEN_EXIT_06#",NODE_EXIT]
 			]
 		]
 	],
@@ -572,10 +494,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#TRDR_ADV2_Q_02#",
 				"#TRDR_ADV2_Q_03#"
 			],
-			A_DEF,	[
-				["#XXX_HELP_A_08#","TRDR_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{"TRDR_01" call NWG_DLGHLP_GenerateBackExit}/*["TRDR_01",NODE_EXIT]*/
 		]
 	],
 	/*Any advice - Not enough money*/
@@ -597,7 +516,7 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"MEDC_00",	[
 			Q_CND,	[
-				{(call NWG_DLG_MEDC_IsInjured) && {call NWG_DLGHLP_Coin}},"#MEDC_00_Q_01#",
+				{(call NWG_DLG_MEDC_IsInjured) && {[1,2] call NWG_DLGHLP_Dice}},"#MEDC_00_Q_01#",
 				{call NWG_DLG_MEDC_IsInjured},"#MEDC_00_Q_02#",
 				{[1,3] call NWG_DLGHLP_Dice},"#MEDC_00_Q_03#",
 				{[1,3] call NWG_DLGHLP_Dice},"#MEDC_00_Q_04#",
@@ -605,8 +524,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_CND,	[
 				{call NWG_DLG_MEDC_IsInjured},["#MEDC_00_A_01#","MEDC_PATCH"],
-				{true},["#XXX_HELP_A_01#","MEDC_HELP"],
-				{true},["#XXX_HELP_A_02#","MEDC_ADV"],
+				{true},["#AGEN_HELP_01#","MEDC_HELP"],
+				{true},["#AGEN_ADV_01#","MEDC_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
 			]
 		]
@@ -621,8 +540,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_CND,	[
 				{call NWG_DLG_MEDC_IsInjured},["#MEDC_01_A_01#","MEDC_PATCH"],
-				{true},["#XXX_HELP_A_01#","MEDC_HELP"],
-				{true},["#XXX_HELP_A_02#","MEDC_ADV"],
+				{true},["#AGEN_HELP_01#","MEDC_HELP"],
+				{true},["#AGEN_ADV_01#","MEDC_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
 			]
 		]
@@ -637,7 +556,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_CND,	[
 				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#MEDC_PATCH_A_01#",NODE_EXIT,{true call NWG_DLG_MEDC_Patch}],
 				{1 call NWG_DLGHLP_HasMoreMoneyStartSum},["#MEDC_PATCH_A_02#",NODE_EXIT,{false call NWG_DLG_MEDC_Patch}],
-				{true},["#MEDC_0X_A_EXIT1#",NODE_EXIT]
+				{true},["#AGEN_EXIT_06#",NODE_EXIT]
 			]
 		]
 	],
@@ -648,56 +567,35 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#MEDC_HELP_Q_01#",
 				"#MEDC_HELP_Q_02#"
 			],
-			A_DEF,	[
-				["#XXX_HELP_A_03#","MEDC_HELP_PLACE"],
-				["#XXX_HELP_A_04#","MEDC_HELP_WHO"],
-				["#XXX_HELP_A_05#","MEDC_HELP_TALK"],
-				["#XXX_HELP_A_06#","MEDC_HELP_USERFLOW"]
-			]
+			A_GEN,	{"MEDC" call NWG_DLGHLP_GenerateHelp}/*["MEDC_HELP_PLACE","MEDC_HELP_WHO","MEDC_HELP_TALK","MEDC_HELP_USERFLOW"]*/
 		]
 	],
 	/*What should I know - What is this place*/
 	[
 		"MEDC_HELP_PLACE",	[
 			Q_ONE,	"#MEDC_HELP_PLACE_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","MEDC_HELP"],
-				["#XXX_HELP_A_08#","MEDC_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["MEDC_HELP","MEDC_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["MEDC_HELP","MEDC_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - Who are you*/
 	[
 		"MEDC_HELP_WHO",	[
 			Q_ONE,	"#MEDC_HELP_WHO_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","MEDC_HELP"],
-				["#XXX_HELP_A_08#","MEDC_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["MEDC_HELP","MEDC_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["MEDC_HELP","MEDC_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - Who should I talk to*/
 	[
 		"MEDC_HELP_TALK",	[
 			Q_ONE,	"#MEDC_HELP_TALK_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","MEDC_HELP"],
-				["#XXX_HELP_A_08#","MEDC_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["MEDC_HELP","MEDC_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["MEDC_HELP","MEDC_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - How things are done here*/
 	[
 		"MEDC_HELP_USERFLOW",	[
 			Q_ONE,	"#MEDC_HELP_USERFLOW_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","MEDC_HELP"],
-				["#XXX_HELP_A_08#","MEDC_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["MEDC_HELP","MEDC_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["MEDC_HELP","MEDC_01",NODE_EXIT]*/
 		]
 	],
 	/*Any advice*/
@@ -708,11 +606,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#MEDC_ADV_Q_02#",
 				"#MEDC_ADV_Q_03#"
 			],
-			A_DEF,	[
-				["#MEDC_ADV_A_01#","MEDC_01"],
-				["#MEDC_ADV_A_02#","MEDC_01"],
-				["#MEDC_ADV_A_03#",NODE_EXIT]
-			]
+			A_GEN,	{"MEDC_01" call NWG_DLGHLP_GenerateBackExit}/*["MEDC_01",NODE_EXIT]*/
 		]
 	],
 
@@ -745,7 +639,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			Q_RND,	[
 				"#COMM_00_Q_03#",
 				"#COMM_00_Q_06#",
-				"#COMM_01_Q_01#"
+				"#XXX_01_Q_01#",
+				"#MECH_01_Q_03#"
 			],
 			A_CND,	[
 				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_MIS"],
@@ -778,56 +673,35 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#COMM_HELP_Q_01#",
 				"#COMM_HELP_Q_02#"
 			],
-			A_DEF,	[
-				["#XXX_HELP_A_03#","COMM_HELP_PLACE"],
-				["#XXX_HELP_A_04#","COMM_HELP_WHO"],
-				["#XXX_HELP_A_05#","COMM_HELP_TALK"],
-				["#XXX_HELP_A_06#","COMM_HELP_USERFLOW"]
-			]
+			A_GEN,	{"COMM" call NWG_DLGHLP_GenerateHelp}/*["COMM_HELP_PLACE","COMM_HELP_WHO","COMM_HELP_TALK","COMM_HELP_USERFLOW"]*/
 		]
 	],
 	/*What should I know - What is this place*/
 	[
 		"COMM_HELP_PLACE",	[
 			Q_ONE,	"#COMM_HELP_PLACE_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","COMM_HELP"],
-				["#XXX_HELP_A_08#","COMM_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["COMM_HELP","COMM_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["COMM_HELP","COMM_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - Who are you*/
 	[
 		"COMM_HELP_WHO",	[
 			Q_ONE,	"#COMM_HELP_WHO_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","COMM_HELP"],
-				["#XXX_HELP_A_08#","COMM_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["COMM_HELP","COMM_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["COMM_HELP","COMM_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - Who should I talk to*/
 	[
 		"COMM_HELP_TALK",	[
 			Q_ONE,	"#COMM_HELP_TALK_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","COMM_HELP"],
-				["#XXX_HELP_A_08#","COMM_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["COMM_HELP","COMM_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["COMM_HELP","COMM_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - How things are done here*/
 	[
 		"COMM_HELP_USERFLOW",	[
 			Q_ONE,	"#COMM_HELP_USERFLOW_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","COMM_HELP"],
-				["#XXX_HELP_A_08#","COMM_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["COMM_HELP","COMM_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["COMM_HELP","COMM_01",NODE_EXIT]*/
 		]
 	],
 	/*Any advice*/
@@ -838,10 +712,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#COMM_ADV_Q_02#",
 				"#COMM_ADV_Q_03#"
 			],
-			A_DEF,	[
-				["#XXX_HELP_A_08#","COMM_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{"COMM_01" call NWG_DLGHLP_GenerateBackExit}/*["COMM_01",NODE_EXIT]*/
 		]
 	],
 
@@ -862,10 +733,10 @@ NWG_DialogueTree = createHashMapFromArray [
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_01#","ROOF_WHAT"],
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_02#","ROOF_NO_TRUST"],
 				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#ROOF_00_A_02#","ROOF_KNOW"],
-				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#XXX_HELP_A_01#","ROOF_NO_TRUST"],
-				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#XXX_HELP_A_01#","ROOF_HELP"],
-				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#XXX_HELP_A_02#","ROOF_NO_TRUST"],
-				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#XXX_HELP_A_02#","ROOF_ADV"],
+				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#AGEN_HELP_01#","ROOF_NO_TRUST"],
+				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#AGEN_HELP_01#","ROOF_HELP"],
+				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#AGEN_ADV_01#","ROOF_NO_TRUST"],
+				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#AGEN_ADV_01#","ROOF_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
 			]
 		]
@@ -882,10 +753,10 @@ NWG_DialogueTree = createHashMapFromArray [
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_01#","ROOF_WHAT"],
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_02#","ROOF_NO_TRUST"],
 				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#ROOF_00_A_02#","ROOF_KNOW"],
-				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#XXX_HELP_A_01#","ROOF_NO_TRUST"],
-				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#XXX_HELP_A_01#","ROOF_HELP"],
-				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#XXX_HELP_A_02#","ROOF_NO_TRUST"],
-				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#XXX_HELP_A_02#","ROOF_ADV"],
+				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#AGEN_HELP_01#","ROOF_NO_TRUST"],
+				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#AGEN_HELP_01#","ROOF_HELP"],
+				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#AGEN_ADV_01#","ROOF_NO_TRUST"],
+				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#AGEN_ADV_01#","ROOF_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
 			]
 		]
@@ -895,7 +766,7 @@ NWG_DialogueTree = createHashMapFromArray [
 		"ROOF_WHAT",	[
 			Q_ONE,	"#ROOF_WHAT_Q_01#",
 			A_DEF,	[
-				["#ROOF_0X_A_BACK2#","ROOF_01"],
+				["#AGEN_BACK_01#","ROOF_01"],
 				["#ROOF_0X_A_EXIT1#",NODE_EXIT]
 			]
 		]
@@ -927,8 +798,8 @@ NWG_DialogueTree = createHashMapFromArray [
 				["#ROOF_KNOW_A_01#","ROOF_HIST00"],
 				["#ROOF_KNOW_A_02#","ROOF_LGND00"],
 				["#ROOF_KNOW_A_03#","ROOF_RUMR"],
-				["#ROOF_KNOW_A_04#","ROOF_01"],
-				["#ROOF_KNOW_A_05#",NODE_EXIT]
+				["#ROOF_0X_A_BACK3#","ROOF_01"],
+				["#AGEN_DOUBT_06#",NODE_EXIT]
 			]
 		]
 	],
@@ -1082,7 +953,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_RUMR_A_02#","ROOF_KNOW"],
 				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_RUMR_A_03#","ROOF_KNOW"],
 				{true},["#ROOF_RUMR_A_04#","ROOF_RUMR"],
-				{true},["#ROOF_0X_A_BACK2#","ROOF_KNOW"],
+				{true},["#AGEN_BACK_01#","ROOF_KNOW"],
 				{true},["#ROOF_0X_A_EXIT2#",NODE_EXIT]
 			]
 		]
@@ -1095,56 +966,35 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#ROOF_HELP_Q_02#",
 				"#ROOF_HELP_Q_03#"
 			],
-			A_DEF,	[
-				["#XXX_HELP_A_03#","ROOF_HELP_PLACE"],
-				["#XXX_HELP_A_04#","ROOF_HELP_WHO"],
-				["#XXX_HELP_A_05#","ROOF_HELP_TALK"],
-				["#XXX_HELP_A_06#","ROOF_HELP_USERFLOW"]
-			]
+			A_GEN,	{"ROOF" call NWG_DLGHLP_GenerateHelp}/*["ROOF_HELP_PLACE","ROOF_HELP_WHO","ROOF_HELP_TALK","ROOF_HELP_USERFLOW"]*/
 		]
 	],
 	/*What should I know - What is this place*/
 	[
 		"ROOF_HELP_PLACE",	[
 			Q_ONE,	"#ROOF_HELP_PLACE_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","ROOF_HELP"],
-				["#XXX_HELP_A_08#","ROOF_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["ROOF_HELP","ROOF_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["ROOF_HELP","ROOF_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - Who are you*/
 	[
 		"ROOF_HELP_WHO",	[
 			Q_ONE,	"#ROOF_HELP_WHO_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","ROOF_HELP"],
-				["#XXX_HELP_A_08#","ROOF_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["ROOF_HELP","ROOF_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["ROOF_HELP","ROOF_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - Who should I talk to*/
 	[
 		"ROOF_HELP_TALK",	[
 			Q_ONE,	"#ROOF_HELP_TALK_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","ROOF_HELP"],
-				["#XXX_HELP_A_08#","ROOF_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["ROOF_HELP","ROOF_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["ROOF_HELP","ROOF_01",NODE_EXIT]*/
 		]
 	],
 	/*What should I know - How things are done here*/
 	[
 		"ROOF_HELP_USERFLOW",	[
 			Q_ONE,	"#ROOF_HELP_USERFLOW_Q_01#",
-			A_DEF,	[
-				["#XXX_HELP_A_07#","ROOF_HELP"],
-				["#XXX_HELP_A_08#","ROOF_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{["ROOF_HELP","ROOF_01"] call NWG_DLGHLP_GenerateAnqBackExit}/*["ROOF_HELP","ROOF_01",NODE_EXIT]*/
 		]
 	],
 	/*Any advice*/
@@ -1155,10 +1005,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#ROOF_ADV_Q_02#",
 				"#ROOF_ADV_Q_03#"
 			],
-			A_DEF,	[
-				["#XXX_HELP_A_08#","ROOF_01"],
-				["#XXX_HELP_A_09#",NODE_EXIT]
-			]
+			A_GEN,	{"ROOF_01" call NWG_DLGHLP_GenerateBackExit}/*["ROOF_01",NODE_EXIT]*/
 		]
 	],
 

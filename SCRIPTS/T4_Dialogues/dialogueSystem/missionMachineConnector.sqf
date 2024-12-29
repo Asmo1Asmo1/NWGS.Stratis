@@ -49,7 +49,7 @@ NWG_DLG_MMC_OnMissionStateChanged = {
             {
                 private _npcName = NWG_DLG_MMC_Settings get (typeOf _x);
                 if (!isNil "_npcName")
-                    then {_x setVariable ["NWG_DLG_NpcName",_npcName,true]}
+                    then {[_x,_npcName] call NWG_fnc_dlgSetNpcName}
                     else {format ["NWG_DLG_MMC_OnMissionStateChanged: NPC name not found in NWG_DLG_MMC_Settings: %1",(typeOf _x)] call NWG_fnc_logError};
             } forEach _baseNpcs;
         };

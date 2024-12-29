@@ -172,37 +172,52 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Action title*/
     ["#DLG_OPEN_TITLE#","<img image='a3\ui_f\data\igui\cfg\actions\talk_ca.paa' size='1.5'/> <t size='1.5'>Talk</t>"],
     /*NPC names*/
-    ["#NPC_TEST_NAME#","Test NPC"],
     ["#NPC_TAXI_NAME#","Taxi"],
     ["#NPC_MECH_NAME#","Mechanic"],
     ["#NPC_TRDR_NAME#","Trader"],
     ["#NPC_MEDC_NAME#","Doc"],
     ["#NPC_COMM_NAME#","Commander"],
     ["#NPC_ROOF_NAME#","Ivan the Roof"],
+    /*Answers generation (auto gen for any NPC by DLGHLP)*/
+    ["#AGEN_HELP_01#","What should I know?"],
+    ["#AGEN_HELP_PLC_01#","What is this place?"],
+    ["#AGEN_HELP_WHO_01#","Who are you?"],
+    ["#AGEN_HELP_TLK_01#","Who should I talk to?"],
+    ["#AGEN_HELP_UFL_01#","How things are done here?"],
+    ["#AGEN_ADV_01#","Any advice?"],
+    ["#AGEN_ANQ_01#","Another question"],
+    ["#AGEN_ANQ_02#","I have another question"],
+    ["#AGEN_ANQ_03#","And another one"],
+    ["#AGEN_BACK_01#","Got it"],
+    ["#AGEN_BACK_02#","Yeah, I got it"],
+    ["#AGEN_BACK_03#","Got it, thanks"],
+    ["#AGEN_BACK_04#","All right"],
+    ["#AGEN_DOUBT_01#","I have a doubt"],
+    ["#AGEN_DOUBT_02#","On second thought"],
+    ["#AGEN_DOUBT_03#","No, never mind"],
+    ["#AGEN_DOUBT_04#","No, forget it"],
+    ["#AGEN_DOUBT_05#","I'm not sure"],
+    ["#AGEN_DOUBT_06#","Actually, no, forget it"],
+    ["#AGEN_EXIT_01#","See you around"],
+    ["#AGEN_EXIT_02#","Ok, see you"],
+    ["#AGEN_EXIT_03#","Thanks, bye"],
+    ["#AGEN_EXIT_04#","I better go now"],
+    ["#AGEN_EXIT_05#","Have a nice day"],
+    ["#AGEN_EXIT_06#","Never mind, I'll go now"],
     /*Common answers to any NPC*/
+    ["#XXX_01_Q_01#","Anything else?"],
     ["#XXX_QUIT_DIALOGUE#","No, nothing"],
-    ["#XXX_HELP_A_01#","What should I know?"],
-    ["#XXX_HELP_A_02#","Any advice?"],
-    ["#XXX_HELP_A_03#","What is this place?"],
-    ["#XXX_HELP_A_04#","Who are you?"],
-    ["#XXX_HELP_A_05#","Who should I talk to?"],
-    ["#XXX_HELP_A_06#","How things are done here?"],
-    ["#XXX_HELP_A_07#","Another question"],
-    ["#XXX_HELP_A_08#","Got it"],
-    ["#XXX_HELP_A_09#","Thanks, bye"],
+    ["#XXX_PAY_Q_01#","That would be %1"],
+    ["#XXX_PAY_REFUSE#","I've changed my mind"],
     /*====== TAXI =====*/
     /*Taxi - logic*/
-    ["#NPC_TAXI_CAT_SQD#","To my Squad Mates"],
-    ["#NPC_TAXI_CAT_VHC#","To my Vehicle"],
-    ["#NPC_TAXI_CAT_CMP#","To my Camp"],
-    ["#NPC_TAXI_CAT_AIR#","Paradrop me, I'll show on the map"],
-    ["#NPC_TAXI_NO_DROP_POINTS#","Sorry, guess there are none..."],
-    ["#NPC_TAXI_INV_DROP_POINT#","Failed to drop you"],
-    ["#NPC_TAXI_PARADROP_HINT#","Select drop point on the map"],
-    /*Taxi - common answers*/
-    ["#TAXI_0X_A_BACK1#","No, actually..."],
-    ["#TAXI_0X_A_BACK2#","I've changed my mind"],
-    ["#TAXI_0X_A_EXIT1#","Never mind, bye"],
+    ["#TAXI_CAT_SQD#","To my Squad Mates"],
+    ["#TAXI_CAT_VHC#","To my Vehicle"],
+    ["#TAXI_CAT_CMP#","To my Camp"],
+    ["#TAXI_CAT_AIR#","Paradrop me, I'll show on the map"],
+    ["#TAXI_NO_DROP_POINTS#","Sorry, guess there are none..."],
+    ["#TAXI_INV_DROP_POINT#","Failed to drop you"],
+    ["#TAXI_PARADROP_HINT#","Select drop point on the map"],
     /*Taxi - TAXI_00*/
     ["#TAXI_00_Q_01#","Always good to see new faces"],
     ["#TAXI_00_Q_02#","How's it going, boss?"],
@@ -210,7 +225,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_00_Q_04#","Hey, what's up, boss?"],
     ["#TAXI_00_A_01#","Drop me by..."],
     /*Taxi - TAXI_01*/
-    ["#TAXI_01_Q_01#","Anything else?"],
     ["#TAXI_01_Q_02#","So?"],
     /*Taxi - TAXI_CS*/
     ["#TAXI_CS_Q_01#","Where to, boss?"],
@@ -219,9 +233,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Taxi - TAXI_PS*/
     ["#TAXI_PS_Q_01#","Which one?"],
     /*Taxi - TAXI_PAY*/
-    ["#TAXI_PAY_Q_01#","That would be %1"],
     ["#TAXI_PAY_A_01#","Here you go"],
     ["#TAXI_PAY_A_02#","Sorry, I don't have that"],
+    ["#TAXI_PAY_A_03#","Never mind, bye"],
     /*Taxi - TAXI_LOW*/
     ["#TAXI_LOW_Q_01#","That's a shame, boss"],
     ["#TAXI_LOW_Q_02#","Come back when you have it, boss|Or check other options"],
@@ -251,14 +265,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Mech - logic*/
     ["#MECH_NO_VEHICLES#","Sorry, guess there are none..."],
     ["#MECH_INV_VEH#","Failed to service vehicle"],
-    /*Mech - common answers*/
-    ["#MECH_0X_A_BACK1#","On the second thought"],
-    ["#MECH_0X_A_BACK2#","I've changed my mind"],
-    ["#MECH_0X_A_EXIT1#","No, nothing"],
-    ["#MECH_0X_A_EXIT2#","No, forget it"],
-    ["#MECH_0X_A_EXIT3#","Never mind"],
     /*Mech - MECH_00*/
-    ["#MECH_00_Q_01#","Newcomer?|Don't scratch anything here"],
+    ["#MECH_00_Q_01#","Newcomer?|Hope you know how to drive"],
     ["#MECH_00_Q_02#","Yes?"],
     ["#MECH_00_Q_03#","What can I help you with?"],
     ["#MECH_00_Q_04#","Hey, have you seen...|A guy with a red crowbar?|The fucker owns me|That's MY fucking crowbar|And it is my favorite|You meet him - you let me know|Okay?"],
@@ -266,7 +274,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_00_A_01#","Open the shop"],
     ["#MECH_00_A_02#","I need your services"],
     /*Mech - MECH_01*/
-    ["#MECH_01_Q_01#","Anything else?"],
     ["#MECH_01_Q_02#","What?"],
     ["#MECH_01_Q_03#","Yeah, what?"],
     /*Mech - MECH_SERV*/
@@ -299,7 +306,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_ALWHL_Q_03#","Yeah, let's make you a monster truck"],
     ["#MECH_ALWHL_Q_04#","Glad someone appreciates it"],
     /*Mech - MECH_PAY*/
-    ["#MECH_PAY_Q_01#","That would be %1"],
     ["#MECH_PAY_A_01#","Take it"],
     ["#MECH_PAY_A_02#","That's more than I have"],
     /*Mech - MECH_LOW*/
@@ -325,11 +331,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_ADV_Q_03#","Don't get greedy|If you see you need to sacrifice your ride|Do it|You can always get a new one|Better loose some additionals|Than half of what you got so far"],
     ["#MECH_ADV_Q_04#","Keep your toolkit with you|If you go on wheels|Yeah, that simple"],
     /*====== TRDR =====*/
-    /*Trdr - Common answers*/
-    ["#TRDR_0X_A_BACK1#","I've changed my mind"],
-    ["#TRDR_0X_A_EXIT1#","Never mind"],
     /*Trdr - TRDR_00*/
-    ["#TRDR_00_Q_01#","Broke?|Have something to sell at least?"],
+    ["#TRDR_00_Q_01#","No money?|Have something to sell at least?"],
     ["#TRDR_00_Q_02#","Newcomer?|Look but don't touch"],
     ["#TRDR_00_Q_03#","Welcome to my shop, friend"],
     ["#TRDR_00_Q_04#","My favorite customer|How are you today?"],
@@ -356,7 +359,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TRDR_HELP_USERFLOW_Q_01#","You can buy and sell items"],
     /*Trdr - TRDR_ADV1*/
     ["#TRDR_ADV1_Q_01#","Advice?|Put your money on the table|That's my advice|Next advice will cost you %1"],
-    ["#TRDR_ADV1_Q_02#","Heard 'Advices are cheap'?|Well|Not mine though|How about %1?"],
+    ["#TRDR_ADV1_Q_02#","Have you ever heard 'Advices are cheap'?|Well|Not mine though|How about %1?"],
     ["#TRDR_ADV1_Q_03#","%1"],
     ["#TRDR_ADV1_A_01#","Here"],
     ["#TRDR_ADV1_A_02#","Don't have that much right now"],
@@ -370,8 +373,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TRDR_LOW_A_02#","Yeah, right..."],
     ["#TRDR_LOW_A_03#","I'll be back"],
     /*====== MEDC =====*/
-    /*Medc - common answers*/
-    ["#MEDC_0X_A_EXIT1#","Never mind"],
     /*Medc - MEDC_00*/
     ["#MEDC_00_Q_01#","Are you injured? Need my help?"],
     ["#MEDC_00_Q_02#","You don't look good, son"],
@@ -404,9 +405,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MEDC_ADV_Q_01#","There is...|There are...|(stares above your head)|Some... things..."],
     ["#MEDC_ADV_Q_02#","Don't mix those|I did|But that's okay..."],
     ["#MEDC_ADV_Q_03#","Just keep an eye out for each other|Hmm...."],
-    ["#MEDC_ADV_A_01#","Hello?"],
-    ["#MEDC_ADV_A_02#","All right"],
-    ["#MEDC_ADV_A_03#","Ok, bye"],
     /*====== COMM =====*/
     /*Comm - COMM_00*/
     ["#COMM_00_Q_01#","We're in a middle of an OP|Go join the others|And make it fast"],
@@ -420,7 +418,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_00_A_03#","Can you explain me something?"],
     ["#COMM_00_A_04#","Any advice, sir?"],
     /*Comm - COMM_01*/
-    ["#COMM_01_Q_01#","Anything else?"],
     ["#COMM_01_A_02#","I'll be on my way"],
     /*Comm - COMM_MIS*/
     ["#COMM_MIS_Q_01#","Goodspeed, soldier|Here's what we dealing with"],
@@ -446,8 +443,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_ADV_Q_03#","Plan everything|How will you approach the target|Where will you strike|How will you exfil"],
     /*====== ROOF =====*/
     /*Roof - Common answers*/
-    ["#ROOF_0X_A_BACK1#","I've changed my mind"],
-    ["#ROOF_0X_A_BACK2#","Got it"],
     ["#ROOF_0X_A_BACK3#","Something else"],
     ["#ROOF_0X_A_EXIT1#","I need to go"],
     ["#ROOF_0X_A_EXIT2#","Thanks, but I need to go now"],
@@ -479,8 +474,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#ROOF_KNOW_A_01#","History of this place"],
     ["#ROOF_KNOW_A_02#","Local legends"],
     ["#ROOF_KNOW_A_03#","Local rumors"],
-    ["#ROOF_KNOW_A_04#","Something else"],
-    ["#ROOF_KNOW_A_05#","Actually, no, forget it"],
     /*Roof - ROOF_HIST00*/
     ["#ROOF_HIST00_Q_01#","A short story or a long one?"],
     ["#ROOF_HIST00_A_01#","Short story"],

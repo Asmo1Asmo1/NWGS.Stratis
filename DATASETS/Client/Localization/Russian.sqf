@@ -213,11 +213,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#NPC_COMM_NAME#","Командир"],
     ["#NPC_ROOF_NAME#","Иван Крыша"],
     /*Taxi*/
-    ["#NPC_TAXI_CAT_SQD#","Рядом с моей группой"],
-    ["#NPC_TAXI_CAT_VHC#","Рядом с моей техникой"],
-    ["#NPC_TAXI_CAT_CMP#","Рядом с моим лагерем"],
-    ["#NPC_TAXI_CAT_AIR#","Перебрось меня по воздуху"],
-    ["#NPC_TAXI_NO_DROP_POINTS#","Извини, кажется ничего нет..."],
+    ["#TAXI_CAT_SQD#","Рядом с моей группой"],
+    ["#TAXI_CAT_VHC#","Рядом с моей техникой"],
+    ["#TAXI_CAT_CMP#","Рядом с моим лагерем"],
+    ["#TAXI_CAT_AIR#","Перебрось меня по воздуху"],
+    ["#TAXI_NO_DROP_POINTS#","Извини, кажется ничего нет..."],
 
     ["",""]
 ];

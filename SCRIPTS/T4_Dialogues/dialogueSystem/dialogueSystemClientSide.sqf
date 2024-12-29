@@ -10,13 +10,18 @@ Each question may be of type
 
 A	A_DEF	Predefined array of answers
 	A_CND	Array of [{condition},answer,...] - whichever condition returns 'true' - (_i+1) will be added to list of answers
-	A_GEN	Code that will generate array of answers (also supported to have [CODE,DEF_ANSER1,DEF_ANSER2,...] to generate answers in addition to predefined ones)
+	A_GEN	Either single code block or array of [{code},{code},answer,...] where each code block is expected to return array of answers (yes, mix with predefined answers is supported)
 Each answer is array of [%ANSWER_STR%,%NEXT_NODE%,(optional:%CODE%)]
-%ANSWER_STR%	string - single localization key
+%ANSWER_STR%
+	string - single localization key
 	array - format ["template",{code to return arg},...]
-%NEXT_NODE%	string - id of the next node
-	"" - end of dialogue, close UI
-%CODE%	optional code to execute AFTER selecting the next node or closing the UI
+%NEXT_NODE%
+	string - id of the next node
+	NODE_BACK - get back to the previous node
+	NODE_EXIT - end of dialogue, close UI
+%CODE%	optional code to execute in order:
+	- IF %NEXT_NODE% is NODE_EXIT - after closing the UI (serves as a callback)
+	- IF %NEXT_NODE% is NODE_BACK or Defined Node - before loading the next node (e.g.: setting some variables that will affect the next node)
 
 Dialogue node structure:
 [
@@ -57,7 +62,6 @@ in other words:
 NWG_DLG_CLI_Settings = createHashMapFromArray [
 	/*Localization settings*/
 	["LOCALIZATION",createHashMapFromArray [
-		["TEST","#NPC_TEST_NAME#"],
 		["TAXI","#NPC_TAXI_NAME#"],
 		["MECH","#NPC_MECH_NAME#"],
 		["TRDR","#NPC_TRDR_NAME#"],
@@ -284,12 +288,15 @@ NWG_DLG_CLI_LoadNextNode = {
 		case A_GEN: {
 			//Pure code generation
 			if (_aBody isEqualType {}) exitWith {call _aBody};
-			//Mixed with predefined answers
+
+			//Mix of code generation(s) and (optionally) predefined answers
 			private _generated = [];
 			{
-				if (_x isEqualType {})
-					then {_generated append (call _x)}
-					else {_generated pushBack _x};
+				switch (true) do {
+					case (_x isEqualType {}): {_generated append (call _x)};
+					case (_x isEqualType []): {_generated pushBack _x};
+					default {(format ["NWG_DLG_CLI_LoadNextNode: Invalid A_GEN answer type in node '%1', only {} or [] are allowed",_nodeName]) call NWG_fnc_logError};
+				};
 			} forEach _aBody;
 			_generated
 		};

@@ -60,10 +60,10 @@ private _Init = {
 NWG_DLG_TAXI_GenerateDropCategories = {
 	private _categories = [];
 
-	_categories pushBack ["#NPC_TAXI_CAT_SQD#","TAXI_PS",{NWG_DLG_TAXI_SelectedCat = CAT_SQD}];
-	_categories pushBack ["#NPC_TAXI_CAT_VHC#","TAXI_PS",{NWG_DLG_TAXI_SelectedCat = CAT_VHC}];
+	_categories pushBack ["#TAXI_CAT_SQD#","TAXI_PS",{NWG_DLG_TAXI_SelectedCat = CAT_SQD}];
+	_categories pushBack ["#TAXI_CAT_VHC#","TAXI_PS",{NWG_DLG_TAXI_SelectedCat = CAT_VHC}];
 	//TODO: Pushback camp category when camp system is implemented
-	_categories pushBack ["#NPC_TAXI_CAT_AIR#","TAXI_PAY",{NWG_DLG_TAXI_SelectedCat = CAT_AIR}];
+	_categories pushBack ["#TAXI_CAT_AIR#","TAXI_PAY",{NWG_DLG_TAXI_SelectedCat = CAT_AIR}];
 
 	//return
 	_categories
@@ -117,7 +117,7 @@ NWG_DLG_TAXI_GenerateDropPoints = {
 	if ((count _dropPoints) == 0) then {
 		NWG_DLG_TAXI_SelectedCat = "";
 		NWG_DLG_TAXI_SelectedItem = "";
-		_dropPoints pushBack ["#NPC_TAXI_NO_DROP_POINTS#","TAXI_CS"];
+		_dropPoints pushBack ["#TAXI_NO_DROP_POINTS#","TAXI_CS"];
 	};
 
 	//return
@@ -224,14 +224,14 @@ NWG_DLG_TAXI_Teleport = {
 	_teleportTo params [["_tType",TTYPE_FAIL],["_target",-1]];
 	switch (_tType) do {
 		case TTYPE_FAIL: {
-			"#NPC_TAXI_INV_DROP_POINT#" call NWG_fnc_systemChatMe;//Failed
+			"#TAXI_INV_DROP_POINT#" call NWG_fnc_systemChatMe;//Failed
 		};
 		case TTYPE_UNIT;
 		case TTYPE_POS: {
 			private _radius = NWG_DLG_TAXI_Settings get "UNIT_RADIUS";
 			if (player setVehiclePosition [_target,[],_radius,"NONE"])
 				then {[player,-_price] call NWG_fnc_wltAddPlayerMoney}
-				else {"#NPC_TAXI_INV_DROP_POINT#" call NWG_fnc_systemChatMe};
+				else {"#TAXI_INV_DROP_POINT#" call NWG_fnc_systemChatMe};
 		};
 		case TTYPE_VHCL: {
 			private _radius = NWG_DLG_TAXI_Settings get "VHCL_RADIUS";
@@ -239,7 +239,7 @@ NWG_DLG_TAXI_Teleport = {
 				exitWith {[player,-_price] call NWG_fnc_wltAddPlayerMoney};
 			if (player setVehiclePosition [_target,[],_radius,"NONE"])
 				exitWith {[player,-_price] call NWG_fnc_wltAddPlayerMoney};
-			"#NPC_TAXI_INV_DROP_POINT#" call NWG_fnc_systemChatMe;
+			"#TAXI_INV_DROP_POINT#" call NWG_fnc_systemChatMe;
 		};
 		case TTYPE_AIR: {
 			//Deplete money
@@ -250,7 +250,7 @@ NWG_DLG_TAXI_Teleport = {
 			if ( (((getUnitLoadout player) param [9,[]]) param [0,""]) isEqualTo "")
 				then {player addItem "ItemMap"; player assignItem "ItemMap"};
 			openMap [true,true];
-			hint ("#NPC_TAXI_PARADROP_HINT#" call NWG_fnc_localize);//Show hint
+			hint ("#TAXI_PARADROP_HINT#" call NWG_fnc_localize);//Show hint
 			//To be continued in map click handler 'NWG_DLG_TAXI_OnMapClick'....
 		};
 	};
