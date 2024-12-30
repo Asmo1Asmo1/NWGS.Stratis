@@ -333,7 +333,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*====== TRDR =====*/
     /*Trdr - TRDR_00*/
     ["#TRDR_00_Q_01#","How come you have no money?|Look but don't touch anything|Have something to sell at least?"],
-    ["#TRDR_00_Q_02#","Newcomer?|You would be wise to buy a UAV terminal|It's a good investment|Here, I have some for sale"],
+    ["#TRDR_00_Q_02#","Newcomer?|You would be wise to buy a UAV terminal and a radio|It's a good investment|Here, I have some for sale"],
     ["#TRDR_00_Q_03#","Welcome to my shop, friend"],
     ["#TRDR_00_Q_04#","My favorite customer|How are you today?"],
     ["#TRDR_00_Q_05#","Yes?"],
@@ -407,7 +407,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MEDC_ADV_Q_03#","Hmm...|Just keep an eye out for each other"],
     /*====== COMM =====*/
     /*Comm - COMM_00*/
-    ["#COMM_00_Q_01#","We're in a middle of an OP|Go join the others|And make it fast"],
+    ["#COMM_00_Q_01#","There's an active operation going on already|Go join the others|And make it back in one piece"],
     ["#COMM_00_Q_02#","Newcomer?|You know how to fight?|Good"],
     ["#COMM_00_Q_03#","I'm listening"],
     ["#COMM_00_Q_04#","Report, soldier"],
@@ -434,7 +434,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Comm - COMM_HELP_WHO*/
     ["#COMM_HELP_WHO_Q_01#","You should go see the doctor if you ask questions like that|But all right|You're looking at your field officer in charge of the operation|I gather intelligence from our sources and mark current points of interest|But it is up to you to make a final decision. I just lay out the options"],
     /*Comm - COMM_HELP_TALK*/
-    ["#COMM_HELP_TALK_Q_01#","You're making a right choice talking to me|Getting your new objective should be a priority|Outside you will find our delivery guy|He can take you closer to the target|There are also an engineer and a medic|Both are part of our task force and vehicle retrieval|Trader there is a hired specialist|You should talk to him when you have something to sell|And the rookie on the roof is watching over our supplies and sending drones on request"],
+    ["#COMM_HELP_TALK_Q_01#","You're making a right choice talking to me right now|Getting your new objective should be a priority|Outside you will find our delivery guy|He can take you closer to the target|There are also an engineer and a medic|Both are part of our task force and vehicle retrieval|Trader there is a hired specialist|You should talk to him when you have something to sell|And the rookie on the roof is watching over our supplies and sending drones on request"],
     /*Comm - COMM_HELP_USERFLOW*/
     ["#COMM_HELP_USERFLOW_Q_01#","Plain and simple|We collect the data on enemy activity in the area|You decide which way to go|Get in. Get as much as you can. Get out|Elimination of hostiles is not a priority|But you do that if situation requires|You will see that we range possible locations based on enemy presence|The more there are enemy forces - the harder the work|But likely more you will find there of value|Press 'F3' on your tablet and go to 'Mobile Shop'|We can send various drones upon your request|To help you out in the field|We also have contacts with local militia|They can provide mortar fire support or even join the fight|You will just have to pay for all that upfront"],
     /*Comm - COMM_ADV*/
@@ -543,7 +543,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#ROOF_HELP_USERFLOW_Q_01#","You're asking a wrong guy|All I can tell is if you press that 'F3' button on your tablet|And order a drone support|That would be me to launch it"],
     /*Roof - ROOF_ADV*/
     ["#ROOF_ADV_Q_01#","Do your thing|That's my advice"],
-    ["#ROOF_ADV_Q_02#","Make sure you have everything you need before going into wilderness"],
+    ["#ROOF_ADV_Q_02#","Different drones offer different capabilities|Try to learn them all"],
     ["#ROOF_ADV_Q_03#","Don't tell anyone you saw me here|Actually, you know what?|Don't tell anyone anything"],
 
     ["",""]
