@@ -356,7 +356,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Trdr - TRDR_HELP_TALK*/
     ["#TRDR_HELP_TALK_Q_01#","You want me... to tell you about others?|(stares at you)|No|How about you go ask them yourself?"],
     /*Trdr - TRDR_HELP_USERFLOW*/
-    ["#TRDR_HELP_USERFLOW_Q_01#","Listen, it's pretty simple.|You find something of value out there|You put it in your storage|And then come back here to sell it|You can buy from me too if you need something|And the more we expand our operations - the more I have to offer"],
+    ["#TRDR_HELP_USERFLOW_Q_01#","Listen, it's pretty simple.|You find something of value out there|You put it in your storage|And then come back here to sell it|You can buy from me too if you need something|Be that something others sold or a fresh new stuff|And the more we expand our operations - the more I have to offer"],
     /*Trdr - TRDR_ADV1*/
     ["#TRDR_ADV1_Q_01#","Advice?|Put your money on the table|That's my advice|Next advice will cost you %1"],
     ["#TRDR_ADV1_Q_02#","Have you ever heard 'Advices are cheap'?|Well|Not mine though|How about %1?"],
@@ -545,6 +545,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#ROOF_ADV_Q_01#","Do your thing|That's my advice"],
     ["#ROOF_ADV_Q_02#","Different drones offer different capabilities|Try to learn them all"],
     ["#ROOF_ADV_Q_03#","Don't tell anyone you saw me here|Actually, you know what?|Don't tell anyone anything"],
+    ["#ROOF_ADV_Q_04#","Did his highness called me a 'rookie'?|That's good. That's awesome. Exactly how it should be|Wait|He won't let me go if he thinks I'm a rookie|Ah damn..."],
 
     ["",""]
 ];
