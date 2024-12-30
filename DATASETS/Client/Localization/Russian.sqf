@@ -69,7 +69,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_ACTION_SELF_HEAL_PATCHED#","%1 перевязал себя"],
     ["#MED_ACTION_SELF_HEAL_SUCCESS#","%1 вылечил себя"],
     ["#MED_ACTION_SELF_HEAL_FAILURE#","%1 не смог вылечить себя"],
-    ["#MED_ACTION_RESPAWN_TITLE#","Возродиться"],
+    ["#MED_ACTION_RESPAWN_TITLE#","На базу"],
     ["#MED_ACTION_HEAL_TITLE#","Вылечить"],
     ["#MED_HAS_MEDKIT#","[+]"],
     ["#MED_NO_MEDKIT#","[-]"],
@@ -131,7 +131,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#LS_ACTION_LOOT_FAILURE#","Ящик пуст"],
     //lootStorage
     ["#LS_STORAGE_ACTION_TITLE#","Открыть Хранилище"],
-    ["#LS_DEPLETE_NOTIFICATION#","Потеряно %1%% добычи"],
+    ["#LS_DEPLETE_NOTIFICATION#","Таксист забрал %1%% добычи"],
     //moneyTransfer
     ["#MT_ACTION_TITLE#","Перевод денег"],
     ["#MT_PLAYER_NOT_FOUND#","Игрок не найден"],
@@ -168,7 +168,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MSHOP_C2I1#","Отряд (3)"],
     ["#MSHOP_C2I2#","Компания (5)"],
     ["#MSHOP_C2I3#","Отделение (8)"],
-    ["#MSHOP_CAT3_TITLE#","Сброс техники"],
+    ["#MSHOP_CAT3_TITLE#","Доставка техники"],
     ["#MSHOP_MAP_ITEM_HINT#","Выберите пункт назначения"],
     ["#MSHOP_MAP_VEHICLE_HINT#","Выберите точку доставки техники"],
     //shopVehicles

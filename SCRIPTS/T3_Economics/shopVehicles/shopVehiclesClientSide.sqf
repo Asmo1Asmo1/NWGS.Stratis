@@ -38,6 +38,7 @@ NWG_VSHOP_CLI_Settings = createHashMapFromArray [
 	["PRICE_SELL_TO_PLAYER_MULTIPLIER",1.5],
 	["PRICE_BUY_FROM_PLAYER_MULTIPLIER",0.75],
 	["PRICE_REDUCE_BY_DAMAGE",true],//If true, price will be reduced by damage of the vehicle
+	["PRICE_CUSTOM_SHOP_MULTIPLIER",1.1],//Multiplier for price for selling items to player in custom shop
 
 	["GROUP_LEADER_MANAGES_GROUP_VEHICLES",true],//If true, group leader will be able to sell all vehicles of the group
 	["GROUP_LEADER_MANAGES_GROUP_MONEY",true],//If true, group leader will buy vehicles for combined group money and when selling will split money between group members
@@ -60,8 +61,12 @@ NWG_VSHOP_CLI_Settings = createHashMapFromArray [
 
 //================================================================================================================
 //================================================================================================================
-//Shop
+//Fields
 NWG_VSHOP_CLI_shopType = SHOP_TYPE_PLATFM;
+
+//================================================================================================================
+//================================================================================================================
+//Shop
 NWG_VSHOP_CLI_OpenPlatformShop = {
 	//Check platform
 	if ((call NWG_VSHOP_CLI_CheckPlatform) == PLATFORM_ERROR) exitWith {false};//Errors logged in check function
@@ -794,7 +799,13 @@ NWG_VSHOP_CLI_TRA_GetPrice = {
 	_price = _price * _multiplier;
 
 	//If we're selling to player - that's all (+ignore condition)
-	if (!_isPlayerSide) exitWith {[_price,-1]};//<= Exit if selling to player
+	if (!_isPlayerSide) exitWith {
+		//Add price for custom shop
+		if (NWG_VSHOP_CLI_shopType isEqualTo SHOP_TYPE_CUSTOM)
+			then {_price = _price * (NWG_VSHOP_CLI_Settings get "PRICE_CUSTOM_SHOP_MULTIPLIER")};
+		//return
+		[_price,-1]
+	};//<= Exit if selling to player
 
 	//Else - we're buying from player - get their actual vehicle
 	private _vehicle = [_item,false] call NWG_VSHOP_CLI_GetVehicleFromSellPool;
