@@ -43,6 +43,7 @@ class shopUI {
 			y = -15 * UI_GRID_H + UI_GRID_Y;
 			w = 16 * UI_GRID_W;
 			h = 32 * UI_GRID_H;
+			shadow = 1;
 			rowHeight = 2.0 * UI_GRID_H;
 		};
 		class SUI_ShopList: RscListbox
@@ -52,6 +53,7 @@ class shopUI {
 			y = -15 * UI_GRID_H + UI_GRID_Y;
 			w = 16 * UI_GRID_W;
 			h = 32 * UI_GRID_H;
+			shadow = 1;
 			rowHeight = 2.0 * UI_GRID_H;
 		};
 		class SUI_PlayerMoneyText: RscText

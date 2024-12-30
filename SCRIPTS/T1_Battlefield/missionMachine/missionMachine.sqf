@@ -130,7 +130,7 @@ NWG_MIS_SER_Cycle = {
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BASE_QUESTS: {
-                //TODO: Add base quests
+                //EVENT_ON_MISSION_STATE_CHANGED subscriber(s) did the job. We do nothing.
                 NWG_MIS_SER_playerBaseDecoration resize 0;//Release base objects
                 call NWG_MIS_SER_NextState;
             };

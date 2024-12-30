@@ -242,6 +242,21 @@ _clientModules pushBack ("SCRIPTS\T3_Economics\wallet\walletClient.sqf" call NWG
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\wallet\walletFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\wallet\walletTests.sqf" call NWG_fnc_compile)};
 
+//T4_Dialogues
+//dialogueSystem
+_serverModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\missionMachineConnector.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("DATASETS\Client\Dialogues\Dialogues.sqf" call NWG_fnc_compile);//Compile dialogues data alongside modules
+_clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemClientSide.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\00NpcCommon.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\01NpcTaxi.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\02NpcMech.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\02NpcMechServer.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\03NpcTrdr.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\04NpcMedc.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\05NpcComm.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemTests.sqf" call NWG_fnc_compile)};
+
 //================================================================================================================
 //================================================================================================================
 //ServerSide
