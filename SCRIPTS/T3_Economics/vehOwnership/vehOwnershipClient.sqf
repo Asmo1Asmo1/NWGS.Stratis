@@ -13,7 +13,8 @@ NWG_VEHOWN_Settings = createHashMapFromArray [
 //Init
 private _Init = {
 	player addEventHandler ["GetInMan", {_this call NWG_VEHOWN_OnGetIn}];
-	player addEventHandler ["Respawn",{_this call NWG_VEHOWN_OnRespawn}];
+	//UPD: Not required, public variables get transferred on respawn automatically
+	// player addEventHandler ["Respawn",{_this call NWG_VEHOWN_OnRespawn}];
 };
 
 //================================================================================================================
@@ -50,12 +51,13 @@ NWG_VEHOWN_OnGetIn = {
 	};
 };
 
-NWG_VEHOWN_OnRespawn = {
-	params ["_player","_corpse"];
-	private _ownedVehicles = _corpse call NWG_fnc_vownGetOwnedVehicles;
-	{[_x,_player] call NWG_fnc_vownSetOwner} forEach _ownedVehicles;//Re-assign ownership
-	[_player,_ownedVehicles] call NWG_fnc_vownSetOwnedVehicles;//Move list to new player instance
-};
+//UPD: Not required, public variables get transferred on respawn automatically
+// NWG_VEHOWN_OnRespawn = {
+// 	params ["_player","_corpse"];
+// 	private _ownedVehicles = _corpse call NWG_fnc_vownGetOwnedVehicles;
+// 	{[_x,_player] call NWG_fnc_vownSetOwner} forEach _ownedVehicles;//Re-assign ownership
+// 	[_player,_ownedVehicles] call NWG_fnc_vownSetOwnedVehicles;//Move list to new player instance
+// };
 
 //================================================================================================================
 //================================================================================================================

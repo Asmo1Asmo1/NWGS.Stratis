@@ -8,8 +8,8 @@ NWG_fnc_wltGetPlayerMoney = {
 		"NWG_fnc_wltGetPlayerMoney: Invalid player" call NWG_fnc_logError;
 		0
 	};
-	if (!alive _this || {isNull _this}) exitWith {
-		"NWG_fnc_wltGetPlayerMoney: Player is dead or null" call NWG_fnc_logError;
+	if (isNull _this) exitWith {
+		"NWG_fnc_wltGetPlayerMoney: Player obj is null" call NWG_fnc_logError;
 		0
 	};
 
