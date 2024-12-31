@@ -19,7 +19,8 @@ NWG_LS_CLI_Settings = createHashMapFromArray [
     ]],//Price map for the loot immediate sell without putting it into storage
     ["AUTO_SELL_ADD_MONEY_FUNCTION",{_this call NWG_fnc_wltAddPlayerMoney}],//Function that adds money to the player params: [_player,_amount]
 
-    ["DEPLETE_LOOT_ON_RESPAWN",true],//Should the loot be deplete on respawn
+    ["TRANSFER_LOOT_ON_RESPAWN",false],//Should the loot be transferred to the new player instance on respawn
+    ["DEPLETE_LOOT_ON_RESPAWN",false],//Should the loot be deplete on respawn
     ["DEPLETE_MULTIPLIER",0.5],//Multiplier for the loot deplete on respawn
     ["DEPLETE_NOTIFICATION",true],//Should we notify player about the loot depletion
 
@@ -37,7 +38,10 @@ NWG_LS_CLI_invisibleBox = objNull;
 private _Init = {
     player addEventHandler ["InventoryClosed",{call NWG_LS_CLI_OnInventoryClose}];
     player addEventHandler ["Take",{call NWG_LS_CLI_AutoSellOnTake}];
-    player addEventHandler ["Respawn",{_this call NWG_LS_CLI_OnRespawn}];
+
+    if (NWG_LS_CLI_Settings get "TRANSFER_LOOT_ON_RESPAWN" || {NWG_LS_CLI_Settings get "DEPLETE_LOOT_ON_RESPAWN"}) then {
+        player addEventHandler ["Respawn",{_this call NWG_LS_CLI_OnRespawn}];
+    };
 };
 
 //================================================================================================================
@@ -444,7 +448,7 @@ NWG_LS_CLI_OnRespawn = {
 
     //Get player loot from an old instance
     private _loot = _corpse call NWG_fnc_lsGetPlayerLoot;
-    if (_loot isEqualTo LOOT_ITEM_DEFAULT_CHART) exitWith {};//No loot to transfer
+    if (_loot isEqualTo LOOT_ITEM_DEFAULT_CHART) exitWith {};//No loot to transfer or deplete
 
     //Deplete the loot
     if (NWG_LS_CLI_Settings get "DEPLETE_LOOT_ON_RESPAWN") then {
@@ -454,7 +458,9 @@ NWG_LS_CLI_OnRespawn = {
     };
 
     //Transfer loot to the new entity
-    [_player,_loot] call NWG_fnc_lsSetPlayerLoot;
+    if (NWG_LS_CLI_Settings get "TRANSFER_LOOT_ON_RESPAWN") then {
+        [_player,_loot] call NWG_fnc_lsSetPlayerLoot;
+    };
 };
 
 //================================================================================================================

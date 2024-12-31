@@ -22,15 +22,15 @@ NWG_PSH_SER_Settings = createHashMapFromArray [
 	get params: _player
 	set params: [_player,_data]
 */
-	["STATES_TO_CARRY",createHashMapFromArray [
-		["loadout",		[{_this call NWG_PSH_SER_GetLoadout},	{_this call NWG_PSH_SER_SetLoadout}]],
+	["STATES_TO_HOLD",createHashMapFromArray [
+		["loadout",		[{_this call NWG_PSH_LH_GetLoadout},	{_this call NWG_PSH_LH_SetLoadout}]],
 		["add_weapon",	[{_this call NWG_fnc_awGetHolderData},	{_this call NWG_fnc_awAddHolderDataAndCreateObject}]],
 		["loot_storage",[{_this call NWG_fnc_lsGetPlayerLoot},	{_this call NWG_fnc_lsSetPlayerLoot}]],
 		["wallet",		[{_this call NWG_fnc_wltGetPlayerMoney},{_this call NWG_fnc_wltSetPlayerMoney}]]
 	]],
 
 /*
-	State syncing
+	State DB syncing
 */
 	["FUNC_LOAD_STATE_BY_ID",{nil}],//TODO: Add database connector in future versions
 	["FUNC_SAVE_STATE_BY_ID",{nil}],//TODO: Add database connector in future versions
@@ -45,12 +45,42 @@ NWG_PSH_SER_playerStateCache = createHashMap;
 
 //================================================================================================================
 //================================================================================================================
+//Player ID
+NWG_PSH_SER_GetPlayerId = {
+	// private _player = _this;
+
+	private _cached = _this getVariable "NWG_PSH_SER_steamId";
+	if (!isNil "_cached") exitWith {_cached};
+
+	if (!isPlayer _this) exitWith {
+		(format ["NWG_PSH_SER_GetPlayerId: Unit is not a player: '%1':'%2'",_this,(name _this)]) call NWG_fnc_logError;
+		false
+	};
+
+	private _steamId = getPlayerUID _this;
+	if (_steamId isEqualTo "") exitWith {
+		(format ["NWG_PSH_SER_GetPlayerId: Unit has no steam id: '%1':'%2'",_this,(name _this)]) call NWG_fnc_logError;
+		false
+	};
+
+	_this setVariable ["NWG_PSH_SER_steamId",_steamId];
+	_steamId
+};
+
+//================================================================================================================
+//================================================================================================================
 //State apply
-NWG_PSH_SER_OnPlayerJoin = {
+NWG_PSH_SER_OnStateApplyRequest = {
 	private _player = _this;
 
-	//Get player id and state
+	//Get player id
 	private _playerId = _player call NWG_PSH_SER_GetPlayerId;
+	if (isNil "_playerId" || {_playerId isEqualTo false}) exitWith {
+		(format ["NWG_PSH_SER_OnStateApplyRequest: Player id not found for player: '%1'",(name _player)]) call NWG_fnc_logError;
+		false
+	};
+
+	//Get player state
 	private _playerState = call {
 		//Try getting state from cache
 		private _cached = NWG_PSH_SER_playerStateCache get _playerId;
@@ -67,7 +97,7 @@ NWG_PSH_SER_OnPlayerJoin = {
 		false
 	};
 
-	//If state not found - create new and invoke state update
+	//If state not found - create new and invoke state update to fill it
 	if (isNil "_playerState" || {_playerState isEqualTo false}) exitWith {
 		NWG_PSH_SER_playerStateCache set [_playerId,createHashMap];
 		_player call NWG_PSH_SER_OnStateUpdateRequest;
@@ -75,12 +105,13 @@ NWG_PSH_SER_OnPlayerJoin = {
 
 	//Else - state found - apply it
 	{
-		if (_x in _playerState) then {
-			[_player,(_playerState get _x)] call (_y#STATE_SET_CODE);
-		} else {
-			(format ["NWG_PSH_SER_OnPlayerJoin: Player state missing key: '%1'",_x]) call NWG_fnc_logError;
-		};
-	} forEach (NWG_PSH_SER_Settings get "STATES_TO_CARRY");
+		if (_x in _playerState)
+			then {[_player,(_playerState get _x)] call (_y#STATE_SET_CODE)}
+			else {(format ["NWG_PSH_SER_OnStateApplyRequest: Player state missing key: '%1'",_x]) call NWG_fnc_logError};
+	} forEach (NWG_PSH_SER_Settings get "STATES_TO_HOLD");
+
+	//return
+	true
 };
 
 //================================================================================================================
@@ -88,55 +119,29 @@ NWG_PSH_SER_OnPlayerJoin = {
 //State update
 NWG_PSH_SER_OnStateUpdateRequest = {
 	private _player = _this;
+
+	//Get player id
 	private _playerId = _player call NWG_PSH_SER_GetPlayerId;
+	if (isNil "_playerId" || {_playerId isEqualTo false}) exitWith {
+		(format ["NWG_PSH_SER_OnStateUpdateRequest: Player id not found for player: '%1'",(name _player)]) call NWG_fnc_logError;
+		false
+	};
+
+	//Get player state
 	private _playerState = NWG_PSH_SER_playerStateCache get _playerId;
 	if (isNil "_playerState") exitWith {
 		(format ["NWG_PSH_SER_OnStateUpdateRequest: Player state not found, init player first: '%1'",_playerId]) call NWG_fnc_logError;
 		false
 	};
 
+	//Update player state
 	{
 		_playerState set [_x,(_player call (_y#STATE_GET_CODE))];
-	} forEach (NWG_PSH_SER_Settings get "STATES_TO_CARRY");
+	} forEach (NWG_PSH_SER_Settings get "STATES_TO_HOLD");
 	NWG_PSH_SER_playerStateCache set [_playerId,_playerState];
-};
 
-//================================================================================================================
-//================================================================================================================
-//Player ID
-NWG_PSH_SER_GetPlayerId = {
-	// private _player = _this;
-
-	private _cached = _this getVariable "NWG_PSH_SER_steamId";
-	if (!isNil "_cached") exitWith {_cached};
-
-	if (!isPlayer _this) exitWith {
-		(format ["NWG_PSH_SER_GetPlayerId: Unit is not a player: '%1':'%2'",_this,(name _this)]) call NWG_fnc_logError;
-		"NaN"
-	};
-
-	private _steamId = getPlayerUID _this;
-	if (_steamId isEqualTo "") exitWith {
-		(format ["NWG_PSH_SER_GetPlayerId: Unit has no steam id: '%1':'%2'",_this,(name _this)]) call NWG_fnc_logError;
-		"NaN"
-	};
-
-	_this setVariable ["NWG_PSH_SER_steamId",_steamId];
-	_steamId
-};
-
-//================================================================================================================
-//================================================================================================================
-//State utils
-NWG_PSH_SER_GetLoadout = {
-	// private _player = _this;
-	getUnitLoadout _this
-};
-
-NWG_PSH_SER_SetLoadout = {
-	params ["_player","_loadout"];
-	_player setUnitLoadout _loadout;
-	remoteExec ["NWG_fnc_invInvokeChangeCheck",_player];
+	//return
+	true
 };
 
 //================================================================================================================

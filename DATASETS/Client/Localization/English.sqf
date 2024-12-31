@@ -75,6 +75,10 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_BLAME_WOUND_DAMAGER#","%2 incapacitated by %1"],
     ["#MED_BLAME_KILL_NOBODYS#","%1 executed"],
     ["#MED_BLAME_KILL_DAMAGER#","%2 executed by %1"],
+    //playerStateHolder
+    ["#DPL_LOADOUT_DEPLETED#","You lost some equipment"],
+    ["#DPL_ADD_WEAPON_DEPLETED#","You lost an additional weapon"],
+    ["#DPL_LOOT_DEPLETED#","Taxi driver took %1%% of your loot"],
     //userPlanshet
     ["#UP_BUTTON_MOBLSHOP_TOOLTIP#","Mobile shop"],
     ["#UP_BUTTON_MTRANSFR_TOOLTIP#","Money transfer"],

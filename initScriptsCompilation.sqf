@@ -144,11 +144,12 @@ _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadarFu
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadarTests.sqf" call NWG_fnc_compile)};
 //playerStateHolder
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderClient.sqf" call NWG_fnc_compile);
-_clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\clientEventsConnector.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderServer.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\missionMachineConnector.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\lootDepleterOnDisconnect.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderFunctions.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\addonDepleterServer.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\addonEventsConnectorClient.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\addonLoadoutHelperServer.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\addonMissionMachineConnectorServer.sqf" call NWG_fnc_compile);
 //playerTraits
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerTraits\playerTraits.sqf" call NWG_fnc_compile);
 //stickyBombs
