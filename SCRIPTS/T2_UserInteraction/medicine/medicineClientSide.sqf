@@ -92,17 +92,27 @@ NWG_MED_CLI_OnVanillaHeal = {
     //2. This entire event is broken and we use suggested workaround, see: https://community.bistudio.com/wiki/Arma_3:_Event_Handlers#HandleHeal
     if (NWG_MED_CLI_Settings get "VANILLA_HEAL_100HP") then {
         _this spawn {
-            private _player = _this#0;
+            params ["_player","_healer"];
+            private _fakCount = {_x isEqualTo FAKKIT} count (items _player);
+            private _depleteFak = (_fakCount > 0) && {_player isEqualTo _healer && {({_x isEqualTo MEDKIT} count (items _player)) == 0}};
             private _healStartDmg = damage _player;
-            private _timeout = time + 5;//NASA teached me this
+            private _timeout = time + 5;
             waitUntil {
                 sleep 0.1;
                 (((damage _player) != _healStartDmg) || {time > _timeout})
             };
-            if (alive _player && {(damage _player) <= _healStartDmg})
-                then {_player setDamage 0};
+            if (!alive _player || {(damage _player) > _healStartDmg}) exitWith {};//Interrupted
+            _player setDamage 0;
+
+            //Fix Arma bug with this handler: FAK is not removed after healing no matter what we return
+            if (!_depleteFak) exitWith {};//Check if we should remove FAK
+            if (({_x isEqualTo FAKKIT} count (items _player)) < _fakCount) exitWith {};//Check if FAK was removed normally
+            FAKKIT call NWG_fnc_invRemoveItem;
         };
     };
+
+    //Do not interfere with vanilla heal
+    false
 };
 
 //================================================================================================================
