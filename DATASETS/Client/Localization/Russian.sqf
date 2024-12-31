@@ -69,7 +69,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_ACTION_SELF_HEAL_PATCHED#","%1 перевязал себя"],
     ["#MED_ACTION_SELF_HEAL_SUCCESS#","%1 вылечил себя"],
     ["#MED_ACTION_SELF_HEAL_FAILURE#","%1 не смог вылечить себя"],
-    ["#MED_ACTION_RESPAWN_TITLE#","На базу"],
+    ["#MED_ACTION_RESPAWN_TITLE#","Эвак на базу"],
     ["#MED_ACTION_HEAL_TITLE#","Вылечить"],
     ["#MED_HAS_MEDKIT#","[+]"],
     ["#MED_NO_MEDKIT#","[-]"],
@@ -130,7 +130,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#LS_ACTION_LOOT_SUCCESS#","Забрал"],
     ["#LS_ACTION_LOOT_FAILURE#","Ящик пуст"],
     //lootStorage
-    ["#LS_STORAGE_ACTION_TITLE#","Открыть Хранилище"],
+    ["#LS_STORAGE_ACTION_TITLE#","<t size='1.4'>Открыть Хранилище</t>"],
     ["#LS_DEPLETE_NOTIFICATION#","Таксист забрал %1%% добычи"],
     //moneyTransfer
     ["#MT_ACTION_TITLE#","Перевод денег"],

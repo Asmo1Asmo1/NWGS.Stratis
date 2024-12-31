@@ -56,7 +56,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_ACTION_SELF_HEAL_PATCHED#","%1 patched themself"],
     ["#MED_ACTION_SELF_HEAL_SUCCESS#","%1 revived themself"],
     ["#MED_ACTION_SELF_HEAL_FAILURE#","%1 failed to revive themself"],
-    ["#MED_ACTION_RESPAWN_TITLE#","To base"],
+    ["#MED_ACTION_RESPAWN_TITLE#","Evac to base"],
     ["#MED_ACTION_HEAL_TITLE#","Heal"],
     ["#MED_HAS_MEDKIT#","[+]"],
     ["#MED_NO_MEDKIT#","[-]"],
@@ -96,7 +96,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#LS_ACTION_LOOT_TITLE#","Loot"],
     ["#LS_ACTION_LOOT_SUCCESS#","Looted"],
     ["#LS_ACTION_LOOT_FAILURE#","Nothing to take"],
-    ["#LS_STORAGE_ACTION_TITLE#","Open Storage"],
+    ["#LS_STORAGE_ACTION_TITLE#","<t size='1.4'>Open Storage</t>"],
     ["#LS_DEPLETE_NOTIFICATION#","Taxi driver took %1%% of your loot"],
     //moneyTransfer
     ["#MT_ACTION_TITLE#","Money transfer"],
