@@ -2,7 +2,7 @@
 //================================================================================================================
 //Settings
 NWG_AA_Settings = createHashMapFromArray [
-	["ALL_ALLOWED_IN_LOCAL_DEV",false],
+	["ALL_ALLOWED_IN_LOCAL_DEV",true],
 	["ALL_ALLOWED_IN_MP_DEV",false],
 	["DISABLE_ARSENAL",true],
 
