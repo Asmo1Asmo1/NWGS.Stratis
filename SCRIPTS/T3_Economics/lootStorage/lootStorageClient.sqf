@@ -235,6 +235,10 @@ NWG_LS_CLI_LootByInventoryUI = {
     disableSerialization;
     //params ["_unit","_mainContainer","_secdContainer"];
     params ["",["_mainContainer",objNull],["_secdContainer",objNull]];
+    if (isNull _mainContainer && {isNull _secdContainer}) exitWith {
+        "NWG_LS_CLI_LootByInventoryUI: Inventory containers are not available." call NWG_fnc_logError;
+        false
+    };
 
     //Get inventory display
     private _inventoryDisplay = findDisplay 602;
@@ -253,10 +257,12 @@ NWG_LS_CLI_LootByInventoryUI = {
         false
     };
 
-    //Get physical container
-    private _containers = if (_uiContainerID == MAIN_CONTAINER_LIST)
-        then {[_mainContainer,_secdContainer]}
-        else {[_secdContainer,_mainContainer]};
+    //Get physical container (Another arma fix, container IDs get swapped when looting units lying on boxes)
+    private _containers = switch (true) do {
+        case (_uiContainerID == MAIN_CONTAINER_LIST): {[_mainContainer,_secdContainer]};
+        case (_uiContainerID == SECN_CONTAINER_LIST && {!isNull _mainContainer && {_mainContainer isKindOf "Man"}}): {[_mainContainer,_secdContainer]};
+        default {[_secdContainer,_mainContainer]};
+    };
     if (isNull (_containers#0)) then {
         _containers pushBack (_containers deleteAt 0);//Swap (old fix for looting corpses)
     };
