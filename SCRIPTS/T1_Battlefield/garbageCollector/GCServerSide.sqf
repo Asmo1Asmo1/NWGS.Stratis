@@ -123,6 +123,10 @@ NWG_GC_DeleteUnitAfterDelay = {
     // private _unit = _this;
     if (isNull _this) exitWith {};
 
+    //Delete all attached objects
+    {detach _x; deleteVehicle _x} forEach ((attachedObjects _this) select {!isNull _x && {!(_x isKindOf "Man")}});
+
+    //Setup delayed deletion
     NWG_GC_delayedUnitsQueue pushBack _this;
     if (isNull NWG_GC_delayedUnitsHandle || {scriptDone NWG_GC_delayedUnitsHandle}) then {
         NWG_GC_delayedUnitsHandle = [] spawn NWG_GC_DeleteUnitAfterDelay_Core;

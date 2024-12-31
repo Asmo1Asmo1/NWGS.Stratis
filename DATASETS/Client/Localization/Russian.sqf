@@ -88,6 +88,10 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MED_BLAME_WOUND_DAMAGER#","%2 ранен %1"],
     ["#MED_BLAME_KILL_NOBODYS#","%1 казнён"],
     ["#MED_BLAME_KILL_DAMAGER#","%2 казнён %1"],
+    //playerStateHolder
+    ["#DPL_LOADOUT_DEPLETED#","Вы потеряли часть снаряжения"],
+    ["#DPL_ADD_WEAPON_DEPLETED#","Вы потеряли дополнительное оружие"],
+    ["#DPL_LOOT_DEPLETED#","Таксист забрал %1%% вашей добычи"],
     //userPlanshet
     ["#UP_BUTTON_MOBLSHOP_TOOLTIP#","Мобильный магазин"],
     ["#UP_BUTTON_MTRANSFR_TOOLTIP#","Перевод денег"],

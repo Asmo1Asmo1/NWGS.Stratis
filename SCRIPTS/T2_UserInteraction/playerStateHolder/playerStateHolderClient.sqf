@@ -2,7 +2,8 @@
 //================================================================================================================
 //Settings
 NWG_PSH_CLI_Settings = createHashMapFromArray [
-	["BUFFERING_DELAY",0.5],//Delay before invoking state update on the server - just to avoid flooding
+	["INIT_DELAY",5],//Delay before allowing state update notifications - just to avoid flooding
+	["BUFFERING_DELAY",1],//Delay before invoking state update on the server - just to avoid flooding
 	["LOG_STATE_CHANGE",false],//Log incoming events
 
 	["",0]
@@ -17,21 +18,18 @@ NWG_PSH_CLI_startNotify = false;
 //================================================================================================================
 //Init
 private _Init = {
-	[] spawn {
-		waitUntil {sleep 0.1; !isNull player};
-		waitUntil {sleep 0.1; alive player};
-		waitUntil {sleep 0.1; local player};
-		waitUntil {sleep 0.1; isPlayer player};
-
-		player addEventHandler ["Respawn",{"Respawn" call NWG_PSH_CLI_OnClientStateChange}];
-		player call NWG_fnc_pshInvokePlayerJoin;
-		NWG_PSH_CLI_startNotify = true;
-	};
+	waitUntil {sleep 0.1; !isNull player};
+	waitUntil {sleep 0.1; alive player};
+	waitUntil {sleep 0.1; local player};
+	waitUntil {sleep 0.1; isPlayer player};
+	player call NWG_fnc_pshOnPlayerJoined;
+	sleep (NWG_PSH_CLI_Settings get "INIT_DELAY");
+	NWG_PSH_CLI_startNotify = true;
 };
 
 //================================================================================================================
 //================================================================================================================
-//Server notification
+//Notify server that state has changed and needs to be updated
 NWG_PSH_CLI_notifyAt = 0;
 NWG_PSH_CLI_notifyHandle = scriptNull;
 NWG_PSH_CLI_OnClientStateChange = {
@@ -47,13 +45,13 @@ NWG_PSH_CLI_OnClientStateChange = {
 	//Setup buffered notification (buffer by time to avoid network flood)
 	NWG_PSH_CLI_notifyAt = time + (NWG_PSH_CLI_Settings get "BUFFERING_DELAY");
 	if (isNull NWG_PSH_CLI_notifyHandle || {scriptDone NWG_PSH_CLI_notifyHandle}) then {
-		NWG_PSH_CLI_notifyHandle = [] spawn NWG_PSH_CLI_NotifyServer_Core;
+		NWG_PSH_CLI_notifyHandle = [] spawn NWG_PSH_CLI_Notify_Core;
 	};
 };
-NWG_PSH_CLI_NotifyServer_Core = {
-	waitUntil {sleep 0.1; time >= NWG_PSH_CLI_notifyAt};
-	player call NWG_fnc_pshInvokeStateUpdate;
+NWG_PSH_CLI_Notify_Core = {
+	waitUntil {sleep 0.25; time >= NWG_PSH_CLI_notifyAt};
+	player call NWG_fnc_pshStateUpdateRequest;
 };
 
 //================================================================================================================
-call _Init;
+[] spawn _Init;
