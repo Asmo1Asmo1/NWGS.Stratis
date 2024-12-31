@@ -217,11 +217,8 @@ NWG_LS_CLI_ConvertToLoot = {
 };
 
 NWG_LS_CLI_GetDeadUnitWeaponHolders = {
-    //replace with https://community.bistudio.com/wiki/getCorpseWeaponholders when available (arma 3 2.18)
-    //note: checked looting with secondary weapon attached to player - seems all good
-    // private _deadUnit = _this;
     if (!alive _this)
-        then {_this nearObjects ["WeaponHolderSimulated",5]}
+        then {(getCorpseWeaponholders _this) select {!isNull _x}}
         else {[]}
 };
 
