@@ -13,7 +13,7 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["INVULNERABILITY_ON_REVIVE",2],//Seconds to ignore damage on revive
 
     ["TIME_BLEEDING_TIME",900],//Start bleeding with this amount of 'time left'
-    ["TIME_DAMAGE_DEPLETES",6],//How much time is subtracted when damage received in wounded state
+    ["TIME_DAMAGE_DEPLETES",2],//How much time is subtracted when damage received in wounded state (will be multiplied by damage cascade)
 
     ["SELF_HEAL_INITIAL_CHANCE",100],//Initial success chance of 'self-heal' action
     ["SELF_HEAL_CHANCE_DECREASE",10],//Amount by which success chance of 'self-heal' action decreased by every successful attempt
@@ -204,6 +204,7 @@ NWG_MED_CLI_DefineDamager = {
 //Bleeding cycle
 NWG_MED_CLI_BLEEDING_isBleeding = false;
 NWG_MED_CLI_BLEEDING_lastDamager = objNull;
+NWG_MED_CLI_BLEEDING_damageCascade = 0;
 NWG_MED_CLI_BLEEDING_cycleHandle = scriptNull;
 
 NWG_MED_CLI_BLEEDING_SetLastDamager = {NWG_MED_CLI_BLEEDING_lastDamager = _this};//Crude Property
@@ -211,6 +212,7 @@ NWG_MED_CLI_BLEEDING_SetLastDamager = {NWG_MED_CLI_BLEEDING_lastDamager = _this}
 NWG_MED_CLI_BLEEDING_StartBleeding = {
     if (NWG_MED_CLI_BLEEDING_isBleeding) exitWith {};//Prevent double start
     NWG_MED_CLI_BLEEDING_lastDamager = objNull;
+    NWG_MED_CLI_BLEEDING_damageCascade = 0;
     [player,(NWG_MED_CLI_Settings get "TIME_BLEEDING_TIME")] call NWG_MED_COM_SetTime;
     [player,false] call NWG_MED_COM_SetPatched;
     call NWG_MED_CLI_BLEEDING_PostProcessEnable;
@@ -224,6 +226,7 @@ NWG_MED_CLI_BLEEDING_StopBleeding = {
     call NWG_MED_CLI_BLEEDING_PostProcessDisable;
     hintSilent "";//Clear hint
     NWG_MED_CLI_BLEEDING_lastDamager = objNull;
+    NWG_MED_CLI_BLEEDING_damageCascade = 0;
     NWG_MED_CLI_BLEEDING_isBleeding = false;
 };
 
@@ -263,8 +266,12 @@ NWG_MED_CLI_BLEEDING_Cycle = {
         private _damager = NWG_MED_CLI_BLEEDING_lastDamager;
         private _depleteByDamage = if (!isNull _damager) then {
             NWG_MED_CLI_BLEEDING_lastDamager = objNull;//Reset last damager
-            (NWG_MED_CLI_Settings get "TIME_DAMAGE_DEPLETES")
-        } else {0};
+            NWG_MED_CLI_BLEEDING_damageCascade = NWG_MED_CLI_BLEEDING_damageCascade + 1;//Increase cascade
+            ((NWG_MED_CLI_Settings get "TIME_DAMAGE_DEPLETES") * NWG_MED_CLI_BLEEDING_damageCascade)//Multiply by cascade
+        } else {
+            NWG_MED_CLI_BLEEDING_damageCascade = 0;//Reset cascade
+            0
+        };
         _timeLeft = _timeLeft - _depleteByDamage;
 
         //Deplete by bleeding
@@ -296,10 +303,11 @@ NWG_MED_CLI_BLEEDING_Cycle = {
         } else {objNull};
 
         //Output info to the UI
-        private _title = switch (_depleteByTime) do {
-            case 1: {"#MED_CLI_BLEEDING_UI_TITLE_LOW#"  call NWG_fnc_localize};
-            case 2: {"#MED_CLI_BLEEDING_UI_TITLE_MID#"  call NWG_fnc_localize};
-            case 4: {"#MED_CLI_BLEEDING_UI_TITLE_HIGH#" call NWG_fnc_localize};
+        private _title = switch (true) do {
+            case (_depleteByDamage > 0): {"#MED_CLI_BLEEDING_UI_TITLE_DMG#"  call NWG_fnc_localize};
+            case (_depleteByTime == 1):  {"#MED_CLI_BLEEDING_UI_TITLE_LOW#"  call NWG_fnc_localize};
+            case (_depleteByTime == 2):  {"#MED_CLI_BLEEDING_UI_TITLE_MID#"  call NWG_fnc_localize};
+            case (_depleteByTime == 4):  {"#MED_CLI_BLEEDING_UI_TITLE_HIGH#" call NWG_fnc_localize};
             default {""};//Shouldn't happen
         };
         private _timeInfo = format [
