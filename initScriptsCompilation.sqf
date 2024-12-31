@@ -105,6 +105,8 @@ _clientModules pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additional
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additionalWeaponCommon.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additionalWeaponCommon.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\additionalWeapon\additionalWeaponFunctions.sqf" call NWG_fnc_compile);
+//antiAbuse
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\antiAbuse\antiAbuse.sqf" call NWG_fnc_compile);
 //engineering
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\engineering\engineering.sqf" call NWG_fnc_compile);
 //inventoryManager
