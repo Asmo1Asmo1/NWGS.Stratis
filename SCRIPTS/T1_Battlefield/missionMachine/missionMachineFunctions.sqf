@@ -105,6 +105,12 @@ NWG_fnc_mmGetMissionDifficulty = {
     NWG_MIS_SER_missionInfo getOrDefault ["Difficulty",MISSION_DIFFICULTY_NORM]
 };
 
+//Returns mission pos
+//returns: [pos,rad]
+NWG_fnc_mmGetMissionPos = {
+    [(NWG_MIS_SER_missionInfo getOrDefault ["Position",[0,0,0]]),(NWG_MIS_SER_missionInfo getOrDefault ["Radius",0])]
+};
+
 //Returns if this unit is currently in the base area
 //params: _unit - object
 //returns: boolean

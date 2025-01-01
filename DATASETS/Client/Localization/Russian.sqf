@@ -15,6 +15,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#WORLD_NAME_BOOTCAMP#","Лагерь"],
     ["#WORLD_NAME_VR#","VR"],
     ["#WORLD_NAME_UNKNOWN#","Неизвест."],
+
     //T2_UserInteraction
     //actionsInVehicle
     ["#AV_JUMP_OUT_TITLE#","Выпрыгнуть"],
@@ -22,6 +23,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AV_SEAT_SWITCH_PREV_TITLE#","Предыдущее место"],
     ["#AV_ALL_WHEEL_TITLE_ON#","Полный привод ВКЛ"],
     ["#AV_ALL_WHEEL_TITLE_OFF#","Полный привод ВЫКЛ"],
+    //actionsItems
+    ["#AI_CAMP_TITLE#","Развернуть лагерь"],
     //actionsKeybind
     ["#AK_EARPLUGS_ON#","Беруши надеты"],
     ["#AK_EARPLUGS_OFF#","Беруши сняты"],
@@ -129,6 +132,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["SAVE NAME","ИМЯ СОХРАНЕНИЯ"],
     ["Save","Сохранить"],
     ["Hide","Скрыть"],
+
     //T3_Economics
     //lootMission
     ["#LS_ACTION_LOOT_TITLE#","Забрать добычу"],

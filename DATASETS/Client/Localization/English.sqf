@@ -23,6 +23,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AV_SEAT_SWITCH_PREV_TITLE#","Previous seat"],
     ["#AV_ALL_WHEEL_TITLE_ON#","All wheel drive ON"],
     ["#AV_ALL_WHEEL_TITLE_OFF#","All wheel drive OFF"],
+    //actionsItems
+    ["#AI_CAMP_TITLE#","Deploy camp"],
     //actionsKeybind
     ["#AK_EARPLUGS_ON#","Earplugs on"],
     ["#AK_EARPLUGS_OFF#","Earplugs off"],
