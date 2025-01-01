@@ -1,0 +1,1 @@
+#define SERVER_COMMAND_PASSWORD "YourPasswordHere"
