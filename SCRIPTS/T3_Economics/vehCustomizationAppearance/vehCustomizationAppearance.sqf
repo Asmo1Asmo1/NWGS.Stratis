@@ -3,7 +3,7 @@
 
     - Uses the same UI as vehCustomizationPylons
     - Uses custom camera view
-    - Does not highlight the current selection (TODO: add maybe?)
+    - Does not highlight the current selection
     @Asmo
 */
 

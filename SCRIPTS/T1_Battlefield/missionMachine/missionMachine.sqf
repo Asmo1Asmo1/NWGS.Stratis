@@ -1,4 +1,5 @@
 #include "..\..\globalDefines.h"
+#include "..\..\secrets.h"
 #include "missionMachineDefines.h"
 
 //================================================================================================================
@@ -1077,8 +1078,7 @@ NWG_MIS_SER_EscapeCompleted = {
 //================================================================================================================
 //Server restart
 NWG_MIS_SER_ServerRestart = {
-    //TODO: Add an actual server restart code here
-    systemChat "Server restart initiated!";
+    SERVER_COMMAND_PASSWORD serverCommand "#shutdown";
 };
 
 //================================================================================================================
