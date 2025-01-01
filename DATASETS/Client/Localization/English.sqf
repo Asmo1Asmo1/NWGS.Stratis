@@ -140,8 +140,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MSHOP_C2I2#","Company (5)"],
     ["#MSHOP_C2I3#","Fire team (8)"],
     ["#MSHOP_CAT3_TITLE#","Vehicle delivery"],
-    ["#MSHOP_MAP_ITEM_HINT#","Mark destination"],
-    ["#MSHOP_MAP_VEHICLE_HINT#","Mark delivery point"],
+    ["#MSHOP_MAP_ITEM_HINT#","Point destination"],
+    ["#MSHOP_MAP_VEHICLE_HINT#","Point where to deliver"],
     //shopVehicles
     // ["#VSHOP_ACTION_TITLE#","Open Shop"],//not used anymore
     ["#VSHOP_SELLER_MONEY_CONST#","€$---"],
