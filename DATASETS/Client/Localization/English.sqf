@@ -140,8 +140,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MSHOP_C2I2#","Company (5)"],
     ["#MSHOP_C2I3#","Fire team (8)"],
     ["#MSHOP_CAT3_TITLE#","Vehicle delivery"],
-    ["#MSHOP_MAP_ITEM_HINT#","Select destination point"],
-    ["#MSHOP_MAP_VEHICLE_HINT#","Select vehicle delivery point"],
+    ["#MSHOP_MAP_ITEM_HINT#","Mark destination"],
+    ["#MSHOP_MAP_VEHICLE_HINT#","Mark delivery point"],
     //shopVehicles
     // ["#VSHOP_ACTION_TITLE#","Open Shop"],//not used anymore
     ["#VSHOP_SELLER_MONEY_CONST#","€$---"],
@@ -222,7 +222,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_CAT_AIR#","Paradrop me, I'll show on the map"],
     ["#TAXI_NO_DROP_POINTS#","Sorry, guess there are none..."],
     ["#TAXI_INV_DROP_POINT#","Failed to drop you"],
-    ["#TAXI_PARADROP_HINT#","Select drop point on the map"],
+    ["#TAXI_PARADROP_HINT#","Where to?"],
     /*Taxi - TAXI_00*/
     ["#TAXI_00_Q_01#","Always good to see new faces"],
     ["#TAXI_00_Q_02#","How's it going, boss?"],

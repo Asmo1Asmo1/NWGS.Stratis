@@ -174,8 +174,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MSHOP_C2I2#","Компания (5)"],
     ["#MSHOP_C2I3#","Отделение (8)"],
     ["#MSHOP_CAT3_TITLE#","Доставка техники"],
-    ["#MSHOP_MAP_ITEM_HINT#","Выберите пункт назначения"],
-    ["#MSHOP_MAP_VEHICLE_HINT#","Выберите точку доставки техники"],
+    ["#MSHOP_MAP_ITEM_HINT#","Отметьте пункт назначения"],
+    ["#MSHOP_MAP_VEHICLE_HINT#","Отметьте куда доставить технику"],
     //shopVehicles
     // ["#VSHOP_ACTION_TITLE#","Открыть Магазин"],//not used anymore
     ["#VSHOP_SELLER_MONEY_CONST#","€$---"],
@@ -256,7 +256,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_CAT_AIR#","Забрось по воздуху, я покажу на карте"],
     ["#TAXI_NO_DROP_POINTS#","Кажется ничего нет..."],
     ["#TAXI_INV_DROP_POINT#","Переброска не удалась"],
-    ["#TAXI_PARADROP_HINT#","Выбери точку на карте"],
+    ["#TAXI_PARADROP_HINT#","Куда?"],
     /*Taxi - TAXI_00*/
     ["#TAXI_00_Q_01#","Всегда приятно видеть новые лица"],
     ["#TAXI_00_Q_02#","Как дела, босс?"],
