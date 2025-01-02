@@ -23,6 +23,12 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AV_SEAT_SWITCH_PREV_TITLE#","Previous seat"],
     ["#AV_ALL_WHEEL_TITLE_ON#","All wheel drive ON"],
     ["#AV_ALL_WHEEL_TITLE_OFF#","All wheel drive OFF"],
+    //actionsItems
+    ["#AI_CAMP_TITLE#","Deploy camp"],
+    ["#AI_CAMP_TO_BASE_TITLE#","Return to base"],
+    ["#AI_CAMP_TO_BASE_ENEMIES#","Taxi: 'Sorry, boss, but there are enemies nearby'"],
+    ["#AI_CAMP_TO_BASE_MONEY_LOW#","Taxi: 'That would be %1. Seems you don't have that'"],
+    ["#AI_SMOKE_TITLE#","Smoke out"],
     //actionsKeybind
     ["#AK_EARPLUGS_ON#","Earplugs on"],
     ["#AK_EARPLUGS_OFF#","Earplugs off"],
@@ -258,13 +264,14 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Taxi - TAXI_HELP_WHO*/
     ["#TAXI_HELP_WHO_Q_01#","They call me a 'taxi driver' or 'taxi' for short|Suits me fine|Don't know what else to tell you|I like tea and I save money to buy me a new car|Meanwhile, I do a straightforward exchange of your funds for my services|Oh, and recently I partnered with a local fella having a plane|So now we're 'taxi airline' too|You should try it, boss, just ask for a paradrop"],
     /*Taxi - TAXI_HELP_TALK*/
-    ["#TAXI_HELP_TALK_Q_01#","You should definitely talk with a bossman inside|Tell him I said hi|There's also a mech guy - awesome fella. Always helps me with my vehicles|You can buy yourself one, of course|But then, it is easier to just ask me for a ride|Cheaper too|Then there's a trader guy, charming lad, you'll like him|Medic and some shady guy on the roof, don't know him honestly|And that's about it"],
+    ["#TAXI_HELP_TALK_Q_01#","You should definitely talk with a bossman inside|Tell him I said hi|There's also a mech guy - awesome fella. Always helps me with my vehicles|You can buy yourself a vehicle too, of course|But then, it is easier to just ask me for a ride|Cheaper too|Then there's a trader guy, charming lad, you'll like him|Medic and some shady guy on the roof, don't know him honestly|And that's about it"],
     /*Taxi - TAXI_HELP_USERFLOW*/
-    ["#TAXI_HELP_USERFLOW_Q_01#","Quite simple, just tell me where to drop you off|I'll calculate the price and do my best to get you there in no time|As for getting back...|Sorry, boss, but you should figure it out yourself|Nothing personal - just a dispute with a management, you know?|The only thing I do is an emergency evac and only if it's a life or death|Even then...|The bossman inside says I do that and don't ask for the money|Like it's a part of the deal|That's all right, I'm not complaining, just saying|A man has to seek for opportunities|So I won't take your money|But I'll take about a half of what you have in stash|It's only fair and doesn't break any rules, right, boss?|Oh, and one more thing - I'll get YOU in once piece|I don't guarantee your equipment will make it|Lost, stuck, was too heavy - no offense and no hard feelings, okay?"],
+    ["#TAXI_HELP_USERFLOW_Q_01#","Quite simple, just tell me where to drop you off|I'll calculate the price and do my best to get you there in no time|As for getting back...|If you grab a sleeping bag and deploy a camp - sure, no problem|But if you don't - sorry, boss, you'll have to figure it out yourself then|Nothing personal, just a safety measure|Speaking of safety|The other thing I do is emergency evac, but only if it's a 'life or death'|And here's the catch|The bossman inside says I do that for free|Like it's a part of the deal|That's all right, no complaints, but I'm just saying|A man has to seek for opportunities|So if you're screwed - call for an evac and I won't take your money|But I'll take about a half of what you have in stash|It's only fair and doesn't break any rules, right, boss?|Oh, and one more thing - I'll get YOU back in one piece|No guarantees your equipment will make it|Fell off, stuck, was too heavy - no offense and no hard feelings, okay?"],
     /*Taxi - TAXI_ADV*/
-    ["#TAXI_ADV_Q_01#","Always plan your exit route.|As much as I like doing my job and getting my cut,|Just as much I want my customers to become regulars.|You know what I mean?"],
+    ["#TAXI_ADV_Q_01#","Always plan your exit route|As much as I like doing my job and getting my cut|Just as much I want my customers to become regulars|You know what I mean?"],
     ["#TAXI_ADV_Q_02#","Don't rush into the fight|If you want me drop you near you squad|Ask them first if it is safe"],
     ["#TAXI_ADV_Q_03#","Always tip your driver|That would be me"],
+    ["#TAXI_ADV_Q_04#","If you find a sleeping bag, you can deploy a camp for yourself and the others|Just make sure you do that away from the enemy lines and our base|And since I know it is a relatively safe route|I'll charge less to drop you off there|And even pick you up as well"],
     ["#TAXI_ADV_A_01#","That is a good wisdom"],
     /*====== MECH =====*/
     /*Mech - logic*/
@@ -446,6 +453,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_ADV_Q_01#","Always communicate and keep your map at hand|Make sure you know where others are|And that they know your position|To avoid friendly fire and provide timely support"],
     ["#COMM_ADV_Q_02#","Keep radio channels busy with info|And free from garbage"],
     ["#COMM_ADV_Q_03#","Don't just rush into the fight|Plan everything beforehand|Make sure you know the number of targets and where they are|Mark routes you will take to approach the target|Prepare the exfil route and backup plan"],
+    ["#COMM_ADV_Q_04#","You can smoke out the crew out of the vehicle|By placing a smoke or regular grenade into its vent intakes|But be careful, you will need to get really close to pull this off"],
     /*====== ROOF =====*/
     /*Roof - Common answers*/
     ["#ROOF_0X_A_BACK3#","Something else"],

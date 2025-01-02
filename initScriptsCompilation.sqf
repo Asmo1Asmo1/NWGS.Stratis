@@ -99,6 +99,14 @@ _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKingFunction
 //actionsInVehicle
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\actionsInVehicle\actionsInVehicle.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\actionsInVehicle\actionsInVehicleFunctions.sqf" call NWG_fnc_compile);
+//actionsItems
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\actionsItemsServer.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\missionMachineConnector.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\ukrepConnector.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\taxiConnector.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\actionsItemsClient.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\taxiConnector.sqf" call NWG_fnc_compile);//Both client and server
+_commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\actionsItemsFunctions.sqf" call NWG_fnc_compile);
 //actionsKeybind
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\actionsKeybind\actionsKeybind.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\actionsKeybind\actionsKeybindFunctions.sqf" call NWG_fnc_compile);

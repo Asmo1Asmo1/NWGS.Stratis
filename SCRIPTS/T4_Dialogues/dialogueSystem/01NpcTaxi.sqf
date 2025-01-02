@@ -29,8 +29,8 @@ NWG_DLG_TAXI_Settings = createHashMapFromArray [
 	["PRICE_SQD_KM",500],
 	["PRICE_VHC_RAW",1000],
 	["PRICE_VHC_KM",500],
-	["PRICE_CMP_RAW",100],
-	["PRICE_CMP_KM",50],
+	["PRICE_CMP_RAW",500],
+	["PRICE_CMP_KM",100],
 	["PRICE_AIR_RAW",5000],
 
 	/*Teleportation*/
@@ -62,7 +62,7 @@ NWG_DLG_TAXI_GenerateDropCategories = {
 
 	_categories pushBack ["#TAXI_CAT_SQD#","TAXI_PS",{NWG_DLG_TAXI_SelectedCat = CAT_SQD}];
 	_categories pushBack ["#TAXI_CAT_VHC#","TAXI_PS",{NWG_DLG_TAXI_SelectedCat = CAT_VHC}];
-	//TODO: Pushback camp category when camp system is implemented
+	_categories pushBack ["#TAXI_CAT_CMP#","TAXI_PS",{NWG_DLG_TAXI_SelectedCat = CAT_CMP}];
 	_categories pushBack ["#TAXI_CAT_AIR#","TAXI_PAY",{NWG_DLG_TAXI_SelectedCat = CAT_AIR}];
 
 	//return
@@ -99,9 +99,12 @@ NWG_DLG_TAXI_GenerateDropPoints = {
 			]}
 		};
 		case CAT_CMP: {
-			//TODO: Implement when camp system is implemented
-			"NWG_DLG_TAXI_GenerateDropPoints: CAT_CMP not implemented" call NWG_fnc_logError;
-			[]
+			private _campMarkers = allMapMarkers select {"PlayerCamp" in _x};
+			_campMarkers apply {[
+				(trim (markerText _x)),
+				"TAXI_PAY",
+				{NWG_DLG_TAXI_SelectedItem = _this}
+			]}
 		};
 		case CAT_AIR: {
 			//Not applicable, should not get here
@@ -153,9 +156,11 @@ NWG_DLG_TAXI_GetPrice = {
 			((((round ((player distance (_vehicles#_i)) / 1000))) * (NWG_DLG_TAXI_Settings get "PRICE_VHC_KM")) + (NWG_DLG_TAXI_Settings get "PRICE_VHC_RAW"))
 		};
 		case CAT_CMP: {
-			//TODO: Implement when camp system is implemented
-			"NWG_DLG_TAXI_GetPrice: CAT_CMP not implemented" call NWG_fnc_logError;
-			0
+			private _campMarkers = allMapMarkers select {"PlayerCamp" in _x};
+			private _i = _campMarkers findIf {(trim (markerText _x)) isEqualTo _item};
+			if (_i == -1) exitWith {NWG_DLG_TAXI_Settings get "PRICE_CMP_RAW"};//Nasty situation, but we will filter it out later
+			//return
+			((((round ((player distance (getMarkerPos (_campMarkers#_i))) / 1000))) * (NWG_DLG_TAXI_Settings get "PRICE_CMP_KM")) + (NWG_DLG_TAXI_Settings get "PRICE_CMP_RAW"))
 		};
 		case CAT_AIR: {
 			NWG_DLG_TAXI_Settings get "PRICE_AIR_RAW"
@@ -207,9 +212,11 @@ NWG_DLG_TAXI_Teleport = {
 			[TTYPE_VHCL,_veh]
 		};
 		case CAT_CMP: {
-			//TODO: Implement when camp system is implemented
-			"NWG_DLG_TAXI_Teleport: CAT_CMP not implemented" call NWG_fnc_logError;
-			[TTYPE_FAIL,-1]
+			private _campMarkers = allMapMarkers select {"PlayerCamp" in _x};
+			private _i = _campMarkers findIf {(trim (markerText _x)) isEqualTo _item};
+			if (_i == -1) exitWith {[TTYPE_FAIL,-1]};
+			private _camp = getMarkerPos [(_campMarkers#_i),true];
+			[TTYPE_POS,_camp]
 		};
 		case CAT_AIR: {
 			[TTYPE_AIR,-1]

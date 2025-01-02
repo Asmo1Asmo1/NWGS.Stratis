@@ -3,6 +3,7 @@ Dialogue records:
 In the format QnA
 Q	Q_ONE	Single question
 	Q_RND	Array of questions to select from randomly
+	Q_RNG	Array of questions to select from randomly with guarantee of not repeating until all questions are used (good for 'advice' dialogues)
 	Q_CND	Array of [{condition},question,...] - whichever returns 'true' first - (_i+1) question will be displayed
 Each question may be of type
 	string - single localization key
@@ -38,7 +39,8 @@ in other words:
 //Defines
 #define Q_ONE 0
 #define Q_RND 1
-#define Q_CND 2
+#define Q_RNG 2
+#define Q_CND 3
 
 #define A_DEF 0
 #define A_CND 1
@@ -213,6 +215,7 @@ NWG_DLG_CLI_LoadNextNode = {
 	private _question = switch (_qType) do {
 		case Q_ONE: {_qBody};
 		case Q_RND: {selectRandom _qBody};
+		case Q_RNG: {[_qBody,"NWG_DLG_CLI_LoadNextNode"] call NWG_fnc_selectRandomGuaranteed};
 		case Q_CND: {
 			private ["_selected"];
 			for "_i" from 0 to ((count _qBody) - 1) step 2 do {

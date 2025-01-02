@@ -354,7 +354,7 @@ NWG_UKREP_PUBLIC_PlaceREL_Object = {
     private _rootObjFilter = switch (_objectType) do {
         case OBJ_TYPE_BLDG: {_object call NWG_fnc_ocGetSameBuildings};
         case OBJ_TYPE_FURN: {_object call NWG_fnc_ocGetSameFurniture};
-        default {[(typeOf _object)]};
+        default {[(typeOf _object),""]};//Support this object type and 'any'
     };
     if (_rootObjFilter isEqualTo []) exitWith {
         (format ["NWG_UKREP_PUBLIC_PlaceREL_Object: Could not find the root object filter for the object %1:%2:%3",_objectType,_object,(typeOf _object)]) call NWG_fnc_logError;

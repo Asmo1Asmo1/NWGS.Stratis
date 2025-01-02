@@ -3,6 +3,7 @@ Dialogue records:
 In the format QnA
 Q	Q_ONE	Single question
 	Q_RND	Array of questions to select from randomly
+	Q_RNG	Array of questions to select from randomly with guarantee of not repeating until all questions are used (good for 'advice' dialogues)
 	Q_CND	Array of [{condition},question,...] - whichever returns 'true' first - (_i+1) question will be displayed
 Each question may be of type
 	string - single localization key
@@ -34,7 +35,8 @@ in other words:
 */
 #define Q_ONE 0
 #define Q_RND 1
-#define Q_CND 2
+#define Q_RNG 2
+#define Q_CND 3
 
 #define A_DEF 0
 #define A_CND 1
@@ -170,10 +172,11 @@ NWG_DialogueTree = createHashMapFromArray [
 	/*Any advice*/
 	[
 		"TAXI_ADV",	[
-			Q_RND,	[
+			Q_RNG,	[
 				"#TAXI_ADV_Q_01#",
 				"#TAXI_ADV_Q_02#",
-				"#TAXI_ADV_Q_03#"
+				"#TAXI_ADV_Q_03#",
+				"#TAXI_ADV_Q_04#"
 			],
 			A_CND,	[
 				{[1,10] call NWG_DLGHLP_Dice},["#TAXI_ADV_A_01#","TAXI_01"],
@@ -381,7 +384,7 @@ NWG_DialogueTree = createHashMapFromArray [
 	/*Any advice*/
 	[
 		"MECH_ADV",	[
-			Q_RND,	[
+			Q_RNG,	[
 				"#MECH_ADV_Q_01#",
 				"#MECH_ADV_Q_02#",
 				"#MECH_ADV_Q_03#",
@@ -489,7 +492,7 @@ NWG_DialogueTree = createHashMapFromArray [
 	/*Any advice - Get advice*/
 	[
 		"TRDR_ADV2",	[
-			Q_RND,	[
+			Q_RNG,	[
 				"#TRDR_ADV2_Q_01#",
 				"#TRDR_ADV2_Q_02#",
 				"#TRDR_ADV2_Q_03#"
@@ -601,7 +604,7 @@ NWG_DialogueTree = createHashMapFromArray [
 	/*Any advice*/
 	[
 		"MEDC_ADV",	[
-			Q_RND,	[
+			Q_RNG,	[
 				"#MEDC_ADV_Q_01#",
 				"#MEDC_ADV_Q_02#",
 				"#MEDC_ADV_Q_03#"
@@ -707,10 +710,11 @@ NWG_DialogueTree = createHashMapFromArray [
 	/*Any advice*/
 	[
 		"COMM_ADV",	[
-			Q_RND,	[
+			Q_RNG,	[
 				"#COMM_ADV_Q_01#",
 				"#COMM_ADV_Q_02#",
-				"#COMM_ADV_Q_03#"
+				"#COMM_ADV_Q_03#",
+				"#COMM_ADV_Q_04#"
 			],
 			A_GEN,	{"COMM_01" call NWG_DLGHLP_GenerateBackExit}/*["COMM_01",NODE_EXIT]*/
 		]
@@ -936,7 +940,7 @@ NWG_DialogueTree = createHashMapFromArray [
 	/*Rumors - selection*/
 	[
 		"ROOF_RUMR",	[
-			Q_RND,	[
+			Q_RNG,	[
 				"#ROOF_RUMR_Q_01#",
 				"#ROOF_RUMR_Q_02#",
 				"#ROOF_RUMR_Q_03#",
@@ -1000,7 +1004,7 @@ NWG_DialogueTree = createHashMapFromArray [
 	/*Any advice*/
 	[
 		"ROOF_ADV",	[
-			Q_RND,	[
+			Q_RNG,	[
 				"#ROOF_ADV_Q_01#",
 				"#ROOF_ADV_Q_02#",
 				"#ROOF_ADV_Q_03#",
