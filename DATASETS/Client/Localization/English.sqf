@@ -28,6 +28,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AI_CAMP_TO_BASE_TITLE#","Return to base"],
     ["#AI_CAMP_TO_BASE_ENEMIES#","Taxi: 'Sorry, boss, but there are enemies nearby'"],
     ["#AI_CAMP_TO_BASE_MONEY_LOW#","Taxi: 'That would be %1. Seems you don't have that'"],
+    ["#AI_SMOKE_TITLE#","Smoke out"],
     //actionsKeybind
     ["#AK_EARPLUGS_ON#","Earplugs on"],
     ["#AK_EARPLUGS_OFF#","Earplugs off"],
@@ -452,6 +453,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_ADV_Q_01#","Always communicate and keep your map at hand|Make sure you know where others are|And that they know your position|To avoid friendly fire and provide timely support"],
     ["#COMM_ADV_Q_02#","Keep radio channels busy with info|And free from garbage"],
     ["#COMM_ADV_Q_03#","Don't just rush into the fight|Plan everything beforehand|Make sure you know the number of targets and where they are|Mark routes you will take to approach the target|Prepare the exfil route and backup plan"],
+    ["#COMM_ADV_Q_04#","You can smoke out the crew out of the vehicle|By placing a smoke or regular grenade into its vent intakes|But be careful, you will need to get really close to pull this off"],
     /*====== ROOF =====*/
     /*Roof - Common answers*/
     ["#ROOF_0X_A_BACK3#","Something else"],
