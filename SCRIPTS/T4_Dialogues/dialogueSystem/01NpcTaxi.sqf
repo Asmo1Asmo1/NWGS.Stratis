@@ -99,10 +99,7 @@ NWG_DLG_TAXI_GenerateDropPoints = {
 			]}
 		};
 		case CAT_CMP: {
-			private _campMarkers = allMapMarkers select {
-				!("_USER_DEFINED" in _x) && {
-				"PlayerCamp" in _x}
-			};
+			private _campMarkers = allMapMarkers select {"PlayerCamp" in _x};
 			_campMarkers apply {[
 				(trim (markerText _x)),
 				"TAXI_PAY",
@@ -159,7 +156,7 @@ NWG_DLG_TAXI_GetPrice = {
 			((((round ((player distance (_vehicles#_i)) / 1000))) * (NWG_DLG_TAXI_Settings get "PRICE_VHC_KM")) + (NWG_DLG_TAXI_Settings get "PRICE_VHC_RAW"))
 		};
 		case CAT_CMP: {
-			private _campMarkers = allMapMarkers select {!("_USER_DEFINED" in _x) && {"PlayerCamp" in _x}};
+			private _campMarkers = allMapMarkers select {"PlayerCamp" in _x};
 			private _i = _campMarkers findIf {(trim (markerText _x)) isEqualTo _item};
 			if (_i == -1) exitWith {NWG_DLG_TAXI_Settings get "PRICE_CMP_RAW"};//Nasty situation, but we will filter it out later
 			//return
@@ -215,7 +212,7 @@ NWG_DLG_TAXI_Teleport = {
 			[TTYPE_VHCL,_veh]
 		};
 		case CAT_CMP: {
-			private _campMarkers = allMapMarkers select {!("_USER_DEFINED" in _x) && {"PlayerCamp" in _x}};
+			private _campMarkers = allMapMarkers select {"PlayerCamp" in _x};
 			private _i = _campMarkers findIf {(trim (markerText _x)) isEqualTo _item};
 			if (_i == -1) exitWith {[TTYPE_FAIL,-1]};
 			private _camp = getMarkerPos [(_campMarkers#_i),true];

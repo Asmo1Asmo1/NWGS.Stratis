@@ -103,7 +103,9 @@ _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\actionsInVehicle\actionsI
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\actionsItemsServer.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\missionMachineConnector.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\ukrepConnector.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\taxiConnector.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\actionsItemsClient.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\taxiConnector.sqf" call NWG_fnc_compile);//Both client and server
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\actionsItemsFunctions.sqf" call NWG_fnc_compile);
 //actionsKeybind
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\actionsKeybind\actionsKeybind.sqf" call NWG_fnc_compile);

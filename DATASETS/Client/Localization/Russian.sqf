@@ -25,6 +25,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AV_ALL_WHEEL_TITLE_OFF#","Полный привод ВЫКЛ"],
     //actionsItems
     ["#AI_CAMP_TITLE#","Развернуть лагерь"],
+    ["#AI_CAMP_TO_BASE_TITLE#","Вернуться на базу"],
+    ["#AI_CAMP_TO_BASE_ENEMIES#","Таксист: 'Прости, босс, но там рядом противник'"],
+    ["#AI_CAMP_TO_BASE_MONEY_LOW#","Таксист: 'Это выйдет на %1. Похоже у тебя не хватает'"],
     //actionsKeybind
     ["#AK_EARPLUGS_ON#","Беруши надеты"],
     ["#AK_EARPLUGS_OFF#","Беруши сняты"],
