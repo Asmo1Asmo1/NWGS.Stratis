@@ -7,7 +7,9 @@
 //================================================================================================================
 //Defines
 #define SAVEID_CAMP "ItemAction_CampDeploy"
-#define SAVEID_SMOKE "ItemAction_SmokeOut"
+#define SAVEID_SMOK "ItemAction_SmokeOut"
+#define SAVEID_REPR "ItemAction_Repair"
+#define SAVEID_FLIP "ItemAction_VehFlip"
 
 //================================================================================================================
 //================================================================================================================
@@ -18,6 +20,7 @@ NWG_AI_Settings = createHashMapFromArray [
 	["CAMP_ICON","a3\ui_f_oldman\data\igui\cfg\holdactions\holdaction_sleep2_ca.paa"],
 	["CAMP_PRIORITY",0],
 	["CAMP_DURATION",8],
+	["CAMP_AUTOSHOW",false],
 	["CAMP_ANIMATION","Acts_carFixingWheel"],
 	["CAMP_PLAYER_BASE_GLOBAL_NAME","PlayerBase"],
 	["CAMP_PLAYER_BASE_RADIUS",100],
@@ -28,7 +31,27 @@ NWG_AI_Settings = createHashMapFromArray [
 	["SMOKE_ICON","a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"],
 	["SMOKE_PRIORITY",0],
 	["SMOKE_DURATION",5],
+	["SMOKE_AUTOSHOW",false],
 	["SMOKE_ANIMATION","Act_Alien_Gesture"],
+
+	["REPAIR_ITEM","ToolKit"],
+    ["REPAIR_TITLE","#AI_REPAIR_TITLE#"],
+    ["REPAIR_ICON","a3\ui_f\data\igui\cfg\actions\repair_ca.paa"],
+    ["REPAIR_PRIORITY",20],
+    ["REPAIR_DURATION",12],
+	["REPAIR_AUTOSHOW",true],
+	["REPAIR_ANIMATION","Acts_carFixingWheel"],
+    ["REPAIR_MATRIX",[
+        ["hull","body","hitera","glass","light", "" ],/*"" - all parts, must be last as it gives 'true' to any part*/
+        [0.50,  0.50,  0.97,    0.97,   0.97,   0.33]
+    ]],
+
+    ["UNFLIP_ITEM","ToolKit"],
+    ["UNFLIP_TITLE","#AI_UNFLIP_TITLE#"],
+    ["UNFLIP_ICON","a3\ui_f\data\igui\cfg\actions\repair_ca.paa"],
+    ["UNFLIP_PRIORITY",20],
+    ["UNFLIP_DURATION",12],
+	["UNFLIP_AUTOSHOW",true],
 
 	["",0]
 ];
@@ -68,7 +91,8 @@ NWG_AI_ReloadActions = {
 				/*_condition:*/"call NWG_AI_CampDeploy_Condition",
 				/*_onStarted:*/{call NWG_AI_CampDeploy_OnStarted},
 				/*_onInterrupted:*/{call NWG_AI_CampDeploy_OnInterrupted},
-				/*_onCompleted:*/{call NWG_AI_CampDeploy_OnCompleted}
+				/*_onCompleted:*/{call NWG_AI_CampDeploy_OnCompleted},
+				/*_autoShow:*/(NWG_AI_Settings get "CAMP_AUTOSHOW")
 			] call NWG_AI_AssignAction;
 		};
 		case (!_hasItem && _isActionAssigned): {SAVEID_CAMP call NWG_AI_RemoveAction};//Remove action
@@ -77,12 +101,12 @@ NWG_AI_ReloadActions = {
 
 	//Smoke out
 	_hasItem = ((NWG_AI_Settings get "SMOKE_ITEMS_INV") findIf {_x in _flattenLoadOut}) != -1;
-	_isActionAssigned = SAVEID_SMOKE call NWG_AI_IsActionAssigned;
+	_isActionAssigned = SAVEID_SMOK call NWG_AI_IsActionAssigned;
 	switch (true) do {
 		case (_hasItem && !_isActionAssigned): {
 			//Assign action
 			[
-				/*_saveID:*/SAVEID_SMOKE,
+				/*_saveID:*/SAVEID_SMOK,
 				/*_title:*/(NWG_AI_Settings get "SMOKE_TITLE"),
 				/*_icon:*/(NWG_AI_Settings get "SMOKE_ICON"),
 				/*_priority:*/(NWG_AI_Settings get "SMOKE_PRIORITY"),
@@ -90,22 +114,74 @@ NWG_AI_ReloadActions = {
 				/*_condition:*/"call NWG_AI_SmokeOut_Condition",
 				/*_onStarted:*/{call NWG_AI_SmokeOut_OnStarted},
 				/*_onInterrupted:*/{call NWG_AI_SmokeOut_OnInterrupted},
-				/*_onCompleted:*/{call NWG_AI_SmokeOut_OnCompleted}
+				/*_onCompleted:*/{call NWG_AI_SmokeOut_OnCompleted},
+				/*_autoShow:*/(NWG_AI_Settings get "SMOKE_AUTOSHOW")
 			] call NWG_AI_AssignAction;
 		};
-		case (!_hasItem && _isActionAssigned): {SAVEID_SMOKE call NWG_AI_RemoveAction};//Remove action
+		case (!_hasItem && _isActionAssigned): {SAVEID_SMOK call NWG_AI_RemoveAction};//Remove action
+		default {};//Do nothing
+	};
+
+	//Repair
+	_hasItem = (NWG_AI_Settings get "REPAIR_ITEM") in _flattenLoadOut;
+	_isActionAssigned = SAVEID_REPR call NWG_AI_IsActionAssigned;
+	switch (true) do {
+		case (_hasItem && !_isActionAssigned): {
+			//Hack-in short-circuit condition check for lowest down-to value (save some resources)
+			(NWG_AI_Settings get "REPAIR_MATRIX") params ["","_downToRules"];
+			private _lowest = 1;
+			{if (_x < _lowest) then {_lowest = _x}} forEach _downToRules;
+			NWG_AI_VehicleFix_lowestDownTo = _lowest;
+
+			//Assign action
+			[
+				/*_saveID:*/SAVEID_REPR,
+				/*_title:*/(NWG_AI_Settings get "REPAIR_TITLE"),
+				/*_icon:*/(NWG_AI_Settings get "REPAIR_ICON"),
+				/*_priority:*/(NWG_AI_Settings get "REPAIR_PRIORITY"),
+				/*_duration:*/(NWG_AI_Settings get "REPAIR_DURATION"),
+				/*_condition:*/"call NWG_AI_VehicleFix_Condition",
+				/*_onStarted:*/{call NWG_AI_VehicleFix_OnStarted},
+				/*_onInterrupted:*/{call NWG_AI_VehicleFix_OnInterrupted},
+				/*_onCompleted:*/{call NWG_AI_VehicleFix_OnCompleted},
+				/*_autoShow:*/(NWG_AI_Settings get "REPAIR_AUTOSHOW")
+			] call NWG_AI_AssignAction;
+		};
+		case (!_hasItem && _isActionAssigned): {SAVEID_REPR call NWG_AI_RemoveAction};//Remove action
+		default {};//Do nothing
+	};
+
+	//Unflip
+	_hasItem = (NWG_AI_Settings get "UNFLIP_ITEM") in _flattenLoadOut;
+	_isActionAssigned = SAVEID_FLIP call NWG_AI_IsActionAssigned;
+	switch (true) do {
+		case (_hasItem && !_isActionAssigned): {
+			//Assign action
+			[
+				/*_saveID:*/SAVEID_FLIP,
+				/*_title:*/(NWG_AI_Settings get "UNFLIP_TITLE"),
+				/*_icon:*/(NWG_AI_Settings get "UNFLIP_ICON"),
+				/*_priority:*/(NWG_AI_Settings get "UNFLIP_PRIORITY"),
+				/*_duration:*/(NWG_AI_Settings get "UNFLIP_DURATION"),
+				/*_condition:*/"call NWG_AI_VehicleUnflip_Condition",
+				/*_onStarted:*/{call NWG_AI_VehicleFix_OnStarted},//Reuse the same animation
+				/*_onInterrupted:*/{call NWG_AI_VehicleFix_OnInterrupted},//Reuse the same interruption
+				/*_onCompleted:*/{call NWG_AI_VehicleUnflip_OnCompleted},
+				/*_autoShow:*/(NWG_AI_Settings get "UNFLIP_AUTOSHOW")
+			] call NWG_AI_AssignAction;
+		};
+		case (!_hasItem && _isActionAssigned): {SAVEID_FLIP call NWG_AI_RemoveAction};//Remove action
 		default {};//Do nothing
 	};
 };
 
 NWG_AI_IsActionAssigned = {
 	// private _saveID = _this;
-	private _actionID = player getVariable [_this,-1];
-	_actionID != -1;
+	(player getVariable [_this,-1]) != -1
 };
 
 NWG_AI_AssignAction = {
-	params ["_saveID","_title","_icon","_priority","_duration","_condition","_onStarted","_onInterrupted","_onCompleted"];
+	params ["_saveID","_title","_icon","_priority","_duration","_condition","_onStarted","_onInterrupted","_onCompleted","_autoShow"];
 	private _actionID = [
 		player,                         // Object the action is attached to
 		(_title call NWG_fnc_localize), // Title of the action
@@ -122,7 +198,7 @@ NWG_AI_AssignAction = {
 		_priority,                      // Priority
 		false,                          // Remove on completion
 		false,                          // Show in unconscious state
-		false                           // Auto show on screen
+		_autoShow                       // Auto show on screen
 	] call BIS_fnc_holdActionAdd;
 	player setVariable [_saveID,_actionID];
 };
@@ -130,7 +206,7 @@ NWG_AI_AssignAction = {
 NWG_AI_RemoveAction = {
 	// private _saveID = _this;
 	private _actionID = player getVariable [_this,-1];
-	if (_actionID == -1) exitWith {};
+	if (_actionID == -1) exitWith {};//Do nothing if action is not assigned
 	player removeAction _actionID;
 	player setVariable [_this,-1];
 };
@@ -231,6 +307,62 @@ NWG_AI_SmokeOut_OnCompleted = {
 		if ((count (crew _veh)) == 0) exitWith {};//Vehicle is empty now
 		_veh remoteExec ["NWG_fnc_aiSmokeOut",_veh];
 	};
+};
+
+//================================================================================================================
+//================================================================================================================
+//Vehicle fix (Repair action)
+NWG_AI_VehicleFix_lowestDownTo = -1;
+NWG_AI_VehicleFix_Condition = {
+    //Simple checks
+    if (isNull (call NWG_fnc_radarGetVehInFront)) exitWith {false};
+
+    //Short-circuit check for undamaged vehicles
+    (getAllHitPointsDamage (call NWG_fnc_radarGetVehInFront)) params ["_vehParts","","_vehDamages"];
+    if ((_vehDamages findIf {_x > NWG_AI_VehicleFix_lowestDownTo}) == -1) exitWith {false};
+
+    //Complex check for vehicle parts
+    (NWG_AI_Settings get "REPAIR_MATRIX") params ["_partsRules","_downToRules"];
+    private _result = false;
+    {
+        if (_x > (_downToRules param [(_partsRules findIf {_x in (_vehParts#_forEachIndex)}),0])) exitWith {_result = true};
+    } forEach _vehDamages;
+    _result
+};
+NWG_AI_VehicleFix_OnStarted = {
+    player playMoveNow (NWG_AI_Settings get "REPAIR_ANIMATION");
+};
+NWG_AI_VehicleFix_OnInterrupted = {
+    if (isNull player || {!alive player}) exitWith {};//Prevent errors
+    if (!isNil "NWG_fnc_medIsWounded" && {player call NWG_fnc_medIsWounded}) exitWith {};//Game logic will handle this
+    call NWG_AI_ResetAnimation;
+};
+NWG_AI_VehicleFix_OnCompleted = {
+    call NWG_AI_ResetAnimation;
+    private _vehicle = call NWG_fnc_radarGetVehInFront;
+    if (isNull _vehicle) exitWith {};
+
+    (getAllHitPointsDamage (call NWG_fnc_radarGetVehInFront)) params ["_vehParts","","_vehDamages"];
+    (NWG_AI_Settings get "REPAIR_MATRIX") params ["_partsRules","_downToRules"];
+    private _fixDownTo = 0;
+    {
+        _fixDownTo = _downToRules param [(_partsRules findIf {_x in (_vehParts#_forEachIndex)}),0];
+        if (_x > _fixDownTo) then {_vehicle setHitIndex [_forEachIndex,_fixDownTo]};
+    } forEach _vehDamages;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Vehicle unflip
+NWG_AI_VehicleUnflip_Condition = {
+    if (isNull (call NWG_fnc_radarGetVehInFront)) exitWith {false};
+    ((vectorUp (call NWG_fnc_radarGetVehInFront)) select 2) < 0.5
+};
+NWG_AI_VehicleUnflip_OnCompleted = {
+    call NWG_AI_ResetAnimation;
+    private _vehicle = call NWG_fnc_radarGetVehInFront;
+    if (isNull _vehicle) exitWith {};
+    [player,_vehicle] call BIS_fnc_unflipThing;
 };
 
 //================================================================================================================

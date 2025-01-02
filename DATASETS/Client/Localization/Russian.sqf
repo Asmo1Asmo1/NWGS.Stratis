@@ -29,12 +29,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AI_CAMP_TO_BASE_ENEMIES#","Таксист: 'Прости, босс, но там рядом противник'"],
     ["#AI_CAMP_TO_BASE_MONEY_LOW#","Таксист: 'Это выйдет на %1. Похоже у тебя не хватает'"],
     ["#AI_SMOKE_TITLE#","Выкурить"],
+    ["#AI_REPAIR_TITLE#","Ремонт"],
+    ["#AI_UNFLIP_TITLE#","Перевернуть"],
     //actionsKeybind
     ["#AK_EARPLUGS_ON#","Беруши надеты"],
     ["#AK_EARPLUGS_OFF#","Беруши сняты"],
-    //engineering
-    ["#ENG_REPAIR_TITLE#","Ремонт"],
-    ["#ENG_UNFLIP_TITLE#","Перевернуть"],
     //inventoryUI
     ["#INV_BUTTON_LOOT_TOOLTIP#","Отправить в хранилище"],
     ["#INV_BUTTON_WEAP_TOOLTIP#","Сменить оружие"],

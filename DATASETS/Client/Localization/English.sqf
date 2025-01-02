@@ -29,12 +29,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AI_CAMP_TO_BASE_ENEMIES#","Taxi: 'Sorry, boss, but there are enemies nearby'"],
     ["#AI_CAMP_TO_BASE_MONEY_LOW#","Taxi: 'That would be %1. Seems you don't have that'"],
     ["#AI_SMOKE_TITLE#","Smoke out"],
+    ["#AI_REPAIR_TITLE#","Repair"],
+    ["#AI_UNFLIP_TITLE#","Unflip"],
     //actionsKeybind
     ["#AK_EARPLUGS_ON#","Earplugs on"],
     ["#AK_EARPLUGS_OFF#","Earplugs off"],
-    //engineering
-    ["#ENG_REPAIR_TITLE#","Repair"],
-    ["#ENG_UNFLIP_TITLE#","Unflip"],
     //inventoryUI
     ["#INV_BUTTON_LOOT_TOOLTIP#","Loot to storage"],
     ["#INV_BUTTON_WEAP_TOOLTIP#","Switch weapon"],
