@@ -173,7 +173,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			Q_RND,	[
 				"#TAXI_ADV_Q_01#",
 				"#TAXI_ADV_Q_02#",
-				"#TAXI_ADV_Q_03#"
+				"#TAXI_ADV_Q_03#",
+				"#TAXI_ADV_Q_04#"
 			],
 			A_CND,	[
 				{[1,10] call NWG_DLGHLP_Dice},["#TAXI_ADV_A_01#","TAXI_01"],
