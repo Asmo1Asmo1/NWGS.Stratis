@@ -12,6 +12,8 @@
 #define STATE_GET_CODE 0
 #define STATE_SET_CODE 1
 
+#define STATE_DIRTY "is_dirty"
+
 //================================================================================================================
 //================================================================================================================
 //Settings
@@ -32,8 +34,9 @@ NWG_PSH_SER_Settings = createHashMapFromArray [
 /*
 	State DB syncing
 */
-	["FUNC_LOAD_STATE_BY_ID",{nil}],//TODO: Add database connector in future versions
-	["FUNC_SAVE_STATE_BY_ID",{nil}],//TODO: Add database connector in future versions
+	["FUNC_NEW_STATE_BY_ID", {_this call NWG_fnc_dbCreatePlayer}],//params: _playerID | returns: boolean
+	["FUNC_LOAD_STATE_BY_ID",{_this call NWG_fnc_dbGetPlayer}],   //params: _playerID | returns: hashmap or false in case of error
+	["FUNC_SAVE_STATE_BY_ID",{_this call NWG_fnc_dbUpdatePlayer}],//params: [_playerID, _hashmap] | returns: boolean
 
 	["",0]
 ];
@@ -93,6 +96,12 @@ NWG_PSH_SER_OnStateApplyRequest = {
 			_stored
 		};
 
+		//Create new state in database (can not use it though - it will be completely empty resulting in unit undress and money 0)
+		private _ok = _playerId call (NWG_PSH_SER_Settings get "FUNC_NEW_STATE_BY_ID");
+		if (!_ok) then {
+			(format ["NWG_PSH_SER_OnStateApplyRequest: Failed to create new state in database for player '%1' with id '%2'",(name _player),_playerId]) call NWG_fnc_logError;
+		};
+
 		//else - return false
 		false
 	};
@@ -138,6 +147,7 @@ NWG_PSH_SER_OnStateUpdateRequest = {
 	{
 		_playerState set [_x,(_player call (_y#STATE_GET_CODE))];
 	} forEach (NWG_PSH_SER_Settings get "STATES_TO_HOLD");
+	_playerState set [STATE_DIRTY,true];
 	NWG_PSH_SER_playerStateCache set [_playerId,_playerState];
 
 	//return
@@ -148,26 +158,11 @@ NWG_PSH_SER_OnStateUpdateRequest = {
 //================================================================================================================
 //States sync
 NWG_PSH_SER_SyncStates = {
+	private _ok = true;
 	{
-		[_x,_y] call (NWG_PSH_SER_Settings get "FUNC_SAVE_STATE_BY_ID");
+		if !(_y get STATE_DIRTY) then {continue};//No need to re-write state if there were no changes
+		_ok = [_x,_y] call (NWG_PSH_SER_Settings get "FUNC_SAVE_STATE_BY_ID");
+		if (!_ok) then {(format ["NWG_PSH_SER_SyncStates: Failed to save state for player with id '%1'",_x]) call NWG_fnc_logError};
+		_y set [STATE_DIRTY,false];
 	} forEach NWG_PSH_SER_playerStateCache;
-};
-
-//================================================================================================================
-//================================================================================================================
-//State get/set for other modules
-NWG_PSH_SER_GetState = {
-	params ["_playerId","_stateName"];
-	private _playerState = NWG_PSH_SER_playerStateCache get _playerId;
-	if (isNil "_playerState") exitWith {false};
-	_playerState getOrDefault [_stateName,false]
-};
-
-NWG_PSH_SER_SetState = {
-	params ["_playerId","_stateName","_stateValue"];
-	private _playerState = NWG_PSH_SER_playerStateCache get _playerId;
-	if (isNil "_playerState") exitWith {false};
-	_playerState set [_stateName,_stateValue];
-	NWG_PSH_SER_playerStateCache set [_playerId,_playerState];
-	true
 };

@@ -40,6 +40,10 @@ if (_isDevBuild) then {_commonFunctions pushBack ("SCRIPTS\T0_Core\commonTestFun
 _serverModules pushBack ("SCRIPTS\T0_Core\eventSystem\eventSystem.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T0_Core\eventSystem\eventSystem.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T0_Core\eventSystem\eventSystemFunctions.sqf" call NWG_fnc_compile);
+//remoteQueue
+_serverModules pushBack ("SCRIPTS\T0_Core\remoteQueue\remoteQueueServer.sqf" call NWG_fnc_compile);
+// _clientModules pushBack ("SCRIPTS\T0_Core\remoteQueue\remoteQueueClient.sqf" call NWG_fnc_compile);//Moved to the end of compilation sequence (must be executed last)
+_commonFunctions pushBack ("SCRIPTS\T0_Core\remoteQueue\remoteQueueFunctions.sqf" call NWG_fnc_compile);
 
 //T1_Battlefield
 //advancedCombat
@@ -151,14 +155,6 @@ if (_isDevBuild || MEDICINE_TESTS_ON_DEDICATED) then {_clientModules pushBack ("
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadar.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadarFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadarTests.sqf" call NWG_fnc_compile)};
-//playerStateHolder
-_clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderClient.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderServer.sqf" call NWG_fnc_compile);
-_commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderFunctions.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\addonDepleterServer.sqf" call NWG_fnc_compile);
-_clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\addonEventsConnectorClient.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\addonLoadoutHelperServer.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\addonMissionMachineConnectorServer.sqf" call NWG_fnc_compile);
 //playerTraits
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerTraits\playerTraits.sqf" call NWG_fnc_compile);
 //stickyBombs
@@ -191,6 +187,11 @@ _serverModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorization
 _clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehs.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsTests.sqf" call NWG_fnc_compile)};
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsFunctions.sqf" call NWG_fnc_compile);
+//database
+_serverModules pushBack ("SCRIPTS\T3_Economics\database\databaseCommon.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\database\databasePlayers.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\database\databasePrices.sqf" call NWG_fnc_compile);
+_serverFunctions pushBack ("SCRIPTS\T3_Economics\database\databaseFunctions.sqf" call NWG_fnc_compile);
 //economicsTest
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T3_Economics\economicsTest\economicsTest.sqf" call NWG_fnc_compile)};
 //lootMission
@@ -210,6 +211,14 @@ if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\lootStorag
 //moneyTransfer
 _clientModules pushBack ("SCRIPTS\T3_Economics\moneyTransfer\moneyTransfer.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T3_Economics\moneyTransfer\moneyTransferFunctions.sqf" call NWG_fnc_compile);
+//playerStateHolder
+_clientModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\playerStateHolderClient.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\playerStateHolderServer.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\playerStateHolder\playerStateHolderFunctions.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonDepleterServer.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonEventsConnectorClient.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonLoadoutHelperServer.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonMissionMachineConnectorServer.sqf" call NWG_fnc_compile);
 //shopItems
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsServerSide.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\missionMachineConnector.sqf" call NWG_fnc_compile);
@@ -270,6 +279,10 @@ _clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\04NpcMedc.sqf" cal
 _clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\05NpcComm.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemTests.sqf" call NWG_fnc_compile)};
+
+//T0_Core
+//remoteQueue
+_clientModules pushBack ("SCRIPTS\T0_Core\remoteQueue\remoteQueueClient.sqf" call NWG_fnc_compile);//Must be executed last
 
 //================================================================================================================
 //================================================================================================================

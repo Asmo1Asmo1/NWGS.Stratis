@@ -23,7 +23,7 @@ NWG_PSH_MMC_OnMissionStateChanged = {
     // params ["_oldState","_newState"];
     params ["","_newState"];
 	if (_newState in (NWG_PSH_MMC_Settings get "SYNC_ON_STATES")) then {
-		[] spawn NWG_fnc_pshSyncRequest;
+		call NWG_fnc_pshSyncRequest;
 	};
 };
 
