@@ -34,9 +34,9 @@ NWG_PSH_SER_Settings = createHashMapFromArray [
 /*
 	State DB syncing
 */
-	["FUNC_NEW_STATE_BY_ID", {true}],//TODO: Add database connector in future versions
-	["FUNC_LOAD_STATE_BY_ID",{nil}],//TODO: Add database connector in future versions
-	["FUNC_SAVE_STATE_BY_ID",{true}],//TODO: Add database connector in future versions
+	["FUNC_NEW_STATE_BY_ID", {_this call NWG_fnc_dbCreatePlayer}],//params: _playerID | returns: boolean
+	["FUNC_LOAD_STATE_BY_ID",{_this call NWG_fnc_dbGetPlayer}],   //params: _playerID | returns: hashmap or false in case of error
+	["FUNC_SAVE_STATE_BY_ID",{_this call NWG_fnc_dbUpdatePlayer}],//params: [_playerID, _hashmap] | returns: boolean
 
 	["",0]
 ];

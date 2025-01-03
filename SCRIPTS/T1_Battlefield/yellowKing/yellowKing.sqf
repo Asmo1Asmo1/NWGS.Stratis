@@ -549,7 +549,6 @@ NWG_YK_SPEC_SelectSpecialsForTarget = {
         if (_i == -1) exitWith {};
         _result pushBack [SPECIAL_INFSTORM,_i,_actualTarget];
     };
-    halt;
 
     //return
     _result

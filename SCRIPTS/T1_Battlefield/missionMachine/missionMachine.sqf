@@ -1093,6 +1093,7 @@ NWG_MIS_SER_EscapeCompleted = {
 //================================================================================================================
 //Server restart
 NWG_MIS_SER_ServerRestart = {
+    "NWG_MIS_SER_ServerRestart: Server restart requested" call NWG_fnc_logInfo;
     SERVER_COMMAND_PASSWORD serverCommand "#shutdown";
 };
 
