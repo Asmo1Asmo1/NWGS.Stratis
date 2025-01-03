@@ -155,14 +155,6 @@ if (_isDevBuild || MEDICINE_TESTS_ON_DEDICATED) then {_clientModules pushBack ("
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadar.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadarFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadarTests.sqf" call NWG_fnc_compile)};
-//playerStateHolder
-_clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderClient.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderServer.sqf" call NWG_fnc_compile);
-_commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\playerStateHolderFunctions.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\addonDepleterServer.sqf" call NWG_fnc_compile);
-_clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\addonEventsConnectorClient.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\addonLoadoutHelperServer.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T2_UserInteraction\playerStateHolder\addonMissionMachineConnectorServer.sqf" call NWG_fnc_compile);
 //playerTraits
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerTraits\playerTraits.sqf" call NWG_fnc_compile);
 //stickyBombs
@@ -214,6 +206,14 @@ if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\lootStorag
 //moneyTransfer
 _clientModules pushBack ("SCRIPTS\T3_Economics\moneyTransfer\moneyTransfer.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T3_Economics\moneyTransfer\moneyTransferFunctions.sqf" call NWG_fnc_compile);
+//playerStateHolder
+_clientModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\playerStateHolderClient.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\playerStateHolderServer.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\playerStateHolder\playerStateHolderFunctions.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonDepleterServer.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonEventsConnectorClient.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonLoadoutHelperServer.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonMissionMachineConnectorServer.sqf" call NWG_fnc_compile);
 //shopItems
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsServerSide.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\missionMachineConnector.sqf" call NWG_fnc_compile);
