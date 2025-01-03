@@ -190,6 +190,7 @@ _commonFunctions pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizati
 //database
 _serverModules pushBack ("SCRIPTS\T3_Economics\database\databaseCommon.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\database\databasePlayers.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\database\databasePrices.sqf" call NWG_fnc_compile);
 _serverFunctions pushBack ("SCRIPTS\T3_Economics\database\databaseFunctions.sqf" call NWG_fnc_compile);
 //economicsTest
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T3_Economics\economicsTest\economicsTest.sqf" call NWG_fnc_compile)};

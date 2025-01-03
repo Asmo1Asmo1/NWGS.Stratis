@@ -37,6 +37,16 @@ NWG_ISHOP_MMC_OnMissionStateChanged = {
                     "NWG_ISHOP_MMC_OnMissionStateChanged: Persistent items are invalid" call NWG_fnc_logError;
                 };
             };
+
+            //Download prices from DB
+            private _pricesChart = call NWG_fnc_dbLoadItemPrices;
+            if (_pricesChart isEqualTo false) exitWith {
+                "NWG_ISHOP_MMC_OnMissionStateChanged: Failed to load items prices" call NWG_fnc_logError;
+            };
+            private _ok = _pricesChart call NWG_fnc_ishopUploadPrices;
+            if !(_ok) then {
+                "NWG_ISHOP_MMC_OnMissionStateChanged: Failed to upload items prices" call NWG_fnc_logError;
+            };
         };
 
         /*Mission building economy state - Add items to dynamic shop items*/
@@ -60,6 +70,20 @@ NWG_ISHOP_MMC_OnMissionStateChanged = {
 
             //Add to dynamic shop items
             (flatten _sets) call NWG_fnc_ishopAddDynamicItems;
+        };
+
+        /*Server reset/restart - save prices to DB before shutting down*/
+        case MSTATE_RESET;
+        case MSTATE_SERVER_RESTART: {
+            //Upload prices to DB
+            private _pricesChart = call NWG_fnc_ishopDownloadPrices;
+            if (_pricesChart isEqualTo false) exitWith {
+                "NWG_ISHOP_MMC_OnMissionStateChanged: Failed to get items prices" call NWG_fnc_logError;
+            };
+            private _ok = _pricesChart call NWG_fnc_dbSaveItemPrices;
+            if !(_ok) then {
+                "NWG_ISHOP_MMC_OnMissionStateChanged: Failed to save items prices" call NWG_fnc_logError;
+            };
         };
 
         default {};

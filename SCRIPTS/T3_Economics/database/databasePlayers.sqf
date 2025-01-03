@@ -1,17 +1,15 @@
 #include "..\..\globalDefines.h"
+#include "databaseDefines.h"
 /*
 	Database for players
-	note: In order to work, every column except for the ID must be string (VARCHAR/TEXT/etc.) and NULL allowed
-	note: It uses syncronous requests with one at a time get/set/update - this is extremely slow, but reliable
+	note: In order to work, every column must be string (VARCHAR/TEXT/etc.) and NULL allowed (except for the ID - it must be NOT NULL)
+	note: It uses syncronous requests with one at a time get/set/update - this is extremely slow, but more reliable since we are working with big chunks of data
 */
 
 //======================================================================================================
 //======================================================================================================
 //Defines
-#define DB_OK "[1,[]]"
-#define DB_NOT_FOUND "[1,[]]"
-#define DB_ERROR false
-
+/*relation enum*/
 #define RELATION_DB 0
 #define RELATION_STATE 1
 
@@ -61,7 +59,7 @@ NWG_DB_PL_CreateWithId = {
 	//Check if DB is initialized
 	if (!NWG_DB_Success) exitWith {
 		if (_debugLog) then {(format ["NWG_DB_PL_CreateWithId: DB not initialized, refusing service for id: '%1'",_playerID]) call NWG_fnc_logInfo};
-		NWG_DB_PL_Settings get "RETURN_ON_NO_INIT"
+		(NWG_DB_PL_Settings get "RETURN_ON_NO_INIT")
 	};
 	if (_debugLog) then {(format ["NWG_DB_PL_CreateWithId: Creating player with id: '%1'",_playerID]) call NWG_fnc_logInfo};
 
@@ -114,7 +112,7 @@ NWG_DB_PL_UpdateById = {
 	//Check if DB is initialized
 	if (!NWG_DB_Success) exitWith {
 		if (_debugLog) then {(format ["NWG_DB_PL_UpdateById: DB not initialized, refusing service for id: '%1'",_playerID]) call NWG_fnc_logInfo};
-		false
+		(NWG_DB_PL_Settings get "RETURN_ON_NO_INIT")
 	};
 	if (_debugLog) then {(format ["NWG_DB_PL_UpdateById: Updating player with id: '%1'",_playerID]) call NWG_fnc_logInfo};
 
@@ -182,6 +180,13 @@ NWG_DB_PL_GetById = {
 	private _playerID = _this;
 	private _debugLog = NWG_DB_PL_Settings get "DEBUG_LOG";
 
+	//Check if DB is initialized
+	if (!NWG_DB_Success) exitWith {
+		if (_debugLog) then {(format ["NWG_DB_PL_GetById: DB not initialized, refusing service for id: '%1'",_playerID]) call NWG_fnc_logInfo};
+		false
+	};
+	if (_debugLog) then {(format ["NWG_DB_PL_GetById: DB initialized, getting player with id: '%1'",_playerID]) call NWG_fnc_logInfo};
+
 	//Check incoming id
 	if !(_playerID isEqualType "") exitWith {
 		(format ["NWG_DB_PL_GetById: Invalid id type: '%1'",_playerID]) call NWG_fnc_logError;
@@ -224,6 +229,10 @@ NWG_DB_PL_GetById = {
 		_getResult = "extDB3" callExtension _getRequest;
 		if (_getResult isEqualTo DB_NOT_FOUND) exitWith {
 			if (_debugLog) then {(format ["NWG_DB_PL_GetById: Player not found: '%1'",_playerID]) call NWG_fnc_logInfo};
+			_success = false;
+		};
+		if (_getResult isEqualTo "") exitWith {
+			"NWG_DB_PL_GetById: Extension error" call NWG_fnc_logError;
 			_success = false;
 		};
 

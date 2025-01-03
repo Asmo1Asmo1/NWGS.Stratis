@@ -22,6 +22,21 @@ NWG_fnc_vshopAddDynamicItems = {
     _this call NWG_VSHOP_SER_AddDynamicItemsFromCatalogue;
 };
 
+//Upload items price chart to server
+//params: items chart
+//returns: boolean - true if success, false if failed
+NWG_fnc_vshopUploadPrices = {
+	// private _itemsChart = _this;
+	_this call NWG_VSHOP_SER_UploadPrices;
+};
+
+//Download items price chart from server
+//params: none
+//returns: items chart
+NWG_fnc_vshopDownloadPrices = {
+	call NWG_VSHOP_SER_DownloadPrices
+};
+
 /*Other systems->Client*/
 //Open shop
 NWG_fnc_vshopOpenPlatformShop = {
