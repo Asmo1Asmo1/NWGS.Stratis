@@ -329,13 +329,12 @@ NWG_fnc_systemChatAll = {
 //Adds action to object on every client (MP and JIP compatible, action title localized)
 //note: action radius and conditions are hardcoded
 NWG_fnc_addActionGlobal = {
-    // params ["_object","_title","_script"];
-    params ["_object"];
+    params ["_object","_title","_script"];
     if (isNull _object) exitWith {
         "NWG_fnc_addActionGlobal: object is Null" call NWG_fnc_logError;
     };
 
-    ["NWG_fnc_addAction",_this] remoteExec ["NWG_fnc_clientRemoteExecReliable",0,_object];
+    [_object,"NWG_fnc_addAction",[_title,_script]] call NWG_fnc_rqAddCommand;
 };
 
 //Adds action to object
@@ -363,13 +362,12 @@ NWG_fnc_addAction = {
 //Adds hold action to object on every client (MP and JIP compatible, action title localized)
 //note: action radius and conditions are hardcoded
 NWG_fnc_addHoldActionGlobal = {
-    // params ["_object","_title","_icon","_onCompleted"];
-    params ["_object"];
+    params ["_object","_title","_icon","_onCompleted"];
     if (isNull _object) exitWith {
         "NWG_fnc_addHoldActionGlobal: object is Null" call NWG_fnc_logError;
     };
 
-    ["NWG_fnc_addHoldAction",_this] remoteExec ["NWG_fnc_clientRemoteExecReliable",0,_object];
+    [_object,"NWG_fnc_addHoldAction",[_title,_icon,_onCompleted]] call NWG_fnc_rqAddCommand;
 };
 
 //Adds hold action to object

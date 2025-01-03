@@ -99,6 +99,7 @@ NWG_MIS_SER_Cycle = {
             private _newState = NWG_MIS_NewState;
             [_oldState,_newState] call NWG_MIS_SER_OnStateChanged;
             NWG_MIS_CurrentState = _newState;
+            publicVariable "NWG_MIS_CurrentState";
         };
 
         /*Fix NPCs position*//*Yeah, that's dirty, but until we find a better solution...*/
@@ -437,9 +438,6 @@ NWG_MIS_SER_OnStateChanged = {
 
     //Raise event
     [EVENT_ON_MISSION_STATE_CHANGED,[_oldState,_newState]] call NWG_fnc_raiseServerEvent;
-
-    //Update global flag for the clients
-    publicVariable "NWG_MIS_CurrentState";
 };
 
 NWG_MIS_SER_GetStateName = {
@@ -557,7 +555,8 @@ NWG_MIS_SER_BuildPlayerBase = {
                 _anim = if (_anim isEqualType "")
                     then {_anim}
                     else {selectRandom _anim};
-                [_x,_anim] remoteExecCall ["NWG_fnc_playAnim",0,_x];//Make it JIP compatible + ensure unscheduled environment
+                [_x,_anim] call NWG_fnc_playAnim;
+                [_x,"NWG_fnc_playAnim",[_anim]] call NWG_fnc_rqAddCommand;
                 _x disableAI "ANIM";//Fix AI switching out of the animation (works even for agents)
             };
 

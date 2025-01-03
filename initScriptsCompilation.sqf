@@ -40,6 +40,10 @@ if (_isDevBuild) then {_commonFunctions pushBack ("SCRIPTS\T0_Core\commonTestFun
 _serverModules pushBack ("SCRIPTS\T0_Core\eventSystem\eventSystem.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T0_Core\eventSystem\eventSystem.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T0_Core\eventSystem\eventSystemFunctions.sqf" call NWG_fnc_compile);
+//remoteQueue
+_serverModules pushBack ("SCRIPTS\T0_Core\remoteQueue\remoteQueueServer.sqf" call NWG_fnc_compile);
+// _clientModules pushBack ("SCRIPTS\T0_Core\remoteQueue\remoteQueueClient.sqf" call NWG_fnc_compile);//Moved to the end of compilation sequence (must be executed last)
+_commonFunctions pushBack ("SCRIPTS\T0_Core\remoteQueue\remoteQueueFunctions.sqf" call NWG_fnc_compile);
 
 //T1_Battlefield
 //advancedCombat
@@ -270,6 +274,10 @@ _clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\04NpcMedc.sqf" cal
 _clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\05NpcComm.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T4_Dialogues\dialogueSystem\dialogueSystemTests.sqf" call NWG_fnc_compile)};
+
+//T0_Core
+//remoteQueue
+_clientModules pushBack ("SCRIPTS\T0_Core\remoteQueue\remoteQueueClient.sqf" call NWG_fnc_compile);//Must be executed last
 
 //================================================================================================================
 //================================================================================================================
