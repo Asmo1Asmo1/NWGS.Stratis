@@ -51,6 +51,7 @@ NWG_MIS_SER_playerBaseNPCs = [];
 NWG_MIS_SER_missionsList = [];
 NWG_MIS_SER_selectionList = [];
 NWG_MIS_SER_selected = [];
+NWG_MIS_SER_missionsCounter = 0;
 
 /*mission info property bag*/
 NWG_MIS_SER_missionInfo = createHashMap;
@@ -172,12 +173,14 @@ NWG_MIS_SER_Cycle = {
 
             /* player input expect */
             case MSTATE_READY: {
+                //Check mission selection
                 switch (count NWG_MIS_SER_selectionList) do {
                     case 1: {
                         //Only one mission available (either there was only one mission preset or player made a selection)
                         private _selected = NWG_MIS_SER_selectionList deleteAt 0;//Get the selected mission
                         (_selected#SELECTION_NAME) remoteExec ["NWG_fnc_mmSelectionConfirmed",0];//Send selection made signal to all the clients
                         NWG_MIS_SER_missionInfo = [_selected,NWG_MIS_SER_missionInfo] call NWG_MIS_SER_GenerateMissionInfo;//(Re)Generate mission info
+                        NWG_MIS_SER_missionsCounter = NWG_MIS_SER_missionsCounter + 1;//Increment missions counter
                         call NWG_MIS_SER_NextState;//<-- Move to the next state
                     };
                     case 0: {
@@ -188,7 +191,14 @@ NWG_MIS_SER_Cycle = {
                     default {
                         //Waiting for player input
                     };
-                }
+                };
+
+                //Check players online
+                if (NWG_MIS_SER_missionsCounter > 0 && {(count (call NWG_fnc_getPlayersAll)) == 0}) then {
+                    //No players online - restart the server
+                    "NWG_MIS_SER_Cycle: No players online - restarting the server." call NWG_fnc_logInfo;
+                    MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState;
+                };
             };
 
             /* mission build */
