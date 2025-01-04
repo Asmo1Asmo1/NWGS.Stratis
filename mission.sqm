@@ -12,10 +12,10 @@ class EditorData
 	};
 	class Camera
 	{
-		pos[]={2683.9414,21.74091,3951.3108};
-		dir[]={0.86141276,-0.49336028,-0.12070512};
-		up[]={0.48858783,0.86982328,-0.068463042};
-		aside[]={-0.13876915,4.0046871e-08,-0.99032658};
+		pos[]={2686.2625,21.74091,3950.6389};
+		dir[]={0.78876776,-0.61343628,-0.039296575};
+		up[]={0.61267674,0.78974426,-0.030523701};
+		aside[]={-0.049758632,1.5614205e-08,-0.99876249};
 	};
 };
 binarizationWanted=0;
@@ -96,7 +96,7 @@ class Mission
 			class PositionInfo
 			{
 				position[]={2730.25,18.574152,3946.5};
-				angles[]={0,5.4977875,-0};
+				angles[]={0,5.4977875,0};
 			};
 			side="Empty";
 			class Attributes
@@ -250,6 +250,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=11;
 					type="O_G_Survivor_F";
@@ -313,6 +314,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=13;
 					type="O_G_Survivor_F";
@@ -376,6 +378,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=15;
 					type="O_G_Survivor_F";
@@ -437,6 +440,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=17;
 					type="O_G_Survivor_F";
@@ -500,6 +504,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=19;
 					type="O_G_Survivor_F";
@@ -561,6 +566,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=21;
 					type="O_G_Survivor_F";
@@ -622,6 +628,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=23;
 					type="O_G_Survivor_F";
@@ -685,6 +692,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=25;
 					type="O_G_Survivor_F";
@@ -748,6 +756,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=27;
 					type="O_G_Survivor_F";
@@ -809,6 +818,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=29;
 					type="O_G_Survivor_F";
@@ -870,6 +880,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=31;
 					type="O_G_Survivor_F";
@@ -931,6 +942,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=33;
 					type="O_G_Survivor_F";
@@ -992,6 +1004,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=35;
 					type="O_G_Survivor_F";
@@ -1053,6 +1066,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=37;
 					type="O_G_Survivor_F";
@@ -1114,6 +1128,7 @@ class Mission
 					{
 						init="this setSpeaker ""NoVoice""";
 						description="Operator";
+						isPlayable=1;
 					};
 					id=39;
 					type="O_G_Survivor_F";
