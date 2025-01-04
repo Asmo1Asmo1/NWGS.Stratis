@@ -1,10 +1,11 @@
 #include "databaseDefines.h"
+#include "..\..\secrets.h"
 
 //======================================================================================================
 //======================================================================================================
 //Settings
 NWG_DB_Settings = createHashMapFromArray [
-	["DB_NAME","nwgs"],//Database name
+	["DB_NAME",DATABASE_NAME],//Database name
 	["DB_TEST_TABLE","init_test"],//Table used to test connection
 
     ["",0]
