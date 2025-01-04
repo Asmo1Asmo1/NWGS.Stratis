@@ -603,6 +603,7 @@ NWG_MIS_SER_BuildPlayerBase = {
     };
 
     //4. Report to garbage collector that these objects are not to be deleted
+    [_playerBaseRoot] call NWG_fnc_gcAddOriginalObjects;
     _buildResultFlatten call NWG_fnc_gcAddOriginalObjects;
 
     //5. Place markers
