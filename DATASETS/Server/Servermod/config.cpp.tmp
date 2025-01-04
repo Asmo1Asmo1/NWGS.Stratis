@@ -1,0 +1,22 @@
+class CfgPatches
+{
+    class NWGS
+	{
+		units[] = {};
+        requiredAddons[] = {"A3_Data_F"};
+        fileName = "NWGS.pbo";
+        author = "Asmo";
+    };
+};
+
+class CfgFunctions
+{
+	class Main {
+		class init {
+			class main {
+				file = "NWGS\initScriptsCompilation.sqf";
+				preInit = 1;
+			};
+		};
+	};
+};
