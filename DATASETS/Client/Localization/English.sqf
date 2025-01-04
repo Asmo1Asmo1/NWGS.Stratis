@@ -227,7 +227,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_CAT_AIR#","Paradrop me, I'll show on the map"],
     ["#TAXI_NO_DROP_POINTS#","Sorry, guess there are none..."],
     ["#TAXI_INV_DROP_POINT#","Failed to drop you"],
-    ["#TAXI_PARADROP_HINT#","Where to?"],
+    ["#TAXI_PARADROP_HINT#","Hint: Deploy parachute\n'Space' by default while in air"],
     /*Taxi - TAXI_00*/
     ["#TAXI_00_Q_01#","Always good to see new faces"],
     ["#TAXI_00_Q_02#","How's it going, boss?"],
@@ -453,6 +453,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_ADV_Q_02#","Keep radio channels busy with info|And free from garbage"],
     ["#COMM_ADV_Q_03#","Don't just rush into the fight|Plan everything beforehand|Make sure you know the number of targets and where they are|Mark routes you will take to approach the target|Prepare the exfil route and backup plan"],
     ["#COMM_ADV_Q_04#","You can smoke out the crew out of the vehicle|By placing a smoke or regular grenade into its vent intakes|But be careful, you will need to get really close to pull this off"],
+    ["#COMM_ADV_Q_05#","Your personal descending device|Compact parachute that is|Should always be with you|You never know when you might need it|'Space' by default while in the air"],
     /*====== ROOF =====*/
     /*Roof - Common answers*/
     ["#ROOF_0X_A_BACK3#","Something else"],

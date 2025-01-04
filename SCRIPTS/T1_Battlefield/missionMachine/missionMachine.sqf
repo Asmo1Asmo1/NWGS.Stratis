@@ -26,7 +26,7 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
     ["MISSIONS_SELECT_RESHUFFLE_REJECTED",false],//False - rejected missions simply added to the end of the missions list, True - list gets reshuffled
 
     ["PLAYER_BASE_RADIUS",70],//How far from base is counted as 'on the base' for players
-    ["SERVER_RESTART_ON_ZERO_ONLINE_AFTER",300],//Delay in seconds how long do we wait for someone to join before restarting the server
+    ["SERVER_RESTART_ON_ZERO_ONLINE_AFTER",60],//Delay in seconds how long do we wait for someone to join before restarting the server
 
     /*The rest see in the DATASETS/Server/MissionMachine/Settings.sqf */
     ["COMPLEX_SETTINGS_ADDRESS","DATASETS\Server\MissionMachine\Settings.sqf"],
@@ -51,7 +51,6 @@ NWG_MIS_SER_playerBaseNPCs = [];
 NWG_MIS_SER_missionsList = [];
 NWG_MIS_SER_selectionList = [];
 NWG_MIS_SER_selected = [];
-NWG_MIS_SER_missionsCounter = 0;
 
 /*mission info property bag*/
 NWG_MIS_SER_missionInfo = createHashMap;
@@ -88,6 +87,8 @@ private _Init = {
 //Mission machine heartbeat
 NWG_MIS_SER_Cycle = {
     private _exit = false;
+    private _missionsCounter = 0;
+    private _restartOnReady = NWG_MIS_SER_Settings get "SERVER_RESTART_ON_ZERO_ONLINE_AFTER";
 
     waitUntil {
         /*Every heartbeat...*/
@@ -180,7 +181,7 @@ NWG_MIS_SER_Cycle = {
                         private _selected = NWG_MIS_SER_selectionList deleteAt 0;//Get the selected mission
                         (_selected#SELECTION_NAME) remoteExec ["NWG_fnc_mmSelectionConfirmed",0];//Send selection made signal to all the clients
                         NWG_MIS_SER_missionInfo = [_selected,NWG_MIS_SER_missionInfo] call NWG_MIS_SER_GenerateMissionInfo;//(Re)Generate mission info
-                        NWG_MIS_SER_missionsCounter = NWG_MIS_SER_missionsCounter + 1;//Increment missions counter
+                        _missionsCounter = _missionsCounter + 1;//Increment missions counter
                         call NWG_MIS_SER_NextState;//<-- Move to the next state
                     };
                     case 0: {
@@ -193,9 +194,11 @@ NWG_MIS_SER_Cycle = {
                     };
                 };
 
-                //Check players online
-                if (NWG_MIS_SER_missionsCounter > 0 && {(count (call NWG_fnc_getPlayersAll)) == 0}) then {
-                    //No players online - restart the server
+                //Check players online (restart on ready state)
+                _restartOnReady = if (_missionsCounter == 0 || {(count (call NWG_fnc_getPlayersAll)) > 0})
+                    then {NWG_MIS_SER_Settings get "SERVER_RESTART_ON_ZERO_ONLINE_AFTER"}
+                    else {_restartOnReady - 1};
+                if (_restartOnReady <= 0) then {
                     "NWG_MIS_SER_Cycle: No players online - restarting the server." call NWG_fnc_logInfo;
                     MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState;
                 };

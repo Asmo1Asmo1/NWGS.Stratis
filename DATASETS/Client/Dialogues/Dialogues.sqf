@@ -714,7 +714,8 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#COMM_ADV_Q_01#",
 				"#COMM_ADV_Q_02#",
 				"#COMM_ADV_Q_03#",
-				"#COMM_ADV_Q_04#"
+				"#COMM_ADV_Q_04#",
+				"#COMM_ADV_Q_05#"
 			],
 			A_GEN,	{"COMM_01" call NWG_DLGHLP_GenerateBackExit}/*["COMM_01",NODE_EXIT]*/
 		]
