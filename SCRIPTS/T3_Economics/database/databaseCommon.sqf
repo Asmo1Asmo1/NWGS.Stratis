@@ -27,12 +27,12 @@ private _Init = {
 
     //Try 'empty' DB request to check if DB Init needed
     private _testResponse = "extDB3" callExtension (format["0:%1:SELECT id FROM %2 WHERE id='0' LIMIT 1",NWG_DB_Protocol,(NWG_DB_Settings get "DB_TEST_TABLE")]);
-    format ["NWG_DB_Test: Response:'%1'",_testResponse] call NWG_fnc_logInfo;
+    // format ["NWG_DB_Test: Response:'%1'",_testResponse] call NWG_fnc_logInfo;
     if (_testResponse isEqualTo DB_OK) exitWith {
 		"NWG_DB_Init: Test success, using existing connection and protocol" call NWG_fnc_logInfo;
 		NWG_DB_Success = true;
 	};
-	"NWG_DB_Init: Test failed, establishing new connection and protocol" call NWG_fnc_logInfo;
+	// "NWG_DB_Init: Test failed, establishing new connection and protocol" call NWG_fnc_logInfo;
 
     //Generate new protocol
     NWG_DB_Protocol = ceil random 9999;
