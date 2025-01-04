@@ -67,8 +67,11 @@ private _Init = {
     if (!(NWG_MIS_SER_Settings get "AUTOSTART") || {
         (is3DENPreview || is3DENMultiplayer) && !(NWG_MIS_SER_Settings get "AUTOSTART_IN_DEVBUILD")})
         exitWith {MSTATE_DISABLED call NWG_MIS_SER_ChangeState};// <- Exit by settings
-    if (isNull (call NWG_MIS_SER_FindPlayerBaseRoot))
-        exitWith {MSTATE_DISABLED call NWG_MIS_SER_ChangeState};// <- Exit if no player base root object found on the map
+
+    //Check if player base root object is present on the map at the moment
+    if (isNull (call NWG_MIS_SER_FindPlayerBaseRoot)) then {
+        diag_log text "  [MISSION INFO] #### Expecting player base root object";
+    };
 
     //Get complex additional settings
     private _addSettings = call ((NWG_MIS_SER_Settings get "COMPLEX_SETTINGS_ADDRESS") call NWG_fnc_compile);
@@ -112,7 +115,12 @@ NWG_MIS_SER_Cycle = {
             /* initialization */
             case MSTATE_SCRIPTS_COMPILATION: {MSTATE_MACHINE_STARTUP call NWG_MIS_SER_ChangeState};
             case MSTATE_DISABLED: {_exit = true};//Exit
-            case MSTATE_MACHINE_STARTUP: {call NWG_MIS_SER_NextState};
+            case MSTATE_MACHINE_STARTUP: {
+                if !(isNull (call NWG_MIS_SER_FindPlayerBaseRoot)) then {
+                    diag_log text "  [MISSION INFO] #### Player base root object found - starting mission machine";
+                    call NWG_MIS_SER_NextState
+                };
+            };
 
             /* world build */
             case MSTATE_WORLD_BUILD: {
