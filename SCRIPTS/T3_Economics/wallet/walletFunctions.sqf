@@ -8,13 +8,24 @@ NWG_fnc_wltGetPlayerMoney = {
 		"NWG_fnc_wltGetPlayerMoney: Invalid player" call NWG_fnc_logError;
 		0
 	};
-	if (!alive _this || {isNull _this}) exitWith {
-		"NWG_fnc_wltGetPlayerMoney: Player is dead or null" call NWG_fnc_logError;
+	if (isNull _this) exitWith {
+		"NWG_fnc_wltGetPlayerMoney: Player obj is null" call NWG_fnc_logError;
 		0
 	};
 
     //return
     _this call NWG_WLT_GetPlayerMoney
+};
+
+//Returns initial money amount that player starts with
+//note: initial money setting exists only on client side
+//return: Number - The initial money amount
+NWG_fnc_wltGetInitialMoney = {
+	if (isNil "NWG_WLT_Settings") exitWith {
+		"NWG_fnc_wltGetInitialMoney: NWG_WLT_Settings is not defined, make sure you call this function on client side" call NWG_fnc_logError;
+		0
+	};
+	NWG_WLT_Settings get "INITIAL_MONEY"
 };
 
 //Adds money to a player (+sends notification)

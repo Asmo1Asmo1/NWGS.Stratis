@@ -10,12 +10,13 @@
 #include "GUI\userPlanshet\planshetMainMenu.hpp"
 #include "GUI\userPlanshet\planshetSecondaryMenu.hpp"
 #include "GUI\userPlanshet\planshetSecondaryWithDropdown.hpp"
+#include "GUI\dialogue\dialogue.hpp"
 
 //===========================================================
 //Loading screen
 author			= "Asmo";
 onLoadName		= "NWG: Scavenger";
-onLoadMission	= "Scavenger v0.1";
+onLoadMission	= "Scavenger v1.0";
 
 class Header
 {

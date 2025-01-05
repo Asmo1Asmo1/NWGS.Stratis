@@ -1,4 +1,5 @@
 #include "..\..\globalDefines.h"
+#include "..\..\secrets.h"
 #include "missionMachineDefines.h"
 
 //================================================================================================================
@@ -25,7 +26,7 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
     ["MISSIONS_SELECT_RESHUFFLE_REJECTED",false],//False - rejected missions simply added to the end of the missions list, True - list gets reshuffled
 
     ["PLAYER_BASE_RADIUS",70],//How far from base is counted as 'on the base' for players
-    ["SERVER_RESTART_ON_ZERO_ONLINE_AFTER",300],//Delay in seconds how long do we wait for someone to join before restarting the server
+    ["SERVER_RESTART_ON_ZERO_ONLINE_AFTER",60],//Delay in seconds how long do we wait for someone to join before restarting the server
 
     /*The rest see in the DATASETS/Server/MissionMachine/Settings.sqf */
     ["COMPLEX_SETTINGS_ADDRESS","DATASETS\Server\MissionMachine\Settings.sqf"],
@@ -66,8 +67,11 @@ private _Init = {
     if (!(NWG_MIS_SER_Settings get "AUTOSTART") || {
         (is3DENPreview || is3DENMultiplayer) && !(NWG_MIS_SER_Settings get "AUTOSTART_IN_DEVBUILD")})
         exitWith {MSTATE_DISABLED call NWG_MIS_SER_ChangeState};// <- Exit by settings
-    if (isNull (call NWG_MIS_SER_FindPlayerBaseRoot))
-        exitWith {MSTATE_DISABLED call NWG_MIS_SER_ChangeState};// <- Exit if no player base root object found on the map
+
+    //Check if player base root object is present on the map at the moment
+    if (isNull (call NWG_MIS_SER_FindPlayerBaseRoot)) then {
+        diag_log text "  [MISSION INFO] #### Expecting player base root object";
+    };
 
     //Get complex additional settings
     private _addSettings = call ((NWG_MIS_SER_Settings get "COMPLEX_SETTINGS_ADDRESS") call NWG_fnc_compile);
@@ -86,6 +90,8 @@ private _Init = {
 //Mission machine heartbeat
 NWG_MIS_SER_Cycle = {
     private _exit = false;
+    private _missionsCounter = 0;
+    private _restartOnReady = NWG_MIS_SER_Settings get "SERVER_RESTART_ON_ZERO_ONLINE_AFTER";
 
     waitUntil {
         /*Every heartbeat...*/
@@ -98,14 +104,23 @@ NWG_MIS_SER_Cycle = {
             private _newState = NWG_MIS_NewState;
             [_oldState,_newState] call NWG_MIS_SER_OnStateChanged;
             NWG_MIS_CurrentState = _newState;
+            publicVariable "NWG_MIS_CurrentState";
         };
+
+        /*Fix NPCs position*//*Yeah, that's dirty, but until we find a better solution...*/
+        call NWG_MIS_SER_FixNpcPosition;
 
         /*Do things and calculate next state to switch to*/
         switch (NWG_MIS_CurrentState) do {
             /* initialization */
             case MSTATE_SCRIPTS_COMPILATION: {MSTATE_MACHINE_STARTUP call NWG_MIS_SER_ChangeState};
             case MSTATE_DISABLED: {_exit = true};//Exit
-            case MSTATE_MACHINE_STARTUP: {call NWG_MIS_SER_NextState};
+            case MSTATE_MACHINE_STARTUP: {
+                if !(isNull (call NWG_MIS_SER_FindPlayerBaseRoot)) then {
+                    diag_log text "  [MISSION INFO] #### Player base root object found - starting mission machine";
+                    call NWG_MIS_SER_NextState
+                };
+            };
 
             /* world build */
             case MSTATE_WORLD_BUILD: {
@@ -121,7 +136,6 @@ NWG_MIS_SER_Cycle = {
                 _buildResult params ["_root","_objects"];
                 NWG_MIS_SER_playerBase = _root;//Save base root object
                 NWG_MIS_SER_playerBasePos = getPosASL _root;//Save base position
-                NWG_MIS_SER_playerBaseNPCs = _objects param [OBJ_CAT_UNIT,[]];//Save base NPCs
                 NWG_MIS_SER_playerBaseDecoration = _objects;//Save base objects
                 call NWG_MIS_SER_NextState;
             };
@@ -130,7 +144,7 @@ NWG_MIS_SER_Cycle = {
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BASE_QUESTS: {
-                //TODO: Add base quests
+                //EVENT_ON_MISSION_STATE_CHANGED subscriber(s) did the job. We do nothing.
                 NWG_MIS_SER_playerBaseDecoration resize 0;//Release base objects
                 call NWG_MIS_SER_NextState;
             };
@@ -168,12 +182,14 @@ NWG_MIS_SER_Cycle = {
 
             /* player input expect */
             case MSTATE_READY: {
+                //Check mission selection
                 switch (count NWG_MIS_SER_selectionList) do {
                     case 1: {
                         //Only one mission available (either there was only one mission preset or player made a selection)
                         private _selected = NWG_MIS_SER_selectionList deleteAt 0;//Get the selected mission
                         (_selected#SELECTION_NAME) remoteExec ["NWG_fnc_mmSelectionConfirmed",0];//Send selection made signal to all the clients
                         NWG_MIS_SER_missionInfo = [_selected,NWG_MIS_SER_missionInfo] call NWG_MIS_SER_GenerateMissionInfo;//(Re)Generate mission info
+                        _missionsCounter = _missionsCounter + 1;//Increment missions counter
                         call NWG_MIS_SER_NextState;//<-- Move to the next state
                     };
                     case 0: {
@@ -184,7 +200,16 @@ NWG_MIS_SER_Cycle = {
                     default {
                         //Waiting for player input
                     };
-                }
+                };
+
+                //Check players online (restart on ready state)
+                _restartOnReady = if (_missionsCounter == 0 || {(count (call NWG_fnc_getPlayersAll)) > 0})
+                    then {NWG_MIS_SER_Settings get "SERVER_RESTART_ON_ZERO_ONLINE_AFTER"}
+                    else {_restartOnReady - 1};
+                if (_restartOnReady <= 0) then {
+                    "NWG_MIS_SER_Cycle: No players online - restarting the server." call NWG_fnc_logInfo;
+                    MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState;
+                };
             };
 
             /* mission build */
@@ -434,9 +459,6 @@ NWG_MIS_SER_OnStateChanged = {
 
     //Raise event
     [EVENT_ON_MISSION_STATE_CHANGED,[_oldState,_newState]] call NWG_fnc_raiseServerEvent;
-
-    //Update global flag for the clients
-    publicVariable "NWG_MIS_CurrentState";
 };
 
 NWG_MIS_SER_GetStateName = {
@@ -530,6 +552,7 @@ NWG_MIS_SER_BuildPlayerBase = {
         });
 
         //3.4 Configure base NPCs
+        private _baseNpcs = _buildResult param [OBJ_CAT_UNIT,[]];
         private _npcSettings = NWG_MIS_SER_Settings get "PLAYER_BASE_NPC_SETTINGS";
         private _addActionQueue = [];
         {
@@ -553,7 +576,8 @@ NWG_MIS_SER_BuildPlayerBase = {
                 _anim = if (_anim isEqualType "")
                     then {_anim}
                     else {selectRandom _anim};
-                [_x,_anim] remoteExecCall ["NWG_fnc_playAnim",0,_x];//Make it JIP compatible + ensure unscheduled environment
+                [_x,_anim] call NWG_fnc_playAnim;
+                [_x,"NWG_fnc_playAnim",[_anim]] call NWG_fnc_rqAddCommand;
                 _x disableAI "ANIM";//Fix AI switching out of the animation (works even for agents)
             };
 
@@ -562,7 +586,7 @@ NWG_MIS_SER_BuildPlayerBase = {
                 _addAction params [["_title",""],["_script",{}]];
                 _addActionQueue pushBack [_x,_title,_script];
             };
-        } forEach (_buildResult param [OBJ_CAT_UNIT,[]]);
+        } forEach _baseNpcs;
 
         //3.5 Assign actions to NPCs (with delay)
         if ((count _addActionQueue) > 0) then {
@@ -572,9 +596,14 @@ NWG_MIS_SER_BuildPlayerBase = {
                 {_x call NWG_fnc_addActionGlobal} forEach _this;
             };
         };
+
+        //3.6 Setup NPCs for position fixing
+        {_x setVariable ["NWG_baseNpcOrigPos",(getPosASL _x)]} forEach _baseNpcs;
+        NWG_MIS_SER_playerBaseNPCs = _baseNpcs;
     };
 
     //4. Report to garbage collector that these objects are not to be deleted
+    [_playerBaseRoot] call NWG_fnc_gcAddOriginalObjects;
     _buildResultFlatten call NWG_fnc_gcAddOriginalObjects;
 
     //5. Place markers
@@ -597,6 +626,15 @@ NWG_MIS_SER_BuildPlayerBase = {
 
     //7. Return result
     [_playerBaseRoot,_buildResult]
+};
+
+NWG_MIS_SER_FixNpcPosition = {
+    private ["_posOrig","_posCur"];
+    {
+        _posOrig = _x getVariable "NWG_baseNpcOrigPos";
+        _posCur = getPosASL _x;
+        if ((_posOrig distance _posCur) > 0.25) then {_x setPosASL _posOrig};
+    } forEach NWG_MIS_SER_playerBaseNPCs;
 };
 
 //================================================================================================================
@@ -1077,8 +1115,8 @@ NWG_MIS_SER_EscapeCompleted = {
 //================================================================================================================
 //Server restart
 NWG_MIS_SER_ServerRestart = {
-    //TODO: Add an actual server restart code here
-    systemChat "Server restart initiated!";
+    "NWG_MIS_SER_ServerRestart: Server restart requested" call NWG_fnc_logInfo;
+    SERVER_COMMAND_PASSWORD serverCommand "#shutdown";
 };
 
 //================================================================================================================

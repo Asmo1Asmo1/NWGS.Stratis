@@ -329,13 +329,12 @@ NWG_fnc_systemChatAll = {
 //Adds action to object on every client (MP and JIP compatible, action title localized)
 //note: action radius and conditions are hardcoded
 NWG_fnc_addActionGlobal = {
-    // params ["_object","_title","_script"];
-    params ["_object"];
+    params ["_object","_title","_script"];
     if (isNull _object) exitWith {
         "NWG_fnc_addActionGlobal: object is Null" call NWG_fnc_logError;
     };
 
-    ["NWG_fnc_addAction",_this] remoteExec ["NWG_fnc_clientRemoteExecReliable",0,_object];
+    [_object,"NWG_fnc_addAction",[_title,_script]] call NWG_fnc_rqAddCommand;
 };
 
 //Adds action to object
@@ -358,6 +357,43 @@ NWG_fnc_addAction = {
         "",    // selection
         ""     // memoryPoint
     ];
+};
+
+//Adds hold action to object on every client (MP and JIP compatible, action title localized)
+//note: action radius and conditions are hardcoded
+NWG_fnc_addHoldActionGlobal = {
+    params ["_object","_title","_icon","_onCompleted"];
+    if (isNull _object) exitWith {
+        "NWG_fnc_addHoldActionGlobal: object is Null" call NWG_fnc_logError;
+    };
+
+    [_object,"NWG_fnc_addHoldAction",[_title,_icon,_onCompleted]] call NWG_fnc_rqAddCommand;
+};
+
+//Adds hold action to object
+//note: action radius and conditions are hardcoded
+NWG_fnc_addHoldAction = {
+    params ["_object","_title","_icon","_onCompleted"];
+    if (!hasInterface || {isNull _object}) exitWith {};
+
+    [
+        _object,                         // Object the action is attached to
+        (_title call NWG_fnc_localize),  // Title of the action
+        _icon,                           // Idle icon shown on screen
+        _icon,                           // Progress icon shown on screen
+        "(_this distance _target) < 3",  // Condition for the action to start
+        "(_caller distance _target) < 3",// Condition for the action to progress
+        {},                              // Code executed when action starts
+        {},                              // Code executed on every progress tick
+        _onCompleted,                    // Code executed on completion
+        {},                              // Code executed on interrupted
+        [],                              // Arguments passed to the scripts as _this select 3
+        3,                               // Action duration in seconds
+        0,                               // Priority
+        false,                           // Remove on completion
+        false,                           // Show in unconscious state
+        true                             // Auto show on screen
+    ] call BIS_fnc_holdActionAdd
 };
 
 //===============================================================

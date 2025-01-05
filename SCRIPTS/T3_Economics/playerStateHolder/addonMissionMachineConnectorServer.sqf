@@ -1,6 +1,6 @@
 #include "..\..\globalDefines.h"
 /*
-    Connector between playerStateHolder and missionMachine module
+    Addon-Connector between playerStateHolder and missionMachine module
 */
 
 //================================================================================================================
@@ -23,6 +23,9 @@ NWG_PSH_MMC_OnMissionStateChanged = {
     // params ["_oldState","_newState"];
     params ["","_newState"];
 	if (_newState in (NWG_PSH_MMC_Settings get "SYNC_ON_STATES")) then {
-		call NWG_fnc_pshInvokeSync;
+		call NWG_fnc_pshSyncRequest;
 	};
 };
+
+//================================================================================================================
+call _Init;

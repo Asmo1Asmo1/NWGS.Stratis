@@ -8,7 +8,7 @@ NWG_VEHOWN_SetVehicleOwner = {
 
 NWG_VEHOWN_SetOwnedVehicles = {
 	params ["_player","_ownedVehicles"];
-	_ownedVehicles = _ownedVehicles select {!isNil "_x" && {!isNull _x} && {alive _x}};//Filter dead|sold vehicles
+	_ownedVehicles = _ownedVehicles select {!isNil "_x" && {!isNull _x && {alive _x}}};//Filter dead|sold vehicles
 	_ownedVehicles = _ownedVehicles arrayIntersect _ownedVehicles;//Remove duplicates
 	_player setVariable ["NWG_VEHOWN_OwnedVehicles",_ownedVehicles,true];
 };

@@ -38,7 +38,7 @@
 		]
 	],
 	[
-		["ANYFAC","ANYVEH","LOOT"],1,[
+		["ANYFAC","-SHOP","ANYVEH","LOOT"],1,[
 			[],
 			[],
 			["FirstAidKit","Medikit","MineDetector","ToolKit","Sleeping_bag_folded_01"],

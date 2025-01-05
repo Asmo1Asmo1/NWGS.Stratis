@@ -65,6 +65,16 @@ NWG_VSHOP_MMC_OnMissionStateChanged = {
 
             //Set spawn platform object
             _spawnPlatform call NWG_fnc_vshopSetSpawnPlatformObject;
+
+            //Download prices from DB
+            private _pricesChart = call NWG_fnc_dbLoadVehiclePrices;
+            if (_pricesChart isEqualTo false) exitWith {
+                "NWG_VSHOP_MMC_OnMissionStateChanged: Failed to load vehicles prices" call NWG_fnc_logError;
+            };
+            private _ok = _pricesChart call NWG_fnc_vshopUploadPrices;
+            if !(_ok) then {
+                "NWG_VSHOP_MMC_OnMissionStateChanged: Failed to upload vehicles prices" call NWG_fnc_logError;
+            };
         };
 
         /*Mission building economy state - Add vehicles to dynamic shop items*/
@@ -81,6 +91,20 @@ NWG_VSHOP_MMC_OnMissionStateChanged = {
             };
             _addItems = _addItems call NWG_fnc_randomRangeInt;
             _addItems call NWG_fnc_vshopAddDynamicItems;
+        };
+
+        /*Server reset/restart - save prices to DB before shutting down*/
+        case MSTATE_RESET;
+        case MSTATE_SERVER_RESTART: {
+            //Upload prices to DB
+            private _pricesChart = call NWG_fnc_vshopDownloadPrices;
+            if (_pricesChart isEqualTo false) exitWith {
+                "NWG_VSHOP_MMC_OnMissionStateChanged: Failed to get vehicles prices" call NWG_fnc_logError;
+            };
+            private _ok = _pricesChart call NWG_fnc_dbSaveVehiclePrices;
+            if !(_ok) then {
+                "NWG_VSHOP_MMC_OnMissionStateChanged: Failed to save vehicles prices" call NWG_fnc_logError;
+            };
         };
 
         default {};

@@ -3,11 +3,6 @@ NWG_fnc_clientScriptsReceive = {
     // private _scripts = _this;
     {call _x} forEach _this;
 };
-NWG_fnc_clientRemoteExecReliable = {
-    params ["_functionName","_args"];
-    waitUntil {sleep 0.1; !isNil _functionName};
-    _args call (missionNamespace getVariable _functionName);
-};
 
 /* --- Conditions --- */
 waitUntil {(!isNull player && {local player})};//Wait for player to be valid

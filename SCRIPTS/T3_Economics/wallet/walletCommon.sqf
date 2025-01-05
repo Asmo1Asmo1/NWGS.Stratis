@@ -14,7 +14,7 @@ NWG_WLT_AddPlayerMoney = {
 
     //Calculate new money amount
     private _money = _player getVariable ["NWG_WLT_Money",0];
-    _money = round (_money + _amount);
+    _money = (round (_money + _amount)) min 999999999;
 
     //Set new money amount
     private _publicFlag = if (isServer) then {[(owner _player),2]} else {[clientOwner,2]};

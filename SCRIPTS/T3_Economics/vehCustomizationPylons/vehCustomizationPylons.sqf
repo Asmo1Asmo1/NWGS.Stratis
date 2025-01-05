@@ -31,12 +31,14 @@ NWG_VCPYL_CustomizePylons = {
     //Check argument
     if !(_vehicle call NWG_VCPYL_CanCustomizePylons) exitWith {
         (format ["NWG_VCPYL_CustomizePylons: %1 cannot be customized",(typeOf _vehicle)]) call NWG_fnc_logError;
+        false
     };
 
     //Create GUI
     private _guiCreateResult = [_vehicle,"#CPYL_LEFT_TITLE#","#CPYL_RIGHT_TITLE#"] call NWG_fnc_vcuiCreateCustomizationUI;
     if (_guiCreateResult isEqualTo false) exitWith {
         "NWG_VCPYL_CustomizePylons: Failed to create GUI" call NWG_fnc_logError;
+        false
     };
     _guiCreateResult params ["_gui","_leftPanel","_rightPanel"];
 
@@ -77,7 +79,7 @@ NWG_VCPYL_CustomizePylons = {
 
                     private _vehicle = _gui getVariable "NWG_VCPYL_vehicle";
                     private _isPilotOwner = _gui getVariable "NWG_VCPYL_isPilotOwner";
-                    [_vehicle,_preset,_isPilotOwner] spawn NWG_fnc_vcpylOnPresetSelected;
+                    [_vehicle,_preset,_isPilotOwner] spawn NWG_fnc_vcpOnPresetSelected;
                 };
             };
         };
@@ -102,7 +104,7 @@ NWG_VCPYL_CustomizePylons = {
                     private _vehicle = _gui getVariable "NWG_VCPYL_vehicle";
                     private _preset = _gui getVariable "NWG_VCPYL_selectedPreset";
                     if (_preset isNotEqualTo "")
-                        then {[_vehicle,_preset,_isPilotOwner] spawn NWG_fnc_vcpylOnPresetSelected};
+                        then {[_vehicle,_preset,_isPilotOwner] spawn NWG_fnc_vcpOnPresetSelected};
                 };
             };
         };
@@ -116,4 +118,6 @@ NWG_VCPYL_CustomizePylons = {
         resulting in unexpected behavior.
         So it is how it is.
     */
+
+    true
 };

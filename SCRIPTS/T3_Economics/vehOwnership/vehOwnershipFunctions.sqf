@@ -67,8 +67,8 @@ NWG_fnc_vownAddOwnedVehicle = {
 //_player: Object - The player to get the owned vehicles of
 NWG_fnc_vownGetOwnedVehicles = {
 	// private _player = _this;
-	if (isNull _this || !alive _this) exitWith {
-		"NWG_fnc_vownGetOwnedVehicles: Player is null or dead" call NWG_fnc_logError;
+	if (isNull _this) exitWith {
+		"NWG_fnc_vownGetOwnedVehicles: Player obj is null" call NWG_fnc_logError;
 		[]
 	};
 

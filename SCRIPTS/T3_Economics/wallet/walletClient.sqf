@@ -5,7 +5,7 @@ NWG_WLT_Settings = createHashMapFromArray [
     ["MONEYSTR_PREFIX","€$"],
     ["MONEYSTR_SEPARATOR",44],//char ","
 
-    ["INITIAL_MONEY",1000],//Initial amount of money a player has
+    ["INITIAL_MONEY",20250],//Initial amount of money a player has
 
     ["MONEY_ADD_NOTIFY",true],//Notify player when money is added
     ["MONEY_ADD_NOTIFY_SOUND","FD_Target_PopUp_Small_F"],//Sound to play when money is added
@@ -23,19 +23,20 @@ private _Init = {
     [player,(NWG_WLT_Settings get "INITIAL_MONEY")] call NWG_fnc_wltSetPlayerMoney;
 
     //Transfer on respawn to new player instance
-    player addEventHandler ["Respawn",{_this call NWG_WLT_OnRespawn}];
+    //UPD: Not required, public variables get transferred on respawn automatically
+    // player addEventHandler ["Respawn",{_this call NWG_WLT_OnRespawn}];
 };
 
 //================================================================================================================
 //================================================================================================================
 //On respawn
-NWG_WLT_OnRespawn = {
-    params ["_player","_corpse"];
-    private _money = _corpse call NWG_fnc_wltGetPlayerMoney;
-    if (_money != 0) then {
-        [_player,_money] call NWG_fnc_wltSetPlayerMoney;
-    };
-};
+// NWG_WLT_OnRespawn = {
+//     params ["_player","_corpse"];
+//     private _money = _corpse call NWG_fnc_wltGetPlayerMoney;
+//     if (_money != 0) then {
+//         [_player,_money] call NWG_fnc_wltSetPlayerMoney;
+//     };
+// };
 
 //================================================================================================================
 //================================================================================================================

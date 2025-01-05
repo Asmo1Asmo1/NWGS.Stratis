@@ -3,7 +3,7 @@
 
     - Uses the same UI as vehCustomizationPylons
     - Uses custom camera view
-    - Does not highlight the current selection (TODO: add maybe?)
+    - Does not highlight the current selection
     @Asmo
 */
 
@@ -90,12 +90,14 @@ NWG_VCAPP_CustomizeAppearance = {
     //Check argument
     if !(_vehicle call NWG_VCAPP_HasCustomizationOptions) exitWith {
         (format ["NWG_VCAPP_CustomizeAppearance: %1 cannot be customized",(typeOf _vehicle)]) call NWG_fnc_logError;
+        false
     };
 
     //Create GUI
     private _guiCreateResult = [_vehicle,"#CAPP_LEFT_TITLE#","#CAPP_RIGHT_TITLE#"] call NWG_fnc_vcuiCreateCustomizationUI;
     if (_guiCreateResult isEqualTo false) exitWith {
         "NWG_VCAPP_CustomizeAppearance: Failed to create GUI" call NWG_fnc_logError;
+        false
     };
     _guiCreateResult params ["_gui","_leftPanel","_rightPanel"];
 
@@ -165,6 +167,7 @@ NWG_VCAPP_CustomizeAppearance = {
 
     }];
 
+    true
 };
 
 NWG_VCAPP_ApplyChanges = {
@@ -221,5 +224,5 @@ NWG_VCAPP_ApplyChanges = {
     };
 
     //Run request
-    [_vehicle,_colorArgs,_animArgs] spawn NWG_fnc_vcappOnApplyChanges;
+    [_vehicle,_colorArgs,_animArgs] spawn NWG_fnc_vcaOnApplyChanges;
 };

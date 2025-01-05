@@ -406,11 +406,11 @@ NWG_LM_SER_FillObject = {
                 _count = _x;
             };
             case (isClass (configFile >> "CfgVehicles" >> _x)): {
-                _object addBackpackCargo [_x,_count];
+                _object addBackpackCargoGlobal [_x,_count];
                 _count = 1;
             };
             default {
-                _object addItemCargo [_x,_count];
+                _object addItemCargoGlobal [_x,_count];
                 _count = 1;
             };
         };

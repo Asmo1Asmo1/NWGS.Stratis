@@ -1,6 +1,13 @@
 #include "..\..\globalDefines.h"
 
 //=============================================================================
+/*Any->Client*/
+//Open mission selection UI
+NWG_fnc_mmOpenSelectionUI = {
+    call NWG_MIS_CLI_RequestMissionSelection
+};
+
+//=============================================================================
 /*Client->Server*/
 //Requests the server to send the mission selection options
 NWG_fnc_mmRequestSelectionOptions = {
@@ -96,6 +103,12 @@ NWG_fnc_mmGetMissionFaction = {
 //returns: string (MISSION_DIFFICULTY_EASY, MISSION_DIFFICULTY_NORM, ...)
 NWG_fnc_mmGetMissionDifficulty = {
     NWG_MIS_SER_missionInfo getOrDefault ["Difficulty",MISSION_DIFFICULTY_NORM]
+};
+
+//Returns mission pos
+//returns: [pos,rad]
+NWG_fnc_mmGetMissionPos = {
+    [(NWG_MIS_SER_missionInfo getOrDefault ["Position",[0,0,0]]),(NWG_MIS_SER_missionInfo getOrDefault ["Radius",0])]
 };
 
 //Returns if this unit is currently in the base area

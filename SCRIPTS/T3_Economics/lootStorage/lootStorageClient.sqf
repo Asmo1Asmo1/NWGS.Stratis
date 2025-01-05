@@ -19,7 +19,8 @@ NWG_LS_CLI_Settings = createHashMapFromArray [
     ]],//Price map for the loot immediate sell without putting it into storage
     ["AUTO_SELL_ADD_MONEY_FUNCTION",{_this call NWG_fnc_wltAddPlayerMoney}],//Function that adds money to the player params: [_player,_amount]
 
-    ["DEPLETE_LOOT_ON_RESPAWN",true],//Should the loot be deplete on respawn
+    ["TRANSFER_LOOT_ON_RESPAWN",false],//Should the loot be transferred to the new player instance on respawn
+    ["DEPLETE_LOOT_ON_RESPAWN",false],//Should the loot be deplete on respawn
     ["DEPLETE_MULTIPLIER",0.5],//Multiplier for the loot deplete on respawn
     ["DEPLETE_NOTIFICATION",true],//Should we notify player about the loot depletion
 
@@ -37,7 +38,10 @@ NWG_LS_CLI_invisibleBox = objNull;
 private _Init = {
     player addEventHandler ["InventoryClosed",{call NWG_LS_CLI_OnInventoryClose}];
     player addEventHandler ["Take",{call NWG_LS_CLI_AutoSellOnTake}];
-    player addEventHandler ["Respawn",{_this call NWG_LS_CLI_OnRespawn}];
+
+    if (NWG_LS_CLI_Settings get "TRANSFER_LOOT_ON_RESPAWN" || {NWG_LS_CLI_Settings get "DEPLETE_LOOT_ON_RESPAWN"}) then {
+        player addEventHandler ["Respawn",{_this call NWG_LS_CLI_OnRespawn}];
+    };
 };
 
 //================================================================================================================
@@ -217,11 +221,8 @@ NWG_LS_CLI_ConvertToLoot = {
 };
 
 NWG_LS_CLI_GetDeadUnitWeaponHolders = {
-    //replace with https://community.bistudio.com/wiki/getCorpseWeaponholders when available (arma 3 2.18)
-    //note: checked looting with secondary weapon attached to player - seems all good
-    // private _deadUnit = _this;
     if (!alive _this)
-        then {_this nearObjects ["WeaponHolderSimulated",5]}
+        then {(getCorpseWeaponholders _this) select {!isNull _x}}
         else {[]}
 };
 
@@ -235,6 +236,10 @@ NWG_LS_CLI_LootByInventoryUI = {
     disableSerialization;
     //params ["_unit","_mainContainer","_secdContainer"];
     params ["",["_mainContainer",objNull],["_secdContainer",objNull]];
+    if (isNull _mainContainer && {isNull _secdContainer}) exitWith {
+        "NWG_LS_CLI_LootByInventoryUI: Inventory containers are not available." call NWG_fnc_logError;
+        false
+    };
 
     //Get inventory display
     private _inventoryDisplay = findDisplay 602;
@@ -253,10 +258,12 @@ NWG_LS_CLI_LootByInventoryUI = {
         false
     };
 
-    //Get physical container
-    private _containers = if (_uiContainerID == MAIN_CONTAINER_LIST)
-        then {[_mainContainer,_secdContainer]}
-        else {[_secdContainer,_mainContainer]};
+    //Get physical container (Another arma fix, container IDs get swapped when looting units lying on boxes)
+    private _containers = switch (true) do {
+        case (_uiContainerID == MAIN_CONTAINER_LIST): {[_mainContainer,_secdContainer]};
+        case (_uiContainerID == SECN_CONTAINER_LIST && {!isNull _mainContainer && {_mainContainer isKindOf "Man"}}): {[_mainContainer,_secdContainer]};
+        default {[_secdContainer,_mainContainer]};
+    };
     if (isNull (_containers#0)) then {
         _containers pushBack (_containers deleteAt 0);//Swap (old fix for looting corpses)
     };
@@ -441,7 +448,7 @@ NWG_LS_CLI_OnRespawn = {
 
     //Get player loot from an old instance
     private _loot = _corpse call NWG_fnc_lsGetPlayerLoot;
-    if (_loot isEqualTo LOOT_ITEM_DEFAULT_CHART) exitWith {};//No loot to transfer
+    if (_loot isEqualTo LOOT_ITEM_DEFAULT_CHART) exitWith {};//No loot to transfer or deplete
 
     //Deplete the loot
     if (NWG_LS_CLI_Settings get "DEPLETE_LOOT_ON_RESPAWN") then {
@@ -451,7 +458,9 @@ NWG_LS_CLI_OnRespawn = {
     };
 
     //Transfer loot to the new entity
-    [_player,_loot] call NWG_fnc_lsSetPlayerLoot;
+    if (NWG_LS_CLI_Settings get "TRANSFER_LOOT_ON_RESPAWN") then {
+        [_player,_loot] call NWG_fnc_lsSetPlayerLoot;
+    };
 };
 
 //================================================================================================================

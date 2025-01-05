@@ -14,6 +14,21 @@ NWG_fnc_ishopAddDynamicItems = {
 	_this call NWG_ISHOP_SER_AddDynamicItemsExternal;
 };
 
+//Upload items price chart to server
+//params: items chart
+//returns: boolean - true if success, false if failed
+NWG_fnc_ishopUploadPrices = {
+	// private _itemsChart = _this;
+	_this call NWG_ISHOP_SER_UploadPrices;
+};
+
+//Download items price chart from server
+//params: none
+//returns: items chart
+NWG_fnc_ishopDownloadPrices = {
+	call NWG_ISHOP_SER_DownloadPrices
+};
+
 /*Client<->Server*/
 //Request shop values from server
 NWG_fnc_ishopShopValuesRequest = {
