@@ -5,7 +5,7 @@ NWG_WLT_Settings = createHashMapFromArray [
     ["MONEYSTR_PREFIX","€$"],
     ["MONEYSTR_SEPARATOR",44],//char ","
 
-    ["INITIAL_MONEY",15000],//Initial amount of money a player has
+    ["INITIAL_MONEY",20250],//Initial amount of money a player has
 
     ["MONEY_ADD_NOTIFY",true],//Notify player when money is added
     ["MONEY_ADD_NOTIFY_SOUND","FD_Target_PopUp_Small_F"],//Sound to play when money is added
