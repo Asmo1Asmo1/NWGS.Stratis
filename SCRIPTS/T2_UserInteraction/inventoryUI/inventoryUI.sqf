@@ -5,6 +5,8 @@ NWG_INVUI_Settings = createHashMapFromArray [
     ["BUTTON_WEAP_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\rifle_ca.paa"],
     ["BUTTON_UNIF_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\armor_ca.paa"],
     ["BUTTON_MAGR_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\rearm_ca.paa"],
+
+    ["TEXT_WEIGHT_ON",false],
     ["TEXT_WEIGHT_TEMPLATE","%1kg"],
 
     ["SOUND_ON",true],
@@ -40,17 +42,19 @@ NWG_INVUI_OnInventoryOpen = {
     };
 
     //Create our custom inventory UI additons
-    private _textWeight = _inventoryDisplay ctrlCreate ["IUI_TextWeight",-1];
+    private _textWeight = if (NWG_INVUI_Settings get "TEXT_WEIGHT_ON")
+        then {_inventoryDisplay ctrlCreate ["IUI_TextWeight",-1]}
+        else {controlNull};
     private _buttonLoot = _inventoryDisplay ctrlCreate ["IUI_ButtonLoot",-1];
     private _buttonWeap = _inventoryDisplay ctrlCreate ["IUI_ButtonWeaponSwitch",-1];
     private _buttonUnif = _inventoryDisplay ctrlCreate ["IUI_ButtonUniform",-1];
     private _buttonMagR = _inventoryDisplay ctrlCreate ["IUI_ButtonMagRepack",-1];
 
     //Handle data store and cleanup
-    uiNamespace setVariable ["NWG_INVUI_textWeight",_textWeight];//Store weight text control
+    if !(isNull _textWeight) then {uiNamespace setVariable ["NWG_INVUI_textWeight",_textWeight]};//Store weight text control
     uiNamespace setVariable ["NWG_INVUI_eventArgs",_this];//Store arguments for later use
     _inventoryDisplay displayAddEventHandler ["Unload",{
-        uiNamespace setVariable ["NWG_INVUI_textWeight",nil];
+        if (NWG_INVUI_Settings get "TEXT_WEIGHT_ON") then {uiNamespace setVariable ["NWG_INVUI_textWeight",nil]};
         uiNamespace setVariable ["NWG_INVUI_eventArgs",nil];
     }];
 
@@ -80,6 +84,7 @@ NWG_INVUI_OnInventoryOpen = {
 //Weight text
 NWG_INVUI_UpdateWeight = {
     // disableSerialization;//Don't need if there are no private variables
+    if !(NWG_INVUI_Settings get "TEXT_WEIGHT_ON") exitWith {};//Exit if weight text is disabled
     if (isNull (uiNamespace getVariable ["NWG_INVUI_textWeight",controlNull])) exitWith {};//Exit if not initialized (inventory closed or other reason)
     private _weight = round ((loadAbs player)/10);//Convert to kg
     (uiNamespace getVariable ["NWG_INVUI_textWeight",controlNull]) ctrlSetText (format [(NWG_INVUI_Settings get "TEXT_WEIGHT_TEMPLATE"),_weight]);
