@@ -27,7 +27,7 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
 	["SHOP_PERSISTENT_ITEMS",[
 		[],
 		["arifle_MX_F","arifle_MXC_F","arifle_AKM_F","arifle_AKS_F"],
-		[5,"ItemRadio",3,"ItemCompass","O_UavTerminal",3,"acc_flashlight",1,"MineDetector",10,"FirstAidKit"],
+		["ItemRadio","ItemCompass","ItemMap","O_UavTerminal","acc_flashlight","MineDetector",10,"FirstAidKit"],
 		[10,"30Rnd_65x39_caseless_mag",10,"30Rnd_762x39_Mag_F",10,"30Rnd_545x39_Mag_F"]
 	]],
 	["SHOP_CHECK_PERSISTENT_ITEMS_ON_INIT",false],//Check validity of persistent items on init
