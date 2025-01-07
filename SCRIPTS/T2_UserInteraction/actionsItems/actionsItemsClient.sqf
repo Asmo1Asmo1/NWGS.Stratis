@@ -343,10 +343,16 @@ NWG_AI_VehicleFix_OnCompleted = {
     (getAllHitPointsDamage (call NWG_fnc_radarGetVehInFront)) params ["_vehParts","","_vehDamages"];
     (NWG_AI_Settings get "REPAIR_MATRIX") params ["_partsRules","_downToRules"];
     private _fixDownTo = 0;
+	private _hitIndexArray = [];
     {
         _fixDownTo = _downToRules param [(_partsRules findIf {_x in (_vehParts#_forEachIndex)}),0];
-        if (_x > _fixDownTo) then {_vehicle setHitIndex [_forEachIndex,_fixDownTo]};
+        if (_x > _fixDownTo) then {
+			_hitIndexArray pushBack _forEachIndex;
+			_hitIndexArray pushBack _fixDownTo;
+		};
     } forEach _vehDamages;
+
+	[_vehicle,_hitIndexArray] call NWG_fnc_setHitIndex;
 };
 
 //================================================================================================================

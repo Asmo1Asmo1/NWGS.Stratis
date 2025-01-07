@@ -400,6 +400,24 @@ NWG_fnc_addHoldAction = {
     ] call BIS_fnc_holdActionAdd
 };
 
+//Set hitIndex for vehicle (actions 'Repair', 'EMI drone action', etc.)
+//params:
+//	vehicle - vehicle object
+//	array - of [index,value,index,value...]
+//	actor - (optional, default objNull) unit who will be recorded as person doing the damage
+//	useEffects - (optional, default false) if true, effects will be used
+//	breakRotor - (optional, default false) if true, rotor will be broken
+NWG_fnc_setHitIndex = {
+	params ["_vehicle","_array",["_actor",objNull],["_useEffects",false],["_breakRotor",false]];
+	if (isNull _vehicle || {!alive _vehicle}) exitWith {"NWG_fnc_setHitIndex: Vehicle is null or dead" call NWG_fnc_logError};
+    if ((count _array) == 0) exitWith {};
+    if (!local _vehicle) exitWith {_this remoteExec ["NWG_fnc_setHitIndex",_vehicle]};
+
+	for "_i" from 0 to ((count _array) - 1) step 2 do {
+		_vehicle setHitIndex [(_array#_i),(_array#(_i+1)),_useEffects,_actor,_actor,_breakRotor];
+	};
+};
+
 //===============================================================
 //Containers
 //Clears container cargo in a JIP-friendly manner - only clear what is needed
