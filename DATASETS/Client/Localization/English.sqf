@@ -92,6 +92,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_BUTTON_DOCUMNTS_TOOLTIP#","Documents"],
     ["#UP_BUTTON_PLR_INFO_TOOLTIP#","Player info"],
     ["#UP_BUTTON_SETTINGS_TOOLTIP#","Settings"],
+    ["#UP_NOT_IMPLEMENTED_TOOLTIP#","This option is not implemented yet"],
     //06Settings
     ["#UP_SETTINGS_TITLE#","Settings"],
     ["#UP_SETTINGS_KEYBINDINGS#","Keybindings"],

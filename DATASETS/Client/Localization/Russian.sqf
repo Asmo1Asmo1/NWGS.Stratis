@@ -106,6 +106,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_BUTTON_DOCUMNTS_TOOLTIP#","Документы"],
     ["#UP_BUTTON_PLR_INFO_TOOLTIP#","Информация об игроке"],
     ["#UP_BUTTON_SETTINGS_TOOLTIP#","Настройки"],
+    ["#UP_NOT_IMPLEMENTED_TOOLTIP#","Эта опция пока не реализована"],
     //06Settings
     ["#UP_SETTINGS_TITLE#","Настройки"],
     ["#UP_SETTINGS_KEYBINDINGS#","Горячие клавиши"],
