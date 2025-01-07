@@ -177,7 +177,7 @@ NWG_AI_ReloadActions = {
 
 NWG_AI_IsActionAssigned = {
 	// private _saveID = _this;
-	(player getVariable [_this,-1]) != -1
+	(player getVariable [_this,-1]) in (actionIDs player)
 };
 
 NWG_AI_AssignAction = {
@@ -205,9 +205,7 @@ NWG_AI_AssignAction = {
 
 NWG_AI_RemoveAction = {
 	// private _saveID = _this;
-	private _actionID = player getVariable [_this,-1];
-	if (_actionID == -1) exitWith {};//Do nothing if action is not assigned
-	player removeAction _actionID;
+	player removeAction (player getVariable [_this,-1]);
 	player setVariable [_this,-1];
 };
 
