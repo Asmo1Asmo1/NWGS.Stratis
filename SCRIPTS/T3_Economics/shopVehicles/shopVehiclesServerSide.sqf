@@ -474,22 +474,10 @@ NWG_VSHOP_SER_AddDynamicItems = {
 	};
 
 	//foreach category of itemsToAdd
+	private _newItems = [];
 	{
-		switch (true) do {
-			case ((count _x) == 0): {
-				//Nothing to add - skip
-				/*Do nothing*/
-			};
-			case ((count (NWG_VSHOP_SER_dynamicItems#_forEachIndex)) == 0): {
-				//Nothing was stored - replace
-				NWG_VSHOP_SER_dynamicItems set [_forEachIndex,_x];
-			};
-			default {
-				//Both arrays are non-empty - merge
-				private _newItems = [(NWG_VSHOP_SER_dynamicItems#_forEachIndex),_x] call NWG_fnc_mergeCompactedStringArrays;
-				NWG_VSHOP_SER_dynamicItems set [_forEachIndex,_newItems];
-			};
-		};
+		_newItems = [(NWG_VSHOP_SER_dynamicItems#_forEachIndex),_x] call NWG_fnc_mergeCompactedStringArrays;
+		NWG_VSHOP_SER_dynamicItems set [_forEachIndex,_newItems];
 	} forEach _sanitizedChart;
 
 	//return

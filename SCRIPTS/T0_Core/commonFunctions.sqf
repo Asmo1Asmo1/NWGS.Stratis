@@ -169,6 +169,10 @@ NWG_fnc_unCompactStringArray = {
 NWG_fnc_mergeCompactedStringArrays = {
     params ["_array1","_array2"];
 
+    //Simple cases
+    if ((count _array1) == 0) exitWith {_array2+[]};//Shallow copy of the second array
+    if ((count _array2) == 0) exitWith {_array1+[]};//Shallow copy of the first array
+
     //Get compacted array but with unomitted '1' counts
     private _result = [];
     private _count = 1;

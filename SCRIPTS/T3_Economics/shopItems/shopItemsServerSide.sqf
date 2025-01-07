@@ -348,22 +348,10 @@ NWG_ISHOP_SER_AddDynamicItems = {
 	};
 
 	//foreach category of itemsToAdd
+	private _newItems = [];
 	{
-		switch (true) do {
-			case ((count _x) == 0): {
-				//Nothing to add - skip
-				/*Do nothing*/
-			};
-			case ((count (NWG_ISHOP_SER_dynamicItems#_forEachIndex)) == 0): {
-				//Nothing was stored - replace
-				NWG_ISHOP_SER_dynamicItems set [_forEachIndex,_x];
-			};
-			default {
-				//Both arrays are non-empty - merge
-				private _newItems = [(NWG_ISHOP_SER_dynamicItems#_forEachIndex),_x] call NWG_fnc_mergeCompactedStringArrays;
-				NWG_ISHOP_SER_dynamicItems set [_forEachIndex,_newItems];
-			};
-		};
+		_newItems = [(NWG_ISHOP_SER_dynamicItems#_forEachIndex),_x] call NWG_fnc_mergeCompactedStringArrays;
+		NWG_ISHOP_SER_dynamicItems set [_forEachIndex,_newItems];
 	} forEach _sanitizedChart;
 
 	//return
@@ -451,11 +439,7 @@ NWG_ISHOP_SER_OnShopRequest = {
 	private _dynamicItems = NWG_ISHOP_SER_dynamicItems;
 	private _shopItems = [];
 	{
-		if ((count (_persistentItems#_x)) > 0 && {(count (_dynamicItems#_x)) > 0}) then {
-			_shopItems pushBack ([(_persistentItems#_x),(_dynamicItems#_x)] call NWG_fnc_mergeCompactedStringArrays);
-		} else {
-			_shopItems pushBack ((_persistentItems#_x) + (_dynamicItems#_x));
-		};
+		_shopItems pushBack ([(_persistentItems#_x),(_dynamicItems#_x)] call NWG_fnc_mergeCompactedStringArrays);
 	} forEach [LOOT_ITEM_CAT_CLTH,LOOT_ITEM_CAT_WEAP,LOOT_ITEM_CAT_ITEM,LOOT_ITEM_CAT_AMMO];
 
 	//Evaluate prices
