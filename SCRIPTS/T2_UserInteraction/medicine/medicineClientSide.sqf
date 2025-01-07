@@ -316,7 +316,7 @@ NWG_MED_CLI_BLEEDING_Cycle = {
             (_depleteByDamage + _depleteByTime)
         ];
         private _closeInfo = if (!isNull _closestPlayer)
-            then {format [("#MED_CLI_BLEEDING_UI_CLOSEST_PLAYER#" call NWG_fnc_localize),(name _closestPlayer),(_closestPlayer distance player)]}
+            then {format [("#MED_CLI_BLEEDING_UI_CLOSEST_PLAYER#" call NWG_fnc_localize),(name _closestPlayer),(round (_closestPlayer distance player))]}
             else {"#MED_CLI_BLEEDING_UI_NO_CLOSEST#" call NWG_fnc_localize};
         hintSilent ([_title,_timeInfo,_closeInfo] joinString "\n");
 
