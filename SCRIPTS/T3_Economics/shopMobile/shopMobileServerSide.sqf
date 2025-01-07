@@ -18,7 +18,7 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 		["C0I1",1100],//Suicide drone (HE 44)
 		["C0I2",1200],//Suicide drone (HEAT 55)
 		["C0I3",1500],//Suicide drone (HEAT 75)
-		["C0I4",2000],//EMI drone
+		["C0I4",2500],//EMI drone
 		["C0I5",2500],//Bomber drone
 		["C0I6",50000],//Ababil
 
@@ -41,8 +41,8 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 		["C0I1",[100,100,0]],//Suicide drone (HE 44)
 		["C0I2",[100,100,0]],//Suicide drone (HEAT 55)
 		["C0I3",[100,100,0]],//Suicide drone (HEAT 75)
-		["C0I4",[100,100,0]],//EMI drone
-		["C0I5",[100,100,0]],//Bomber drone
+		["C0I4",[250,100,0]],//EMI drone
+		["C0I5",[250,100,0]],//Bomber drone
 		["C0I6",[5000,100,0]],//Ababil
 
 		["C1I0",[100,100,0]],//Single strike
@@ -91,7 +91,7 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 	["EMI_RADIUS",50],
 	["EMI_TARGETS",["engine","turret","gun","light","rotor"]],//Vehicle parts targeted by EMI impulse
 	["EMI_DAMAGE_MIN",0.25],//Minimum damage to be inflicted by EMI impulse
-	["EMI_DAMAGE_MAX",1],//Maximum damage to be inflicted by EMI impulse
+	["EMI_DAMAGE_MAX",0.97],//Maximum damage to be inflicted by EMI impulse
 	["BOMBER_DELETE_CHECK_INTERVAL",15],//Server-side check interval for bomber drones
 	["BOMBER_DELETE_DELAY",5],//Delay since last shot before deleting the vehicle
 
@@ -337,21 +337,27 @@ NWG_MSHOP_EmiDrone_Action = {
 	// params ["_target", "_caller", "_actionId", "_arguments"];
 	params ["_drone"];
 	private _radius = NWG_MSHOP_SER_Settings get "EMI_RADIUS";
+	private _minDamage = NWG_MSHOP_SER_Settings get "EMI_DAMAGE_MIN";
+	private _maxDamage = NWG_MSHOP_SER_Settings get "EMI_DAMAGE_MAX";
 
 	//Disable nearby lights
 	{
-		for "_i" from 0 to (count ((getAllHitPointsDamage _x) param [0,[]]) -1) do {_x setHitIndex [_i, 0.97]};
+		private _hitIndexArray = [];
+		for "_i" from 0 to (count ((getAllHitPointsDamage _x) param [0,[]]) -1) do {
+			_hitIndexArray pushBack _i;
+			_hitIndexArray pushBack _maxDamage;
+		};
+		[_x,_hitIndexArray] call NWG_fnc_setHitIndex;
 	} forEach (nearestObjects [_drone,["Lamps_base_F","PowerLines_base_F","PowerLines_Small_base_F"],_radius]);
 
 	//Harm nearby vehicles
 	private _droneOwner = _drone getVariable ["NWG_owner",objNull];
 	private _targetedParts = NWG_MSHOP_SER_Settings get "EMI_TARGETS";
-	private _minDamage = NWG_MSHOP_SER_Settings get "EMI_DAMAGE_MIN";
-	private _maxDamage = NWG_MSHOP_SER_Settings get "EMI_DAMAGE_MAX";
-	private ["_vehicle","_parts","_damages","_curPart","_newDmg"];
+	private ["_vehicle","_parts","_damages","_hitIndexArray","_curPart","_newDmg"];
 	{
 		_vehicle = _x;
 		(getAllHitPointsDamage _vehicle) params [["_parts",[]],"",["_damages",[]]];
+		_hitIndexArray = [];
 
 		for "_i" from 0 to ((count _parts) - 1) do {
 			//Get part of the vehicle and check if it's targeted
@@ -362,9 +368,13 @@ NWG_MSHOP_EmiDrone_Action = {
 			_newDmg = [(_damages#_i),1.2] call NWG_fnc_randomRangeFloat;//1.2 to increase chances of higher damage
 			_newDmg = (_newDmg max _minDamage) min _maxDamage;//Clamp to settings
 
-			//Apply new damage
-			_vehicle setHitIndex [_i,_newDmg,/*useEffects:*/false,_droneOwner,_droneOwner,/*breakRotor:*/false];
+			//Add to hitIndex array
+			_hitIndexArray pushBack _i;
+			_hitIndexArray pushBack _newDmg;
 		};
+
+		//Apply new damage
+		[_vehicle,_hitIndexArray,_droneOwner] call NWG_fnc_setHitIndex;
 	} forEach (_drone nearEntities [["Car","Tank","Helicopter","Plane","Ship"],_radius] select {alive _x && {_x isNotEqualTo _drone}});
 
 	//Play light and sound effects
