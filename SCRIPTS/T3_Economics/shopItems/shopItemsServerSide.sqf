@@ -18,10 +18,10 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
     ["DEFAULT_PRICE_AMMO",300],
 
 	//[activeFactor,passiveFactor,priceMin,priceMax]
-	["PRICE_CLTH_SETTINGS",[0.001,0.0002,300,3000]],
-	["PRICE_WEAP_SETTINGS",[0.002,0.0004,500,8000]],
-	["PRICE_ITEM_SETTINGS",[0.001,0.0002,100,2000]],
-	["PRICE_AMMO_SETTINGS",[0.001,0.0002,100,1000]],
+	["PRICE_CLTH_SETTINGS",[0.01,0.001,300,5000]],
+	["PRICE_WEAP_SETTINGS",[0.02,0.002,500,10000]],
+	["PRICE_ITEM_SETTINGS",[0.01,0.001,200,3000]],
+	["PRICE_AMMO_SETTINGS",[0.01,0.001,100,1000]],
 
 	//Items that are added to each shop interaction
 	["SHOP_PERSISTENT_ITEMS",[
@@ -115,15 +115,7 @@ NWG_ISHOP_SER_EvaluateItem = {
 };
 
 NWG_ISHOP_SER_UpdatePrices = {
-	params ["_item","_quantity","_isSoldToPlayer"];
-
-	//Get item info
-	private _cachedInfo = NWG_ISHOP_SER_itemsInfoCache get _item;
-	if (isNil "_cachedInfo") exitWith {
-		(format["NWG_ISHOP_SER_UpdatePrices: Item '%1' is not cached, evaluate items before updating prices",_item]) call NWG_fnc_logError;
-		false
-	};
-	_cachedInfo params ["_categoryIndex","_itemIndex"];
+	params ["_categoryIndex","_items","_isSoldToPlayer"];
 
 	//Get category settings
 	private _settings = switch (_categoryIndex) do {
@@ -153,14 +145,62 @@ NWG_ISHOP_SER_UpdatePrices = {
 		//_passiveFactor //unchanged
 	};
 
-	//Process the update
+	//Prepare for processing
 	private _priceChart = (NWG_ISHOP_SER_itemsPriceChart select _categoryIndex) select CHART_PRICES;
-	private _activeMultiplier = 1 + (_activeFactor*_quantity);
-	private _passiveMultiplier = 1 + (_passiveFactor*_quantity);
-	//Process passive multipliers (overlap with active item is accepted)
-	{_priceChart set [_forEachIndex,(((_x*_passiveMultiplier) max _priceMin) min _priceMax)]} forEach _priceChart;
-	//Process active multiplier
-	_priceChart set [_itemIndex,((((_priceChart#_itemIndex)*_activeMultiplier) max _priceMin) min _priceMax)];
+	private _curPrice = 0;
+	private _actives = [];
+	private _totalCount = 0;
+
+	//Update active items
+	private _count = 1;
+	private _cachedInfo = [];
+	{
+		if (_x isEqualType 1) then {
+			_count = _x;
+			continue;
+		};
+
+		_cachedInfo = NWG_ISHOP_SER_itemsInfoCache get _x;
+		if (isNil "_cachedInfo") then {
+			(format["NWG_ISHOP_SER_UpdatePrices: Item '%1' is not cached, evaluate items before updating prices",_x]) call NWG_fnc_logError;
+			_count = 1;
+			continue;
+		};
+		_cachedInfo params ["_iCat","_iIndex"];
+		if (_iCat != _categoryIndex) then {
+			(format["NWG_ISHOP_SER_UpdatePrices: Item '%1' is not in the right category. Expected: '%2', Actual: '%3'",_x,_categoryIndex,_iCat]) call NWG_fnc_logError;
+			_count = 1;
+			continue;
+		};
+		if (_iIndex < 0 || {_iIndex >= (count _priceChart)}) then {
+			(format["NWG_ISHOP_SER_UpdatePrices: Item's '%1' price index '%2' is out of bounds for category '%3'",_x,_iIndex,_categoryIndex]) call NWG_fnc_logError;
+			_count = 1;
+			continue;
+		};
+
+		_actives pushBackUnique _iIndex;
+		_totalCount = _totalCount + _count;
+		_curPrice = _priceChart#_iIndex;
+		_curPrice = ((_curPrice + (_activeFactor*_count)) max _priceMin) min _priceMax;
+		_priceChart set [_iIndex,_curPrice];
+		_curPrice = 0;
+		_count = 1;
+
+	} forEach _items;
+
+	//Check at least one change was made
+	if (_totalCount == 0) exitWith {
+		(format["NWG_ISHOP_SER_UpdatePrices: No changes were made to the price chart for category '%1'",_categoryIndex]) call NWG_fnc_logError;
+		false
+	};
+
+	//Update passive items
+	{
+		if (_forEachIndex in _actives) then {continue};
+		_curPrice = _x;
+		_curPrice = ((_curPrice + (_passiveFactor*_totalCount)) max _priceMin) min _priceMax;
+		_priceChart set [_forEachIndex,_curPrice];
+	} forEach _priceChart;
 
 	//return
 	true
@@ -464,34 +504,9 @@ NWG_ISHOP_SER_OnShopRequest = {
 NWG_ISHOP_SER_OnTransaction = {
 	params ["_itemsSoldToPlayer","_itemsBoughtFromPlayer"];
 
-	//Update prices
-	private _updatePrices = {
-		params ["_items","_isSoldToPlayer"];
-		private _quantity = 1;
-		{
-			switch (true) do {
-				case (_x isEqualType 1): {
-					_quantity = _x;
-				};
-				case (_x isEqualType ""): {
-					[_x,_quantity,_isSoldToPlayer] call NWG_ISHOP_SER_UpdatePrices;
-					_quantity = 1;
-				};
-				default {
-					(format["NWG_ISHOP_SER_OnTransaction: Invalid item type '%1'",_x]) call NWG_fnc_logError;
-				};
-			};
-		} forEach _items;
-	};
-	[_itemsSoldToPlayer,true] call _updatePrices;
-	[_itemsBoughtFromPlayer,false] call _updatePrices;
-
-
-	//Prepare chance applying
+	//Prepare script for updating dynamic items
 	private _applyChanceRemoveJunk = {
 		params ["_items","_chanceName"];
-		if ((count _items) == 0) exitWith {[]};
-
 		private _chance = ((NWG_ISHOP_SER_Settings get _chanceName) max 0) min 1;
 		if (_chance == 0) exitWith {[]};
 
@@ -503,8 +518,29 @@ NWG_ISHOP_SER_OnTransaction = {
 		_items select {(random 1) <= _chance}
 	};
 
-	//Add dynamic items that were bought
-	([_itemsBoughtFromPlayer,"SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE"]  call _applyChanceRemoveJunk) call NWG_ISHOP_SER_AddDynamicItems;
-	//Remove dynamic items that were sold
-	([_itemsSoldToPlayer,"SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE"] call _applyChanceRemoveJunk) call NWG_ISHOP_SER_RemoveDynamicItems;
+	//Update sold items
+	if ((count _itemsSoldToPlayer) > 0) then {
+		//Update prices
+		private _soldChart = _itemsSoldToPlayer call NWG_ISHOP_SER_ArrayToChart;
+		{
+			if ((count _x) > 0) then {[_forEachIndex,_x,true] call NWG_ISHOP_SER_UpdatePrices};
+		} forEach _soldChart;
+
+		//Update dynamic items
+		private _soldFiltered = [_itemsSoldToPlayer,"SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE"] call _applyChanceRemoveJunk;
+		if ((count _soldFiltered) > 0) then {_soldFiltered call NWG_ISHOP_SER_RemoveDynamicItems};
+	};
+
+	//Update bought items
+	if ((count _itemsBoughtFromPlayer) > 0) then {
+		//Update prices
+		private _boughtChart = _itemsBoughtFromPlayer call NWG_ISHOP_SER_ArrayToChart;
+		{
+			if ((count _x) > 0) then {[_forEachIndex,_x,false] call NWG_ISHOP_SER_UpdatePrices};
+		} forEach _boughtChart;
+
+		//Update dynamic items
+		private _boughtFiltered = [_itemsBoughtFromPlayer,"SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE"] call _applyChanceRemoveJunk;
+		if ((count _boughtFiltered) > 0) then {_boughtFiltered call NWG_ISHOP_SER_AddDynamicItems};
+	};
 };

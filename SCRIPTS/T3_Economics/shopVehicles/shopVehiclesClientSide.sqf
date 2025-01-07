@@ -873,16 +873,22 @@ NWG_VSHOP_CLI_TRA_OnClose = {
 	private _soldToPlayer = uiNamespace getVariable ["NWG_VSHOP_CLI_TRA_soldToPlayer",[]];
 	private _boughtFromPlayer = uiNamespace getVariable ["NWG_VSHOP_CLI_TRA_boughtFromPlayer",[]];
 
-	//Filter out mutual records (same item bought and sold in one session) (+ compact arrays)
-	private _i = -1;
-	{
-		_i = _soldToPlayer find _x;
-		if (_i != -1) then {
-			//Mutual annihilation
-			_soldToPlayer deleteAt _i;
-			_boughtFromPlayer deleteAt _forEachIndex;
-		};
-	} forEachReversed _boughtFromPlayer;
+	//Form transaction report
+	//+Filter out mutual records (same item bought and sold in one session)
+	//+Compact arrays
+	_soldToPlayer = _soldToPlayer call NWG_fnc_unCompactStringArray;
+	_boughtFromPlayer = _boughtFromPlayer call NWG_fnc_unCompactStringArray;
+	if ((count _soldToPlayer) > 0 && {(count _boughtFromPlayer) > 0}) then {
+		private _i = -1;
+		{
+			_i = _soldToPlayer find _x;
+			if (_i != -1) then {
+				//Mutual annihilation
+				_soldToPlayer deleteAt _i;
+				_boughtFromPlayer deleteAt _forEachIndex;
+			};
+		} forEachReversed _boughtFromPlayer;
+	};
 	_soldToPlayer = _soldToPlayer call NWG_fnc_compactStringArray;
 	_boughtFromPlayer = _boughtFromPlayer call NWG_fnc_compactStringArray;
 

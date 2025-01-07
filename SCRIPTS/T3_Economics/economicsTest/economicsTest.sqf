@@ -68,8 +68,8 @@ NWG_ECOT_PricesLifetime_Simulation = {
 			_sellSelection = _sellSelection call NWG_fnc_arrayShuffle;
 		};
 
-		[(selectRandom _buySelection),1,true] call NWG_ISHOP_SER_UpdatePrices;
-		[(selectRandom _sellSelection),1,false] call NWG_ISHOP_SER_UpdatePrices;
+		[LOOT_ITEM_CAT_ITEM,[(selectRandom _buySelection)], true ] call NWG_ISHOP_SER_UpdatePrices;
+		[LOOT_ITEM_CAT_ITEM,[(selectRandom _sellSelection)],false] call NWG_ISHOP_SER_UpdatePrices;
 	};
 
 	_reports call NWG_fnc_testDumpToRptAndClipboard;
