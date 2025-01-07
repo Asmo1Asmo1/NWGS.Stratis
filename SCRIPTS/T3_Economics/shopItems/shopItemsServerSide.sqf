@@ -33,8 +33,8 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
 	["SHOP_CHECK_PERSISTENT_ITEMS_ON_INIT",false],//Check validity of persistent items on init
 	["SHOP_SKIP_SENDING_PLAYER_LOOT",true],//If you're using 'lootStorage' module, player loot is already synchronized between players and server
 	["SHOP_GET_PLAYER_LOOT_FUNC",{_this call NWG_fnc_lsGetPlayerLoot}],//Function that returns player loot
-	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",0.5],//Chance that item will be added to dynamic items when bought from player
-	["SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE",1],//Chance that item will be removed from dynamic items when sold to player
+	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",0],//Chance that item will be added to dynamic items when bought from player
+	["SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE",0],//Chance that item will be removed from dynamic items when sold to player
 
 	["SHOP_JUNK_ITEMS",[
 		"FlashDisk","Files","FilesSecret","FileTopSecret","FileNetworkStructure","DocumentsSecret",
