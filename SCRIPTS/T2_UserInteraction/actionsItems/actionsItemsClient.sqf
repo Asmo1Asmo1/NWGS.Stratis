@@ -177,7 +177,7 @@ NWG_AI_ReloadActions = {
 
 NWG_AI_IsActionAssigned = {
 	// private _saveID = _this;
-	(player getVariable [_this,-1]) != -1
+	(player getVariable [_this,-1]) in (actionIDs player)
 };
 
 NWG_AI_AssignAction = {
@@ -205,9 +205,7 @@ NWG_AI_AssignAction = {
 
 NWG_AI_RemoveAction = {
 	// private _saveID = _this;
-	private _actionID = player getVariable [_this,-1];
-	if (_actionID == -1) exitWith {};//Do nothing if action is not assigned
-	player removeAction _actionID;
+	player removeAction (player getVariable [_this,-1]);
 	player setVariable [_this,-1];
 };
 
@@ -345,10 +343,16 @@ NWG_AI_VehicleFix_OnCompleted = {
     (getAllHitPointsDamage (call NWG_fnc_radarGetVehInFront)) params ["_vehParts","","_vehDamages"];
     (NWG_AI_Settings get "REPAIR_MATRIX") params ["_partsRules","_downToRules"];
     private _fixDownTo = 0;
+	private _hitIndexArray = [];
     {
         _fixDownTo = _downToRules param [(_partsRules findIf {_x in (_vehParts#_forEachIndex)}),0];
-        if (_x > _fixDownTo) then {_vehicle setHitIndex [_forEachIndex,_fixDownTo]};
+        if (_x > _fixDownTo) then {
+			_hitIndexArray pushBack _forEachIndex;
+			_hitIndexArray pushBack _fixDownTo;
+		};
     } forEach _vehDamages;
+
+	[_vehicle,_hitIndexArray] call NWG_fnc_setHitIndex;
 };
 
 //================================================================================================================

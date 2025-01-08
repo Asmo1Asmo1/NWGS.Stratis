@@ -32,7 +32,7 @@ NWG_DB_PRC_LoadItemPrices = {
 
 NWG_DB_PRC_SaveItemPrices = {
 	// private _chartToSave = _this;
-	private _result = [TABLE_NAME_ITEMS,_this] call NWG_DB_PRC_Save;
+	private _result = [TABLE_NAME_ITEMS,_this,2] call NWG_DB_PRC_Save;
 	if (_result isEqualTo false) exitWith {
 		"NWG_DB_PRC_SaveItemPrices: Failed to save items prices" call NWG_fnc_logError;
 		false
@@ -55,7 +55,7 @@ NWG_DB_PRC_LoadVehiclePrices = {
 
 NWG_DB_PRC_SaveVehiclePrices = {
 	// private _chartToSave = _this;
-	private _result = [TABLE_NAME_VEHS,_this] call NWG_DB_PRC_Save;
+	private _result = [TABLE_NAME_VEHS,_this,0] call NWG_DB_PRC_Save;
 	if (_result isEqualTo false) exitWith {
 		"NWG_DB_PRC_SaveVehiclePrices: Failed to save vehicles prices" call NWG_fnc_logError;
 		false
@@ -157,7 +157,7 @@ NWG_DB_PRC_Load = {
 //======================================================================================================
 //Save
 NWG_DB_PRC_Save = {
-	params ["_tableName","_chartToSave"];
+	params ["_tableName","_chartToSave","_pricePrecision"];
 
 	//Check arguments
 	if (_tableName isEqualTo "" || {!(_tableName isEqualType "")}) exitWith {
@@ -202,7 +202,7 @@ NWG_DB_PRC_Save = {
 		{
 			_id = _id + 1;
 			_item = _x;
-			_price = text ((_prices param [_forEachIndex,0]) toFixed 2);
+			_price = text ((_prices param [_forEachIndex,0]) toFixed _pricePrecision);
 			_insertResult = "extDB3" callExtension (format ["0:%1:INSERT INTO %2 (id,cat,item,price) VALUES (%3,%4,'%5','%6')",NWG_DB_Protocol,_tableName,_id,_cat,_item,_price]);
 			if (_insertResult isNotEqualTo DB_OK) exitWith {
 				(format ["NWG_DB_PRC_Save: Insert failed. Table: '%1'. Insert result: '%2'",_tableName,_insertResult]) call NWG_fnc_logError;

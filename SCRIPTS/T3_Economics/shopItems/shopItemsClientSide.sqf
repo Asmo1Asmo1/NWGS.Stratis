@@ -294,7 +294,7 @@ NWG_ISHOP_CLI_SetNewMultiplier = {
 //Items lists
 NWG_ISHOP_CLI_UpdateItemsList = {
 	disableSerialization;
-	params ["_isPlayerSide",["_listCat",""],["_dropSelection",true]];
+	params ["_isPlayerSide",["_listCat",""]];
 
 	private _list = if (_isPlayerSide)
 		then {uiNamespace getVariable ["NWG_ISHOP_CLI_plList",controlNull]}
@@ -339,9 +339,6 @@ NWG_ISHOP_CLI_UpdateItemsList = {
 		_list lbSetPicture [_i, _picture];//Set picture
 		_count = 1;//Reset count
 	} forEach _itemsToShow;
-
-	//Drop selection
-	if (_dropSelection) then {_list lbSetCurSel -1};
 };
 
 NWG_ISHOP_CLI_FormatListRecord = {
@@ -469,8 +466,8 @@ NWG_ISHOP_CLI_OnListDobuleClick = {
 	};
 
 	//Update UI
-	[_isPlayerSide,"",_moveAll] call NWG_ISHOP_CLI_UpdateItemsList;//Update source list
-	[!_isPlayerSide,"",false] call NWG_ISHOP_CLI_UpdateItemsList;//Update target list
+	[_isPlayerSide,""] call NWG_ISHOP_CLI_UpdateItemsList;//Update source list
+	[!_isPlayerSide,""] call NWG_ISHOP_CLI_UpdateItemsList;//Update target list
 	call NWG_ISHOP_CLI_UpdatePlayerMoneyText;//Update player money text
 	true call NWG_ISHOP_CLI_BlinkPlayerMoney;//Blink player money
 };
@@ -608,23 +605,26 @@ NWG_ISHOP_CLI_TRA_TryAddToTransaction = {
 };
 
 NWG_ISHOP_CLI_TRA_OnClose = {
-	//Form transaction report
 	//Get transactions
 	private _soldToPlayer = uiNamespace getVariable ["NWG_ISHOP_CLI_TRA_soldToPlayer",[]];
 	private _boughtFromPlayer = uiNamespace getVariable ["NWG_ISHOP_CLI_TRA_boughtFromPlayer",[]];
 
-	//Filter out mutual records (same item bought and sold in one session) (also compacts arrays)
+	//Form transaction report
+	//+Filter out mutual records (same item bought and sold in one session)
+	//+Compact arrays
 	_soldToPlayer = _soldToPlayer call NWG_fnc_unCompactStringArray;
 	_boughtFromPlayer = _boughtFromPlayer call NWG_fnc_unCompactStringArray;
-	private _i = -1;
-	{
-		_i = _soldToPlayer find _x;
-		if (_i != -1) then {
-			//Mutual annihilation
-			_soldToPlayer deleteAt _i;
-			_boughtFromPlayer deleteAt _forEachIndex;
-		};
-	} forEachReversed _boughtFromPlayer;
+	if ((count _soldToPlayer) > 0 && {(count _boughtFromPlayer) > 0}) then {
+		private _i = -1;
+		{
+			_i = _soldToPlayer find _x;
+			if (_i != -1) then {
+				//Mutual annihilation
+				_soldToPlayer deleteAt _i;
+				_boughtFromPlayer deleteAt _forEachIndex;
+			};
+		} forEachReversed _boughtFromPlayer;
+	};
 	_soldToPlayer = _soldToPlayer call NWG_fnc_compactStringArray;
 	_boughtFromPlayer = _boughtFromPlayer call NWG_fnc_compactStringArray;
 

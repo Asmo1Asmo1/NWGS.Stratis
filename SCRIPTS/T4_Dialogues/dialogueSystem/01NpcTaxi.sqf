@@ -278,7 +278,7 @@ NWG_DLG_TAXI_OnMapClick = {
 	//Close map
 	openMap [true,false];
 	openMap false;
-	hintSilent "";
+	// hintSilent "";
 
 	//Teleport
 	_pos set [2,(NWG_DLG_TAXI_Settings get "PARADROP_ALTITUDE")];
