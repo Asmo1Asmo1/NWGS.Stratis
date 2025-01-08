@@ -470,7 +470,7 @@ NWG_VSHOP_CLI_OnDropdownSelect = {
 //Items lists
 NWG_VSHOP_CLI_UpdateItemsList = {
 	disableSerialization;
-	params ["_isPlayerSide",["_listCat",""],["_dropSelection",true]];
+	params ["_isPlayerSide",["_listCat",""]];
 
 	private _list = if (_isPlayerSide)
 		then {uiNamespace getVariable ["NWG_VSHOP_CLI_plList",controlNull]}
@@ -518,9 +518,6 @@ NWG_VSHOP_CLI_UpdateItemsList = {
 		_list lbSetData [_i,_x];//Set data (item classname)
 		_list lbSetPicture [_i, _picture];//Set picture
 	} forEach _itemsToShow;
-
-	//Drop selection
-	if (_dropSelection) then {_list lbSetCurSel -1};
 };
 
 NWG_VSHOP_CLI_FormatListRecord = {
@@ -649,8 +646,8 @@ NWG_VSHOP_CLI_OnListDobuleClick = {
 	switch (NWG_VSHOP_CLI_shopType) do {
 		case SHOP_TYPE_PLATFM: {
 			//Update UI
-			[_isPlayerSide,"",true] call NWG_VSHOP_CLI_UpdateItemsList;//Update source list
-			[!_isPlayerSide,"",false] call NWG_VSHOP_CLI_UpdateItemsList;//Update target list
+			[_isPlayerSide,""] call NWG_VSHOP_CLI_UpdateItemsList;//Update source list
+			[!_isPlayerSide,""] call NWG_VSHOP_CLI_UpdateItemsList;//Update target list
 			call NWG_VSHOP_CLI_UpdatePlayerMoneyText;//Update player money text
 			true call NWG_VSHOP_CLI_BlinkPlayerMoney;//Blink player money
 

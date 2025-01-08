@@ -294,7 +294,7 @@ NWG_ISHOP_CLI_SetNewMultiplier = {
 //Items lists
 NWG_ISHOP_CLI_UpdateItemsList = {
 	disableSerialization;
-	params ["_isPlayerSide",["_listCat",""],["_dropSelection",true]];
+	params ["_isPlayerSide",["_listCat",""]];
 
 	private _list = if (_isPlayerSide)
 		then {uiNamespace getVariable ["NWG_ISHOP_CLI_plList",controlNull]}
@@ -339,9 +339,6 @@ NWG_ISHOP_CLI_UpdateItemsList = {
 		_list lbSetPicture [_i, _picture];//Set picture
 		_count = 1;//Reset count
 	} forEach _itemsToShow;
-
-	//Drop selection
-	if (_dropSelection) then {_list lbSetCurSel -1};
 };
 
 NWG_ISHOP_CLI_FormatListRecord = {
@@ -469,8 +466,8 @@ NWG_ISHOP_CLI_OnListDobuleClick = {
 	};
 
 	//Update UI
-	[_isPlayerSide,"",_moveAll] call NWG_ISHOP_CLI_UpdateItemsList;//Update source list
-	[!_isPlayerSide,"",false] call NWG_ISHOP_CLI_UpdateItemsList;//Update target list
+	[_isPlayerSide,""] call NWG_ISHOP_CLI_UpdateItemsList;//Update source list
+	[!_isPlayerSide,""] call NWG_ISHOP_CLI_UpdateItemsList;//Update target list
 	call NWG_ISHOP_CLI_UpdatePlayerMoneyText;//Update player money text
 	true call NWG_ISHOP_CLI_BlinkPlayerMoney;//Blink player money
 };
