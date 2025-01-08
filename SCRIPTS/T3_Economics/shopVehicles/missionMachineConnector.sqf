@@ -77,8 +77,8 @@ NWG_VSHOP_MMC_OnMissionStateChanged = {
             };
         };
 
-        /*Mission building economy state - Add vehicles to dynamic shop items*/
-        case MSTATE_BUILD_ECONOMY: {
+        /*Mission completed state - Add vehicles to dynamic shop items*/
+        case MSTATE_COMPLETED: {
             //Add vehicles to dynamic shop items
             private _mDiffclt = call NWG_fnc_mmGetMissionDifficulty;
             private _addItems = switch (_mDiffclt) do {

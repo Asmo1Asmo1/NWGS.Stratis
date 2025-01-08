@@ -280,7 +280,7 @@
 	//=============================================================================================
 	/*Vorona*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],3,[
 			[],
 			["launch_O_Vorona_brown_F","launch_O_Vorona_green_F"],
 			[],
@@ -289,7 +289,7 @@
 	],
 	/*MAAWS - no rangefinder*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["launch_MRAWS_green_rail_F","launch_MRAWS_olive_rail_F"],
 			[],
@@ -297,7 +297,7 @@
 		]
 	],
 	[
-		["NATO","ANYVEH","WEAP"],1,[
+		["NATO","ANYVEH","WEAP"],2,[
 			[],
 			["launch_MRAWS_sand_rail_F"],
 			[],
@@ -306,7 +306,7 @@
 	],
 	/*MAAWS - with rangefinder*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],3,[
 			[],
 			["launch_MRAWS_green_F","launch_MRAWS_olive_F"],
 			[],
@@ -314,7 +314,7 @@
 		]
 	],
 	[
-		["NATO","ANYVEH","WEAP"],2,[
+		["NATO","ANYVEH","WEAP"],3,[
 			[],
 			["launch_MRAWS_sand_F"],
 			[],
@@ -323,7 +323,7 @@
 	],
 	/*NLAW*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["launch_NLAW_F"],
 			[],
@@ -332,7 +332,7 @@
 	],
 	/*RPG-32*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["launch_RPG32_green_F"],
 			[],
@@ -341,7 +341,7 @@
 	],
 	/*RPG-7*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["launch_RPG7_F"],
 			[],
@@ -350,7 +350,7 @@
 	],
 	/*Titan AA*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["launch_B_Titan_olive_F","launch_I_Titan_eaf_F"],
 			[],
@@ -358,7 +358,7 @@
 		]
 	],
 	[
-		["NATO","ANYVEH","WEAP"],1,[
+		["NATO","ANYVEH","WEAP"],2,[
 			[],
 			["launch_B_Titan_F"],
 			[],
@@ -367,7 +367,7 @@
 	],
 	/*Titan AT*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],3,[
 			[],
 			["launch_B_Titan_short_tna_F","launch_I_Titan_short_F","launch_O_Titan_short_F"],
 			[],
@@ -375,7 +375,7 @@
 		]
 	],
 	[
-		["NATO","ANYVEH","WEAP"],2,[
+		["NATO","ANYVEH","WEAP"],3,[
 			[],
 			["launch_B_Titan_short_F"],
 			[],
@@ -387,7 +387,7 @@
 	//=============================================================================================
 	/*4-five 45. (aka FN FNX-45 and FN Five-seveN a little bit)*/
 	[
-		["ANYFAC","-CIV","ANYVEH","ANYBOX"],1,[
+		["ANYFAC","-CIV","ANYVEH","ANYBOX"],2,[
 			[],
 			["hgun_Pistol_heavy_01_F","hgun_Pistol_heavy_01_green_F"],
 			["acc_flashlight_pistol","muzzle_snds_acp","optic_MRD","optic_MRD_black"],
@@ -396,7 +396,7 @@
 	],
 	/*ACP-C2 45. (aka "Custom Covert II" and "Ol' Reliable M1911" in a sense)*/
 	[
-		["ANYFAC","-CIV","ANYVEH","ANYBOX"],1,[
+		["ANYFAC","-CIV","ANYVEH","ANYBOX"],2,[
 			[],
 			["hgun_ACPC2_F"],
 			["acc_flashlight_pistol","muzzle_snds_acp"],
@@ -405,7 +405,7 @@
 	],
 	/*PO7 9mm (aka Walther P99) and Rook-40*/
 	[
-		["ANYFAC","ANYVEH","ANYBOX"],1,[
+		["ANYFAC","ANYVEH","ANYBOX"],2,[
 			[],
 			["hgun_P07_blk_F","hgun_P07_F","hgun_P07_khk_F","hgun_Rook40_F"],
 			["muzzle_snds_L"],
@@ -414,7 +414,7 @@
 	],
 	/*PM 9mm and Rook-40*/
 	[
-		["ANYFAC","ANYVEH","ANYBOX"],1,[
+		["ANYFAC","ANYVEH","ANYBOX"],2,[
 			[],
 			["hgun_Pistol_01_F"],
 			[],
@@ -423,7 +423,7 @@
 	],
 	/*Spectrum device*/
 	[
-		["CIV","ANYVEH","ANYBOX"],2,[
+		["CIV","ANYVEH","ANYBOX"],3,[
 			[],
 			["hgun_esd_01_F"],
 			["acc_esd_01_flashlight","muzzle_antenna_01_f","muzzle_antenna_02_f","muzzle_antenna_03_f"],
@@ -432,7 +432,7 @@
 	],
 	/*Starter pistol*/
 	[
-		["CIV","ANYVEH","ANYBOX"],2,[
+		["CIV","ANYVEH","ANYBOX"],3,[
 			[],
 			["hgun_Pistol_Signal_F"],
 			[],
@@ -441,7 +441,7 @@
 	],
 	/*Zubr*/
 	[
-		["ANYFAC","-CIV","ANYVEH","ANYBOX"],2,[
+		["ANYFAC","-CIV","ANYVEH","ANYBOX"],3,[
 			[],
 			["hgun_Pistol_heavy_02_F"],
 			["acc_flashlight_pistol","optic_Yorris"],
@@ -453,7 +453,7 @@
 	//=============================================================================================
 	/*ADR-97 (aka P90)*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["SMG_03_black","SMG_03_camo","SMG_03_hex","SMG_03_khaki","SMG_03_TR_black","SMG_03_TR_camo","SMG_03_TR_hex","SMG_03_TR_khaki","SMG_03C_black","SMG_03C_camo","SMG_03C_hex","SMG_03C_khaki","SMG_03C_TR_black","SMG_03C_TR_camo","SMG_03C_TR_hex","SMG_03C_TR_khaki"],
 			["acc_flashlight","acc_pointer_IR","muzzle_snds_570","optic_Aco","optic_ACO_grn","optic_ACO_grn_smg","optic_Aco_smg","optic_Holosight","optic_Holosight_arid_F","optic_Holosight_blk_F","optic_Holosight_khk_F","optic_Holosight_lush_F","optic_Holosight_smg","optic_Holosight_smg_blk_F","optic_Holosight_smg_khk_F","optic_Yorris"],
@@ -462,7 +462,7 @@
 	],
 	/*AK series*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["arifle_AK12_arid_F","arifle_AK12_F","arifle_AK12_GL_arid_F","arifle_AK12_GL_F","arifle_AK12_GL_lush_F","arifle_AK12_lush_F","arifle_AK12U_arid_F","arifle_AK12U_F","arifle_AK12U_lush_F","arifle_AKM_F","arifle_AKS_F"],
 			["acc_flashlight","acc_pointer_IR","bipod_02_F_arid","bipod_02_F_lush","muzzle_snds_B","muzzle_snds_B_arid_F","muzzle_snds_B_lush_F","optic_Aco","optic_ACO_grn","optic_ACO_grn_smg","optic_Aco_smg","optic_Arco_AK_arid_F","optic_Arco_AK_blk_F","optic_Arco_AK_lush_F","optic_Hamr","optic_Hamr_khk_F","optic_Holosight","optic_Holosight_arid_F","optic_Holosight_blk_F","optic_Holosight_khk_F","optic_Holosight_lush_F","optic_Holosight_smg","optic_Holosight_smg_blk_F","optic_Holosight_smg_khk_F","optic_MRCO","optic_Nightstalker","optic_NVS","optic_tws","optic_tws_mg"],
@@ -471,7 +471,7 @@
 	],
 	/*ASP-1 Kir*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],3,[
 			[],
 			["srifle_DMR_04_F","srifle_DMR_04_Tan_F"],
 			["acc_flashlight","acc_pointer_IR","bipod_02_F_blk","optic_AMS","optic_DMS","optic_DMS_weathered_F","optic_DMS_weathered_Kir_F","optic_KHS_blk","optic_KHS_old","optic_LRPS","optic_MRCO","optic_Nightstalker","optic_NVS","optic_SOS","optic_SOS_khk_F","optic_tws","optic_tws_mg"],
@@ -480,7 +480,7 @@
 	],
 	/*CAR-95*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["arifle_CTAR_blk_F","arifle_CTAR_ghex_F","arifle_CTAR_GL_blk_F","arifle_CTAR_GL_ghex_F","arifle_CTAR_GL_hex_F","arifle_CTAR_hex_F","arifle_CTARS_blk_F","arifle_CTARS_ghex_F","arifle_CTARS_hex_F"],
 			["acc_flashlight","acc_pointer_IR","muzzle_snds_58_blk_F","muzzle_snds_58_ghex_F","muzzle_snds_58_hex_F","optic_Aco","optic_ACO_grn","optic_ACO_grn_smg","optic_Aco_smg","optic_Arco_blk_F","optic_Arco_ghex_F","optic_Arco_lush_F","optic_ERCO_blk_F","optic_ERCO_khk_F","optic_ERCO_snd_F","optic_Hamr","optic_Hamr_khk_F","optic_Holosight","optic_Holosight_arid_F","optic_Holosight_blk_F","optic_Holosight_khk_F","optic_Holosight_lush_F","optic_Holosight_smg","optic_Holosight_smg_blk_F","optic_Holosight_smg_khk_F","optic_MRCO","optic_Nightstalker","optic_NVS","optic_tws","optic_tws_mg"],
@@ -489,7 +489,7 @@
 	],
 	/*CMR-76*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["srifle_DMR_07_blk_F","srifle_DMR_07_ghex_F","srifle_DMR_07_hex_F"],
 			["acc_flashlight","acc_pointer_IR","muzzle_snds_65_TI_blk_F","muzzle_snds_65_TI_ghex_F","muzzle_snds_65_TI_hex_F","optic_Aco","optic_ACO_grn","optic_ACO_grn_smg","optic_Aco_smg","optic_AMS","optic_Arco_blk_F","optic_Arco_ghex_F","optic_Arco_lush_F","optic_DMS","optic_DMS_ghex_F","optic_ERCO_blk_F","optic_ERCO_khk_F","optic_Hamr","optic_Hamr_khk_F","optic_Holosight_blk_F","optic_Holosight_smg_blk_F","optic_KHS_blk","optic_KHS_hex","optic_KHS_old","optic_LRPS","optic_LRPS_ghex_F","optic_MRCO","optic_Nightstalker","optic_NVS","optic_SOS","optic_SOS_khk_F","optic_tws","optic_tws_mg"],
@@ -498,7 +498,7 @@
 	],
 	/*Cyrus 9.3mm*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],3,[
 			[],
 			["srifle_DMR_05_blk_F","srifle_DMR_05_hex_F","srifle_DMR_05_tan_f"],
 			["acc_flashlight","acc_pointer_IR","bipod_02_F_blk","bipod_02_F_hex","bipod_02_F_tan","muzzle_snds_93mmg","muzzle_snds_93mmg_tan","optic_AMS","optic_AMS_khk","optic_AMS_snd","optic_Arco","optic_Arco_arid_F","optic_Arco_blk_F","optic_Arco_ghex_F","optic_Arco_lush_F","optic_DMS","optic_DMS_ghex_F","optic_DMS_weathered_F","optic_DMS_weathered_Kir_F","optic_ERCO_blk_F","optic_ERCO_khk_F","optic_ERCO_snd_F","optic_Hamr","optic_KHS_blk","optic_KHS_hex","optic_KHS_old","optic_KHS_tan","optic_LRPS","optic_LRPS_ghex_F","optic_LRPS_tna_F","optic_MRCO","optic_Nightstalker","optic_NVS","optic_SOS","optic_SOS_khk_F","optic_tws","optic_tws_mg"],
@@ -507,7 +507,7 @@
 	],
 	/*GM6 Lynx*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],3,[
 			[],
 			["srifle_GM6_camo_F","srifle_GM6_F","srifle_GM6_ghex_F"],
 			["optic_AMS_khk","optic_Arco","optic_Arco_arid_F","optic_Arco_blk_F","optic_Arco_ghex_F","optic_Arco_lush_F","optic_DMS","optic_DMS_ghex_F","optic_DMS_weathered_F","optic_DMS_weathered_Kir_F","optic_ERCO_blk_F","optic_ERCO_khk_F","optic_ERCO_snd_F","optic_Hamr","optic_Hamr_khk_F","optic_KHS_blk","optic_KHS_hex","optic_KHS_old","optic_KHS_tan","optic_LRPS","optic_LRPS_ghex_F","optic_LRPS_tna_F","optic_MRCO","optic_Nightstalker","optic_NVS","optic_SOS","optic_SOS_khk_F","optic_tws","optic_tws_mg"],
@@ -516,7 +516,7 @@
 	],
 	/*Katiba*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["arifle_Katiba_C_F","arifle_Katiba_F","arifle_Katiba_GL_F"],
 			["acc_flashlight","acc_pointer_IR","muzzle_snds_65_TI_blk_F","muzzle_snds_H","optic_Aco","optic_ACO_grn","optic_ACO_grn_smg","optic_Aco_smg","optic_Arco_AK_blk_F","optic_Arco_blk_F","optic_DMS","optic_ERCO_blk_F","optic_Hamr","optic_Holosight_blk_F","optic_Holosight_smg_blk_F","optic_MRCO","optic_Nightstalker","optic_NVS","optic_tws","optic_tws_mg","optic_Yorris"],
@@ -525,7 +525,7 @@
 	],
 	/*Kozlice*/
 	[
-		["CIV","ANYVEH","WEAP"],1,[
+		["CIV","ANYVEH","WEAP"],2,[
 			[],
 			["sgun_HunterShotgun_01_F","sgun_HunterShotgun_01_sawedoff_F"],
 			[],
@@ -534,7 +534,7 @@
 	],
 	/*LIM-85*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["LMG_03_F"],
 			[],
@@ -543,7 +543,7 @@
 	],
 	/*M320 .408*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],3,[
 			[],
 			["srifle_LRR_camo_F","srifle_LRR_F","srifle_LRR_tna_F"],
 			["optic_AMS","optic_AMS_khk","optic_Arco_AK_arid_F","optic_Arco_blk_F","optic_Arco_lush_F","optic_DMS","optic_DMS_weathered_F","optic_DMS_weathered_Kir_F","optic_KHS_blk","optic_KHS_old","optic_KHS_tan","optic_LRPS","optic_LRPS_tna_F","optic_MRCO","optic_Nightstalker","optic_NVS","optic_SOS","optic_SOS_khk_F","optic_tws","optic_tws_mg"],
@@ -552,7 +552,7 @@
 	],
 	/*MAR-10*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],3,[
 			[],
 			["srifle_DMR_02_camo_F","srifle_DMR_02_F","srifle_DMR_02_sniper_F"],
 			["acc_flashlight","acc_pointer_IR","bipod_01_F_blk","bipod_01_F_mtp","bipod_01_F_snd","bipod_02_F_blk","bipod_02_F_hex","bipod_02_F_lush","bipod_02_F_tan","muzzle_snds_338_black","muzzle_snds_338_green","muzzle_snds_338_sand","optic_AMS","optic_AMS_khk","optic_AMS_snd","optic_Arco","optic_Arco_arid_F","optic_Arco_blk_F","optic_Arco_lush_F","optic_DMS","optic_DMS_weathered_F","optic_DMS_weathered_Kir_F","optic_ERCO_blk_F","optic_ERCO_khk_F","optic_ERCO_snd_F","optic_KHS_blk","optic_KHS_old","optic_KHS_tan","optic_LRPS","optic_LRPS_tna_F","optic_MRCO","optic_Nightstalker","optic_NVS","optic_SOS","optic_SOS_khk_F","optic_tws","optic_tws_mg"],
@@ -561,7 +561,7 @@
 	],
 	/*Mk 7.62 series*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["srifle_DMR_03_F","srifle_DMR_03_khaki_F","srifle_DMR_03_multicam_F","srifle_DMR_03_tan_F","srifle_DMR_03_woodland_F","srifle_DMR_06_camo_F","srifle_EBR_F"],
 			["acc_flashlight","acc_pointer_IR","bipod_01_F_blk","bipod_01_F_khk","bipod_01_F_mtp","bipod_01_F_snd","muzzle_snds_B","muzzle_snds_B_arid_F","muzzle_snds_B_khk_F","muzzle_snds_B_lush_F","muzzle_snds_B_snd_F","optic_Aco","optic_ACO_grn","optic_ACO_grn_smg","optic_Aco_smg","optic_AMS","optic_AMS_khk","optic_AMS_snd","optic_Arco","optic_Arco_arid_F","optic_Arco_blk_F","optic_Arco_lush_F","optic_MRCO","optic_Nightstalker","optic_NVS","optic_SOS","optic_SOS_khk_F","optic_tws","optic_tws_mg"],
@@ -569,7 +569,7 @@
 		]
 	],
 	[
-		["CIV","ANYVEH","WEAP"],1,[
+		["CIV","ANYVEH","WEAP"],2,[
 			[],
 			["srifle_DMR_06_hunter_F","srifle_DMR_06_olive_F"],
 			[],
@@ -578,7 +578,7 @@
 	],
 	/*Mk20 Assault rifles*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["arifle_Mk20_F","arifle_Mk20_GL_F","arifle_Mk20_GL_plain_F","arifle_Mk20_plain_F","arifle_Mk20C_F","arifle_Mk20C_plain_F"],
 			["acc_flashlight","acc_pointer_IR","muzzle_snds_M","muzzle_snds_m_khk_F","muzzle_snds_m_snd_F","optic_Aco","optic_ACO_grn","optic_ACO_grn_smg","optic_Aco_smg","optic_Arco","optic_Arco_AK_arid_F","optic_Arco_AK_blk_F","optic_Arco_arid_F","optic_Arco_blk_F","optic_ERCO_blk_F","optic_ERCO_khk_F","optic_ERCO_snd_F","optic_Hamr","optic_Hamr_khk_F","optic_Holosight","optic_Holosight_arid_F","optic_Holosight_blk_F","optic_Holosight_khk_F","optic_Holosight_lush_F","optic_Holosight_smg","optic_Holosight_smg_blk_F","optic_Holosight_smg_khk_F","optic_MRCO"],
@@ -587,7 +587,7 @@
 	],
 	/*Mk 200 Machinegun*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["LMG_Mk200_black_F","LMG_Mk200_F"],
 			["bipod_01_F_blk","bipod_01_F_snd"],
@@ -596,7 +596,7 @@
 	],
 	/*MX series*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["arifle_MX_Black_F","arifle_MX_F","arifle_MX_GL_Black_F","arifle_MX_GL_F","arifle_MX_GL_khk_F","arifle_MX_khk_F","arifle_MXC_Black_F","arifle_MXC_F","arifle_MXC_khk_F"],
 			["acc_flashlight","acc_pointer_IR","muzzle_snds_H","muzzle_snds_H_khk_F","muzzle_snds_H_snd_F","optic_Aco","optic_ACO_grn","optic_ACO_grn_smg","optic_Aco_smg","optic_Arco","optic_Arco_arid_F","optic_Arco_blk_F","optic_Arco_lush_F","optic_ERCO_blk_F","optic_ERCO_khk_F","optic_ERCO_snd_F","optic_Hamr","optic_Hamr_khk_F","optic_Holosight","optic_Holosight_arid_F","optic_Holosight_blk_F","optic_Holosight_khk_F","optic_Holosight_lush_F","optic_Holosight_smg","optic_Holosight_smg_blk_F","optic_Holosight_smg_khk_F","optic_MRCO","optic_Nightstalker","optic_NVS","optic_tws","optic_tws_mg"],
@@ -604,7 +604,7 @@
 		]
 	],
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["arifle_MX_SW_Black_F","arifle_MX_SW_F","arifle_MX_SW_khk_F"],
 			["acc_flashlight","acc_pointer_IR","bipod_01_F_blk","bipod_01_F_khk","bipod_01_F_snd"],
@@ -612,7 +612,7 @@
 		]
 	],
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["arifle_MXM_Black_F","arifle_MXM_F","arifle_MXM_khk_F"],
 			["acc_flashlight","acc_pointer_IR","bipod_01_F_blk","bipod_01_F_khk","bipod_01_F_snd","muzzle_snds_H","muzzle_snds_H_khk_F","muzzle_snds_H_snd_F","optic_AMS","optic_AMS_khk","optic_AMS_snd","optic_Arco","optic_Arco_arid_F","optic_Arco_blk_F","optic_Arco_lush_F","optic_DMS","optic_DMS_weathered_F","optic_DMS_weathered_Kir_F","optic_ERCO_blk_F","optic_ERCO_khk_F","optic_ERCO_snd_F","optic_Hamr","optic_Hamr_khk_F","optic_KHS_blk","optic_KHS_old","optic_KHS_tan","optic_LRPS","optic_MRCO","optic_Nightstalker","optic_NVS","optic_SOS","optic_SOS_khk_F","optic_tws","optic_tws_mg"],
@@ -621,7 +621,7 @@
 	],
 	/*Navid machinegun*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],3,[
 			[],
 			["MMG_01_hex_F","MMG_01_tan_F"],
 			["bipod_02_F_hex","bipod_02_F_tan"],
@@ -630,7 +630,7 @@
 	],
 	/*SMGs 9mm*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["hgun_PDW2000_F","SMG_02_F","SMG_05_F"],
 			["acc_flashlight","acc_pointer_IR","muzzle_snds_L","optic_Aco","optic_ACO_grn","optic_ACO_grn_smg","optic_Aco_smg","optic_Holosight_blk_F","optic_Holosight_smg_blk_F","optic_Yorris"],
@@ -639,7 +639,7 @@
 	],
 	/*Promet series*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["arifle_MSBS65_black_F","arifle_MSBS65_camo_F","arifle_MSBS65_F","arifle_MSBS65_GL_black_F","arifle_MSBS65_GL_camo_F","arifle_MSBS65_GL_F","arifle_MSBS65_GL_sand_F","arifle_MSBS65_Mark_black_F","arifle_MSBS65_Mark_camo_F","arifle_MSBS65_Mark_F","arifle_MSBS65_Mark_sand_F","arifle_MSBS65_sand_F","arifle_MSBS65_UBS_black_F","arifle_MSBS65_UBS_camo_F","arifle_MSBS65_UBS_F","arifle_MSBS65_UBS_sand_F"],
 			["acc_flashlight","acc_pointer_IR","muzzle_snds_65_TI_blk_F","muzzle_snds_H","optic_ico_01_black_f","optic_ico_01_camo_f","optic_ico_01_f","optic_ico_01_sand_f"],
@@ -648,7 +648,7 @@
 	],
 	/*Rahim*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["srifle_DMR_01_F"],
 			["acc_flashlight","acc_pointer_IR","bipod_02_F_blk","bipod_02_F_hex","muzzle_snds_B","muzzle_snds_B_arid_F","muzzle_snds_B_snd_F","optic_AMS","optic_Arco_AK_blk_F","optic_Arco_blk_F","optic_DMS","optic_DMS_weathered_F","optic_DMS_weathered_Kir_F","optic_Hamr","optic_KHS_blk","optic_KHS_old","optic_KHS_tan","optic_LRPS","optic_MRCO","optic_Nightstalker","optic_NVS","optic_SOS","optic_tws","optic_tws_mg"],
@@ -657,7 +657,7 @@
 	],
 	/*RPK*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["arifle_RPK12_arid_F","arifle_RPK12_F","arifle_RPK12_lush_F"],
 			[],
@@ -666,7 +666,7 @@
 	],
 	/*SDAR*/
 	[
-		["ANYFAC","-CIV","BOAT"],0,[
+		["ANYFAC","-CIV","BOAT"],1,[
 			[],
 			["arifle_SDAR_F"],
 			[],
@@ -675,7 +675,7 @@
 	],
 	/*SPAR series*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["arifle_SPAR_01_blk_F","arifle_SPAR_01_GL_blk_F","arifle_SPAR_01_GL_khk_F","arifle_SPAR_01_GL_snd_F","arifle_SPAR_01_khk_F","arifle_SPAR_01_snd_F"],
 			["acc_flashlight","acc_pointer_IR","muzzle_snds_M","muzzle_snds_m_khk_F","muzzle_snds_m_snd_F","optic_Aco","optic_ACO_grn","optic_ACO_grn_smg","optic_Aco_smg","optic_Arco","optic_Arco_arid_F","optic_Arco_blk_F","optic_Arco_lush_F","optic_ERCO_blk_F","optic_ERCO_khk_F","optic_ERCO_snd_F","optic_Hamr","optic_Hamr_khk_F","optic_Holosight","optic_Holosight_arid_F","optic_Holosight_blk_F","optic_Holosight_khk_F","optic_Holosight_lush_F","optic_Holosight_smg","optic_Holosight_smg_blk_F","optic_Holosight_smg_khk_F","optic_MRCO","optic_Nightstalker","optic_NVS","optic_tws","optic_tws_mg","optic_Yorris"],
@@ -683,7 +683,7 @@
 		]
 	],
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["arifle_SPAR_02_blk_F","arifle_SPAR_02_khk_F","arifle_SPAR_02_snd_F"],
 			["bipod_01_F_blk","bipod_01_F_khk","bipod_01_F_snd","acc_flashlight","acc_pointer_IR"],
@@ -691,7 +691,7 @@
 		]
 	],
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["arifle_SPAR_03_blk_F","arifle_SPAR_03_khk_F","arifle_SPAR_03_snd_F"],
 			["acc_flashlight","acc_pointer_IR","bipod_01_F_blk","bipod_01_F_khk","bipod_01_F_mtp","bipod_01_F_snd","muzzle_snds_B","muzzle_snds_B_khk_F","muzzle_snds_B_snd_F","optic_AMS","optic_AMS_khk","optic_AMS_snd","optic_Arco","optic_Arco_blk_F","optic_Arco_lush_F","optic_DMS","optic_DMS_weathered_F","optic_DMS_weathered_Kir_F","optic_ERCO_blk_F","optic_ERCO_khk_F","optic_ERCO_snd_F","optic_Hamr","optic_Hamr_khk_F","optic_KHS_blk","optic_KHS_old","optic_KHS_tan","optic_LRPS","optic_MRCO","optic_Nightstalker","optic_NVS","optic_SOS","optic_SOS_khk_F","optic_tws","optic_tws_mg"],
@@ -700,7 +700,7 @@
 	],
 	/*SPMG .338*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],3,[
 			[],
 			["MMG_02_black_F","MMG_02_camo_F","MMG_02_sand_F"],
 			["acc_flashlight","acc_pointer_IR","bipod_01_F_blk","bipod_01_F_mtp","bipod_01_F_snd"],
@@ -709,7 +709,7 @@
 	],
 	/*TRG-20*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["arifle_TRG20_F","arifle_TRG21_F","arifle_TRG21_GL_F"],
 			["acc_flashlight","acc_pointer_IR","muzzle_snds_M","optic_Aco","optic_ACO_grn","optic_ACO_grn_smg","optic_Aco_smg","optic_AMS","optic_Arco_AK_blk_F","optic_Arco_blk_F","optic_DMS","optic_ERCO_blk_F","optic_Hamr","optic_Holosight_blk_F","optic_Holosight_smg_blk_F","optic_LRPS","optic_MRCO","optic_Nightstalker","optic_NVS","optic_SOS","optic_tws","optic_tws_mg","optic_Yorris"],
@@ -718,7 +718,7 @@
 	],
 	/*Type-115*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],3,[
 			[],
 			["arifle_ARX_blk_F","arifle_ARX_ghex_F","arifle_ARX_hex_F"],
 			["acc_flashlight","acc_pointer_IR","muzzle_snds_65_TI_blk_F","muzzle_snds_65_TI_ghex_F","muzzle_snds_65_TI_hex_F","muzzle_snds_H","optic_Aco","optic_ACO_grn","optic_ACO_grn_smg","optic_Aco_smg","optic_Arco_arid_F","optic_Arco_blk_F","optic_Arco_ghex_F","optic_DMS_ghex_F","optic_Hamr","optic_Holosight_blk_F","optic_Holosight_khk_F","optic_Holosight_lush_F","optic_Holosight_smg_blk_F","optic_Holosight_smg_khk_F","optic_KHS_hex","optic_LRPS_ghex_F","optic_MRCO","optic_Nightstalker","optic_NVS","optic_SOS","optic_SOS_khk_F","optic_tws","optic_tws_mg","optic_Yorris"],
@@ -727,7 +727,7 @@
 	],
 	/*Vermin .45 ACP*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["SMG_01_F"],
 			["acc_flashlight_smg_01","muzzle_snds_acp","optic_Aco","optic_ACO_grn","optic_ACO_grn_smg","optic_Aco_smg","optic_Holosight","optic_Holosight_arid_F","optic_Holosight_blk_F","optic_Holosight_smg","optic_Holosight_smg_blk_F","optic_MRCO","optic_Yorris"],
@@ -736,7 +736,7 @@
 	],
 	/*Zafir*/
 	[
-		["ANYFAC","-CIV","ANYVEH","WEAP"],1,[
+		["ANYFAC","-CIV","ANYVEH","WEAP"],2,[
 			[],
 			["LMG_Zafir_F"],
 			[],

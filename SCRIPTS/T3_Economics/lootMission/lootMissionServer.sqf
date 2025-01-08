@@ -18,7 +18,7 @@
 #define TAG_MED "MED"
 
 #define SET_TAGS 0
-#define SET_TIER 1
+#define SET_RARITY 1
 #define SET_ITEMS 2
 
 //================================================================================================================
@@ -28,15 +28,12 @@ NWG_LM_SER_Settings = createHashMapFromArray [
     ["CATALOGUE_PATH_VANILLA","DATASETS\Server\LootMission\_Vanilla.sqf"],//Path to vanilla loot catalogue
     ["CATALOGUE_COMPILE_ON_INIT",false],//If true, catalogue will be compiled on init, otherwise you should call NWG_fnc_lmCompileCatalogue
 /*
-    Tier to counts conversion - array of possible multipliers for set in catalogue (the more - the more often it will be selected)
-    0 - Common
-    1 - Uncommon
-    2 - Rare
+    Rarity to counts in catalogue conversion
+    Example:
+    Set with rarity '0' and this value '4' will be added to catalogue '4 - 0 = 4' times
+    Set with rarity '1' and this value '4' will be added to catalogue '4 - 1 = 3' times, and so on...
 */
-    ["TIER_TO_RARITY_COMMON",[4]],
-    ["TIER_TO_RARITY_UNCOMMON",[2,3]],
-    ["TIER_TO_RARITY_RARE",[1]],
-
+    ["MAX_RARITY_PLUS_ONE",4],//If max rarity in catalogue is 3, then this value should be 4
 /*
     Set types and their filling rules
     Monosets
@@ -202,22 +199,13 @@ NWG_LM_SER_CompileCatalogue = {
 
     //Repack according to rarity
     private _catalogue = [];
-    private ["_tier","_counts"];
+    private _maxRarityPlusOne = NWG_LM_SER_Settings get "MAX_RARITY_PLUS_ONE";
     {
-        _tier = _x#SET_TIER;
-        _counts = switch (_tier) do {
-            case 0: {NWG_LM_SER_Settings get "TIER_TO_RARITY_COMMON"};
-            case 1: {NWG_LM_SER_Settings get "TIER_TO_RARITY_UNCOMMON"};
-            case 2: {NWG_LM_SER_Settings get "TIER_TO_RARITY_RARE"};
-            default {
-                (format ["NWG_LM_SER_CompileCatalogue: Unexpected tier: %1, set tags to find it: %2",_tier,_x#SET_TAGS]) call NWG_fnc_logError;
-                continue;
-            };
-        };
-        for "_i" from 1 to (selectRandom _counts) do {
-            _catalogue pushBack _x
-        };
+        for "_i" from 1 to ((_maxRarityPlusOne - (_x#SET_RARITY)) max 1) do {_catalogue pushBack _x};
     } forEach _catalogueRaw;
+
+    //Shuffle catalogue
+    _catalogue = _catalogue call NWG_fnc_arrayShuffle;
 
     //Save and return
     NWG_LM_SER_lootCatalogue = _catalogue;

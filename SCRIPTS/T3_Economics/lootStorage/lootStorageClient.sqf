@@ -31,14 +31,20 @@ NWG_LS_CLI_Settings = createHashMapFromArray [
 //================================================================================================================
 //Fields
 NWG_LS_CLI_invisibleBox = objNull;
+NWG_LS_CLI_storageChanged = false;
 
 //================================================================================================================
 //================================================================================================================
 //Init
 private _Init = {
+    //Loot storage changes
     player addEventHandler ["InventoryClosed",{call NWG_LS_CLI_OnInventoryClose}];
+    player addEventHandler ["InventoryOpened",{_this spawn NWG_LS_CLI_OnInventoryOpen}];
+
+    //Auto sell on take
     player addEventHandler ["Take",{call NWG_LS_CLI_AutoSellOnTake}];
 
+    //On respawn
     if (NWG_LS_CLI_Settings get "TRANSFER_LOOT_ON_RESPAWN" || {NWG_LS_CLI_Settings get "DEPLETE_LOOT_ON_RESPAWN"}) then {
         player addEventHandler ["Respawn",{_this call NWG_LS_CLI_OnRespawn}];
     };
@@ -88,30 +94,66 @@ NWG_LS_CLI_OpenMyStorage = {
     } forEach _loot;
 
     //Open the box
+    NWG_LS_CLI_storageChanged = false;
     player action ["Gear",_invisibleBox];
 };
 
 //================================================================================================================
 //================================================================================================================
 //Storage update via vanilla inventory actions
+NWG_LS_CLI_OnInventoryOpen = {
+    params ["_unit","_mainContainer","_secdContainer"];
+    if (isNull NWG_LS_CLI_invisibleBox) exitWith {};
+
+    //Get containers
+    private _containers = [_mainContainer,_secdContainer];
+    private _i = _containers findIf {_x isEqualTo NWG_LS_CLI_invisibleBox};
+    if (_i == -1) exitWith {};
+    private _storage = _containers#_i;
+    private _grounds = _containers#(1 - _i);
+
+    //Setup event-based storage change detection
+    _storage addEventHandler ["Take",{NWG_LS_CLI_storageChanged = true}];
+    _storage addEventHandler ["Put", {NWG_LS_CLI_storageChanged = true}];
+    _grounds addEventHandler ["Take",{NWG_LS_CLI_storageChanged = true}];
+    _grounds addEventHandler ["Put", {NWG_LS_CLI_storageChanged = true}];
+
+    //Setup polling-based storage change detection
+    _grounds spawn {
+        private _grounds = _this;
+        waitUntil {
+            sleep 0.1;
+            if (isNull _grounds) exitWith {true};
+            if (isNull NWG_LS_CLI_invisibleBox) exitWith {true};
+            if ((count ((getWeaponCargo _grounds)   param [0,[]])) > 0) exitWith {NWG_LS_CLI_storageChanged = true; true};
+            if ((count ((getMagazineCargo _grounds) param [0,[]])) > 0) exitWith {NWG_LS_CLI_storageChanged = true; true};
+            if ((count ((getItemCargo _grounds)     param [0,[]])) > 0) exitWith {NWG_LS_CLI_storageChanged = true; true};
+            if ((count ((getBackpackCargo _grounds) param [0,[]])) > 0) exitWith {NWG_LS_CLI_storageChanged = true; true};
+            false
+        };
+    };
+};
+
 NWG_LS_CLI_OnInventoryClose = {
     //Check if we closing the storage object
     if (isNull NWG_LS_CLI_invisibleBox) exitWith {};//Ignore if storage object does not exist
 
-    //Get storage loot
-    private _storageLoot = NWG_LS_CLI_invisibleBox call NWG_LS_CLI_GetAllContainerItems;
-    _storageLoot = _storageLoot call NWG_LS_CLI_AutoSell;//Auto sell (just in case something got there)
-    _storageLoot = _storageLoot call NWG_LS_CLI_ConvertToLoot;//Convert to loot structure
-    {_x call NWG_fnc_compactStringArray} forEach _storageLoot;//Compact storage loot structure
+    //Check if storage was modified
+    if (NWG_LS_CLI_storageChanged) then {
+        //Get storage loot
+        private _storageLoot = NWG_LS_CLI_invisibleBox call NWG_LS_CLI_GetAllContainerItems;
+        _storageLoot = _storageLoot call NWG_LS_CLI_AutoSell;//Auto sell (just in case something got there)
+        _storageLoot = _storageLoot call NWG_LS_CLI_ConvertToLoot;//Convert to loot structure
+        {_x call NWG_fnc_compactStringArray} forEach _storageLoot;//Compact storage loot structure
 
-    //Check if was modified
-    if (_storageLoot isNotEqualTo (player call NWG_fnc_lsGetPlayerLoot)) then {
-        //Re-write the player loot based on what is left in the box
+        //Re-write player loot based on what is left in the box
         [player,_storageLoot] call NWG_fnc_lsSetPlayerLoot;
     };
 
     //Close the box (will also delete all the items inside)
     deleteVehicle NWG_LS_CLI_invisibleBox;
+    NWG_LS_CLI_invisibleBox = objNull;//Reset the variable
+    NWG_LS_CLI_storageChanged = false;//Reset the flag
 };
 
 //================================================================================================================

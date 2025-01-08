@@ -47,16 +47,16 @@ NWG_VSHOP_SER_Settings = createHashMapFromArray [
 	["DEFAULT_PRICE_TANK_UNARMED",150000],
 
     //[activeFactor,passiveFactor,priceMin,priceMax]
-    ["PRICE_AAIR_SETTINGS",[0.01,0.002,70000,500000]],
-    ["PRICE_APCS_SETTINGS",[0.01,0.002,40000,250000]],
-    ["PRICE_ARTY_SETTINGS",[0.01,0.002,70000,500000]],
-    ["PRICE_BOAT_SETTINGS",[0.01,0.002,4500,30000]],
-    ["PRICE_CARS_SETTINGS",[0.01,0.002,4500,30000]],
-    ["PRICE_DRON_SETTINGS",[0.01,0.002,4500,60000]],
-    ["PRICE_HELI_SETTINGS",[0.01,0.002,30000,10000000]],
-    ["PRICE_PLAN_SETTINGS",[0.01,0.002,75000,10000000]],
-    ["PRICE_SUBM_SETTINGS",[0.01,0.002,6000,40000]],
-    ["PRICE_TANK_SETTINGS",[0.01,0.002,75000,10000000]],
+    ["PRICE_AAIR_SETTINGS",[1000,100,70000,500000]],
+    ["PRICE_APCS_SETTINGS",[1000,100,40000,250000]],
+    ["PRICE_ARTY_SETTINGS",[1000,100,70000,500000]],
+    ["PRICE_BOAT_SETTINGS",[100,10,8000,20000]],
+    ["PRICE_CARS_SETTINGS",[100,10,4500,30000]],
+    ["PRICE_DRON_SETTINGS",[100,10,4500,60000]],
+    ["PRICE_HELI_SETTINGS",[500,50,30000,10000000]],
+    ["PRICE_PLAN_SETTINGS",[1000,100,75000,10000000]],
+    ["PRICE_SUBM_SETTINGS",[100,10,10000,24000]],
+    ["PRICE_TANK_SETTINGS",[1000,100,75000,10000000]],
 
 	//Items that are added to each shop interaction
 	["SHOP_PERSISTENT_ITEMS",[
@@ -223,15 +223,7 @@ NWG_VSHOP_SER_IsArmedVehicle = {
 };
 
 NWG_VSHOP_SER_UpdatePrices = {
-	params ["_veh","_quantity","_isSoldToPlayer"];
-
-	//Get item info
-	private _cachedInfo = NWG_VSHOP_SER_vehsInfoCache get _veh;
-	if (isNil "_cachedInfo") exitWith {
-		(format["NWG_VSHOP_SER_UpdatePrices: Vehicle '%1' is not cached, evaluate items before updating prices",_veh]) call NWG_fnc_logError;
-		false
-	};
-	_cachedInfo params ["_categoryIndex","_vehIndex"];
+	params ["_categoryIndex","_vehs","_isSoldToPlayer"];
 
 	//Get category settings
 	private _settings = switch (_categoryIndex) do {
@@ -267,14 +259,62 @@ NWG_VSHOP_SER_UpdatePrices = {
 		//_passiveFactor //unchanged
 	};
 
-	//Process the update
+	//Prepare for processing
 	private _priceChart = (NWG_VSHOP_SER_vehsPriceChart select _categoryIndex) select CHART_PRICES;
-	private _activeMultiplier = 1 + (_activeFactor*_quantity);
-	private _passiveMultiplier = 1 + (_passiveFactor*_quantity);
-	//Process passive multipliers (overlap with active item is accepted)
-	{_priceChart set [_forEachIndex,(((_x*_passiveMultiplier) max _priceMin) min _priceMax)]} forEach _priceChart;
-	//Process active multiplier
-	_priceChart set [_vehIndex,((((_priceChart#_vehIndex)*_activeMultiplier) max _priceMin) min _priceMax)];
+	private _curPrice = 0;
+	private _actives = [];
+	private _totalCount = 0;
+
+	//Update active items
+	private _count = 1;
+	private _cachedInfo = [];
+	{
+		if (_x isEqualType 1) then {
+			_count = _x;
+			continue;
+		};
+
+		_cachedInfo = NWG_VSHOP_SER_vehsInfoCache get _x;
+		if (isNil "_cachedInfo") then {
+			(format["NWG_VSHOP_SER_UpdatePrices: Vehicle '%1' is not cached, evaluate items before updating prices",_x]) call NWG_fnc_logError;
+			_count = 1;
+			continue;
+		};
+		_cachedInfo params ["_vCat","_vIndex"];
+		if (_vCat != _categoryIndex) then {
+			(format["NWG_VSHOP_SER_UpdatePrices: Vehicle '%1' is not in the right category. Expected: '%2', Actual: '%3'",_x,_categoryIndex,_vCat]) call NWG_fnc_logError;
+			_count = 1;
+			continue;
+		};
+		if (_vIndex < 0 || {_vIndex >= (count _priceChart)}) then {
+			(format["NWG_VSHOP_SER_UpdatePrices: Vehicle's '%1' price index '%2' is out of bounds for category '%3'",_x,_vIndex,_categoryIndex]) call NWG_fnc_logError;
+			_count = 1;
+			continue;
+		};
+
+		_actives pushBackUnique _vIndex;
+		_totalCount = _totalCount + _count;
+		_curPrice = _priceChart#_vIndex;
+		_curPrice = ((_curPrice + (_activeFactor*_count)) max _priceMin) min _priceMax;
+		_priceChart set [_vIndex,_curPrice];
+		_curPrice = 0;
+		_count = 1;
+
+	} forEach _vehs;
+
+	//Check at least one change was made
+	if (_totalCount == 0) exitWith {
+		(format["NWG_VSHOP_SER_UpdatePrices: No changes were made to the price chart for category '%1'",_categoryIndex]) call NWG_fnc_logError;
+		false
+	};
+
+	//Update passive items
+	{
+		if (_forEachIndex in _actives) then {continue};
+		_curPrice = _x;
+		_curPrice = ((_curPrice + (_passiveFactor*_totalCount)) max _priceMin) min _priceMax;
+		_priceChart set [_forEachIndex,_curPrice];
+	} forEach _priceChart;
 
 	//return
 	true
@@ -397,7 +437,7 @@ NWG_VSHOP_SER_ValidateItemsChart = {
 
 			//Check that item is a string (just in case)
 			if !(_x isEqualType "") then {
-				(format["NWG_ISHOP_SER_ValidateItemsChart: Invalid item '%1'. Expected: 'STRING'",_x]) call NWG_fnc_logError;
+				(format["NWG_VSHOP_SER_ValidateItemsChart: Invalid item '%1'. Expected: 'STRING'",_x]) call NWG_fnc_logError;
 				_failedItems pushBackUnique _x;
 				continue;
 			};
@@ -474,22 +514,10 @@ NWG_VSHOP_SER_AddDynamicItems = {
 	};
 
 	//foreach category of itemsToAdd
+	private _newItems = [];
 	{
-		switch (true) do {
-			case ((count _x) == 0): {
-				//Nothing to add - skip
-				/*Do nothing*/
-			};
-			case ((count (NWG_VSHOP_SER_dynamicItems#_forEachIndex)) == 0): {
-				//Nothing was stored - replace
-				NWG_VSHOP_SER_dynamicItems set [_forEachIndex,_x];
-			};
-			default {
-				//Both arrays are non-empty - merge
-				private _newItems = [(NWG_VSHOP_SER_dynamicItems#_forEachIndex),_x] call NWG_fnc_mergeCompactedStringArrays;
-				NWG_VSHOP_SER_dynamicItems set [_forEachIndex,_newItems];
-			};
-		};
+		_newItems = [(NWG_VSHOP_SER_dynamicItems#_forEachIndex),_x] call NWG_fnc_mergeCompactedStringArrays;
+		NWG_VSHOP_SER_dynamicItems set [_forEachIndex,_newItems];
 	} forEach _sanitizedChart;
 
 	//return
@@ -620,35 +648,13 @@ NWG_VSHOP_SER_OnShopRequest = {
 	_result
 };
 
+//NEW IMPLEMENTATION
 NWG_VSHOP_SER_OnTransaction = {
 	params ["_itemsSoldToPlayer","_itemsBoughtFromPlayer"];
-
-	//Update prices
-	private _updatePrices = {
-		params ["_items","_isSoldToPlayer"];
-		private _quantity = 1;
-		{
-			switch (true) do {
-				case (_x isEqualType 1): {
-					_quantity = _x;
-				};
-				case (_x isEqualType ""): {
-					[_x,_quantity,_isSoldToPlayer] call NWG_VSHOP_SER_UpdatePrices;
-					_quantity = 1;
-				};
-				default {
-					(format["NWG_VSHOP_SER_OnTransaction: Invalid item type '%1'",_x]) call NWG_fnc_logError;
-				};
-			};
-		} forEach _items;
-	};
-	[_itemsSoldToPlayer,true] call _updatePrices;
-	[_itemsBoughtFromPlayer,false] call _updatePrices;
 
 	//Prepare chance applying
 	private _applyChance = {
 		params ["_items","_chanceName"];
-		if ((count _items) == 0) exitWith {[]};
 		private _chance = ((NWG_VSHOP_SER_Settings get _chanceName) max 0) min 1;
 		//return
 		switch (_chance) do {
@@ -658,10 +664,31 @@ NWG_VSHOP_SER_OnTransaction = {
 		}
 	};
 
-	//Add dynamic items that were bought
-	([_itemsBoughtFromPlayer,"SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE"]  call _applyChance) call NWG_VSHOP_SER_AddDynamicItems;
-	//Remove dynamic items that were sold
-	([_itemsSoldToPlayer,"SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE"] call _applyChance) call NWG_VSHOP_SER_RemoveDynamicItems;
+	//Update sold items
+	if ((count _itemsSoldToPlayer) > 0) then {
+		//Update prices
+		private _soldChart = _itemsSoldToPlayer call NWG_VSHOP_SER_ArrayToChart;
+		{
+			if ((count _x) > 0) then {[_forEachIndex,_x,true] call NWG_VSHOP_SER_UpdatePrices};
+		} forEach _soldChart;
+
+		//Update dynamic items
+		private _soldFiltered = [_itemsSoldToPlayer,"SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE"] call _applyChance;
+		if ((count _soldFiltered) > 0) then {_soldFiltered call NWG_VSHOP_SER_RemoveDynamicItems};
+	};
+
+	//Update bought items
+	if ((count _itemsBoughtFromPlayer) > 0) then {
+		//Update prices
+		private _boughtChart = _itemsBoughtFromPlayer call NWG_VSHOP_SER_ArrayToChart;
+		{
+			if ((count _x) > 0) then {[_forEachIndex,_x,false] call NWG_VSHOP_SER_UpdatePrices};
+		} forEach _boughtChart;
+
+		//Update dynamic items
+		private _boughtFiltered = [_itemsBoughtFromPlayer,"SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE"] call _applyChance;
+		if ((count _boughtFiltered) > 0) then {_boughtFiltered call NWG_VSHOP_SER_AddDynamicItems};
+	};
 };
 
 //================================================================================================================

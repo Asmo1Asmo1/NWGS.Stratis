@@ -49,8 +49,8 @@ NWG_ISHOP_MMC_OnMissionStateChanged = {
             };
         };
 
-        /*Mission building economy state - Add items to dynamic shop items*/
-        case MSTATE_BUILD_ECONOMY: {
+        /*Mission completed state - Add items to dynamic shop items*/
+        case MSTATE_COMPLETED: {
             //Add items to dynamic shop items
 
             //Define sets count to be added
