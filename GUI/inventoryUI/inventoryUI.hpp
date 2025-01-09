@@ -23,26 +23,26 @@ class IUI_ButtonCommon: RscActivePictureKeepAspect
 class IUI_ButtonWeaponSwitch: IUI_ButtonCommon
 {
 	idc = 1600;
-	x = CENTER(1,(IUI_RIGHT_X * X_SCALE));
-	y = CENTER(1,(IUI_RIGHT_Y * Y_SCALE));
+	x = FROM_CENTER(IUI_RIGHT_X * X_SCALE);
+	y = FROM_CENTER(IUI_RIGHT_Y * Y_SCALE);
 };
 class IUI_ButtonLoot: IUI_ButtonCommon
 {
 	idc = 1601;
-	x = CENTER(1,(IUI_LEFT_X * X_SCALE));
-	y = CENTER(1,(IUI_LEFT_Y * Y_SCALE));
+	x = FROM_CENTER(IUI_LEFT_X * X_SCALE);
+	y = FROM_CENTER(IUI_LEFT_Y * Y_SCALE);
 };
 class IUI_ButtonUniform: IUI_ButtonCommon
 {
 	idc = 1602;
-	x = CENTER(1,(IUI_LEFT_X * X_SCALE));
-	y = (CENTER(1,(IUI_LEFT_Y * Y_SCALE))) - (IUI_LEFT_Y_BETWEEN);
+	x = FROM_CENTER(IUI_LEFT_X * X_SCALE);
+	y = (FROM_CENTER(IUI_LEFT_Y * Y_SCALE)) - (IUI_LEFT_Y_BETWEEN);
 };
 class IUI_ButtonMagRepack: IUI_ButtonCommon
 {
 	idc = 1603;
-	x = CENTER(1,(IUI_LEFT_X * X_SCALE));
-	y = (CENTER(1,(IUI_LEFT_Y * Y_SCALE))) - (2 * IUI_LEFT_Y_BETWEEN);
+	x = FROM_CENTER(IUI_LEFT_X * X_SCALE);
+	y = (FROM_CENTER(IUI_LEFT_Y * Y_SCALE)) - (2 * IUI_LEFT_Y_BETWEEN);
 };
 ////////////////////////////////////////////////////////
 // GUI EDITOR OUTPUT END

@@ -34,9 +34,9 @@
 #define BUTTON_W ((DROPDOWN_W / 3) - RIBBON_SPACE_X)
 
 //--- position helpers
-#define L_GROUP_X (CENTER(1,(1.425 * X_SCALE)))
-#define R_GROUP_X ((CENTER(1,(-1.425 * X_SCALE))) - LISTBOX_W)
-#define GROUP_Y (CENTER(1,(0.70 * Y_SCALE)))
+#define L_GROUP_X (FROM_CENTER(1.425 * X_SCALE))
+#define R_GROUP_X ((FROM_CENTER(-1.425 * X_SCALE)) - LISTBOX_W)
+#define GROUP_Y (FROM_CENTER(0.70 * Y_SCALE))
 #define MONEY_RIBBON_Y (GROUP_Y - (2 * RIBBON_H) - (2 * RIBBON_SPACE_Y))
 #define BUTTON_RIBBON_Y (GROUP_Y - RIBBON_H - RIBBON_SPACE_Y)
 
