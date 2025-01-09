@@ -59,6 +59,7 @@ NWG_LS_CLI_OpenMyStorage = {
         then {deleteVehicle NWG_LS_CLI_invisibleBox};
     private _invisibleBox = createVehicleLocal [(NWG_LS_CLI_Settings get "INVISIBLE_BOX_TYPE"),player,[],0,"CAN_COLLIDE"];
     _invisibleBox hideObject true;
+    _invisibleBox allowDamage false;//Fix for Au who keeps burning it somehow
     NWG_LS_CLI_invisibleBox = _invisibleBox;
 
     //Clear the box
