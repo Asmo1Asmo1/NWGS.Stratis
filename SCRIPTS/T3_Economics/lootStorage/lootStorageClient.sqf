@@ -122,14 +122,22 @@ NWG_LS_CLI_OnInventoryOpen = {
     //Setup polling-based storage change detection
     _grounds spawn {
         private _grounds = _this;
+        private _getFingerprint = {
+            [
+                (count ((getWeaponCargo _this)   param [0,[]])),
+                (count ((getMagazineCargo _this) param [0,[]])),
+                (count ((getItemCargo _this)     param [0,[]])),
+                (count ((getBackpackCargo _this) param [0,[]]))
+            ]
+        };
+        private _startFingerprint = _grounds call _getFingerprint;
+
         waitUntil {
             sleep 0.1;
             if (isNull _grounds) exitWith {true};
             if (isNull NWG_LS_CLI_invisibleBox) exitWith {true};
-            if ((count ((getWeaponCargo _grounds)   param [0,[]])) > 0) exitWith {NWG_LS_CLI_storageChanged = true; true};
-            if ((count ((getMagazineCargo _grounds) param [0,[]])) > 0) exitWith {NWG_LS_CLI_storageChanged = true; true};
-            if ((count ((getItemCargo _grounds)     param [0,[]])) > 0) exitWith {NWG_LS_CLI_storageChanged = true; true};
-            if ((count ((getBackpackCargo _grounds) param [0,[]])) > 0) exitWith {NWG_LS_CLI_storageChanged = true; true};
+            if (NWG_LS_CLI_storageChanged) exitWith {true};
+            if ((_grounds call _getFingerprint) isNotEqualTo _startFingerprint) exitWith {NWG_LS_CLI_storageChanged = true; true};
             false
         };
     };
@@ -138,6 +146,7 @@ NWG_LS_CLI_OnInventoryOpen = {
 NWG_LS_CLI_OnInventoryClose = {
     //Check if we closing the storage object
     if (isNull NWG_LS_CLI_invisibleBox) exitWith {};//Ignore if storage object does not exist
+    systemChat format ["NWG_LS_CLI_OnInventoryClose: NWG_LS_CLI_storageChanged = %1",NWG_LS_CLI_storageChanged];
 
     //Check if storage was modified
     if (NWG_LS_CLI_storageChanged) then {
