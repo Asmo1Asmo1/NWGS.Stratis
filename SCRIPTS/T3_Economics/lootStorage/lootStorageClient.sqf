@@ -146,7 +146,6 @@ NWG_LS_CLI_OnInventoryOpen = {
 NWG_LS_CLI_OnInventoryClose = {
     //Check if we closing the storage object
     if (isNull NWG_LS_CLI_invisibleBox) exitWith {};//Ignore if storage object does not exist
-    systemChat format ["NWG_LS_CLI_OnInventoryClose: NWG_LS_CLI_storageChanged = %1",NWG_LS_CLI_storageChanged];
 
     //Check if storage was modified
     if (NWG_LS_CLI_storageChanged) then {
