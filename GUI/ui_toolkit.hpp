@@ -13,7 +13,7 @@
 #define FOLLOW_RESOLUTION
 
 // This is the percentage from the dev resolution that the UI must start compensating in order to stay at a reasonable size (ex: UI cannot get smaller than 75% from the dev resolution)
-#define FOLLOW_RES_LOWER_CAP 0.75
+#define FOLLOW_RES_LOWER_CAP 0.25
 
 // Effects:
 // FOLLOW_UI_SIZE only = UI will be scaled according to the user's UI size, relative from UI_SIZE_DEV below, regardless of the resolution (not recommended)
