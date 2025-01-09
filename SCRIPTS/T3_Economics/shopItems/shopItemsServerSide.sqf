@@ -18,10 +18,10 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
     ["DEFAULT_PRICE_AMMO",300],
 
 	//[activeFactor,passiveFactor,priceMin,priceMax]
-	["PRICE_CLTH_SETTINGS",[0.01,0.001,300,5000]],
-	["PRICE_WEAP_SETTINGS",[0.02,0.002,500,10000]],
-	["PRICE_ITEM_SETTINGS",[0.01,0.001,200,3000]],
-	["PRICE_AMMO_SETTINGS",[0.01,0.001,100,1000]],
+	["PRICE_CLTH_SETTINGS",[2,0.02,200,10000]],
+	["PRICE_WEAP_SETTINGS",[5,0.05,400,20000]],
+	["PRICE_ITEM_SETTINGS",[1,0.01,100,5000]],
+	["PRICE_AMMO_SETTINGS",[1,0.01,100,3000]],
 
 	//Items that are added to each shop interaction
 	["SHOP_PERSISTENT_ITEMS",[
