@@ -6,9 +6,6 @@ NWG_INVUI_Settings = createHashMapFromArray [
     ["BUTTON_UNIF_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\armor_ca.paa"],
     ["BUTTON_MAGR_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\rearm_ca.paa"],
 
-    ["TEXT_WEIGHT_ON",false],
-    ["TEXT_WEIGHT_TEMPLATE","%1kg"],
-
     ["SOUND_ON",true],
     ["SOUND_BUTTON_LOOT","Scared_Animal2"],
     ["SOUND_BUTTON_WEAP","surrender_fall"],
@@ -22,10 +19,6 @@ NWG_INVUI_Settings = createHashMapFromArray [
 //Init
 private _Init = {
     player addEventHandler ["InventoryOpened",{_this spawn NWG_INVUI_OnInventoryOpen}];
-
-    //Auto-update text on Take/Put
-    player addEventHandler ["Take",{call NWG_INVUI_UpdateWeight}];
-    player addEventHandler ["Put",{call NWG_INVUI_UpdateWeight}];
 };
 
 //================================================================================================================
@@ -42,24 +35,16 @@ NWG_INVUI_OnInventoryOpen = {
     };
 
     //Create our custom inventory UI additons
-    private _textWeight = if (NWG_INVUI_Settings get "TEXT_WEIGHT_ON")
-        then {_inventoryDisplay ctrlCreate ["IUI_TextWeight",-1]}
-        else {controlNull};
     private _buttonLoot = _inventoryDisplay ctrlCreate ["IUI_ButtonLoot",-1];
     private _buttonWeap = _inventoryDisplay ctrlCreate ["IUI_ButtonWeaponSwitch",-1];
     private _buttonUnif = _inventoryDisplay ctrlCreate ["IUI_ButtonUniform",-1];
     private _buttonMagR = _inventoryDisplay ctrlCreate ["IUI_ButtonMagRepack",-1];
 
     //Handle data store and cleanup
-    if !(isNull _textWeight) then {uiNamespace setVariable ["NWG_INVUI_textWeight",_textWeight]};//Store weight text control
     uiNamespace setVariable ["NWG_INVUI_eventArgs",_this];//Store arguments for later use
     _inventoryDisplay displayAddEventHandler ["Unload",{
-        if (NWG_INVUI_Settings get "TEXT_WEIGHT_ON") then {uiNamespace setVariable ["NWG_INVUI_textWeight",nil]};
         uiNamespace setVariable ["NWG_INVUI_eventArgs",nil];
     }];
-
-    //Init weight text
-    call NWG_INVUI_UpdateWeight;
 
     //Add pictures to buttons
     _buttonLoot ctrlSetText (NWG_INVUI_Settings get "BUTTON_LOOT_ICON");
@@ -81,16 +66,6 @@ NWG_INVUI_OnInventoryOpen = {
 };
 
 //================================================================================================================
-//Weight text
-NWG_INVUI_UpdateWeight = {
-    // disableSerialization;//Don't need if there are no private variables
-    if !(NWG_INVUI_Settings get "TEXT_WEIGHT_ON") exitWith {};//Exit if weight text is disabled
-    if (isNull (uiNamespace getVariable ["NWG_INVUI_textWeight",controlNull])) exitWith {};//Exit if not initialized (inventory closed or other reason)
-    private _weight = round ((loadAbs player)/10);//Convert to kg
-    (uiNamespace getVariable ["NWG_INVUI_textWeight",controlNull]) ctrlSetText (format [(NWG_INVUI_Settings get "TEXT_WEIGHT_TEMPLATE"),_weight]);
-};
-
-//================================================================================================================
 //Buttons
 NWG_INVUI_OnButtonLoot = {
     //Loot the container opened in inventory
@@ -104,7 +79,6 @@ NWG_INVUI_OnButtonWeap = {
     //Switch primary<->additional weapon
     private _ok = call NWG_fnc_awSwitchWeapon;
     if (_ok) then {
-        call NWG_INVUI_UpdateWeight;
         (NWG_INVUI_Settings get "SOUND_BUTTON_WEAP") call NWG_INVUI_PlaySound;
     };
 };
@@ -113,7 +87,6 @@ NWG_INVUI_OnButtonUnif = {
     //Equip the unform selected in inventory
     private _ok = (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_uneqEquipSelected;
     if (_ok) then {
-        call NWG_INVUI_UpdateWeight;
         (NWG_INVUI_Settings get "SOUND_BUTTON_UNIF") call NWG_INVUI_PlaySound;
     };
 };
