@@ -556,8 +556,9 @@ NWG_MIS_SER_BuildPlayerBase = {
         private _npcSettings = NWG_MIS_SER_Settings get "PLAYER_BASE_NPC_SETTINGS";
         private _addActionQueue = [];
         {
-            //Setup dynamic simulation regardless of the group rules for each agent
+            //Basic settings
             _x enableDynamicSimulation true;
+            _x setCaptive true;
 
             //Check if NPC settings are defined for this type
             if !((typeOf _x) in _npcSettings) then {
