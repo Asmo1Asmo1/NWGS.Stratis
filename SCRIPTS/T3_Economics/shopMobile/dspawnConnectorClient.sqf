@@ -15,7 +15,7 @@ NWG_MSHOP_DSC_AdoptUnits = {
 	if (count _units == 0) exitWith {};
 
 	//Restore captive state
-	_conditionDone = {!captive _this && {(side _this) isEqualTo (side player)}};
+	_conditionDone = {!captive _this && {(side _this) isEqualTo (side (group player))}};
 	_adoptionAction = {_this setCaptive false; [_this] joinSilent (group player)};
 	_operationName = "Restore captive state";
 	_units = [_units,_adoptionAction,_conditionDone,_operationName] call NWG_MSHOP_DSC_AdoptionCore;

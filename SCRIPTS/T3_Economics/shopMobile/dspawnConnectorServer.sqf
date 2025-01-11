@@ -36,7 +36,7 @@ NWG_MSHOP_DSC_SpawnGroup = {
 	// 	case "C2": {group _player};//Group for units
 	// UPD: Joining to player's group (non-local for server) breaks things. Units die in the air and/or shoot each other if from different faction.
 	// };
-	private _membership = side _player;/*Fix for infantry support (PART 1)*/
+	private _membership = side (group _player);/*Fix for infantry support (PART 1)*//*Fix for renegade player*/
 	private _spawnRadius = switch (_cat) do {
 		case "C0": {NWG_MSHOP_DSC_Settings get "RADIUS_DRONE"};
 		case "C2": {NWG_MSHOP_DSC_Settings get "RADIUS_UNITS"};
