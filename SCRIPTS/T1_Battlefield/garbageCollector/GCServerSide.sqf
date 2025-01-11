@@ -15,6 +15,10 @@ NWG_GC_Settings = createHashMapFromArray [
     ["BUILDING_DECOR_DELETE",true],//Delete building decorations on building destroy
     ["BUILDING_DECOR_DELETE_DELAY",2],//Delay before deleting building decorations on building destroy
 
+    ["MISSION_DELETE_PRESERVE_GROUND_TRASH_IF_PLAYER_NEAR",true],//Preserve player generated ground trash (e.g.:WeaponHolders) IF any player is near
+    ["MISSION_DELETE_PRESERVE_VEHICLES_IF_PLAYER_NEAR",true],//Preserve vehicles (and static weapons) IF any player is near
+    ["MISSION_DELETE_PRESERVE_OBJECTS_IF_PLAYER_NEAR",true],//Preserve objects IF any player is near (WARNING: Set it to false if mission deletion is called inside mission area)
+
     ["",0]
 ];
 
@@ -205,12 +209,10 @@ NWG_GC_OnObjectKilled = {
 
     private _immediateDelete = false;
     if (isNull _actualKiller || {!_isPlayerKiller}) then {
-        //Check if any player saw it die
         private _players = call NWG_fnc_getPlayersOrOccupiedVehicles;
         private _distance = NWG_GC_Settings get "IMMEDIATE_DELETE_IF_PLAYER_DISTANCE";
         _immediateDelete = (_players findIf {(_x distance2D _object) <= _distance}) == -1;
     };
-
     if (_immediateDelete) exitWith {
         switch (_binIndex) do {
             case BIN_BODIES: {_object call NWG_GC_DeleteUnit};
@@ -236,19 +238,28 @@ NWG_GC_Collect = {
     _bin pushBack _object;
 
     //Filter out invalid bin objects
-    private _shouldDrop = switch (_binIndex) do {
-        case BIN_BODIES: {{ isNull _this || {_this call NWG_GC_IsInDeadVehicle} }};//Forget nulls AND bodies inside destroyed vehicles
-        default {{ isNull _this }};//Forget nulls
+    private _shouldForget = switch (_binIndex) do {
+        case BIN_BODIES: {{isNull _this || {_this call NWG_GC_IsInDeadVehicle}}};//Forget nulls AND bodies inside destroyed vehicles
+        default {{isNull _this}};//Forget nulls
     };
-    {if (_x call _shouldDrop) then {_bin deleteAt _forEachIndex}} forEachReversed _bin;
+    {if (_x call _shouldForget) then {_bin deleteAt _forEachIndex}} forEachReversed _bin;
 
     //Check bin limits
-    (NWG_GC_Settings get (["BODIES_LIMITS","WRECKS_LIMITS","TRASH_LIMITS"] select _binIndex)) params ["_min","_max"];
+    private _limits = switch (_binIndex) do {
+        case BIN_BODIES: {NWG_GC_Settings get "BODIES_LIMITS"};
+        case BIN_WRECKS: {NWG_GC_Settings get "WRECKS_LIMITS"};
+        case BIN_TRASH:  {NWG_GC_Settings get "TRASH_LIMITS"};
+        default {[0,0]};
+    };
+    _limits params ["_min","_max"];
     if ((count _bin) <= _min) exitWith {};//<= EXIT if lower limit not reached
 
     //Prepare variables
     private _allPlayers = call NWG_fnc_getPlayersOrOccupiedVehicles;
     private _preserveDistance = NWG_GC_Settings get "PRESERVE_DISTANCE";
+    private _isNoPlayerNear = {
+        (_allPlayers findIf {(_x distance _this) <= _preserveDistance}) == -1
+    };
     private _terminate = switch (_binIndex) do {
         case BIN_BODIES: {{_this call NWG_GC_DeleteUnit}};
         case BIN_WRECKS: {{_this call NWG_GC_DeleteVehicle}};
@@ -257,17 +268,10 @@ NWG_GC_Collect = {
     reverse _bin;//We will delete from the end to the beginning
 
     //Delete old->new based on distance to players until limit is reached
-    private _cur = objNull;
     {
         if ((count _bin) <= _min) exitWith {};//Exit loop if limit reached
         if (_forEachIndex == 0) exitWith {};//Skip last added object (prevent 'kill->delete' situation)
-
-        _cur = _x;
-        if ((_allPlayers findIf {(_x distance _cur) <= _preserveDistance}) == -1) then {
-            _bin deleteAt _forEachIndex;
-            _cur call _terminate;
-            _cur = nil;
-        };
+        if (_x call _isNoPlayerNear) then {(_bin deleteAt _forEachIndex) call _terminate};//Delete if no players around
     } forEachReversed _bin;
     if ((count _bin) <= _max) exitWith {reverse _bin};//<= EXIT if max limit not reached
 
@@ -383,11 +387,25 @@ NWG_GC_DeleteFloatingBuildingDecor_Core = {
 NWG_GC_DeleteMission = {
     params [["_callback",{}]];
 
+    //Prepare preservation script
+    private _players = (call NWG_fnc_getPlayersAll) select {alive _x};
+    private _preserveDistance = NWG_GC_Settings get "PRESERVE_DISTANCE";
+    private _isNoPlayerNear = {
+        // private _object = _this;
+        if (isNull _this) exitWith {true};
+        (_players findIf {(_x distance _this) <= _preserveDistance}) == -1
+    };
+
     //1. Purge garbage bin
-    {_x call NWG_GC_DeleteUnit} forEach (NWG_GC_garbageBin#BIN_BODIES);
-    {_x call NWG_GC_DeleteVehicle} forEach (NWG_GC_garbageBin#BIN_WRECKS);
-    {_x call NWG_GC_DeleteObject} forEach (NWG_GC_garbageBin#BIN_TRASH);
-    {_x resize 0} forEach NWG_GC_garbageBin;
+    NWG_GC_garbageBin params [["_bodies",[]],["_wrecks",[]],["_trash",[]]];
+    /*Purge bodies and vehicle wrecks*/
+    {_x call NWG_GC_DeleteUnit} forEach _bodies; _bodies resize 0;
+    {_x call NWG_GC_DeleteVehicle} forEach _wrecks; _wrecks resize 0;
+    /*Purge player generated ground trash*/
+    private _preserveTrash = NWG_GC_Settings get "MISSION_DELETE_PRESERVE_GROUND_TRASH_IF_PLAYER_NEAR";
+    {
+        if (!_preserveTrash || {_x call _isNoPlayerNear}) then {(_trash deleteAt _forEachIndex) call NWG_GC_DeleteObject};
+    } forEachReversed _trash;
 
     //2. Purge buildings decorations
     {
@@ -399,9 +417,11 @@ NWG_GC_DeleteMission = {
     {_x call NWG_GC_DeleteGroup} forEach (allGroups select {!(_x in NWG_GC_originalGroups) && {((units _x) findIf {isPlayer _x}) == -1}});
 
     //4. Delete all mission objects
-    private _players = call NWG_fnc_getPlayersOrOccupiedVehicles;
-    private _preserveDistance = NWG_GC_Settings get "PRESERVE_DISTANCE";
-    //do
+    private _missionObjects = (allMissionObjects "") select {!((typeOf _x) in NWG_GC_environmentExclude)};
+    _missionObjects = _missionObjects - NWG_GC_originalObjects - _players;
+    private _preserveObjects = NWG_GC_Settings get "MISSION_DELETE_PRESERVE_OBJECTS_IF_PLAYER_NEAR";
+    private _preserveVehicles = NWG_GC_Settings get "MISSION_DELETE_PRESERVE_VEHICLES_IF_PLAYER_NEAR";
+    //forEach mission object
     {
         switch (_x call NWG_fnc_ocGetObjectType) do {
             case OBJ_TYPE_BLDG;
@@ -409,8 +429,7 @@ NWG_GC_DeleteMission = {
             case OBJ_TYPE_MINE: {_x call NWG_GC_DeleteObject};
 
             case OBJ_TYPE_DECO: {
-                //Delete only if not attached to any player
-                if (isNull (attachedTo _x) || {!(isPlayer (attachedTo _x))}) then {_x call NWG_GC_DeleteObject};
+                if (!_preserveObjects || {_x call _isNoPlayerNear}) then {_x call NWG_GC_DeleteObject};
             };
 
             case OBJ_TYPE_UNIT: {
@@ -422,11 +441,10 @@ NWG_GC_DeleteMission = {
                 private _veh = _x;
                 if (!alive _veh) exitWith {_veh call NWG_GC_DeleteVehicle};//Just delete if destroyed
                 {_veh deleteVehicleCrew _x} forEach ((crew _veh) select {!unitIsUAV _x && {!alive _x || !isPlayer _x}});//Delete all the crew inside
-                if (_players findIf {(_veh distance _x) <= _preserveDistance} != -1) exitWith {};//Skip if near any player (will also trigger if player was inside)
-                _x call NWG_GC_DeleteVehicle;//Delete if no players around
+                if (!_preserveVehicles || {_veh call _isNoPlayerNear}) then {_veh call NWG_GC_DeleteVehicle};//Delete if no players around
             };
         };
-    } forEach ((allMissionObjects "") select {!(_x in NWG_GC_originalObjects) && {!((typeOf _x) in NWG_GC_environmentExclude)}});
+    } forEach _missionObjects;
 
     //5. Delete all map markers
     {deleteMarker _x} forEach (allMapMarkers select {!(_x in NWG_GC_originalMarkers)});
@@ -438,7 +456,7 @@ NWG_GC_DeleteMission = {
         {
             [_x,true,true] call BIS_fnc_deleteTask;
         } forEach (_x call BIS_fnc_tasksUnit);
-    } forEach ((call NWG_fnc_getPlayersAll) select {alive _x});
+    } forEach _players;
 
     //7. Invoke callback
     call _callback;
