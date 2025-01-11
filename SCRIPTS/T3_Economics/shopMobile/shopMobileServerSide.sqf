@@ -32,30 +32,30 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 		["C2I0",10000],//Team (2)
 		["C2I1",15000],//Squad (3)
 		["C2I2",20000],//Company (5)
-		["C2I3",50000] //Fire team (8)
+		["C2I3",30000] //Fire team (8)
 	]],
 
 	/*Price increase settings*//*params ["_itemIncrease","_catIncrease","_allIncrease"]*//*Applied consecutively*/
 	["PRICE_INCREASE_SETTINGS",createHashMapFromArray [
-		["C0I0",[100,100,0]],//Scout drone
-		["C0I1",[100,100,0]],//Suicide drone (HE 44)
-		["C0I2",[100,100,0]],//Suicide drone (HEAT 55)
-		["C0I3",[100,100,0]],//Suicide drone (HEAT 75)
-		["C0I4",[250,100,0]],//EMI drone
-		["C0I5",[250,100,0]],//Bomber drone
-		["C0I6",[5000,100,0]],//Ababil
+		["C0I0",[200,100,0]],//Scout drone
+		["C0I1",[200,150,0]],//Suicide drone (HE 44)
+		["C0I2",[200,150,0]],//Suicide drone (HEAT 55)
+		["C0I3",[200,150,0]],//Suicide drone (HEAT 75)
+		["C0I4",[300,200,0]],//EMI drone
+		["C0I5",[300,200,0]],//Bomber drone
+		["C0I6",[5000,500,0]],//Ababil
 
-		["C1I0",[100,100,0]],//Single strike
-		["C1I1",[100,100,0]],//Double tap
-		["C1I2",[100,100,0]],//Three in a row
-		["C1I3",[100,100,0]],//Barrage
-		["C1I4",[100,100,0]],//Illumination shells
-		["C1I5",[100,100,0]],//Smoke shells
+		["C1I0",[200,100,0]],//Single strike
+		["C1I1",[300,100,0]],//Double tap
+		["C1I2",[400,200,0]],//Three in a row
+		["C1I3",[1000,500,0]],//Barrage
+		["C1I4",[200,100,0]],//Illumination shells
+		["C1I5",[200,100,0]],//Smoke shells
 
 		["C2I0",[1000,1000,0]],//Team (2)
-		["C2I1",[1000,1000,0]],//Squad (3)
-		["C2I2",[1000,1000,0]],//Company (5)
-		["C2I3",[1000,1000,0]] //Fire team (8)
+		["C2I1",[2000,1000,0]],//Squad (3)
+		["C2I2",[3000,1000,0]],//Company (5)
+		["C2I3",[5000,1000,0]] //Fire team (8)
 	]],
 
 	/*Marker settings*//*params ["_markerType","_markerColor"]*/
