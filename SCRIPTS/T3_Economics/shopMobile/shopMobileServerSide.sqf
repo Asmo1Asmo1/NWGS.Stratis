@@ -539,14 +539,6 @@ NWG_MSHOP_SER_SpawnInfSupport = {
 		];
 	} forEach (_units select {typeOf _x isEqualTo _aaUnit});
 
-	//Move to destination
-	{
-		_x forceSpeed -1;
-		_x doMove _targetPos;
-		_x moveTo _targetPos;
-		_x setDestination [_targetPos,"FORMATION PLANNED",true];
-	} foreach _units;
-
 	//return
 	true
 };

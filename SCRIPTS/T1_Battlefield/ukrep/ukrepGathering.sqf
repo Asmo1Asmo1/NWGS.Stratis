@@ -4,6 +4,7 @@
 /*
     Annotation:
     This module gathers the blueprint of the object composition.
+    Set 'IS_GATHERING' to true in the settings to freeze map placed units.
 
     Gather REL (Relative position offset) composition:
     _radius call NWG_UKREP_GatherUkrepREL
@@ -24,6 +25,8 @@
 //================================================================================================================
 //Settings
 NWG_UKREP_GATHER_Settings = createHashMapFromArray [
+    ["IS_GATHERING",false],//If true, map placed units behaviour will be changed to ease gathering
+
     ["PLACEHOLDER_UNITS_DISABLE_AI",true],//If true all the placeholder units will have AI disabled to ease gathering
     ["PLACEHOLDER_UNITS_DISABLE_COLLISION",true],//If true all the placeholder units will be transparent to player to ease gathering
 
@@ -33,12 +36,9 @@ NWG_UKREP_GATHER_Settings = createHashMapFromArray [
 //================================================================================================================
 //Init
 private _Init = {
-    if (
-        !(NWG_UKREP_GATHER_Settings get "PLACEHOLDER_UNITS_DISABLE_AI") && {
-        !(NWG_UKREP_GATHER_Settings get "PLACEHOLDER_UNITS_DISABLE_COLLISION")}
-    ) exitWith {};
-
+    if !(NWG_UKREP_GATHER_Settings get "IS_GATHERING") exitWith {};
     private _placeholderUnits = allUnits select {(typeOf _x) in (NWG_UKREP_placeholders get OBJ_TYPE_UNIT)};
+    if ((count _placeholderUnits) == 0) exitWith {};
 
     if (NWG_UKREP_GATHER_Settings get "PLACEHOLDER_UNITS_DISABLE_AI")
         then { {_x disableAI "ALL"} forEach _placeholderUnits };

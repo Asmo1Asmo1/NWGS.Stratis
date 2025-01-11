@@ -350,8 +350,11 @@ NWG_VSHOP_CLI_CheckPlatform = {
 	private _obstacles = _platform nearEntities [["Man","Car","Tank","Helicopter","Plane","Ship"],_platformRadius];
 	if ((count _obstacles) == 0) exitWith {PLATFORM_OK};//<= Exit if no obstacles found
 
-	//Remove platform and player from the list
-	_obstacles = _obstacles - [_platform,player];
+	//Remove AI units, player and platform itself (just in case) from the list
+	private _toIgnore = _obstacles select {_x isKindOf "Man" && {!isPlayer _x}};
+	_toIgnore pushBack _platform;
+	_toIgnore pushBack player;
+	_obstacles = _obstacles - _toIgnore;
 	if ((count _obstacles) == 0) exitWith {PLATFORM_OK};//<= Exit if no obstacles found
 
 	//Try deleting dead obstacles

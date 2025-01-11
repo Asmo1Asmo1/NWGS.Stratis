@@ -41,7 +41,7 @@ NWG_fnc_dsSendReinforcements = {
 // _membership - (optional, default: west) side or group to spawn into
 // _skipFinalize - (optional, default: false) if true, will skip: additional code, dspawn tags, dspawn ownership, group behavior and event propagation
 //returns:
-// spawned group OR false in case of error
+// [_group,_vehicle,_units] or false in case of error
 NWG_fnc_dsSpawnSingleGroup = {
     // params ["_pos","_radius","_faction",["_filter",[]],["_membership",west],["_skipFinalize",false]];
     _this call NWG_DSPAWN_SpawnSingleGroup
