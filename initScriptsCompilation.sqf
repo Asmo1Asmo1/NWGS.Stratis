@@ -228,7 +228,8 @@ if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\shopItems\
 //shopMobile
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopMobile\shopMobileServerSide.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopMobile\missionMachineConnector.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T3_Economics\shopMobile\dspawnConnector.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\shopMobile\dspawnConnectorServer.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\shopMobile\dspawnConnectorClient.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\shopMobile\shopMobileClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\shopMobile\shopMobileFunctions.sqf" call NWG_fnc_compile);
 //shopVehicles

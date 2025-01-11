@@ -9,7 +9,7 @@
 //Settings
 NWG_MSHOP_DSC_Settings = createHashMapFromArray [
 	["RADIUS_DRONE",[450,550]],
-	["RADIUS_UNITS",[350,450]],
+	["RADIUS_UNITS",[100,200]],
 
 	["PARADROP_VEHICLE_CLASSNAME","B_T_VTOL_01_vehicle_F"],//Vehicle that will be used to imitate paradrop
 
@@ -31,10 +31,12 @@ NWG_MSHOP_DSC_SpawnGroup = {
 	};
 
 	//Define category-specific values
-	private _membership = switch (_cat) do {
-		case "C0": {side _player};//Side for drones
-		case "C2": {group _player};//Group for units
-	};
+	// private _membership = switch (_cat) do {
+	// 	case "C0": {side _player};//Side for drones
+	// 	case "C2": {group _player};//Group for units
+	// UPD: Joining to player's group (non-local for server) breaks things. Units die in the air and/or shoot each other if from different faction.
+	// };
+	private _membership = side _player;/*Fix for infantry support (PART 1)*/
 	private _spawnRadius = switch (_cat) do {
 		case "C0": {NWG_MSHOP_DSC_Settings get "RADIUS_DRONE"};
 		case "C2": {NWG_MSHOP_DSC_Settings get "RADIUS_UNITS"};
@@ -55,7 +57,13 @@ NWG_MSHOP_DSC_SpawnGroup = {
 		(format ["NWG_MSHOP_DSC_SpawnGroup: Failed to spawn group with args: '%1'",_this]) call NWG_fnc_logError;
 		false
 	};
-	_spawnResult params ["","_vehicle","_units"];
+	_spawnResult params ["_group","_vehicle","_units"];
+
+	/*Fix for infantry support (PART 2)*/
+	if (_cat isEqualTo "C2") then {
+		{_x setCaptive true} forEach _units;//Fix units firing at each other
+		_units remoteExec ["NWG_MSHOP_DSC_AdoptUnits",_player];
+	};
 
 	//return
 	switch (_cat) do {
