@@ -25,6 +25,7 @@
 NWG_VSHOP_SER_Settings = createHashMapFromArray [
 	["CATALOGUE_PATH_VANILLA","DATASETS\Server\ShopVehicles\_Vanilla.sqf"],//Path to vanilla loot catalogue
 
+	//Default prices
     ["DEFAULT_PRICE_AAIR_ARMED",200000],
 	["DEFAULT_PRICE_AAIR_UNARMED",140000],
     ["DEFAULT_PRICE_APCS_ARMED",125000],
@@ -46,16 +47,16 @@ NWG_VSHOP_SER_Settings = createHashMapFromArray [
     ["DEFAULT_PRICE_TANK_ARMED",240000],
 	["DEFAULT_PRICE_TANK_UNARMED",150000],
 
-    //[activeFactor,passiveFactor,priceMin,priceMax]
+	//Prices dynamic settings | params ["_activeAdd","_passiveAdd","_priceMin","_priceMax"]
     ["PRICE_AAIR_SETTINGS",[1000,100,70000,500000]],
     ["PRICE_APCS_SETTINGS",[1000,100,40000,250000]],
     ["PRICE_ARTY_SETTINGS",[1000,100,70000,500000]],
-    ["PRICE_BOAT_SETTINGS",[100,10,8000,20000]],
-    ["PRICE_CARS_SETTINGS",[100,10,4500,30000]],
-    ["PRICE_DRON_SETTINGS",[100,10,4500,60000]],
-    ["PRICE_HELI_SETTINGS",[500,50,30000,10000000]],
+    ["PRICE_BOAT_SETTINGS",[500,50,8000,20000]],
+    ["PRICE_CARS_SETTINGS",[500,50,4500,30000]],
+    ["PRICE_DRON_SETTINGS",[500,50,4500,60000]],
+    ["PRICE_HELI_SETTINGS",[1000,100,30000,10000000]],
     ["PRICE_PLAN_SETTINGS",[1000,100,75000,10000000]],
-    ["PRICE_SUBM_SETTINGS",[100,10,10000,24000]],
+    ["PRICE_SUBM_SETTINGS",[500,50,10000,24000]],
     ["PRICE_TANK_SETTINGS",[1000,100,75000,10000000]],
 
 	//Items that are added to each shop interaction
@@ -72,9 +73,12 @@ NWG_VSHOP_SER_Settings = createHashMapFromArray [
         []/*TANK*/
 	]],
 	["SHOP_CHECK_PERSISTENT_ITEMS_ON_INIT",false],//Check validity of persistent items on init
+
+	//Buy Back | Sold Out
 	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",1],//Chance that item will be added to dynamic items when bought from player
 	["SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE",0],//Chance that item will be removed from dynamic items when sold to player
 
+	//Spawn platform
     ["SPAWN_PLATFORM_FUNC",{_this call NWG_fnc_spwnSpawnVehicleExact}],//Function to use for spawn on the platform. params ["_classname","_pos","_dir"]
 
 	["",0]
@@ -246,22 +250,21 @@ NWG_VSHOP_SER_UpdatePrices = {
 		(format["NWG_VSHOP_SER_UpdatePrices: Failed to get category settings for index: '%1'",_categoryIndex]) call NWG_fnc_logError;
 		false
 	};
-	_settings params ["_activeFactor","_passiveFactor","_priceMin","_priceMax"];
+	_settings params ["_activeAdd","_passiveAdd","_priceMin","_priceMax"];
 
 	//Define price change
 	if (_isSoldToPlayer) then {
 		//Vehicle is sold to player, so its price should be increased while others decreased
-		//_activeFactor //unchanged
-		_passiveFactor = -_passiveFactor;//Turned into negative value
+		//_activeAdd //unchanged
+		_passiveAdd = -_passiveAdd;//Turned into negative value
 	} else {
 		//Vehicle is bought from player, so its price should be decreased while others increased
-		_activeFactor = -_activeFactor;//Turned into negative value
-		//_passiveFactor //unchanged
+		_activeAdd = -_activeAdd;//Turned into negative value
+		//_passiveAdd //unchanged
 	};
 
 	//Prepare for processing
 	private _priceChart = (NWG_VSHOP_SER_vehsPriceChart select _categoryIndex) select CHART_PRICES;
-	private _curPrice = 0;
 	private _actives = [];
 	private _totalCount = 0;
 
@@ -294,10 +297,7 @@ NWG_VSHOP_SER_UpdatePrices = {
 
 		_actives pushBackUnique _vIndex;
 		_totalCount = _totalCount + _count;
-		_curPrice = _priceChart#_vIndex;
-		_curPrice = ((_curPrice + (_activeFactor*_count)) max _priceMin) min _priceMax;
-		_priceChart set [_vIndex,_curPrice];
-		_curPrice = 0;
+		_priceChart set [_vIndex,((((_priceChart#_vIndex) + (_activeAdd * _count)) max _priceMin) min _priceMax)];
 		_count = 1;
 
 	} forEach _vehs;
@@ -310,10 +310,8 @@ NWG_VSHOP_SER_UpdatePrices = {
 
 	//Update passive items
 	{
-		if (_forEachIndex in _actives) then {continue};
-		_curPrice = _x;
-		_curPrice = ((_curPrice + (_passiveFactor*_totalCount)) max _priceMin) min _priceMax;
-		_priceChart set [_forEachIndex,_curPrice];
+		if !(_forEachIndex in _actives)
+			then {_priceChart set [_forEachIndex,(((_x + (_passiveAdd * _totalCount)) max _priceMin) min _priceMax)]};
 	} forEach _priceChart;
 
 	//return

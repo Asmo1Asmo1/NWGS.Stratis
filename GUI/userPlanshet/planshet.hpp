@@ -1,0 +1,14 @@
+//--- scale helpers
+#define BACKGROUND_W (0.800 * X_SCALE)
+#define BACKGROUND_H (0.500 * Y_SCALE)
+#define TEXT_W (0.3 * BACKGROUND_W)
+#define TEXT_H (0.1 * BACKGROUND_H)
+
+//--- position helpers
+#define BACKGROUND_X (FROM_CENTER(BACKGROUND_W))
+#define BACKGROUND_Y (FROM_CENTER(BACKGROUND_H))
+#define OFFSET_X (0.025 * X_SCALE)
+#define OFFSET_Y (0.0125 * Y_SCALE)
+#define TEXT_LEFT_X (BACKGROUND_X + OFFSET_X)
+#define TEXT_RIGHT_X (BACKGROUND_X + BACKGROUND_W - TEXT_W - OFFSET_X)
+#define TEXT_Y (BACKGROUND_Y)

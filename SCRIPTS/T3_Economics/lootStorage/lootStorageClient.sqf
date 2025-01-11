@@ -39,7 +39,10 @@ NWG_LS_CLI_storageChanged = false;
 private _Init = {
     //Loot storage changes
     player addEventHandler ["InventoryClosed",{call NWG_LS_CLI_OnInventoryClose}];
-    player addEventHandler ["InventoryOpened",{_this spawn NWG_LS_CLI_OnInventoryOpen}];
+    player addEventHandler ["InventoryOpened",{_this call NWG_LS_CLI_OnInventoryOpen}];
+    player addEventHandler ["Take",{call NWG_LS_CLI_OnInventoryChange}];
+    player addEventHandler ["Put",{call NWG_LS_CLI_OnInventoryChange}];
+    player addEventHandler ["SlotItemChanged",{call NWG_LS_CLI_OnInventoryChange}];
 
     //Auto sell on take
     player addEventHandler ["Take",{call NWG_LS_CLI_AutoSellOnTake}];
@@ -114,10 +117,10 @@ NWG_LS_CLI_OnInventoryOpen = {
     private _grounds = _containers#(1 - _i);
 
     //Setup event-based storage change detection
-    _storage addEventHandler ["Take",{NWG_LS_CLI_storageChanged = true}];
-    _storage addEventHandler ["Put", {NWG_LS_CLI_storageChanged = true}];
-    _grounds addEventHandler ["Take",{NWG_LS_CLI_storageChanged = true}];
-    _grounds addEventHandler ["Put", {NWG_LS_CLI_storageChanged = true}];
+    _storage addEventHandler ["Take",{call NWG_LS_CLI_OnInventoryChange}];
+    _storage addEventHandler ["Put", {call NWG_LS_CLI_OnInventoryChange}];
+    _grounds addEventHandler ["Take",{call NWG_LS_CLI_OnInventoryChange}];
+    _grounds addEventHandler ["Put", {call NWG_LS_CLI_OnInventoryChange}];
 
     //Setup polling-based storage change detection
     _grounds spawn {
@@ -143,10 +146,14 @@ NWG_LS_CLI_OnInventoryOpen = {
     };
 };
 
+NWG_LS_CLI_OnInventoryChange = {
+    if (!isNull NWG_LS_CLI_invisibleBox && {!NWG_LS_CLI_storageChanged})
+        then {NWG_LS_CLI_storageChanged = true};
+};
+
 NWG_LS_CLI_OnInventoryClose = {
     //Check if we closing the storage object
     if (isNull NWG_LS_CLI_invisibleBox) exitWith {};//Ignore if storage object does not exist
-    systemChat format ["NWG_LS_CLI_OnInventoryClose: NWG_LS_CLI_storageChanged = %1",NWG_LS_CLI_storageChanged];
 
     //Check if storage was modified
     if (NWG_LS_CLI_storageChanged) then {

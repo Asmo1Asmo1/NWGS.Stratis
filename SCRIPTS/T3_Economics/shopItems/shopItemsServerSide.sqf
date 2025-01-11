@@ -12,16 +12,17 @@
 //================================================================================================================
 //Settings
 NWG_ISHOP_SER_Settings = createHashMapFromArray [
+	//Default prices
     ["DEFAULT_PRICE_CLTH",1000],
     ["DEFAULT_PRICE_WEAP",2000],
     ["DEFAULT_PRICE_ITEM",500],
     ["DEFAULT_PRICE_AMMO",300],
 
-	//[activeFactor,passiveFactor,priceMin,priceMax]
-	["PRICE_CLTH_SETTINGS",[2,0.02,200,10000]],
-	["PRICE_WEAP_SETTINGS",[5,0.05,400,20000]],
-	["PRICE_ITEM_SETTINGS",[1,0.01,100,5000]],
-	["PRICE_AMMO_SETTINGS",[1,0.01,100,3000]],
+	//Prices dynamic settings | params ["_activeAdd","_passiveAdd","_priceMin","_priceMax"]
+	["PRICE_CLTH_SETTINGS",[20,0.2,200,10000]],
+	["PRICE_WEAP_SETTINGS",[50,0.5,400,20000]],
+	["PRICE_ITEM_SETTINGS",[10,0.1,100,5000]],
+	["PRICE_AMMO_SETTINGS",[10,0.1,100,3000]],
 
 	//Items that are added to each shop interaction
 	["SHOP_PERSISTENT_ITEMS",[
@@ -33,16 +34,19 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
 	["SHOP_CHECK_PERSISTENT_ITEMS_ON_INIT",false],//Check validity of persistent items on init
 	["SHOP_SKIP_SENDING_PLAYER_LOOT",true],//If you're using 'lootStorage' module, player loot is already synchronized between players and server
 	["SHOP_GET_PLAYER_LOOT_FUNC",{_this call NWG_fnc_lsGetPlayerLoot}],//Function that returns player loot
+
+	//Buy Back | Sold Out
 	["SHOP_ADD_TO_DYNAMIC_ITEMS_CHANCE",0],//Chance that item will be added to dynamic items when bought from player
 	["SHOP_REMOVE_FROM_DYNAMIC_ITEMS_CHANCE",0],//Chance that item will be removed from dynamic items when sold to player
 
+	//Junk items - items that will be ignored and never added to dynamic items on buy from player
 	["SHOP_JUNK_ITEMS",[
 		"FlashDisk","Files","FilesSecret","FileTopSecret","FileNetworkStructure","DocumentsSecret",
 		"SatPhone","MobilePhone","SmartPhone",
 		"Money","Money_stack","Money_roll","Money_bunch",
 		"Laptop_Unfolded","Laptop_Closed","ButaneCanister","Keys","Wallet_ID",
 		"Bandage","Antimalaricum","Antibiotic","AntimalaricumVaccine"
-	]],//Items that will be ignored and never added to dynamic items on buy from player
+	]],
 
 	["",0]
 ];
@@ -132,22 +136,21 @@ NWG_ISHOP_SER_UpdatePrices = {
 		(format["NWG_ISHOP_SER_UpdatePrices: Failed to get category settings for index: '%1'",_categoryIndex]) call NWG_fnc_logError;
 		false
 	};
-	_settings params ["_activeFactor","_passiveFactor","_priceMin","_priceMax"];
+	_settings params ["_activeAdd","_passiveAdd","_priceMin","_priceMax"];
 
 	//Define price change
 	if (_isSoldToPlayer) then {
 		//Item is sold to player, so its price should be increased while others decreased
-		//_activeFactor //unchanged
-		_passiveFactor = -_passiveFactor;//Turned into negative value
+		//_activeAdd //unchanged
+		_passiveAdd = -_passiveAdd;//Turned into negative value
 	} else {
 		//Item is bought from player, so its price should be decreased while others increased
-		_activeFactor = -_activeFactor;//Turned into negative value
-		//_passiveFactor //unchanged
+		_activeAdd = -_activeAdd;//Turned into negative value
+		//_passiveAdd //unchanged
 	};
 
 	//Prepare for processing
 	private _priceChart = (NWG_ISHOP_SER_itemsPriceChart select _categoryIndex) select CHART_PRICES;
-	private _curPrice = 0;
 	private _actives = [];
 	private _totalCount = 0;
 
@@ -180,10 +183,7 @@ NWG_ISHOP_SER_UpdatePrices = {
 
 		_actives pushBackUnique _iIndex;
 		_totalCount = _totalCount + _count;
-		_curPrice = _priceChart#_iIndex;
-		_curPrice = ((_curPrice + (_activeFactor*_count)) max _priceMin) min _priceMax;
-		_priceChart set [_iIndex,_curPrice];
-		_curPrice = 0;
+		_priceChart set [_iIndex,((((_priceChart#_iIndex) + (_activeAdd * _count)) max _priceMin) min _priceMax)];
 		_count = 1;
 
 	} forEach _items;
@@ -196,10 +196,8 @@ NWG_ISHOP_SER_UpdatePrices = {
 
 	//Update passive items
 	{
-		if (_forEachIndex in _actives) then {continue};
-		_curPrice = _x;
-		_curPrice = ((_curPrice + (_passiveFactor*_totalCount)) max _priceMin) min _priceMax;
-		_priceChart set [_forEachIndex,_curPrice];
+		if !(_forEachIndex in _actives)
+			then {_priceChart set [_forEachIndex,(((_x + (_passiveAdd * _totalCount)) max _priceMin) min _priceMax)]};
 	} forEach _priceChart;
 
 	//return

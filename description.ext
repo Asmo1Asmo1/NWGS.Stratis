@@ -1,11 +1,13 @@
 //===========================================================
 //GUI elements
 #include "GUI\imports.hpp"//Arma forces all imports to be called only once, so we have to centralize them here
+#include "GUI\ui_toolkit.hpp"//Exported from https://github.com/A3Wasteland/ArmA3_Wasteland.Altis/blob/dev/client/systems/ui_toolkit.hpp
 #include "GUI\magrepack\magrepackGUI.hpp"
 #include "GUI\viewDistance\viewDistanceGUI.h"
 #include "GUI\vehicleCustomization\vehicleCustomization.hpp"
 #include "GUI\inventoryUI\inventoryUI.hpp"
 #include "GUI\shopUI\shopUI.hpp"
+#include "GUI\userPlanshet\planshet.hpp"
 #include "GUI\userPlanshet\planshetBackground.hpp"
 #include "GUI\userPlanshet\planshetMainMenu.hpp"
 #include "GUI\userPlanshet\planshetSecondaryMenu.hpp"
@@ -16,7 +18,7 @@
 //Loading screen
 author			= "Asmo";
 onLoadName		= "NWG: Scavenger";
-onLoadMission	= "Scavenger v1.0.2";
+onLoadMission	= "Scavenger v1.0.3";
 
 class Header
 {

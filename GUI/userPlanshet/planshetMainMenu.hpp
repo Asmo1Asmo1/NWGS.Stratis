@@ -1,15 +1,12 @@
+//auto includes by description.ext
+// #include "GUI\ui_toolkit.hpp"
+// #include "planshet.hpp"
+
 //moved to imports.hpp
 // import RscText;
 // import RscActivePictureKeepAspect;
 
-#define UI_GRID_X	(0.5)
-#define UI_GRID_Y	(0.5)
-#define UI_GRID_W	(2.5 * pixelW * pixelGrid)
-#define UI_GRID_H	(2.5 * pixelH * pixelGrid)
-#define UI_GRID_WAbs	(0)
-#define UI_GRID_HAbs	(0)
-
-//--- userPlanshetMainMenu
+//--- userPlanshetMainMenu IDCs
 #define IDC_TEXT_LEFT 1000
 #define IDC_TEXT_RIGHT 1001
 
@@ -20,6 +17,17 @@
 #define IDC_BUTTON_05 1204
 #define IDC_BUTTON_06 1205
 
+//--- scale helpers
+#define BUTTON_W (0.085 * X_SCALE)
+#define BUTTON_H (0.085 * Y_SCALE)
+
+//--- position helpers
+#define BUTTON_COLUMN_1 ((BACKGROUND_X + (2 * (BACKGROUND_W / 8))) - (BUTTON_W / 2))
+#define BUTTON_COLUMN_2 ((BACKGROUND_X + (4 * (BACKGROUND_W / 8))) - (BUTTON_W / 2))
+#define BUTTON_COLUMN_3 ((BACKGROUND_X + (6 * (BACKGROUND_W / 8))) - (BUTTON_W / 2))
+#define BUTTON_ROW_1 ((BACKGROUND_Y + (1 * (BACKGROUND_H / 3))) - (BUTTON_H / 2))
+#define BUTTON_ROW_2 ((BACKGROUND_Y + (2 * (BACKGROUND_H / 3))) - (BUTTON_H / 2))
+
 
 ////////////////////////////////////////////////////////
 // GUI EDITOR OUTPUT START (by Asmo, v1.063, #Wytoco)
@@ -29,61 +37,61 @@ class UPMM_TextLeft: RscText
 {
 	idc = IDC_TEXT_LEFT;
 	text = "";
-	x = -15 * UI_GRID_W + UI_GRID_X;
-	y = -9.5 * UI_GRID_H + UI_GRID_Y;
-	w = 12 * UI_GRID_W;
-	h = 1 * UI_GRID_H;
+	x = TEXT_LEFT_X;
+	y = TEXT_Y;
+	w = TEXT_W;
+	h = TEXT_H;
 };
 class UPMM_TextRight: RscText
 {
 	idc = IDC_TEXT_RIGHT;
 	style = 1;//1: align right
 	text = "";
-	x = 3.5 * UI_GRID_W + UI_GRID_X;
-	y = -9.5 * UI_GRID_H + UI_GRID_Y;
-	w = 11.5 * UI_GRID_W;
-	h = 1 * UI_GRID_H;
+	x = TEXT_RIGHT_X;
+	y = TEXT_Y;
+	w = TEXT_W;
+	h = TEXT_H;
 };
 class UPMM_ButtonCommon: RscActivePictureKeepAspect
 {
-	w = 4 * UI_GRID_W;
-	h = 4 * UI_GRID_H;
+	w = BUTTON_W;
+	h = BUTTON_H;
 };
 class UPMM_Button01: UPMM_ButtonCommon
 {
 	idc = IDC_BUTTON_01;
-	x = -9.5 * UI_GRID_W + UI_GRID_X;
-	y = -5 * UI_GRID_H + UI_GRID_Y;
+	x = BUTTON_COLUMN_1;
+	y = BUTTON_ROW_1;
 };
 class UPMM_Button02: UPMM_ButtonCommon
 {
 	idc = IDC_BUTTON_02;
-	x = -2 * UI_GRID_W + UI_GRID_X;
-	y = -5 * UI_GRID_H + UI_GRID_Y;
+	x = BUTTON_COLUMN_2;
+	y = BUTTON_ROW_1;
 };
 class UPMM_Button03: UPMM_ButtonCommon
 {
 	idc = IDC_BUTTON_03;
-	x = 5.5 * UI_GRID_W + UI_GRID_X;
-	y = -5 * UI_GRID_H + UI_GRID_Y;
+	x = BUTTON_COLUMN_3;
+	y = BUTTON_ROW_1;
 };
 class UPMM_Button04: UPMM_ButtonCommon
 {
 	idc = IDC_BUTTON_04;
-	x = -9.5 * UI_GRID_W + UI_GRID_X;
-	y = 2.5 * UI_GRID_H + UI_GRID_Y;
+	x = BUTTON_COLUMN_1;
+	y = BUTTON_ROW_2;
 };
 class UPMM_Button05: UPMM_ButtonCommon
 {
 	idc = IDC_BUTTON_05;
-	x = -2 * UI_GRID_W + UI_GRID_X;
-	y = 2.5 * UI_GRID_H + UI_GRID_Y;
+	x = BUTTON_COLUMN_2;
+	y = BUTTON_ROW_2;
 };
 class UPMM_Button06: UPMM_ButtonCommon
 {
 	idc = IDC_BUTTON_06;
-	x = 5.5 * UI_GRID_W + UI_GRID_X;
-	y = 2.5 * UI_GRID_H + UI_GRID_Y;
+	x = BUTTON_COLUMN_3;
+	y = BUTTON_ROW_2;
 };
 ////////////////////////////////////////////////////////
 // GUI EDITOR OUTPUT END

@@ -180,6 +180,7 @@ NWG_AV_SeatSwitch_Action = {
 	if (_nextAvailableSeat == -1) exitWith {};
 
 	//Place unit into the next available seat
+	player disableCollisionWith _vehicle;
 	player moveOut _vehicle;//Mandatory, see: https://community.bistudio.com/wiki/moveInAny
 	private _newSeat = _fullCrew select _nextAvailableSeat;
 	switch (_newSeat#FULL_CREW_ROLE) do {
@@ -204,6 +205,7 @@ NWG_AV_SeatSwitch_Action = {
 			player moveInCargo [_vehicle,(_newSeat#FULL_CREW_CARGO_INDEX)];
 		};
 	};
+	player enableCollisionWith _vehicle;
 };
 
 //================================================================================================================

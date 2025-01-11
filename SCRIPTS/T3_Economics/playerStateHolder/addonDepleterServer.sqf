@@ -121,10 +121,10 @@ NWG_PSH_DPL_Deplete = {
     if (isNil "_playerState") exitWith {
         (format ["NWG_PSH_DPL_Deplete: Player state not found for player: '%1' with steamID: '%2'",(name _playerObj),_steamID]) call NWG_fnc_logError;
     };
-    private ["_stateName","_state","_defaultState"];
+    private ["_stateName","_state"];
 
     //Deplete loadout
-    _stateName = (NWG_PSH_DPL_Settings get "LOADOUT_STATE_NAME");
+    _stateName = NWG_PSH_DPL_Settings get "LOADOUT_STATE_NAME";
     _state = _playerState get _stateName;
     if (!isNil "_state") then {
         private _loadout = _state + [];//Shallow copy
@@ -140,17 +140,19 @@ NWG_PSH_DPL_Deplete = {
             _loadout set [_pokeAt,_def];
             _isPoked = true;
         };
+        if (!_isPoked) exitWith {};//No pokes done
 
-        if (_isPoked)
-            then {_playerState set [_stateName,_loadout]};
-        if (_isPoked && {_notify && {!isNull _playerObj}})
-            then {(NWG_PSH_DPL_Settings get "LOADOUT_DEPLETED_LOC_KEY") remoteExec ["NWG_fnc_systemChatMe",_playerObj]};
+        _playerState set [_stateName,_loadout];
+        if (_notify && {!isNull _playerObj}) then {
+            private _message = NWG_PSH_DPL_Settings get "LOADOUT_DEPLETED_LOC_KEY";
+            _message remoteExec ["NWG_fnc_systemChatMe",_playerObj];
+        };
     } else {
         (format ["NWG_PSH_DPL_Deplete: Loadout state not found for player: '%1' with steamID: '%2'",(name _playerObj),_steamID]) call NWG_fnc_logError;
     };
 
     //Deplete additional weapon
-    _stateName = (NWG_PSH_DPL_Settings get "ADD_WEAPON_STATE_NAME");
+    _stateName = NWG_PSH_DPL_Settings get "ADD_WEAPON_STATE_NAME";
     _state = _playerState get _stateName;
     if (!isNil "_state") then {
         private _addWeapon = _state;
@@ -159,14 +161,16 @@ NWG_PSH_DPL_Deplete = {
         if ((random 1) > (NWG_PSH_DPL_Settings get "ADD_WEAPON_LOOSE_CHANCE")) exitWith {};//Lucky
 
         _playerState set [_stateName,_defaultAddWeapon];
-        if (_notify && {!isNull _playerObj})
-            then {(NWG_PSH_DPL_Settings get "ADD_WEAPON_DEPLETED_LOC_KEY") remoteExec ["NWG_fnc_systemChatMe",_playerObj]};
+        if (_notify && {!isNull _playerObj}) then {
+            private _message = NWG_PSH_DPL_Settings get "ADD_WEAPON_DEPLETED_LOC_KEY";
+            _message remoteExec ["NWG_fnc_systemChatMe",_playerObj];
+        };
     } else {
         (format ["NWG_PSH_DPL_Deplete: Additional weapon state not found for player: '%1' with steamID: '%2'",(name _playerObj),_steamID]) call NWG_fnc_logError;
     };
 
     //Deplete loot
-    _stateName = (NWG_PSH_DPL_Settings get "LOOT_STATE_NAME");
+    _stateName = NWG_PSH_DPL_Settings get "LOOT_STATE_NAME";
     _state = _playerState get _stateName;
     if (!isNil "_state") then {
         private _loot = _state;
@@ -175,6 +179,7 @@ NWG_PSH_DPL_Deplete = {
 
         private _multiplier = NWG_PSH_DPL_Settings get "LOOT_DEPLETE_MULTIPLIER";
         _loot = [_loot,_multiplier,/*notify:*/false] call NWG_fnc_lsDepleteLoot;
+
         _playerState set [_stateName,_loot];
         if (_notify && {!isNull _playerObj}) then {
             private _message = [(NWG_PSH_DPL_Settings get "LOOT_DEPLETED_LOC_KEY"),((1 - _multiplier) * 100)];
