@@ -51,9 +51,8 @@ NWG_VSHOP_CLI_Settings = createHashMapFromArray [
 	["PLAYER_MONEY_BLINK_COLOR_INTERVAL_ON",0.3],
 	["PLAYER_MONEY_BLINK_COLOR_INTERVAL_OFF",0.2],
 
-	["ITEM_LIST_NAME_LIMIT",26],//Max number of letters for the item name
-	["ITEM_LIST_TEMPLATE_W_CONDITION","%1 [%2%%] (%3)"],//Item list format string
-	["ITEM_LIST_TEMPLATE_NO_CONDITION","%1 (%2)"],//Item list format string
+	["ITEM_PRICE_TEMPLATE_W_CONDITION","[%1%%] (%2)"],//Item price format string
+	["ITEM_PRICE_TEMPLATE_NO_CONDITION","(%1)"],//Item price format string
 	["ITEM_LIST_PICTURE_TYPE","editorPreview"],//Type of picture to use for the item (options: "picture", "icon", "editorPreview")
 
 	["",0]
@@ -512,33 +511,26 @@ NWG_VSHOP_CLI_UpdateItemsList = {
 
 	//Fill list
 	private _i = -1;
+	private _rightPart = "";
+	private _formatRightPart = {
+		params ["_condition","_price"];
+		if (_condition >= 0)
+			then {format [(NWG_VSHOP_CLI_Settings get "ITEM_PRICE_TEMPLATE_W_CONDITION"),_condition,(_price call NWG_fnc_wltFormatMoney)]}
+			else {format [(NWG_VSHOP_CLI_Settings get "ITEM_PRICE_TEMPLATE_NO_CONDITION"),(_price call NWG_fnc_wltFormatMoney)]}
+	};
 	//forEach _itemsToShow
 	{
+		//Get item info
 		(_x call NWG_VSHOP_CLI_GetItemInfo) params [["_displayName",""],["_picture",""]];
 		([_x,_isPlayerSide] call NWG_VSHOP_CLI_TRA_GetPrice) params ["_price","_condition"];
+		_rightPart = [_condition,_price] call _formatRightPart;
 
-		_i = _list lbAdd ([_displayName,_price,_condition] call NWG_VSHOP_CLI_FormatListRecord);//Add formatted record
+		_i = _list lbAdd _displayName;//Add display name
+		_list lbSetTextRight [_i,_rightPart];//Set right part with price and count
+		_list lbSetTooltip [_i,(_displayName + " " + _rightPart)];//Set tooltip (limitless display name)
 		_list lbSetData [_i,_x];//Set data (item classname)
 		_list lbSetPicture [_i, _picture];//Set picture
 	} forEach _itemsToShow;
-};
-
-NWG_VSHOP_CLI_FormatListRecord = {
-	params ["_displayName","_price","_condition"];
-
-	//Limit display name
-	private _limit = NWG_VSHOP_CLI_Settings get "ITEM_LIST_NAME_LIMIT";
-	if ((count _displayName) > _limit) then {
-		//Shorten the string and replace last 3 letters with '...'
-		_displayName = (_displayName select [0,(_limit-3)]) + "...";
-	};
-
-	//Format and return
-	if (_condition >= 0) then {
-		format [(NWG_VSHOP_CLI_Settings get "ITEM_LIST_TEMPLATE_W_CONDITION"),_displayName,_condition,(_price call NWG_fnc_wltFormatMoney)]
-	} else {
-		format [(NWG_VSHOP_CLI_Settings get "ITEM_LIST_TEMPLATE_NO_CONDITION"),_displayName,(_price call NWG_fnc_wltFormatMoney)]
-	}
 };
 
 //================================================================================================================
