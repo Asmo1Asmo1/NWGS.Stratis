@@ -186,6 +186,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayer=1;
 					};
@@ -247,6 +248,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};
@@ -310,6 +312,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};
@@ -373,6 +376,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};
@@ -434,6 +438,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};
@@ -497,6 +502,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};
@@ -558,6 +564,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};
@@ -619,6 +626,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};
@@ -682,6 +690,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};
@@ -745,6 +754,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};
@@ -806,6 +816,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};
@@ -867,6 +878,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};
@@ -928,6 +940,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};
@@ -989,6 +1002,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};
@@ -1050,6 +1064,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};
@@ -1111,6 +1126,7 @@ class Mission
 					flags=7;
 					class Attributes
 					{
+						init="this setSpeaker ""NoVoice""";
 						description="Operator";
 						isPlayable=1;
 					};

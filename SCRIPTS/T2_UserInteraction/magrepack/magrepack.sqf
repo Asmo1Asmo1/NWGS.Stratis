@@ -124,7 +124,7 @@ if (SETUP_HOTKEY) then
 		waitUntil {!isNull (findDisplay 46)};//46 is a mission display, see https://community.bistudio.com/wiki/findDisplay
 		(findDisplay 46) displayAddEventHandler ["KeyDown",
 		{
-			params ["_NaN","_keyCode","_shift","_ctrl","_alt"];
+			params ["","_keyCode","_shift","_ctrl","_alt"];
 
 			//Check keycode
 			if (_keyCode != HOTKEY_KEYCODE) exitWith {false};//bypass keydown

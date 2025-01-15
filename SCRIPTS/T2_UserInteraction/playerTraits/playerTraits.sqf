@@ -19,7 +19,6 @@ private _Init = {
 NWG_TRAITS_OnPlayerSpawn = {
     player enableStamina false;
     player setCustomAimCoef 0.5;
-    player disableAI "RADIOPROTOCOL";
 
     player setUnitTrait ["engineer",false];
     player setUnitTrait ["explosiveSpecialist",true];
