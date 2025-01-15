@@ -132,7 +132,7 @@ NWG_SPWN_SpawnUnitsAround = {
     for "_i" from 1 to ((count _units)-1) do {
         _u = _units#_i;
         _u setDir (random 360);
-        _u setVehiclePosition [_scout,[],(count _units),"CAN_COLLIDE"];
+        _u setVehiclePosition [_scout,[],(count _units),"NONE"];
     };
 
     //return
@@ -335,6 +335,13 @@ NWG_SPWN_CollisionCheck = {
         _intersectArgs set [1,(_worldBoundingBox#(_x#1))];
         if ((count (lineIntersectsSurfaces _intersectArgs)) > 0) exitWith {_ok = false};
     } forEach NWG_SPWN_collisionCheckOrder;
+    if (!_ok) exitWith {false};
+
+    // Check if not inside some rock or building
+    _ok = if (_mayBeOnGround) then {
+        private _thisASL = getPosASL _object;
+        (count (lineIntersectsSurfaces [_thisASL,(_thisASL vectorAdd [0,0,50]),_object,objNull,false,1,"GEOM","NONE"])) == 0
+    } else {true};
 
     //return
     _ok
