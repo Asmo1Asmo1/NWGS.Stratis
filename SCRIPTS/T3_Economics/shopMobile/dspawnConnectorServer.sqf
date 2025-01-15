@@ -61,8 +61,10 @@ NWG_MSHOP_DSC_SpawnGroup = {
 
 	/*Fix for infantry support (PART 2)*/
 	if (_cat isEqualTo "C2") then {
+		private _leader = leader (group _player);//Fix for non-leader player buying units
+		if (isNull _leader || {!isPlayer _leader}) exitWith {(format ["NWG_MSHOP_DSC_SpawnGroup: Failed to get player's leader for player '%1'",(name _player)]) call NWG_fnc_logError};
 		{_x setCaptive true} forEach _units;//Fix units firing at each other
-		_units remoteExec ["NWG_MSHOP_DSC_AdoptUnits",_player];
+		_units remoteExec ["NWG_MSHOP_DSC_AdoptUnits",_leader];
 	};
 
 	//return
