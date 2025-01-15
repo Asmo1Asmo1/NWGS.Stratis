@@ -105,7 +105,7 @@ NWG_DialogueTree = createHashMapFromArray [
 	/*Drop me by - payment*/
 	[
 		"TAXI_PAY",	[
-			Q_ONE,	["#XXX_PAY_Q_01#",{call NWG_DLG_TAXI_GetPriceStr}],
+			Q_ONE,	["#XXX_PAY_Q_01#",{(call NWG_DLG_TAXI_GetPrice) call NWG_DLGHLP_MoneyStr}],
 			A_CND,	[
 				{(call NWG_DLG_TAXI_GetPrice) call NWG_DLGHLP_HasEnoughMoney},["#TAXI_PAY_A_01#",NODE_EXIT,{call NWG_DLG_TAXI_Teleport}],
 				{(call NWG_DLG_TAXI_GetPrice) call NWG_DLGHLP_HasLessMoney},["#TAXI_PAY_A_02#","TAXI_LOW"],
@@ -320,7 +320,7 @@ NWG_DialogueTree = createHashMapFromArray [
 	/*Services - payment*/
 	[
 		"MECH_PAY",	[
-			Q_ONE,	["#XXX_PAY_Q_01#",{call NWG_DLG_MECH_GetPriceStr}],
+			Q_ONE,	["#XXX_PAY_Q_01#",{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_MoneyStr}],
 			A_CND,	[
 				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasEnoughMoney},["#MECH_PAY_A_01#",NODE_EXIT,{call NWG_DLG_MECH_DoService}],
 				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasLessMoney},["#MECH_PAY_A_02#","MECH_LOW"],
@@ -477,9 +477,9 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"TRDR_ADV1",	[
 			Q_RND,	[
-				["#TRDR_ADV1_Q_01#",{call NWG_DLG_TRDR_GetAdvPriceStr}],
-				["#TRDR_ADV1_Q_02#",{call NWG_DLG_TRDR_GetAdvPriceStr}],
-				["#TRDR_ADV1_Q_03#",{call NWG_DLG_TRDR_GetAdvPriceStr}]
+				["#TRDR_ADV1_Q_01#",{(call NWG_DLG_TRDR_GetAdvPrice) call NWG_DLGHLP_MoneyStr}],
+				["#TRDR_ADV1_Q_02#",{(call NWG_DLG_TRDR_GetAdvPrice) call NWG_DLGHLP_MoneyStr}],
+				["#TRDR_ADV1_Q_03#",{(call NWG_DLG_TRDR_GetAdvPrice) call NWG_DLGHLP_MoneyStr}]
 			],
 			A_CND,	[
 				{(call NWG_DLG_TRDR_GetAdvPrice) call NWG_DLGHLP_HasEnoughMoney},["#TRDR_ADV1_A_01#","TRDR_ADV2",{call NWG_DLG_TRDR_PayForAdvice}],
@@ -554,7 +554,7 @@ NWG_DialogueTree = createHashMapFromArray [
 		"MEDC_PATCH",	[
 			Q_CND,	[
 				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#MEDC_PATCH_Q_01#",
-				{1 call NWG_DLGHLP_HasMoreMoneyStartSum},["#MEDC_PATCH_Q_02#",{call NWG_DLG_MEDC_GetPatchPriceStr}]
+				{1 call NWG_DLGHLP_HasMoreMoneyStartSum},["#MEDC_PATCH_Q_02#",{(call NWG_DLG_MEDC_GetPatchPrice) call NWG_DLGHLP_MoneyStr}]
 			],
 			A_CND,	[
 				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#MEDC_PATCH_A_01#",NODE_EXIT,{true call NWG_DLG_MEDC_Patch}],
@@ -735,6 +735,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				{true},"#ROOF_00_Q_05#"
 			],
 			A_CND,	[
+				{true},["#ROOF_00_A_00#","ROOF_TS"],
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_01#","ROOF_WHAT"],
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_02#","ROOF_NO_TRUST"],
 				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#ROOF_00_A_02#","ROOF_KNOW"],
@@ -755,6 +756,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#ROOF_01_Q_03#"
 			],
 			A_CND,	[
+				{true},["#ROOF_00_A_00#","ROOF_TS"],
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_01#","ROOF_WHAT"],
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_02#","ROOF_NO_TRUST"],
 				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#ROOF_00_A_02#","ROOF_KNOW"],
@@ -763,6 +765,44 @@ NWG_DialogueTree = createHashMapFromArray [
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#AGEN_ADV_01#","ROOF_NO_TRUST"],
 				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#AGEN_ADV_01#","ROOF_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			]
+		]
+	],
+	/*Reflash - terminal selection*/
+	[
+		"ROOF_TS",	[
+			Q_RND,	[
+				"#ROOF_TS_Q_01#",
+				"#ROOF_TS_Q_02#"
+			],
+			A_GEN,	[
+				{call NWG_DLG_ROOF_GenerateChoices},
+				{"ROOF_01" call NWG_DLGHLP_GenerateDoubtExit}/*["ROOF_01",NODE_EXIT]*/
+			]
+		]
+	],
+	/*Reflash - payment*/
+	[
+		"ROOF_PAY",	[
+			Q_ONE,	["#XXX_PAY_Q_01#",{(call NWG_DLG_ROOF_GetPrice) call NWG_DLGHLP_MoneyStr}],
+			A_CND,	[
+				{(call NWG_DLG_ROOF_GetPrice) call NWG_DLGHLP_HasEnoughMoney},["#ROOF_PAY_A_01#",NODE_EXIT,{call NWG_DLG_ROOF_DoReflash}],
+				{(call NWG_DLG_ROOF_GetPrice) call NWG_DLGHLP_HasLessMoney},["#ROOF_PAY_A_02#","ROOF_LOW"],
+				{true},["#XXX_PAY_REFUSE#","ROOF_01"],
+				{true},["#ROOF_PAY_A_03#",NODE_EXIT]
+			]
+		]
+	],
+	/*Reflash - not enough money*/
+	[
+		"ROOF_LOW",	[
+			Q_RND,	[
+				"#ROOF_LOW_Q_01#",
+				"#ROOF_LOW_Q_02#"
+			],
+			A_DEF,	[
+				["#ROOF_LOW_A_01#","ROOF_01"],
+				["#ROOF_LOW_A_02#",NODE_EXIT]
 			]
 		]
 	],

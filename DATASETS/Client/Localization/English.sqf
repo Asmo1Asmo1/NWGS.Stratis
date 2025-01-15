@@ -457,6 +457,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_ADV_Q_04#","You can smoke out the crew out of the vehicle|By placing a smoke or regular grenade into its vent intakes|But be careful, you will need to get really close to pull this off"],
     ["#COMM_ADV_Q_05#","Your personal descending device|Compact parachute that is|Should always be with you|You never know when you might need it|'Space' by default while in the air"],
     /*====== ROOF =====*/
+    /*Roof - Logic*/
+    ["#ROOF_NO_TERMINALS#","Sorry, seems I don't have any..."],
+    ["#ROOF_INV_TERMINAL#","Failed to reflash"],
     /*Roof - Common answers*/
     ["#ROOF_0X_A_BACK3#","Something else"],
     ["#ROOF_0X_A_EXIT1#","I need to go"],
@@ -467,12 +470,25 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#ROOF_00_Q_03#","Yeah?"],
     ["#ROOF_00_Q_04#","You need something?"],
     ["#ROOF_00_Q_05#","Stupid barrels..."],
+    ["#ROOF_00_A_00#","Can you reflash this UAV terminal?"],
     ["#ROOF_00_A_01#","What are you doing here?"],
     ["#ROOF_00_A_02#","What else can you tell?"],
     /*Roof - ROOF_01*/
     ["#ROOF_01_Q_01#","You're ain't a busy bee, are you?"],
     ["#ROOF_01_Q_02#","Shouldn't you be somewhere else?"],
     ["#ROOF_01_Q_03#","What?"],
+    /*Reflash - terminal selection*/
+    ["#ROOF_TS_Q_01#","Which one do you have?"],
+    ["#ROOF_TS_Q_02#","Which one?"],
+    /*Reflash - payment*/
+    ["#ROOF_PAY_A_01#","Sure, here it is"],
+    ["#ROOF_PAY_A_02#","Damn, I don't have that much"],
+    ["#ROOF_PAY_A_03#","I'll try something else"],
+    /*Reflash - not enough money*/
+    ["#ROOF_LOW_Q_01#","Well? What are you waiting for then?|Go earn some|Shouldn't be that difficult"],
+    ["#ROOF_LOW_Q_02#","Low on cash, eh?|Shit happens"],
+    ["#ROOF_LOW_A_01#","Yeah, right..."],
+    ["#ROOF_LOW_A_02#","I'll be back"],
     /*Roof - ROOF_WHAT*/
     ["#ROOF_WHAT_Q_01#","Jerking around, isn't that obvious?|No, really, I don't complain but|I would bring more to the table if I was allowed to go out there|But no. Ivan, we need you here|Look for supplies, start them drones|Keep an eye out for the enemy|Yeah, things would go rough without me here, I understand|I'm a valuable asset for this operation|But do you have any idea how heavy those fuel barrels are?|And no one helps me to bring them down for that vehicle-headed shmuck"],
     /*Roof - ROOF_NO_TRUST*/
