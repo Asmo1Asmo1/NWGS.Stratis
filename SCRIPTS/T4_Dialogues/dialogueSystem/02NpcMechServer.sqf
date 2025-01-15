@@ -1,9 +1,10 @@
 /*
-	This is a helper addon module for specific NPC dialogue tree used in dialogue tree structure.
-	It contains logic unique to this NPC and is not mandatory for dialogue system to work.
-	So we can safely omit all the connectors and safety logic. For example, here we can freely use functions and inner methods from other systems and subsystems directly without precautions.
+	This is a helper addon module for specific NPC dialogue tree.
+	It is desigend to be unique for this specific project and is allowed to know about its structure for ease of implementation.
+	So we omit all the connectors and safety.
+	For example, here we can freely use functions and inner methods from other systems and subsystems directly and without precautions.
 	Same goes the other way around - there are no 'functions' with documentation declared, methods of this module are used directly in dialogue tree structure.
-	Reminder: Each answer is array of [%ANSWER_STR%,%NEXT_NODE%,(optional:%CODE%)]
+	Dialogue tree structure can be found at 'DATASETS/Client/Dialogues/Dialogues.sqf'
 */
 NWG_DLG_MECH_PricesRequest = {
 	params ["_vehArray","_player"];
