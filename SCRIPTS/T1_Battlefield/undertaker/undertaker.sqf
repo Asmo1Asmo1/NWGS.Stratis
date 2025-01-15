@@ -28,7 +28,7 @@ NWG_UNDTKR_OnCreated = {
 };
 
 NWG_UNDTKR_OnVehHit = {
-    params [["_vehicle",objNull],["_killer",objNull],"_NaN",["_instigator",objNull]];
+    params [["_vehicle",objNull],["_killer",objNull],"",["_instigator",objNull]];
     if (isNull _vehicle) exitWith {};
 
     private _damager = [_killer,_instigator] call NWG_UNDTKR_DefineKiller;

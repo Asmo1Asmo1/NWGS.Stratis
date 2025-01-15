@@ -3,7 +3,7 @@
 //Spawning of a vehicle
 
 NWG_SPWN_PrespawnVehicle = {
-    params ["_classname","_NaN","_dir",["_appearance",false],["_pylons",false]];
+    params ["_classname","","_dir",["_appearance",false],["_pylons",false]];
 
     //Pre-spawn a default vehicle at a safe position
     private _safepos = call NWG_SPWN_GetSafePrespawnPos;
@@ -57,46 +57,39 @@ NWG_SPWN_SpawnVehicleExact = {
 //Spawning of units
 
 NWG_SPWN_PrespawnUnits = {
-    params ["_classnames","_NaN",["_membership",west]];
-    private _side = west;//There is no sideNull unfortunately
-    private _group = grpNull;
-    private _units = [];
+    params ["_classnames","",["_membership",west]];
 
     private _createGroupUnits = {
-        private "_unit";
-        {
+        params ["_group","_side"];
+        private _unit = objNull;
+        _classnames apply {
             _unit = _group createUnit [_x,(call NWG_SPWN_GetSafePrespawnPos),[],0,"CAN_COLLIDE"];
             //Fix units from other faction beign spawned into 'wrong' side (see: https://community.bistudio.com/wiki/createUnit)
             if ((side _unit) isNotEqualTo _side) then {[_unit] joinSilent _group};
-            _units pushBack _unit;
-        } forEach _classnames;
-        _units
+            _unit
+        }
     };
 
-    switch (true) do {
+    private _units = switch (true) do {
         case (_membership isEqualType west): {
             //Side provided - create a new group for it
-            _side = _membership;
-            _group = createGroup [_side,/*delete when empty:*/true];
-            call _createGroupUnits;
+            private _group = createGroup [_membership,/*delete when empty:*/true];
+            [_group,_membership] call _createGroupUnits
         };
         case (_membership isEqualType grpNull): {
             //Group provided - use it
-            _side = side _membership;
-            _group = _membership;
-            call _createGroupUnits;
+            [_membership,(side _membership)] call _createGroupUnits
         };
         case (_membership isEqualTo "AGENT"): {
             //Agents requested (units with no group/side/behaviour)
-            {_units pushBack (createAgent [_x,(call NWG_SPWN_GetSafePrespawnPos),[],0,"CAN_COLLIDE"])} forEach _classnames;
+            _classnames apply {createAgent [_x,(call NWG_SPWN_GetSafePrespawnPos),[],0,"CAN_COLLIDE"]}
         };
         default {
             //Invalid membership
             format ["NWG_SPWN_PrespawnUnits: Invalid membership provided: %1",_membership] call NWG_fnc_logError;
             //Fallback to default side
-            _side = west;
-            _group = createGroup [_side,/*delete when empty:*/true];
-            call _createGroupUnits;
+            private _group = createGroup [west,/*delete when empty:*/true];
+            [_group,west] call _createGroupUnits
         };
     };
 
