@@ -23,6 +23,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AV_SEAT_SWITCH_PREV_TITLE#","Предыдущее место"],
     ["#AV_ALL_WHEEL_TITLE_ON#","Полный привод ВКЛ"],
     ["#AV_ALL_WHEEL_TITLE_OFF#","Полный привод ВЫКЛ"],
+    ["#AV_QUICK_VEH_ACCESS_TITLE#","Быстрая посадка в технику"],
     //actionsItems
     ["#AI_CAMP_TITLE#","Развернуть лагерь"],
     ["#AI_CAMP_TO_BASE_TITLE#","Вернуться на базу"],
