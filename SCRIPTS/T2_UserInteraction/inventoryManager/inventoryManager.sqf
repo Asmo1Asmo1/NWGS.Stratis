@@ -15,7 +15,7 @@ private _Init = {
     player addEventHandler ["InventoryClosed",{call NWG_INV_CheckLoadoutChange}];
     player addEventHandler ["Take",{call NWG_INV_CheckLoadoutChange}];
     player addEventHandler ["Put",{call NWG_INV_CheckLoadoutChange}];
-    player addEventHandler ["SlotItemChanged",{call NWG_INV_CheckLoadoutChange}];
+    // player addEventHandler ["SlotItemChanged",{call NWG_INV_CheckLoadoutChange}];//Too much events
     player addEventHandler ["WeaponAssembled",{call NWG_INV_CheckLoadoutChange}];//Also works for UAVs
     [missionNamespace,"arsenalClosed",{call NWG_INV_CheckLoadoutChange}] call BIS_fnc_addScriptedEventHandler;
 };
