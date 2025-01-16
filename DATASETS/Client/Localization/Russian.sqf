@@ -139,6 +139,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["Hide","Скрыть"],
 
     //T3_Economics
+    //hunting
+    ["#A_HUNT_TITLE#",""],
+    ["#A_HUNT_FORBIDDEN_MESSAGE#","Эй, %1, держись от собак подальше, ты грёбаный живодёр!"],
     //lootMission
     ["#LS_ACTION_LOOT_TITLE#","Забрать добычу"],
     ["#LS_ACTION_LOOT_SUCCESS#","Забрал"],

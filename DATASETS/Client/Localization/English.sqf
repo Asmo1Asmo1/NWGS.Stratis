@@ -104,6 +104,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_HINT_TIMEOUT#","Vote timeout"],
 
     //T3_Economics
+    //hunting
+    ["#A_HUNT_TITLE#",""],
+    ["#A_HUNT_FORBIDDEN_MESSAGE#","Hey, %1, stay the fuck away from the dogs, you sick fuck!"],
     //lootStorage
     ["#LS_ACTION_LOOT_TITLE#","Loot"],
     ["#LS_ACTION_LOOT_SUCCESS#","Looted"],
