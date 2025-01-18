@@ -84,19 +84,19 @@
         ],
 		//Suicide and EMI drones
 		[
-			["AIR","MEC","HELI","UAV","REG","C0I1","C0I2","C0I3","C0I4"],2,
+			["AIR","MEC","HELI","UAV","REG","C0I1","C0I2","C0I3","COI5"],2,
 			["I_UAV_01_F"],
 			["O_UAV_AI"]
 		],
 		//Bomber drone
 		[
-			["AIR","MEC","HELI","UAV","REG","C0I5"],2,
+			["AIR","MEC","HELI","UAV","REG","COI6"],2,
 			["C_IDAP_UAV_06_antimine_F"],
 			["O_UAV_AI"]
 		],
 		//Ababil
 		[
-			["AIR","MEC","PLANE","UAV","REG","C0I6"],2,
+			["AIR","MEC","PLANE","UAV","REG","COI7"],2,
 			["I_UAV_02_dynamicLoadout_F"],
 			[2,"O_UAV_AI"]
 		]

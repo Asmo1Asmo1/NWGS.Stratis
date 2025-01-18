@@ -18,9 +18,9 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 		["C0I1",1100],//Suicide drone (HE 44)
 		["C0I2",1200],//Suicide drone (HEAT 55)
 		["C0I3",1500],//Suicide drone (HEAT 75)
-		["C0I4",2500],//EMI drone
-		["C0I5",2500],//Bomber drone
-		["C0I6",50000],//Ababil
+		["COI5",2500],//EMI drone
+		["COI6",2500],//Bomber drone
+		["COI7",50000],//Ababil
 
 		["C1I0",1000],//Single strike
 		["C1I1",1500],//Double tap
@@ -41,9 +41,9 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 		["C0I1",[200,150,0]],//Suicide drone (HE 44)
 		["C0I2",[200,150,0]],//Suicide drone (HEAT 55)
 		["C0I3",[200,150,0]],//Suicide drone (HEAT 75)
-		["C0I4",[300,200,0]],//EMI drone
-		["C0I5",[300,200,0]],//Bomber drone
-		["C0I6",[5000,500,0]],//Ababil
+		["COI5",[300,200,0]],//EMI drone
+		["COI6",[300,200,0]],//Bomber drone
+		["COI7",[5000,500,0]],//Ababil
 
 		["C1I0",[200,100,0]],//Single strike
 		["C1I1",[300,100,0]],//Double tap
@@ -64,9 +64,9 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 		["C0I1",false],//Suicide drone (HE 44)
 		["C0I2",false],//Suicide drone (HEAT 55)
 		["C0I3",false],//Suicide drone (HEAT 75)
-		["C0I4",false],//EMI drone
-		["C0I5",false],//Bomber drone
-		["C0I6",false],//Ababil
+		["COI5",false],//EMI drone
+		["COI6",false],//Bomber drone
+		["COI7",false],//Ababil
 
 		["C1I0",["hd_destroy_noShadow","ColorBlack"]],//Single strike
 		["C1I1",["hd_destroy_noShadow","ColorBlack"]],//Double tap
@@ -283,7 +283,7 @@ NWG_MSHOP_SER_SpawnDrone = {
 		};
 
 		//Thunder EMI drone - create lightning with EMI effect
-		case "C0I4": {
+		case "COI5": {
 			//Save for later use
 			_drone setVariable ["NWG_owner",_player];//Save locally (note different 'owner' variable notation - it is for 'NWG_fnc_moduleLightning'
 			_drone setVariable ["NWG_owner",_player,2];//Save on server
@@ -310,12 +310,12 @@ NWG_MSHOP_SER_SpawnDrone = {
 			}];
 
 			//Setup EMI logic
-			[_drone,"#MSHOP_C0I4_ActionTitle#",{_this remoteExec ["NWG_MSHOP_EmiDrone_Action",2]}] remoteExec ["NWG_fnc_addAction",0];
+			[_drone,"#MSHOP_COI5_ActionTitle#",{_this remoteExec ["NWG_MSHOP_EmiDrone_Action",2]}] remoteExec ["NWG_fnc_addAction",0];
 		};
 
 		//Bomber and Ababil drones - delete once they're used their ammo
-		case "C0I5";
-		case "C0I6": {
+		case "COI6";
+		case "COI7": {
 			_drone setVariable ["NWG_MSHOP_owner",_player];//Save locally
 			_drone setVariable ["NWG_MSHOP_owner",_player,2];//Save on server
 
