@@ -5,34 +5,7 @@
 //================================================================================================================
 //================================================================================================================
 //Settings
-NWG_MIS_SER_Settings = createHashMapFromArray [
-    ["AUTOSTART",true],//Start the mission machine once the scripts are compiled and game started
-    ["AUTOSTART_IN_DEVBUILD",true],//Start even if we are in debug environment
-
-    ["PLAYER_BASE_ROOT","PlayerBase"],//Name of pre-placed map object (value of Object:Init -> Variable name) (mandatory for mission machine to work)
-
-    ["LOG_STATE_CHANGE",true],//Log every state change
-    ["HEARTBEAT_RATE",1],//How often the mission machine should check for state changes
-
-    ["MISSIONS_BLUEPRINT_PAGENAME","Abs%1"],//Template for where to find mission blueprints for the map
-    ["MISSIONS_ESCAPE_BLUEPRINT_PAGENAME","Abs%1Escape"],//Template for where to find escape
-
-    ["MISSIONS_UPDATE_NO_MISSIONS_LOG",true],  //Log error for no missions left
-    ["MISSIONS_UPDATE_NO_MISSIONS_RESTART",false],//Go to RESET state if no missions left
-    ["MISSIONS_UPDATE_NO_MISSIONS_RUN_ESCAPE",true],//Go to ESCAPE state if no missions left
-    ["MISSIONS_UPDATE_NO_MISSIONS_EXIT",false],//Exit heartbeat cycle if no missions left
-
-    ["MISSIONS_SELECT_DISCARD_REJECTED",true],//False - rejected missions go back to the missions list for next selection, True - they get discarded
-    ["MISSIONS_SELECT_RESHUFFLE_REJECTED",false],//False - rejected missions simply added to the end of the missions list, True - list gets reshuffled
-
-    ["PLAYER_BASE_RADIUS",70],//How far from base is counted as 'on the base' for players
-    ["SERVER_RESTART_ON_ZERO_ONLINE_AFTER",60],//Delay in seconds how long do we wait for someone to join before restarting the server
-
-    /*The rest see in the DATASETS/Server/MissionMachine/Settings.sqf */
-    ["COMPLEX_SETTINGS_ADDRESS","DATASETS\Server\MissionMachine\Settings.sqf"],
-
-    ["",0]
-];
+/*Moved to missionMachineSettings.sqf for there are just too many of them*/
 
 //================================================================================================================
 //================================================================================================================
@@ -72,14 +45,6 @@ private _Init = {
     if (isNull (call NWG_MIS_SER_FindPlayerBaseRoot)) then {
         diag_log text "  [MISSION INFO] #### Expecting player base root object";
     };
-
-    //Get complex additional settings
-    private _addSettings = call ((NWG_MIS_SER_Settings get "COMPLEX_SETTINGS_ADDRESS") call NWG_fnc_compile);
-    if (isNil "_addSettings") exitWith {
-        "NWG_MIS_SER: Failed to get complex settings - exiting." call NWG_fnc_logError;
-        MSTATE_DISABLED call NWG_MIS_SER_ChangeState;
-    };// <- Exit if failed to get settings
-    {NWG_MIS_SER_Settings set [_x#0,_x#1]} forEach _addSettings;//Merge settings
 
     //Start
     NWG_MIS_SER_cycleHandle = [] spawn NWG_MIS_SER_Cycle;

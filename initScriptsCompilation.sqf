@@ -67,7 +67,8 @@ _commonFunctions pushBack ("SCRIPTS\T1_Battlefield\garbageCollector\GCFunctions.
 //kostyli
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\kostyli\kostyliServer.sqf" call NWG_fnc_compile);
 //missionMachine
-_serverModules pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachine.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachineSettings.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachineServerSide.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachineClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachineFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachineTests.sqf" call NWG_fnc_compile)};

@@ -8,7 +8,7 @@ NWG_YK_Settings = createHashMapFromArray [
     ["ENABLE_ON_START",false],//Defines wether or not the entire system is enabled on mission start
     ["KING_SIDE",west],//The side which kills will count and groups/reinforcements used, basically the side YK is plays for
     ["REACT_TO_PLAYERS_ONLY",false],//Should we handle kills made by players only or include enemy AI units as well
-    ["SHOW_DEBUG_MESSAGES",true],//Show debug messages in systemChat
+    ["SHOW_DEBUG_MESSAGES",true],//Show debug messages in systemChat (is auto disabled in non-dev environments)
 
     ["DEFAULT_REINF_FACTION","NATO"],//The default faction to use for reinforcements if no faction saved to state holder
 
