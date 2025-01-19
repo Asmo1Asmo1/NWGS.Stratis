@@ -34,7 +34,37 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
 //================================================================================================================
 //================================================================================================================
 //Fields
+/*Dspawn configs*/
+NWG_DSPAWN_CFG_Side = west;
+NWG_DSPAWN_CFG_Faction = "NATO";
+NWG_DSPAWN_CFG_ReinfMap = [nil,nil,nil,nil];
+
+/*Dspawn last populated trigger (for reinforcements to patrol after duty)*/
 NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
+
+//================================================================================================================
+//================================================================================================================
+//Config
+NWG_DSPAWN_Configure = {
+    params ["_side","_faction","_reinfMap"];
+    if (isNil "_side" || {!(_side in [west,east,independent])}) exitWith {
+        (format ["NWG_DSPAWN_Configure: Invalid side '%1'",_side]) call NWG_fnc_logError;
+        false
+    };
+    if (isNil "_faction" || {!(_faction isEqualType "")}) exitWith {
+        (format ["NWG_DSPAWN_Configure: Invalid faction '%1'",_faction]) call NWG_fnc_logError;
+        false
+    };
+    if (isNil "_reinfMap" || {!(_reinfMap isEqualTypeArray [[],[],[],[]])}) exitWith {
+        (format ["NWG_DSPAWN_Configure: Invalid reinfMap '%1'",_reinfMap]) call NWG_fnc_logError;
+        false
+    };
+
+    NWG_DSPAWN_CFG_Side = _side;
+    NWG_DSPAWN_CFG_Faction = _faction;
+    NWG_DSPAWN_CFG_ReinfMap = _reinfMap;
+    true
+};
 
 //================================================================================================================
 //================================================================================================================
@@ -51,6 +81,16 @@ NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
 #define G_INDEX_AIR 3
 #define G_INDEX_BOAT 4
 
+NWG_DSPAWN_TRIGGER_PopulateTriggerCfg = {
+    params ["_trigger","_groupsCount",["_filter",[]]];
+    [
+        _trigger,
+        _groupsCount,
+        NWG_DSPAWN_CFG_Faction,
+        _filter,
+        NWG_DSPAWN_CFG_Side
+    ] call NWG_DSPAWN_TRIGGER_PopulateTrigger;
+};
 NWG_DSPAWN_TRIGGER_PopulateTrigger = {
     params ["_trigger","_groupsCount","_faction",["_filter",[]],["_side",west]];
     NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
@@ -361,6 +401,17 @@ NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
 //================================================================================================================
 //================================================================================================================
 //Send reinforcements
+NWG_DSPAWN_REINF_SendReinforcementsCfg = {
+    params ["_attackPos","_groupsCount",["_filter",[]]];
+    [
+        _attackPos,
+        _groupsCount,
+        NWG_DSPAWN_CFG_Faction,
+        _filter,
+        NWG_DSPAWN_CFG_Side,
+        NWG_DSPAWN_CFG_ReinfMap
+    ] call NWG_DSPAWN_REINF_SendReinforcements;
+};
 NWG_DSPAWN_REINF_SendReinforcements = {
     params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west],["_spawnMap",[nil,nil,nil,nil]]];
 

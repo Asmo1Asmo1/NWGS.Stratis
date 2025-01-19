@@ -10,8 +10,6 @@ NWG_YK_Settings = createHashMapFromArray [
     ["REACT_TO_PLAYERS_ONLY",false],//Should we handle kills made by players only or include enemy AI units as well
     ["SHOW_DEBUG_MESSAGES",true],//Show debug messages in systemChat (is auto disabled in non-dev environments)
 
-    ["DEFAULT_REINF_FACTION","NATO"],//The default faction to use for reinforcements if no faction saved to state holder
-
     ["HUNT_ALARM",true],//Should we alarm hunters when a kill happens
     ["HUNT_ALARM_RADIUS",1000],//The radius in which hunters will be alarmed
     ["HUNT_MERGE_LONERS",true],//Should we merge loner groups into bigger ones
@@ -56,10 +54,6 @@ NWG_YK_Status = STATUS_DISABLED;
 /* counters */
 NWG_YK_killCount = 0;
 NWG_YK_killCountTotal = 0;
-/* reinforcements spawning */
-NWG_YK_reinfSide = nil;
-NWG_YK_reinfFaction = nil;
-NWG_YK_reinfMap = nil;
 
 //======================================================================================================
 //======================================================================================================
@@ -102,11 +96,8 @@ NWG_YK_Disable = {
     true
 };
 NWG_YK_Configure = {
-    params ["_kingSide","_reinfSide","_reinfFaction","_reinfMap"];
+    params ["_kingSide"];
     if !(isNil "_kingSide") then {NWG_YK_Settings set ["KING_SIDE",_kingSide]};
-    if !(isNil "_reinfSide") then {NWG_YK_reinfSide = _reinfSide};
-    if !(isNil "_reinfFaction") then {NWG_YK_reinfFaction = _reinfFaction};
-    if !(isNil "_reinfMap") then {NWG_YK_reinfMap = _reinfMap};
 };
 
 //======================================================================================================
@@ -459,27 +450,16 @@ NWG_YK_HUNT_MoveHunter = {
 
 //======================================================================================================
 //======================================================================================================
-//Reinforesments logic
+//Reinforcements logic
 NWG_YK_REINF_SendReinforcements = {
     params ["_targetType","_targetPos"];
-
     private _filter = switch (_targetType) do {
         case TARGET_TYPE_ARM: {[["AT"],[],[]]};//Whitelist AT groups
         case TARGET_TYPE_AIR: {[["AA"],[],[]]};//Whitelist AA groups
         default {[]};//No filter
     };
 
-    private _faction = if !(isNil "NWG_YK_reinfFaction")
-        then {NWG_YK_reinfFaction}
-        else {NWG_YK_Settings get "DEFAULT_REINF_FACTION"};
-    private _side = if !(isNil "NWG_YK_reinfSide")
-        then {NWG_YK_reinfSide}
-        else {NWG_YK_Settings get "KING_SIDE"};//Default to king's side
-    private _reinfMap = if !(isNil "NWG_YK_reinfMap")
-        then {NWG_YK_reinfMap}
-        else {[]};
-
-    [_targetPos,1,_faction,_filter,_side,_reinfMap] spawn NWG_fnc_dsSendReinforcements;
+    [_targetPos,1,_filter] spawn NWG_fnc_dsSendReinforcementsCfg;//We expect that the side and faction are already configured elsewhere
 };
 
 //======================================================================================================
