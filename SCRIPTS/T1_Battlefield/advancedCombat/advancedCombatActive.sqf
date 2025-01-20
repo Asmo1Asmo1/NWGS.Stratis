@@ -335,7 +335,7 @@ NWG_ACA_ArtilleryStrike = {
         (NWG_ACA_Settings get "ARTILLERY_STRIKE_WARNING_PAUSE"),
         (NWG_ACA_Settings get "ARTILLERY_STRIKE_RADIUS"),
         _precise,
-        (NWG_ACA_Settings get "ARTILLERY_STRIKE_TIMEOUT")
+        (time + (NWG_ACA_Settings get "ARTILLERY_STRIKE_TIMEOUT"))
     ] call NWG_ACA_ArtilleryStrikeCore
 };
 
@@ -493,7 +493,7 @@ NWG_ACA_MortarStrike = {
         (NWG_ACA_Settings get "MORTAR_STRIKE_WARNING_PAUSE"),
         (NWG_ACA_Settings get "MORTAR_STRIKE_RADIUS"),
         _precise,
-        (NWG_ACA_Settings get "MORTAR_STRIKE_TIMEOUT")
+        (time + (NWG_ACA_Settings get "MORTAR_STRIKE_TIMEOUT"))
     ] call NWG_ACA_ArtilleryStrikeCore
 };
 
