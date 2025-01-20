@@ -1145,7 +1145,7 @@ NWG_DSPAWN_SendToPatrol = {
 
 //================================================================================================================
 //================================================================================================================
-//Attack logic
+//Position attack logic
 NWG_DSPAWN_SendToAttack = {
     params ["_group","_attackPos"];
 
@@ -1524,6 +1524,37 @@ NWG_DSPAWN_DeleteAirMotGroup = {
 
     //Delete group
     deleteGroup _group;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Target destruction logic
+NWG_DSPAWN_SendToDestroy = {
+    params ["_group","_target"];
+
+    //Check if anyone is alive
+    if (({alive _x} count (units _group)) == 0) exitWith {};
+
+    //Set combat behaviour
+    _group setCombatMode "RED";
+    _group setSpeedMode "FULL";
+    _group setBehaviourStrong "AWARE";
+
+    //Clear waypoints
+    _group call NWG_DSPAWN_ClearWaypoints;
+
+    //Reveal target
+    _group reveal _target;
+
+    //Add 'DESTROY' waypoint
+    private _wp1 = _group addWaypoint [_target,-1];
+    _wp1 setWaypointType "DESTROY";
+
+    //Add returning waypoint
+    private _groupPos = getPosASL (vehicle (leader _group));
+    _groupPos = ASLToAGL _groupPos;
+    private _wp2 = [_group,_groupPos] call NWG_DSPAWN_AddWaypoint;
+    _wp2 setWaypointStatements ["true","if (local this) then {this call NWG_DSPAWN_ReturnToPatrol}"];
 };
 
 //================================================================================================================

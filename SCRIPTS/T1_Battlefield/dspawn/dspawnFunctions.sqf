@@ -124,6 +124,15 @@ NWG_fnc_dsSendToAttack = {
     _this call NWG_DSPAWN_SendToAttack
 };
 
+//Sends the group to destroy given object
+//params:
+// _group - group to send
+// _target - object to destroy
+NWG_fnc_dsSendToDestroy = {
+    // params ["_group","_target"];
+    _this call NWG_DSPAWN_SendToDestroy
+};
+
 //Imitates paradrop of the given object/vehicle
 //note: while not mandatory, it is recommended to hide the object/vehicle before calling this function by either 'NWG_fnc_spwnHideObject' or '_deferReveal' argument of spawning functions
 //params:

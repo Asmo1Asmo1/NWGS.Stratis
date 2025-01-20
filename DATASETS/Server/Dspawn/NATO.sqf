@@ -272,18 +272,18 @@ private _faction = [
         /*AIR - Air vehicles*/
         //Greyhawk UAV
         [
-            ["AIR","MEC","PLANE","UAV","AT"],2,
+            ["AIR","MEC","PLANE","UAV","AT","AIRSTRIKE+"],2,
             ["B_UAV_02_dynamicLoadout_F"],
             [2,"B_UAV_AI"]
         ],
         [
-            ["AIR","MEC","PLANE","UAV","AA"],2,
+            ["AIR","MEC","PLANE","UAV","AA","AIRSTRIKE+"],2,
             ["B_UAV_02_dynamicLoadout_F",false,["PylonRack_1Rnd_AAA_missiles","PylonRack_1Rnd_AAA_missiles"]],
             [2,"B_UAV_AI"]
         ],
         //Sentinel UAV
         [
-            ["AIR","MEC","PLANE","UAV","AT"],2,
+            ["AIR","MEC","PLANE","UAV","AT","AIRSTRIKE+"],2,
             ["B_UAV_05_F",false,["PylonMissile_Missile_AGM_02_x2","PylonMissile_Missile_AGM_02_x2"]],
             [2,"B_UAV_AI"]
         ],
