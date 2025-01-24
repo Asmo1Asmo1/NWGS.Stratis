@@ -99,6 +99,14 @@ NWG_fnc_mmGetMissionFaction = {
     NWG_MIS_SER_missionInfo getOrDefault ["EnemyFaction",""]
 };
 
+//Returns mission side
+//note: this command is reliable only starting from MSTATE_BUILD_UKREP mission state, otherwise it will either return empty string or previous mission faction
+//note: use in EVENT_ON_MISSION_STATE_CHANGED subscriber(s)
+//returns: WEST, EAST, GUER
+NWG_fnc_mmGetMissionSide = {
+    NWG_MIS_SER_missionInfo getOrDefault ["EnemySide",west]
+};
+
 //Returns mission difficulty
 //returns: string (MISSION_DIFFICULTY_EASY, MISSION_DIFFICULTY_NORM, ...)
 NWG_fnc_mmGetMissionDifficulty = {

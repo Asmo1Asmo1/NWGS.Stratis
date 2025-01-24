@@ -98,6 +98,7 @@ _clientModules pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldInfo.sqf" call
 _commonFunctions pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldConfigFunctions.sqf" call NWG_fnc_compile);
 //yellowKing
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKing.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\yellowKing\missionMachineConnector.sqf" call NWG_fnc_compile);
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKingFunctions.sqf" call NWG_fnc_compile);
 
 //T2_UserInteraction

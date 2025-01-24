@@ -132,14 +132,13 @@ NWG_YK_GetDifficultyPreset = {
 //======================================================================================================
 //======================================================================================================
 //Reaction system
-NWG_YK_killsToCount = [OBJ_TYPE_UNIT,OBJ_TYPE_VEHC,OBJ_TYPE_TRRT];
 NWG_YK_OnKilled = {
     params ["_object","_objType","_actualKiller","_isPlayerKiller"];
 
     //Check
     if !(NWG_YK_Enabled) exitWith {};//System is disabled
     if (isNull _object || {isNull _actualKiller || {!alive _actualKiller}}) exitWith {};//Unprocessable kill
-    if (!(_objType in NWG_YK_killsToCount)) exitWith {};//Not a kill of interest
+    if (!(_objType in (NWG_YK_Settings get "REACT_TO_TYPES_KILLED"))) exitWith {};//Not a kill of interest
     if (!_isPlayerKiller && {(NWG_YK_Settings get "REACT_TO_PLAYERS_ONLY")}) exitWith {};//If we only want to react to player kills
 
     private _objGroup = if (_objType isEqualTo OBJ_TYPE_UNIT) then {group _object} else {assignedGroup _object};
