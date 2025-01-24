@@ -50,6 +50,7 @@ _commonFunctions pushBack ("SCRIPTS\T0_Core\remoteQueue\remoteQueueFunctions.sqf
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\advancedCombat\advancedCombatActive.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\advancedCombat\advancedCombatPassive.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\advancedCombat\advancedCombatUtils.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\advancedCombat\missionMachineConnector.sqf" call NWG_fnc_compile);
 _serverFunctions pushBack ("SCRIPTS\T1_Battlefield\advancedCombat\advancedCombatFunctions.sqf" call NWG_fnc_compile);
 //dots
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\dots\dots.sqf" call NWG_fnc_compile);
