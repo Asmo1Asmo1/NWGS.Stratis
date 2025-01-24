@@ -1,7 +1,19 @@
 //=============================================================================
 /*Server->Server*/
 
-//Populates the given trigger with the given number of groups of the given faction
+//Configures dspawn for all future 'xxxCfg' functions calls
+//params:
+// _side - side of the dspawn (east, west, independent)
+// _faction - faction of the dspawn (string)
+// _reinfMap - reinfMap of the dspawn (array of arrays) (get the from 'NWG_fnc_dtsMarkupReinforcement')
+//returns:
+// true if success, false otherwise
+NWG_fnc_dsConfigure = {
+    // params ["_side","_faction","_reinfMap"];
+    _this call NWG_DSPAWN_Configure
+};
+
+//Populates the trigger
 //WARNING: This function is quite heavy. It is advised to use 'spawn' instead of 'call'
 //params:
 // _trigger - trigger to populate
@@ -16,7 +28,20 @@ NWG_fnc_dsPopulateTrigger = {
     _this call NWG_DSPAWN_TRIGGER_PopulateTrigger
 };
 
-//Send reinforcements to the given position
+//Populates the trigger with some arguments already set (side, faction, reinfMap are expected to be set by 'NWG_fnc_dsConfigure')
+//WARNING: This function is quite heavy. It is advised to use 'spawn' instead of 'call'
+//params:
+// _trigger - trigger to populate
+// _groupsCount - number of groups to populate
+// _filter - (optional, default: []) array to filter catalogue by (_filter params [["_tagsWhiteList",[]],["_tagsBlackList",[]],["_tierWhiteList",[]]];)
+//returns:
+// number of groups actually spawned OR false in case of error
+NWG_fnc_dsPopulateTriggerCfg = {
+    // params ["_trigger","_groupsCount",["_filter",[]]];
+    _this call NWG_DSPAWN_TRIGGER_PopulateTriggerCfg
+};
+
+//Sends reinforcements to the given position
 //WARNING: This function is quite heavy. It is advised to use 'spawn' instead of 'call'
 //params:
 // _attackPos - position to send the reinforcements to
@@ -30,6 +55,19 @@ NWG_fnc_dsPopulateTrigger = {
 NWG_fnc_dsSendReinforcements = {
     // params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west],["_spawnMap",[nil,nil,nil,nil]]];
     _this call NWG_DSPAWN_REINF_SendReinforcements
+};
+
+//Sends reinforcements to the given position with some arguments already set (side, faction, reinfMap are expected to be set by 'NWG_fnc_dsConfigure')
+//WARNING: This function is quite heavy. It is advised to use 'spawn' instead of 'call'
+//params:
+// _attackPos - position to send the reinforcements to
+// _groupsCount - number of groups to send
+// _filter - (optional, default: []) array to filter catalogue by (_filter params [["_tagsWhiteList",[]],["_tagsBlackList",[]],["_tierWhiteList",[]]];)
+//returns:
+// number of groups actually spawned OR false in case of error
+NWG_fnc_dsSendReinforcementsCfg = {
+    // params ["_attackPos","_groupsCount",["_filter",[]]];
+    _this call NWG_DSPAWN_REINF_SendReinforcementsCfg
 };
 
 //Spawns a single group around the given position without setting any behavior
@@ -84,6 +122,15 @@ NWG_fnc_dsAdoptGroup = {
 NWG_fnc_dsSendToAttack = {
     // params ["_group","_attackPos"];
     _this call NWG_DSPAWN_SendToAttack
+};
+
+//Sends the group to destroy given object
+//params:
+// _group - group to send
+// _target - object to destroy
+NWG_fnc_dsSendToDestroy = {
+    // params ["_group","_target"];
+    _this call NWG_DSPAWN_SendToDestroy
 };
 
 //Imitates paradrop of the given object/vehicle

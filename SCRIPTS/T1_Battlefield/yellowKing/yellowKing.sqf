@@ -5,35 +5,46 @@
 //======================================================================================================
 //Settings
 NWG_YK_Settings = createHashMapFromArray [
+    /*Main settings*/
     ["ENABLE_ON_START",false],//Defines wether or not the entire system is enabled on mission start
     ["KING_SIDE",west],//The side which kills will count and groups/reinforcements used, basically the side YK is plays for
+    ["REACT_TO_TYPES_KILLED",[OBJ_TYPE_UNIT,OBJ_TYPE_VEHC,OBJ_TYPE_TRRT]],//Types of objects to react to
     ["REACT_TO_PLAYERS_ONLY",false],//Should we handle kills made by players only or include enemy AI units as well
-    ["SHOW_DEBUG_MESSAGES",true],//Show debug messages in systemChat
+    ["SHOW_DEBUG_MESSAGES",true],//Show debug messages in systemChat (is auto disabled in non-dev environments)
 
-    ["DEFAULT_REINF_FACTION","NATO"],//The default faction to use for reinforcements if no faction saved to state holder
+    /*Groups moving*/
+    ["HUNT_INF_MOVE_RADIUS",1000],//Radius at which hunters will be sent to attack the target
+    ["HUNT_VEH_MOVE_RADIUS",3000],//Radius at which hunters will be sent to attack the target
+    ["HUNT_AIR_MOVE_RADIUS",100000],//Radius at which hunters will be sent to attack the target
+    ["HUNT_BOAT_MOVE_RADIUS",100000],//Radius at which hunters will be sent to attack the target
 
-    ["HUNT_ALARM",true],//Should we alarm hunters when a kill happens
-    ["HUNT_ALARM_RADIUS",1000],//The radius in which hunters will be alarmed
-    ["HUNT_MERGE_LONERS",true],//Should we merge loner groups into bigger ones
-    ["HUNT_RADIUS",500],//Radius at which hunters will be sent to attack the target
-
+    /*Active specials*/
     ["SPECIAL_AIRSTRIKE_ENABLED",true],//Is airstrike allowed
+    ["SPECIAL_AIRSTRIKE_RADIUS",100000],//Radius at which groups will be sent to do airstrike
     ["SPECIAL_ARTA_ENABLED",true],//Is artillery strike allowed
+    ["SPECIAL_ARTA_RADIUS",100000],//Radius at which groups will be ordered to do artillery strike
     ["SPECIAL_MORTAR_ENABLED",true],//Is mortar strike allowed
+    ["SPECIAL_MORTAR_RADIUS",100000],//Radius at which groups will be ordered to do mortar strike
     ["SPECIAL_VEHDEMOLITION_ENABLED",true],//Is vehicle demolition allowed
-    ["SPECIAL_INFSTORM_ENABLED",false],//Is infantry building storm allowed
-    ["SPECIAL_VEHREPAIR_ENABLED",true],//Is vehicle repair allowed
-
     ["SPECIAL_VEHDEMOLITION_RADIUS",500],//Radius at which groups will be sent to do vehdemolition
+    ["SPECIAL_INFSTORM_ENABLED",false],//Is infantry building storm allowed
     ["SPECIAL_INFSTORM_RADIUS",500],//Radius at which groups will be sent to do infstorm
 
+    /*Passive specials*/
+    ["SPECIAL_ALARMING_ENABLED",true],//Is alarming of nearby hunters allowed
+    ["SPECIAL_ALARMING_RADIUS",500],//Radius at which groups will be alarmed
+    ["SPECIAL_VEHREPAIR_ENABLED",true],//Is vehicle repair allowed
+    ["SPECIAL_LONEMERGE_ENABLED",true],//Is lone group merge allowed
+
+    /*Statistics*/
     ["STATISTICS_ENABLED",true],//If true, the system will keep track of statistics
     ["STATISTICS_TO_RPT",true],//If true, the statistics will be dumped to rpt
     ["STATISTICS_TO_PROFILENAMESPACE",false],//If true, the statistics will be saved to profileNamespace
 
+    /*Difficulty*/
     ["DIFFICULTY_REACTION_COOLDOWN",[60,120]],//Min and max time before the next reaction can be started  (will be defined randomly between the two)
     ["DIFFICULTY_REACTION_TIME",[10,60]],//Min and max time between actions and reactions (will be defined randomly between the two)
-    ["DIFFICULTY_REACTION_IMMEDIATE_ON_KILLCOUNT",10],//Number of kills to immediately react to (skips all the remaining reaction time, ignored during cooldown)
+    ["DIFFICULTY_REACTION_IMMEDIATE_ON_KILLCOUNT",10],//Number of kills to immediately react to (skips remaining reaction time, but not cooldown)
     ["DIFFICULTY_CURVE",[0,1,0,1,2,1,2,0,1,1,2,0,1,2,2,1,0]],//Yellow King difficulty curve
     ["DIFFUCULTY_PRESETS",[
         /*Easy*/
@@ -56,10 +67,8 @@ NWG_YK_Status = STATUS_DISABLED;
 /* counters */
 NWG_YK_killCount = 0;
 NWG_YK_killCountTotal = 0;
-/* reinforcements spawning */
-NWG_YK_reinfSide = nil;
-NWG_YK_reinfFaction = nil;
-NWG_YK_reinfMap = nil;
+/* difficulty */
+NWG_YK_difficultyCurve = [];
 
 //======================================================================================================
 //======================================================================================================
@@ -102,24 +111,34 @@ NWG_YK_Disable = {
     true
 };
 NWG_YK_Configure = {
-    params ["_kingSide","_reinfSide","_reinfFaction","_reinfMap"];
+    params ["_kingSide"];
     if !(isNil "_kingSide") then {NWG_YK_Settings set ["KING_SIDE",_kingSide]};
-    if !(isNil "_reinfSide") then {NWG_YK_reinfSide = _reinfSide};
-    if !(isNil "_reinfFaction") then {NWG_YK_reinfFaction = _reinfFaction};
-    if !(isNil "_reinfMap") then {NWG_YK_reinfMap = _reinfMap};
+};
+
+//======================================================================================================
+//======================================================================================================
+//Difficulty settings
+NWG_YK_ShiftDifficultyCurve = {
+    NWG_YK_difficultyCurve = NWG_YK_difficultyCurve call NWG_fnc_arrayRandomShift;
+};
+NWG_YK_GetDifficultyPreset = {
+    private _i = NWG_YK_difficultyCurve deleteAt 0;//Pop
+    NWG_YK_difficultyCurve pushBack _i;//Push back
+    private _presets = NWG_YK_Settings get "DIFFUCULTY_PRESETS";
+    //return
+    (_presets select _i)
 };
 
 //======================================================================================================
 //======================================================================================================
 //Reaction system
-NWG_YK_killsToCount = [OBJ_TYPE_UNIT,OBJ_TYPE_VEHC,OBJ_TYPE_TRRT];
 NWG_YK_OnKilled = {
     params ["_object","_objType","_actualKiller","_isPlayerKiller"];
 
     //Check
     if !(NWG_YK_Enabled) exitWith {};//System is disabled
     if (isNull _object || {isNull _actualKiller || {!alive _actualKiller}}) exitWith {};//Unprocessable kill
-    if (!(_objType in NWG_YK_killsToCount)) exitWith {};//Not a kill of interest
+    if (!(_objType in (NWG_YK_Settings get "REACT_TO_TYPES_KILLED"))) exitWith {};//Not a kill of interest
     if (!_isPlayerKiller && {(NWG_YK_Settings get "REACT_TO_PLAYERS_ONLY")}) exitWith {};//If we only want to react to player kills
 
     private _objGroup = if (_objType isEqualTo OBJ_TYPE_UNIT) then {group _object} else {assignedGroup _object};
@@ -186,396 +205,528 @@ NWG_YK_React = {
     [STAT_TARGETS_ACQUIRED,(count _targets)] call NWG_YK_STAT_Increment;
 
     //4. Gather the hunters
-    private _hunters = call NWG_YK_HUNT_GetHunters;
-    if (NWG_YK_Settings get "HUNT_MERGE_LONERS") then {
-        _hunters = _hunters call NWG_YK_HUNT_MergeLoners;
-    };
-    if (NWG_YK_Settings get "SPECIAL_VEHREPAIR_ENABLED") then {
-        private _toRepair = _hunters select {(_x#HUNTER_SPECIAL) isEqualTo SPECIAL_VEHREPAIR};
-        if ((count _toRepair) == 0) exitWith {};
-        _hunters = _hunters - _toRepair;
-        _toRepair call NWG_YK_SPEC_SendToRepair;
-    };
+    private _hunters = call NWG_YK_GetHuntersData;
 
-    //5. Bring the action
+    //5. Run passive specials (will decrement the hunters array by moving them to repair or merge with another group)
+    _hunters = [_hunters,_targets] call NWG_YK_RunPassiveSpecials;
+
+    //6. Bring in the action
     //forEach target
     {
-        //Unpack data
-        _x params ["_targetObj","_targetType","_targetPos"/*,"_targetBuilding"*/];
-
-        //Alarm nearby hunters
-        if (NWG_YK_Settings get "HUNT_ALARM") then {[_hunters,_targetPos] call NWG_YK_HUNT_Alarm};
-
         //Fill the dice
-        private _dice = [];
-        if (_ignoresLeft > 0) then {
-            _dice pushBack [DICE_IGNORE];
-        };
-        if (_movesLeft > 0) then {
-            private _i = [_hunters,_targetType,_targetPos] call NWG_YK_HUNT_SelectHunterFor;
-            if (_i != -1) then {_dice pushBack [DICE_MOVE,_i]};
-        };
-        if (_reinfsLeft > 0) then {
-            _dice pushBack [DICE_REINF];
-        };
-        if (_speciaslLeft > 0) then {
-            private _specials = [_hunters,_x] call NWG_YK_SPEC_SelectSpecialsForTarget;//Notice that we pass the entire target record
-            if ((count _specials) > 0) then {_dice pushBack [DICE_SPEC,_specials]};
-        };
-        if (_dice isEqualTo []) then {
-            continue
-        };//There is nothing we can do.. | Napoleon Meme
+        private _dice = [_x,_hunters,(_ignoresLeft > 0),(_movesLeft > 0),(_reinfsLeft > 0),(_speciaslLeft > 0)] call NWG_YK_FillDice;
+        if ((count _dice) == 0) then {continue};//There is nothing we can do.. | Napoleon Meme
 
         //Roll the dice (Need for Speed IV Soundtrack - Roll The Dice) https://www.youtube.com/watch?v=ZgmQK1wVPzg
-        (selectRandom _dice) params ["_diceType","_diceArg"];
+        _dice = _dice call NWG_fnc_arrayShuffle;
+        (selectRandom _dice) params ["_diceRoll","_hunterIndex","_addArg"];
 
-        //Act
-        switch (_diceType) do {
+        //Act accordingly
+        switch (_diceRoll) do {
             case DICE_IGNORE: {
-                //Do nothing
                 _ignoresLeft = _ignoresLeft - 1;
-                /*Statistics*/
-                [STAT_TARGETS_IGNORED,1] call NWG_YK_STAT_Increment;
+                [STAT_TARGETS_IGNORED,1] call NWG_YK_STAT_Increment;/*Statistics*/
             };
             case DICE_MOVE : {
-                [_hunters,_diceArg,_targetPos] call NWG_YK_HUNT_MoveHunter;
                 _movesLeft = _movesLeft - 1;
-                /*Statistics*/
-                [STAT_GROUPS_MOVED,1] call NWG_YK_STAT_Increment;
+                [(_hunters deleteAt _hunterIndex),_x] call NWG_YK_MoveHunterTo;
+                [STAT_GROUPS_MOVED,1] call NWG_YK_STAT_Increment;/*Statistics*/
             };
             case DICE_REINF: {
-                [_targetType,_targetPos] call NWG_YK_REINF_SendReinforcements;
                 _reinfsLeft = _reinfsLeft - 1;
-                /*Statistics*/
-                [STAT_REINFS_SENT,1] call NWG_YK_STAT_Increment;
+                _x call NWG_YK_SendReinforcements;
+                [STAT_REINFS_SENT,1] call NWG_YK_STAT_Increment;/*Statistics*/
             };
-            case DICE_SPEC : {
-                private _special = (selectRandom _diceArg);
-                [_hunters,_special] call NWG_YK_SPEC_UseSpecial;
+            case SPECIAL_AIRSTRIKE: {
                 _speciaslLeft = _speciaslLeft - 1;
-                /*Statistics*/
-                [STAT_SPECIALS_USED,1] call NWG_YK_STAT_Increment;
-                switch (_special#0) do {
-                    case SPECIAL_AIRSTRIKE:      {[STAT_SPEC_AIRSTRIKE,1] call NWG_YK_STAT_Increment};
-                    case SPECIAL_ARTA:           {[STAT_SPEC_ARTA,     1] call NWG_YK_STAT_Increment};
-                    case SPECIAL_MORTAR:         {[STAT_SPEC_MORTAR,   1] call NWG_YK_STAT_Increment};
-                    case SPECIAL_VEHDEMOLITION:  {[STAT_SPEC_VEHDEMOLITION,1] call NWG_YK_STAT_Increment};
-                    case SPECIAL_INFSTORM:       {[STAT_SPEC_INFSTORM, 1] call NWG_YK_STAT_Increment};
-                    case SPECIAL_VEHREPAIR:      {[STAT_SPEC_VEHREPAIR,1] call NWG_YK_STAT_Increment};
-                };
+                [(_hunters deleteAt _hunterIndex),_x,SPECIAL_AIRSTRIKE,_addArg] call NWG_YK_UseSpecial;
+                [STAT_SPEC_AIRSTRIKE,1] call NWG_YK_STAT_Increment;/*Statistics*/
+                [STAT_SPECIALS_USED,1] call NWG_YK_STAT_Increment;/*Statistics*/
+            };
+            case SPECIAL_ARTA: {
+                _speciaslLeft = _speciaslLeft - 1;
+                [(_hunters deleteAt _hunterIndex),_x,SPECIAL_ARTA,_addArg] call NWG_YK_UseSpecial;
+                [STAT_SPEC_ARTA,1] call NWG_YK_STAT_Increment;/*Statistics*/
+                [STAT_SPECIALS_USED,1] call NWG_YK_STAT_Increment;/*Statistics*/
+            };
+            case SPECIAL_MORTAR: {
+                _speciaslLeft = _speciaslLeft - 1;
+                [(_hunters deleteAt _hunterIndex),_x,SPECIAL_MORTAR,_addArg] call NWG_YK_UseSpecial;
+                [STAT_SPEC_MORTAR,1] call NWG_YK_STAT_Increment;/*Statistics*/
+                [STAT_SPECIALS_USED,1] call NWG_YK_STAT_Increment;/*Statistics*/
+            };
+            case SPECIAL_VEHDEM: {
+                _speciaslLeft = _speciaslLeft - 1;
+                [(_hunters deleteAt _hunterIndex),_x,SPECIAL_VEHDEM,_addArg] call NWG_YK_UseSpecial;
+                [STAT_SPEC_VEHDEM,1] call NWG_YK_STAT_Increment;/*Statistics*/
+                [STAT_SPECIALS_USED,1] call NWG_YK_STAT_Increment;/*Statistics*/
+            };
+            case SPECIAL_INFSTORM: {
+                _speciaslLeft = _speciaslLeft - 1;
+                [(_hunters deleteAt _hunterIndex),_x,SPECIAL_INFSTORM,_addArg] call NWG_YK_UseSpecial;
+                [STAT_SPEC_INFSTORM,1] call NWG_YK_STAT_Increment;/*Statistics*/
+                [STAT_SPECIALS_USED,1] call NWG_YK_STAT_Increment;/*Statistics*/
+            };
+            default {
+                (format ["NWG_YK_React: Unknown dice roll: '%1'",_diceRoll]) call NWG_fnc_logError;
             };
         };
     } forEach _targets;
 
-    //6. Reset
+    //7. Reset
     call _onExit;
 };
 
 //======================================================================================================
 //======================================================================================================
-//Difficulty settings
-NWG_YK_difficultyCurve = [];
-NWG_YK_ShiftDifficultyCurve = {
-    NWG_YK_difficultyCurve = NWG_YK_difficultyCurve call NWG_fnc_arrayRandomShift;
-};
-NWG_YK_GetDifficultyPreset = {
-    private _i = NWG_YK_difficultyCurve deleteAt 0;//Pop
-    NWG_YK_difficultyCurve pushBack _i;//Push back
-    private _presets = NWG_YK_Settings get "DIFFUCULTY_PRESETS";
-    //return
-    (_presets select _i)
-};
-
-//======================================================================================================
-//======================================================================================================
-//Targets logic
+//Targets acquisition
 NWG_YK_ConvertToTargetData = {
-    private _targets = _this;
-    if ((count _targets) == 0) exitWith {[]};
-    _targets = (_targets apply {vehicle _x}) select {alive _x};//Convert to vehicles
-
-    private ["_type","_pos","_bldg"];
-    _targets = _targets apply {
-        _type = _x call NWG_fnc_acGetTargetType;
-        _pos  = getPosASL _x;
-        _bldg = if (_type isEqualTo TARGET_TYPE_INF) then {_x call NWG_fnc_acGetBuildingTargetIn} else {objNull};
-        [_x,_type,_pos,_bldg]
-    };
-
-    //return
-    _targets
+    // private _targets = _this;
+    ((_this apply {vehicle _x}) select {alive _x}) apply {
+        switch (_x call NWG_fnc_acGetTargetType) do {
+            case "INF": {
+                //Infantry - Check if inside a building
+                private _bldg = _x call NWG_fnc_acGetBuildingTargetIn;
+                if (!isNull _bldg)
+                    then {[TARGET_TYPE_BLDG,_bldg,(getPosASL _bldg)]}
+                    else {[TARGET_TYPE_INF,_x,(getPosASL _x)]}
+            };
+            case "VEH": {
+                //Vehicle
+                [TARGET_TYPE_VEH,_x,(getPosASL _x)]
+            };
+            case "ARM": {
+                //Armoured vehicle
+                [TARGET_TYPE_ARM,_x,(getPosASL _x)]
+            };
+            case "AIR": {
+                //Aircraft - Check if grounded
+                if (((getPos _x)#2) > 5)
+                    then {[TARGET_TYPE_AIR_FLY,_x,(getPosASL _x)]}
+                    else {[TARGET_TYPE_AIR_GND,_x,(getPosASL _x)]}
+            };
+            case "BOAT": {
+                //Boat
+                [TARGET_TYPE_BOAT,_x,(getPosASL _x)]
+            };
+            default {
+                format ["NWG_YK_ConvertToTargetData: Unknown target type: %1",(_x call NWG_fnc_acGetTargetType)] call NWG_fnc_logError;
+                [TARGET_TYPE_VEH,_x,(getPosASL _x)]
+            };
+        }
+    }
 };
 
 //======================================================================================================
 //======================================================================================================
-//Hunters logic
-/*Info gathering*/
-NWG_YK_HUNT_GetHunters = {
-    private _kingSide = NWG_YK_Settings get "KING_SIDE";
-    private _groups = (groups _kingSide) select {
+//Hunters acquisition
+NWG_YK_GetHuntersData = {
+    //Get raw groups of YK side
+    private _groups = (groups (NWG_YK_Settings get "KING_SIDE")) select {
         !isNull _x && {
         alive (leader _x) && {
-        (units _x) findIf {isPlayer _x} == -1}}
+        ((units _x) findIf {isPlayer _x}) == -1}}
     };
+    if ((count _groups) == 0) exitWith {[]};
+    _groups = _groups call NWG_fnc_arrayShuffle;
 
-    //return
-    _groups call NWG_YK_HUNT_ConvertToHunters
-};
-
-/*Utils*/
-NWG_YK_HUNT_ConvertToHunters = {
-    // private _groups = _this;
-    private ["_posistion","_aliveCount","_parentSystem","_tags","_special"];
-    _this apply {
-        _posistion = getPosASL (vehicle (leader _x));
-        _aliveCount = {alive _x} count (units _x);
-        _parentSystem = _x call NWG_YK_HUNT_GetParentSystem;
-        _tags = if (_parentSystem isEqualTo PARENT_SYSTEM_DSPAWN) then {_x call NWG_fnc_dsGetTags} else {[]};
-        _special = [_x,_parentSystem,_tags] call NWG_YK_HUNT_GetGroupSpecial;
-        [_x,_posistion,_aliveCount,_parentSystem,_tags,_special]
+    //Convert to data records [_type,_special,_group,_position]
+    private ["_parent","_tags"];
+    _groups apply {
+        _parent = _x call NWG_YK_GetGroupParent;
+        _tags = if (_parent isEqualTo PARENT_DSPAWN) then {_x call NWG_fnc_dsGetTags} else {[]};
+        [([_x,_parent,_tags] call NWG_YK_GetGroupType),([_x,_parent,_tags] call NWG_YK_GetGroupSpecial),_x,(getPosASL (vehicle (leader _x)))]
     }
 };
 
-NWG_YK_HUNT_GetParentSystem = {
+NWG_YK_GetGroupParent = {
     // private _group = _this;
-    switch (true) do {
-        case (_this call NWG_fnc_dsIsDspawnGroup) : {PARENT_SYSTEM_DSPAWN};
-        case (_this call NWG_fnc_ukrpIsUkrepGroup): {PARENT_SYSTEM_UKREP};
-        default {_this call NWG_fnc_dsAdoptGroup;    PARENT_SYSTEM_DSPAWN};//Adopt the group and return dspawn
-    }
+    if (_this call NWG_fnc_dsIsDspawnGroup) exitWith {PARENT_DSPAWN};
+    if (_this call NWG_fnc_ukrpIsUkrepGroup) exitWith {PARENT_UKREP};
+
+    //else - adopt the group and return dspawn (to support zeus and editor added groups)
+    _this call NWG_fnc_dsAdoptGroup;
+    PARENT_DSPAWN
 };
 
-NWG_YK_HUNT_GetGroupSpecial = {
-    params ["_group","_parentSystem","_tags"];
+NWG_YK_GetGroupType = {
+    params ["_group","_parent","_tags"];
 
-    switch (_parentSystem) do {
-        case PARENT_SYSTEM_DSPAWN: {
-            switch (true) do {
-                case ("AIRSTRIKE+" in _tags && {_group call NWG_fnc_acCanDoAirstrike})       : {SPECIAL_AIRSTRIKE};
-                case ("VEH"  in _tags       && {_group call NWG_fnc_acNeedsRepair})          : {SPECIAL_VEHREPAIR};
-                case ("ARTA" in _tags       && {_group call NWG_fnc_acCanDoArtilleryStrike}) : {SPECIAL_ARTA};
-                case ("VEH"  in _tags       && {_group call NWG_fnc_acCanDoVehDemolition})   : {SPECIAL_VEHDEMOLITION};
-                case ("INF"  in _tags       && {_group call NWG_fnc_acCanDoInfBuildingStorm}): {SPECIAL_INFSTORM};
-                default {SPECIAL_NONE};
+    if (_parent isEqualTo PARENT_DSPAWN) exitWith {
+        private _anti = 0;
+        if ("AA" in _tags) then {_anti = _anti + 1};
+        if ("AT" in _tags) then {_anti = _anti + 2};
+
+        if ("INF" in _tags) exitWith {
+            switch (_anti) do {
+                case 1: {HUNTER_TYPE_INF_AA};
+                case 2: {HUNTER_TYPE_INF_AT};
+                case 3: {HUNTER_TYPE_INF_AAAT};
+                default {HUNTER_TYPE_INF_AP};
             }
         };
-        case PARENT_SYSTEM_UKREP: {
-            switch (true) do {
-                case (_group call NWG_fnc_acCanDoArtilleryStrike): {SPECIAL_ARTA};
-                case (_group call NWG_fnc_acCanDoMortarStrike)   : {SPECIAL_MORTAR};
-                default {SPECIAL_NONE};
+        if ("VEH" in _tags || {"ARM" in _tags}) exitWith {
+            switch (_anti) do {
+                case 1: {HUNTER_TYPE_VEH_AA};
+                case 2: {HUNTER_TYPE_VEH_AT};
+                case 3: {HUNTER_TYPE_VEH_AAAT};
+                default {HUNTER_TYPE_VEH_AP};
             }
         };
-        default {SPECIAL_NONE};
-    }
+        if ("AIR" in _tags) exitWith {
+            switch (_anti) do {
+                case 1: {HUNTER_TYPE_AIR_AA};
+                case 2: {HUNTER_TYPE_AIR_AT};
+                case 3: {HUNTER_TYPE_AIR_AAAT};
+                default {HUNTER_TYPE_AIR_AP};
+            }
+        };
+        if ("BOAT" in _tags) exitWith {HUNTER_TYPE_BOAT};
+
+        (format ["NWG_YK_GetGroupType: Unknown set of dspawn tags: '%1'",_tags]) call NWG_fnc_logError;
+        HUNTER_TYPE_UNDEF
+    };
+
+    if (_parent isEqualTo PARENT_UKREP) exitWith {
+        HUNTER_TYPE_UKREP
+    };
+
+    (format ["NWG_YK_GetGroupType: Unknown parent: '%1'",_parent]) call NWG_fnc_logError;
+    HUNTER_TYPE_UNDEF
 };
 
-/*Management logic*/
-NWG_YK_HUNT_Alarm = {
-    params ["_hunters","_targetPos"];
-    private _radius = NWG_YK_Settings get "HUNT_ALARM_RADIUS";
-    //do
+NWG_YK_GetGroupSpecial = {
+    params ["_group","_parent","_tags"];
+
+    if (_parent isEqualTo PARENT_DSPAWN) exitWith {
+        if ("INF"  in _tags       && {({alive _x} count (units _group)) == 1}) exitWith {SPECIAL_LONEMERGE};
+        if ("INF"  in _tags       && {_group call NWG_fnc_acCanDoInfBuildingStorm}) exitWith {SPECIAL_INFSTORM};
+        if ("VEH"  in _tags       && {_group call NWG_fnc_acNeedsRepair}) exitWith {SPECIAL_VEHREPAIR};
+        if ("ARTA" in _tags       && {_group call NWG_fnc_acCanDoArtilleryStrike}) exitWith {SPECIAL_ARTA};
+        if ("VEH"  in _tags       && {_group call NWG_fnc_acCanDoVehDemolition}) exitWith {SPECIAL_VEHDEM};
+        if ("AIRSTRIKE+" in _tags && {_group call NWG_fnc_acCanDoAirstrike}) exitWith {SPECIAL_AIRSTRIKE};
+        SPECIAL_NONE
+    };
+
+    if (_parent isEqualTo PARENT_UKREP) exitWith {
+        if (_group call NWG_fnc_acCanDoArtilleryStrike) exitWith {SPECIAL_ARTA};
+        if (_group call NWG_fnc_acCanDoMortarStrike) exitWith {SPECIAL_MORTAR};
+        SPECIAL_NONE
+    };
+
+    (format ["NWG_YK_GetGroupSpecial: Unknown parent: '%1'",_parent]) call NWG_fnc_logError;
+    SPECIAL_NONE
+};
+
+//======================================================================================================
+//======================================================================================================
+//Passive specials (logic that is not targeted against players and is not a part of the dice)
+NWG_YK_RunPassiveSpecials = {
+    params ["_hunters","_targets"];
+
+    //Get settings
+    private _alarmEnabled = NWG_YK_Settings get "SPECIAL_ALARMING_ENABLED";
+    private _alarmRadius = NWG_YK_Settings get "SPECIAL_ALARMING_RADIUS";
+    private _loneMergeEnabled = NWG_YK_Settings get "SPECIAL_LONEMERGE_ENABLED";
+    private _vehRepairEnabled = NWG_YK_Settings get "SPECIAL_VEHREPAIR_ENABLED";
+    if (!_alarmEnabled && !_loneMergeEnabled && !_vehRepairEnabled) exitWith {_hunters};//No passive specials enabled
+
+    //Prepare scripts
+    private _loners = [];
+    private _vehRepairs = [];
+    private _alarmHunter = if (_alarmEnabled) then {{
+        // private _hunterRecord = _this;
+        private _hunterPos = _this select HUNTER_POSITION;
+        if (_targets findIf {((_x#TARGET_POSITION) distance2D _hunterPos) <= _alarmRadius} == -1) exitWith {};
+        (_this#HUNTER_GROUP) setCombatMode "RED";
+        (_this#HUNTER_GROUP) setBehaviourStrong "AWARE";
+    }} else {{}};
+    private _extractLoner = if (_loneMergeEnabled) then {{
+        // private _hunterRecord = _this;
+        if ((_this#HUNTER_SPECIAL) isEqualTo SPECIAL_LONEMERGE)
+            then {_loners pushBack _this; true}
+            else {false}
+    }} else {{false}};
+    private _extractRepair = if (_vehRepairEnabled) then {{
+        // private _hunterRecord = _this;
+        if ((_this#HUNTER_SPECIAL) isEqualTo SPECIAL_VEHREPAIR)
+            then {_vehRepairs pushBack _this; true}
+            else {false}
+    }} else {{false}};
+
+    //Alarm and extract groups to act upon
     {
-        (_x#HUNTER_GROUP) setCombatMode "RED";
-        (_x#HUNTER_GROUP) setBehaviourStrong "AWARE";
-    } forEach (_hunters select {((_x#HUNTER_POSITION) distance2D _targetPos) <= _radius && {(behaviour (leader (_x#HUNTER_GROUP))) isEqualTo "SAFE"}});
-};
+        _x call _alarmHunter;
+        if (_x call _extractLoner || {_x call _extractRepair}) then {_hunters deleteAt _forEachIndex};
+    } forEachReversed _hunters;
 
-NWG_YK_HUNT_MergeLoners = {
-    // private _hunters = _this;
+    //Merge loners
+    if ((count _loners) > 0) then {
+        /*Statistics*/
+        private _lonersCount = count _loners;
 
-    //Find all loners
-    private _loners = _this select {
-        _x#HUNTER_ALIVE_COUNT == 1 && {
-        _x#HUNTER_PARENT_SYSTEM isEqualTo PARENT_SYSTEM_DSPAWN && {
-        "INF" in (_x#HUNTER_TAGS)}}
-    };
-    if ((count _loners) == 0) exitWith {_this};//No loners to merge
-
-    //Find all adopters
-    private _adopters = _this select {
-        _x#HUNTER_ALIVE_COUNT > 1 && {
-        (("INF" in (_x#HUNTER_TAGS)) || ((_x#HUNTER_TAGS) isEqualTo []))}
-    };
-    if ((count _adopters) == 0 && {(count _loners) == 1}) exitWith {_this};//Can't merge a single loner to itself
-
-    //Calculate the group to merge with
-    private _lonersMidpoint = (_loners apply {_x#HUNTER_POSITION}) call NWG_fnc_dtsFindMidpoint;
-    private _extractClosest = {
-        // private _array = _this;
-        private _closest = -1;
-        private _dist = 0;
-        private _minDist = 100000;
+        /*Try merge with any other inf group*/
+        private ["_lonerPos","_dist","_minDist","_closest"];
         {
-            _dist = (_x#HUNTER_POSITION) distance2D _lonersMidpoint;
-            if (_dist < _minDist) then {
-                _minDist = _dist;
-                _closest = _forEachIndex;
-            };
-        } forEach _this;
-        _this deleteAt _closest
+            /*Find the closest inf group*/
+            _lonerPos = _x#HUNTER_POSITION;
+            _minDist = 100000;
+            _closest = -1;
+            {
+                if !("INF" in (_x#HUNTER_TYPE)) then {continue};
+                _dist = _lonerPos distance2D (_x#HUNTER_POSITION);
+                if (_dist < _minDist) then {_minDist = _dist; _closest = _forEachIndex};
+            } forEach _hunters;
+            if (_closest == -1) exitWith {};//Not a single inf group found - no sense to continue
+
+            /*Merge*/
+            {[_x] joinSilent ((_hunters#_closest)#HUNTER_GROUP)} forEach (units (_x#HUNTER_GROUP));
+            _loners deleteAt _forEachIndex;
+        } forEachReversed _loners;
+
+        /*Merge with each other*/
+        if ((count _loners) > 1) then {
+            private _adopter = _loners deleteAt 0;
+            {{[_x] joinSilent (_adopter#HUNTER_GROUP)} forEach (units (_x#HUNTER_GROUP))} forEach _loners;
+        };
+
+        /*Statistics*/
+        _lonersCount = _lonersCount - (count _loners);
+        [STAT_SPEC_LONEMERGE,_lonersCount] call NWG_YK_STAT_Increment;
     };
-    private _toMergeWith = if ((count _adopters) == 0)
-        then {_loners   call _extractClosest} //Merge loners to a single group among themselves
-        else {_adopters call _extractClosest};//Merge loners to one of the adopters
 
-    //Merge
-    {(units (_x#HUNTER_GROUP)) joinSilent (_toMergeWith#HUNTER_GROUP)} forEach _loners;
+    //Repair vehicles
+    if ((count _vehRepairs) > 0) then {
+        /*Statistics*/
+        private _vehRepairsCount = count _vehRepairs;
 
-    //Repack
-    private _temp = _this - _loners;
-    _this resize 0;
-    _this append _temp;
-    _this
-};
+        /*Send each vehicle to repair*/
+        private _ok = true;
+        {
+            _ok = (_x#HUNTER_GROUP) call NWG_fnc_acSendToVehRepair;
+            if (isNil "_ok" || {_ok isNotEqualTo true}) then {
+                format ["NWG_YK_RunPassiveSpecials: Failed to send '%1' to repair. Result:%2",_x,_ok] call NWG_fnc_logError;
+                _vehRepairsCount = _vehRepairsCount - 1;
+            };
+        } forEach _vehRepairs;
 
-NWG_YK_HUNT_SelectHunterFor = {
-    params ["_hunters","_targetType","_targetPos"];
-    if ((count _hunters) == 0) exitWith {-1};//No hunters
-
-    private _radius = NWG_YK_Settings get "HUNT_RADIUS";
-    private _typeCondition = switch (_targetType) do {
-        case TARGET_TYPE_INF: {{true}};//Any hunter will do
-        case TARGET_TYPE_VEH: {{true}};//Same as above
-        case TARGET_TYPE_ARM: {{"AT" in (_this#HUNTER_TAGS)}};//Only AT hunters can handle armor
-        case TARGET_TYPE_AIR: {{"AA" in (_this#HUNTER_TAGS)}};//Only AA hunters can handle air
-        case TARGET_TYPE_BOAT: {{"BOAT" in (_this#HUNTER_TAGS) || {("AIR" in (_this#HUNTER_TAGS)) && ("MEC" in (_this#HUNTER_TAGS))}}};
-        default {{false}};//Should never happen
+        /*Statistics*/
+        [STAT_SPEC_VEHREPAIR,_vehRepairsCount] call NWG_YK_STAT_Increment;
     };
 
     //return
-    _hunters findIf {
-        (_x#HUNTER_PARENT_SYSTEM) isEqualTo PARENT_SYSTEM_DSPAWN && {
-        (_x call _typeCondition) && {
-        ((_x#HUNTER_POSITION) distance2D _targetPos) <= _radius}}
-    }
-};
-
-NWG_YK_HUNT_MoveHunter = {
-    params ["_hunters","_index","_targetPos"];
-    private _hunter = _hunters deleteAt _index;
-    [(_hunter#HUNTER_GROUP),_targetPos] call NWG_fnc_dsSendToAttack;
+    _hunters
 };
 
 //======================================================================================================
 //======================================================================================================
-//Reinforesments logic
-NWG_YK_REINF_SendReinforcements = {
-    params ["_targetType","_targetPos"];
+//Fill the dice
+NWG_YK_FillDice = {
+    params ["_target","_hunters","_fillIgnore","_fillMove","_fillReinf","_fillSpecials"];
+    private _dice = [];
 
-    private _filter = switch (_targetType) do {
-        case TARGET_TYPE_ARM: {[["AT"],[],[]]};//Whitelist AT groups
-        case TARGET_TYPE_AIR: {[["AA"],[],[]]};//Whitelist AA groups
-        default {[]};//No filter
+    /*Fill with ignore*/
+    if (_fillIgnore) then {
+        _dice pushBack [DICE_IGNORE,-1,false];
     };
 
-    private _faction = if !(isNil "NWG_YK_reinfFaction")
-        then {NWG_YK_reinfFaction}
-        else {NWG_YK_Settings get "DEFAULT_REINF_FACTION"};
-    private _side = if !(isNil "NWG_YK_reinfSide")
-        then {NWG_YK_reinfSide}
-        else {NWG_YK_Settings get "KING_SIDE"};//Default to king's side
-    private _reinfMap = if !(isNil "NWG_YK_reinfMap")
-        then {NWG_YK_reinfMap}
-        else {[]};
-
-    [_targetPos,1,_faction,_filter,_side,_reinfMap] spawn NWG_fnc_dsSendReinforcements;
-};
-
-//======================================================================================================
-//======================================================================================================
-//Specials logic
-NWG_YK_SPEC_SendToRepair = {
-    // private _hunters = _this;
-    private _ok = true;
-    {
-        _ok = (_x#HUNTER_GROUP) call NWG_fnc_acSendToVehRepair;
-        if (isNil "_ok" || {_ok isNotEqualTo true}) then {
-            format ["NWG_YK_SPEC_SendToRepair: Failed to send '%1' to repair. Result:%2",_x,_ok] call NWG_fnc_logError;
+    /*Fill with move*/
+    if (_fillMove) then {
+        /*Define what hunter types can we send to deal with the target*/
+        private ["_iValid","_vValid","_aValid","_bValid"];
+        switch (_target#TARGET_TYPE) do {
+            case TARGET_TYPE_BLDG;
+            case TARGET_TYPE_INF: {
+                _iValid = {true};//Any inf will do
+                _vValid = {true};//Any veh will do
+                _aValid = {(_this#HUNTER_TYPE) isEqualTo HUNTER_TYPE_AIR_AP};//Only air with anti-personnel
+                _bValid = {([(_target#TARGET_POSITION),100,"shore"] call NWG_fnc_dtsFindDotForWaypoint) isNotEqualTo false};//Only if there is a water nearby
+            };
+            case TARGET_TYPE_VEH: {
+                _iValid = {(_this#HUNTER_TYPE) in [HUNTER_TYPE_INF_AT,HUNTER_TYPE_INF_AAAT]};//Only AT and AAAT
+                _vValid = {true};//Any veh will do
+                _aValid = {(_this#HUNTER_TYPE) isNotEqualTo HUNTER_TYPE_AIR_AA};//Anything except AA
+                _bValid = {false};//No boats
+            };
+            case TARGET_TYPE_ARM: {
+                _iValid = {(_this#HUNTER_TYPE) in [HUNTER_TYPE_INF_AT,HUNTER_TYPE_INF_AAAT]};//Only AT and AAAT
+                _vValid = {(_this#HUNTER_TYPE) in [HUNTER_TYPE_VEH_AT,HUNTER_TYPE_VEH_AAAT]};//Only AT and AAAT
+                _aValid = {(_this#HUNTER_TYPE) in [HUNTER_TYPE_AIR_AT,HUNTER_TYPE_AIR_AAAT]};//Only AT and AAAT
+                _bValid = {false};//No boats
+            };
+            case TARGET_TYPE_AIR_GND: {
+                _iValid = {(_this#HUNTER_TYPE) isNotEqualTo HUNTER_TYPE_INF_AP};//Anything except AP
+                _vValid = {true};//Any veh will do
+                _aValid = {true};//Any air will do
+                _bValid = {false};//No boats
+            };
+            case TARGET_TYPE_AIR_FLY: {
+                _iValid = {(_this#HUNTER_TYPE) in [HUNTER_TYPE_INF_AA,HUNTER_TYPE_INF_AAAT]};//Only AA and AAAT
+                _vValid = {(_this#HUNTER_TYPE) in [HUNTER_TYPE_VEH_AA,HUNTER_TYPE_VEH_AAAT]};//Only AA and AAAT
+                _aValid = {(_this#HUNTER_TYPE) in [HUNTER_TYPE_AIR_AA,HUNTER_TYPE_AIR_AAAT]};//Only AA and AAAT
+                _bValid = {false};//No boats
+            };
+            case TARGET_TYPE_BOAT: {
+                _iValid = {(_this#HUNTER_TYPE) in [HUNTER_TYPE_INF_AT,HUNTER_TYPE_INF_AAAT]};//Only AT and AAAT
+                _vValid = {(_this#HUNTER_TYPE) in [HUNTER_TYPE_VEH_AT,HUNTER_TYPE_VEH_AAAT]};//Only AT and AAAT
+                _aValid = {(_this#HUNTER_TYPE) in [HUNTER_TYPE_AIR_AT,HUNTER_TYPE_AIR_AAAT]};//Only AT and AAAT
+                _bValid = {true};//Any water
+            };
+            default {
+                (format ["NWG_YK_FillDice: Unknown target type: '%1'",_target#TARGET_TYPE]) call NWG_fnc_logError;
+                _iValid = {false};
+                _vValid = {false};
+                _aValid = {false};
+                _bValid = {false};
+            };
         };
-    } forEach _this;
-};
 
-NWG_YK_SPEC_SelectSpecialsForTarget = {
-    params ["_hunters","_target"];
-    private _result = [];
+        /*Define distances that we can send hunters over*/
+        private _iDistCheck = {((_this#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "HUNT_INF_MOVE_RADIUS")};
+        private _vDistCheck = {((_this#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "HUNT_VEH_MOVE_RADIUS")};
+        private _aDistCheck = {((_this#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "HUNT_AIR_MOVE_RADIUS")};
+        private _bDistCheck = {((_this#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "HUNT_BOAT_MOVE_RADIUS")};
 
-    //Check if target is of AIR type - not much we can do about it with only exception is when it is parked
-    if (((_target#TARGET_TYPE) isEqualTo TARGET_TYPE_AIR) && {(abs ((getPos (_target#TARGET_OBJECT))#2)) > 5}) exitWith {_result};
+        /*Find hunter index to send*/
+        private _hunterIndex = _hunters findIf {
+            if ((_x#HUNTER_TYPE) isEqualTo HUNTER_TYPE_UKREP) then {continueWith false};
+            if ((_x#HUNTER_TYPE) isEqualTo HUNTER_TYPE_UNDEF) then {continueWith false};
+            if ("INF"  in (_x#HUNTER_TYPE)) then {continueWith (_x call _iValid && {_x call _iDistCheck})};
+            if ("VEH"  in (_x#HUNTER_TYPE)) then {continueWith (_x call _vValid && {_x call _vDistCheck})};
+            if ("AIR"  in (_x#HUNTER_TYPE)) then {continueWith (_x call _aValid && {_x call _aDistCheck})};
+            if ("BOAT" in (_x#HUNTER_TYPE)) then {continueWith (_x call _bValid && {_x call _bDistCheck})};
+            false
+        };
 
+        /*Fill the dice*/
+        if (_hunterIndex == -1) exitWith {};
+        _dice pushBack [DICE_MOVE,_hunterIndex,false];
+    };
+
+    /*Fill with reinf*/
+    if (_fillReinf) then {
+        _dice pushBack [DICE_REINF,-1,false];
+    };
+
+    /*Fill with specials?*/
+    if (!_fillSpecials) exitWith {_dice};
+    if ((_target#TARGET_TYPE) isEqualTo TARGET_TYPE_AIR_FLY) exitWith {_dice};
+
+    /*Fill with specials*/
+    private _i = -1;
     //Airstrike
     if (NWG_YK_Settings get "SPECIAL_AIRSTRIKE_ENABLED") then {
-        private _actualTarget = if (!isNull (_target#TARGET_BUILDING)) then {_target#TARGET_BUILDING} else {_target#TARGET_OBJECT};
-        private _i = _hunters findIf {(_x#HUNTER_SPECIAL) isEqualTo SPECIAL_AIRSTRIKE};
-        if (_i == -1) exitWith {};
-        private _numberOfStrikes = selectRandom [1,1,2,3];
-        _result pushBack [SPECIAL_AIRSTRIKE,_i,_actualTarget,_numberOfStrikes];
+        _i = _hunters findIf {
+            (_x#HUNTER_SPECIAL) isEqualTo SPECIAL_AIRSTRIKE && {
+            ((_x#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "SPECIAL_AIRSTRIKE_RADIUS")}
+        };
+        if (_i != -1) then {
+            private _numberOfStrikes = selectRandom [1,1,2,3];
+            _dice pushBack [SPECIAL_AIRSTRIKE,_i,_numberOfStrikes];
+        };
     };
 
     //Artillery strike
     if (NWG_YK_Settings get "SPECIAL_ARTA_ENABLED") then {
-        private _actualTarget = if (!isNull (_target#TARGET_BUILDING)) then {_target#TARGET_BUILDING} else {_target#TARGET_OBJECT};
-        private _i = _hunters findIf {(_x#HUNTER_SPECIAL) isEqualTo SPECIAL_ARTA && {[(_x#HUNTER_GROUP),_actualTarget] call NWG_fnc_acCanDoArtilleryStrikeOnTarget}};
-        if (_i == -1) exitWith {};
-        private _precise = !isNull (_target#TARGET_BUILDING) || {(_target#TARGET_TYPE) isEqualTo TARGET_TYPE_ARM};
-        _result pushBack [SPECIAL_ARTA,_i,_actualTarget,_precise];
+        _i = _hunters findIf {
+            (_x#HUNTER_SPECIAL) isEqualTo SPECIAL_ARTA && {
+            ((_x#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "SPECIAL_ARTA_RADIUS") && {
+            [(_x#HUNTER_GROUP),(_target#TARGET_OBJECT)] call NWG_fnc_acCanDoArtilleryStrikeOnTarget}}
+        };
+        if (_i != -1) then {
+            private _precise = (_target#TARGET_TYPE) in [TARGET_TYPE_BLDG,TARGET_TYPE_ARM];
+            _dice pushBack [SPECIAL_ARTA,_i,_precise];
+        };
     };
 
     //Mortar strike
     if (NWG_YK_Settings get "SPECIAL_MORTAR_ENABLED") then {
-        private _actualTarget = if (!isNull (_target#TARGET_BUILDING)) then {_target#TARGET_BUILDING} else {_target#TARGET_OBJECT};
-        private _i = _hunters findIf {(_x#HUNTER_SPECIAL) isEqualTo SPECIAL_MORTAR && {[(_x#HUNTER_GROUP),_actualTarget] call NWG_fnc_acCanDoMortarStrikeOnTarget}};
-        if (_i == -1) exitWith {};
-        private _precise = !isNull (_target#TARGET_BUILDING) || {(_target#TARGET_TYPE) isEqualTo TARGET_TYPE_ARM};
-        _result pushBack [SPECIAL_MORTAR,_i,_actualTarget,_precise];
+        _i = _hunters findIf {
+            (_x#HUNTER_SPECIAL) isEqualTo SPECIAL_MORTAR && {
+            ((_x#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "SPECIAL_MORTAR_RADIUS") && {
+            [(_x#HUNTER_GROUP),(_target#TARGET_OBJECT)] call NWG_fnc_acCanDoMortarStrikeOnTarget}}
+        };
+        if (_i != -1) then {
+            private _precise = (_target#TARGET_TYPE) in [TARGET_TYPE_BLDG,TARGET_TYPE_ARM];
+            _dice pushBack [SPECIAL_MORTAR,_i,_precise];
+        };
     };
 
     //Vehicle demolition
-    if (NWG_YK_Settings get "SPECIAL_VEHDEMOLITION_ENABLED") then {
-        if (isNull (_target#TARGET_BUILDING)) exitWith {};//Only buildings can be demolished
-        private _actualTarget = _target#TARGET_BUILDING;
-        private _radius = NWG_YK_Settings get "SPECIAL_VEHDEMOLITION_RADIUS";
-        private _i = _hunters findIf {(_x#HUNTER_SPECIAL) isEqualTo SPECIAL_VEHDEMOLITION && {((_x#HUNTER_POSITION) distance2D _actualTarget) <= _radius}};
-        if (_i == -1) exitWith {};
-        _result pushBack [SPECIAL_VEHDEMOLITION,_i,_actualTarget];
+    if (NWG_YK_Settings get "SPECIAL_VEHDEMOLITION_ENABLED" && {(_target#TARGET_TYPE) isEqualTo TARGET_TYPE_BLDG}) then {
+        _i = _hunters findIf {
+            (_x#HUNTER_SPECIAL) isEqualTo SPECIAL_VEHDEM && {
+            ((_x#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "SPECIAL_VEHDEMOLITION_RADIUS")}
+        };
+        if (_i != -1) then {
+            _dice pushBack [SPECIAL_VEHDEM,_i,false];
+        };
     };
 
     //Inf building storm
-    if (NWG_YK_Settings get "SPECIAL_INFSTORM_ENABLED") then {
-        if (isNull (_target#TARGET_BUILDING)) exitWith {};//Only buildings can be stormed
-        private _actualTarget = _target#TARGET_BUILDING;
-        private _radius = NWG_YK_Settings get "SPECIAL_INFSTORM_RADIUS";
-        private _i = _hunters findIf {(_x#HUNTER_SPECIAL) isEqualTo SPECIAL_INFSTORM && {((_x#HUNTER_POSITION) distance2D _actualTarget) <= _radius}};
-        if (_i == -1) exitWith {};
-        _result pushBack [SPECIAL_INFSTORM,_i,_actualTarget];
+    if (NWG_YK_Settings get "SPECIAL_INFSTORM_ENABLED" && {(_target#TARGET_TYPE) isEqualTo TARGET_TYPE_BLDG}) then {
+        _i = _hunters findIf {
+            (_x#HUNTER_SPECIAL) isEqualTo SPECIAL_INFSTORM && {
+            ((_x#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "SPECIAL_INFSTORM_RADIUS")}
+        };
+        if (_i != -1) then {
+            _dice pushBack [SPECIAL_INFSTORM,_i,false];
+        };
     };
 
     //return
-    _result
+    _dice
 };
 
-NWG_YK_SPEC_UseSpecial = {
-    params ["_hunters","_special"];
-    _special params ["_specialType","_i","_actualTarget","_arg"];//Do not use default value for _arg to see the error if we misused it
+//======================================================================================================
+//======================================================================================================
+//Dice - Move
+NWG_YK_MoveHunterTo = {
+    params ["_hunter","_target"];
+    if ((_target#TARGET_TYPE) in [TARGET_TYPE_BLDG,TARGET_TYPE_INF])
+        then {[(_hunter#HUNTER_GROUP),(_target#TARGET_POSITION)] call NWG_fnc_dsSendToAttack}
+        else {[(_hunter#HUNTER_GROUP),(_target#TARGET_OBJECT)] call NWG_fnc_dsSendToDestroy};
+};
 
-    //Get the hunter
-    private _hunter = _hunters deleteAt _i;
-    if (isNil "_hunter") exitWith {
-        format ["NWG_YK_SPEC_UseSpecial: Failed to get hunter at index %1. Special:%2",_i,_special] call NWG_fnc_logError;
+//======================================================================================================
+//======================================================================================================
+//Dice - Reinforcements
+NWG_YK_SendReinforcements = {
+    // private _target = _this;
+    private _targetType = _this#TARGET_TYPE;
+    private _targetPos  = _this#TARGET_POSITION;
+    private _filter = switch (_targetType) do {
+        case TARGET_TYPE_ARM: {[["AT"],[],[]]};//Whitelist AT groups
+        case TARGET_TYPE_AIR_GND: {[["AA"],[],[]]};//Whitelist AA groups
+        case TARGET_TYPE_AIR_FLY: {[["AA"],[],[]]};//Whitelist AA groups
+        default {[]};//No filter
     };
+
+    [_targetPos,1,_filter] spawn NWG_fnc_dsSendReinforcementsCfg;//We expect that the side and faction are already configured elsewhere
+};
+
+//======================================================================================================
+//======================================================================================================
+//Dice - Specials
+NWG_YK_UseSpecial = {
+    params ["_hunter","_target","_special","_arg"];
     private _group = _hunter#HUNTER_GROUP;
+    private _targetObj = _target#TARGET_OBJECT;
 
     //Use the special
-    private _ok = switch (_specialType) do {
-        case SPECIAL_AIRSTRIKE: {[_group,_actualTarget,_arg] call NWG_fnc_acSendToAirstrike};
-        case SPECIAL_ARTA:      {[_group,_actualTarget,_arg] call NWG_fnc_acSendArtilleryStrike};
-        case SPECIAL_MORTAR:    {[_group,_actualTarget,_arg] call NWG_fnc_acSendMortarStrike};
-        case SPECIAL_VEHDEMOLITION:  {[_group,_actualTarget] call NWG_fnc_acSendToVehDemolition};
-        case SPECIAL_INFSTORM:       {[_group,_actualTarget] call NWG_fnc_acSendToInfBuildingStorm};
-        default {false};
+    private _ok = switch (_special) do {
+        case SPECIAL_AIRSTRIKE: {[_group,_targetObj,_arg] call NWG_fnc_acSendToAirstrike};
+        case SPECIAL_ARTA:      {[_group,_targetObj,_arg] call NWG_fnc_acSendArtilleryStrike};
+        case SPECIAL_MORTAR:    {[_group,_targetObj,_arg] call NWG_fnc_acSendMortarStrike};
+        case SPECIAL_VEHDEM:    {[_group,_targetObj] call NWG_fnc_acSendToVehDemolition};
+        case SPECIAL_INFSTORM:  {[_group,_targetObj] call NWG_fnc_acSendToInfBuildingStorm};
+        default {
+            (format ["NWG_YK_UseSpecial: Unknown special '%1'",_special]) call NWG_fnc_logError;
+            false
+        };
     };
     if (isNil "_ok" || {_ok isNotEqualTo true}) then {
-        format ["NWG_YK_SPEC_UseSpecial: Failed to use special '%1'. Result:%3",_special,_ok] call NWG_fnc_logError;
+        format ["NWG_YK_UseSpecial: Failed to use special '%1'. Result:%3",_special,_ok] call NWG_fnc_logError;
     };
 };
 
@@ -590,7 +741,7 @@ NWG_YK_STAT_statisticsKeys = [
     STAT_KILL_COUNT,STAT_REACTION_COUNT,
     STAT_TARGETS_ACQUIRED,STAT_TARGETS_IGNORED,
     STAT_GROUPS_MOVED,STAT_REINFS_SENT,STAT_SPECIALS_USED,
-    STAT_SPEC_AIRSTRIKE,STAT_SPEC_ARTA,STAT_SPEC_MORTAR,STAT_SPEC_VEHDEMOLITION,STAT_SPEC_INFSTORM,STAT_SPEC_VEHREPAIR
+    STAT_SPEC_AIRSTRIKE,STAT_SPEC_ARTA,STAT_SPEC_MORTAR,STAT_SPEC_VEHDEM,STAT_SPEC_INFSTORM,STAT_SPEC_VEHREPAIR,STAT_SPEC_LONEMERGE
 ];
 NWG_YK_STAT_GetCurCounters = {
     private _curTime = round ((round time)/60);//Time in minutes
@@ -658,9 +809,10 @@ NWG_YK_STAT_Output = {
     if (NWG_YK_Settings get "SPECIAL_AIRSTRIKE_ENABLED") then {_lines pushBack (format ["AIRSTRIKE: %1",(_stat get STAT_SPEC_AIRSTRIKE)])};
     if (NWG_YK_Settings get "SPECIAL_ARTA_ENABLED")      then {_lines pushBack (format ["ARTA: %1",(_stat get STAT_SPEC_ARTA)])};
     if (NWG_YK_Settings get "SPECIAL_MORTAR_ENABLED")    then {_lines pushBack (format ["MORTAR: %1",(_stat get STAT_SPEC_MORTAR)])};
-    if (NWG_YK_Settings get "SPECIAL_VEHDEMOLITION_ENABLED") then {_lines pushBack (format ["VEHDEMOLITION: %1",(_stat get STAT_SPEC_VEHDEMOLITION)])};
+    if (NWG_YK_Settings get "SPECIAL_VEHDEMOLITION_ENABLED") then {_lines pushBack (format ["VEHDEMOLITION: %1",(_stat get STAT_SPEC_VEHDEM)])};
     if (NWG_YK_Settings get "SPECIAL_INFSTORM_ENABLED")  then {_lines pushBack (format ["INFSTORM: %1",(_stat get STAT_SPEC_INFSTORM)])};
     if (NWG_YK_Settings get "SPECIAL_VEHREPAIR_ENABLED") then {_lines pushBack (format ["VEHREPAIR: %1",(_stat get STAT_SPEC_VEHREPAIR)])};
+    if (NWG_YK_Settings get "SPECIAL_LONEMERGE_ENABLED") then {_lines pushBack (format ["LONEMERGE: %1",(_stat get STAT_SPEC_LONEMERGE)])};
 
     if (NWG_YK_Settings get "STATISTICS_TO_RPT") then {
         diag_log text "==========[ YELLOW KING STATS ]===========";

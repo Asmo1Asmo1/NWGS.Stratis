@@ -5,34 +5,7 @@
 //================================================================================================================
 //================================================================================================================
 //Settings
-NWG_MIS_SER_Settings = createHashMapFromArray [
-    ["AUTOSTART",true],//Start the mission machine once the scripts are compiled and game started
-    ["AUTOSTART_IN_DEVBUILD",true],//Start even if we are in debug environment
-
-    ["PLAYER_BASE_ROOT","PlayerBase"],//Name of pre-placed map object (value of Object:Init -> Variable name) (mandatory for mission machine to work)
-
-    ["LOG_STATE_CHANGE",true],//Log every state change
-    ["HEARTBEAT_RATE",1],//How often the mission machine should check for state changes
-
-    ["MISSIONS_BLUEPRINT_PAGENAME","Abs%1"],//Template for where to find mission blueprints for the map
-    ["MISSIONS_ESCAPE_BLUEPRINT_PAGENAME","Abs%1Escape"],//Template for where to find escape
-
-    ["MISSIONS_UPDATE_NO_MISSIONS_LOG",true],  //Log error for no missions left
-    ["MISSIONS_UPDATE_NO_MISSIONS_RESTART",false],//Go to RESET state if no missions left
-    ["MISSIONS_UPDATE_NO_MISSIONS_RUN_ESCAPE",true],//Go to ESCAPE state if no missions left
-    ["MISSIONS_UPDATE_NO_MISSIONS_EXIT",false],//Exit heartbeat cycle if no missions left
-
-    ["MISSIONS_SELECT_DISCARD_REJECTED",true],//False - rejected missions go back to the missions list for next selection, True - they get discarded
-    ["MISSIONS_SELECT_RESHUFFLE_REJECTED",false],//False - rejected missions simply added to the end of the missions list, True - list gets reshuffled
-
-    ["PLAYER_BASE_RADIUS",70],//How far from base is counted as 'on the base' for players
-    ["SERVER_RESTART_ON_ZERO_ONLINE_AFTER",60],//Delay in seconds how long do we wait for someone to join before restarting the server
-
-    /*The rest see in the DATASETS/Server/MissionMachine/Settings.sqf */
-    ["COMPLEX_SETTINGS_ADDRESS","DATASETS\Server\MissionMachine\Settings.sqf"],
-
-    ["",0]
-];
+/*Moved to missionMachineSettings.sqf for there are just too many of them*/
 
 //================================================================================================================
 //================================================================================================================
@@ -72,14 +45,6 @@ private _Init = {
     if (isNull (call NWG_MIS_SER_FindPlayerBaseRoot)) then {
         diag_log text "  [MISSION INFO] #### Expecting player base root object";
     };
-
-    //Get complex additional settings
-    private _addSettings = call ((NWG_MIS_SER_Settings get "COMPLEX_SETTINGS_ADDRESS") call NWG_fnc_compile);
-    if (isNil "_addSettings") exitWith {
-        "NWG_MIS_SER: Failed to get complex settings - exiting." call NWG_fnc_logError;
-        MSTATE_DISABLED call NWG_MIS_SER_ChangeState;
-    };// <- Exit if failed to get settings
-    {NWG_MIS_SER_Settings set [_x#0,_x#1]} forEach _addSettings;//Merge settings
 
     //Start
     NWG_MIS_SER_cycleHandle = [] spawn NWG_MIS_SER_Cycle;
@@ -891,6 +856,8 @@ NWG_MIS_SER_BuildMission_Dspawn = {
     private _missionPos = _missionInfo get "Position";
     private _missionRad = _missionInfo get "Radius";
     private _settings   = _missionInfo get "Settings";
+    private _faction = _missionInfo get "EnemyFaction";
+    private _side = _missionInfo get "EnemySide";
 
     //Calculate the DSPAWN area to patrol
     private _radiusMult = _settings getOrDefault ["DspawnRadiusMult",1.5];
@@ -898,34 +865,29 @@ NWG_MIS_SER_BuildMission_Dspawn = {
     private _radiusMax  = _settings getOrDefault ["DspawnRadiusMax",200];
     _missionRad = _missionRad * _radiusMult;
     _missionRad = (_missionRad max _radiusMin) min _radiusMax;//Clamp
-    _missionInfo set ["Dspawn_Area",[_missionPos,_missionRad]];//Save for future use
 
     //Calculate the DSPAWN reinforcment map
     //["_pos",["_doInf",true],["_doVeh",true],["_doBoat",true],["_doAir",true]] call NWG_fnc_dtsMarkupReinforcement
     private _reinfMap = [_missionPos,true,true,true,true] call NWG_fnc_dtsMarkupReinforcement;
-    _missionInfo set ["Dspawn_ReinforcementMap",_reinfMap];//Save for future use
 
-    //Calculate groups to spawn count
+    //Configure DSPAWN for all future 'xxxCfg' functions calls
+    private _ok = [_side,_faction,_reinfMap] call NWG_fnc_dsConfigure;
+    if (!_ok) then {format ["NWG_MIS_SER_BuildMission_Dspawn: Failed to configure DSPAWN! faction:'%1' side:'%2'",_faction,_side] call NWG_fnc_logError};
+
+    //Calculate count of groups to populate trigger with
     private _groupsMult = _settings getOrDefault ["DspawnGroupsMult",1];
     private _groupsMin  = _settings getOrDefault ["DspawnGroupsMin",2];
+    if (_groupsMin isEqualType []) then {_groupsMin = selectRandom _groupsMin};
     private _groupsMax  = _settings getOrDefault ["DspawnGroupsMax",5];
+    if (_groupsMax isEqualType []) then {_groupsMax = selectRandom _groupsMax};
     // _ukrepObjects params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
     private _ukrepGroups = ((_ukrepObjects#OBJ_CAT_UNIT) + (_ukrepObjects#OBJ_CAT_VEHC) + (_ukrepObjects#OBJ_CAT_TRRT)) apply {group _x};
     _ukrepGroups = _ukrepGroups arrayIntersect _ukrepGroups;//Remove duplicates
     private _groupsCount = round ((count _ukrepGroups) * _groupsMult);
-    _groupsMin = if (_groupsMin isEqualType [])
-        then {selectRandom _groupsMin}
-        else {_groupsMin};
-    _groupsMax = if (_groupsMax isEqualType [])
-        then {selectRandom _groupsMax}
-        else {_groupsMax};
     _groupsCount = (_groupsCount max _groupsMin) min _groupsMax;//Clamp
 
-    private _faction = _missionInfo get "EnemyFaction";
-    private _side = _missionInfo get "EnemySide";
-
     //populate and return the result
-    [[_missionPos,_missionRad],_groupsCount,_faction,[],_side] call NWG_fnc_dsPopulateTrigger
+    [[_missionPos,_missionRad],_groupsCount] call NWG_fnc_dsPopulateTriggerCfg
 };
 
 //================================================================================================================
@@ -935,14 +897,8 @@ NWG_MIS_SER_FightSetup = {
     // private _missionInfo = _this;
 
     //Configure and enable the YellowKing system
-    // params ["_kingSide","_reinfSide","_reinfFaction","_reinfMap"];
-    [
-        (_this get "EnemySide"),
-        (_this get "EnemySide"),
-        (_this get "EnemyFaction"),
-        (_this get "Dspawn_ReinforcementMap")
-    ] call NWG_fnc_ykConfigure;
-
+    // params ["_kingSide"];
+    [(_this get "EnemySide")] call NWG_fnc_ykConfigure;
     private _ok = call NWG_fnc_ykEnable;
     if (!_ok) then {"NWG_MIS_SER_FightSetup: Failed to enable the YellowKing system. Is it enabled already?" call NWG_fnc_logError};
 
