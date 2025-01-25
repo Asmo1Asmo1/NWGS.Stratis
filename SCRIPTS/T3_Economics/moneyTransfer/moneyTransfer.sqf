@@ -38,7 +38,7 @@ NWG_MT_OpenTransferUI = {
 	//Prepare items, data and callback
 	private _windowName = NWG_MT_Settings get "LOC_ACTION_TITLE";
 	private _playerNames = call {
-		private _players = (call NWG_fnc_getPlayersAll) select {alive _x};
+		private _players = call NWG_fnc_getPlayersAll;
 		private _isDevBuild = (is3DENPreview || {is3DENMultiplayer});
 		if (!_isDevBuild) then {_players = _players - [player]};
 		_players apply {name _x}
@@ -74,7 +74,7 @@ NWG_MT_OnPlayerSelected = {
 	params ["_name","_gui"];
 
 	//Check if target player is online
-	private _players = (call NWG_fnc_getPlayersAll) select {alive _x};
+	private _players = call NWG_fnc_getPlayersAll;
 	private _index = _players findIf {(name _x) isEqualTo _name};
 	if (_index == -1) exitWith {
 		[_gui,IDC_TEXT_LEFT] call NWG_fnc_uiHelperBlinkOnError;
@@ -131,7 +131,7 @@ NWG_MT_OnAmountSelected = {
 	};
 
 	//Check target player online
-	private _players = (call NWG_fnc_getPlayersAll) select {alive _x};
+	private _players = call NWG_fnc_getPlayersAll;
 	private _index = _players findIf {(name _x) isEqualTo _targetName};
 	if (_index == -1) exitWith {
 		[_gui,IDC_TEXT_LEFT] call NWG_fnc_uiHelperBlinkOnError;

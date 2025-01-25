@@ -388,7 +388,7 @@ NWG_GC_DeleteMission = {
     params [["_callback",{}]];
 
     //Prepare preservation script
-    private _players = (call NWG_fnc_getPlayersAll) select {alive _x};
+    private _players = call NWG_fnc_getPlayersAll;
     private _preserveDistance = NWG_GC_Settings get "PRESERVE_DISTANCE";
     private _isNoPlayerNear = {
         // private _object = _this;
