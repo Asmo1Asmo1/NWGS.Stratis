@@ -31,8 +31,8 @@ NWG_UP_Settings = createHashMapFromArray [
 	["HOTKEY_OPEN_PLANSHET",false],
 
 	/*Main menu layout*/
-	["MM_TextLeft_FILL_FUNC", {(player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney}],
-	["MM_TextRight_FILL_FUNC",{name player}],
+	["MM_TextLeft_FILL_FUNC", {format ["%1   [Exp: %2]",((player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney),(player call NWG_fnc_pGetMyExp)]}],
+	["MM_TextRight_FILL_FUNC",{format ["[lvl. %1]   %2",(player call NWG_fnc_pGetMyLvl),(name player)]}],
 
 	["MM_BUTTON_01_ICON","\A3\ui_f_orange\data\cfgTaskTypes\airdrop_ca.paa"],
 	["MM_BUTTON_02_ICON","\A3\ui_f\data\igui\cfg\simpleTasks\types\help_ca.paa"],
@@ -56,8 +56,8 @@ NWG_UP_Settings = createHashMapFromArray [
 	["MM_BUTTON_06_ONCLICK",{call NWG_UP_06Settings_Open}],
 
 	/*Secondary menu layout*/
-	["SM_TextLeft_FILL_FUNC", {(player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney}],
-	["SM_TextRight_FILL_FUNC",{name player}],
+	["SM_TextLeft_FILL_FUNC", {format ["%1   [Exp: %2]",((player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney),(player call NWG_fnc_pGetMyExp)]}],
+	["SM_TextRight_FILL_FUNC",{format ["[lvl. %1]   %2",(player call NWG_fnc_pGetMyLvl),(name player)]}],
 	["SM_ADD_CLOSING_TITLE_ROW_TO_LIST",true],
 	["SM_TITLE_ROW_SEPARATOR","  >  "],
 

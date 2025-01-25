@@ -182,7 +182,7 @@ NWG_MSHOP_CLI_OpenShopTab = {
 	//Fill listbox
 	private _displayNameLocTempalte = NWG_MSHOP_CLI_Settings get "LOC_ITEM_TEMPLATE";
 	private _supportNeedLocTemplate = NWG_MSHOP_CLI_Settings get "LOC_SUPPORT_NEED_TEMPLATE";
-	private _mySupportLevel = (player call NWG_fnc_pGetPlayerProgress) param [P_COMM,0];
+	private _mySupportLevel = call NWG_fnc_pGetMySupportLvl;
 	for "_i" from 0 to 100 do {
 		private _itemName = format ["C%1I%2",_categoryIndex,_i];
 		if !(_itemName in NWG_MSHOP_CLI_priceMap) exitWith {};//No more items in this category that we know of

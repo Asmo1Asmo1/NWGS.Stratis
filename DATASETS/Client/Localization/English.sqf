@@ -134,7 +134,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#ISHOP_MULT_ALL_TT#","Shift"],
     //shopMobile
     ["#MSHOP_ROOT_TITLE#","Mobile shop"],
-    ["#MSHOP_SUPPORT_NEED_TEMPLATE#","[NO ACCESS. Support level: %1]"],
+    ["#MSHOP_SUPPORT_NEED_TEMPLATE#","[ NO ACCESS. Support level: %1 ]"],
     ["#MSHOP_CAT0_TITLE#","Drones"],
     ["#MSHOP_C0I0#","Scout drone"],
     ["#MSHOP_C0I1#","Suicide drone (Heat 44)"],
