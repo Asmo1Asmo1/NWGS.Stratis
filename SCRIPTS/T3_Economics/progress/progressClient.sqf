@@ -14,6 +14,13 @@ NWG_PRG_Settings = createHashMapFromArray [
         "#PRG_NOTIFY_TRDR#",/*P_TRDR*/
         "#PRG_NOTIFY_COMM#"/*P_COMM*/
     ]],
+    ["NOTIFY_MULTIPLIER",[
+        1,/*P__EXP*/
+        1,/*P_TEXP*/
+        10,/*P_TAXI*/
+        10,/*P_TRDR*/
+        1/*P_COMM*/
+    ]],
     ["NOTIFY_SYSTEMCHAT",[
         true,/*P__EXP*/
         false,/*P_TEXP*/
@@ -46,6 +53,9 @@ private _Init = {
 NWG_PRG_NotifyProgressChange = {
     params ["_player","_type","_amount","_total"];
     private _locKey = (NWG_PRG_Settings get "NOTIFY_LOCALIZATION") select _type;
+    private _multiplier = (NWG_PRG_Settings get "NOTIFY_MULTIPLIER") select _type;
+    _amount = _amount * _multiplier;
+    _total = _total * _multiplier;
 
     //System chat
     if ((NWG_PRG_Settings get "NOTIFY_SYSTEMCHAT") select _type) then {

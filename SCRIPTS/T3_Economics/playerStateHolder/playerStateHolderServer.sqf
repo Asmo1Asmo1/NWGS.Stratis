@@ -3,7 +3,7 @@
 	States to carry:
 		T1: -
 		T2: loadout, additionalWeapon;
-		T3: lootStorage, wallet
+		T3: lootStorage, wallet, progress
 */
 
 //================================================================================================================
