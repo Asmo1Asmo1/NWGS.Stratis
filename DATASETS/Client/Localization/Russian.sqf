@@ -170,6 +170,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#ISHOP_MULT_ALL_TT#","Shift"],
     //shopMobile
     ["#MSHOP_ROOT_TITLE#","Мобильный магазин"],
+    ["#MSHOP_SUPPORT_NEED_TEMPLATE#","[НЕТ ДОСТУПА. Уровень поддержки: %1]"],
     ["#MSHOP_CAT0_TITLE#","БПЛА"],
     ["#MSHOP_C0I0#","Дрон-разведчик"],
     ["#MSHOP_C0I1#","Одноразовый дрон (HE 44)"],

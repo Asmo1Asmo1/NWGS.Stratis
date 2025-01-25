@@ -1,3 +1,5 @@
+#include "..\..\globalDefines.h"
+
 /*
 	Mobile shop
 	This is the only shop where we know items roster at compile time
@@ -23,6 +25,7 @@ NWG_MSHOP_CLI_Settings =  createHashMapFromArray [
 	["LOC_ROOT_TITLE","#MSHOP_ROOT_TITLE#"],
 	["LOC_CAT_TEMPLATE","#MSHOP_CAT%1_TITLE#"],
 	["LOC_ITEM_TEMPLATE","#MSHOP_C%1I%2#"],
+	["LOC_SUPPORT_NEED_TEMPLATE","#MSHOP_SUPPORT_NEED_TEMPLATE#"],
 	["LOC_MAP_ITEM_HINT","#MSHOP_MAP_ITEM_HINT#"],
 	["LOC_MAP_VEHICLE_HINT","#MSHOP_MAP_VEHICLE_HINT#"],
 
@@ -52,6 +55,7 @@ NWG_MSHOP_CLI_Settings =  createHashMapFromArray [
 //================================================================================================================
 //Fields
 NWG_MSHOP_CLI_priceMap = createHashMap;
+NWG_MSHOP_CLI_supportMap = createHashMap;
 NWG_MSHOP_CLI_selectedItem = "";
 NWG_MSHOP_CLI_moneySpent = 0;
 NWG_MSHOP_CLI_selectedVehicle = "";
@@ -99,7 +103,7 @@ NWG_MSHOP_CLI_OpenShop = {
 
 NWG_MSHOP_CLI_OnServerResponse = {
 	disableSerialization;
-	private _prices = _this;//["C0I0",price1,"C0I1",price2,...]
+	private _values = _this;//["C0I0",price,supportLevel,"C0I1",price,supportLevel,...]
 
 	//Get interface
 	private _interface = uiNamespace getVariable ["NWG_MSHOP_CLI_shopInterface",displayNull];
@@ -108,9 +112,10 @@ NWG_MSHOP_CLI_OnServerResponse = {
 		false
 	};
 
-	//Setup price map
-	for "_i" from 0 to ((count _prices) - 1) step 2 do {
-		NWG_MSHOP_CLI_priceMap set [(_prices#_i),(_prices#(_i + 1))];
+	//Setup price and support level maps
+	for "_i" from 0 to ((count _values) - 1) step 3 do {
+		NWG_MSHOP_CLI_priceMap set [(_values#_i),(_values#(_i + 1))];
+		NWG_MSHOP_CLI_supportMap set [(_values#_i),(_values#(_i + 2))];
 	};
 
 	//Fill player money text
@@ -175,17 +180,26 @@ NWG_MSHOP_CLI_OpenShopTab = {
 	};
 
 	//Fill listbox
-	private _locTemplate = NWG_MSHOP_CLI_Settings get "LOC_ITEM_TEMPLATE";
+	private _displayNameLocTempalte = NWG_MSHOP_CLI_Settings get "LOC_ITEM_TEMPLATE";
+	private _supportNeedLocTemplate = NWG_MSHOP_CLI_Settings get "LOC_SUPPORT_NEED_TEMPLATE";
+	private _mySupportLevel = (player call NWG_fnc_pGetPlayerProgress) param [P_COMM,0];
 	for "_i" from 0 to 100 do {
 		private _itemName = format ["C%1I%2",_categoryIndex,_i];
 		if !(_itemName in NWG_MSHOP_CLI_priceMap) exitWith {};//No more items in this category that we know of
 
-		private _itemDisplayName = (format [_locTemplate,_categoryIndex,_i]) call NWG_fnc_localize;
-		private _itemDisplayPrice = (NWG_MSHOP_CLI_priceMap get _itemName) call NWG_fnc_wltFormatMoney;
-		private _itemRow = format [(NWG_MSHOP_CLI_Settings get "ITEM_ROW_TEMPLATE"),_itemDisplayName,_itemDisplayPrice];
-
-		private _index = _listBox lbAdd _itemRow;
-		_listBox lbSetData [_index,_itemName];
+		private _supportNeed = NWG_MSHOP_CLI_supportMap get _itemName;
+		if (_mySupportLevel >= _supportNeed) then {
+			private _itemDisplayName = (format [_displayNameLocTempalte,_categoryIndex,_i]) call NWG_fnc_localize;
+			private _itemDisplayPrice = (NWG_MSHOP_CLI_priceMap get _itemName) call NWG_fnc_wltFormatMoney;
+			private _itemRow = format [(NWG_MSHOP_CLI_Settings get "ITEM_ROW_TEMPLATE"),_itemDisplayName,_itemDisplayPrice];
+			private _index = _listBox lbAdd _itemRow;
+			_listBox lbSetData [_index,_itemName];
+		} else {
+			private _supportNeedText = format [(_supportNeedLocTemplate call NWG_fnc_localize),_supportNeed];
+			private _index = _listBox lbAdd _supportNeedText;
+			_listBox lbSetColor [_index,[1,1,1,0.5]];
+			_listBox lbSetData [_index,""];
+		};
 	};
 
 	//Setup event handlers
@@ -195,7 +209,7 @@ NWG_MSHOP_CLI_OpenShopTab = {
 		private _expected = if (_withTitleRow) then {1} else {0};
 		if (_selectedIndex >= _expected) then {
 			private _itemName = _listBox lbData _selectedIndex;
-			[_listBox,_itemName] call NWG_MSHOP_CLI_OnItemSelected;
+			if (_itemName isNotEqualTo "") then {[_listBox,_itemName] call NWG_MSHOP_CLI_OnItemSelected};
 		};
 	}];
 

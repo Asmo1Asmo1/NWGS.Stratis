@@ -85,6 +85,30 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 	]],
 	["MARKER_PRESERVE_COUNT",5],//How many markers to preserve at the same time (older ones will be deleted)
 
+	/*Support levels*/
+	["SUPPORT_LEVELS",createHashMapFromArray [
+		["C0I0",1],//Scout drone
+		["C0I1",2],//Suicide drone (HE 44)
+		["C0I2",2],//Suicide drone (HEAT 55)
+		["C0I3",2],//Suicide drone (HEAT 75)
+		["C0I4",3],//Mine drone
+		["C0I5",4],//EMI drone
+		["C0I6",4],//Bomber drone
+		["C0I7",5],//Ababil
+
+		["C1I0",1],//Single strike
+		["C1I1",2],//Double tap
+		["C1I2",3],//Three in a row
+		["C1I3",4],//Barrage
+		["C1I4",1],//Illumination shells
+		["C1I5",1],//Smoke shells
+
+		["C2I0",1],//Team (2)
+		["C2I1",2],//Squad (3)
+		["C2I2",3],//Company (5)
+		["C2I3",4] //Fire team (8)
+	]],
+
 	/*Function connectors*/
 	["FUNC_SPAWN_DRONE",{_this call NWG_MSHOP_DSC_SpawnGroup}],    //params: ["_player","_itemName","_targetPos"]; returns: _drone object OR false in case of error
 	["FUNC_SPAWN_INF_GROUP",{_this call NWG_MSHOP_DSC_SpawnGroup}],//params: ["_player","_itemName","_targetPos"]; returns: _units array OR false in case of error
@@ -143,13 +167,14 @@ NWG_MSHOP_SER_InitPriceMap = {
 //Shop
 NWG_MSHOP_SER_OnShopRequest = {
 	private _player = _this;
-	private _prices = [];
+	private _result = [];
 	{
-		_prices pushBack _x;
-		_prices pushBack _y;
+		_result pushBack _x;
+		_result pushBack _y;
+		_result pushBack ((NWG_MSHOP_SER_Settings get "SUPPORT_LEVELS") get _x);
 	} forEach NWG_MSHOP_SER_priceMap;
 
-	_prices remoteExec ["NWG_fnc_mshopShopValuesResponse",_player];
+	_result remoteExec ["NWG_fnc_mshopShopValuesResponse",_player];
 };
 
 //================================================================================================================

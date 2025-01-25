@@ -24,7 +24,7 @@ NWG_fnc_mshopShopValuesRequest = {
 
 //Shop values response from server
 //params:
-// - prices - Array
+// - values - Array
 NWG_fnc_mshopShopValuesResponse = {
 	// private _prices = _this;
 	_this call NWG_MSHOP_CLI_OnServerResponse;
