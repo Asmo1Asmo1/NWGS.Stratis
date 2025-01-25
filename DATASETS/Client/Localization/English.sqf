@@ -116,6 +116,12 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //moneyTransfer
     ["#MT_ACTION_TITLE#","Money transfer"],
     ["#MT_PLAYER_NOT_FOUND#","Player not found"],
+    //progress
+    ["#PRG_NOTIFY__EXP#","[Exp:  %1] (Total Exp:%2)"],
+    ["#PRG_NOTIFY_TEXP#","Level up!  +%1. New level: lvl %2"],
+    ["#PRG_NOTIFY_TAXI#","Taxi insurance increased by %1%%. New insurance: %2%%"],
+    ["#PRG_NOTIFY_TRDR#","Trader insurance increased by %1%%. New insurance: %2%%"],
+    ["#PRG_NOTIFY_COMM#","Support level increased by %1. New support level: %2"],
     //shopItems
     // ["#ISHOP_ACTION_TITLE#","Open Shop"],//not used anymore
     ["#ISHOP_SELLER_MONEY_CONST#","€$---"],

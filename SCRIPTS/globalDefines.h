@@ -69,7 +69,7 @@
 #define EVENT_ON_LOADOUT_CHANGED "OnLoadoutChanged" //Called by 'inventoryManager' subsystem when a loadout is changed.     params ["_loadOut","_flattenLoadOut"];
 #define EVENT_ON_LOOT_CHANGED "OnLootChanged" //Called by 'lootStorage' subsystem when a loot is changed.     params ["_loot"];
 #define EVENT_ON_MONEY_CHANGED "OnMoneyChanged" //Called by 'wallet' subsystem when a money is changed.     params ["_money"];
-
+#define EVENT_ON_PROGRESS_CHANGED "OnProgressChanged" //Called by 'progress' subsystem when a progress is changed.     params ["_type","_amount","_total"];
 
 //Mission states
 /* initialization */
@@ -117,3 +117,12 @@
 //Mission difficulties
 #define MISSION_DIFFICULTY_EASY "EASY"
 #define MISSION_DIFFICULTY_NORM "NORM"
+
+//Progress
+#define P__EXP 0 /*Experience*/
+#define P_TEXP 1 /*Total Experience*/
+#define P_TAXI 2 /*Progress with Taxi*/
+#define P_TRDR 3 /*Progress with Trader*/
+#define P_COMM 4 /*Progress with Commander*/
+
+#define P_DEFAULT_CHART [0,0,0,0,0]
