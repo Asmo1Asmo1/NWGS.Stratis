@@ -94,6 +94,14 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_BUTTON_PLR_INFO_TOOLTIP#","Player info"],
     ["#UP_BUTTON_SETTINGS_TOOLTIP#","Settings"],
     ["#UP_NOT_IMPLEMENTED_TOOLTIP#","This option is not implemented yet"],
+    //05Info
+    ["#UP_INFO_TITLE#","Player info"],
+    ["#UP_INFO_NAME#","Operator name: %1"],
+    ["#UP_INFO_EXP#","Experience points: %1"],
+    ["#UP_INFO_LVL#","Operator level: %1"],
+    ["#UP_INFO_TAXI_LVL#","Taxi insurance: %1%%"],
+    ["#UP_INFO_TRDR_LVL#","Trader insurance: %1%%"],
+    ["#UP_INFO_COMM_LVL#","Support level: %1"],
     //06Settings
     ["#UP_SETTINGS_TITLE#","Settings"],
     ["#UP_SETTINGS_KEYBINDINGS#","Keybindings"],
