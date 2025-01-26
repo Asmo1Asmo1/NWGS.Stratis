@@ -74,8 +74,8 @@ NWG_DLG_CLI_Settings = createHashMapFromArray [
 	]],
 
 	/*Text filling functions*/
-	["TEXT_LEFT_FILL_FUNC", {(player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney}],
-	["TEXT_RIGHT_FILL_FUNC",{name player}],
+	["TEXT_LEFT_FILL_FUNC", {format ["%1   [Exp: %2]",((player call NWG_fnc_wltGetPlayerMoney) call NWG_fnc_wltFormatMoney),(player call NWG_fnc_pGetMyExp)]}],
+	["TEXT_RIGHT_FILL_FUNC",{format ["[lvl. %1]   %2",(player call NWG_fnc_pGetMyLvl),(name player)]}],
 
 	/*Formatting settings*/
 	["TEMPLATE_SPEAKER_NAME","[%1]:"],

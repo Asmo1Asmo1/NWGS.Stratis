@@ -87,3 +87,12 @@ NWG_fnc_pGetMyLvl = {(player call NWG_fnc_pGetPlayerProgress) param [P_TEXP,0]};
 NWG_fnc_pGetMyTaxiLvl = {(player call NWG_fnc_pGetPlayerProgress) param [P_TAXI,0]};
 NWG_fnc_pGetMyTraderLvl = {(player call NWG_fnc_pGetPlayerProgress) param [P_TRDR,0]};
 NWG_fnc_pGetMySupportLvl = {(player call NWG_fnc_pGetPlayerProgress) param [P_COMM,0]};
+
+/*Dev helpers*/
+// 10 call NWG_fnc_pDevFullProgress;
+NWG_fnc_pDevFullProgress = {
+	private _progressLvl = _this;
+	for "_i" from P__EXP to P_COMM do {
+		[player,_i,_progressLvl] call NWG_fnc_pAddPlayerProgress;
+	};
+};

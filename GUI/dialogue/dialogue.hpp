@@ -18,7 +18,7 @@
 #define LISTBOX_W  (0.875 * X_SCALE)
 #define QLISTBOX_H (0.5 * Y_SCALE)
 #define ALISTBOX_H (0.2 * Y_SCALE)
-#define TEXT_W (0.15 * X_SCALE)
+#define TEXT_W (0.21 * X_SCALE)
 #define TEXT_H (0.03 * Y_SCALE)
 
 //--- position helpers
