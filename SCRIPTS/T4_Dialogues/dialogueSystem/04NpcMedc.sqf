@@ -23,12 +23,10 @@ NWG_DLG_MEDC_IsInjured = {
 
 NWG_DLG_MEDC_GetPatchPrice = {MEDC_PATCH_PRICE};
 NWG_DLG_MEDC_Patch = {
-	private _isFree = _this;
+	// private _isFree = _this;
 
 	//Payment
-	if (!_isFree) then {
-		[player,-MEDC_PATCH_PRICE] call NWG_fnc_wltAddPlayerMoney;
-	};
+	if (!_this) then {[player,-MEDC_PATCH_PRICE] call NWG_fnc_wltAddPlayerMoney};
 
 	//Patch
 	player setDamage 0;

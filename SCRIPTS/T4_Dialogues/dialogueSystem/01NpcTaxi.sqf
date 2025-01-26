@@ -46,7 +46,7 @@ NWG_DLG_TAXI_Settings = createHashMapFromArray [
 //================================================================================================================
 //Global variables
 NWG_DLG_TAXI_SelectedCat = "";
-NWG_DLG_TAXI_SelectedItem = "";
+NWG_DLG_TAXI_SelectedItem = objNull;
 
 //================================================================================================================
 //================================================================================================================
@@ -61,9 +61,9 @@ private _Init = {
 NWG_DLG_TAXI_GenerateDropCategories = {
 	private _categories = [];
 
-	_categories pushBack ["#TAXI_CAT_SQD#","TAXI_PS",{NWG_DLG_TAXI_SelectedCat = CAT_SQD}];
-	_categories pushBack ["#TAXI_CAT_VHC#","TAXI_PS",{NWG_DLG_TAXI_SelectedCat = CAT_VHC}];
-	_categories pushBack ["#TAXI_CAT_CMP#","TAXI_PS",{NWG_DLG_TAXI_SelectedCat = CAT_CMP}];
+	_categories pushBack ["#TAXI_CAT_SQD#","TAXI_PS", {NWG_DLG_TAXI_SelectedCat = CAT_SQD}];
+	_categories pushBack ["#TAXI_CAT_VHC#","TAXI_PS", {NWG_DLG_TAXI_SelectedCat = CAT_VHC}];
+	_categories pushBack ["#TAXI_CAT_CMP#","TAXI_PS", {NWG_DLG_TAXI_SelectedCat = CAT_CMP}];
 	_categories pushBack ["#TAXI_CAT_AIR#","TAXI_PAY",{NWG_DLG_TAXI_SelectedCat = CAT_AIR}];
 
 	//return
@@ -82,7 +82,8 @@ NWG_DLG_TAXI_GenerateDropPoints = {
 			_squadMembers apply {[
 				(name _x),
 				"TAXI_PAY",
-				{NWG_DLG_TAXI_SelectedItem = _this}
+				{NWG_DLG_TAXI_SelectedItem = _this},
+				_x
 			]}
 		};
 		case CAT_VHC: {
@@ -96,7 +97,8 @@ NWG_DLG_TAXI_GenerateDropPoints = {
 			_ownedVehicles apply {[
 				(getText ((configOf _x) >> "displayName")),
 				"TAXI_PAY",
-				{NWG_DLG_TAXI_SelectedItem = _this}
+				{NWG_DLG_TAXI_SelectedItem = _this},
+				_x
 			]}
 		};
 		case CAT_CMP: {
@@ -104,7 +106,8 @@ NWG_DLG_TAXI_GenerateDropPoints = {
 			_campMarkers apply {[
 				(trim (markerText _x)),
 				"TAXI_PAY",
-				{NWG_DLG_TAXI_SelectedItem = _this}
+				{NWG_DLG_TAXI_SelectedItem = _this},
+				_x
 			]}
 		};
 		case CAT_AIR: {
@@ -144,21 +147,21 @@ NWG_DLG_TAXI_GetPrice = {
 	private _price = switch (_cat) do {
 		case CAT_SQD: {
 			private _units = units (group player);
-			private _i = _units findIf {(name _x) isEqualTo _item};
+			private _i = _units find _item;
 			if (_i == -1) exitWith {NWG_DLG_TAXI_Settings get "PRICE_SQD_RAW"};//Nasty situation, but we will filter it out later
 			//return
 			((((round ((player distance (_units#_i)) / 1000))) * (NWG_DLG_TAXI_Settings get "PRICE_SQD_KM")) + (NWG_DLG_TAXI_Settings get "PRICE_SQD_RAW"))
 		};
 		case CAT_VHC: {
 			private _vehicles = player call NWG_fnc_vownGetOwnedVehicles;
-			private _i = _vehicles findIf {(getText ((configOf _x) >> "displayName")) isEqualTo _item};
+			private _i = _vehicles find _item;
 			if (_i == -1) exitWith {NWG_DLG_TAXI_Settings get "PRICE_VHC_RAW"};//Nasty situation, but we will filter it out later
 			//return
 			((((round ((player distance (_vehicles#_i)) / 1000))) * (NWG_DLG_TAXI_Settings get "PRICE_VHC_KM")) + (NWG_DLG_TAXI_Settings get "PRICE_VHC_RAW"))
 		};
 		case CAT_CMP: {
 			private _campMarkers = allMapMarkers select {"PlayerCamp" in _x};
-			private _i = _campMarkers findIf {(trim (markerText _x)) isEqualTo _item};
+			private _i = _campMarkers find _item;
 			if (_i == -1) exitWith {NWG_DLG_TAXI_Settings get "PRICE_CMP_RAW"};//Nasty situation, but we will filter it out later
 			//return
 			((((round ((player distance (getMarkerPos (_campMarkers#_i))) / 1000))) * (NWG_DLG_TAXI_Settings get "PRICE_CMP_KM")) + (NWG_DLG_TAXI_Settings get "PRICE_CMP_RAW"))
@@ -192,7 +195,7 @@ NWG_DLG_TAXI_Teleport = {
 	private _teleportTo = switch (_cat) do {
 		case CAT_SQD: {
 			private _units = units (group player);
-			private _i = _units findIf {(name _x) isEqualTo _item};
+			private _i = _units find _item;
 			if (_i == -1) exitWith {[TTYPE_FAIL,-1]};
 			private _unit = _units#_i;
 			private _veh = vehicle _unit;
@@ -202,7 +205,7 @@ NWG_DLG_TAXI_Teleport = {
 		};
 		case CAT_VHC: {
 			private _vehicles = player call NWG_fnc_vownGetOwnedVehicles;
-			private _i = _vehicles findIf {(getText ((configOf _x) >> "displayName")) isEqualTo _item};
+			private _i = _vehicles find _item;
 			if (_i == -1) exitWith {[TTYPE_FAIL,-1]};
 			private _veh = _vehicles#_i;
 			if (!alive _veh) exitWith {[TTYPE_FAIL,-1]};
@@ -210,7 +213,7 @@ NWG_DLG_TAXI_Teleport = {
 		};
 		case CAT_CMP: {
 			private _campMarkers = allMapMarkers select {"PlayerCamp" in _x};
-			private _i = _campMarkers findIf {(trim (markerText _x)) isEqualTo _item};
+			private _i = _campMarkers find _item;
 			if (_i == -1) exitWith {[TTYPE_FAIL,-1]};
 			private _camp = getMarkerPos [(_campMarkers#_i),true];
 			[TTYPE_POS,_camp]
@@ -275,7 +278,6 @@ NWG_DLG_TAXI_OnMapClick = {
 	//Close map
 	openMap [true,false];
 	openMap false;
-	// hintSilent "";
 
 	//Teleport
 	_pos set [2,(NWG_DLG_TAXI_Settings get "PARADROP_ALTITUDE")];

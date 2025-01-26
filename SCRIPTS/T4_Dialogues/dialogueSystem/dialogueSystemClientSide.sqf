@@ -11,7 +11,7 @@ Each question may be of type
 
 A	A_DEF	Predefined array of answers
 	A_CND	Array of [{condition},answer,...] - whichever condition returns 'true' - (_i+1) will be added to list of answers
-	A_GEN	Either single code block or array of [{code},{code},answer,...] where each code block is expected to return array of answers (yes, mix with predefined answers is supported)
+	A_GEN	Either single code block or array of [{code},{code},answer,...] where each code block is expected to return array of answers
 Each answer is array of [%ANSWER_STR%,%NEXT_NODE%,(optional:%CODE%)]
 %ANSWER_STR%
 	string - single localization key
@@ -23,6 +23,7 @@ Each answer is array of [%ANSWER_STR%,%NEXT_NODE%,(optional:%CODE%)]
 %CODE%	optional code to execute in order:
 	- IF %NEXT_NODE% is NODE_EXIT - after closing the UI (serves as a callback)
 	- IF %NEXT_NODE% is NODE_BACK or Defined Node - before loading the next node (e.g.: setting some variables that will affect the next node)
+%CODE_ARGS%	optional arguments to pass to %CODE% (default: [])
 
 Dialogue node structure:
 [
@@ -355,7 +356,7 @@ NWG_DLG_CLI_OnAnswerSelected = {
 	uiNamespace setVariable ["NWG_DLG_answers",[]];
 
 	//Extract selected answer
-	(_answers#_answerIndex) params ["","_nextNode",["_code",{}]];
+	(_answers#_answerIndex) params ["","_nextNode",["_code",{}],["_codeArgs",[]]];
 
 	//Extract selected answer as string
 	private _aListbox = uiNamespace getVariable ["NWG_DLG_aListbox",controlNull];
@@ -373,7 +374,7 @@ NWG_DLG_CLI_OnAnswerSelected = {
 	//If end of dialogue - exit
 	if (_nextNode isEqualTo NODE_EXIT) exitWith {
 		closeDialog 0;//Close dialogue
-		_answerString call _code;//Run code as callback
+		_codeArgs call _code;//Run code as callback
 		true
 	};
 
@@ -389,7 +390,7 @@ NWG_DLG_CLI_OnAnswerSelected = {
 	lbClear _aListbox;
 
 	//Run code
-	_answerString call _code;
+	_codeArgs call _code;
 
 	//Load next node
 	[_nextNode,/*withDelays:*/true] spawn NWG_DLG_CLI_LoadNextNode;

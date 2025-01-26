@@ -101,7 +101,7 @@ NWG_DLGHLP_GenerateBackExit = {
 };
 
 //generates answers ["Another question","Back","Exit"]
-NWG_DLGHLP_GenerateAnqBackExit = {
+NWG_DLGHLP_GenerateAnQBackExit = {
 	params ["_anqNode","_backNode"];
 	[
 		/*Another Q Node*/  [(selectRandom (NWG_DLGHLP_Settings get "ANOTHER_Q_KEYS")),_anqNode],
