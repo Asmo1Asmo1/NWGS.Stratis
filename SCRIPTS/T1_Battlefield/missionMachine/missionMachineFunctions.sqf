@@ -129,3 +129,12 @@ NWG_fnc_mmIsUnitInBase = {
     private _baseRad = NWG_MIS_SER_Settings get "PLAYER_BASE_RADIUS";
     (_this distance _basePos) <= _baseRad
 };
+
+//Returns if this player was on mission
+//note: Is safe to use on both client and server sides
+//params: _unit - object
+//returns: boolean
+NWG_fnc_mmWasPlayerOnMission = {
+    // private _player = _this;
+    (_this getVariable ["NWG_MIS_WasOnMission",false])
+};

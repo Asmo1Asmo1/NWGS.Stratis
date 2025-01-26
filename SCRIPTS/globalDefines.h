@@ -76,18 +76,17 @@
 #define MSTATE_SCRIPTS_COMPILATION -3
 #define MSTATE_DISABLED -2
 #define MSTATE_MACHINE_STARTUP -1
-/* world build */
-#define MSTATE_WORLD_BUILD 0
 /* base build */
-#define MSTATE_BASE_UKREP 1
-#define MSTATE_BASE_ECONOMY 2
-#define MSTATE_BASE_QUESTS 3
+#define MSTATE_BASE_UKREP 0
+#define MSTATE_BASE_ECONOMY 1
+#define MSTATE_BASE_QUESTS 2
 /* missions list */
-#define MSTATE_LIST_INIT 4
-#define MSTATE_LIST_UPDATE 5
+#define MSTATE_LIST_INIT 3
+#define MSTATE_LIST_UPDATE 4
 /* player input expect */
-#define MSTATE_READY 6
+#define MSTATE_READY 5
 /* mission build */
+#define MSTATE_BUILD_CONFIG 6
 #define MSTATE_BUILD_UKREP 7
 #define MSTATE_BUILD_ECONOMY 8
 #define MSTATE_BUILD_DSPAWN 9
