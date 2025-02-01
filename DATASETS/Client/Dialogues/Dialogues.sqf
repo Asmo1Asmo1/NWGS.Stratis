@@ -46,6 +46,13 @@ in other words:
 #define NODE_BACK -1
 #define NODE_EXIT -2
 
+//Progress enum (see globalDefines.h)
+#define P__EXP 0
+#define P_TEXP 1
+#define P_TAXI 2
+#define P_TRDR 3
+#define P_COMM 4
+
 
 NWG_DialogueTree = createHashMapFromArray [
 	//================================================================================================================
@@ -62,6 +69,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				["#TAXI_00_A_01#","TAXI_CS"],
+				["#TAXI_00_A_02#","TAXI_PRGB"],
 				{"TAXI" call NWG_DLGHLP_GenerateRoot}/*["TAXI_HELP","TAXI_ADV",NODE_EXIT]*/
 			]
 		]
@@ -75,6 +83,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				["#TAXI_00_A_01#","TAXI_CS"],
+				["#TAXI_00_A_02#","TAXI_PRGB"],
 				{"TAXI" call NWG_DLGHLP_GenerateRoot}/*["TAXI_HELP","TAXI_ADV",NODE_EXIT]*/
 			]
 		]
@@ -184,6 +193,57 @@ NWG_DialogueTree = createHashMapFromArray [
 				{true},["#AGEN_BACK_01#","TAXI_01"],
 				{true},["#AGEN_EXIT_03#",NODE_EXIT]
 			]
+		]
+	],
+	/*Progress buy - selection*/
+	[
+		"TAXI_PRGB",	[
+			Q_RND,	[
+				"#TAXI_PRGB_Q_01#",
+				"#TAXI_PRGB_Q_02#"
+			],
+			A_GEN,	[
+				{"TAXI"    call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["TAXI_PRGB_HOW_WORK","TAXI_PRGB_CUR_STAT","TAXI_PRGB_LETS_UPG"]*/
+				{"TAXI_01" call NWG_DLGHLP_GenerateDoubtExit}  /*["TAXI_01",NODE_EXIT]*/
+			]
+		]
+	],
+	/*Progress buy - how does it work?*/
+	[
+		"TAXI_PRGB_HOW_WORK",	[
+			Q_ONE,	"#TAXI_PRGB_HOW_WORK_Q_01#",
+			A_GEN,	{["TAXI_PRGB","TAXI_01"] call NWG_DLGHLP_GenerateAnQBackExit}/*["TAXI_HELP","TAXI_01",NODE_EXIT]*/
+		]
+	],
+	/*Progress buy - current state?*/
+	[
+		"TAXI_PRGB_CUR_STAT",	[
+			Q_ONE,	["#TAXI_PRGB_CUR_STAT_Q_01#",{P_TAXI call NWG_DLGHLP_PRGB_GetProgressStr},{P_TAXI call NWG_DLGHLP_PRGB_GetRemainingStr}],
+			A_GEN,	{["TAXI_PRGB","TAXI_01"] call NWG_DLGHLP_GenerateAnQBackExit}/*["TAXI_HELP","TAXI_01",NODE_EXIT]*/
+		]
+	],
+	/*Progress buy - let's upgrade?*/
+	[
+		"TAXI_PRGB_LETS_UPG",	[
+			Q_CND,	[
+				{P_TAXI call NWG_DLGHLP_PRGB_LimitReached},"#TAXI_PRGB_LETS_UPG_Q_01#",
+				{true},["#TAXI_PRGB_LETS_UPG_Q_02#",{P_TAXI call NWG_DLGHLP_PRGB_PricesStr}]
+			],
+			A_CND,	[
+				{!(P_TAXI call NWG_DLGHLP_PRGB_LimitReached) && { (P_TAXI call NWG_DLGHLP_PRGB_CanUpgrade)}},["#TAXI_PAY_A_01#","TAXI_PRGB_UPG",{P_TAXI call NWG_DLGHLP_PRGB_Upgrade}],
+				{!(P_TAXI call NWG_DLGHLP_PRGB_LimitReached) && {!(P_TAXI call NWG_DLGHLP_PRGB_CanUpgrade)}},["#TAXI_PAY_A_02#","TAXI_LOW"],
+				{!(P_TAXI call NWG_DLGHLP_PRGB_LimitReached)},["#XXX_PAY_REFUSE#","TAXI_01"],
+				{ (P_TAXI call NWG_DLGHLP_PRGB_LimitReached)},["#AGEN_BACK_01#","TAXI_01"],
+				{true},["#TAXI_PAY_A_03#",NODE_EXIT]
+			]
+		]
+	],
+	/*Progress buy - not enough money*//*Not needed, reuse existing TAXI_LOW*/
+	/*Progress buy - upgrade*/
+	[
+		"TAXI_PRGB_UPG",	[
+			Q_ONE,	"#TAXI_PRGB_UPG_Q_01#",
+			A_GEN,	{"TAXI_01" call NWG_DLGHLP_GenerateBackExit}/*["TAXI_01",NODE_EXIT]*/
 		]
 	],
 
@@ -323,7 +383,8 @@ NWG_DialogueTree = createHashMapFromArray [
 		"MECH_PAY",	[
 			Q_ONE,	["#XXX_PAY_Q_01#",{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_MoneyStr}],
 			A_CND,	[
-				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasEnoughMoney},["#MECH_PAY_A_01#",NODE_EXIT,{call NWG_DLG_MECH_DoService}],
+				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasEnoughMoney && { (call NWG_DLG_MECH_SeparateUi)}},["#MECH_PAY_A_01#", NODE_EXIT, {false call NWG_DLG_MECH_DoService}],
+				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasEnoughMoney && {!(call NWG_DLG_MECH_SeparateUi)}},["#MECH_PAY_A_01#","MECH_DONE",{true  call NWG_DLG_MECH_DoService}],
 				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasLessMoney},["#MECH_PAY_A_02#","MECH_LOW"],
 				{true},["#XXX_PAY_REFUSE#","MECH_01"],
 				{true},["#AGEN_EXIT_06#",NODE_EXIT]
@@ -343,6 +404,19 @@ NWG_DialogueTree = createHashMapFromArray [
 			]
 		]
 	],
+	/*Services - done*/
+	[
+		"MECH_DONE",	[
+			Q_CND,	[
+				{[1,10] call NWG_DLGHLP_Dice},"#MECH_DONE_Q_01#",
+				{[1,3] call NWG_DLGHLP_Dice},"#MECH_DONE_Q_02#",
+				{[1,3] call NWG_DLGHLP_Dice},"#MECH_DONE_Q_03#",
+				{true},"#MECH_DONE_Q_04#"
+			],
+			A_GEN,	{["MECH_SERV","MECH_01"] call NWG_DLGHLP_GenerateAnQBackExit}/*["MECH_SERV","MECH_01",NODE_EXIT]*/
+		]
+	],
+
 	/*What should I know - cat selection*/
 	[
 		"MECH_HELP",	[
@@ -413,6 +487,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_DEF,	[
 				["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
+				["#TRDR_00_A_02#","TRDR_PRGB"],
 				["#AGEN_HELP_01#","TRDR_HELP"],
 				["#AGEN_ADV_01#","TRDR_ADV1"],
 				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
@@ -429,6 +504,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_DEF,	[
 				["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
+				["#TRDR_00_A_02#","TRDR_PRGB"],
 				["#AGEN_HELP_01#","TRDR_HELP"],
 				["#AGEN_ADV_01#","TRDR_ADV1"],
 				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
@@ -510,6 +586,66 @@ NWG_DialogueTree = createHashMapFromArray [
 				{true},["#TRDR_LOW_A_02#","TRDR_01"],
 				{true},["#TRDR_LOW_A_03#",NODE_EXIT]
 			]
+		]
+	],
+	/*Progress buy - selection*/
+	[
+		"TRDR_PRGB",	[
+			Q_RND,	[
+				"#TRDR_PRGB_Q_01#",
+				"#TRDR_PRGB_Q_02#"
+			],
+			A_GEN,	[
+				{"TRDR"    call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["TRDR_PRGB_HOW_WORK","TRDR_PRGB_CUR_STAT","TRDR_PRGB_LETS_UPG"]*/
+				{"TRDR_01" call NWG_DLGHLP_GenerateDoubtExit}  /*["TRDR_01",NODE_EXIT]*/
+			]
+		]
+	],
+	/*Progress buy - how does it work?*/
+	[
+		"TRDR_PRGB_HOW_WORK",	[
+			Q_ONE,	"#TRDR_PRGB_HOW_WORK_Q_01#",
+			A_GEN,	{["TRDR_PRGB","TRDR_01"] call NWG_DLGHLP_GenerateAnQBackExit}/*["TRDR_HELP","TRDR_01",NODE_EXIT]*/
+		]
+	],
+	/*Progress buy - current state?*/
+	[
+		"TRDR_PRGB_CUR_STAT",	[
+			Q_ONE,	["#TRDR_PRGB_CUR_STAT_Q_01#",{P_TRDR call NWG_DLGHLP_PRGB_GetProgressStr},{P_TRDR call NWG_DLGHLP_PRGB_GetRemainingStr}],
+			A_GEN,	{["TRDR_PRGB","TRDR_01"] call NWG_DLGHLP_GenerateAnQBackExit}/*["TRDR_HELP","TRDR_01",NODE_EXIT]*/
+		]
+	],
+	/*Progress buy - let's upgrade?*/
+	[
+		"TRDR_PRGB_LETS_UPG",	[
+			Q_CND,	[
+				{P_TRDR call NWG_DLGHLP_PRGB_LimitReached},"#TRDR_PRGB_LETS_UPG_Q_01#",
+				{true},["#TRDR_PRGB_LETS_UPG_Q_02#",{P_TRDR call NWG_DLGHLP_PRGB_PricesStr}]
+			],
+			A_CND,	[
+				{!(P_TRDR call NWG_DLGHLP_PRGB_LimitReached) && { (P_TRDR call NWG_DLGHLP_PRGB_CanUpgrade)}},["#TRDR_PRGB_PAY_A_01#","TRDR_PRGB_UPG",{P_TRDR call NWG_DLGHLP_PRGB_Upgrade}],
+				{!(P_TRDR call NWG_DLGHLP_PRGB_LimitReached) && {!(P_TRDR call NWG_DLGHLP_PRGB_CanUpgrade)}},["#TRDR_PRGB_PAY_A_02#","TRDR_PRGB_LOW"],
+				{!(P_TRDR call NWG_DLGHLP_PRGB_LimitReached)},["#XXX_PAY_REFUSE#","TRDR_01"],
+				{ (P_TRDR call NWG_DLGHLP_PRGB_LimitReached)},["#AGEN_BACK_01#","TRDR_01"],
+				{true},["#TRDR_PRGB_PAY_A_03#",NODE_EXIT]
+			]
+		]
+	],
+	/*Progress buy - not enough money*/
+	[
+		"TRDR_PRGB_LOW",	[
+			Q_ONE,	"#TRDR_PRGB_LOW_Q_01#",
+			A_DEF,	[
+				["#TRDR_PRGB_LOW_A_01#","TRDR_01"],
+				["#TRDR_PRGB_LOW_A_02#",NODE_EXIT]
+			]
+		]
+	],
+	/*Progress buy - upgrade*/
+	[
+		"TRDR_PRGB_UPG",	[
+			Q_ONE,	"#TRDR_PRGB_UPG_Q_01#",
+			A_GEN,	{"TRDR_01" call NWG_DLGHLP_GenerateBackExit}/*["TRDR_01",NODE_EXIT]*/
 		]
 	],
 
@@ -631,8 +767,9 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_CND,	[
 				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_MIS"],
 				{call NWG_DLG_COMM_IsMissionStarted},["#COMM_00_A_02#",NODE_EXIT],
-				{true},["#COMM_00_A_03#","COMM_HELP"],
-				{true},["#COMM_00_A_04#","COMM_ADV"],
+				{true},["#COMM_00_A_03#","COMM_PRGB"],
+				{true},["#COMM_00_A_04#","COMM_HELP"],
+				{true},["#COMM_00_A_05#","COMM_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
 			]
 		]
@@ -649,8 +786,9 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_CND,	[
 				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_MIS"],
 				{call NWG_DLG_COMM_IsMissionStarted},["#COMM_01_A_02#",NODE_EXIT],
-				{true},["#COMM_00_A_03#","COMM_HELP"],
-				{true},["#COMM_00_A_04#","COMM_ADV"],
+				{true},["#COMM_00_A_03#","COMM_PRGB"],
+				{true},["#COMM_00_A_04#","COMM_HELP"],
+				{true},["#COMM_00_A_05#","COMM_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
 			]
 		]
@@ -718,6 +856,66 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#COMM_ADV_Q_04#",
 				"#COMM_ADV_Q_05#"
 			],
+			A_GEN,	{"COMM_01" call NWG_DLGHLP_GenerateBackExit}/*["COMM_01",NODE_EXIT]*/
+		]
+	],
+	/*Progress buy - selection*/
+	[
+		"COMM_PRGB",	[
+			Q_RND,	[
+				"#COMM_PRGB_Q_01#",
+				"#COMM_PRGB_Q_02#"
+			],
+			A_GEN,	[
+				{"COMM"    call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["COMM_PRGB_HOW_WORK","COMM_PRGB_CUR_STAT","COMM_PRGB_LETS_UPG"]*/
+				{"COMM_01" call NWG_DLGHLP_GenerateDoubtExit}  /*["COMM_01",NODE_EXIT]*/
+			]
+		]
+	],
+	/*Progress buy - how does it work?*/
+	[
+		"COMM_PRGB_HOW_WORK",	[
+			Q_ONE,	"#COMM_PRGB_HOW_WORK_Q_01#",
+			A_GEN,	{["COMM_PRGB","COMM_01"] call NWG_DLGHLP_GenerateAnQBackExit}/*["COMM_HELP","COMM_01",NODE_EXIT]*/
+		]
+	],
+	/*Progress buy - current state?*/
+	[
+		"COMM_PRGB_CUR_STAT",	[
+			Q_ONE,	["#COMM_PRGB_CUR_STAT_Q_01#",{P_COMM call NWG_DLGHLP_PRGB_GetProgressStr},{P_COMM call NWG_DLGHLP_PRGB_GetRemainingStr}],
+			A_GEN,	{["COMM_PRGB","COMM_01"] call NWG_DLGHLP_GenerateAnQBackExit}/*["COMM_HELP","COMM_01",NODE_EXIT]*/
+		]
+	],
+	/*Progress buy - let's upgrade?*/
+	[
+		"COMM_PRGB_LETS_UPG",	[
+			Q_CND,	[
+				{P_COMM call NWG_DLGHLP_PRGB_LimitReached},"#COMM_PRGB_LETS_UPG_Q_01#",
+				{true},["#COMM_PRGB_LETS_UPG_Q_02#",{P_COMM call NWG_DLGHLP_PRGB_PricesStr}]
+			],
+			A_CND,	[
+				{!(P_COMM call NWG_DLGHLP_PRGB_LimitReached) && { (P_COMM call NWG_DLGHLP_PRGB_CanUpgrade)}},["#COMM_PRGB_PAY_A_01#","COMM_PRGB_UPG",{P_COMM call NWG_DLGHLP_PRGB_Upgrade}],
+				{!(P_COMM call NWG_DLGHLP_PRGB_LimitReached) && {!(P_COMM call NWG_DLGHLP_PRGB_CanUpgrade)}},["#COMM_PRGB_PAY_A_02#","COMM_PRGB_LOW"],
+				{!(P_COMM call NWG_DLGHLP_PRGB_LimitReached)},["#XXX_PAY_REFUSE#","COMM_01"],
+				{ (P_COMM call NWG_DLGHLP_PRGB_LimitReached)},["#AGEN_BACK_01#","COMM_01"],
+				{true},["#COMM_PRGB_PAY_A_03#",NODE_EXIT]
+			]
+		]
+	],
+	/*Progress buy - not enough money*/
+	[
+		"COMM_PRGB_LOW",	[
+			Q_ONE,	"#COMM_PRGB_LOW_Q_01#",
+			A_DEF,	[
+				["#COMM_PRGB_LOW_A_01#","COMM_01"],
+				["#COMM_PRGB_LOW_A_02#",NODE_EXIT]
+			]
+		]
+	],
+	/*Progress buy - upgrade*/
+	[
+		"COMM_PRGB_UPG",	[
+			Q_ONE,	"#COMM_PRGB_UPG_Q_01#",
 			A_GEN,	{"COMM_01" call NWG_DLGHLP_GenerateBackExit}/*["COMM_01",NODE_EXIT]*/
 		]
 	],

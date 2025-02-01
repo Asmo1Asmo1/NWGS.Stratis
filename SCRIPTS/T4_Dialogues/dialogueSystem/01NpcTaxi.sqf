@@ -1,3 +1,4 @@
+#include "..\..\globalDefines.h"
 /*
 	This is a helper addon module for specific NPC dialogue tree.
 	It is desigend to be unique for this specific project and is allowed to know about its structure for ease of implementation.

@@ -174,7 +174,7 @@ NWG_MIS_SER_Cycle = {
             /* mission build */
             case MSTATE_BUILD_CONFIG: {
                 //Default 'WasOnMission' flag
-                {_x setVariable ["NWG_MIS_WasOnMission",false,true]} forEach (call NWG_fnc_getPlayersAll);
+                [(call NWG_fnc_getPlayersAll),false] call NWG_MIS_SER_SetWasOnMission;
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BUILD_UKREP: {
@@ -457,6 +457,18 @@ NWG_MIS_SER_GetStateName = {
         case MSTATE_ESCAPE_COMPLETED: {"ESCAPE_COMPLETED"};
         default {"UNKNOWN"};
     }
+};
+
+//================================================================================================================
+//================================================================================================================
+//Was on mission flag
+NWG_MIS_SER_SetWasOnMission = {
+    params ["_players","_setFlag"];
+    {_x setVariable ["NWG_MIS_WasOnMission",_setFlag,true]} forEach (_players select {(_x call NWG_MIS_SER_GetWasOnMission) isNotEqualTo _setFlag});
+};
+NWG_MIS_SER_GetWasOnMission = {
+    // private _player = _this;
+    _this getVariable ["NWG_MIS_WasOnMission",false]
 };
 
 //================================================================================================================
@@ -944,9 +956,7 @@ NWG_MIS_SER_FightUpdateMissionInfo = {
     };
 
     //2. Mark players that are in the mission area
-    {
-        _x setVariable ["NWG_MIS_WasOnMission",true,true];
-    } forEach (_playersOnMission select {(_x getVariable ["NWG_MIS_WasOnMission",false]) isEqualTo false});
+    [_playersOnMission,true] call NWG_MIS_SER_SetWasOnMission;
 
     //3. Server restart condition (may be on-off)
     if (_playersOnlineCount > 0) then {

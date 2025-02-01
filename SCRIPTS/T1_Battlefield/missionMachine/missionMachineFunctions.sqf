@@ -136,5 +136,5 @@ NWG_fnc_mmIsUnitInBase = {
 //returns: boolean
 NWG_fnc_mmWasPlayerOnMission = {
     // private _player = _this;
-    (_this getVariable ["NWG_MIS_WasOnMission",false])
+    _this call NWG_MIS_SER_GetWasOnMission
 };

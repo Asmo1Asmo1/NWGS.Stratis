@@ -132,7 +132,13 @@ NWG_DLG_MECH_GetPrice = {
 //================================================================================================================
 //================================================================================================================
 //Services
+NWG_DLG_MECH_SeparateUi = {
+	NWG_DLG_MECH_SelectedCategory in [CAT_APPR,CAT_PYLN]
+};
+
 NWG_DLG_MECH_DoService = {
+	private _updateMoney = _this;
+
 	//Get selection and price
 	private _cat = NWG_DLG_MECH_SelectedCategory;
 	private _veh = NWG_DLG_MECH_SelectedVehicle;
@@ -168,6 +174,8 @@ NWG_DLG_MECH_DoService = {
 				else {"#MECH_INV_VEH#" call NWG_fnc_systemChatMe};
 		};
 	};
+
+	if (_updateMoney) then {call NWG_DLGHLP_UI_UpdatePlayerMoney};
 };
 
 NWG_DLG_MECH_LocalService = {

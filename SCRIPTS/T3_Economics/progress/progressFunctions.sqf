@@ -88,6 +88,77 @@ NWG_fnc_pGetMyTaxiLvl = {(player call NWG_fnc_pGetPlayerProgress) param [P_TAXI,
 NWG_fnc_pGetMyTraderLvl = {(player call NWG_fnc_pGetPlayerProgress) param [P_TRDR,0]};
 NWG_fnc_pGetMySupportLvl = {(player call NWG_fnc_pGetPlayerProgress) param [P_COMM,0]};
 
+
+/*Progress buy*/
+//Get upgrade values
+//params:
+//	_type: Number - The type of upgrade to get the values of (see globalDefines.h)
+//return: array - The upgrade values [bool,bool,number,number] | params ["_reachedLimit","_canAfford","_priceMoney","_priceExp"]
+NWG_fnc_pGetUpgradeValues = {
+	// private _type = _this;
+	_this call NWG_PRG_GetUpgradeValues
+};
+
+//Can upgrade
+//params:
+//	_type: Number - The type of upgrade to check if can upgrade (see globalDefines.h)
+//return: bool - True if can upgrade, false otherwise
+NWG_fnc_pCanUpgrade = {
+	// private _type = _this;
+	_this call NWG_PRG_CanUpgrade
+};
+
+//Upgrade
+//params:
+//	_type: Number - The type of upgrade to upgrade (see globalDefines.h)
+//return: bool - True if upgrade successful, false otherwise
+//note: Money and Exp are subtracted internally
+NWG_fnc_pUpgrade = {
+	// private _type = _this;
+	_this call NWG_PRG_Upgrade
+};
+
+
+/*Dialogue helpers*/
+//Get progress stringified
+//params:
+// _player: Object - The player to get the progress of
+// _progressType: Number - The type of progress to get (see globalDefines.h)
+//return: String - The progress stringified
+NWG_fnc_pGetProgressAsString = {
+    params ["_player","_progressType"];
+    if !(_player isEqualType objNull) exitWith {
+		"NWG_fnc_pGetProgressAsString: Invalid player" call NWG_fnc_logError;
+		""
+	};
+	if (!alive _player || {isNull _player}) exitWith {
+		"NWG_fnc_pGetProgressAsString: Player is dead or null" call NWG_fnc_logError;
+		""
+	};
+
+    _this call NWG_PRG_GetProgressAsString
+};
+
+//Get remaining progress stringified
+//params:
+// _player: Object - The player to get the remaining progress of
+// _progressType: Number - The type of progress to get (see globalDefines.h)
+//return: String - The remaining progress (until limit) stringified
+NWG_fnc_pGetRemainingAsString = {
+    params ["_player","_progressType"];
+	if !(_player isEqualType objNull) exitWith {
+		"NWG_fnc_pGetRemainingAsString: Invalid player" call NWG_fnc_logError;
+		""
+	};
+	if (!alive _player || {isNull _player}) exitWith {
+		"NWG_fnc_pGetRemainingAsString: Player is dead or null" call NWG_fnc_logError;
+		""
+	};
+
+    _this call NWG_PRG_GetRemainingAsString
+};
+
+
 /*Dev helpers*/
 // 10 call NWG_fnc_pDevFullProgress;
 NWG_fnc_pDevFullProgress = {

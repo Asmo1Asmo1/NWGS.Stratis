@@ -24,4 +24,7 @@ NWG_DLG_TRDR_OpenItemsShop = {
 //================================================================================================================
 //Advice payment
 NWG_DLG_TRDR_GetAdvPrice = {ADV_PRICE};
-NWG_DLG_TRDR_PayForAdvice = {[player,-ADV_PRICE] call NWG_fnc_wltAddPlayerMoney};
+NWG_DLG_TRDR_PayForAdvice = {
+	[player,-ADV_PRICE] call NWG_fnc_wltAddPlayerMoney;
+	call NWG_DLGHLP_UI_UpdatePlayerMoney;
+};
