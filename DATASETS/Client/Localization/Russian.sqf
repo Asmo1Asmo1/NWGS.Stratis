@@ -110,9 +110,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_NOT_IMPLEMENTED_TOOLTIP#","Эта опция пока не реализована"],
     //05Info
     ["#UP_INFO_TITLE#","Информация об игроке"],
-    ["#UP_INFO_NAME#","Оператор: %1"],
-    ["#UP_INFO_EXP#","Опыт: %1"],
-    ["#UP_INFO_LVL#","Уровень: %1"],
+    ["#UP_INFO_GENERAL#","%1    [lvl %2]    (Exp: %3)"],
     ["#UP_INFO_TAXI_LVL#","Страховка такси: %1%%"],
     ["#UP_INFO_TRDR_LVL#","Страховка торговца: %1%%"],
     ["#UP_INFO_COMM_LVL#","Уровень поддержки: %1"],
