@@ -22,9 +22,9 @@ NWG_DLG_MECH_PricesRequest = {
 // #define CAT_AWHL "AWHL"
 //Copy of NWG_DLG_MECH_LocalService to be available on server side
 NWG_DLG_MECH_LocalService = {
-	params ["_cat","_vehObj"];
+	params ["_cat","_veh"];
 	switch (_cat) do {
-		case CAT_FUEL: {_vehObj setFuel 1};
-		case CAT_RARM: {_vehObj setVehicleAmmoDef 1};
+		case CAT_FUEL: {_veh setFuel 1};
+		case CAT_RARM: {_veh setVehicleAmmoDef 1};
 	};
 };

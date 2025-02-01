@@ -69,25 +69,24 @@
 #define EVENT_ON_LOADOUT_CHANGED "OnLoadoutChanged" //Called by 'inventoryManager' subsystem when a loadout is changed.     params ["_loadOut","_flattenLoadOut"];
 #define EVENT_ON_LOOT_CHANGED "OnLootChanged" //Called by 'lootStorage' subsystem when a loot is changed.     params ["_loot"];
 #define EVENT_ON_MONEY_CHANGED "OnMoneyChanged" //Called by 'wallet' subsystem when a money is changed.     params ["_money"];
-
+#define EVENT_ON_PROGRESS_CHANGED "OnProgressChanged" //Called by 'progress' subsystem when a progress is changed.     params ["_type","_amount","_total"];
 
 //Mission states
 /* initialization */
 #define MSTATE_SCRIPTS_COMPILATION -3
 #define MSTATE_DISABLED -2
 #define MSTATE_MACHINE_STARTUP -1
-/* world build */
-#define MSTATE_WORLD_BUILD 0
 /* base build */
-#define MSTATE_BASE_UKREP 1
-#define MSTATE_BASE_ECONOMY 2
-#define MSTATE_BASE_QUESTS 3
+#define MSTATE_BASE_UKREP 0
+#define MSTATE_BASE_ECONOMY 1
+#define MSTATE_BASE_QUESTS 2
 /* missions list */
-#define MSTATE_LIST_INIT 4
-#define MSTATE_LIST_UPDATE 5
+#define MSTATE_LIST_INIT 3
+#define MSTATE_LIST_UPDATE 4
 /* player input expect */
-#define MSTATE_READY 6
+#define MSTATE_READY 5
 /* mission build */
+#define MSTATE_BUILD_CONFIG 6
 #define MSTATE_BUILD_UKREP 7
 #define MSTATE_BUILD_ECONOMY 8
 #define MSTATE_BUILD_DSPAWN 9
@@ -117,3 +116,12 @@
 //Mission difficulties
 #define MISSION_DIFFICULTY_EASY "EASY"
 #define MISSION_DIFFICULTY_NORM "NORM"
+
+//Progress
+#define P__EXP 0 /*Experience*/
+#define P_TEXP 1 /*Total Experience*/
+#define P_TAXI 2 /*Progress with Taxi*/
+#define P_TRDR 3 /*Progress with Trader*/
+#define P_COMM 4 /*Progress with Commander*/
+
+#define P_DEFAULT_CHART [0,0,0,0,0]

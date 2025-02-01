@@ -291,10 +291,9 @@ NWG_MED_CLI_BLEEDING_Cycle = {
 
         //Calculate closest player
         private _allValidPlayers = (call NWG_fnc_getPlayersAll) select {
-            alive _x && {
             _x isNotEqualTo player && {
             !(_x call NWG_MED_COM_IsWounded) && {
-            (side (group _x)) isEqualTo (side (group player))}}}
+            (side (group _x)) isEqualTo (side (group player))}}
         };
         private _closestPlayer = if ((count _allValidPlayers) > 0) then {
             _allValidPlayers = _allValidPlayers apply {[(_x distance player),_x]};

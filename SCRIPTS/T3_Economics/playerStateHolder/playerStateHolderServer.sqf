@@ -3,7 +3,7 @@
 	States to carry:
 		T1: -
 		T2: loadout, additionalWeapon;
-		T3: lootStorage, wallet
+		T3: lootStorage, wallet, progress
 */
 
 //================================================================================================================
@@ -25,10 +25,11 @@ NWG_PSH_SER_Settings = createHashMapFromArray [
 	set params: [_player,_data]
 */
 	["STATES_TO_HOLD",createHashMapFromArray [
-		["loadout",		[{_this call NWG_PSH_LH_GetLoadout},	{_this call NWG_PSH_LH_SetLoadout}]],
-		["add_weapon",	[{_this call NWG_fnc_awGetHolderData},	{_this call NWG_fnc_awAddHolderDataAndCreateObject}]],
-		["loot_storage",[{_this call NWG_fnc_lsGetPlayerLoot},	{_this call NWG_fnc_lsSetPlayerLoot}]],
-		["wallet",		[{_this call NWG_fnc_wltGetPlayerMoney},{_this call NWG_fnc_wltSetPlayerMoney}]]
+		["loadout",		[{_this call NWG_PSH_LH_GetLoadout},	 {_this call NWG_PSH_LH_SetLoadout}]],
+		["add_weapon",	[{_this call NWG_fnc_awGetHolderData},	 {_this call NWG_fnc_awAddHolderDataAndCreateObject}]],
+		["loot_storage",[{_this call NWG_fnc_lsGetPlayerLoot},	 {_this call NWG_fnc_lsSetPlayerLoot}]],
+		["wallet",		[{_this call NWG_fnc_wltGetPlayerMoney}, {_this call NWG_fnc_wltSetPlayerMoney}]],
+		["progress",	[{_this call NWG_fnc_pGetPlayerProgress},{_this call NWG_fnc_pSetPlayerProgress}]]
 	]],
 
 /*

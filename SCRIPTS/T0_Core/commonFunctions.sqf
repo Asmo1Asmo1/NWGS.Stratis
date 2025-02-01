@@ -232,7 +232,7 @@ NWG_fnc_randomRangeFloat = {
 NWG_fnc_getPlayersAll = {
     // allPlayers - 0.0006, but returns headless clients
     // call BIS_fnc_listPlayers - works fine, but 0.0056
-    (allPlayers - (entities "HeadlessClient_F")) //0.0011
+    ((allPlayers - (entities "HeadlessClient_F")) select {alive _x}) //0.0011
 };
 
 //Returns an array of players on foot and vehicles occupied by one or more players (array of unique elements)

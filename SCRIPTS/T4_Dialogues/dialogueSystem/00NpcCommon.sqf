@@ -18,16 +18,24 @@
 //Settings
 NWG_DLGHLP_Settings = createHashMapFromArray [
 	/*Localization keys for answer generation*/
-	["HELP_KEYS",["#AGEN_HELP_01#"]],
+	["HELP_KEYS",    ["#AGEN_HELP_01#"]],
 	["HELP_PLC_KEYS",["#AGEN_HELP_PLC_01#"]],
 	["HELP_WHO_KEYS",["#AGEN_HELP_WHO_01#"]],
 	["HELP_TLK_KEYS",["#AGEN_HELP_TLK_01#"]],
 	["HELP_UFL_KEYS",["#AGEN_HELP_UFL_01#"]],
+
 	["ADV_KEYS",["#AGEN_ADV_01#"]],
-	["ANOTHER_Q_KEYS",["#AGEN_ANQ_01#","#AGEN_ANQ_02#","#AGEN_ANQ_03#"]],
-	["BACK_KEYS",["#AGEN_BACK_01#","#AGEN_BACK_02#","#AGEN_BACK_03#","#AGEN_BACK_04#"]],
+
+	["ANOTHER_Q_KEYS",["#AGEN_ANQ_01#","#AGEN_ANQ_02#","#AGEN_ANQ_03#","#AGEN_ANQ_04#","#AGEN_ANQ_05#"]],
+	["BACK_KEYS",["#AGEN_BACK_01#","#AGEN_BACK_02#","#AGEN_BACK_03#","#AGEN_BACK_04#","#AGEN_BACK_05#"]],
 	["DOUBT_KEYS",["#AGEN_DOUBT_01#","#AGEN_DOUBT_02#","#AGEN_DOUBT_03#","#AGEN_DOUBT_04#","#AGEN_DOUBT_05#","#AGEN_DOUBT_06#"]],
-	["EXIT_KEYS",["#AGEN_EXIT_01#","#AGEN_EXIT_02#","#AGEN_EXIT_03#","#AGEN_EXIT_04#","#AGEN_EXIT_05#","#AGEN_EXIT_06#"]]
+	["EXIT_KEYS",["#AGEN_EXIT_01#","#AGEN_EXIT_02#","#AGEN_EXIT_03#","#AGEN_EXIT_04#","#AGEN_EXIT_05#","#AGEN_EXIT_06#"]],
+
+	["PRGB_HOW_WORK_KEYS",["#AGEN_PRGB_HOW_WORK_01#"]],
+	["PRGB_CUR_STAT_KEYS",["#AGEN_PRGB_CUR_STAT_01#"]],
+	["PRGB_LETS_UPG_KEYS",["#AGEN_PRGB_LETS_UPG_01#"]],
+
+	["",0]
 ];
 
 //================================================================================================================
@@ -101,7 +109,7 @@ NWG_DLGHLP_GenerateBackExit = {
 };
 
 //generates answers ["Another question","Back","Exit"]
-NWG_DLGHLP_GenerateAnqBackExit = {
+NWG_DLGHLP_GenerateAnQBackExit = {
 	params ["_anqNode","_backNode"];
 	[
 		/*Another Q Node*/  [(selectRandom (NWG_DLGHLP_Settings get "ANOTHER_Q_KEYS")),_anqNode],
@@ -117,4 +125,64 @@ NWG_DLGHLP_GenerateDoubtExit = {
 		/*Doubt Node*/[(selectRandom (NWG_DLGHLP_Settings get "DOUBT_KEYS")),_this],
 		/*Exit Node*/ [(selectRandom (NWG_DLGHLP_Settings get "EXIT_KEYS")),NODE_EXIT]
 	]
+};
+
+//================================================================================================================
+//================================================================================================================
+//UI update
+// #define IDC_QLISTBOX 1500
+// #define IDC_ALISTBOX 1501
+#define IDC_TEXT_LEFT 1000
+// #define IDC_TEXT_RIGHT 1001
+// #define IDC_TEXT_NPC 1002
+
+NWG_DLGHLP_UI_UpdatePlayerMoney = {
+	private _gui = uiNamespace getVariable ["NWG_DLG_gui",displayNull];
+	if (isNull _gui) exitWith {};
+	(_gui displayCtrl IDC_TEXT_LEFT) ctrlSetText (call (NWG_DLG_CLI_Settings get "TEXT_LEFT_FILL_FUNC"));
+};
+
+//================================================================================================================
+//================================================================================================================
+//Progress buy
+NWG_DLGHLP_PRGB_GeneratePrgbSel = {
+	// private _npcName = _this;
+	[
+		/*How does it work?*/[(selectRandom (NWG_DLGHLP_Settings get "PRGB_HOW_WORK_KEYS")),(format ["%1_PRGB_HOW_WORK",_this])],
+		/* How to upgrade? */[(selectRandom (NWG_DLGHLP_Settings get "PRGB_CUR_STAT_KEYS")),(format ["%1_PRGB_CUR_STAT",_this])],
+		/* Let's upgrade!  */[(selectRandom (NWG_DLGHLP_Settings get "PRGB_LETS_UPG_KEYS")),(format ["%1_PRGB_LETS_UPG",_this])]
+	]
+};
+
+NWG_DLGHLP_PRGB_GetProgressStr = {
+	// private _type = _this;
+	([player,_this] call NWG_fnc_pGetProgressAsString)
+};
+NWG_DLGHLP_PRGB_GetRemainingStr = {
+	// private _type = _this;
+	([player,_this] call NWG_fnc_pGetRemainingAsString)
+};
+
+NWG_DLGHLP_PRGB_LimitReached = {
+	// private _type = _this;
+	(_this call NWG_fnc_pGetUpgradeValues) select 0
+};
+NWG_DLGHLP_PRGB_CanUpgrade = {
+	// private _type = _this;
+	(_this call NWG_fnc_pCanUpgrade)
+};
+NWG_DLGHLP_PRGB_PricesStr = {
+	// private _type = _this;
+	(_this call NWG_fnc_pGetUpgradeValues) params ["","","_priceMoney","_priceExp"];
+	format [
+		"%1 Exp: %2",
+		(_priceMoney call NWG_fnc_wltFormatMoney),
+		_priceExp
+	]
+};
+
+NWG_DLGHLP_PRGB_Upgrade = {
+	// private _type = _this;
+	_this call NWG_fnc_pUpgrade;
+	call NWG_DLGHLP_UI_UpdatePlayerMoney;
 };

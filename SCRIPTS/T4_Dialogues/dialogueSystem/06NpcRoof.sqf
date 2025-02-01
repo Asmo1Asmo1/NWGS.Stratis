@@ -34,7 +34,8 @@ NWG_DLG_ROOF_GenerateChoices = {
 	_terminals apply {[
 		(getText (configFile >> "CfgWeapons" >> _x >> "displayName")),
 		"ROOF_PAY",
-		{NWG_DLG_ROOF_SelectedTerminal = _this}
+		{NWG_DLG_ROOF_SelectedTerminal = _this},
+		_x
 	]}
 };
 
@@ -50,15 +51,10 @@ NWG_DLG_ROOF_GetPrice = {
 //Services
 NWG_DLG_ROOF_DoReflash = {
 	//Get selection and price
-	private _selected = NWG_DLG_ROOF_SelectedTerminal;
-	private _price = call NWG_DLG_ROOF_GetPrice;
-
-	//Get actual terminal classname
-	private _i = (NWG_DLG_ROOF_Settings get "REFLASH_FROM") findIf {(getText (configFile >> "CfgWeapons" >> _x >> "displayName")) isEqualTo _selected};
-	if (_i == -1) exitWith {"#ROOF_INV_TERMINAL#" call NWG_fnc_systemChatMe};
-	private _reflashFrom = (NWG_DLG_ROOF_Settings get "REFLASH_FROM") select _i;
+	private _reflashFrom = NWG_DLG_ROOF_SelectedTerminal;
 	if !(_reflashFrom call NWG_fnc_invHasItem) exitWith {"#ROOF_INV_TERMINAL#" call NWG_fnc_systemChatMe};
 	private _reflashTo = NWG_DLG_ROOF_Settings get "REFLASH_TO";
+	private _price = call NWG_DLG_ROOF_GetPrice;
 
 	//Exchange items
 	if ((((getUnitLoadout player) param [9,[]]) param [1,""]) isEqualTo _reflashFrom) then {
@@ -66,7 +62,7 @@ NWG_DLG_ROOF_DoReflash = {
 		player unlinkItem _reflashFrom;
 		player linkItem _reflashTo;
 	} else {
-		/*Target terminal is not in slot*/
+		/*Target terminal is somewhere in inventory (uniform, vest, backpack)*/
 		player removeItem _reflashFrom;
 		player addItem _reflashTo;
 	};

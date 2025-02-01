@@ -37,11 +37,7 @@ NWG_VOTE_SER_VoteCore = {
         if (isNull _anchor || {!alive _anchor}) then {call _failCallback; continue};//Abort if anchor is dead/disconnected
 
         //Get voters
-        private _voters = (call NWG_fnc_getPlayersAll) select {
-            !isNull _x && {
-            alive _x && {
-            _x isNotEqualTo _anchor}}
-        };
+        private _voters = (call NWG_fnc_getPlayersAll) select {_x isNotEqualTo _anchor};
         _voters = _voters select _votersFilter;
         private _all = count _voters;
         if (_all == 0) then {call _failCallback; continue};//Abort if no voters
@@ -81,11 +77,7 @@ NWG_VOTE_SER_VoteCore = {
         };
 
         //Re-collect voters because they could have changed
-        _voters = (call NWG_fnc_getPlayersAll) select {
-            !isNull _x && {
-            alive _x && {
-            _x isNotEqualTo _anchor}}
-        };
+        _voters = (call NWG_fnc_getPlayersAll) select {_x isNotEqualTo _anchor};
         _voters = _voters select _votersFilter;
 
         //End the voting for all voters

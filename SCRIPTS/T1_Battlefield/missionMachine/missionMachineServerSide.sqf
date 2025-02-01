@@ -87,12 +87,6 @@ NWG_MIS_SER_Cycle = {
                 };
             };
 
-            /* world build */
-            case MSTATE_WORLD_BUILD: {
-                //TODO: Configure the world (time, weather, dynamic simulation, etc.)
-                call NWG_MIS_SER_NextState;
-            };
-
             /* base build */
             case MSTATE_BASE_UKREP: {
                 private _buildResult = call NWG_MIS_SER_BuildPlayerBase;
@@ -178,6 +172,11 @@ NWG_MIS_SER_Cycle = {
             };
 
             /* mission build */
+            case MSTATE_BUILD_CONFIG: {
+                //Default 'WasOnMission' flag
+                [(call NWG_fnc_getPlayersAll),false] call NWG_MIS_SER_SetWasOnMission;
+                call NWG_MIS_SER_NextState;
+            };
             case MSTATE_BUILD_UKREP: {
                 NWG_MIS_SER_missionInfo call NWG_MIS_SER_BuildMission_Markers;//Place markers
                 private _ukrep  = NWG_MIS_SER_missionInfo call NWG_MIS_SER_BuildMission_Ukrep;//Build mission
@@ -433,13 +432,13 @@ NWG_MIS_SER_GetStateName = {
         case MSTATE_SCRIPTS_COMPILATION: {"SCRIPTS_COMPILATION"};
         case MSTATE_DISABLED:        {"DISABLED"};
         case MSTATE_MACHINE_STARTUP: {"MACHINE_STARTUP"};
-        case MSTATE_WORLD_BUILD:    {"WORLD_BUILD"};
         case MSTATE_BASE_UKREP:     {"BASE_UKREP"};
         case MSTATE_BASE_ECONOMY:   {"BASE_ECONOMY"};
         case MSTATE_BASE_QUESTS:    {"BASE_QUESTS"};
         case MSTATE_LIST_INIT:   {"LIST_INIT"};
         case MSTATE_LIST_UPDATE: {"LIST_UPDATE"};
         case MSTATE_READY: {"READY"};
+        case MSTATE_BUILD_CONFIG:  {"BUILD_CONFIG"};
         case MSTATE_BUILD_UKREP:   {"BUILD_UKREP"};
         case MSTATE_BUILD_ECONOMY: {"BUILD_ECONOMY"};
         case MSTATE_BUILD_DSPAWN:  {"BUILD_DSPAWN"};
@@ -458,6 +457,18 @@ NWG_MIS_SER_GetStateName = {
         case MSTATE_ESCAPE_COMPLETED: {"ESCAPE_COMPLETED"};
         default {"UNKNOWN"};
     }
+};
+
+//================================================================================================================
+//================================================================================================================
+//Was on mission flag
+NWG_MIS_SER_SetWasOnMission = {
+    params ["_players","_setFlag"];
+    {_x setVariable ["NWG_MIS_WasOnMission",_setFlag,true]} forEach (_players select {(_x call NWG_MIS_SER_GetWasOnMission) isNotEqualTo _setFlag});
+};
+NWG_MIS_SER_GetWasOnMission = {
+    // private _player = _this;
+    _this getVariable ["NWG_MIS_WasOnMission",false]
 };
 
 //================================================================================================================
@@ -903,10 +914,6 @@ NWG_MIS_SER_FightSetup = {
     if (!_ok) then {"NWG_MIS_SER_FightSetup: Failed to enable the YellowKing system. Is it enabled already?" call NWG_fnc_logError};
 
     //Update mission info with default values
-    _this set ["PlayersOnline",-1];
-    _this set ["PlayersOnMission",-1];
-    _this set ["PlayersOnBase",-1];
-
     _this set ["LastPlayerOnlineAt",-1];
     _this set ["IsRestartCondition",false];
     _this set ["IsAllPlayersOnBase",false];
@@ -932,28 +939,27 @@ NWG_MIS_SER_FightSetupExhaustion = {
 
 NWG_MIS_SER_FightUpdateMissionInfo = {
     private _info = _this;
-    private _players = call NWG_fnc_getPlayersOrOccupiedVehicles;//It's ok to count 6 people in a heli as one player - doesn't make much difference in our case
     private _curTime = round time;
 
-    //1. Update player counters
-    private _playersOnline = (count _players);
+    //1. Get players
+    private _playersOnline = call NWG_fnc_getPlayersAll;
+    private _playersOnlineCount = (count _playersOnline);
     private _playersOnMission = call {
         private _missionPos = _info get "Position";
         private _missionRad = _info get "Radius";
-        {(_x distance2D _missionPos) <= _missionRad} count _players
+        _playersOnline select {(_x distance2D _missionPos) <= _missionRad}
     };
     private _playersOnBase = call {
         private _basePos = NWG_MIS_SER_playerBasePos;
         private _baseRad = NWG_MIS_SER_Settings get "PLAYER_BASE_RADIUS";
-        {(_x distance2D _basePos) <= _baseRad} count _players
+        _playersOnline select {(_x distance2D _basePos) <= _baseRad}
     };
 
-    _info set ["PlayersOnline",_playersOnline];
-    _info set ["PlayersOnMission",_playersOnMission];
-    _info set ["PlayersOnBase",_playersOnBase];
+    //2. Mark players that are in the mission area
+    [_playersOnMission,true] call NWG_MIS_SER_SetWasOnMission;
 
-    //2. Server restart condition (may be on-off)
-    if (_playersOnline > 0) then {
+    //3. Server restart condition (may be on-off)
+    if (_playersOnlineCount > 0) then {
         _info set ["LastPlayerOnlineAt",_curTime];
         _info set ["IsRestartCondition",false];
     } else {
@@ -963,34 +969,33 @@ NWG_MIS_SER_FightUpdateMissionInfo = {
         _info set ["IsRestartCondition",(_curTime >= _restartAt)];
     };
 
-    //3. All players on base condition (may be on-off)
-    _info set ["IsAllPlayersOnBase",(_playersOnBase == _playersOnline && {_playersOnline > 0})];
+    //4. All players on base condition (may be on-off)
+    _info set ["IsAllPlayersOnBase",(_playersOnlineCount > 0 && {(count _playersOnBase) == _playersOnlineCount})];
 
-    //4. Mission infiltration condition (one time switch on)
+    //5. Mission infiltration condition (one time switch on)
     if !(_info get "IsInfiltrated") then {
-        _info set ["IsInfiltrated",(_playersOnMission > 0)];//Set 'Active' if at least one player is in the mission area
+        _info set ["IsInfiltrated",((count _playersOnMission) > 0)];//Set 'Active' if at least one player is in the mission area
     };
 
-    //5. Mission engage condition (one time switch on)
+    //6. Mission engage condition (one time switch on)
     if !(_info get "IsEngaged") then {
         _info set ["IsEngaged",((call NWG_fnc_ykGetTotalKillcount) > 0)];//Set 'Active' if YK detected at least one kill (doesn't matter where players are)
     };
 
-    //6. Mission exhausted condition (one time switch on that is setup by FightSetupExhaustion)
+    //7. Mission exhausted condition (one time switch on that is setup by FightSetupExhaustion)
     if (!(_info get "IsExhausted") && {(_info get "WillExhaustAt") > 0}) then {
         _info set ["IsExhausted",(_curTime >= (_info get "WillExhaustAt"))];
     };
 
-    //7. Escape addition
+    //8. Escape addition
     if (NWG_MIS_EscapeFlag) then {
         if !(_info get "IsEscape") then {_info set ["IsEscape",true]};//Force escape right away
-        if (_playersOnline == 0) exitWith {_info set ["IsAllPlayersInEscapeVehicle",false]};//No players online - no need to check
+        if (_playersOnlineCount == 0) exitWith {_info set ["IsAllPlayersInEscapeVehicle",false]};//No players online - no need to check
         private _escapeVehicle = _info get "EscapeVehicle";
-        private _playersOnline = count (call NWG_fnc_getPlayersAll);//Get all player units
-        _info set ["IsAllPlayersInEscapeVehicle",(_playersOnline == ({isPlayer _x} count (crew _escapeVehicle)))];
+        _info set ["IsAllPlayersInEscapeVehicle",(_playersOnlineCount == ({isPlayer _x} count (crew _escapeVehicle)))];
     };
 
-    //8. Return
+    //9. Return
     _info
 };
 

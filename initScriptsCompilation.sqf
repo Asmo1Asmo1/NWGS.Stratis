@@ -171,6 +171,7 @@ _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\unformEquip\unformEquipFu
 //userPlanshet
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\userPlanshet.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\userPlanshetFunctions.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\05Info.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\06Settings.sqf" call NWG_fnc_compile);
 //viewDistance
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistance.sqf" call NWG_fnc_compile);
@@ -227,6 +228,12 @@ _serverModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonDepleterSe
 _clientModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonEventsConnectorClient.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonLoadoutHelperServer.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonMissionMachineConnectorServer.sqf" call NWG_fnc_compile);
+//progress
+_serverModules pushBack ("SCRIPTS\T3_Economics\progress\progressCommon.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\progress\progressCommon.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\progress\progressClient.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\progress\progressFunctions.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\progress\missionMachineConnector.sqf" call NWG_fnc_compile);
 //shopItems
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\shopItemsServerSide.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopItems\missionMachineConnector.sqf" call NWG_fnc_compile);
