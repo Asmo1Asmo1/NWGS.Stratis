@@ -24,6 +24,19 @@ NWG_fnc_dlgGetNpcName = {
     _this getVariable ["NWG_DLG_NpcName",""];
 };
 
+//Get NPC name localized
+//params:
+// - _npc - npc object
+//returns: npc name or "" if not found
+NWG_fnc_dlgGetNpcNameLocalized = {
+    // private _npc = _this;
+    private _npcName = _this call NWG_fnc_dlgGetNpcName;
+    if (_npcName isEqualTo "") exitWith {""};
+    private _locKey = (NWG_DLG_CLI_Settings get "LOCALIZATION") getOrDefault [_npcName,""];
+    if (_locKey isEqualTo "") exitWith {""};
+    _locKey call NWG_fnc_localize;
+};
+
 /*Other systems->Client side*/
 //Open dialogue by npc name
 //params:
@@ -48,4 +61,10 @@ NWG_fnc_dlgOpenByNpc = {
         (format ["NWG_fnc_dlgOpenByNpc: NPC name not found: %1",_npc]) call NWG_fnc_logError;
     };
     _npcName call NWG_fnc_dlgOpenByName;
+};
+
+//Check if dialogue is open
+//returns: true if dialogue is open, false otherwise
+NWG_fnc_dlgIsOpen = {
+    !(call NWG_DLG_CLI_IsUIClosed)
 };
