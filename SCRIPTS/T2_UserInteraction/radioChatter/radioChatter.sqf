@@ -1,5 +1,10 @@
 //================================================================================================================
 //================================================================================================================
+//Defines
+#define GROUP_CHANNEL 3
+
+//================================================================================================================
+//================================================================================================================
 //Settings
 NWG_RC_Settings = createHashMapFromArray [
 	/*Sounds*/
@@ -24,9 +29,6 @@ NWG_RC_Settings = createHashMapFromArray [
 
 	/*Delay*/
 	["DELAY",0.25],
-
-	/*Channels to operate on*/
-	["CHANNELS",[3]],
 
 	["",0]
 ];
@@ -66,18 +68,18 @@ NWG_RC_OnKeyDown = {
 	// params ["_displayOrControl","_key","_shift","_ctrl","_alt"];
 	params ["","_key"];
 	if !(_key in NWG_RC_radioKeys) exitWith {};
-	if !(currentChannel in (NWG_RC_Settings get "CHANNELS")) exitWith {};
+	if (currentChannel != GROUP_CHANNEL) exitWith {};
 	if (NWG_RC_transmitting) exitWith {};//Prevent multiple executions while holding the key
 	NWG_RC_transmitting = true;
-	remoteExec ["NWG_fnc_rcPlay"];
+	remoteExec ["NWG_fnc_rcPlay",(group player)];
 };
 NWG_RC_OnKeyUp = {
 	// params ["_displayOrControl","_key","_shift","_ctrl","_alt"];
 	params ["","_key"];
 	if !(_key in NWG_RC_radioKeys) exitWith {};
-	if !(currentChannel in (NWG_RC_Settings get "CHANNELS")) exitWith {};
+	if (currentChannel != GROUP_CHANNEL) exitWith {};
 	NWG_RC_transmitting = false;
-	remoteExec ["NWG_fnc_rcPlay"];
+	remoteExec ["NWG_fnc_rcPlay",(group player)];
 };
 
 //================================================================================================================
