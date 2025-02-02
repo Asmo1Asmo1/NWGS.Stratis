@@ -50,7 +50,7 @@ NWG_UP_Settings = createHashMapFromArray [
 
 	["MM_BUTTON_01_ONCLICK",{call NWG_fnc_mshopOpenShop}],
 	["MM_BUTTON_02_ONCLICK",{call NWG_fnc_mtOpenTransferUI}],
-	["MM_BUTTON_03_ONCLICK",{"#UP_NOT_IMPLEMENTED_TOOLTIP#" call NWG_fnc_systemChatMe}],
+	["MM_BUTTON_03_ONCLICK",{call NWG_UP_03Group_Open}],
 	["MM_BUTTON_04_ONCLICK",{"#UP_NOT_IMPLEMENTED_TOOLTIP#" call NWG_fnc_systemChatMe}],
 	["MM_BUTTON_05_ONCLICK",{call NWG_UP_05Info_Open}],
 	["MM_BUTTON_06_ONCLICK",{call NWG_UP_06Settings_Open}],
