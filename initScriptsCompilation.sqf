@@ -154,6 +154,8 @@ _serverModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineCommon.sqf
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineServerSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild || MEDICINE_TESTS_ON_DEDICATED) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\medicine\medicineDummy.sqf" call NWG_fnc_compile)};
+//nametags
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\nametags\nametags.sqf" call NWG_fnc_compile);
 //playerRadar
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadar.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\playerRadar\playerRadarFunctions.sqf" call NWG_fnc_compile);

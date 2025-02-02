@@ -82,11 +82,11 @@ NWG_fnc_pNotifyProgressChange = {
 
 
 /*Helper functions to ease getting progress values*/
-NWG_fnc_pGetMyExp = {(player call NWG_fnc_pGetPlayerProgress) param [P__EXP,0]};
-NWG_fnc_pGetMyLvl = {(player call NWG_fnc_pGetPlayerProgress) param [P_TEXP,0]};
-NWG_fnc_pGetMyTaxiLvl = {(player call NWG_fnc_pGetPlayerProgress) param [P_TAXI,0]};
-NWG_fnc_pGetMyTraderLvl = {(player call NWG_fnc_pGetPlayerProgress) param [P_TRDR,0]};
-NWG_fnc_pGetMySupportLvl = {(player call NWG_fnc_pGetPlayerProgress) param [P_COMM,0]};
+NWG_fnc_pGetMyExp =        {params [["_player",player]]; (_player call NWG_fnc_pGetPlayerProgress) param [P__EXP,0]};
+NWG_fnc_pGetMyLvl =        {params [["_player",player]]; (_player call NWG_fnc_pGetPlayerProgress) param [P_TEXP,0]};
+NWG_fnc_pGetMyTaxiLvl =    {params [["_player",player]]; (_player call NWG_fnc_pGetPlayerProgress) param [P_TAXI,0]};
+NWG_fnc_pGetMyTraderLvl =  {params [["_player",player]]; (_player call NWG_fnc_pGetPlayerProgress) param [P_TRDR,0]};
+NWG_fnc_pGetMySupportLvl = {params [["_player",player]]; (_player call NWG_fnc_pGetPlayerProgress) param [P_COMM,0]};
 
 
 /*Progress buy*/
