@@ -13,7 +13,7 @@ NWG_NMTGS_Settings = createHashMapFromArray [
 	["TEXT_FONT","EtelkaMonospacePro"],
 
 	["FUNC_GET_NPC_NAME",   {if !(call NWG_fnc_dlgIsOpen) then {_this call NWG_fnc_dlgGetNpcNameLocalized} else {""}}],
-	["FUNC_GET_PLAYER_NAME",{format ["[lvl. %1]   %2",(_this call NWG_fnc_pGetMyLvl),(name _this)]}],
+	["FUNC_GET_PLAYER_NAME",{format ["[lvl.%1] %2",(_this call NWG_fnc_pGetMyLvl),(name _this)]}],
 
 	["",0]
 ];
