@@ -98,7 +98,7 @@ private _Init =
     {
         [] spawn
         {
-            waitUntil {!isNull (findDisplay 46)};//46 is a mission display, see https://community.bistudio.com/wiki/findDisplay
+            waitUntil {sleep 0.1; !isNull (findDisplay 46)};//46 is a mission display, see https://community.bistudio.com/wiki/findDisplay
             (findDisplay 46) displayAddEventHandler ["KeyDown",
             {
                 // params ["_eventName","_keyCode","_shift","_ctrl","_alt"];

@@ -70,7 +70,7 @@ NWG_UP_Settings = createHashMapFromArray [
 private _Init = {
 	if ((NWG_UP_Settings get "HOTKEY_OPEN_PLANSHET") in [false,-1]) exitWith {};
 
-	waitUntil {!isNull (findDisplay 46)};//46 is a mission display, see https://community.bistudio.com/wiki/findDisplay
+	waitUntil {sleep 0.1; !isNull (findDisplay 46)};//46 is a mission display, see https://community.bistudio.com/wiki/findDisplay
 	(findDisplay 46) displayAddEventHandler ["KeyDown", {
 		// params ["_displayOrControl","_key","_shift","_ctrl","_alt"];
 		params ["","_key"];
