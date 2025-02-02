@@ -163,6 +163,10 @@ _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerShutUp\playerShutUpCl
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\playerShutUp\playerShutUpFunctions.sqf" call NWG_fnc_compile);
 //playerTraits
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\playerTraits\playerTraits.sqf" call NWG_fnc_compile);
+//radioChatter
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\radioChatter\radioChatter.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\radioChatter\radioChatterFunctions.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\radioChatter\radioChatterTests.sqf" call NWG_fnc_compile)};
 //stickyBombs
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\stickyBombs\stickyBombs.sqf" call NWG_fnc_compile);
 //unformEquip
@@ -171,6 +175,7 @@ _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\unformEquip\unformEquipFu
 //userPlanshet
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\userPlanshet.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\userPlanshetFunctions.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\03Group.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\05Info.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\06Settings.sqf" call NWG_fnc_compile);
 //viewDistance

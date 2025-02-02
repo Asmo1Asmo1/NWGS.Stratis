@@ -148,8 +148,8 @@ NWG_KB_keyToButtonMap = createHashMapFromArray [
 //Init
 private _Init = {
 	//Setup key handler
-	waitUntil {!isNull (findDisplay 46)};//46 is a mission display, see https://community.bistudio.com/wiki/findDisplay
-	findDisplay 46 displayAddEventHandler ["KeyDown", {
+	waitUntil {sleep 0.1; !isNull (findDisplay 46)};//46 is a mission display, see https://community.bistudio.com/wiki/findDisplay
+	(findDisplay 46) displayAddEventHandler ["KeyDown", {
 		// params ["_displayOrControl","_key","_shift","_ctrl","_alt"];
 		_this call NWG_KB_OnKeyDown;
 	}];

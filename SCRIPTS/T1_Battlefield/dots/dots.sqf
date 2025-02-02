@@ -3,13 +3,13 @@ NWG_DOTS_Settings = createHashMapFromArray [
     ["AREA_SPAWNSEARCH_DENSITY",30],//Step 1: The area is covered in random points each 'DENSITY' meters. Lower - more results. Higher - faster execution.
     ["AREA_SPAWNSEARCH_SUBRAD",20],//Step 2: Search for valid spawn point is done around each random point in 'SUBRAD' radius. Higher - more results. Lower - faster execution. Keep lower than 'DENSITY' to prevent overlap.
     ["AREA_SPAWNSEARCH_SUBRAD_STEP",1],//Step 2: From 0 to 'SUBRAD' incrementing by 'SUBRAD_STEP'. Higher - faster execution. Lower - more results. Keep as divider of 'SUBRAD' for correct work.
-    ["AREA_AIR_HEIGHT",[100,125,150,175,200]],//Height that would be randomly assigned as a z coordinate for air spawn points
+    ["AREA_AIR_HEIGHT",[150,175,200,225,250,275,300]],//Height that would be randomly assigned as a z coordinate for air spawn points
 
     ["TRIGGER_SPAWNSEARCH_SETTINGS_MULTIPLIER",1],//Multiplier for AREA_SPAWNSEARCH settings for trigger markup (leave it 1)
     ["TRIGGER_LOCATIONS_RADIUS",[25,100]],//Radius outside trigger to search for locations (_triggerRad + TRIGGER_LOCATIONS_RADIUS)
     ["TRIGGER_LOCATIONS_MINBETWEEN",100],//Min distance between locations in trigger markup
     ["TRIGGER_ROADS_RADIUS",[100,200]],//Radius outside trigger to search for roads in trigger markup
-    ["TRIGGER_AIR_RADIUS",200],//(Max) radius outside trigger to markup air spawn points
+    ["TRIGGER_AIR_RADIUS",300],//(Max) radius outside trigger to markup air spawn points
 
     ["REINF_SPAWNSEARCH_SETTINGS_MULTIPLIER",5],//Multiplier for AREA_SPAWNSEARCH settings for reinforcement markup, keep it >1 - it does not need to be so precise as trigger search
     ["REINF_SHORECHECK_RADIUS",300],//Radius to check if there are shores around given position to decide whether or not calculate water positions

@@ -94,6 +94,10 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_BUTTON_PLR_INFO_TOOLTIP#","Player info"],
     ["#UP_BUTTON_SETTINGS_TOOLTIP#","Settings"],
     ["#UP_NOT_IMPLEMENTED_TOOLTIP#","This option is not implemented yet"],
+    //03Group
+    ["#UP_GROUP_TITLE#","Group management"],
+    ["#UP_GROUP_DISCORD#","Discord"],
+    ["#UP_GROUP_DISCORD_BUTTON#","-=   Join NWGS Discord   =-"],
     //05Info
     ["#UP_INFO_TITLE#","Player info"],
     ["#UP_INFO_GENERAL#","%1    [lvl %2]    (Exp: %3)"],

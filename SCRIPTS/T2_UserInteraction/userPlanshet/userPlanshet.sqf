@@ -50,7 +50,7 @@ NWG_UP_Settings = createHashMapFromArray [
 
 	["MM_BUTTON_01_ONCLICK",{call NWG_fnc_mshopOpenShop}],
 	["MM_BUTTON_02_ONCLICK",{call NWG_fnc_mtOpenTransferUI}],
-	["MM_BUTTON_03_ONCLICK",{"#UP_NOT_IMPLEMENTED_TOOLTIP#" call NWG_fnc_systemChatMe}],
+	["MM_BUTTON_03_ONCLICK",{call NWG_UP_03Group_Open}],
 	["MM_BUTTON_04_ONCLICK",{"#UP_NOT_IMPLEMENTED_TOOLTIP#" call NWG_fnc_systemChatMe}],
 	["MM_BUTTON_05_ONCLICK",{call NWG_UP_05Info_Open}],
 	["MM_BUTTON_06_ONCLICK",{call NWG_UP_06Settings_Open}],
@@ -70,7 +70,7 @@ NWG_UP_Settings = createHashMapFromArray [
 private _Init = {
 	if ((NWG_UP_Settings get "HOTKEY_OPEN_PLANSHET") in [false,-1]) exitWith {};
 
-	waitUntil {!isNull (findDisplay 46)};//46 is a mission display, see https://community.bistudio.com/wiki/findDisplay
+	waitUntil {sleep 0.1; !isNull (findDisplay 46)};//46 is a mission display, see https://community.bistudio.com/wiki/findDisplay
 	(findDisplay 46) displayAddEventHandler ["KeyDown", {
 		// params ["_displayOrControl","_key","_shift","_ctrl","_alt"];
 		params ["","_key"];
