@@ -6,11 +6,14 @@
 //Settings
 NWG_DSPAWN_Settings = createHashMapFromArray [
     ["CATALOGUE_ADDRESS","DATASETS\Server\Dspawn"],
+    ["CATALOGUE_MAX_TIER",4],//Max tier of groups that can be spawned
+
+    ["WAYPOINT_RADIUS",25],//Default radius for any waypoint-related logic, the more - the easier for big vehicles and complicated terrains
+
     ["TRIGGER_POPULATION_DISTRIBUTION",[5,3,1,1,1]],//Default population as INF/VEH/ARM/AIR/BOAT
     ["TRIGGER_MAX_BUILDINGS_TO_OCCUPY",5],//Max number of buildings that dspawn will try to occupy with 'ambush' infantry forces
     ["TRIGGER_INF_BUILDINGS_DYNAMIC_SIMULATION",false],//If true - infantry spawned in buildings will act only when players are nearby
     ["TRIGGER_INF_BUILDINGS_DISABLE_PATH",false],//If true - infantry spawned in buildings will not leave their positions, becoming static enemies
-    ["WAYPOINT_RADIUS",25],//Default radius for any waypoint-related logic, the more - the easier for big vehicles and complicated terrains
 
     ["PARADROP_RADIUS",3000],//Radius for paradrop vehicle to spawn, fly by and despawn
     ["PARADROP_HEIGHT",200],//Height of paradropping
@@ -651,25 +654,10 @@ NWG_DSPAWN_GetCataloguePage = {
 
     //Expand groups (multiply by spawn chance (tier))
     private _expanded = [];
+    private _maxCount = (NWG_DSPAWN_Settings get "CATALOGUE_MAX_TIER") + 1;
     //do
     {
-        switch (_x#DESCR_TIER) do {
-            case (1): {
-                _expanded pushBack _x;
-                _expanded pushBack _x;
-                _expanded pushBack _x;
-            };
-            case (2): {
-                _expanded pushBack _x;
-                _expanded pushBack _x;
-            };
-            case (3): {
-                _expanded pushBack _x;
-            };
-            default {
-                (format ["NWG_DSPAWN_GetCataloguePage: Invalid group tier '%1':'%2'",_pageName,_x]) call NWG_fnc_logError;
-            };
-        };
+        for "_i" from 1 to ((_maxCount - (_x#DESCR_TIER)) max 1) do {_expanded pushBack _x};
     } forEach _groupsContainer;/*foreach groupDescr in _groupsContainer*/
     _groupsContainer resize 0;
     _groupsContainer append _expanded;
@@ -729,11 +717,9 @@ NWG_DSPAWN_FillWithPassengers = {
     if (_maxCount == 0) exitWith {_unitsDescr};
     private _result = _unitsDescr - ["RANDOM"];
 
-    private _count = switch (true) do {
-        case (_maxCount == (count _unitsDescr)): {_maxCount};//The entire group is random units, 'passengers' logic is inapplicable
-        case (_maxCount < 3): {round (random _maxCount)};//0-2 additional passengers
-        default {_maxCount - (round (random (_maxCount*0.33)))};//66%-100% additional passengers
-    };
+    private _count = if (_maxCount < (count _unitsDescr))
+        then {([(round (_maxCount / 2)),(_maxCount + 2)] call NWG_fnc_randomRangeInt) min _maxCount}
+        else {_maxCount};//The entire group is random units
     if (_count > 0) then {
         _result append ([_passengersContainer,_count] call NWG_DSPAWN_GeneratePassengers);
     };
