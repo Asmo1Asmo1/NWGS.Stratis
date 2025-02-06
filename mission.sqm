@@ -79,6 +79,9 @@ class Mission
 		forecastWind=0.1;
 		forecastWaves=0.1;
 		forecastLightnings=0.1;
+		rainForced=1;
+		lightningsForced=1;
+		windForced=1;
 		year=2035;
 		month=7;
 		day=6;
@@ -254,7 +257,7 @@ class Mission
 					};
 					id=11;
 					type="O_G_Survivor_F";
-					atlOffset=0.0039997101;
+					atlOffset=0.0039987564;
 					class CustomAttributes
 					{
 						class Attribute0
@@ -291,7 +294,7 @@ class Mission
 			{
 			};
 			id=10;
-			atlOffset=0.0039997101;
+			atlOffset=0.0039987564;
 		};
 		class Item5
 		{
