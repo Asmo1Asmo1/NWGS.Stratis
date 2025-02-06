@@ -1,7 +1,8 @@
 //================================================================================================================
 //================================================================================================================
 //Settings
-NWG_WCONF_Settings = createHashMapFromArray [
+NWG_WCONF_SER_Settings = createHashMapFromArray [
+    /*Dynamic simulation settings*/
     ["DYNASIM_CONFIGURE_ON_START",true],//Configure dynamic simulation on mission start
     ["DYNASIM_ENABLED",true],//Is dynamic simulation system enabled
     ["DYNASIM_DIST_CHAR",5000],//Dynasim distance for units/groups
@@ -19,25 +20,25 @@ NWG_WCONF_Settings = createHashMapFromArray [
 //Init
 private _Init = {
     //dynamic simulation
-    if (NWG_WCONF_Settings get "DYNASIM_CONFIGURE_ON_START") then {call NWG_WCONF_ConfigureDynamicSimulation};
+    if (NWG_WCONF_SER_Settings get "DYNASIM_CONFIGURE_ON_START") then {call NWG_WCONF_ConfigureDynamicSimulation};
 };
 
 //================================================================================================================
 //================================================================================================================
-//World config
+//Dynamic simulation config
 NWG_WCONF_ConfigureDynamicSimulation = {
     //Entire system enable/disable
-    enableDynamicSimulationSystem (NWG_WCONF_Settings get "DYNASIM_ENABLED");
-    if !(NWG_WCONF_Settings get "DYNASIM_ENABLED") exitWith {};//Exit if dynamic simulation is disabled
+    enableDynamicSimulationSystem (NWG_WCONF_SER_Settings get "DYNASIM_ENABLED");
+    if !(NWG_WCONF_SER_Settings get "DYNASIM_ENABLED") exitWith {};//Exit if dynamic simulation is disabled
 
     //Set distances
-    "Group"        setDynamicSimulationDistance (NWG_WCONF_Settings get "DYNASIM_DIST_CHAR");
-    "Vehicle"      setDynamicSimulationDistance (NWG_WCONF_Settings get "DYNASIM_DIST_MVEH");
-    "EmptyVehicle" setDynamicSimulationDistance (NWG_WCONF_Settings get "DYNASIM_DIST_EVEH");
-    "Prop"         setDynamicSimulationDistance (NWG_WCONF_Settings get "DYNASIM_DIST_PROP");
+    "Group"        setDynamicSimulationDistance (NWG_WCONF_SER_Settings get "DYNASIM_DIST_CHAR");
+    "Vehicle"      setDynamicSimulationDistance (NWG_WCONF_SER_Settings get "DYNASIM_DIST_MVEH");
+    "EmptyVehicle" setDynamicSimulationDistance (NWG_WCONF_SER_Settings get "DYNASIM_DIST_EVEH");
+    "Prop"         setDynamicSimulationDistance (NWG_WCONF_SER_Settings get "DYNASIM_DIST_PROP");
 
     //Set moving multiplier
-    "IsMoving" setDynamicSimulationDistanceCoef (NWG_WCONF_Settings get "DYNASIM_DIST_MOVING_MULT");
+    "IsMoving" setDynamicSimulationDistanceCoef (NWG_WCONF_SER_Settings get "DYNASIM_DIST_MOVING_MULT");
 };
 
 //================================================================================================================

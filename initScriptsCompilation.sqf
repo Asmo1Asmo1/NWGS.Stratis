@@ -93,9 +93,9 @@ if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\ukrep\uk
 //undertaker
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\undertaker\undertaker.sqf" call NWG_fnc_compile);
 //worldConfig
-_serverModules pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldConfig.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldInfo.sqf" call NWG_fnc_compile);
-_clientModules pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldInfo.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldConfigCommon.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldConfigCommon.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldConfigServer.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T1_Battlefield\worldConfig\worldConfigFunctions.sqf" call NWG_fnc_compile);
 //yellowKing
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\yellowKing\yellowKing.sqf" call NWG_fnc_compile);
