@@ -759,15 +759,9 @@ NWG_VSHOP_CLI_TRA_OnOpen = {
 	{_pricesMap set [_x,(_allPrices select _forEachIndex)]} forEach _allItems;
 
 	//Get player side shop money
-	private _getGroupMoney = (NWG_VSHOP_CLI_Settings get "GROUP_LEADER_MANAGES_GROUP_MONEY") && {player isEqualTo (leader (group player))};
-	private _playerMoney = if (_getGroupMoney) then {
-		private _groupMoney = (units (group player)) apply {_x call NWG_fnc_wltGetPlayerMoney};
-		private _sum = 0;
-		{_sum = _sum + _x} forEach _groupMoney;
-		_sum
-	} else {
-		player call NWG_fnc_wltGetPlayerMoney
-	};
+	private _playerMoney = if (NWG_VSHOP_CLI_Settings get "GROUP_LEADER_MANAGES_GROUP_MONEY" && {player isEqualTo (leader (group player))})
+		then {(group player) call NWG_fnc_wltGetGroupMoney}
+		else {player call NWG_fnc_wltGetPlayerMoney};
 
 	//Save transaction variables
 	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_pricesMap",_pricesMap];
@@ -890,90 +884,19 @@ NWG_VSHOP_CLI_TRA_OnClose = {
 	};
 
 	//Update player(s) money
+	private _isSplitToGroup = NWG_VSHOP_CLI_Settings get "GROUP_LEADER_MANAGES_GROUP_MONEY" && {player isEqualTo (leader (group player))};
 	private _playerVirtualMoney = call NWG_VSHOP_CLI_TRA_GetPlayerMoney;
-	private _splitMoney = (NWG_VSHOP_CLI_Settings get "GROUP_LEADER_MANAGES_GROUP_MONEY") && {player isEqualTo (leader (group player))};
-	private _splitBetween = if (_splitMoney)
-		then {(units (group player)) select {isPlayer _x}}/*This is the only place where we MUST filter out AI units*/
-		else {[player]};
-	private _playerActualMoney = 0;
-	{_playerActualMoney = _playerActualMoney + (_x call NWG_fnc_wltGetPlayerMoney)} forEach _splitBetween;
+	private _playerActualMoney = if (_isSplitToGroup)
+		then {(group player) call NWG_fnc_wltGetGroupMoney}
+		else {player call NWG_fnc_wltGetPlayerMoney};
 	private _delta = _playerVirtualMoney - _playerActualMoney;
-	switch (true) do {
-		case (_delta > 0): {
-			//Player(s) earned and each gets their share equally
-			private _share = round (_delta / ((count _splitBetween) max 1));
-			{[_x,_share] call NWG_fnc_wltAddPlayerMoney} forEach _splitBetween;
-		};
-		case (_delta < 0): {
-			//Player(s) spent and each pays their share OR at least what they have
-			private _balanced = [_delta,_splitBetween] call NWG_VSHOP_CLI_TRA_BalanceLosses;
-			{[_x#0,_x#1] call NWG_fnc_wltAddPlayerMoney} forEach _balanced;
-		};
-		default {/*Delta is 0 - do nothing*/};
-	};
+	if (_isSplitToGroup)
+		then {[(group player),_delta] call NWG_fnc_wltSplitMoneyToGroup}
+		else {[player,_delta] call NWG_fnc_wltAddPlayerMoney};
 
 	//Dispose uiNamespace variables
 	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_pricesMap",nil];
 	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_soldToPlayer",nil];
 	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_boughtFromPlayer",nil];
 	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_playerMoney",nil];
-};
-
-NWG_VSHOP_CLI_TRA_BalanceLosses = {
-	params ["_totalDebt","_players"];
-	if ((count _players) == 0) exitWith {[]};//No players - nothing to balance
-	if ((count _players) == 1) exitWith {[[(_players#0),_totalDebt]]};//Only one player - take all responsibility
-
-	//Prepare variables
-	_totalDebt = abs _totalDebt;
-	private _balancing = _players apply {[_x,0,((_x call NWG_fnc_wltGetPlayerMoney) max 0)]};
-	private _balanced = [];
-	private _shareAbs = 0;
-	private _iterations = 100;//Just in case
-
-	//Balance debt in iterations
-	private _newShare = 0;
-	while {true} do {
-		_iterations = _iterations - 1;
-		_shareAbs = round (_totalDebt / ((count _balancing) max 1));
-
-		{
-			_x params ["_player","_curShare","_myMoney"];
-			_newShare = _curShare + _shareAbs;
-			if (_myMoney > _newShare) then {
-				//Enough money - take their share
-				_x set [1,_newShare];
-				_totalDebt = _totalDebt - _shareAbs;
-			} else {
-				//Not enough money - take what they can pay
-				_x set [1,_myMoney];
-				_totalDebt = _totalDebt - (_myMoney - _curShare);
-				_balancing deleteAt _forEachIndex;
-				_balanced pushBack _x;
-			};
-		} forEachReversed _balancing;
-
-		if ((count _balancing) == 0) exitWith {};
-		if (_totalDebt <= 0) exitWith {
-			_balanced append _balancing;
-			_balancing resize 0;
-		};
-		if (_iterations <= 0) exitWith {
-			"NWG_VSHOP_CLI_TRA_BalanceLosses: Exceeded max iterations" call NWG_fnc_logError;
-			_balanced append _balancing;
-			_balancing resize 0;
-		};
-	};
-
-	//Balance the rest of the debt (if any) equally between players
-	if (_totalDebt > 0) then {
-		_shareAbs = round (_totalDebt / ((count _balanced) max 1));
-		{_x set [1,((_x#1) + _shareAbs)]} forEach _balanced;
-	};
-
-	//Format to result
-	private _result = _balanced apply {[(_x#0),-(_x#1)]};
-
-	//return
-	_result
 };

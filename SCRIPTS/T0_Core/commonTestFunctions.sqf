@@ -13,7 +13,7 @@ NWG_fnc_testPlaceMarker = {
 };
 
 NWG_fnc_testDumpToRptAndClipboard = {
-    private _array = _this;
+    private _array = _this + [];//Shallow copy
 
     //Convert to strings
     {
