@@ -7,30 +7,13 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 	/*Autostart*/
 	["AUTOSTART",true],//Start the mission machine once the scripts are compiled and game started
 	["AUTOSTART_IN_DEVBUILD",true],//Start even if we are in debug environment
+	["HEARTBEAT_RATE",1],//How often the mission machine should check for state changes
 
 	/*Restart*/
 	["SERVER_RESTART_ON_ZERO_ONLINE_AFTER",60],//Delay in seconds how long do we wait for someone to join before restarting the server
 
-	/*Logging and heartbeat*/
+	/*Logging*/
 	["LOG_STATE_CHANGE",true],//Log every state change
-	["HEARTBEAT_RATE",1],//How often the mission machine should check for state changes
-
-	//==================================================================================================
-	// Mission selection
-	/*Missions blueprints*/
-	["MISSIONS_BLUEPRINT_PAGENAME","Abs%1"],//Template for where to find mission blueprints for the map
-	["MISSIONS_ESCAPE_BLUEPRINT_PAGENAME","Abs%1Escape"],//Template for where to find escape
-	["MISSIONS_LIST_MIN_DISTANCE",100],//Min distance between missions to be added to the list (example: several variants of the same mission, only one will be added by distance rule)
-
-	/*Missions list update*/
-	["MISSIONS_UPDATE_NO_MISSIONS_LOG",true],  //Log error for no missions left
-	["MISSIONS_UPDATE_NO_MISSIONS_RESTART",false],//Go to RESET state if no missions left
-	["MISSIONS_UPDATE_NO_MISSIONS_RUN_ESCAPE",true],//Go to ESCAPE state if no missions left
-	["MISSIONS_UPDATE_NO_MISSIONS_EXIT",false],//Exit heartbeat cycle if no missions left
-
-	/*Missions post-selection*/
-	["MISSIONS_SELECT_DISCARD_REJECTED",true],//False - rejected missions go back to the missions list for next selection, True - they get discarded
-	["MISSIONS_SELECT_RESHUFFLE_REJECTED",false],//False - rejected missions simply added to the end of the missions list, True - list gets reshuffled
 
 	//==================================================================================================
 	// Player Base settings
@@ -46,6 +29,44 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 		/*MEDC*/["I_C_Soldier_Camo_F",[/*disarm:*/true,/*anim:*/"Acts_Gallery_Visitor_02",/*addAction:*/["#DLG_OPEN_TITLE#",{_this call NWG_fnc_dlgOpenByNpc}]]],
 		/*COMM*/["I_E_Soldier_MP_F"  ,[/*disarm:*/false,/*anim:*/["Acts_millerCamp_A","Acts_millerCamp_C","acts_millerIdle"],/*addAction:*/["#DLG_OPEN_TITLE#",{_this call NWG_fnc_dlgOpenByNpc}]]],
 		/*ROOF*/["B_G_Captain_Ivan_F",[/*disarm:*/false,/*anim:*/false,/*addAction:*/["#DLG_OPEN_TITLE#",{_this call NWG_fnc_dlgOpenByNpc}]]]
+	]],
+
+	//==================================================================================================
+	// Mission selection
+	/*Missions blueprints*/
+	["MISSIONS_BLUEPRINT_PAGENAME","Abs%1"],//Template for where to find mission blueprints for the map
+	["MISSIONS_ESCAPE_BLUEPRINT_PAGENAME","Abs%1Escape"],//Template for where to find final escape blueprint
+	["MISSIONS_LIST_MIN_DISTANCE",50],//Min distance between missions to be added to the list (example: several variants of the same mission, only one will be added by distance rule)
+
+	/*Missions list update*/
+	["MISSIONS_UPDATE_NO_MISSIONS_RESTART",true],//Go to RESTART state if no missions left
+	["MISSIONS_UPDATE_NO_MISSIONS_RUN_ESCAPE",false],//Auto-run escape if no missions left
+	["MISSIONS_UPDATE_NO_MISSIONS_EXIT",false],//Exit heartbeat cycle if no missions left (not recommended, will look like server stuck)
+
+	/*Missions post-selection*/
+	["MISSIONS_SELECT_DISCARD_REJECTED",false],//True - rejected missions get discarded, False - rejected missions go back to the missions list for next selection
+	["MISSIONS_SELECT_RESHUFFLE_LIST",true],//True - missions list gets reshuffled post-selection, False - missions list stays in the same order
+
+	//==================================================================================================
+	// Mission levels and tiers (defines number of levels and tiers matrix) (the last level is always escape)
+	["MISSION_LEVELS_AND_TIERS",[
+		/*Level 01*/[1],
+		/*Level 02*/[1],
+		/*Level 03*/[1],
+		/*Level 04*/[1,2],
+		/*Level 05*/[1,2],
+		/*Level 06*/[1,2],
+		/*Level 07*/[1,2,3],
+		/*Level 08*/[1,2,3],
+		/*Level 09*/[1,2,3],
+		/*Level 10*/[1,2,3,4],
+		/*Level 11*/[1,2,3,4],
+		/*Level 12*/[2,3,4],
+		/*Level 13*/[2,3,4],
+		/*Level 14*/[2,3,4],
+		/*Level 15*/[3,4],
+		/*Level 16*/[3,4],
+		/*Level 17 - ESCAPE*/[3,4]
 	]],
 
 	//==================================================================================================

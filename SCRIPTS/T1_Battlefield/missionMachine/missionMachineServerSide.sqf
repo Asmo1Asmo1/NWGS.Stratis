@@ -43,11 +43,19 @@ private _Init = {
 
     //Check if player base root object is present on the map at the moment
     if (isNull (call NWG_MIS_SER_FindPlayerBaseRoot)) then {
-        diag_log text "  [MISSION INFO] #### Expecting player base root object";
+        "Expecting player base root object" call NWG_MIS_SER_Log;
     };
 
     //Start
     NWG_MIS_SER_cycleHandle = [] spawn NWG_MIS_SER_Cycle;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Logging
+NWG_MIS_SER_Log = {
+    // private _message = _this;
+    diag_log text (format ["  [MISSION INFO] #### %1",_this]);
 };
 
 //================================================================================================================
@@ -81,10 +89,9 @@ NWG_MIS_SER_Cycle = {
             case MSTATE_SCRIPTS_COMPILATION: {MSTATE_MACHINE_STARTUP call NWG_MIS_SER_ChangeState};
             case MSTATE_DISABLED: {_exit = true};//Exit
             case MSTATE_MACHINE_STARTUP: {
-                if !(isNull (call NWG_MIS_SER_FindPlayerBaseRoot)) then {
-                    diag_log text "  [MISSION INFO] #### Player base root object found - starting mission machine";
-                    call NWG_MIS_SER_NextState
-                };
+                if (isNull (call NWG_MIS_SER_FindPlayerBaseRoot)) exitWith {};
+                "Player base root object found - starting mission machine" call NWG_MIS_SER_Log;
+                call NWG_MIS_SER_NextState
             };
 
             /* base build */
@@ -123,8 +130,7 @@ NWG_MIS_SER_Cycle = {
             case MSTATE_LIST_UPDATE: {
                 private _selectionList = NWG_MIS_SER_missionsList call NWG_MIS_SER_GenerateSelection;
                 if (_selectionList isEqualTo []) exitWith {
-                    if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_LOG")
-                        then {"NWG_MIS_SER_Cycle: Not enough missions at UPDATE phase" call NWG_fnc_logError};
+                    "Not enough missions at UPDATE phase" call NWG_MIS_SER_Log;
                     if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_RESTART")
                         then {MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState};//Restart server if no missions left
                     if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_EXIT")
@@ -415,10 +421,10 @@ NWG_MIS_SER_OnStateChanged = {
 
     //Log
     if (NWG_MIS_SER_Settings get "LOG_STATE_CHANGE") then {
-        diag_log formatText ["  [MISSION INFO] #### Mission state changed from: %1 to: %2",
+        format ["Mission state changed from: %1 to: %2",
             (_oldState call NWG_MIS_SER_GetStateName),
             (_newState call NWG_MIS_SER_GetStateName)
-        ];
+        ] call NWG_MIS_SER_Log;
     };
 
     //Raise event
@@ -430,31 +436,31 @@ NWG_MIS_SER_GetStateName = {
     //return
     switch (_this) do {
         case MSTATE_SCRIPTS_COMPILATION: {"SCRIPTS_COMPILATION"};
-        case MSTATE_DISABLED:        {"DISABLED"};
-        case MSTATE_MACHINE_STARTUP: {"MACHINE_STARTUP"};
+        case MSTATE_DISABLED:            {"DISABLED"};
+        case MSTATE_MACHINE_STARTUP:     {"MACHINE_STARTUP"};
         case MSTATE_BASE_UKREP:     {"BASE_UKREP"};
         case MSTATE_BASE_ECONOMY:   {"BASE_ECONOMY"};
         case MSTATE_BASE_QUESTS:    {"BASE_QUESTS"};
         case MSTATE_LIST_INIT:   {"LIST_INIT"};
         case MSTATE_LIST_UPDATE: {"LIST_UPDATE"};
-        case MSTATE_READY: {"READY"};
+        case MSTATE_READY:         {"READY"};
         case MSTATE_BUILD_CONFIG:  {"BUILD_CONFIG"};
         case MSTATE_BUILD_UKREP:   {"BUILD_UKREP"};
         case MSTATE_BUILD_ECONOMY: {"BUILD_ECONOMY"};
         case MSTATE_BUILD_DSPAWN:  {"BUILD_DSPAWN"};
         case MSTATE_BUILD_QUESTS:  {"BUILD_QUESTS"};
-        case MSTATE_FIGHT_SETUP: {"FIGHT_SETUP"};
-        case MSTATE_FIGHT_READY: {"FIGHT_READY"};
+        case MSTATE_FIGHT_SETUP:        {"FIGHT_SETUP"};
+        case MSTATE_FIGHT_READY:        {"FIGHT_READY"};
         case MSTATE_FIGHT_INFILTRATION: {"FIGHT_INFILTRATION"};
         case MSTATE_FIGHT_ACTIVE:       {"FIGHT_ACTIVE"};
-        case MSTATE_FIGHT_EXHAUSTED: {"FIGHT_EXHAUSTED"};
-        case MSTATE_COMPLETED: {"COMPLETED"};
-        case MSTATE_CLEANUP: {"CLEANUP"};
-        case MSTATE_RESET:   {"RESET"};
+        case MSTATE_FIGHT_EXHAUSTED:    {"FIGHT_EXHAUSTED"};
+        case MSTATE_COMPLETED:  {"COMPLETED"};
+        case MSTATE_CLEANUP:    {"CLEANUP"};
+        case MSTATE_RESET:      {"RESET"};
         case MSTATE_SERVER_RESTART: {"SERVER_RESTART"};
-        case MSTATE_ESCAPE_SETUP: {"ESCAPE_SETUP"};
-        case MSTATE_ESCAPE_ACTIVE: {"ESCAPE_ACTIVE"};
-        case MSTATE_ESCAPE_COMPLETED: {"ESCAPE_COMPLETED"};
+        case MSTATE_ESCAPE_SETUP:       {"ESCAPE_SETUP"};
+        case MSTATE_ESCAPE_ACTIVE:      {"ESCAPE_ACTIVE"};
+        case MSTATE_ESCAPE_COMPLETED:   {"ESCAPE_COMPLETED"};
         default {"UNKNOWN"};
     }
 };
@@ -736,7 +742,7 @@ NWG_MIS_SER_OnSelectionMade = {
         NWG_MIS_SER_selectionList resize 0;
         if (NWG_MIS_SER_Settings get "MISSIONS_SELECT_DISCARD_REJECTED") exitWith {};//Discard rejected missions
         {NWG_MIS_SER_missionsList pushBack _x} forEach _rejected;//Return rejected missions back to the list
-        if (NWG_MIS_SER_Settings get "MISSIONS_SELECT_RESHUFFLE_REJECTED") then {NWG_MIS_SER_missionsList call NWG_fnc_arrayShuffle};//Reshuffle the list
+        if (NWG_MIS_SER_Settings get "MISSIONS_SELECT_RESHUFFLE_LIST") then {NWG_MIS_SER_missionsList call NWG_fnc_arrayShuffle};//Reshuffle the list
     };
 
     //Selection list must contain only one element to proceed
