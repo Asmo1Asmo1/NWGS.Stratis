@@ -6,9 +6,7 @@
 //================================================================================================================
 //Settings
 NWG_LM_MMC_Settings = createHashMapFromArray [
-	/*[_setEnrichment,_itemEnrichment]*/
-    ["ENRICHMENT_EASY",[-1,-1]],//Loot enrichment for easy missions
-    ["ENRICHMENT_NORM",[0,0]],//Loot enrichment for normal missions
+	["ENRICHMENT_MIN_MAX",[-1,1]],//Loot enrichment
 
     ["",0]
 ];
@@ -28,17 +26,9 @@ NWG_LM_MMC_ConfigureEnrichment = {
 	params ["","_newState"];
 	if (_newState != MSTATE_BUILD_ECONOMY) exitWith {};
 
-	private _mDiffclt = call NWG_fnc_mmGetMissionDifficulty;
-	private _enrichment = switch (_mDiffclt) do {
-		case MISSION_DIFFICULTY_EASY: {NWG_LM_MMC_Settings get "ENRICHMENT_EASY"};
-		case MISSION_DIFFICULTY_NORM: {NWG_LM_MMC_Settings get "ENRICHMENT_NORM"};
-		default {
-			(format ["NWG_LM_MMC_ConfigureEnrichment: Unknown mission difficulty: %1",_mDiffclt]) call NWG_fnc_logError;
-			[0,0]
-		};
-	};
-
-	private _ok = _enrichment call NWG_fnc_lmConfigureEnrichment;
+	private _enrichment = NWG_LM_MMC_Settings get "ENRICHMENT_MIN_MAX";
+	_enrichment = _enrichment call NWG_fnc_mmInterpolateByLevelInt;
+	private _ok = [_enrichment,_enrichment] call NWG_fnc_lmConfigureEnrichment;
 	if (isNil "_ok" || _ok isNotEqualTo true) then {
 		(format ["NWG_LM_MMC_ConfigureEnrichment: Failed to configure enrichment: '%1', result: %2",_enrichment,_ok]) call NWG_fnc_logError;
 	};

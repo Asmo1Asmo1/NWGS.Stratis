@@ -40,6 +40,7 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
 /*Dspawn configs*/
 NWG_DSPAWN_CFG_Side = west;
 NWG_DSPAWN_CFG_Faction = "NATO";
+NWG_DSPAWN_CFG_Tiers = [1,2,3,4];
 NWG_DSPAWN_CFG_ReinfMap = [nil,nil,nil,nil];
 
 /*Dspawn last populated trigger (for reinforcements to patrol after duty)*/
@@ -49,13 +50,17 @@ NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
 //================================================================================================================
 //Config
 NWG_DSPAWN_Configure = {
-    params ["_side","_faction","_reinfMap"];
+    params ["_side","_faction","_tiers","_reinfMap"];
     if (isNil "_side" || {!(_side in [west,east,independent])}) exitWith {
         (format ["NWG_DSPAWN_Configure: Invalid side '%1'",_side]) call NWG_fnc_logError;
         false
     };
     if (isNil "_faction" || {!(_faction isEqualType "")}) exitWith {
         (format ["NWG_DSPAWN_Configure: Invalid faction '%1'",_faction]) call NWG_fnc_logError;
+        false
+    };
+    if (isNil "_tiers") exitWith {
+        (format ["NWG_DSPAWN_Configure: Invalid tiers '%1'",_tiers]) call NWG_fnc_logError;
         false
     };
     if (isNil "_reinfMap" || {!(_reinfMap isEqualTypeArray [[],[],[],[]])}) exitWith {
@@ -65,6 +70,7 @@ NWG_DSPAWN_Configure = {
 
     NWG_DSPAWN_CFG_Side = _side;
     NWG_DSPAWN_CFG_Faction = _faction;
+    NWG_DSPAWN_CFG_Tiers = _tiers;
     NWG_DSPAWN_CFG_ReinfMap = _reinfMap;
     true
 };
@@ -86,6 +92,8 @@ NWG_DSPAWN_Configure = {
 
 NWG_DSPAWN_TRIGGER_PopulateTriggerCfg = {
     params ["_trigger","_groupsCount",["_filter",[]]];
+    _filter = [(_filter param [0,[]]),(_filter param [1,[]]),NWG_DSPAWN_CFG_Tiers];
+
     [
         _trigger,
         _groupsCount,
@@ -406,6 +414,8 @@ NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
 //Send reinforcements
 NWG_DSPAWN_REINF_SendReinforcementsCfg = {
     params ["_attackPos","_groupsCount",["_filter",[]]];
+    _filter = [(_filter param [0,[]]),(_filter param [1,[]]),NWG_DSPAWN_CFG_Tiers];
+
     [
         _attackPos,
         _groupsCount,

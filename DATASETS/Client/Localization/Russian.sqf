@@ -2,10 +2,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //T1_Battlefield
     //missionMachine
     // ["#MIS_ACTION_TITLE#","Выбрать миссию"],//not used anymore
-    ["#MIS_DIF_EASY#","Легче"],
-    ["#MIS_DIF_NORMAL#","Сложнее"],
-    ["#MIS_CLI_CONFIRMED_SUBTITLE#","новое назначение..."],
-    ["#MIS_CLI_CONFIRMED_PLAYER_TEMPLATE#","Оперативник: %1"],
+    ["#MIS_CLI_BRIEFING_1#","новое назначение..."],
+    ["#MIS_CLI_BRIEFING_2#","Противник: %1"],
     ["#MIS_COMPLETED_MESSAGE#","РЕЙД ЗАВЕРШЕН"],
     //worldConfig
     ["#WORLD_NAME_STRATIS#","Стратис"],
@@ -15,6 +13,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#WORLD_NAME_BOOTCAMP#","Лагерь"],
     ["#WORLD_NAME_VR#","VR"],
     ["#WORLD_NAME_UNKNOWN#","Неизвест."],
+    ["#WEATHER_CLEAR#","Ясно"],
+    ["#WEATHER_CLOUD#","Облачно"],
+    ["#WEATHER_RAIN#","Дождь"],
+    ["#WEATHER_STORM#","Шторм"],
+    ["#WEATHER_FOG#","Туман"],
 
     //T2_UserInteraction
     //actionsInVehicle

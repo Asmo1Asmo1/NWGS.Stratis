@@ -89,7 +89,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     params ["_fractalSteps",["_faction",""],["_overrides",[]]];
 
     //1. Get root blueprint
-    private _fractalStep1 = _fractalSteps param [0,[]];
+    private _fractalStep1 = _fractalSteps param [FRACTAL_STEP_ROOT,[]];
     _fractalStep1 params [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""],["_blueprintPosFilter",[]]];
     private _blueprint = if ("RootBlueprint" in _overrides) then {
         _overrides get "RootBlueprint"
@@ -119,7 +119,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     //result is: [_bldgs,_furns,_decos,_units,_vehcs,_trrts,_mines]
 
     //4. Decorate buildings (fractal step 2)
-    private _fractalStep2 = _fractalSteps param [1,_fractalStep1];//Unpack or re-use upper step
+    private _fractalStep2 = _fractalSteps param [FRACTAL_STEP_BLDG,_fractalStep1];//Unpack or re-use upper step
     _fractalStep2 params [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""]];
     _groupRules = _groupRules call _groupRulesOverride;//Apply overrides if any
     private _placedBldgs = (_result#OBJ_CAT_BLDG) select {[_x,OBJ_TYPE_BLDG,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup};
@@ -134,7 +134,7 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     } forEach _placedBldgs;
 
     //5. Decorate furniture (fractal step 3)
-    private _fractalStep3 = _fractalSteps param [2,_fractalStep2];//Unpack or re-use upper step
+    private _fractalStep3 = _fractalSteps param [FRACTAL_STEP_FURN,_fractalStep2];//Unpack or re-use upper step
     _fractalStep3 params [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""]];
     _groupRules = _groupRules call _groupRulesOverride;//Apply overrides if any
     private _placedFurns = (_result#OBJ_CAT_FURN) select {[_x,OBJ_TYPE_FURN,_pageName,_blueprintNameFilter] call NWG_UKREP_FRACTAL_HasRelSetup};

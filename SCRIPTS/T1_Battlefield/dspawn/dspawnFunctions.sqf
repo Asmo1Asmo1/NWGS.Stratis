@@ -5,11 +5,12 @@
 //params:
 // _side - side of the dspawn (east, west, independent)
 // _faction - faction of the dspawn (string)
+// _tiers - tiers of the dspawn (array of ints)
 // _reinfMap - reinfMap of the dspawn (array of arrays) (get the from 'NWG_fnc_dtsMarkupReinforcement')
 //returns:
 // true if success, false otherwise
 NWG_fnc_dsConfigure = {
-    // params ["_side","_faction","_reinfMap"];
+    // params ["_side","_faction","_tiers","_reinfMap"];
     _this call NWG_DSPAWN_Configure
 };
 

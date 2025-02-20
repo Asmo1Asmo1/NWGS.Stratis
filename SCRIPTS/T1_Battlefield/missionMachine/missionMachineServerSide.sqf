@@ -9,21 +9,23 @@
 
 //================================================================================================================
 //================================================================================================================
-//Global flags
+//Global flags (propagated to clients)
 NWG_MIS_CurrentState = MSTATE_SCRIPTS_COMPILATION;
-NWG_MIS_NewState = MSTATE_SCRIPTS_COMPILATION;
-NWG_MIS_EscapeFlag = false;
+NWG_MIS_UnlockedLevels = [];
 
 //================================================================================================================
 //================================================================================================================
 //Fields
 NWG_MIS_SER_cycleHandle = scriptNull;
 NWG_MIS_SER_playerBase = objNull;
-NWG_MIS_SER_playerBasePos = [];
 NWG_MIS_SER_playerBaseNPCs = [];
 NWG_MIS_SER_missionsList = [];
-NWG_MIS_SER_selectionList = [];
+NWG_MIS_SER_escapeMissionsList = [];
+NWG_MIS_SER_lastLevel = -1;
 NWG_MIS_SER_selected = [];
+
+/*Temp storage for the next state before it's applied*/
+NWG_MIS_SER_newState = MSTATE_SCRIPTS_COMPILATION;
 
 /*mission info property bag*/
 NWG_MIS_SER_missionInfo = createHashMap;
@@ -52,10 +54,24 @@ private _Init = {
 
 //================================================================================================================
 //================================================================================================================
-//Logging
+//Utils
 NWG_MIS_SER_Log = {
     // private _message = _this;
     diag_log text (format ["  [MISSION INFO] #### %1",_this]);
+};
+
+NWG_MIS_SER_InterpolateFloat = {
+    params ["_range","_level"];
+    _range params ["_min","_max"];
+    _level = _level max 0;
+    private _maxLevel = ((count (NWG_MIS_SER_Settings get "LEVELS_AND_TIERS")) - 1) max 1;
+    //return
+    _min + (((_max - _min) / _maxLevel) * _level)
+};
+
+NWG_MIS_SER_InterpolateInt = {
+    // params ["_range","_level"];
+    round (_this call NWG_MIS_SER_InterpolateFloat)
 };
 
 //================================================================================================================
@@ -63,7 +79,6 @@ NWG_MIS_SER_Log = {
 //Mission machine heartbeat
 NWG_MIS_SER_Cycle = {
     private _exit = false;
-    private _missionsCounter = 0;
     private _restartOnReady = NWG_MIS_SER_Settings get "SERVER_RESTART_ON_ZERO_ONLINE_AFTER";
 
     waitUntil {
@@ -71,10 +86,10 @@ NWG_MIS_SER_Cycle = {
         sleep (NWG_MIS_SER_Settings get "HEARTBEAT_RATE");
 
         /*Update flags and fire events on a first iteration of a new state*/
-        if (NWG_MIS_CurrentState isNotEqualTo NWG_MIS_NewState) then {
+        if (NWG_MIS_CurrentState isNotEqualTo NWG_MIS_SER_newState) then {
             //State changed
             private _oldState = NWG_MIS_CurrentState;
-            private _newState = NWG_MIS_NewState;
+            private _newState = NWG_MIS_SER_newState;
             [_oldState,_newState] call NWG_MIS_SER_OnStateChanged;
             NWG_MIS_CurrentState = _newState;
             publicVariable "NWG_MIS_CurrentState";
@@ -101,7 +116,6 @@ NWG_MIS_SER_Cycle = {
                     {"NWG_MIS_SER_Cycle: Failed to build the player base - exiting." call NWG_fnc_logError; _exit = true};//Exit
                 _buildResult params ["_root","_objects"];
                 NWG_MIS_SER_playerBase = _root;//Save base root object
-                NWG_MIS_SER_playerBasePos = getPosASL _root;//Save base position
                 NWG_MIS_SER_playerBaseDecoration = _objects;//Save base objects
                 call NWG_MIS_SER_NextState;
             };
@@ -118,69 +132,96 @@ NWG_MIS_SER_Cycle = {
 
             /* missions list */
             case MSTATE_LIST_INIT: {
-                private _pageName = format [(NWG_MIS_SER_Settings get "MISSIONS_BLUEPRINT_PAGENAME"),(call NWG_fnc_wcGetWorldName)];
+                /*Generate missions list*/
+                private _pageName = format [(NWG_MIS_SER_Settings get "BLUEPRINTS_MISSIONS_PAGENAME"),(call NWG_fnc_wcGetWorldName)];
                 private _missionsList = _pageName call NWG_MIS_SER_GenerateMissionsList;
                 if (_missionsList isEqualTo false) exitWith
                     {"NWG_MIS_SER_Cycle: Failed to generate missions list - exiting." call NWG_fnc_logError; _exit = true};//Exit
                 if ((count _missionsList) == 0) exitWith
                     {"NWG_MIS_SER_Cycle: No missions found for the map at INIT phase - exiting." call NWG_fnc_logError; _exit = true};//Exit
                 NWG_MIS_SER_missionsList = _missionsList;//Save the list
+
+                /*Generate escape missions list*/
+                private _escapePageName = format [(NWG_MIS_SER_Settings get "BLUEPRINTS_ESCAPE_PAGENAME"),(call NWG_fnc_wcGetWorldName)];
+                private _escapeMissionsList = _escapePageName call NWG_MIS_SER_GenerateMissionsList;
+                if (_escapeMissionsList isEqualTo false) exitWith
+                    {"NWG_MIS_SER_Cycle: Failed to generate escape missions list - exiting." call NWG_fnc_logError; _exit = true};//Exit
+                if ((count _escapeMissionsList) == 0) exitWith
+                    {"NWG_MIS_SER_Cycle: No escape missions found for the map at INIT phase - exiting." call NWG_fnc_logError; _exit = true};//Exit
+                NWG_MIS_SER_escapeMissionsList = _escapeMissionsList;//Save the list
+
                 call NWG_MIS_SER_NextState;
             };
-            case MSTATE_LIST_UPDATE: {
-                private _selectionList = NWG_MIS_SER_missionsList call NWG_MIS_SER_GenerateSelection;
-                if (_selectionList isEqualTo []) exitWith {
-                    "Not enough missions at UPDATE phase" call NWG_MIS_SER_Log;
-                    if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_RESTART")
-                        then {MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState};//Restart server if no missions left
-                    if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_EXIT")
-                        then {_exit = true};//Exit
-                    if (NWG_MIS_SER_Settings get "MISSIONS_UPDATE_NO_MISSIONS_RUN_ESCAPE")
-                        then {MSTATE_ESCAPE_SETUP call NWG_MIS_SER_ChangeState};//Run escape if no missions left
-                    if (NWG_MIS_CurrentState isEqualTo MSTATE_LIST_UPDATE && !_exit)
-                        then {"NWG_MIS_SER_Cycle: Not enough missions at UPDATE phase and no action taken." call NWG_fnc_logError};//Log at least
+            case MSTATE_LIST_CHECK: {
+                //Update unlocked levels
+                call NWG_MIS_SER_UpdateUnlockedLevels;
+
+                //Check if we have enough missions to run
+                if ((count NWG_MIS_SER_missionsList) == 0) exitWith {
+                    "Empty missions list at LIST_CHECK phase" call NWG_MIS_SER_Log;
+                    if (NWG_MIS_SER_Settings get "MLIST_CHECK_NO_MISSIONS_RESTART") exitWith
+                        {MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState};//Restart server if no missions left
+                    if (NWG_MIS_SER_Settings get "MLIST_CHECK_NO_MISSIONS_RUN_ESCAPE") exitWith
+                        {call NWG_MIS_SER_AutoRunEscape; MSTATE_BUILD_CONFIG call NWG_MIS_SER_ChangeState};//Run escape if no missions left
+                    if (NWG_MIS_SER_Settings get "MLIST_CHECK_NO_MISSIONS_EXIT") exitWith
+                        {_exit = true};//Exit the cycle
+                    //else
+                    "NWG_MIS_SER_Cycle: Empty missions list at LIST_CHECK phase and no action taken." call NWG_fnc_logError;//Log at least
                 };
 
-                NWG_MIS_SER_selectionList = _selectionList;//Save the selection
                 call NWG_MIS_SER_NextState;
             };
 
             /* player input expect */
             case MSTATE_READY: {
-                //Check mission selection
-                switch (count NWG_MIS_SER_selectionList) do {
-                    case 1: {
-                        //Only one mission available (either there was only one mission preset or player made a selection)
-                        private _selected = NWG_MIS_SER_selectionList deleteAt 0;//Get the selected mission
-                        (_selected#SELECTION_NAME) remoteExec ["NWG_fnc_mmSelectionConfirmed",0];//Send selection made signal to all the clients
-                        NWG_MIS_SER_missionInfo = [_selected,NWG_MIS_SER_missionInfo] call NWG_MIS_SER_GenerateMissionInfo;//(Re)Generate mission info
-                        _missionsCounter = _missionsCounter + 1;//Increment missions counter
-                        call NWG_MIS_SER_NextState;//<-- Move to the next state
-                    };
-                    case 0: {
-                        //No missions available
-                        "NWG_MIS_SER_Cycle: No mission selection at READY phase. Must be some kind of error - exiting." call NWG_fnc_logError;
-                        _exit = true;//Exit
-                    };
-                    default {
-                        //Waiting for player input
-                    };
-                };
-
-                //Check players online (restart on ready state)
-                _restartOnReady = if (_missionsCounter == 0 || {(count (call NWG_fnc_getPlayersAll)) > 0})
-                    then {NWG_MIS_SER_Settings get "SERVER_RESTART_ON_ZERO_ONLINE_AFTER"}
-                    else {_restartOnReady - 1};
-                if (_restartOnReady <= 0) then {
-                    "NWG_MIS_SER_Cycle: No players online - restarting the server." call NWG_fnc_logInfo;
+                //Check restart condition - restart if players left after completing at least one level
+                _restartOnReady = if (NWG_MIS_SER_lastLevel >= 0 && {(count (call NWG_fnc_getPlayersAll)) <= 0})
+                    then {_restartOnReady - 1}
+                    else {NWG_MIS_SER_Settings get "SERVER_RESTART_ON_ZERO_ONLINE_AFTER"};
+                if (_restartOnReady <= 0) exitWith {
+                    "No players online - restarting the server." call NWG_MIS_SER_Log;
                     MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState;
                 };
+
+                //Check mission selection
+                if (NWG_MIS_SER_selected isEqualTo []) exitWith {};//Wait for selection
+
+                //Start voting
+                //TODO: Start voting
+                call NWG_MIS_SER_NextState;
+            };
+            case MSTATE_VOTING: {
+                //Confirm mission selection by voting
+                //TODO: Poll voting results
+                call NWG_MIS_SER_NextState;
             };
 
             /* mission build */
             case MSTATE_BUILD_CONFIG: {
-                //Default 'WasOnMission' flag
+                //Default 'WasOnMission' flag to false for all the players
                 [(call NWG_fnc_getPlayersAll),false] call NWG_MIS_SER_SetWasOnMission;
+
+                //Configure global variables
+                private _selection = NWG_MIS_SER_selected;
+                private _level = _selection#SELECTION_LEVEL;
+                private _index = _selection#SELECTION_INDEX;
+                private _isEscape = _level call NWG_MIS_SER_IsEscapeLvl;
+                NWG_MIS_SER_selected = [];//Reset selection
+                NWG_MIS_SER_lastLevel = _level;//Save last level
+                private _selectedMission = if (_isEscape)
+                    then {NWG_MIS_SER_escapeMissionsList select _index}
+                    else {NWG_MIS_SER_missionsList deleteAt _index};
+                if (!_isEscape) then {NWG_MIS_SER_missionsList = NWG_MIS_SER_missionsList call NWG_fnc_arrayShuffle};//Re-shuffle missions list
+
+                //Configure mission info
+                NWG_MIS_SER_missionInfo = [_selection,_selectedMission,_isEscape,NWG_MIS_SER_missionInfo] call NWG_MIS_SER_GenerateMissionInfo;
+
+                //Configure daytime and weather
+                [(_selection select SELECTION_TIME),(_selection select SELECTION_WEATHER)] call NWG_fnc_wcSetDaytimeAndWeather;
+
+                //Display mission briefing
+                _selection remoteExec ["NWG_fnc_mmMissionBriefing",0];
+
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BUILD_UKREP: {
@@ -190,13 +231,13 @@ NWG_MIS_SER_Cycle = {
                     {"NWG_MIS_SER_Cycle: Failed to build the mission UKREP - exiting." call NWG_fnc_logError; _exit = true};//Exit
 
                 //Escape injection
-                if (NWG_MIS_EscapeFlag) then {
+                if (NWG_MIS_SER_missionInfo get MINFO_IS_ESCAPE) then {
                     //[_bldgs,_furns,_decos,_units,_vehcs,_trrts,_mines]
                     private _escapeVehicle = (_ukrep#OBJ_CAT_VEHC) param [0,objNull];
                     if (isNull _escapeVehicle || {!alive _escapeVehicle}) exitWith
                         {"NWG_MIS_SER_Cycle: Escape vehicle not found or dead - exiting." call NWG_fnc_logError; _exit = true};//Exit
                     _escapeVehicle allowDamage false;
-                    NWG_MIS_SER_missionInfo set ["EscapeVehicle",_escapeVehicle];
+                    NWG_MIS_SER_missionInfo set [MINFO_ESCAPE_VEHICLE,_escapeVehicle];
                 };
 
                 NWG_MIS_SER_missionObjects = _ukrep;//Save mission objects
@@ -207,7 +248,7 @@ NWG_MIS_SER_Cycle = {
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BUILD_DSPAWN: {
-                private _ok = [NWG_MIS_SER_missionInfo,NWG_MIS_SER_missionObjects] call NWG_MIS_SER_BuildMission_Dspawn;
+                private _ok = NWG_MIS_SER_missionInfo call NWG_MIS_SER_BuildMission_Dspawn;
                 if (_ok isEqualTo false) exitWith
                     {"NWG_MIS_SER_Cycle: Failed to the mission DSPAWN - exiting." call NWG_fnc_logError; _exit = true};//Exit
                 call NWG_MIS_SER_NextState;
@@ -221,32 +262,28 @@ NWG_MIS_SER_Cycle = {
             /* mission playflow */
             case MSTATE_FIGHT_SETUP: {
                 //Mission is being prepared for players to engage
-                NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightSetup;
+                NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightSetup;//Init mission info
                 NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;//Update mission info
-                call NWG_MIS_SER_NextState;
+
+                if (NWG_MIS_SER_missionInfo get MINFO_IS_ESCAPE)
+                    then {MSTATE_ESCAPE_SETUP call NWG_MIS_SER_ChangeState}/*goto escape setup*/
+                    else {call NWG_MIS_SER_NextState};
             };
             case MSTATE_FIGHT_READY: {
                 //Mission is ready for players to engage
                 NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;//Update mission info
 
                 switch (true) do {
-                    case (NWG_MIS_SER_missionInfo get "IsRestartCondition"): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_RESTART_CONDITION): {
                         //No players online for a while
                         MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState;
                     };
-                    case (NWG_MIS_SER_missionInfo get "IsEscape"): {
-                        //Players are escaping the island (endgame) (we check that first just in case players somehow managed to shoot an enemy by that time)
-                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightSetupExhaustion;//Setup exhaustion
-                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_AttackPlayerBase;//Attack the player base
-                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_EscapeStarted;//Send signal to the clients
-                        MSTATE_ESCAPE_ACTIVE call NWG_MIS_SER_ChangeState;
-                    };
-                    case (NWG_MIS_SER_missionInfo get "IsEngaged"): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_ENGAGED): {
                         //Players are fighting the enemy
                         NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightSetupExhaustion;//Setup exhaustion
                         MSTATE_FIGHT_ACTIVE call NWG_MIS_SER_ChangeState;
                     };
-                    case (NWG_MIS_SER_missionInfo get "IsInfiltrated"): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_INFILTRATED): {
                         //Players entered the mission area
                         NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightSetupExhaustion;//Setup exhaustion
                         MSTATE_FIGHT_INFILTRATION call NWG_MIS_SER_ChangeState;
@@ -258,20 +295,20 @@ NWG_MIS_SER_Cycle = {
                 //Players entered the mission area
                 NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;
                 switch (true) do {
-                    case (NWG_MIS_SER_missionInfo get "IsRestartCondition"): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_RESTART_CONDITION): {
                         //No players online for a while
                         MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState;
                     };
-                    case (NWG_MIS_SER_missionInfo get "IsEngaged"): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_ENGAGED): {
                         //Players are fighting the enemy
                         MSTATE_FIGHT_ACTIVE call NWG_MIS_SER_ChangeState;
                     };
-                    case (NWG_MIS_SER_missionInfo get "IsExhausted"): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_EXHAUSTED): {
                         //Players have exhausted the mission
                         NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
                         MSTATE_FIGHT_EXHAUSTED call NWG_MIS_SER_ChangeState;
                     };
-                    case (NWG_MIS_SER_missionInfo get "IsAllPlayersOnBase"): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_ALL_PLAYERS_ON_BASE): {
                         //Players are back on the base (after sneaking into the mission area and out without a fight)
                         MSTATE_COMPLETED call NWG_MIS_SER_ChangeState;//<-- Mission is completed
                     };
@@ -282,16 +319,16 @@ NWG_MIS_SER_Cycle = {
                 //Players are fighting the enemy
                 NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;
                 switch (true) do {
-                    case (NWG_MIS_SER_missionInfo get "IsRestartCondition"): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_RESTART_CONDITION): {
                         //No players online for a while
                         MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState
                     };
-                    case (NWG_MIS_SER_missionInfo get "IsExhausted"): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_EXHAUSTED): {
                         //Players have exhausted the mission
                         NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
                         MSTATE_FIGHT_EXHAUSTED call NWG_MIS_SER_ChangeState
                     };
-                    case (NWG_MIS_SER_missionInfo get "IsAllPlayersOnBase" && {NWG_MIS_SER_missionInfo get "IsInfiltrated"}): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_ALL_PLAYERS_ON_BASE && {NWG_MIS_SER_missionInfo get MINFO_IS_INFILTRATED}): {
                         //Players are back on the base after visiting the mission area at least once
                         MSTATE_COMPLETED call NWG_MIS_SER_ChangeState;//<-- Mission is completed
                     };
@@ -302,11 +339,11 @@ NWG_MIS_SER_Cycle = {
                 //Players have exhausted the mission
                 NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;
                 switch (true) do {
-                    case (NWG_MIS_SER_missionInfo get "IsRestartCondition"): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_RESTART_CONDITION): {
                         //No players online for a while
                         MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState
                     };
-                    case (NWG_MIS_SER_missionInfo get "IsAllPlayersOnBase" && {NWG_MIS_SER_missionInfo get "IsInfiltrated"}): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_ALL_PLAYERS_ON_BASE && {NWG_MIS_SER_missionInfo get MINFO_IS_INFILTRATED}): {
                         //Players are back on the base after visiting the mission area at least once
                         MSTATE_COMPLETED call NWG_MIS_SER_ChangeState;//<-- Mission is completed
                     };
@@ -318,19 +355,19 @@ NWG_MIS_SER_Cycle = {
             case MSTATE_COMPLETED: {
                 //Mission is completed
                 NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
-                (NWG_MIS_SER_missionInfo get "Name") remoteExec ["NWG_fnc_mmMissionCompleted",0];//Send selection made signal to all the clients
+                (NWG_MIS_SER_missionInfo get MINFO_NAME) remoteExec ["NWG_fnc_mmMissionCompleted",0];//Send mission completed signal to all the clients
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_CLEANUP: {
                 //Cleanup the mission
                 [] call NWG_fnc_gcDeleteMission;
                 NWG_MIS_SER_missionInfo call NWG_MIS_SER_MarkMissionDone;//Mark mission as done on the map
-                (call NWG_fnc_shGetOccupiedBuildings) resize 0;//Release occupied buildings
+                call NWG_fnc_shClearOccupiedBuildings;//Release occupied buildings
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_RESET: {
                 //Reset the mission
-                MSTATE_LIST_UPDATE call NWG_MIS_SER_ChangeState;//<- Go back to the mission selection
+                MSTATE_LIST_CHECK call NWG_MIS_SER_ChangeState;//<- Go back to the mission selection
             };
             case MSTATE_SERVER_RESTART: {
                 //Restart the server
@@ -340,39 +377,30 @@ NWG_MIS_SER_Cycle = {
 
             /* escape phase */
             case MSTATE_ESCAPE_SETUP: {
-                //Gather escape missions
-                private _pageName = format [(NWG_MIS_SER_Settings get "MISSIONS_ESCAPE_BLUEPRINT_PAGENAME"),(call NWG_fnc_wcGetWorldName)];
-                private _missionsList = _pageName call NWG_MIS_SER_GenerateMissionsList;
-                if (_missionsList isEqualTo false) exitWith
-                    {"NWG_MIS_SER_Cycle: Failed to generate escape missions list - exiting." call NWG_fnc_logError; MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState};//Exit
-                if ((count _missionsList) == 0) exitWith
-                    {"NWG_MIS_SER_Cycle: No missions found for the escape - exiting." call NWG_fnc_logError; MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState};//Exit
-                NWG_MIS_SER_missionsList = _missionsList;//Save the list
-                //Generate escape selection
-                private _selectionList = NWG_MIS_SER_missionsList call NWG_MIS_SER_GenerateSelection;
-                if (_selectionList isEqualTo []) exitWith
-                    {"NWG_MIS_SER_Cycle: No escape missions available - exiting." call NWG_fnc_logError; MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState};//Exit
-                NWG_MIS_SER_selectionList = _selectionList;//Save the selection
-                //Give players a choice
-                NWG_MIS_EscapeFlag = true;
-                MSTATE_READY call NWG_MIS_SER_ChangeState;//<- Go to the player input expect (select escape route just like regular mission)
+                //Prepare escape mission
+                private _curTime = round time;
+                private _exhaustAfter = NWG_MIS_SER_Settings get "ESCAPE_TIME_LIMIT";
+                NWG_MIS_SER_missionInfo set [MINFO_WILL_EXHAUST_AT,(_curTime + _exhaustAfter)];//Setup escape time limit
+                NWG_MIS_SER_missionInfo call NWG_MIS_SER_AttackPlayerBase;//Attack the player base
+                NWG_MIS_SER_missionInfo call NWG_MIS_SER_EscapeStarted;//Send signal to the clients
+                call NWG_MIS_SER_NextState;
             };
             case MSTATE_ESCAPE_ACTIVE: {
                 //Players are escaping the island
                 NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;
                 switch (true) do {
-                    case (NWG_MIS_SER_missionInfo get "IsRestartCondition"): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_RESTART_CONDITION): {
                         //No players online for a while
                         MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState
                     };
-                    case (NWG_MIS_SER_missionInfo get "IsExhausted"): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_ALL_PLAYERS_IN_ESCAPE_VEHICLE): {
+                        //Players have escaped the island
+                        MSTATE_ESCAPE_COMPLETED call NWG_MIS_SER_ChangeState;//<-- Mission is completed
+                    };
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_EXHAUSTED): {
                         //Players have failed to escape in time
                         NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
                         MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState
-                    };
-                    case (NWG_MIS_SER_missionInfo get "IsAllPlayersInEscapeVehicle"): {
-                        //Players have escaped the island
-                        MSTATE_ESCAPE_COMPLETED call NWG_MIS_SER_ChangeState;//<-- Mission is completed
                     };
                     default {
                         NWG_MIS_SER_missionInfo call NWG_MIS_SER_EscapeTick;//Tick the escape mission
@@ -380,6 +408,7 @@ NWG_MIS_SER_Cycle = {
                 };
             };
             case MSTATE_ESCAPE_COMPLETED: {
+                sleep 3;//Give some time for event handlers to finish
                 call NWG_MIS_SER_EscapeCompleted;//Escape is completed
                 MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState;
             };
@@ -404,7 +433,7 @@ NWG_MIS_SER_Cycle = {
 //State change tracking
 NWG_MIS_SER_ChangeState = {
     //Setup new state
-    NWG_MIS_NewState = _this;
+    NWG_MIS_SER_newState = _this;
 
     //Raise one last event on disabled
     if (_this isEqualTo MSTATE_DISABLED)
@@ -413,7 +442,7 @@ NWG_MIS_SER_ChangeState = {
 
 NWG_MIS_SER_NextState = {
     //Set new state based on the current one
-    NWG_MIS_NewState = (NWG_MIS_CurrentState + 1);
+    NWG_MIS_SER_newState = (NWG_MIS_CurrentState + 1);
 };
 
 NWG_MIS_SER_OnStateChanged = {
@@ -442,8 +471,9 @@ NWG_MIS_SER_GetStateName = {
         case MSTATE_BASE_ECONOMY:   {"BASE_ECONOMY"};
         case MSTATE_BASE_QUESTS:    {"BASE_QUESTS"};
         case MSTATE_LIST_INIT:   {"LIST_INIT"};
-        case MSTATE_LIST_UPDATE: {"LIST_UPDATE"};
+        case MSTATE_LIST_CHECK:  {"LIST_CHECK"};
         case MSTATE_READY:         {"READY"};
+        case MSTATE_VOTING:        {"VOTING"};
         case MSTATE_BUILD_CONFIG:  {"BUILD_CONFIG"};
         case MSTATE_BUILD_UKREP:   {"BUILD_UKREP"};
         case MSTATE_BUILD_ECONOMY: {"BUILD_ECONOMY"};
@@ -467,14 +497,69 @@ NWG_MIS_SER_GetStateName = {
 
 //================================================================================================================
 //================================================================================================================
-//Was on mission flag
+//Unlocked levels logic
+NWG_MIS_SER_UpdateUnlockedLevels = {
+    //Get all levels
+    private _newUnlockedLevels = (NWG_MIS_SER_Settings get "LEVELS_AND_TIERS") apply {false};
+    private _lastLevel = NWG_MIS_SER_lastLevel;
+
+    //Exclude last (escape) level if last level played was not the second highest
+    if (_lastLevel < ((count _newUnlockedLevels)-2)) then {
+        _newUnlockedLevels deleteAt ((count _newUnlockedLevels)-1);//Exclude last level
+    };
+
+    //Re-scan unlocked levels
+    private _curUnlockedLevels = NWG_MIS_UnlockedLevels;
+    {_newUnlockedLevels set [_forEachIndex,_x]} forEach _curUnlockedLevels;
+    if (_newUnlockedLevels isEqualTo _curUnlockedLevels) exitWith {};//No changes
+
+    //Update unlocked levels
+    NWG_MIS_UnlockedLevels = _newUnlockedLevels;
+    publicVariable "NWG_MIS_UnlockedLevels";
+};
+
+NWG_MIS_SER_OnUnlockLevelRequest = {
+    private _level = _this;
+    private _caller = remoteExecutedOwner;
+    if (isDedicated && _caller <=  0) exitWith {
+        (format ["NWG_MIS_SER_OnUnlockLevel: Caller can not be identified! callerID:%1",_caller]) call NWG_fnc_logError;
+        false/*for testing*/
+    };
+    if (NWG_MIS_CurrentState isNotEqualTo MSTATE_READY) exitWith {
+        (format ["NWG_MIS_SER_OnUnlockLevel: Invalid state for unlock level request. state:'%1'",(NWG_MIS_CurrentState call NWG_MIS_SER_GetStateName)]) call NWG_fnc_logError;
+        false remoteExec ["NWG_fnc_mmUnlockLevelResponse",_caller];
+        false/*for testing*/
+    };
+
+    //Check level argument
+    private _unlockedLevels = NWG_MIS_UnlockedLevels;
+    if (_level < 0 || _level >= (count _unlockedLevels)) exitWith {
+        (format ["NWG_MIS_SER_OnUnlockLevel: Invalid level. level:'%1' levels count:'%2'",_level,(count _unlockedLevels)]) call NWG_fnc_logError;
+        false remoteExec ["NWG_fnc_mmUnlockLevelResponse",_caller];
+        false/*for testing*/
+    };
+    if (_unlockedLevels param [_level,false]) exitWith {
+        (format ["NWG_MIS_SER_OnUnlockLevel: Level '%1' is already unlocked",_level]) call NWG_fnc_logError;
+        false remoteExec ["NWG_fnc_mmUnlockLevelResponse",_caller];
+        false/*for testing*/
+    };
+
+    //Add to unlocked levels
+    _unlockedLevels set [_level,true];
+    NWG_MIS_UnlockedLevels = _unlockedLevels;
+    publicVariable "NWG_MIS_UnlockedLevels";
+
+    //return
+    true remoteExec ["NWG_fnc_mmUnlockLevelResponse",_caller];
+    true/*for testing*/
+};
+
+//================================================================================================================
+//================================================================================================================
+//Was on mission flag (global, propagated to all clients)
 NWG_MIS_SER_SetWasOnMission = {
     params ["_players","_setFlag"];
-    {_x setVariable ["NWG_MIS_WasOnMission",_setFlag,true]} forEach (_players select {(_x call NWG_MIS_SER_GetWasOnMission) isNotEqualTo _setFlag});
-};
-NWG_MIS_SER_GetWasOnMission = {
-    // private _player = _this;
-    _this getVariable ["NWG_MIS_WasOnMission",false]
+    {_x setVariable ["NWG_MIS_WasOnMission",_setFlag,true]} forEach (_players select {(_x getVariable ["NWG_MIS_WasOnMission",false]) isNotEqualTo _setFlag});
 };
 
 //================================================================================================================
@@ -626,19 +711,19 @@ NWG_MIS_SER_FixNpcPosition = {
 NWG_MIS_SER_GenerateMissionsList = {
     private _pageName = _this;
 
-    //1. Get all missions available for this map
+    //Get all missions available for this map
     private _blueprints = _pageName call NWG_fnc_ukrpGetCataloguePage;
     if (_blueprints isEqualTo false || {(count _blueprints) == 0}) exitWith {
         (format ["NWG_MIS_SER_GenerateMissionsList: Failed to get missions list for page '%1'",_pageName]) call NWG_fnc_logError;
         false// <- Exit if no missions found
     };
 
-    //2. Shuffle and filter
+    //Shuffle and filter by distance
     _blueprints = _blueprints + [];//Shallow copy
     _blueprints = _blueprints call NWG_fnc_arrayShuffle;//Shuffle
     _blueprints = _blueprints call NWG_fnc_arrayShuffle;//Shuffle again (why not?)
     private _missionsList = [];
-    private _minDistance = NWG_MIS_SER_Settings get "MISSIONS_LIST_MIN_DISTANCE";
+    private _minDistance = NWG_MIS_SER_Settings get "MLIST_MIN_DISTANCE";
     private ["_pos","_i"];
     //forEach blueprint container:
     //["ABS","UkrepName",[ABSPos],0,Radius,0,[Payload],[Blueprint]]
@@ -648,142 +733,200 @@ NWG_MIS_SER_GenerateMissionsList = {
         if (_i == -1) then {_missionsList pushBack _x};
     } forEach _blueprints;
 
-    //3. Return
+    //Repack into mission list structure
+    private _nameParts = [];
+    _missionsList = _missionsList apply {
+        _nameParts = ((_x#BPCONTAINER_NAME) splitString "_");
+        //repack as:
+        [
+            /*MLIST_NAME:*/(_nameParts param [BPCNAME_NAME,"Unknown"]),
+            /*MLIST_TIER:*/(parseNumber (_nameParts param [BPCNAME_TIER,"0"])),
+            /*MLIST_POS:*/(_x#BPCONTAINER_POS),
+            /*MLIST_BLUEPRINT:*/(_x#BPCONTAINER_BLUEPRINT)
+        ]
+    };
+
+    //return
     _missionsList
 };
 
-NWG_MIS_SER_GenerateSelection = {
-    private _missionsList = _this;
-
-    //1. Get settings
-    private _missionPresets = NWG_MIS_SER_Settings get "MISSIONS_PRESETS";
-    private _selectionCount = count _missionPresets;
-
-    //2. Check if we have enough missions to select from
-    if ((count _missionsList) < _selectionCount) exitWith {
-        (format ["NWG_MIS_SER_GenerateSelection: Not enough missions to select from! missions count: %1, selection count: %2",(count _missionsList),_selectionCount]) call NWG_fnc_logError;
-        []
-    };
-
-    //3. Generate selection list
-    //By that stage we already have a randomized list of missions with unique positions, so we can just take the first N elements
-    private _selectionList = [];
-    for "_i" from 0 to (_selectionCount-1) do {
-        //Get ingredients of this selection
-        private _ukrep = _missionsList deleteAt 0;
-        private _settings = _missionPresets select _i;
-
-        //Extract raw data from blueprint
-        //_ukrep: [UkrepType,UkrepName,ABSPos,[0,0,0],Radius,0,Payload,Blueprint]
-        _ukrep params ["","_name","_pos","","_rad"];
-
-        //Refine mission name ('LZConnor_var01' -> 'LZConnor')
-        _name = (_name splitString "_") param [0,"Unknown"];
-
-        //Refine mission radius
-        _rad = if (NWG_MIS_SER_Settings get "MISSIONS_USE_ACTUAL_BLUEPRINT_RAD")
-            then {_rad}
-            else {(_settings getOrDefault ["Radius",100])};
-
-        //Add to the list
-        _selectionList pushBack [_name,_pos,_rad,_ukrep,_settings];
-    };
-
-    //4. Return
-    _selectionList
-};
-
 //================================================================================================================
 //================================================================================================================
-//Missions selection process
-NWG_MIS_SER_OnSelectionOptionsRequest = {
+//Missions selection process (client->server interaction not affected by heartbeat cycle)
+NWG_MIS_SER_OnSelectionRequest = {
+    private _level = _this;
     private _caller = remoteExecutedOwner;
-    if (isDedicated && _caller <=  0)
-        exitWith {format ["NWG_MIS_SER_OnSelectionOptionsRequest: Caller can not be identified! callerID:%1",_caller] call NWG_fnc_logError};
-    if (NWG_MIS_CurrentState isNotEqualTo MSTATE_READY)
-        exitWith {format ["NWG_MIS_SER_OnSelectionOptionsRequest: Invalid state for selection options request! state: %1",(NWG_MIS_CurrentState call NWG_MIS_SER_GetStateName)] call NWG_fnc_logError};
-    if ((count NWG_MIS_SER_selectionList) == 0)
-        exitWith {"NWG_MIS_SER_OnSelectionOptionsRequest: No missions available for selection!" call NWG_fnc_logError};
+    if (isDedicated && _caller <=  0) exitWith {
+        (format ["NWG_MIS_SER_OnSelectionRequest: Caller can not be identified! callerID:%1",_caller]) call NWG_fnc_logError;
+        false
+    };
+    if (NWG_MIS_CurrentState isNotEqualTo MSTATE_READY) exitWith {
+        (format ["NWG_MIS_SER_OnSelectionRequest: Invalid state for selection request. state:'%1'",(NWG_MIS_CurrentState call NWG_MIS_SER_GetStateName)]) call NWG_fnc_logError;
+        false
+    };
 
-    //Repack selection list for client
-    private _options = NWG_MIS_SER_selectionList apply {[
-            _x#SELECTION_NAME,
-            _x#SELECTION_POS,
-            _x#SELECTION_RAD,
-            ((_x#SELECTION_SETTINGS) getOrDefault ["PresetName","Unknown"]),
-            ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarker","mil_dot"]),
-            ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarkerColor","ColorBlack"]),
-            ((_x#SELECTION_SETTINGS) getOrDefault ["MapMarkerSize",1]),
-            ((_x#SELECTION_SETTINGS) getOrDefault ["MapOutlineAlpha",0.5])
-    ]};
+    //Check if level was unlocked and is valid
+    private _levels = (NWG_MIS_SER_Settings get "LEVELS_AND_TIERS");
+    if (_level < 0 || _level >= (count _levels)) exitWith {
+        (format ["NWG_MIS_SER_OnSelectionRequest: Invalid level. level:'%1' levels count:'%2'",_level,(count _levels)]) call NWG_fnc_logError;
+        false
+    };
+    if !(NWG_MIS_UnlockedLevels param [_level,false]) exitWith {
+        (format ["NWG_MIS_SER_OnSelectionRequest: Level '%1' is not unlocked",_level]) call NWG_fnc_logError;
+        false
+    };
 
-    //Send options to the client
-    _options remoteExec ["NWG_fnc_mmSendSelectionOptions",_caller];
+    //Get missions list
+    private _missionsList = if (_level call NWG_MIS_SER_IsEscapeLvl)
+        then {NWG_MIS_SER_escapeMissionsList}
+        else {NWG_MIS_SER_missionsList};
+    if ((count _missionsList) == 0) exitWith {
+        (format ["NWG_MIS_SER_OnSelectionRequest: No missions found for level: '%1'",_level]) call NWG_fnc_logError;
+        false
+    };
+
+    //Get enemy factions
+    private _enemyFactions = (NWG_MIS_SER_Settings get "ENEMY_FACTIONS") + [];//Shallow copy
+    _enemyFactions = _enemyFactions call NWG_fnc_arrayShuffle;//Shuffle
+    if ((count _enemyFactions) == 0) exitWith {
+        (format ["NWG_MIS_SER_OnSelectionRequest: No enemy factions found!"]) call NWG_fnc_logError;
+        false
+    };
+
+    //Define selection count
+    private _selectionCount = ((count _missionsList) min (count _enemyFactions)) min (NWG_MIS_SER_Settings get "ENEMY_PER_SELECTION");
+    if (_selectionCount == 0) exitWith {
+        (format ["NWG_MIS_SER_OnSelectionRequest: Selection count is zero! missions count: '%1', enemy factions count: '%2', max selection count: '%3'",(count _missionsList),(count _enemyFactions),(NWG_MIS_SER_Settings get "ENEMY_PER_SELECTION")]) call NWG_fnc_logError;
+        false
+    };
+
+    //Trim factions to selection count (they are already shuffled)
+    if ((count _enemyFactions) > _selectionCount) then {
+        _enemyFactions resize _selectionCount;
+    };
+
+    //Get mission tiers by level
+    private _tiers = _levels param [_level,[]];
+    if ((count _tiers) == 0) exitWith {
+        (format ["NWG_MIS_SER_OnSelectionRequest: No tiers found for level: '%1'",_level]) call NWG_fnc_logError;
+        false
+    };
+
+    //Get mission radius by level
+    private _mRad = [(NWG_MIS_SER_Settings get "MISSION_RADIUS_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateInt;
+
+    //Generate selection (one map per faction)
+    private _selectionList = [];//Result
+    private _selectedIndexes = [];//To quickly exclude what was already selected
+    private _minTier = 100;
+    private _maxTier = -100;
+    {
+        if (_x < _minTier) then {_minTier = _x};
+        if (_x > _maxTier) then {_maxTier = _x};
+    } forEach _tiers;
+    private _attempts = 100;//To prevent infinite loop
+    private ["_missionIndexInList","_tier","_faction","_color","_time","_timeStr","_weather","_weatherStr"];
+
+    while {_attempts > 0} do {
+        _attempts = _attempts - 1;
+
+        //Iterate through missions list (it is already shuffled)
+        {
+            _missionIndexInList = _forEachIndex;
+            if (_missionIndexInList in _selectedIndexes) then {continue};//Skip if already selected
+
+            _tier = _x#MLIST_TIER;
+            if (_tier < _minTier || _tier > _maxTier) then {continue};//Skip if tier is out of range
+
+            _faction = _enemyFactions deleteAt 0;
+            _color = (NWG_MIS_SER_Settings get "ENEMY_COLORS") getOrDefault [_faction,"ColorBlack"];
+            (call NWG_fnc_wcGetRndDaytime) params ["_time","_timeStr"];
+            (call NWG_fnc_wcGetRndWeather) params ["_weather","_weatherStr"];
+
+            _selectedIndexes pushBack _missionIndexInList;
+            _selectionList pushBack [
+                /*SELECTION_NAME:*/_x#MLIST_NAME,
+                /*SELECTION_LEVEL:*/_level,
+                /*SELECTION_INDEX:*/_missionIndexInList,
+                /*SELECTION_POS:*/_x#MLIST_POS,
+                /*SELECTION_RAD:*/_mRad,
+                /*SELECTION_FACTION:*/_faction,
+                /*SELECTION_COLOR:*/_color,
+                /*SELECTION_TIME:*/_time,
+                /*SELECTION_TIME_STR:*/_timeStr,
+                /*SELECTION_WEATHER:*/_weather,
+                /*SELECTION_WEATHER_STR:*/_weatherStr
+            ];
+
+            if ((count _enemyFactions) == 0) exitWith {};//Exit if no more factions left
+        } forEach _missionsList;
+
+        //Loop exit checks
+        if ((count _enemyFactions) == 0) exitWith {};//No more factions left to select from
+        if (_minTier <= 0) exitWith {};//There is nowhere to lower the tier (and we failed to select anything)
+
+        //Decrease tier (include maps of lower tier if we failed to select enough)
+        _minTier = _minTier - 1;
+    };
+
+    //Post-checks (log errors if any)
+    if (_attempts <= 0) then {
+        (format ["NWG_MIS_SER_OnSelectionRequest: While loop attempts ran out. _attempts: '%1'",_attempts]) call NWG_fnc_logError;
+    };
+    if ((count _selectionList) < _selectionCount) exitWith {
+        (format ["NWG_MIS_SER_OnSelectionRequest: Failed to generate selection. _selectionCount: '%1' _selectionList count: '%2'",_selectionCount,(count _selectionList)]) call NWG_fnc_logError;
+        false
+    };
+
+    //return
+    _selectionList remoteExec ["NWG_fnc_mmSelectionResponse",_caller];
+    _selectionList/*for testing*/
 };
 
 NWG_MIS_SER_OnSelectionMade = {
-    private _selectionIndex = _this;
-
-    //Checks
+    // private _selection = _this;
     if (NWG_MIS_CurrentState isNotEqualTo MSTATE_READY)
-        exitWith {format ["NWG_MIS_SER_OnSelectionMade: Invalid state for selection made! state:%1",(NWG_MIS_CurrentState call NWG_MIS_SER_GetStateName)] call NWG_fnc_logError};
-    if ((count NWG_MIS_SER_selectionList) == 0)
-        exitWith {"NWG_MIS_SER_OnSelectionMade: No missions available for selection!" call NWG_fnc_logError};
-    if (_selectionIndex < 0 || _selectionIndex >= (count NWG_MIS_SER_selectionList))
-        exitWith {format ["NWG_MIS_SER_OnSelectionMade: Invalid selection. index:'%1' selection count:'%2'",_selectionIndex,(count NWG_MIS_SER_selectionList)] call NWG_fnc_logError};
+        exitWith {(format ["NWG_MIS_SER_OnSelectionMade: Invalid state for selection made. state:'%1'",(NWG_MIS_CurrentState call NWG_MIS_SER_GetStateName)]) call NWG_fnc_logError};
 
-    //Extract selected mission
-    private _selected = NWG_MIS_SER_selectionList deleteAt _selectionIndex;
-
-    //Process rejected missions if any
-    //selection: [_name,_pos,_rad,->_ukrep<-,_settings]
-    if ((count NWG_MIS_SER_selectionList) > 0) then {
-        private _rejected = NWG_MIS_SER_selectionList apply {_x#SELECTION_BLUEPRINT};
-        NWG_MIS_SER_selectionList resize 0;
-        if (NWG_MIS_SER_Settings get "MISSIONS_SELECT_DISCARD_REJECTED") exitWith {};//Discard rejected missions
-        {NWG_MIS_SER_missionsList pushBack _x} forEach _rejected;//Return rejected missions back to the list
-        if (NWG_MIS_SER_Settings get "MISSIONS_SELECT_RESHUFFLE_LIST") then {NWG_MIS_SER_missionsList call NWG_fnc_arrayShuffle};//Reshuffle the list
-    };
-
-    //Selection list must contain only one element to proceed
-    NWG_MIS_SER_selectionList pushBack _selected;
-
-    //The rest will be handled by the heartbeat cycle
+    NWG_MIS_SER_selected = _this;//Write into global variable
+    //The rest will be handled by heartbeat cycle...
 };
 
 //================================================================================================================
 //================================================================================================================
 //Mission info - property bag of current mission
 NWG_MIS_SER_GenerateMissionInfo = {
-    params ["_selectedMission",["_missionInfo",createHashMap]];
+    params ["_selection","_selectedMission","_isEscape",["_missionInfo",createHashMap]];
+    private _level = _selection select SELECTION_LEVEL;
+    private _tiers = (NWG_MIS_SER_Settings get "LEVELS_AND_TIERS") param [_level,[]];
 
-    //1. Extract mission info from selected mission
-    _selectedMission params ["_name","_pos","_rad","_blueprint","_settings"];
-    _missionInfo set ["Name",_name];
-    _missionInfo set ["Position",_pos];
-    _missionInfo set ["Radius",_rad];
-    _missionInfo set ["Blueprint",_blueprint];
-    _missionInfo set ["Settings",_settings];
+    //Basic info
+    _missionInfo set [MINFO_NAME,(_selection select SELECTION_NAME)];
+    _missionInfo set [MINFO_LEVEL,_level];
+    _missionInfo set [MINFO_TIERS,_tiers];
+    _missionInfo set [MINFO_POSITION,(_selection select SELECTION_POS)];
+    _missionInfo set [MINFO_RADIUS,(_selection select SELECTION_RAD)];
 
-    //2. Extract some to the upper level to make it easier to use
-    _missionInfo set ["Difficulty",(_settings getOrDefault ["Difficulty",MISSION_DIFFICULTY_NORM])];
-    _missionInfo set ["Marker",(_settings getOrDefault ["MapMarker","mil_dot"])];
-    _missionInfo set ["MarkerColor",(_settings getOrDefault ["MapMarkerColor","ColorBlack"])];
-    _missionInfo set ["MarkerSize",(_settings getOrDefault ["MapMarkerSize",1])];
-    _missionInfo set ["OutlineAlpha",(_settings getOrDefault ["MapOutlineAlpha",0.5])];
-    _missionInfo set ["OutlineRadius",_rad];
-    _missionInfo set ["ExhaustAfter",(_settings getOrDefault ["ExhaustAfter",900])];
+    //Enemy info
+    _missionInfo set [MINFO_ENEMY_SIDE,(NWG_MIS_SER_Settings get "ENEMY_SIDE")];
+    _missionInfo set [MINFO_ENEMY_FACTION,(_selection select SELECTION_FACTION)];
+    _missionInfo set [MINFO_ENEMY_COLOR,(_selection select SELECTION_COLOR)];
 
-    //3. Extract values from mission machine and settings
-    private _enemySide = NWG_MIS_SER_Settings get "MISSIONS_ENEMY_SIDE";
-    private _enemyFaction = NWG_MIS_SER_Settings get "MISSIONS_ENEMY_FACTION";
-    _missionInfo set ["EnemySide",_enemySide];
-    _missionInfo set ["EnemyFaction",_enemyFaction];
+    //Blueprint
+    _missionInfo set [MINFO_BLUEPRINT,(_selectedMission select MLIST_BLUEPRINT)];
 
-    //4. Escape addition
-    _missionInfo set ["EscapeVehicle",objNull];
+    //Exhaust after
+    private _exhaustAfter = [
+        (NWG_MIS_SER_Settings get "MISSION_EXHAUST_MIN_MAX"),
+        (_selection select SELECTION_LEVEL)
+    ] call NWG_MIS_SER_InterpolateInt;
+    _missionInfo set [MINFO_EXHAUST_AFTER,_exhaustAfter];
 
-    //5. Return
+    //Escape
+    _missionInfo set [MINFO_IS_ESCAPE,_isEscape];
+    _missionInfo set [MINFO_ESCAPE_VEHICLE,objNull];//Will be set later
+
+    //return
     _missionInfo
 };
 
@@ -792,12 +935,12 @@ NWG_MIS_SER_GenerateMissionInfo = {
 //Mission building
 NWG_MIS_SER_BuildMission_Markers = {
     // private _missionInfo = _this;
-    private _pos = _this get "Position";
-    private _markerType   = _this get "Marker";
-    private _markerColor  = _this get "MarkerColor";
-    private _markerSize   = _this get "MarkerSize";
-    private _outlineAlpha = _this get "OutlineAlpha";
-    private _outlineRad   = _this get "OutlineRadius";
+    private _pos = _this get MINFO_POSITION;
+    private _markerType   = NWG_MIS_SER_Settings get "MAP_MIS_MARKER_TYPE";
+    private _markerColor  = _this get MINFO_ENEMY_COLOR;
+    private _markerSize   = NWG_MIS_SER_Settings get "MAP_MIS_MARKER_SIZE";
+    private _outlineAlpha = NWG_MIS_SER_Settings get "MAP_MIS_OUTLINE_ALPHA";
+    private _outlineRad   = _this get MINFO_RADIUS;
 
     //Create background outline
     private _outline = createMarkerLocal ["MIS_BuildMission_Outline",_pos];
@@ -817,19 +960,43 @@ NWG_MIS_SER_BuildMission_Ukrep = {
     // private _missionInfo = _this;
 
     //Cache map buildings in the area
-    private _mapBldgs = ((_this get "Position") nearObjects (_this get "Radius")) select {_x call NWG_fnc_ocIsBuilding};
+    private _mapBldgs = ((_this get MINFO_POSITION) nearObjects (_this get MINFO_RADIUS)) select {_x call NWG_fnc_ocIsBuilding};
+
+    //Configure fractal steps
+    private _fractalSteps = NWG_MIS_SER_Settings get "UKREP_FRACTAL_STEPS";
+    private _level = _this get MINFO_LEVEL;
+
+    private _unitRules = (((_fractalSteps#FRACTAL_STEP_BLDG)#FRACTAL_CHANCES)#OBJ_CAT_UNIT);
+    _unitRules set ["MinPercentage",([(NWG_MIS_SER_Settings get "UKREP_UNIT_MIN_PERC_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateFloat)];
+    _unitRules set ["MaxPercentage",([(NWG_MIS_SER_Settings get "UKREP_UNIT_MAX_PERC_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateFloat)];
+    _unitRules set ["MinCount",([(NWG_MIS_SER_Settings get "UKREP_UNIT_MIN_COUNT_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateInt)];
+    _unitRules set ["MaxCount",([(NWG_MIS_SER_Settings get "UKREP_UNIT_MAX_COUNT_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateInt)];
+
+    private _trrtRules = (((_fractalSteps#FRACTAL_STEP_BLDG)#FRACTAL_CHANCES)#OBJ_CAT_TRRT);
+    _trrtRules set ["MinPercentage",([(NWG_MIS_SER_Settings get "UKREP_TRRT_MIN_PERC_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateFloat)];
+    _trrtRules set ["MaxPercentage",([(NWG_MIS_SER_Settings get "UKREP_TRRT_MAX_PERC_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateFloat)];
+    _trrtRules set ["MinCount",([(NWG_MIS_SER_Settings get "UKREP_TRRT_MIN_COUNT_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateInt)];
+    _trrtRules set ["MaxCount",([(NWG_MIS_SER_Settings get "UKREP_TRRT_MAX_COUNT_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateInt)];
+
+    private _furnRules = (((_fractalSteps#FRACTAL_STEP_FURN)#FRACTAL_CHANCES)#OBJ_CAT_DECO);
+    _furnRules set ["MinPercentage",([(NWG_MIS_SER_Settings get "UKREP_FURN_DECO_MIN_PERC_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateFloat)];
+    _furnRules set ["MaxPercentage",([(NWG_MIS_SER_Settings get "UKREP_FURN_DECO_MAX_PERC_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateFloat)];
+    _furnRules set ["MinCount",([(NWG_MIS_SER_Settings get "UKREP_FURN_DECO_MIN_COUNT_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateInt)];
 
     //Build the mission by the blueprint
-    private _fractalSteps = (_this get "Settings") getOrDefault ["UkrepFractalSteps",[]];
-    private _faction = _this get "EnemyFaction";
+    private _faction = _this get MINFO_ENEMY_FACTION;
     private _overrides = createHashMapFromArray [
-        ["RootBlueprint",(_this get "Blueprint")],
-        ["GroupsMembership",(_this get "EnemySide")]
+        ["RootBlueprint",(_this get MINFO_BLUEPRINT)],
+        ["GroupsMembership",(_this get MINFO_ENEMY_SIDE)]
     ];
     private _bldResult = [_fractalSteps,_faction,_overrides] call NWG_fnc_ukrpBuildFractalABS;
+    if (isNil "_bldResult" || {_bldResult isEqualTo false}) exitWith {
+        (format ["NWG_MIS_SER_BuildMission_Ukrep: Failed to build the mission! faction:'%1'",_faction]) call NWG_fnc_logError;
+        false
+    };
 
     //Decorate existing map buildings
-    private _mapBldgsLimit = (_this get "Settings") getOrDefault ["UkrepMapBldgsLimit",10];
+    private _mapBldgsLimit = [(NWG_MIS_SER_Settings get "UKREP_MAP_BLDG_LIMIT_FULL_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateInt;
     private _toDecorate = _mapBldgs select {
         !(isObjectHidden _x) && {
         [_x,OBJ_TYPE_BLDG,"AUTO"] call NWG_fnc_ukrpHasRelSetup}
@@ -846,8 +1013,8 @@ NWG_MIS_SER_BuildMission_Ukrep = {
     };
 
     //Decorate empty buildings
-    private _emptyBldgPageName = NWG_MIS_SER_Settings get "MISSIONS_EMPTY_BLDG_PAGENAME";
-    private _emptyBldgsLimit = (_this get "Settings") getOrDefault ["UkrepMapBldgsEmptyLimit",5];
+    private _emptyBldgPageName = NWG_MIS_SER_Settings get "BLUEPRINTS_EMPTY_BLDG_PAGENAME";
+    private _emptyBldgsLimit = [(NWG_MIS_SER_Settings get "UKREP_MAP_BLDG_LIMIT_EMPT_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateInt;
     _toDecorate = _mapBldgs select {
         !(isObjectHidden _x) && {
         [_x,OBJ_TYPE_BLDG,_emptyBldgPageName] call NWG_fnc_ukrpHasRelSetup}
@@ -867,41 +1034,26 @@ NWG_MIS_SER_BuildMission_Ukrep = {
 };
 
 NWG_MIS_SER_BuildMission_Dspawn = {
-    params ["_missionInfo","_ukrepObjects"];
+    // private _missionInfo = _this;
 
     //Unpack data
-    private _missionPos = _missionInfo get "Position";
-    private _missionRad = _missionInfo get "Radius";
-    private _settings   = _missionInfo get "Settings";
-    private _faction = _missionInfo get "EnemyFaction";
-    private _side = _missionInfo get "EnemySide";
-
-    //Calculate the DSPAWN area to patrol
-    private _radiusMult = _settings getOrDefault ["DspawnRadiusMult",1.5];
-    private _radiusMin  = _settings getOrDefault ["DspawnRadiusMin",150];
-    private _radiusMax  = _settings getOrDefault ["DspawnRadiusMax",200];
-    _missionRad = _missionRad * _radiusMult;
-    _missionRad = (_missionRad max _radiusMin) min _radiusMax;//Clamp
+    private _missionPos = _this get MINFO_POSITION;
+    private _missionRad = _this get MINFO_RADIUS;
+    private _level   = _this get MINFO_LEVEL;
+    private _tiers   = _this get MINFO_TIERS;
+    private _faction = _this get MINFO_ENEMY_FACTION;
+    private _side = _this get MINFO_ENEMY_SIDE;
 
     //Calculate the DSPAWN reinforcment map
     //["_pos",["_doInf",true],["_doVeh",true],["_doBoat",true],["_doAir",true]] call NWG_fnc_dtsMarkupReinforcement
     private _reinfMap = [_missionPos,true,true,true,true] call NWG_fnc_dtsMarkupReinforcement;
 
-    //Configure DSPAWN for all future 'xxxCfg' functions calls
-    private _ok = [_side,_faction,_reinfMap] call NWG_fnc_dsConfigure;
+    //Configure DSPAWN for all future 'xxxCfg' functions calls (trigger population and reinforcements)
+    private _ok = [_side,_faction,_tiers,_reinfMap] call NWG_fnc_dsConfigure;
     if (!_ok) then {format ["NWG_MIS_SER_BuildMission_Dspawn: Failed to configure DSPAWN! faction:'%1' side:'%2'",_faction,_side] call NWG_fnc_logError};
 
     //Calculate count of groups to populate trigger with
-    private _groupsMult = _settings getOrDefault ["DspawnGroupsMult",1];
-    private _groupsMin  = _settings getOrDefault ["DspawnGroupsMin",2];
-    if (_groupsMin isEqualType []) then {_groupsMin = selectRandom _groupsMin};
-    private _groupsMax  = _settings getOrDefault ["DspawnGroupsMax",5];
-    if (_groupsMax isEqualType []) then {_groupsMax = selectRandom _groupsMax};
-    // _ukrepObjects params ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"];
-    private _ukrepGroups = ((_ukrepObjects#OBJ_CAT_UNIT) + (_ukrepObjects#OBJ_CAT_VEHC) + (_ukrepObjects#OBJ_CAT_TRRT)) apply {group _x};
-    _ukrepGroups = _ukrepGroups arrayIntersect _ukrepGroups;//Remove duplicates
-    private _groupsCount = round ((count _ukrepGroups) * _groupsMult);
-    _groupsCount = (_groupsCount max _groupsMin) min _groupsMax;//Clamp
+    private _groupsCount = [(NWG_MIS_SER_Settings get "DSPAWN_GROUPS_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateInt;
 
     //populate and return the result
     [[_missionPos,_missionRad],_groupsCount] call NWG_fnc_dsPopulateTriggerCfg
@@ -915,20 +1067,19 @@ NWG_MIS_SER_FightSetup = {
 
     //Configure and enable the YellowKing system
     // params ["_kingSide"];
-    [(_this get "EnemySide")] call NWG_fnc_ykConfigure;
+    [(_this get MINFO_ENEMY_SIDE)] call NWG_fnc_ykConfigure;
     private _ok = call NWG_fnc_ykEnable;
     if (!_ok) then {"NWG_MIS_SER_FightSetup: Failed to enable the YellowKing system. Is it enabled already?" call NWG_fnc_logError};
 
     //Update mission info with default values
-    _this set ["LastPlayerOnlineAt",-1];
-    _this set ["IsRestartCondition",false];
-    _this set ["IsAllPlayersOnBase",false];
-    _this set ["IsInfiltrated",false];
-    _this set ["IsEngaged",false];
-    _this set ["IsExhausted",false];
-    _this set ["WillExhaustAt",-1];
-    _this set ["IsEscape",false];
-    _this set ["IsAllPlayersInEscapeVehicle",false];
+    _this set [MINFO_LAST_ONLINE_AT,-1];
+    _this set [MINFO_IS_RESTART_CONDITION,false];
+    _this set [MINFO_IS_ALL_PLAYERS_ON_BASE,false];
+    _this set [MINFO_IS_INFILTRATED,false];
+    _this set [MINFO_IS_ENGAGED,false];
+    _this set [MINFO_IS_EXHAUSTED,false];
+    _this set [MINFO_WILL_EXHAUST_AT,-1];
+    _this set [MINFO_IS_ALL_PLAYERS_IN_ESCAPE_VEHICLE,false];
 
     //return
     _this
@@ -937,8 +1088,8 @@ NWG_MIS_SER_FightSetup = {
 NWG_MIS_SER_FightSetupExhaustion = {
     // private _missionInfo = _this;
     private _curTime = round time;
-    private _exhaustAfter = _this get "ExhaustAfter";
-    _this set ["WillExhaustAt",(_curTime + _exhaustAfter)];
+    private _exhaustAfter = _this get MINFO_EXHAUST_AFTER;
+    _this set [MINFO_WILL_EXHAUST_AT,(_curTime + _exhaustAfter)];
     //return
     _this
 };
@@ -951,14 +1102,13 @@ NWG_MIS_SER_FightUpdateMissionInfo = {
     private _playersOnline = call NWG_fnc_getPlayersAll;
     private _playersOnlineCount = (count _playersOnline);
     private _playersOnMission = call {
-        private _missionPos = _info get "Position";
-        private _missionRad = _info get "Radius";
+        private _missionPos = _info get MINFO_POSITION;
+        private _missionRad = _info get MINFO_RADIUS;
         _playersOnline select {(_x distance2D _missionPos) <= _missionRad}
     };
     private _playersOnBase = call {
-        private _basePos = NWG_MIS_SER_playerBasePos;
         private _baseRad = NWG_MIS_SER_Settings get "PLAYER_BASE_RADIUS";
-        _playersOnline select {(_x distance2D _basePos) <= _baseRad}
+        _playersOnline select {(_x distance2D NWG_MIS_SER_playerBase) <= _baseRad}
     };
 
     //2. Mark players that are in the mission area
@@ -966,39 +1116,38 @@ NWG_MIS_SER_FightUpdateMissionInfo = {
 
     //3. Server restart condition (may be on-off)
     if (_playersOnlineCount > 0) then {
-        _info set ["LastPlayerOnlineAt",_curTime];
-        _info set ["IsRestartCondition",false];
+        _info set [MINFO_LAST_ONLINE_AT,_curTime];
+        _info set [MINFO_IS_RESTART_CONDITION,false];
     } else {
-        private _lastOnline = _info get "LastPlayerOnlineAt";
+        private _lastOnline = _info get MINFO_LAST_ONLINE_AT;
         private _restartDelay = NWG_MIS_SER_Settings get "SERVER_RESTART_ON_ZERO_ONLINE_AFTER";
         private _restartAt = _lastOnline + _restartDelay;
-        _info set ["IsRestartCondition",(_curTime >= _restartAt)];
+        _info set [MINFO_IS_RESTART_CONDITION,(_curTime >= _restartAt)];
     };
 
     //4. All players on base condition (may be on-off)
-    _info set ["IsAllPlayersOnBase",(_playersOnlineCount > 0 && {(count _playersOnBase) == _playersOnlineCount})];
+    _info set [MINFO_IS_ALL_PLAYERS_ON_BASE,(_playersOnlineCount > 0 && {(count _playersOnBase) == _playersOnlineCount})];
 
     //5. Mission infiltration condition (one time switch on)
-    if !(_info get "IsInfiltrated") then {
-        _info set ["IsInfiltrated",((count _playersOnMission) > 0)];//Set 'Active' if at least one player is in the mission area
+    if !(_info get MINFO_IS_INFILTRATED) then {
+        _info set [MINFO_IS_INFILTRATED,((count _playersOnMission) > 0)];//Set 'Active' if at least one player is in the mission area
     };
 
     //6. Mission engage condition (one time switch on)
-    if !(_info get "IsEngaged") then {
-        _info set ["IsEngaged",((call NWG_fnc_ykGetTotalKillcount) > 0)];//Set 'Active' if YK detected at least one kill (doesn't matter where players are)
+    if !(_info get MINFO_IS_ENGAGED) then {
+        _info set [MINFO_IS_ENGAGED,((call NWG_fnc_ykGetTotalKillcount) > 0)];//Set 'Active' if YK detected at least one kill (doesn't matter where players are)
     };
 
     //7. Mission exhausted condition (one time switch on that is setup by FightSetupExhaustion)
-    if (!(_info get "IsExhausted") && {(_info get "WillExhaustAt") > 0}) then {
-        _info set ["IsExhausted",(_curTime >= (_info get "WillExhaustAt"))];
+    if (!(_info get MINFO_IS_EXHAUSTED) && {(_info get MINFO_WILL_EXHAUST_AT) > 0}) then {
+        _info set [MINFO_IS_EXHAUSTED,(_curTime >= (_info get MINFO_WILL_EXHAUST_AT))];
     };
 
     //8. Escape addition
-    if (NWG_MIS_EscapeFlag) then {
-        if !(_info get "IsEscape") then {_info set ["IsEscape",true]};//Force escape right away
-        if (_playersOnlineCount == 0) exitWith {_info set ["IsAllPlayersInEscapeVehicle",false]};//No players online - no need to check
-        private _escapeVehicle = _info get "EscapeVehicle";
-        _info set ["IsAllPlayersInEscapeVehicle",(_playersOnlineCount == ({isPlayer _x} count (crew _escapeVehicle)))];
+    if (_info get MINFO_IS_ESCAPE) then {
+        if (_playersOnlineCount == 0) exitWith {_info set [MINFO_IS_ALL_PLAYERS_IN_ESCAPE_VEHICLE,false]};//No players online - no need to check
+        private _escapeVehicle = _info get MINFO_ESCAPE_VEHICLE;
+        _info set [MINFO_IS_ALL_PLAYERS_IN_ESCAPE_VEHICLE,(_playersOnlineCount == ({isPlayer _x} count (crew _escapeVehicle)))];
     };
 
     //9. Return
@@ -1020,24 +1169,86 @@ NWG_MIS_SER_FightTeardown = {
 //Mission completion
 NWG_MIS_SER_MarkMissionDone = {
     // private _missionInfo = _this;
-    private _pos = _this get "Position";
-    private _outlineRad = _this get "OutlineRadius";
+    private _pos = _this get MINFO_POSITION;
+    private _missionName = format ["MIS_%1_Done",(round time)];//A little hack to get a unique marker name
 
     //Create background outline marker
-    private _missionName = format ["MIS_%1_Done",(count NWG_MIS_SER_missionsList)];//A little hack to get a unique marker name
-    private _marker = createMarkerLocal [_missionName,_pos];
-    _marker setMarkerSizeLocal [_outlineRad,_outlineRad];
-    _marker setMarkerShapeLocal "ELLIPSE";
-    _marker setMarkerColorLocal (NWG_MIS_SER_Settings get "MISSIONS_DONE_COLOR");
-    _marker setMarkerAlpha (NWG_MIS_SER_Settings get "MISSIONS_DONE_ALPHA");
+    private _outlineName = format ["%1_Outline",_missionName];
+    private _outlineRad = _this get MINFO_RADIUS;
+    private _outline = createMarkerLocal [_outlineName,_pos];
+    _outline setMarkerShapeLocal "ELLIPSE";
+    _outline setMarkerSizeLocal [_outlineRad,_outlineRad];
+    _outline setMarkerColorLocal (NWG_MIS_SER_Settings get "MAP_DONE_COLOR");
+    _outline setMarkerAlpha (NWG_MIS_SER_Settings get "MAP_DONE_ALPHA");
 
-    //Save it to not be deleted
-    [_marker] call NWG_fnc_gcAddOriginalMarkers;
+    //Create visible marker with missions counter
+    private _markerName = _missionName;
+    private _markerSize = NWG_MIS_SER_Settings get "MAP_DONE_SIZE";
+    private _marker = createMarkerLocal [_markerName,_pos];
+    _marker setMarkerShapeLocal "icon";
+    _marker setMarkerTypeLocal (NWG_MIS_SER_Settings get "MAP_DONE_TYPE");
+    _marker setMarkerSizeLocal [_markerSize,_markerSize];
+    _marker setMarkerColorLocal (NWG_MIS_SER_Settings get "MAP_DONE_COLOR");
+    private _curLevel = (_this get MINFO_LEVEL) + 1;//Start from '1' for visual representation
+    private _maxLevel = (count (NWG_MIS_SER_Settings get "LEVELS_AND_TIERS"))-1;
+    _marker setMarkerText (format [" %1 / %2 ",_curLevel,_maxLevel]);
+
+    //GC ignore
+    [_outline,_marker] call NWG_fnc_gcAddOriginalMarkers;
 };
 
 //================================================================================================================
 //================================================================================================================
 //Escape sequence
+NWG_MIS_SER_IsEscapeLvl = {
+    // private _level = _this;
+    _this == ((count (NWG_MIS_SER_Settings get "LEVELS_AND_TIERS"))-1);
+};
+
+NWG_MIS_SER_AutoRunEscape = {
+    private _level = ((count (NWG_MIS_SER_Settings get "LEVELS_AND_TIERS"))-1);
+    private _missionIndex = floor (random (count NWG_MIS_SER_escapeMissionsList));
+    private _mission = NWG_MIS_SER_escapeMissionsList param [_missionIndex,[]];
+    if (_mission isEqualTo []) exitWith {
+        "NWG_MIS_SER_AutoRunEscape: No missions found for auto-run" call NWG_fnc_logError;
+        false
+    };
+
+    private _enemyFaction = (((NWG_MIS_SER_Settings get "ENEMY_FACTIONS")+[]) call NWG_fnc_arrayShuffle) deleteAt 0;
+    if (isNil "_enemyFaction") exitWith {
+        "NWG_MIS_SER_AutoRunEscape: No enemy faction found" call NWG_fnc_logError;
+        false
+    };
+
+    private _tiers = (NWG_MIS_SER_Settings get "LEVELS_AND_TIERS") param [_level,[]];
+    if ((count _tiers) == 0) exitWith {
+        (format ["NWG_MIS_SER_AutoRunEscape: No tiers found for level: '%1'",_level]) call NWG_fnc_logError;
+        false
+    };
+
+    private _mRad = [(NWG_MIS_SER_Settings get "MISSION_RADIUS_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateInt;
+    private _color = (NWG_MIS_SER_Settings get "ENEMY_COLORS") getOrDefault [_enemyFaction,"ColorBlack"];
+    (call NWG_fnc_wcGetRndDaytime) params ["_time","_timeStr"];
+    (call NWG_fnc_wcGetRndWeather) params ["_weather","_weatherStr"];
+
+    NWG_MIS_SER_selected = [
+        /*SELECTION_NAME:*/_mission#MLIST_NAME,
+        /*SELECTION_LEVEL:*/_level,
+        /*SELECTION_INDEX:*/_missionIndex,
+        /*SELECTION_POS:*/_mission#MLIST_POS,
+        /*SELECTION_RAD:*/_mRad,
+        /*SELECTION_FACTION:*/_enemyFaction,
+        /*SELECTION_COLOR:*/_color,
+        /*SELECTION_TIME:*/_time,
+        /*SELECTION_TIME_STR:*/_timeStr,
+        /*SELECTION_WEATHER:*/_weather,
+        /*SELECTION_WEATHER_STR:*/_weatherStr
+    ];
+
+    //The rest will be handled by heartbeat cycle...
+    true
+};
+
 NWG_MIS_SER_AttackPlayerBase = {
     // private _missionInfo = _this;
 
@@ -1049,10 +1260,10 @@ NWG_MIS_SER_AttackPlayerBase = {
     } forEach _npcs;
 
     //Send enemy reinforcements to the player base
-    private _basePos = NWG_MIS_SER_playerBasePos;
+    private _basePos = getPosASL NWG_MIS_SER_playerBase;
     private _groupsCount = selectRandom (NWG_MIS_SER_Settings get "ESCAPE_BASEATTACK_GROUPSCOUNT");
-    private _faction = _this get "EnemyFaction";
-    private _side = _this get "EnemySide";
+    private _faction = _this get MINFO_ENEMY_FACTION;
+    private _side = _this get MINFO_ENEMY_SIDE;
     [_basePos,_groupsCount,_faction,[],_side] call NWG_fnc_dsSendReinforcements;
 };
 
@@ -1061,7 +1272,7 @@ NWG_MIS_SER_EscapeStarted = {
     //Just play some tunes when the fighting starts
     _this spawn {
         private _missionInfo = _this;
-        waitUntil {sleep 1; _missionInfo getOrDefault ["IsEngaged",false]};//Wait until the fight starts
+        waitUntil {sleep 1; _missionInfo getOrDefault [MINFO_IS_ENGAGED,false]};//Wait until the fight starts
         private _music = selectRandom (NWG_MIS_SER_Settings get "ESCAPE_MUSIC");
         _music remoteExec ["NWG_fnc_mmPlayMusic",0];
     };
@@ -1070,7 +1281,7 @@ NWG_MIS_SER_EscapeStarted = {
 NWG_MIS_SER_EscapeTick = {
     // private _missionInfo = _this;
     private _curTime = round time;
-    private _endAt = _this get "WillExhaustAt";
+    private _endAt = _this get MINFO_WILL_EXHAUST_AT;
     private _secondsLeft = (round (_endAt - _curTime)) max 0;
     _secondsLeft call NWG_fnc_sideChatAll;
 };

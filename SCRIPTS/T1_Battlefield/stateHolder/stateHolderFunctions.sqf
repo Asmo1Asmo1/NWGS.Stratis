@@ -9,3 +9,8 @@ NWG_fnc_shAddOccupiedBuilding = {
     // private _building = _this;
     NWG_STHLD_OccupiedBuildings pushBackUnique _this;
 };
+
+//Clear the list of occupied buildings
+NWG_fnc_shClearOccupiedBuildings = {
+    NWG_STHLD_OccupiedBuildings resize 0;
+};

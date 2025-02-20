@@ -110,7 +110,7 @@ NWG_PSH_DPL_WasOnBase = {
     };
 
     //return
-    _corpse call NWG_fnc_mmIsUnitInBase
+    _corpse call NWG_fnc_mmIsPlayerOnBase
 };
 
 //================================================================================================================
