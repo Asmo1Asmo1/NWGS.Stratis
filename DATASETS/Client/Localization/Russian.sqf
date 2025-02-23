@@ -5,6 +5,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MIS_CLI_BRIEFING_1#","новое назначение..."],
     ["#MIS_CLI_BRIEFING_2#","Противник: %1"],
     ["#MIS_COMPLETED_MESSAGE#","РЕЙД ЗАВЕРШЕН"],
+    ["#MIS_VOTE_TITLE#","Голосование за миссию\nНазвание: %1\nУровень: %2\nПротивник: %3\nВремя: %4\nПогода: %5"],
+    ["#MIS_VOTE_WAITING#","Ожидание другого голосования..."],
+    ["#MIS_VOTE_CANNOT_START#","Не удалось начать голосование"],
+    ["#MIS_VOTE_ERROR#","Не удалось получить результат голосования"],
+    ["#MIS_VOTE_AGAINST#","Игроки проголосовали против миссии"],
     //worldConfig
     ["#WORLD_NAME_STRATIS#","Стратис"],
     ["#WORLD_NAME_ALTIS#","Алтис"],

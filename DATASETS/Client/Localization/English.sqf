@@ -5,6 +5,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MIS_CLI_BRIEFING_1#","new destination..."],
     ["#MIS_CLI_BRIEFING_2#","Enemy: %1"],
     ["#MIS_COMPLETED_MESSAGE#","RAID COMPLETED"],
+    ["#MIS_VOTE_TITLE#","Vote to confirm\nRaid: %1\nLevel: %2\nEnemy: %3\nTime: %4\nWeather: %5"],
+    ["#MIS_VOTE_WAITING#","Waiting for another vote to finish..."],
+    ["#MIS_VOTE_CANNOT_START#","Failed to start vote"],
+    ["#MIS_VOTE_ERROR#","Failed to get vote result"],
+    ["#MIS_VOTE_AGAINST#","Players voted against the mission"],
     //worldConfig
     ["#WORLD_NAME_STRATIS#","Stratis"],
     ["#WORLD_NAME_ALTIS#","Altis"],

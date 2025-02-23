@@ -187,12 +187,42 @@ NWG_MIS_SER_Cycle = {
                 if (NWG_MIS_SER_selected isEqualTo []) exitWith {};//Wait for selection
 
                 //Start voting
-                //TODO: Start voting
+                if (call NWG_fnc_voteIsRunning) exitWith {
+                    "#MIS_VOTE_WAITING#" call NWG_fnc_systemChatAll;
+                };//Wait for another voting to finish
+                private _anchor = NWG_MIS_SER_playerBase;
+                private _title = [
+                    "#MIS_VOTE_TITLE#",
+                    NWG_MIS_SER_selected param [SELECTION_NAME,""],
+                    NWG_MIS_SER_selected param [SELECTION_LEVEL,-1],
+                    NWG_MIS_SER_selected param [SELECTION_FACTION,""],
+                    NWG_MIS_SER_selected param [SELECTION_TIME_STR,""],
+                    NWG_MIS_SER_selected param [SELECTION_WEATHER_STR,""]
+                ];
+                private _ok = [_anchor,_title] call NWG_fnc_voteRequestServer;
+                if (!_ok) exitWith {
+                    "NWG_MIS_SER_Cycle: Failed to start voting" call NWG_fnc_logError;
+                    "#MIS_VOTE_CANNOT_START#" call NWG_fnc_systemChatAll;
+                };
+
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_VOTING: {
                 //Confirm mission selection by voting
-                //TODO: Poll voting results
+                if (call NWG_fnc_voteIsRunning) exitWith {};//Wait for voting to finish
+
+                private _result = call NWG_fnc_voteGetResult;
+                if (_result isEqualTo false) exitWith {
+                    "NWG_MIS_SER_Cycle: Failed to get voting result" call NWG_fnc_logError;
+                    "#MIS_VOTE_ERROR#" call NWG_fnc_systemChatAll;
+                };
+                if (_result < 0) exitWith {
+                    //Players voted against the mission
+                    "#MIS_VOTE_AGAINST#" call NWG_fnc_systemChatAll;
+                    NWG_MIS_SER_selected = [];//Reset selection
+                    MSTATE_READY call NWG_MIS_SER_ChangeState;//Return to the ready state
+                };
+                //Players voted in favor of the mission or vote is undefined (still treat it as a vote in favor, fuck indecisiveness)
                 call NWG_MIS_SER_NextState;
             };
 

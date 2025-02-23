@@ -1,3 +1,29 @@
+/*Any -> Server */
+//Check if vote is running
+//returns:
+// bool - true if vote is running, false otherwise
+NWG_fnc_voteIsRunning = {
+    call NWG_VOTE_SER_IsVoteRunning;
+};
+
+//Get vote result
+//returns:
+// number - result of the vote (-1 against, 0 undefined, 1 in favor) OR false if vote is still running
+NWG_fnc_voteGetResult = {
+    call NWG_VOTE_SER_GetVoteResult;
+};
+
+//Request to start vote for server side logic
+//params:
+// _anchor - object - anchor object
+// _title - string OR array - title of the vote (singular or complex with arguments)
+//returns:
+// bool - true if vote was requested, false in case of error or if another vote is already running
+NWG_fnc_voteRequestServer = {
+    // params ["_anchor","_title"];
+    _this call NWG_VOTE_SER_OnVoteRequest;
+};
+
 /* Server -> Client */
 //Sends vote request to clients
 //params:
