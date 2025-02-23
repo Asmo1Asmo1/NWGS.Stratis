@@ -125,10 +125,12 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_SETTINGS_TITLE#","Настройки"],
     ["#UP_SETTINGS_KEYBINDINGS#","Горячие клавиши"],
     //voting
-    ["#VOTE_COUNTER_TEMPLATE#","Введите + или - в чат\n[+]:%2 [-]:%3 (%4)сек"],
-    ["#VOTE_HINT_ABORTED#","Голосование отменено"],
-    ["#VOTE_HINT_VOTE_RECEIVED#","Голос отправлен"],
-    ["#VOTE_HINT_TIMEOUT#","Время вышло"],
+    ["#VOTE_RESULT_INFAVOR#","\nРезультат: ЗА"],
+    ["#VOTE_RESULT_AGAINST#","\nРезультат: ПРОТИВ"],
+    ["#VOTE_RESULT_UNDEFINED#","\nРезультат: НЕ ОПРЕДЕЛЕН"],
+    ["#VOTE_HINT_BODY#","[+]:%1 [-]:%2 (%3)сек"],
+    ["#VOTE_HINT_FOOTER_DO#","\nВведите + или - в чат"],
+    ["#VOTE_HINT_FOOTER_DONE#","\nВаш голос засчитан как [%1]"],
     //viewDistance (direct translation)
     ["Distance view settings","Настройки дальности видимости"],
     ["Infantry:","Пехота:"],

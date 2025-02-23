@@ -111,10 +111,12 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_SETTINGS_TITLE#","Settings"],
     ["#UP_SETTINGS_KEYBINDINGS#","Keybindings"],
     //voting
-    ["#VOTE_COUNTER_TEMPLATE#","Enter + or - in chat\n[+]:%2 [-]:%3 (%4)sec"],
-    ["#VOTE_HINT_ABORTED#","Vote aborted"],
-    ["#VOTE_HINT_VOTE_RECEIVED#","Vote sent"],
-    ["#VOTE_HINT_TIMEOUT#","Vote timeout"],
+    ["#VOTE_RESULT_INFAVOR#","\nResult: IN FAVOR"],
+    ["#VOTE_RESULT_AGAINST#","\nResult: AGAINST"],
+    ["#VOTE_RESULT_UNDEFINED#","\nResult: UNDEFINED"],
+    ["#VOTE_HINT_BODY#","[+]:%1 [-]:%2 (%3)sec"],
+    ["#VOTE_HINT_FOOTER_DO#","\nEnter + or - in chat"],
+    ["#VOTE_HINT_FOOTER_DONE#","\nYour voice counted as [%1]"],
 
     //T3_Economics
     //hunting

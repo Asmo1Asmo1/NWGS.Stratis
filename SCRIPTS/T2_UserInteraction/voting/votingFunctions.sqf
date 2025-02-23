@@ -1,16 +1,25 @@
 /* Server -> Client */
-
-//Not for public use
-NWG_fnc_voteRequestGolos = {
+//Sends vote request to clients
+//params:
+// _anchor - object - anchor object
+// _title - string OR array - title of the vote (singular or complex with arguments)
+// _timeout - number - timeout of the vote
+NWG_fnc_voteStarted = {
     // params ["_anchor","_title","_timeout"];
-    if (isNil "NWG_VOTE_CLI_OnGolosRequest") exitWith {};//Fix client not ready yet
+    if (!hasInterface) exitWith {};
+    if (isNil "NWG_VOTE_CLI_OnVoteStart") exitWith {};//Fix client not ready yet
     if (isNull player || {!alive player}) exitWith {};//Fix player not ready yet
-    _this call NWG_VOTE_CLI_OnGolosRequest;
+    _this call NWG_VOTE_CLI_OnVoteStart;
 };
 
-//Not for public use
-NWG_fnc_voteRequestGolosEnd = {
-    if (isNil "NWG_VOTE_CLI_OnGolosEnd") exitWith {};//Fix client not ready yet
+//Sends vote result to clients
+//params:
+// _title - string OR array - title of the vote (singular or complex with arguments)
+// _result - number - result of the vote
+NWG_fnc_voteEnded = {
+    // params ["_title","_result"];
+    if (!hasInterface) exitWith {};
+    if (isNil "NWG_VOTE_CLI_OnVoteEnd") exitWith {};//Fix client not ready yet
     if (isNull player || {!alive player}) exitWith {};//Fix player not ready yet
-    _this call NWG_VOTE_CLI_OnGolosEnd;
+    _this call NWG_VOTE_CLI_OnVoteEnd;
 };
