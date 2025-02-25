@@ -149,6 +149,12 @@ NWG_fnc_mmInterpolateByLevelInt = {
     [_this,_level] call NWG_MIS_SER_InterpolateInt;
 };
 
+//Returns tiers of this mission
+//returns: array of numbers OR empty array if tiers are not set yet
+NWG_fnc_mmGetMissionTiers = {
+    NWG_MIS_SER_missionInfo getOrDefault [MINFO_TIERS,[]]
+};
+
 //Returns mission pos
 //returns: [pos,rad]
 NWG_fnc_mmGetMissionPos = {

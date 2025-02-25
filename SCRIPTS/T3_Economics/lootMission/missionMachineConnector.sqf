@@ -26,11 +26,13 @@ NWG_LM_MMC_ConfigureEnrichment = {
 	params ["","_newState"];
 	if (_newState != MSTATE_BUILD_ECONOMY) exitWith {};
 
-	private _enrichment = NWG_LM_MMC_Settings get "ENRICHMENT_MIN_MAX";
-	_enrichment = _enrichment call NWG_fnc_mmInterpolateByLevelInt;
-	private _ok = [_enrichment,_enrichment] call NWG_fnc_lmConfigureEnrichment;
+	private _enrichment = (NWG_LM_MMC_Settings get "ENRICHMENT_MIN_MAX") call NWG_fnc_mmInterpolateByLevelInt;
+	private _maxTier = 0;
+	{if (_x > _maxTier) then {_maxTier = _x}} forEach (call NWG_fnc_mmGetMissionTiers);
+	private _args = [_enrichment,_enrichment,_maxTier];
+	private _ok = _args call NWG_fnc_lmConfigure;
 	if (isNil "_ok" || _ok isNotEqualTo true) then {
-		(format ["NWG_LM_MMC_ConfigureEnrichment: Failed to configure enrichment: '%1', result: %2",_enrichment,_ok]) call NWG_fnc_logError;
+		(format ["NWG_LM_MMC_ConfigureEnrichment: Failed to configure loot machine. args:'%1', result: %2",_args,_ok]) call NWG_fnc_logError;
 	};
 };
 

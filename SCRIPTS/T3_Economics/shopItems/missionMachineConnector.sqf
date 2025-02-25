@@ -52,6 +52,9 @@ NWG_ISHOP_MMC_OnMissionStateChanged = {
             private _setsCount = NWG_ISHOP_MMC_Settings get "ADD_ITEMS_MIN_MAX";
             _setsCount = _setsCount call NWG_fnc_mmInterpolateByLevelInt;
             private _sets = ["SHOP","",_setsCount] call NWG_fnc_lmGenerateLootSet;
+            if (_sets isEqualTo false) exitWith {
+                "NWG_ISHOP_MMC_OnMissionStateChanged: Failed to generate loot set" call NWG_fnc_logError;
+            };
             (flatten _sets) call NWG_fnc_ishopAddDynamicItems;
         };
 
