@@ -67,6 +67,7 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 		/*Level 16*/[3,4],
 		/*Level 17 - ESCAPE*/[3,4]
 	]],
+	["MAX_TIER",4],
 
 	//==================================================================================================
 	// Enemy settings

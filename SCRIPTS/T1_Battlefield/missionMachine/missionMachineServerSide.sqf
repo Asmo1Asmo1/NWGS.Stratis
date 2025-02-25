@@ -820,6 +820,19 @@ NWG_MIS_SER_OnSelectionRequest = {
         false
     };
 
+    //Get mission tiers by level
+    private _tiers = _levels param [_level,[]];
+    if ((count _tiers) == 0) exitWith {
+        (format ["NWG_MIS_SER_OnSelectionRequest: No tiers found for level: '%1'",_level]) call NWG_fnc_logError;
+        false
+    };
+    private _minTier = 100;
+    private _maxTier = -100;
+    {
+        if (_x < _minTier) then {_minTier = _x};
+        if (_x > _maxTier) then {_maxTier = _x};
+    } forEach _tiers;
+
     //Define selection count
     private _selectionCount = ((count _missionsList) min (count _enemyFactions)) min (NWG_MIS_SER_Settings get "ENEMY_PER_SELECTION");
     if (_selectionCount == 0) exitWith {
@@ -827,83 +840,56 @@ NWG_MIS_SER_OnSelectionRequest = {
         false
     };
 
-    //Trim factions to selection count (they are already shuffled)
-    if ((count _enemyFactions) > _selectionCount) then {
-        _enemyFactions resize _selectionCount;
-    };
-
-    //Get mission tiers by level
-    private _tiers = _levels param [_level,[]];
-    if ((count _tiers) == 0) exitWith {
-        (format ["NWG_MIS_SER_OnSelectionRequest: No tiers found for level: '%1'",_level]) call NWG_fnc_logError;
-        false
-    };
-
-    //Get mission radius by level
-    private _mRad = [(NWG_MIS_SER_Settings get "MISSION_RADIUS_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateInt;
-
-    //Generate selection (one map per faction)
-    private _selectionList = [];//Result
-    private _selectedIndexes = [];//To quickly exclude what was already selected
-    private _minTier = 100;
-    private _maxTier = -100;
-    {
-        if (_x < _minTier) then {_minTier = _x};
-        if (_x > _maxTier) then {_maxTier = _x};
-    } forEach _tiers;
-    private _attempts = 100;//To prevent infinite loop
-    private ["_missionIndexInList","_tier","_faction","_color","_time","_timeStr","_weather","_weatherStr"];
-
+    //Try to select enough missions to match the selection count
+    private _selectedIndexes = [];
+    private _attempts = 100;
     while {_attempts > 0} do {
         _attempts = _attempts - 1;
 
-        //Iterate through missions list (it is already shuffled)
+        //Select missions that match the tier range
         {
-            _missionIndexInList = _forEachIndex;
-            if (_missionIndexInList in _selectedIndexes) then {continue};//Skip if already selected
-
-            _tier = _x#MLIST_TIER;
-            if (_tier < _minTier || _tier > _maxTier) then {continue};//Skip if tier is out of range
-
-            _faction = _enemyFactions deleteAt 0;
-            _color = (NWG_MIS_SER_Settings get "ENEMY_COLORS") getOrDefault [_faction,"ColorBlack"];
-            (call NWG_fnc_wcGetRndDaytime) params ["_time","_timeStr"];
-            (call NWG_fnc_wcGetRndWeather) params ["_weather","_weatherStr"];
-
-            _selectedIndexes pushBack _missionIndexInList;
-            _selectionList pushBack [
-                /*SELECTION_NAME:*/_x#MLIST_NAME,
-                /*SELECTION_LEVEL:*/_level,
-                /*SELECTION_INDEX:*/_missionIndexInList,
-                /*SELECTION_POS:*/_x#MLIST_POS,
-                /*SELECTION_RAD:*/_mRad,
-                /*SELECTION_FACTION:*/_faction,
-                /*SELECTION_COLOR:*/_color,
-                /*SELECTION_TIME:*/_time,
-                /*SELECTION_TIME_STR:*/_timeStr,
-                /*SELECTION_WEATHER:*/_weather,
-                /*SELECTION_WEATHER_STR:*/_weatherStr
-            ];
-
-            if ((count _enemyFactions) == 0) exitWith {};//Exit if no more factions left
+            if ((_x#MLIST_TIER) >= _minTier && {(_x#MLIST_TIER) <= _maxTier}) then {_selectedIndexes pushBack _forEachIndex};
         } forEach _missionsList;
+        if ((count _selectedIndexes) == _selectionCount) exitWith {};//Found exact count
+        if ((count _selectedIndexes) > _selectionCount) exitWith {_selectedIndexes resize _selectionCount};//Found a bit more than needed
 
-        //Loop exit checks
-        if ((count _enemyFactions) == 0) exitWith {};//No more factions left to select from
-        if (_minTier <= 0) exitWith {};//There is nowhere to lower the tier (and we failed to select anything)
-
-        //Decrease tier (include maps of lower tier if we failed to select enough)
-        _minTier = _minTier - 1;
+        //Not enough missions matched the tier range, try again with expanded tier range
+        _selectedIndexes resize 0;
+        switch (true) do {
+            case (_minTier > 0): {_minTier = _minTier - 1};//Lower min tier (first priority)
+            case (_maxTier < (NWG_MIS_SER_Settings get "MAX_TIER")): {_maxTier = _maxTier + 1};//Raise max tier (second priority)
+            default {_attempts = 0};//Exit loop (nowhere else to increase tier range)
+        };
     };
-
-    //Post-checks (log errors if any)
-    if (_attempts <= 0) then {
-        (format ["NWG_MIS_SER_OnSelectionRequest: While loop attempts ran out. _attempts: '%1'",_attempts]) call NWG_fnc_logError;
-    };
-    if ((count _selectionList) < _selectionCount) exitWith {
-        (format ["NWG_MIS_SER_OnSelectionRequest: Failed to generate selection. _selectionCount: '%1' _selectionList count: '%2'",_selectionCount,(count _selectionList)]) call NWG_fnc_logError;
+    if ((count _selectedIndexes) == 0) exitWith {
+        (format ["NWG_MIS_SER_OnSelectionRequest: Failed to generate selection even one selection. _selectionCount: '%1' _selectedIndexes count: '%2'",_selectionCount,(count _selectedIndexes)]) call NWG_fnc_logError;
         false
     };
+
+    //Repack selection list (currently mission indexes) into appropriate structure
+    private _mRad = [(NWG_MIS_SER_Settings get "MISSION_RADIUS_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateInt;
+    private _selectionList = [];
+    {
+        private _mission = _missionsList#_x;
+        private _faction = _enemyFactions#_forEachIndex;//Already shuffled
+        private _color = (NWG_MIS_SER_Settings get "ENEMY_COLORS") getOrDefault [_faction,"ColorBlack"];
+        (call NWG_fnc_wcGetRndDaytime) params ["_time","_timeStr"];
+        (call NWG_fnc_wcGetRndWeather) params ["_weather","_weatherStr"];
+
+        _selectionList pushBack [
+            /*SELECTION_NAME:*/_mission#MLIST_NAME,
+            /*SELECTION_LEVEL:*/_level,
+            /*SELECTION_INDEX:*/_x,
+            /*SELECTION_POS:*/_mission#MLIST_POS,
+            /*SELECTION_RAD:*/_mRad,
+            /*SELECTION_FACTION:*/_faction,
+            /*SELECTION_COLOR:*/_color,
+            /*SELECTION_TIME:*/_time,
+            /*SELECTION_TIME_STR:*/_timeStr,
+            /*SELECTION_WEATHER:*/_weather,
+            /*SELECTION_WEATHER_STR:*/_weatherStr
+        ];
+    } forEach _selectedIndexes;
 
     //return
     _selectionList remoteExec ["NWG_fnc_mmSelectionResponse",_caller];
