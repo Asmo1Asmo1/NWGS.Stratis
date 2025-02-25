@@ -130,7 +130,7 @@ NWG_PRG_GetUpgradeValues = {
 
 	//Get 'canAfford' and 'price' values
 	private _myMoney = player call NWG_fnc_wltGetPlayerMoney;
-	private _myExp = call NWG_fnc_pGetMyExp;
+	private _myExp = player call NWG_fnc_pGetMyExp;
 	((NWG_PRG_Settings get "PRICES") param [_myLevel,[]]) params ["_priceMoney","_priceExp"];
     if (isNil "_priceMoney" || {isNil "_priceExp"}) exitWith {
         (format ["NWG_PRG_GetUpgradeValues: Invalid price for type: '%1', level: '%2'",_type,_myLevel]) call NWG_fnc_logError;
