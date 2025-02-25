@@ -95,9 +95,10 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
         _overrides get "RootBlueprint"
     } else {
         private _blueprints = [_pageName,_blueprintNameFilter,_blueprintPosFilter] call NWG_UKREP_GetBlueprintsABS;
-        if ((count _blueprints) > 0)
+        private _bp = if ((count _blueprints) > 0)
             then {[_blueprints,"NWG_UKREP_FRACTAL_PlaceFractalABS"] call NWG_fnc_selectRandomGuaranteed}
-            else {(format ["NWG_UKREP_FRACTAL_PlaceFractalABS: Could not find the blueprint matching the %1:%2:%3",_pageName,_blueprintNameFilter,_blueprintPosFilter]) call NWG_fnc_logError; []}
+            else {(format ["NWG_UKREP_FRACTAL_PlaceFractalABS: Could not find the blueprint matching the %1:%2:%3",_pageName,_blueprintNameFilter,_blueprintPosFilter]) call NWG_fnc_logError; []};
+        _bp param [BPCONTAINER_BLUEPRINT,[]]
     };
     if (_blueprint isEqualTo []) exitWith {false};//Error
 
@@ -111,7 +112,6 @@ NWG_UKREP_FRACTAL_PlaceFractalABS = {
     };
 
     //3. Place root blueprint (fractal step 1)
-    _blueprint = _blueprint#BPCONTAINER_BLUEPRINT;
     _blueprint = +_blueprint;//Clone
     _groupRules = _groupRules call _groupRulesOverride;//Apply overrides if any
     private _result = [_blueprint,_chances,_faction,_groupRules] call NWG_UKREP_PlaceABS;

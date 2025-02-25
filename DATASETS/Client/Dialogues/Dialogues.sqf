@@ -16,6 +16,7 @@ Each answer is array of [%ANSWER_STR%,%NEXT_NODE%,(optional:%CODE%)]
 %ANSWER_STR%
 	string - single localization key
 	array - format ["template",{code to return arg},...]
+	code - code to return answer string (e.g.: choosing answer string from a list of predefined answers for that node)
 %NEXT_NODE%
 	string - id of the next node
 	NODE_BACK - get back to the previous node
@@ -24,6 +25,7 @@ Each answer is array of [%ANSWER_STR%,%NEXT_NODE%,(optional:%CODE%)]
 	- IF %NEXT_NODE% is NODE_EXIT - after closing the UI (serves as a callback)
 	- IF %NEXT_NODE% is NODE_BACK or Defined Node - before loading the next node (e.g.: setting some variables that will affect the next node)
 %CODE_ARGS%	optional arguments to pass to %CODE% (default: [])
+%COLOR%	optional color to use for the answer in RGBA ([R,G,B,A]) format (default: [])
 
 Dialogue node structure:
 [
@@ -765,7 +767,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				{true},"#COMM_00_Q_06#"
 			],
 			A_CND,	[
-				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_MIS"],
+				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_LVL"],
 				{call NWG_DLG_COMM_IsMissionStarted},["#COMM_00_A_02#",NODE_EXIT],
 				{true},["#COMM_00_A_03#","COMM_PRGB"],
 				{true},["#COMM_00_A_04#","COMM_HELP"],
@@ -784,7 +786,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#MECH_01_Q_03#"
 			],
 			A_CND,	[
-				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_MIS"],
+				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_LVL"],
 				{call NWG_DLG_COMM_IsMissionStarted},["#COMM_01_A_02#",NODE_EXIT],
 				{true},["#COMM_00_A_03#","COMM_PRGB"],
 				{true},["#COMM_00_A_04#","COMM_HELP"],
@@ -793,18 +795,65 @@ NWG_DialogueTree = createHashMapFromArray [
 			]
 		]
 	],
-	/*Mission select*/
+	/*Level select*/
 	[
-		"COMM_MIS",	[
+		"COMM_LVL",	[
 			Q_RND,	[
-				"#COMM_MIS_Q_01#",
-				"#COMM_MIS_Q_02#",
-				"#COMM_MIS_Q_03#"
+				"#COMM_LVL_Q_01#",
+				"#COMM_LVL_Q_02#",
+				"#COMM_LVL_Q_03#"
+			],
+			A_GEN,	[
+				{call NWG_DLG_COMM_GenerateLevelSelect},
+				["#COMM_LVL_A_02#","COMM_01"],
+				["#COMM_LVL_A_03#",NODE_EXIT]
+			]
+		]
+	],
+	/*Level select - Level Locked by player level requirements*/
+	[
+		"COMM_LVL_REQ_LOCKED",	[
+			Q_RND,	[
+				["#COMM_LVL_REQ_LOCKED_Q_01#",{call NWG_DLG_COMM_GetLevelReq}],
+				["#COMM_LVL_REQ_LOCKED_Q_02#",{call NWG_DLG_COMM_GetLevelReq}]
+			],
+			A_GEN,	{"COMM_LVL" call NWG_DLGHLP_GenerateBackExit}
+		]
+	],
+	/*Level select - Level unlock payment*/
+	[
+		"COMM_LVL_UNLOCK_PAY",	[
+			Q_CND,	[
+				{call NWG_DLG_COMM_IsGroupLeader},["#COMM_LVL_UNLOCK_Q_01#",{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_MoneyStr}],
+				{true},["#COMM_LVL_UNLOCK_Q_02#",{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_MoneyStr}]
+			],
+			A_CND,	[
+				{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_HasEnoughMoney},["#MECH_PAY_A_01#","COMM_LVL_UNLOCKED",{call NWG_DLG_COMM_UnlockLevel}],
+				{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_HasLessMoney},["#MECH_PAY_A_02#","COMM_LVL"],
+				{true},["#XXX_PAY_REFUSE#","COMM_LVL"],
+				{true},["#AGEN_EXIT_06#",NODE_EXIT]
+			]
+		]
+	],
+	/*Level select - Level unlocked*/
+	[
+		"COMM_LVL_UNLOCKED",	[
+			Q_ONE,	"#COMM_LVL_UNLOCKED_Q_01#",
+			A_GEN,	{"COMM_LVL" call NWG_DLGHLP_GenerateBackExit}
+		]
+	],
+	/*Level select - Mission selection*/
+	[
+		"COMM_LVL_MISSION",	[
+			Q_RND,	[
+				"#COMM_LVL_MISSION_Q_01#",
+				"#COMM_LVL_MISSION_Q_02#",
+				"#COMM_LVL_MISSION_Q_03#"
 			],
 			A_DEF,	[
-				["#COMM_MIS_A_01#",NODE_EXIT,{call NWG_DLG_COMM_StartMission}],
-				["#COMM_MIS_A_02#","COMM_01"],
-				["#COMM_MIS_A_03#",NODE_EXIT]
+				["#COMM_LVL_A_01#",NODE_EXIT,{true call NWG_DLG_COMM_ShowMissionSelection}],
+				["#COMM_LVL_A_02#","COMM_01"],
+				["#COMM_LVL_A_03#",NODE_EXIT]
 			]
 		]
 	],

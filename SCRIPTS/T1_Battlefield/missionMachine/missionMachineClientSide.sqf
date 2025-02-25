@@ -42,9 +42,8 @@ NWG_MIS_CLI_GetUnlockedLevels = {
     (NWG_MIS_UnlockedLevels + [])
 };
 
-NWG_MIS_CLI_unlockResult = nil;
 NWG_MIS_CLI_UnlockLevel = {
-    params ["_level",["_callback",{}]];
+    private _level = _this;
 
     //Check state
     if (isNil "NWG_MIS_CurrentState" || {NWG_MIS_CurrentState != MSTATE_READY}) exitWith {
@@ -66,24 +65,8 @@ NWG_MIS_CLI_UnlockLevel = {
     //Send request
     _level remoteExec ["NWG_fnc_mmUnlockLevelRequest",2];
 
-    //Wait for response
-    NWG_MIS_CLI_unlockResult = nil;
-    _callback spawn {
-        private _callback = _this;
-        private _timeout = time + 5;
-        waitUntil {!(isNil "NWG_MIS_CLI_unlockResult") || {time > _timeout}};
-        if (time > _timeout) exitWith {"NWG_MIS_CLI_UnlockLevel: Timeout" call NWG_fnc_logError};
-        if (isNil "NWG_MIS_CLI_unlockResult") exitWith {"NWG_MIS_CLI_UnlockLevel: No result" call NWG_fnc_logError};
-        if (!NWG_MIS_CLI_unlockResult) exitWith {"NWG_MIS_CLI_UnlockLevel: Failed" call NWG_fnc_logError};
-        call _callback;
-    };
-
     //return
     true
-};
-NWG_MIS_CLI_UnlockLevelResponse = {
-    // private _success = _this;
-    NWG_MIS_CLI_unlockResult = _this;
 };
 
 //================================================================================================================
@@ -156,7 +139,7 @@ NWG_MIS_CLI_OnSelectionOptionsReceived = {
         _markerName = format ["selection_%1",_forEachIndex];
         _marker = createMarkerLocal [_markerName,_selPos];
         _marker setMarkerTypeLocal (NWG_MIS_CLI_Settings get "MAP_MIS_MARKER_TYPE");
-        _marker setMarkerSizeLocal [_selRadius,_selRadius];
+        _marker setMarkerSizeLocal [(NWG_MIS_CLI_Settings get "MAP_MIS_MARKER_SIZE"),(NWG_MIS_CLI_Settings get "MAP_MIS_MARKER_SIZE")];
         _marker setMarkerTextLocal (format [(NWG_MIS_CLI_Settings get "MAP_MIS_MARKER_TEXT_TEMPLATE"),_selName,_selFaction,_selTime,_selWeather]);
         _marker setMarkerColor _selColor;
         _markers pushBack _marker;

@@ -57,6 +57,8 @@ NWG_WCONF_COM_Settings = createHashMapFromArray [
 	/*Weather settings*//*[_weatherStr,_weatherLocKey,_settings: [[_overcastMinMax],[_windMinMax],[_rainMinMax],[_lightningsMinMax],[_fogMinMax]]]*/
 	["WEATHERS",[
 		["clear",  "#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
+		["clear",  "#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
+		["clear",  "#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
 		["clear+w","#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[3.0,6.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
 		["cloud",  "#WEATHER_CLOUD#",[/*ovc:*/[0.4,0.6],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
 		["cloud+w","#WEATHER_CLOUD#",[/*ovc:*/[0.4,0.6],/*wind:*/[3.0,6.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],

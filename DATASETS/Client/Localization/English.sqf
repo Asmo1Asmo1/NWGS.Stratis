@@ -507,16 +507,31 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_00_A_02#","Moving out"],
     ["#COMM_00_A_03#","About my support level..."],
     ["#COMM_00_A_04#","Can you explain me something?"],
-    ["#COMM_00_A_05#","Any advice, sir?"],
+    ["#COMM_00_A_05#","Any advice"],
     /*Comm - COMM_01*/
     ["#COMM_01_A_02#","I'll be on my way"],
-    /*Comm - COMM_MIS*/
-    ["#COMM_MIS_Q_01#","Goodspeed, soldier|Here's what we dealing with"],
-    ["#COMM_MIS_Q_02#","Here are the options"],
-    ["#COMM_MIS_Q_03#","Intelligence hinted on several points"],
-    ["#COMM_MIS_A_01#","Show me"],
-    ["#COMM_MIS_A_02#","Something else first, sir"],
-    ["#COMM_MIS_A_03#","Need more time for preparations"],
+    /*Comm - COMM_LVL*/
+    ["#COMM_LVL_Q_01#","Goodspeed, soldier|Here's what we dealing with"],
+    ["#COMM_LVL_Q_02#","Here are the options"],
+    ["#COMM_LVL_Q_03#","Intelligence hinted on several points"],
+    ["#COMM_LVL_A_01#","Show me the map"],
+    ["#COMM_LVL_A_02#","Something else first"],
+    ["#COMM_LVL_A_03#","Need more time for preparations"],
+    ["#COMM_LVLSEL_LVLREQ#","[LOCKED. Required lvl: %1]"],
+    ["#COMM_LVLSEL_LOCKED#","[LOCKED. Unlock price: %1]"],
+    ["#COMM_LVLSEL#","Level %1"],
+    /*Comm - COMM_LVL_REQ_LOCKED*/
+    ["#COMM_LVL_REQ_LOCKED_Q_01#","I can not trust you with this one yet|Required level: %1"],
+    ["#COMM_LVL_REQ_LOCKED_Q_02#","It's above my confidence in you|Required level: %1"],
+    /*Comm - COMM_LVL_UNLOCK_PAY*/
+    ["#COMM_LVL_UNLOCK_Q_01#","This will cost you %1|We'll split expenses among your group"],
+    ["#COMM_LVL_UNLOCK_Q_02#","This will cost you %1"],
+    /*Comm - COMM_LVL_UNLOCKED*/
+    ["#COMM_LVL_UNLOCKED_Q_01#","New intel will be delivered any minute now"],
+    /*Comm - COMM_LVL_MISSION*/
+    ["#COMM_LVL_MISSION_Q_01#","So? Let's take a look?"],
+    ["#COMM_LVL_MISSION_Q_02#","You're ready?"],
+    ["#COMM_LVL_MISSION_Q_03#","Intel delivered|Want to take a look?"],
     /*Comm - COMM_HELP*/
     ["#COMM_HELP_Q_01#","What is it?"],
     ["#COMM_HELP_Q_02#","Sure, what is it?"],

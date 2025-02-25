@@ -1,3 +1,5 @@
+#include "dialogueDefines.h"
+
 /*
 Dialogue records:
 In the format QnA
@@ -16,6 +18,7 @@ Each answer is array of [%ANSWER_STR%,%NEXT_NODE%,(optional:%CODE%)]
 %ANSWER_STR%
 	string - single localization key
 	array - format ["template",{code to return arg},...]
+	code - code to return answer string (e.g.: choosing answer string from a list of predefined answers for that node)
 %NEXT_NODE%
 	string - id of the next node
 	NODE_BACK - get back to the previous node
@@ -24,6 +27,7 @@ Each answer is array of [%ANSWER_STR%,%NEXT_NODE%,(optional:%CODE%)]
 	- IF %NEXT_NODE% is NODE_EXIT - after closing the UI (serves as a callback)
 	- IF %NEXT_NODE% is NODE_BACK or Defined Node - before loading the next node (e.g.: setting some variables that will affect the next node)
 %CODE_ARGS%	optional arguments to pass to %CODE% (default: [])
+%COLOR%	optional color to use for the answer in RGBA ([R,G,B,A]) format (default: [])
 
 Dialogue node structure:
 [
@@ -296,11 +300,9 @@ NWG_DLG_CLI_LoadNextNode = {
 			//Mix of code generation(s) and (optionally) predefined answers
 			private _generated = [];
 			{
-				switch (true) do {
-					case (_x isEqualType {}): {_generated append (call _x)};
-					case (_x isEqualType []): {_generated pushBack _x};
-					default {(format ["NWG_DLG_CLI_LoadNextNode: Invalid A_GEN answer type in node '%1', only {} or [] are allowed",_nodeName]) call NWG_fnc_logError};
-				};
+				if (_x isEqualType {}) then {_generated append (call _x); continue};
+				if (_x isEqualType []) then {_generated pushBack _x; continue};
+				(format ["NWG_DLG_CLI_LoadNextNode: Invalid A_GEN answer type in node '%1', only {} or [] are allowed",_nodeName]) call NWG_fnc_logError;
 			} forEach _aBody;
 			_generated
 		};
@@ -314,32 +316,39 @@ NWG_DLG_CLI_LoadNextNode = {
 	//Show next answers
 	private _aListbox = uiNamespace getVariable ["NWG_DLG_aListbox",controlNull];
 	private _template = NWG_DLG_CLI_Settings get "TEMPLATE_ANSWER";
-	private _nextAnswer = "";
-	private _i = -1;
+	private ["_answerStr","_i","_color"];
 	{
-		_nextAnswer = switch (true) do {
-			case (_x isEqualType []): {
-				private _ansX = _x+[];//Shallow copy to prevent modifying original array
-				private _ansTemplate = (_ansX deleteAt 0) call NWG_fnc_localize;
-				private _ansArgs = _ansX apply {(call _x) call NWG_fnc_localize};
-				format ([_ansTemplate]+_ansArgs)
+		_answerStr = _x param [A_STR,""];
+		_answerStr = switch (true) do {
+			case (_answerStr isEqualType ""): {
+				_answerStr call NWG_fnc_localize;
 			};
-			case (_x isEqualType ""): {
-				_x call NWG_fnc_localize;
+			case (_answerStr isEqualType {}): {
+				((call _answerStr) call NWG_fnc_localize);
+			};
+			case (_answerStr isEqualType []): {
+				format (_answerStr apply {
+					if (_x isEqualType "") then {continueWith (_x call NWG_fnc_localize)};
+					if (_x isEqualType {}) then {continueWith ((call _x) call NWG_fnc_localize)};
+					str _x
+				})
 			};
 			default {
-				(format ["NWG_DLG_CLI_LoadNextNode: Invalid answer type: '%1'",_x]) call NWG_fnc_logError;
+				(format ["NWG_DLG_CLI_LoadNextNode: Invalid answer type: '%1'",_answerStr]) call NWG_fnc_logError;
 				""
 			};
 		};
 
-		_i = _aListbox lbAdd (format [_template,(_forEachIndex+1),_nextAnswer]);
-		_aListbox lbSetData [_i,_nextAnswer];//Save raw answer string for later use
-	} forEach (_answers apply {_x#0});
+		_i = _aListbox lbAdd (format [_template,(_forEachIndex+1),_answerStr]);
+		_aListbox lbSetData [_i,_answerStr];//Save raw answer string for later use
+
+		private _color = _x param [A_COLOR,[]];
+		if ((count _color) == 4) then {_aListbox lbSetColor [_i,_color]};
+	} forEach _answers;
 
 	//Update history
 	private _nodeHistory = uiNamespace getVariable ["NWG_DLG_nodeHistory",[]];
-	private _i = _nodeHistory find _nodeName;
+	_i = _nodeHistory find _nodeName;
 	if (_i != -1) then {_nodeHistory = _nodeHistory select [0,_i]};
 	_nodeHistory pushBack _nodeName;
 	uiNamespace setVariable ["NWG_DLG_nodeHistory",_nodeHistory];

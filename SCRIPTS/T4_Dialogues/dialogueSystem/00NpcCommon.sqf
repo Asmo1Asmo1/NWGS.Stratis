@@ -139,7 +139,7 @@ NWG_DLGHLP_GenerateDoubtExit = {
 NWG_DLGHLP_UI_UpdatePlayerMoney = {
 	private _gui = uiNamespace getVariable ["NWG_DLG_gui",displayNull];
 	if (isNull _gui) exitWith {};
-	(_gui displayCtrl IDC_TEXT_LEFT) ctrlSetText (call (NWG_DLG_CLI_Settings get "TEXT_LEFT_FILL_FUNC"));
+	(_gui displayCtrl IDC_TEXT_LEFT) ctrlSetText (call (NWG_DLG_CLI_Settings get "TEXT_LEFT_FILL_FUNC"));//Using the function from the client module
 };
 
 //================================================================================================================

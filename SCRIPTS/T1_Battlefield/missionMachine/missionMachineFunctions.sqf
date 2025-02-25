@@ -12,11 +12,10 @@ NWG_fnc_mmGetUnlockedLevels = {
 //Unlocks a level
 //params:
 // - _level - int
-// - (optional) _callback - code
 //returns: boolean (note: true means that checks passed and the request was sent, false - checks failed)
 NWG_fnc_mmUnlockLevel = {
     // private _level = _this;
-    call NWG_MIS_CLI_UnlockLevel;
+    _this call NWG_MIS_CLI_UnlockLevel;
 };
 
 //Requests the server to send the mission selection options for that level
@@ -25,7 +24,7 @@ NWG_fnc_mmUnlockLevel = {
 //returns: boolean (note: true means that checks passed and the request was sent, false - checks failed)
 NWG_fnc_mmOpenMissionSelection = {
     // private _level = _this;
-    call NWG_MIS_CLI_RequestMissionSelection;
+    _this call NWG_MIS_CLI_RequestMissionSelection;
 };
 
 //=============================================================================
@@ -36,13 +35,6 @@ NWG_fnc_mmUnlockLevelRequest = {
     // private _level = _this;
     if (!isServer) exitWith {_this remoteExec ["NWG_fnc_mmUnlockLevelRequest",2]};
     _this call NWG_MIS_SER_OnUnlockLevelRequest;
-};
-
-//Response from the server on unlocking a level
-//params: _success - boolean
-NWG_fnc_mmUnlockLevelResponse = {
-    // private _success = _this;
-    _this call NWG_MIS_CLI_UnlockLevelResponse;
 };
 
 //Requests the server to send the mission selection options
@@ -66,7 +58,6 @@ NWG_fnc_mmSelectionMade = {
     // private _selection = _this;
     _this call NWG_MIS_SER_OnSelectionMade;
 };
-
 
 //=============================================================================
 /*Server->Client*/

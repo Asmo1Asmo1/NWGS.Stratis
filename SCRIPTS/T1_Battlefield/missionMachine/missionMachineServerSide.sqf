@@ -186,6 +186,12 @@ NWG_MIS_SER_Cycle = {
                 //Check mission selection
                 if (NWG_MIS_SER_selected isEqualTo []) exitWith {};//Wait for selection
 
+                //Check if may skip voting
+                if ((count (call NWG_fnc_getPlayersAll)) <= 1) exitWith {
+                    "Only one player online - skipping voting" call NWG_MIS_SER_Log;
+                    MSTATE_BUILD_CONFIG call NWG_MIS_SER_ChangeState;
+                };
+
                 //Start voting
                 if (call NWG_fnc_voteIsRunning) exitWith {
                     "#MIS_VOTE_WAITING#" call NWG_fnc_systemChatAll;
@@ -194,7 +200,7 @@ NWG_MIS_SER_Cycle = {
                 private _title = [
                     "#MIS_VOTE_TITLE#",
                     NWG_MIS_SER_selected param [SELECTION_NAME,""],
-                    NWG_MIS_SER_selected param [SELECTION_LEVEL,-1],
+                    ((NWG_MIS_SER_selected param [SELECTION_LEVEL,-2]) + 1),/*UI level is 1-N+1*/
                     NWG_MIS_SER_selected param [SELECTION_FACTION,""],
                     NWG_MIS_SER_selected param [SELECTION_TIME_STR,""],
                     NWG_MIS_SER_selected param [SELECTION_WEATHER_STR,""]
@@ -550,14 +556,8 @@ NWG_MIS_SER_UpdateUnlockedLevels = {
 
 NWG_MIS_SER_OnUnlockLevelRequest = {
     private _level = _this;
-    private _caller = remoteExecutedOwner;
-    if (isDedicated && _caller <=  0) exitWith {
-        (format ["NWG_MIS_SER_OnUnlockLevel: Caller can not be identified! callerID:%1",_caller]) call NWG_fnc_logError;
-        false/*for testing*/
-    };
     if (NWG_MIS_CurrentState isNotEqualTo MSTATE_READY) exitWith {
         (format ["NWG_MIS_SER_OnUnlockLevel: Invalid state for unlock level request. state:'%1'",(NWG_MIS_CurrentState call NWG_MIS_SER_GetStateName)]) call NWG_fnc_logError;
-        false remoteExec ["NWG_fnc_mmUnlockLevelResponse",_caller];
         false/*for testing*/
     };
 
@@ -565,12 +565,10 @@ NWG_MIS_SER_OnUnlockLevelRequest = {
     private _unlockedLevels = NWG_MIS_UnlockedLevels;
     if (_level < 0 || _level >= (count _unlockedLevels)) exitWith {
         (format ["NWG_MIS_SER_OnUnlockLevel: Invalid level. level:'%1' levels count:'%2'",_level,(count _unlockedLevels)]) call NWG_fnc_logError;
-        false remoteExec ["NWG_fnc_mmUnlockLevelResponse",_caller];
         false/*for testing*/
     };
     if (_unlockedLevels param [_level,false]) exitWith {
         (format ["NWG_MIS_SER_OnUnlockLevel: Level '%1' is already unlocked",_level]) call NWG_fnc_logError;
-        false remoteExec ["NWG_fnc_mmUnlockLevelResponse",_caller];
         false/*for testing*/
     };
 
@@ -580,7 +578,6 @@ NWG_MIS_SER_OnUnlockLevelRequest = {
     publicVariable "NWG_MIS_UnlockedLevels";
 
     //return
-    true remoteExec ["NWG_fnc_mmUnlockLevelResponse",_caller];
     true/*for testing*/
 };
 
