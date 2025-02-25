@@ -164,6 +164,7 @@ NWG_LM_SER_Settings = createHashMapFromArray [
 NWG_LM_SER_lootCatalogue = [];
 NWG_LM_SER_setsEnrichment = 0;
 NWG_LM_SER_itemEnrichment = 0;
+NWG_LM_SER_maxTier = 4;
 
 //================================================================================================================
 //================================================================================================================
@@ -192,7 +193,7 @@ NWG_LM_SER_CompileCatalogue = {
         false
     };
 
-    //Repack according to rarity
+    //Repack according to tier
     private _catalogue = [];
     private _maxCount = (NWG_LM_SER_Settings get "CATALOGUE_MAX_TIER") + 1;
     {
@@ -207,64 +208,14 @@ NWG_LM_SER_CompileCatalogue = {
     true
 };
 
-NWG_LM_SER_GetFullCatalogue = {
-    //Check cached result
-    if ((count NWG_LM_SER_lootCatalogue) > 0) exitWith {
-        NWG_LM_SER_lootCatalogue
-    };
-
-    //Try to compile full catalogue
-    if ((call NWG_LM_SER_CompileCatalogue) isEqualTo false) exitWith {
-        (format ["NWG_LM_SER_GetFullCatalogue: Failed to compile catalogue"]) call NWG_fnc_logError;
-        false
-    };
-
-    //Return
-    NWG_LM_SER_lootCatalogue
-};
-
-NWG_LM_SER_lastFacCatReq = "";
-NWG_LM_SER_lastFacCatResp = [];
-NWG_LM_SER_GetFactionCatalogue = {
-    // private _faction = _this;
-    if (!(_this isEqualType "") || {_this isEqualTo ""}) exitWith {
-        (format ["NWG_LM_SER_GetFactionCatalogue: Invalid faction: %1",_this]) call NWG_fnc_logError;
-        false
-    };
-
-    //Check cached result
-    if (_this isEqualTo NWG_LM_SER_lastFacCatReq) exitWith {
-        NWG_LM_SER_lastFacCatResp
-    };
-
-    //Try to compile full catalogue if not done yet
-    if (NWG_LM_SER_lootCatalogue isEqualTo [] && {(call NWG_LM_SER_CompileCatalogue) isEqualTo false}) exitWith {
-        (format ["NWG_LM_SER_GetFactionCatalogue: Failed to compile catalogue"]) call NWG_fnc_logError;
-        false
-    };
-
-    //Select faction sets from catalogue
-    private _inclTag = _this;//"CIV"
-    private _exclTag = "-" + _this;//"-CIV"
-    private _factionCatalogue = NWG_LM_SER_lootCatalogue select {
-        if (TAG_ANYFAC in (_x#SET_TAGS) && {!(_exclTag in (_x#SET_TAGS))}) then {continueWith true};
-        if (_inclTag in (_x#SET_TAGS)) then {continueWith true};
-        false
-    };
-
-    //Save and return
-    NWG_LM_SER_lastFacCatReq = _this;
-    NWG_LM_SER_lastFacCatResp = _factionCatalogue;
-    _factionCatalogue
-};
-
 //================================================================================================================
 //================================================================================================================
 //Configure future loot filling
-NWG_LM_SER_ConfigureEnrichment = {
-	params [["_setEnrichment",0],["_itemEnrichment",0]];
+NWG_LM_SER_Configure = {
+	params [["_setEnrichment",0],["_itemEnrichment",0],["_maxTier",10]];
     NWG_LM_SER_setsEnrichment = _setEnrichment;
     NWG_LM_SER_itemEnrichment = _itemEnrichment;
+    NWG_LM_SER_maxTier = _maxTier;
     true
 };
 
@@ -272,32 +223,40 @@ NWG_LM_SER_ConfigureEnrichment = {
 //================================================================================================================
 //Generate loot set(s)
 NWG_LM_SER_GenerateLootSet = {
-    params [["_faction",""],["_containerTag",""],["_setsCount",1],["_enrichment",NWG_LM_SER_itemEnrichment]];
+    params [["_faction",""],["_containerTag",""],["_setsCount",1],["_enrichment",NWG_LM_SER_itemEnrichment],["_maxTier",NWG_LM_SER_maxTier]];
 
-    //Get faction catalogue
-    private _catalogue = if (_faction isEqualTo "" || {_faction isEqualTo TAG_ANYFAC})
-        then {call NWG_LM_SER_GetFullCatalogue}
-        else {_faction call NWG_LM_SER_GetFactionCatalogue};
-    if (_catalogue isEqualTo false) exitWith {
-        (format ["NWG_LM_SER_GenerateLootSet: Failed to get faction catalogue: %1",_faction]) call NWG_fnc_logError;
+    //Get catalogue to select from
+    if (NWG_LM_SER_lootCatalogue isEqualTo [] && {(call NWG_LM_SER_CompileCatalogue) isEqualTo false}) exitWith {
+        (format ["NWG_LM_SER_GenerateLootSet: Failed to compile catalogue"]) call NWG_fnc_logError;
         false
     };
-
-    //Filter by container
-    _catalogue = switch (true) do {
-        case (_containerTag isEqualTo ""): {_catalogue};
-        case (_containerTag in [TAG_CAR,TAG_AIR,TAG_ARM,TAG_BOAT]) : {_catalogue select {TAG_ANYVEH in (_x#SET_TAGS) || {_containerTag in (_x#SET_TAGS)}}};
-        case (_containerTag in [TAG_LOOT,TAG_WEAP,TAG_RUG,TAG_MED]): {_catalogue select {TAG_ANYBOX in (_x#SET_TAGS) || {_containerTag in (_x#SET_TAGS)}}};
-        default {_catalogue select {_containerTag in (_x#SET_TAGS)}};
+    private _catalogue = NWG_LM_SER_lootCatalogue;
+    private _factionFilter = switch (true) do {
+        case (_faction isEqualTo ""): {{true}};
+        case (_faction isEqualTo TAG_ANYFAC): {{true}};
+        default {{
+            if (TAG_ANYFAC in (_this#SET_TAGS) && {!(("-"+_faction) in (_this#SET_TAGS))}) exitWith {true};
+            if (_faction in (_this#SET_TAGS)) exitWith {true};
+            false
+        }};
     };
+    private _containerFilter = switch (true) do {
+        case (_containerTag isEqualTo ""): {{true}};
+        case (_containerTag in [TAG_CAR,TAG_AIR,TAG_ARM,TAG_BOAT]) : {{TAG_ANYVEH in (_this#SET_TAGS) || {_containerTag in (_this#SET_TAGS)}}};
+        case (_containerTag in [TAG_LOOT,TAG_WEAP,TAG_RUG,TAG_MED]): {{TAG_ANYBOX in (_this#SET_TAGS) || {_containerTag in (_this#SET_TAGS)}}};
+        default {{_containerTag in (_this#SET_TAGS)}};
+    };
+    private _tierFilter = {(_this#SET_TIER) <= _maxTier};
+    _catalogue = _catalogue select {(_x call _factionFilter) && {(_x call _containerFilter) && {(_x call _tierFilter)}}};
 
-    //Iterate and fill
+    //Iterate and fill sets
     private _result = LOOT_ITEM_DEFAULT_CHART;
     private ["_setType","_setRules","_itemsProb","_countProb"];
     for "_i" from 1 to _setsCount do {
         //Select random set and define its type
         (selectRandom _catalogue) params ["_setTags","","_setItems"];
-        _setType = (_setItems apply {if ((count _x) > 0) then {1} else {0}}) call NWG_LM_SER_EncodeFlags;//Binary flags encoding
+        _setType = 0;
+        {if ((count _x) > 0) then {_setType = _setType + (2 ^ _forEachIndex)}} forEach _setItems;//Binary flags encoding
 
         //Select rules
         _setRules = switch (_setType) do {
@@ -351,16 +310,8 @@ NWG_LM_SER_GenerateLootSet = {
     _result
 };
 
-//Rework of BIS_fnc_encodeFlags2 (removed surplus checks)
-NWG_LM_SER_EncodeFlags = {
-    // private _flags = _this;
-    private _encoded = 0;
-    { if (_x == 1) then {_encoded = _encoded + (2 ^ _forEachIndex)} } forEach _this;
-    _encoded
-};
-
 //[[2,3,4,5],-1] -> [1,2,3,4]
-//[[1,1,2,3],-1] -> [0,1,1,2]
+//[[1,1,2,3],-1] -> [1,1,1,2]
 NWG_LM_SER_ApplyEnrichment = {
     params ["_probabilities","_enrichment"];
     private _result = _probabilities + [];//Shallow copy
@@ -384,24 +335,16 @@ NWG_LM_SER_FillObject = {
     private _count = 1;
     //forEach ["clth1",2,"clth2",3,"wepn1",...]
     {
-        switch (true) do {
-            case (_x isEqualType 1): {
-                _count = _x;
-            };
-            case (isClass (configFile >> "CfgVehicles" >> _x)): {
-                _object addBackpackCargoGlobal [_x,_count];
-                _count = 1;
-            };
-            default {
-                _object addItemCargoGlobal [_x,_count];
-                _count = 1;
-            };
-        };
+        if (_x isEqualType 1) then {_count = _x; continue};
+        if (isClass (configFile >> "CfgVehicles" >> _x))
+            then {_object addBackpackCargoGlobal [_x,_count]}
+            else {_object addItemCargoGlobal [_x,_count]};
+        _count = 1;
     } forEach (flatten _lootSet);
 };
 
 NWG_LM_SER_FillContainers = {
-    params [["_faction",""],["_containers",[]],["_setsEnrichment",NWG_LM_SER_setsEnrichment],["_itemEnrichment",NWG_LM_SER_itemEnrichment]];
+    params [["_faction",""],["_containers",[]],["_setsEnrichment",NWG_LM_SER_setsEnrichment],["_itemEnrichment",NWG_LM_SER_itemEnrichment],["_maxTier",NWG_LM_SER_maxTier]];
 
     private _result = [];
     private ["_type","_tag","_counts","_count","_lootSet"];
@@ -430,7 +373,7 @@ NWG_LM_SER_FillContainers = {
         };
 
         //Generate loot set
-        _lootSet = [_faction,_tag,_count,_itemEnrichment] call NWG_LM_SER_GenerateLootSet;
+        _lootSet = [_faction,_tag,_count,_itemEnrichment,_maxTier] call NWG_LM_SER_GenerateLootSet;
         if (_lootSet isEqualTo false) then {
             (format ["NWG_LM_SER_FillContainers: Failed to generate loot set for: %1",[_faction,_tag,_count,_itemEnrichment]]) call NWG_fnc_logError;
             _x call NWG_fnc_clearContainerCargo;
@@ -447,7 +390,7 @@ NWG_LM_SER_FillContainers = {
 };
 
 NWG_LM_SER_FillVehicles = {
-    params [["_faction",""],["_vehicles",[]],["_setsEnrichment",NWG_LM_SER_setsEnrichment],["_itemEnrichment",NWG_LM_SER_itemEnrichment]];
+    params [["_faction",""],["_vehicles",[]],["_setsEnrichment",NWG_LM_SER_setsEnrichment],["_itemEnrichment",NWG_LM_SER_itemEnrichment],["_maxTier",NWG_LM_SER_maxTier]];
 
     private ["_tag","_counts","_count","_lootSet"];
     //foreach vehicle
@@ -475,7 +418,7 @@ NWG_LM_SER_FillVehicles = {
         };
 
         //Generate loot set
-        _lootSet = [_faction,_tag,_count,_itemEnrichment] call NWG_LM_SER_GenerateLootSet;
+        _lootSet = [_faction,_tag,_count,_itemEnrichment,_maxTier] call NWG_LM_SER_GenerateLootSet;
         if (_lootSet isEqualTo false) then {
             (format ["NWG_LM_SER_FillVehicles: Failed to generate loot set for: %1",[_faction,_tag,_count,_itemEnrichment]]) call NWG_fnc_logError;
             _x call NWG_fnc_clearContainerCargo;

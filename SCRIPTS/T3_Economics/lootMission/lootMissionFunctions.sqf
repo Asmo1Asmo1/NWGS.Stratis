@@ -12,10 +12,11 @@ NWG_fnc_lmCompileCatalogue = {
 //params:
 // - _setEnrichment - number to modify sets probability for objects (better keep it in range -1..1)
 // - _itemEnrichment - number to modify items probability in sets (better keep it in range -1..1)
+// - _maxTier - number to set as max tier for loot generation (1-4)
 //returns: true if enrichment was configured successfully, false otherwise
-NWG_fnc_lmConfigureEnrichment = {
-    // params [["_setEnrichment",0],["_itemEnrichment",0]];
-    _this call NWG_LM_SER_ConfigureEnrichment
+NWG_fnc_lmConfigure = {
+    // params [["_setEnrichment",0],["_itemEnrichment",0],["_maxTier",4]];
+    _this call NWG_LM_SER_Configure
 };
 
 //Fill containers with loot
@@ -25,9 +26,10 @@ NWG_fnc_lmConfigureEnrichment = {
 // - _containers - array of containers to fill (it is safe to pass any objects, only containers will be filled)
 // - _setEnrichmentOverride - enrichment override for sets (optional, uses pre-configured enrichment by default, which is itself 0 by default)
 // - _itemEnrichmentOverride - enrichment override for items (optional, uses pre-configured enrichment by default, which is itself 0 by default)
+// - _maxTierOverride - max tier override (optional, uses pre-configured max tier by default, which is itself 4 by default)
 //returns: array of objects that were filled with loot
 NWG_fnc_lmFillContainers = {
-    // params [["_faction",""],["_containers",[]],["_setEnrichmentOverride",0],["_itemEnrichmentOverride",0]];
+    // params [["_faction",""],["_containers",[]],["_setEnrichmentOverride",0],["_itemEnrichmentOverride",0],["_maxTierOverride",4]];
     _this call NWG_LM_SER_FillContainers
 };
 
@@ -37,9 +39,10 @@ NWG_fnc_lmFillContainers = {
 // - _vehicles - array of vehicles to fill
 // - _setEnrichmentOverride - enrichment override for sets (optional, uses pre-configured enrichment by default, which is itself 0 by default)
 // - _itemEnrichmentOverride - enrichment override for items (optional, uses pre-configured enrichment by default, which is itself 0 by default)
+// - _maxTierOverride - max tier override (optional, uses pre-configured max tier by default, which is itself 4 by default)
 //returns: nothing
 NWG_fnc_lmFillVehicles = {
-    // params [["_faction",""],["_vehicles",[]],["_setEnrichmentOverride",0],["_itemEnrichmentOverride",0]];
+    // params [["_faction",""],["_vehicles",[]],["_setEnrichmentOverride",0],["_itemEnrichmentOverride",0],["_maxTierOverride",4]];
     _this call NWG_LM_SER_FillVehicles
 };
 
@@ -47,10 +50,11 @@ NWG_fnc_lmFillVehicles = {
 //params:
 // - _faction - faction to use for filtering (optional, "" by default - any faction)
 // - _containerTag - container tag to use for filtering (optional, "" by default - any container)
-// - _setsCount - number of sets to sqash into this data (optional, 1 by default)
-// - _enrichment - enrichment override - number to modify items probability in sets (optional, uses pre-configured enrichment by default, which is itself 0 by default)
+// - _setsCount - number of sets to squash into this data (optional, 1 by default)
+// - _enrichment - enrichment override - number to modify items probability in sets (optional, uses pre-configured enrichment by default, which is itself 0 by default) (see NWG_fnc_lmConfigure)
+// - _maxTier - max tier to use for filtering (optional, uses pre-configured max tier by default, which is itself 4 by default) (see NWG_fnc_lmConfigure)
 //returns: array of [["CLTH","CLTH"...],["WEAP","WEAP"...],["ITEM","ITEM"...],["AMMO","AMMO"...]] or false if something went wrong
 NWG_fnc_lmGenerateLootSet = {
-    // params [["_faction",""],["_containerTag",""],["_setsCount",1],["_enrichment",0]];
+    // params [["_faction",""],["_containerTag",""],["_setsCount",1],["_enrichment",0],["_maxTier",4]];
     _this call NWG_LM_SER_GenerateLootSet
 };

@@ -1,21 +1,59 @@
 #include "..\..\globalDefines.h"
+#include "missionMachineDefines.h"
 
 //=============================================================================
 /*Any->Client*/
-//Open mission selection UI
-NWG_fnc_mmOpenSelectionUI = {
-    call NWG_MIS_CLI_RequestMissionSelection
+//Returns array of unlocked levels (lenght of array shows levels count)
+//returns: [bool,bool,bool...]
+NWG_fnc_mmGetUnlockedLevels = {
+    call NWG_MIS_CLI_GetUnlockedLevels
+};
+
+//Unlocks a level
+//params:
+// - _level - int
+//returns: boolean (note: true means that checks passed and the request was sent, false - checks failed)
+NWG_fnc_mmUnlockLevel = {
+    // private _level = _this;
+    _this call NWG_MIS_CLI_UnlockLevel;
+};
+
+//Requests the server to send the mission selection options for that level
+//note: will open the selection UI on values returned by the server
+//params: _level - int
+//returns: boolean (note: true means that checks passed and the request was sent, false - checks failed)
+NWG_fnc_mmOpenMissionSelection = {
+    // private _level = _this;
+    _this call NWG_MIS_CLI_RequestMissionSelection;
 };
 
 //=============================================================================
 /*Client->Server*/
+//Requests the server to unlock a level
+//params: _level - int
+NWG_fnc_mmUnlockLevelRequest = {
+    // private _level = _this;
+    if (!isServer) exitWith {_this remoteExec ["NWG_fnc_mmUnlockLevelRequest",2]};
+    _this call NWG_MIS_SER_OnUnlockLevelRequest;
+};
+
 //Requests the server to send the mission selection options
-NWG_fnc_mmRequestSelectionOptions = {
-    call NWG_MIS_SER_OnSelectionOptionsRequest;
+//params: _level - int
+NWG_fnc_mmSelectionRequest = {
+    // private _level = _this;
+    if (!isServer) exitWith {_this remoteExec ["NWG_fnc_mmSelectionRequest",2]};
+    _this call NWG_MIS_SER_OnSelectionRequest;
+};
+
+//Response from the server with the mission selection options
+//params: _selectionList - array
+NWG_fnc_mmSelectionResponse = {
+    // private _selectionList = _this;
+    _this call NWG_MIS_CLI_OnSelectionOptionsReceived;
 };
 
 //Selection made by the client
-//params: _selection - int - index of the selected mission
+//params: _selection - array - item from the selection list
 NWG_fnc_mmSelectionMade = {
     // private _selection = _this;
     _this call NWG_MIS_SER_OnSelectionMade;
@@ -23,19 +61,12 @@ NWG_fnc_mmSelectionMade = {
 
 //=============================================================================
 /*Server->Client*/
-//Sends the mission selection options to the client
-//params: _options - array
-NWG_fnc_mmSendSelectionOptions = {
-    // private _options = _this;
-    _this call NWG_MIS_CLI_OnSelectionOptionsReceived;
-};
-
-//Confirms the selection made
-//params: _missionName - string
-NWG_fnc_mmSelectionConfirmed = {
-    // private _missionName = _this;
+//Displays the mission briefing
+//params: _selection - array - item from the selection list
+NWG_fnc_mmMissionBriefing = {
+    // private _selection = _this;
     if (!hasInterface) exitWith {};//Prevent HC from executing this
-    _this call NWG_MIS_CLI_OnSelectionConfirmed;
+    _this call NWG_MIS_CLI_ShowMissionBriefing;
 };
 
 //Notifies the client that the mission is completed
@@ -96,7 +127,7 @@ NWG_fnc_mmGetMissionObjects = {
 //note: use in EVENT_ON_MISSION_STATE_CHANGED subscriber(s)
 //returns: string (MISSION_FACTION_NATO, MISSION_FACTION_CSAT, MISSION_FACTION_AAF, ...)
 NWG_fnc_mmGetMissionFaction = {
-    NWG_MIS_SER_missionInfo getOrDefault ["EnemyFaction",""]
+    NWG_MIS_SER_missionInfo getOrDefault [MINFO_ENEMY_FACTION,""]
 };
 
 //Returns mission side
@@ -104,26 +135,37 @@ NWG_fnc_mmGetMissionFaction = {
 //note: use in EVENT_ON_MISSION_STATE_CHANGED subscriber(s)
 //returns: WEST, EAST, GUER
 NWG_fnc_mmGetMissionSide = {
-    NWG_MIS_SER_missionInfo getOrDefault ["EnemySide",west]
+    NWG_MIS_SER_missionInfo getOrDefault [MINFO_ENEMY_SIDE,west]
 };
 
-//Returns mission difficulty
-//returns: string (MISSION_DIFFICULTY_EASY, MISSION_DIFFICULTY_NORM, ...)
-NWG_fnc_mmGetMissionDifficulty = {
-    NWG_MIS_SER_missionInfo getOrDefault ["Difficulty",MISSION_DIFFICULTY_NORM]
+//Interpolates min-max according to selected level
+//note: this command is reliable only starting from MSTATE_BUILD_UKREP mission state, otherwise it will return default values or values from previous mission
+//note: use in EVENT_ON_MISSION_STATE_CHANGED subscriber(s)
+//params: _min - number, _max - number
+//returns: number
+NWG_fnc_mmInterpolateByLevelInt = {
+    // params ["_min","_max"];
+    private _level = NWG_MIS_SER_missionInfo getOrDefault [MINFO_LEVEL,0];
+    [_this,_level] call NWG_MIS_SER_InterpolateInt;
+};
+
+//Returns tiers of this mission
+//returns: array of numbers OR empty array if tiers are not set yet
+NWG_fnc_mmGetMissionTiers = {
+    NWG_MIS_SER_missionInfo getOrDefault [MINFO_TIERS,[]]
 };
 
 //Returns mission pos
 //returns: [pos,rad]
 NWG_fnc_mmGetMissionPos = {
-    [(NWG_MIS_SER_missionInfo getOrDefault ["Position",[0,0,0]]),(NWG_MIS_SER_missionInfo getOrDefault ["Radius",0])]
+    [(NWG_MIS_SER_missionInfo getOrDefault [MINFO_POSITION,[0,0,0]]),(NWG_MIS_SER_missionInfo getOrDefault [MINFO_RADIUS,0])]
 };
 
 //Returns if this unit is currently in the base area
-//params: _unit - object
+//params: _player - object
 //returns: boolean
-NWG_fnc_mmIsUnitInBase = {
-    // private _unit = _this;
+NWG_fnc_mmIsPlayerOnBase = {
+    // private _player = _this;
     private _basePos = NWG_MIS_SER_playerBasePos;
     if (_basePos isEqualTo []) exitWith {true};//Fallback to true if base position is not set yet
     private _baseRad = NWG_MIS_SER_Settings get "PLAYER_BASE_RADIUS";
@@ -132,9 +174,9 @@ NWG_fnc_mmIsUnitInBase = {
 
 //Returns if this player was on mission
 //note: Is safe to use on both client and server sides
-//params: _unit - object
+//params: _player - object
 //returns: boolean
 NWG_fnc_mmWasPlayerOnMission = {
     // private _player = _this;
-    _this call NWG_MIS_SER_GetWasOnMission
+    _this getVariable ["NWG_MIS_WasOnMission",false]
 };

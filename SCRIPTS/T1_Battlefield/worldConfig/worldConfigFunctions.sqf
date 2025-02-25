@@ -12,31 +12,28 @@ NWG_fnc_wcGetWorldNameLocKey = {
 };
 
 /*Daytime and Weather*/
-//Gets random daytime as string (does not need to be localized, format "00:00") (can be used in NWG_fnc_wcSetDaytimeAndWeather)
-NWG_fnc_wcGetRndDaytimeStr = {
-    call NWG_WCONF_COM_GetRndDaytimeStr
+//Returns random daytime
+//returns:
+// 0: string - daytime string value
+// 1: string - daytime localization key
+NWG_fnc_wcGetRndDaytime = {
+    call NWG_WCONF_COM_GetRndDaytime
 };
 
-//Gets random weather as string (NEEDS to be localized) (can be used in NWG_fnc_wcSetDaytimeAndWeather)
-NWG_fnc_wcGetRndWeatherStr = {
-    call NWG_WCONF_COM_GetRndWeatherStr
-};
-
-//Gets weather string localization key
-// params:
-// 0: string - weather as string (get from NWG_fnc_wcGetRndWeatherStr)
-// note: to be used client-side only and with conjunction with NWG_fnc_localize
-NWG_fnc_wcGetWeatherStrLoc = {
-    // private _weatherStr = _this;
-    _this call NWG_WCONF_COM_GetWeatherStrLoc
+//Returns random weather
+//returns:
+// 0: string - weather string value
+// 1: string - weather localization key
+NWG_fnc_wcGetRndWeather = {
+    call NWG_WCONF_COM_GetRndWeather
 };
 
 //Sets daytime and weather
 // params:
-// 0: string - daytime as string (get from NWG_fnc_wcGetRndDaytimeStr)
-// 1: string - weather as string (get from NWG_fnc_wcGetRndWeatherStr)
+// 0: string - daytime string value (get from NWG_fnc_wcGetRndDaytime)
+// 1: string - weather string value (get from NWG_fnc_wcGetRndWeather)
 // note: is safe to use on client as it will transfer to server execution
 NWG_fnc_wcSetDaytimeAndWeather = {
-    // params ["_daytimeStr","_weatherStr"];
+    // params ["_daytime","_weather"];
     _this call NWG_WCONF_COM_SetDaytimeAndWeather
 };

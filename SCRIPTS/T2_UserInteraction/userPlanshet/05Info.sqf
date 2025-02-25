@@ -13,10 +13,10 @@
 NWG_UP_05Info_Settings = createHashMapFromArray [
 	["WINDOW_NAME","#UP_INFO_TITLE#"],
 	["PLANSHET_ROWS",[
-		["#UP_INFO_GENERAL#",{name player},{call NWG_fnc_pGetMyLvl},{call NWG_fnc_pGetMyExp}],
-		["#UP_INFO_TAXI_LVL#",{(call NWG_fnc_pGetMyTaxiLvl) * 10}],
-		["#UP_INFO_TRDR_LVL#",{(call NWG_fnc_pGetMyTraderLvl) * 10}],
-		["#UP_INFO_COMM_LVL#",{call NWG_fnc_pGetMySupportLvl}]
+		["#UP_INFO_GENERAL#",{name player},{player call NWG_fnc_pGetMyLvl},{player call NWG_fnc_pGetMyExp}],
+		["#UP_INFO_TAXI_LVL#",{(player call NWG_fnc_pGetMyTaxiLvl) * 10}],
+		["#UP_INFO_TRDR_LVL#",{(player call NWG_fnc_pGetMyTraderLvl) * 10}],
+		["#UP_INFO_COMM_LVL#",{(player call NWG_fnc_pGetMySupportLvl) * 10}]
 	]],
 
 	["",0]

@@ -57,6 +57,8 @@ NWG_WCONF_COM_Settings = createHashMapFromArray [
 	/*Weather settings*//*[_weatherStr,_weatherLocKey,_settings: [[_overcastMinMax],[_windMinMax],[_rainMinMax],[_lightningsMinMax],[_fogMinMax]]]*/
 	["WEATHERS",[
 		["clear",  "#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
+		["clear",  "#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
+		["clear",  "#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
 		["clear+w","#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[3.0,6.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
 		["cloud",  "#WEATHER_CLOUD#",[/*ovc:*/[0.4,0.6],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
 		["cloud+w","#WEATHER_CLOUD#",[/*ovc:*/[0.4,0.6],/*wind:*/[3.0,6.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
@@ -87,27 +89,19 @@ NWG_WCONF_COM_GetWorldNameLoc = {
 //================================================================================================================
 //================================================================================================================
 //Daytime and Weather
-NWG_WCONF_COM_GetRndDaytimeStr = {
+NWG_WCONF_COM_GetRndDaytime = {
 	private _daytimes = NWG_WCONF_COM_Settings get "DAYTIMES";
-	([_daytimes,"NWG_WCONF_GetRndDaytime"] call NWG_fnc_selectRandomGuaranteed) select DAYTIME_HOUR_STR
-};
-
-NWG_WCONF_COM_GetRndWeatherStr = {
-	private _weathers = NWG_WCONF_COM_Settings get "WEATHERS";
-	([_weathers,"NWG_WCONF_GetRndWeather"] call NWG_fnc_selectRandomGuaranteed) select WEATHER_STR
-};
-
-NWG_WCONF_COM_GetWeatherStrLoc = {
-	private _weatherStr = _this;
-	private _weathers = NWG_WCONF_COM_Settings get "WEATHERS";
-	private _i = _weathers findIf {(_x#WEATHER_STR) isEqualTo _weatherStr};
-	if (_i == -1) exitWith {
-		(format ["NWG_WCONF_COM_GetWeatherStrLoc: Weather not found: %1",_weatherStr]) call NWG_fnc_logError;
-		""
-	};
-
+	private _dayTime = ([_daytimes,"NWG_WCONF_GetRndDaytime"] call NWG_fnc_selectRandomGuaranteed) select DAYTIME_HOUR_STR;
 	//return
-	(_weathers#_i)#WEATHER_LOC
+	//note: _daytime is both the string value and the (nonexistent) loc key (what's the point of localizing "00:00"?)
+	[_dayTime,_dayTime]
+};
+
+NWG_WCONF_COM_GetRndWeather = {
+	private _weathers = NWG_WCONF_COM_Settings get "WEATHERS";
+	private _weather = ([_weathers,"NWG_WCONF_GetRndWeather"] call NWG_fnc_selectRandomGuaranteed);
+	//return
+	[(_weather#WEATHER_STR),(_weather#WEATHER_LOC)]
 };
 
 NWG_WCONF_COM_SetDaytimeAndWeather = {

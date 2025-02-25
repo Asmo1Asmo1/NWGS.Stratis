@@ -6,11 +6,8 @@
 //================================================================================================================
 //Settings
 NWG_ISHOP_MMC_Settings = createHashMapFromArray [
-    ["ISHOP_CHECK_PERSISTENT_ITEMS",true],//Check validity of persistent items on economy state
-
-    ["ADD_ITEMS_EASY",[1,1]],
-    ["ADD_ITEMS_NORM",[2,3]],
-    ["ADD_ITEMS_DFLT",[2,3]],
+    ["CHECK_PERSISTENT_ITEMS",true],//Check validity of persistent items on economy state
+    ["ADD_ITEMS_MIN_MAX",[1,4]],//Number of items to add on mission completion
 
     ["",0]
 ];
@@ -31,7 +28,7 @@ NWG_ISHOP_MMC_OnMissionStateChanged = {
         /*Base building economy state - Initialize items shop module*/
         case MSTATE_BASE_ECONOMY: {
             //Check persistent items
-            if (NWG_ISHOP_MMC_Settings get "ISHOP_CHECK_PERSISTENT_ITEMS") then {
+            if (NWG_ISHOP_MMC_Settings get "CHECK_PERSISTENT_ITEMS") then {
                 private _ok = call NWG_ISHOP_SER_ValidatePersistentItems;
                 if !(_ok) then {
                     "NWG_ISHOP_MMC_OnMissionStateChanged: Persistent items are invalid" call NWG_fnc_logError;
@@ -52,23 +49,12 @@ NWG_ISHOP_MMC_OnMissionStateChanged = {
         /*Mission completed state - Add items to dynamic shop items*/
         case MSTATE_COMPLETED: {
             //Add items to dynamic shop items
-
-            //Define sets count to be added
-            private _mDiffclt = call NWG_fnc_mmGetMissionDifficulty;
-            private _setsCount = switch (_mDiffclt) do {
-                case MISSION_DIFFICULTY_EASY: {NWG_ISHOP_MMC_Settings get "ADD_ITEMS_EASY"};
-                case MISSION_DIFFICULTY_NORM: {NWG_ISHOP_MMC_Settings get "ADD_ITEMS_NORM"};
-                default {
-                    (format ["NWG_ISHOP_MMC_OnMissionStateChanged: Unknown mission difficulty: %1",_mDiffclt]) call NWG_fnc_logError;
-                    NWG_ISHOP_MMC_Settings get "ADD_ITEMS_DFLT";
-                };
-            };
-            _setsCount = _setsCount call NWG_fnc_randomRangeInt;
-
-            //Generate loot
+            private _setsCount = NWG_ISHOP_MMC_Settings get "ADD_ITEMS_MIN_MAX";
+            _setsCount = _setsCount call NWG_fnc_mmInterpolateByLevelInt;
             private _sets = ["SHOP","",_setsCount] call NWG_fnc_lmGenerateLootSet;
-
-            //Add to dynamic shop items
+            if (_sets isEqualTo false) exitWith {
+                "NWG_ISHOP_MMC_OnMissionStateChanged: Failed to generate loot set" call NWG_fnc_logError;
+            };
             (flatten _sets) call NWG_fnc_ishopAddDynamicItems;
         };
 

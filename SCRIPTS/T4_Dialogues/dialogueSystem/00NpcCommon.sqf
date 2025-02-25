@@ -35,6 +35,10 @@ NWG_DLGHLP_Settings = createHashMapFromArray [
 	["PRGB_CUR_STAT_KEYS",["#AGEN_PRGB_CUR_STAT_01#"]],
 	["PRGB_LETS_UPG_KEYS",["#AGEN_PRGB_LETS_UPG_01#"]],
 
+	["PAY_Y_MONEY_KEYS",["#AGEN_PAY_Y_MONEY_01#","#AGEN_PAY_Y_MONEY_02#","#AGEN_PAY_Y_MONEY_03#","#AGEN_PAY_Y_MONEY_04#","#AGEN_PAY_Y_MONEY_05#"]],
+	["PAY_N_MONEY_KEYS",["#AGEN_PAY_N_MONEY_01#","#AGEN_PAY_N_MONEY_02#","#AGEN_PAY_N_MONEY_03#","#AGEN_PAY_N_MONEY_04#","#AGEN_PAY_N_MONEY_05#"]],
+	["PAY_REFUSE_KEYS",["#AGEN_PAY_REFUSE_01#","#AGEN_PAY_REFUSE_02#","#AGEN_PAY_REFUSE_03#","#AGEN_PAY_REFUSE_04#","#AGEN_PAY_REFUSE_05#"]],
+
 	["",0]
 ];
 
@@ -139,7 +143,7 @@ NWG_DLGHLP_GenerateDoubtExit = {
 NWG_DLGHLP_UI_UpdatePlayerMoney = {
 	private _gui = uiNamespace getVariable ["NWG_DLG_gui",displayNull];
 	if (isNull _gui) exitWith {};
-	(_gui displayCtrl IDC_TEXT_LEFT) ctrlSetText (call (NWG_DLG_CLI_Settings get "TEXT_LEFT_FILL_FUNC"));
+	(_gui displayCtrl IDC_TEXT_LEFT) ctrlSetText (call (NWG_DLG_CLI_Settings get "TEXT_LEFT_FILL_FUNC"));//Using the function from the client module
 };
 
 //================================================================================================================
@@ -185,4 +189,27 @@ NWG_DLGHLP_PRGB_Upgrade = {
 	// private _type = _this;
 	_this call NWG_fnc_pUpgrade;
 	call NWG_DLGHLP_UI_UpdatePlayerMoney;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Payment answers
+NWG_DLGHLP_GetRndPayY = {
+	selectRandom (NWG_DLGHLP_Settings get "PAY_Y_MONEY_KEYS")
+};
+NWG_DLGHLP_GetRndPayN = {
+	selectRandom (NWG_DLGHLP_Settings get "PAY_N_MONEY_KEYS")
+};
+NWG_DLGHLP_GetRndPayRefuse = {
+	selectRandom (NWG_DLGHLP_Settings get "PAY_REFUSE_KEYS")
+};
+
+//================================================================================================================
+//================================================================================================================
+//Exit answers
+NWG_DLGHLP_GetRndBack = {
+	selectRandom (NWG_DLGHLP_Settings get "BACK_KEYS")
+};
+NWG_DLGHLP_GetRndExit = {
+	selectRandom (NWG_DLGHLP_Settings get "EXIT_KEYS")
 };

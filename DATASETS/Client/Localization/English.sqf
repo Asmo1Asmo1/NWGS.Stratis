@@ -2,11 +2,14 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //T1_Battlefield
     //missionMachine
     // ["#MIS_ACTION_TITLE#","Select mission"],//not used anymore
-    ["#MIS_DIF_EASY#","Easy"],
-    ["#MIS_DIF_NORMAL#","Normal"],
-    ["#MIS_CLI_CONFIRMED_SUBTITLE#","new destination..."],
-    ["#MIS_CLI_CONFIRMED_PLAYER_TEMPLATE#","Operator: %1"],
+    ["#MIS_CLI_BRIEFING_1#","new destination..."],
+    ["#MIS_CLI_BRIEFING_2#","Enemy: %1"],
     ["#MIS_COMPLETED_MESSAGE#","RAID COMPLETED"],
+    ["#MIS_VOTE_TITLE#","Vote to confirm\nRaid: %1\nLevel: %2\nEnemy: %3\nTime: %4\nWeather: %5"],
+    ["#MIS_VOTE_WAITING#","Waiting for another vote to finish..."],
+    ["#MIS_VOTE_CANNOT_START#","Failed to start vote"],
+    ["#MIS_VOTE_ERROR#","Failed to get vote result"],
+    ["#MIS_VOTE_AGAINST#","Players voted against the mission"],
     //worldConfig
     ["#WORLD_NAME_STRATIS#","Stratis"],
     ["#WORLD_NAME_ALTIS#","Altis"],
@@ -15,6 +18,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#WORLD_NAME_BOOTCAMP#","Bootcamp"],
     ["#WORLD_NAME_VR#","VR"],
     ["#WORLD_NAME_UNKNOWN#","Unknown"],
+    ["#WEATHER_CLEAR#","Clear"],
+    ["#WEATHER_CLOUD#","Clouds"],
+    ["#WEATHER_RAIN#","Rain"],
+    ["#WEATHER_STORM#","Storm"],
+    ["#WEATHER_FOG#","Fog"],
 
     //T2_UserInteraction
     //actionsInVehicle
@@ -108,10 +116,12 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_SETTINGS_TITLE#","Settings"],
     ["#UP_SETTINGS_KEYBINDINGS#","Keybindings"],
     //voting
-    ["#VOTE_COUNTER_TEMPLATE#","Enter + or - in chat\n[+]:%2 [-]:%3 (%4)sec"],
-    ["#VOTE_HINT_ABORTED#","Vote aborted"],
-    ["#VOTE_HINT_VOTE_RECEIVED#","Vote sent"],
-    ["#VOTE_HINT_TIMEOUT#","Vote timeout"],
+    ["#VOTE_RESULT_INFAVOR#","\nResult: IN FAVOR"],
+    ["#VOTE_RESULT_AGAINST#","\nResult: AGAINST"],
+    ["#VOTE_RESULT_UNDEFINED#","\nResult: UNDEFINED"],
+    ["#VOTE_HINT_BODY#","[+]:%1 [-]:%2 (%3)sec"],
+    ["#VOTE_HINT_FOOTER_DO#","\nEnter + or - in chat"],
+    ["#VOTE_HINT_FOOTER_DONE#","\nYour voice counted as [%1]"],
 
     //T3_Economics
     //hunting
@@ -245,11 +255,25 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AGEN_EXIT_04#","I better go now"],
     ["#AGEN_EXIT_05#","I'll come back later"],
     ["#AGEN_EXIT_06#","Never mind, I'll go now"],
+    ["#AGEN_PAY_Y_MONEY_01#","Here you go"],
+    ["#AGEN_PAY_Y_MONEY_02#","Take it"],
+    ["#AGEN_PAY_Y_MONEY_03#","Here's the money"],
+    ["#AGEN_PAY_Y_MONEY_04#","Sure, here it is"],
+    ["#AGEN_PAY_Y_MONEY_05#","Yeah, here"],
+    ["#AGEN_PAY_N_MONEY_01#","I don't have that much"],
+    ["#AGEN_PAY_N_MONEY_02#","That's more than I have"],
+    ["#AGEN_PAY_N_MONEY_03#","Damn, I don't have that much"],
+    ["#AGEN_PAY_N_MONEY_04#","Don't have that much right now"],
+    ["#AGEN_PAY_N_MONEY_05#","Nah, don't have that"],
+    ["#AGEN_PAY_REFUSE_01#","Never mind actually"],
+    ["#AGEN_PAY_REFUSE_02#","I've changed my mind"],
+    ["#AGEN_PAY_REFUSE_03#","I'll come back later maybe"],
+    ["#AGEN_PAY_REFUSE_04#","No, forget it"],
+    ["#AGEN_PAY_REFUSE_05#","I have to think about it"],
     /*Common answers to any NPC*/
     ["#XXX_01_Q_01#","Anything else?"],
     ["#XXX_QUIT_DIALOGUE#","No, nothing"],
     ["#XXX_PAY_Q_01#","That would be %1"],
-    ["#XXX_PAY_REFUSE#","I've changed my mind"],
     /*====== TAXI =====*/
     /*Taxi - logic*/
     ["#TAXI_CAT_SQD#","To my Squad Mates"],
@@ -274,10 +298,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_CS_Q_03#","Okay, where to?"],
     /*Taxi - TAXI_PS*/
     ["#TAXI_PS_Q_01#","Which one?"],
-    /*Taxi - TAXI_PAY*/
-    ["#TAXI_PAY_A_01#","Here you go"],
-    ["#TAXI_PAY_A_02#","Sorry, I don't have that"],
-    ["#TAXI_PAY_A_03#","Never mind, bye"],
     /*Taxi - TAXI_LOW*/
     ["#TAXI_LOW_Q_01#","That's a shame, boss"],
     ["#TAXI_LOW_Q_02#","Come back when you have it, boss|Or check other options"],
@@ -360,9 +380,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_ALWHL_Q_02#","So you like my invetion?|It ain't cheap"],
     ["#MECH_ALWHL_Q_03#","Yeah, man, let's make you a monster truck"],
     ["#MECH_ALWHL_Q_04#","Glad someone appreciates it"],
-    /*Mech - MECH_PAY*/
-    ["#MECH_PAY_A_01#","Take it"],
-    ["#MECH_PAY_A_02#","That's more than I have"],
     /*Mech - MECH_LOW*/
     ["#MECH_LOW_Q_01#","Well, yeah, it ain't cheap"],
     ["#MECH_LOW_Q_02#","Sorry, bud, no discounts"],
@@ -422,8 +439,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TRDR_ADV1_Q_01#","Advice?|Put your money on the table|That's my advice|Next advice will cost you %1"],
     ["#TRDR_ADV1_Q_02#","Have you ever heard 'Advices are cheap'?|Well|Not mine though|How about %1?"],
     ["#TRDR_ADV1_Q_03#","%1"],
-    ["#TRDR_ADV1_A_01#","Here"],
-    ["#TRDR_ADV1_A_02#","Don't have that much right now"],
     /*Trdr - TRDR_ADV2*/
     ["#TRDR_ADV2_Q_01#","Don't stick with just one gun|There is always something to shoot from|But if you stick with one and only|You'll have a hard time finding ammo"],
     ["#TRDR_ADV2_Q_02#","Always share with others|Might sound stupid|But they can get your ass out of trouble|Or frag you|And say you were like that when they found you|Always remember that|Mutual respect brings more profit|And more customers"],
@@ -443,9 +458,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Trdr - TRDR_PRGB_LETS_UPG*/
     ["#TRDR_PRGB_LETS_UPG_Q_01#","Your insurance covers it all|Wow|I'm not sure there's anyone else who have reached that level|So last time it was your final upgrade|Congratulations"],
     ["#TRDR_PRGB_LETS_UPG_Q_02#","Okay, let me see the money|The price is %1"],
-    ["#TRDR_PRGB_PAY_A_01#","Here you go"],
-    ["#TRDR_PRGB_PAY_A_02#","That's more than I have"],
-    ["#TRDR_PRGB_PAY_A_03#","I'll come back later"],
     /*Trdr - TRDR_PRGB_LOW*/
     ["#TRDR_PRGB_LOW_Q_01#","So why exactly are you wasting my time then?"],
     ["#TRDR_PRGB_LOW_A_01#","There's something else I need"],
@@ -497,16 +509,31 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_00_A_02#","Moving out"],
     ["#COMM_00_A_03#","About my support level..."],
     ["#COMM_00_A_04#","Can you explain me something?"],
-    ["#COMM_00_A_05#","Any advice, sir?"],
+    ["#COMM_00_A_05#","Any advice"],
     /*Comm - COMM_01*/
     ["#COMM_01_A_02#","I'll be on my way"],
-    /*Comm - COMM_MIS*/
-    ["#COMM_MIS_Q_01#","Goodspeed, soldier|Here's what we dealing with"],
-    ["#COMM_MIS_Q_02#","Here are the options"],
-    ["#COMM_MIS_Q_03#","Intelligence hinted on several points"],
-    ["#COMM_MIS_A_01#","Show me"],
-    ["#COMM_MIS_A_02#","Something else first, sir"],
-    ["#COMM_MIS_A_03#","Need more time for preparations"],
+    /*Comm - COMM_LVL*/
+    ["#COMM_LVL_Q_01#","Goodspeed, soldier|Here's what we dealing with"],
+    ["#COMM_LVL_Q_02#","Here are the options"],
+    ["#COMM_LVL_Q_03#","Intelligence hinted on several points"],
+    ["#COMM_LVL_A_01#","Show me the map"],
+    ["#COMM_LVL_A_02#","Something else first"],
+    ["#COMM_LVL_A_03#","Need more time for preparations"],
+    ["#COMM_LVLSEL_LVLREQ#","[LOCKED. Required lvl: %1]"],
+    ["#COMM_LVLSEL_LOCKED#","[LOCKED. Unlock price: %1]"],
+    ["#COMM_LVLSEL#","Level %1"],
+    /*Comm - COMM_LVL_REQ_LOCKED*/
+    ["#COMM_LVL_REQ_LOCKED_Q_01#","I can not trust you with this one yet|Required level: %1"],
+    ["#COMM_LVL_REQ_LOCKED_Q_02#","It's above my confidence in you|Required level: %1"],
+    /*Comm - COMM_LVL_UNLOCK_PAY*/
+    ["#COMM_LVL_UNLOCK_Q_01#","This will cost you %1|We'll split expenses among your group"],
+    ["#COMM_LVL_UNLOCK_Q_02#","This will cost you %1"],
+    /*Comm - COMM_LVL_UNLOCKED*/
+    ["#COMM_LVL_UNLOCKED_Q_01#","New intel will be delivered any minute now"],
+    /*Comm - COMM_LVL_MISSION*/
+    ["#COMM_LVL_MISSION_Q_01#","So? Let's take a look?"],
+    ["#COMM_LVL_MISSION_Q_02#","You're ready?"],
+    ["#COMM_LVL_MISSION_Q_03#","Intel delivered|Want to take a look?"],
     /*Comm - COMM_HELP*/
     ["#COMM_HELP_Q_01#","What is it?"],
     ["#COMM_HELP_Q_02#","Sure, what is it?"],
@@ -534,9 +561,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Comm - COMM_PRGB_LETS_UPG*/
     ["#COMM_PRGB_LETS_UPG_Q_01#","At ease, soldier|You've reached the max support level|I personally salute you|Well done"],
     ["#COMM_PRGB_LETS_UPG_Q_02#","Next support level is available|I'll unlock it in exchange for|%1"],
-    ["#COMM_PRGB_PAY_A_01#","Here's the money"],
-    ["#COMM_PRGB_PAY_A_02#","That's more than I have"],
-    ["#COMM_PRGB_PAY_A_03#","I'll be back"],
     /*Comm - COMM_PRGB_LOW*/
     ["#COMM_PRGB_LOW_Q_01#","I'm sure you know how to earn it"],
     ["#COMM_PRGB_LOW_A_01#","Yeah, right..."],
@@ -547,10 +571,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Roof - Logic*/
     ["#ROOF_NO_TERMINALS#","Sorry, seems I don't have any..."],
     ["#ROOF_INV_TERMINAL#","Failed to reflash"],
-    /*Roof - Common answers*/
-    ["#ROOF_0X_A_BACK3#","Something else"],
-    ["#ROOF_0X_A_EXIT1#","I need to go"],
-    ["#ROOF_0X_A_EXIT2#","Thanks, but I need to go now"],
     /*Roof - ROOF_00*/
     ["#ROOF_00_Q_01#","New guy, eh?"],
     ["#ROOF_00_Q_02#","What's up?"],
@@ -567,10 +587,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Reflash - terminal selection*/
     ["#ROOF_TS_Q_01#","Which one do you have?"],
     ["#ROOF_TS_Q_02#","Which one?"],
-    /*Reflash - payment*/
-    ["#ROOF_PAY_A_01#","Sure, here it is"],
-    ["#ROOF_PAY_A_02#","Damn, I don't have that much"],
-    ["#ROOF_PAY_A_03#","I'll try something else"],
     /*Reflash - not enough money*/
     ["#ROOF_LOW_Q_01#","Well? What are you waiting for then?|Go earn some|Shouldn't be that difficult"],
     ["#ROOF_LOW_Q_02#","Low on cash, eh?|Shit happens"],
