@@ -118,6 +118,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_NOT_IMPLEMENTED_TOOLTIP#","Эта опция пока не реализована"],
     //03Group
     ["#UP_GROUP_TITLE#","Управление группой"],
+    ["#UP_GROUP_MENU#","Открыть меню группы"],
     ["#UP_GROUP_DISCORD#","Discord"],
     ["#UP_GROUP_DISCORD_BUTTON#","-=   Присоединиться к NWGS Discord   =-"],
     //05Info

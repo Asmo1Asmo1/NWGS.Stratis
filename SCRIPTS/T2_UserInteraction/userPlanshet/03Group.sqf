@@ -11,6 +11,7 @@
 // #define IDC_DROPDOWN 2101
 
 /*enum*/
+#define GROUP_MENU "GROUP_MENU"
 #define GROUP_DISCORD "DISCORD"
 
 //--- scale helpers
@@ -27,6 +28,7 @@
 NWG_UP_03Group_Settings = createHashMapFromArray [
 	["WINDOW_NAME","#UP_GROUP_TITLE#"],
 	["PLANSHET_ROWS",[
+		["#UP_GROUP_MENU#",GROUP_MENU],
 		["#UP_GROUP_DISCORD#",GROUP_DISCORD]
 	]],
 
@@ -52,6 +54,7 @@ NWG_UP_03Group_Open = {
 		params ["_listBox","_selectedIndex"];
 		private _settingName = _listBox lbData _selectedIndex;
 		switch (_settingName) do {
+			case GROUP_MENU: {call NWG_UP_03Group_Menu_Open};
 			case GROUP_DISCORD: {call NWG_UP_03Group_Discord_Open};
 			default {(format ["NWG_UP_03Group_OnRowSelected: Unknown setting: '%1'",_settingName]) call NWG_fnc_logError};
 		};
@@ -65,6 +68,15 @@ NWG_UP_03Group_Open = {
 	};
 
 	true
+};
+
+//================================================================================================================
+//================================================================================================================
+//Group menu
+NWG_UP_03Group_Menu_Open = {
+	disableSerialization;
+	call NWG_fnc_upCloseAllMenus;
+	(findDisplay 46) createDisplay "RscDisplayDynamicGroups";
 };
 
 //================================================================================================================
