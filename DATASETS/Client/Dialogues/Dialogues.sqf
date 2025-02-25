@@ -119,10 +119,10 @@ NWG_DialogueTree = createHashMapFromArray [
 		"TAXI_PAY",	[
 			Q_ONE,	["#XXX_PAY_Q_01#",{(call NWG_DLG_TAXI_GetPrice) call NWG_DLGHLP_MoneyStr}],
 			A_CND,	[
-				{(call NWG_DLG_TAXI_GetPrice) call NWG_DLGHLP_HasEnoughMoney},["#TAXI_PAY_A_01#",NODE_EXIT,{call NWG_DLG_TAXI_Teleport}],
-				{(call NWG_DLG_TAXI_GetPrice) call NWG_DLGHLP_HasLessMoney},["#TAXI_PAY_A_02#","TAXI_LOW"],
-				{true},["#XXX_PAY_REFUSE#","TAXI_CS"],
-				{true},["#TAXI_PAY_A_03#",NODE_EXIT]
+				{(call NWG_DLG_TAXI_GetPrice) call NWG_DLGHLP_HasEnoughMoney},[{call NWG_DLGHLP_GetRndPayY},NODE_EXIT,{call NWG_DLG_TAXI_Teleport}],
+				{(call NWG_DLG_TAXI_GetPrice) call NWG_DLGHLP_HasLessMoney},[{call NWG_DLGHLP_GetRndPayN},"TAXI_LOW"],
+				{true},[{call NWG_DLGHLP_GetRndPayRefuse},"TAXI_CS"],
+				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -192,8 +192,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_CND,	[
 				{[1,10] call NWG_DLGHLP_Dice},["#TAXI_ADV_A_01#","TAXI_01"],
-				{true},["#AGEN_BACK_01#","TAXI_01"],
-				{true},["#AGEN_EXIT_03#",NODE_EXIT]
+				{true},[{call NWG_DLGHLP_GetRndBack},"TAXI_01"],
+				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -232,11 +232,11 @@ NWG_DialogueTree = createHashMapFromArray [
 				{true},["#TAXI_PRGB_LETS_UPG_Q_02#",{P_TAXI call NWG_DLGHLP_PRGB_PricesStr}]
 			],
 			A_CND,	[
-				{!(P_TAXI call NWG_DLGHLP_PRGB_LimitReached) && { (P_TAXI call NWG_DLGHLP_PRGB_CanUpgrade)}},["#TAXI_PAY_A_01#","TAXI_PRGB_UPG",{P_TAXI call NWG_DLGHLP_PRGB_Upgrade}],
-				{!(P_TAXI call NWG_DLGHLP_PRGB_LimitReached) && {!(P_TAXI call NWG_DLGHLP_PRGB_CanUpgrade)}},["#TAXI_PAY_A_02#","TAXI_LOW"],
-				{!(P_TAXI call NWG_DLGHLP_PRGB_LimitReached)},["#XXX_PAY_REFUSE#","TAXI_01"],
-				{ (P_TAXI call NWG_DLGHLP_PRGB_LimitReached)},["#AGEN_BACK_01#","TAXI_01"],
-				{true},["#TAXI_PAY_A_03#",NODE_EXIT]
+				{!(P_TAXI call NWG_DLGHLP_PRGB_LimitReached) && { (P_TAXI call NWG_DLGHLP_PRGB_CanUpgrade)}},[{call NWG_DLGHLP_GetRndPayY},"TAXI_PRGB_UPG",{P_TAXI call NWG_DLGHLP_PRGB_Upgrade}],
+				{!(P_TAXI call NWG_DLGHLP_PRGB_LimitReached) && {!(P_TAXI call NWG_DLGHLP_PRGB_CanUpgrade)}},[{call NWG_DLGHLP_GetRndPayN},"TAXI_LOW"],
+				{!(P_TAXI call NWG_DLGHLP_PRGB_LimitReached)},[{call NWG_DLGHLP_GetRndPayRefuse},"TAXI_01"],
+				{ (P_TAXI call NWG_DLGHLP_PRGB_LimitReached)},[{call NWG_DLGHLP_GetRndBack},"TAXI_01"],
+				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -385,11 +385,11 @@ NWG_DialogueTree = createHashMapFromArray [
 		"MECH_PAY",	[
 			Q_ONE,	["#XXX_PAY_Q_01#",{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_MoneyStr}],
 			A_CND,	[
-				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasEnoughMoney && { (call NWG_DLG_MECH_SeparateUi)}},["#MECH_PAY_A_01#", NODE_EXIT, {false call NWG_DLG_MECH_DoService}],
-				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasEnoughMoney && {!(call NWG_DLG_MECH_SeparateUi)}},["#MECH_PAY_A_01#","MECH_DONE",{true  call NWG_DLG_MECH_DoService}],
-				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasLessMoney},["#MECH_PAY_A_02#","MECH_LOW"],
-				{true},["#XXX_PAY_REFUSE#","MECH_01"],
-				{true},["#AGEN_EXIT_06#",NODE_EXIT]
+				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasEnoughMoney && { (call NWG_DLG_MECH_SeparateUi)}},[{call NWG_DLGHLP_GetRndPayY},NODE_EXIT,{false call NWG_DLG_MECH_DoService}],
+				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasEnoughMoney && {!(call NWG_DLG_MECH_SeparateUi)}},[{call NWG_DLGHLP_GetRndPayY},"MECH_DONE",{true  call NWG_DLG_MECH_DoService}],
+				{(call NWG_DLG_MECH_GetPrice) call NWG_DLGHLP_HasLessMoney},[{call NWG_DLGHLP_GetRndPayN},"MECH_LOW"],
+				{true},[{call NWG_DLGHLP_GetRndPayRefuse},"MECH_01"],
+				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -561,10 +561,10 @@ NWG_DialogueTree = createHashMapFromArray [
 				["#TRDR_ADV1_Q_03#",{(call NWG_DLG_TRDR_GetAdvPrice) call NWG_DLGHLP_MoneyStr}]
 			],
 			A_CND,	[
-				{(call NWG_DLG_TRDR_GetAdvPrice) call NWG_DLGHLP_HasEnoughMoney},["#TRDR_ADV1_A_01#","TRDR_ADV2",{call NWG_DLG_TRDR_PayForAdvice}],
-				{(call NWG_DLG_TRDR_GetAdvPrice) call NWG_DLGHLP_HasLessMoney},["#TRDR_ADV1_A_02#","TRDR_LOW"],
-				{true},["#XXX_PAY_REFUSE#","TRDR_01"],
-				{true},["#AGEN_EXIT_06#",NODE_EXIT]
+				{(call NWG_DLG_TRDR_GetAdvPrice) call NWG_DLGHLP_HasEnoughMoney},[{call NWG_DLGHLP_GetRndPayY},"TRDR_ADV2",{call NWG_DLG_TRDR_PayForAdvice}],
+				{(call NWG_DLG_TRDR_GetAdvPrice) call NWG_DLGHLP_HasLessMoney},[{call NWG_DLGHLP_GetRndPayN},"TRDR_LOW"],
+				{true},[{call NWG_DLGHLP_GetRndPayRefuse},"TRDR_01"],
+				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -625,11 +625,11 @@ NWG_DialogueTree = createHashMapFromArray [
 				{true},["#TRDR_PRGB_LETS_UPG_Q_02#",{P_TRDR call NWG_DLGHLP_PRGB_PricesStr}]
 			],
 			A_CND,	[
-				{!(P_TRDR call NWG_DLGHLP_PRGB_LimitReached) && { (P_TRDR call NWG_DLGHLP_PRGB_CanUpgrade)}},["#TRDR_PRGB_PAY_A_01#","TRDR_PRGB_UPG",{P_TRDR call NWG_DLGHLP_PRGB_Upgrade}],
-				{!(P_TRDR call NWG_DLGHLP_PRGB_LimitReached) && {!(P_TRDR call NWG_DLGHLP_PRGB_CanUpgrade)}},["#TRDR_PRGB_PAY_A_02#","TRDR_PRGB_LOW"],
-				{!(P_TRDR call NWG_DLGHLP_PRGB_LimitReached)},["#XXX_PAY_REFUSE#","TRDR_01"],
-				{ (P_TRDR call NWG_DLGHLP_PRGB_LimitReached)},["#AGEN_BACK_01#","TRDR_01"],
-				{true},["#TRDR_PRGB_PAY_A_03#",NODE_EXIT]
+				{!(P_TRDR call NWG_DLGHLP_PRGB_LimitReached) && { (P_TRDR call NWG_DLGHLP_PRGB_CanUpgrade)}},[{call NWG_DLGHLP_GetRndPayY},"TRDR_PRGB_UPG",{P_TRDR call NWG_DLGHLP_PRGB_Upgrade}],
+				{!(P_TRDR call NWG_DLGHLP_PRGB_LimitReached) && {!(P_TRDR call NWG_DLGHLP_PRGB_CanUpgrade)}},[{call NWG_DLGHLP_GetRndPayN},"TRDR_PRGB_LOW"],
+				{!(P_TRDR call NWG_DLGHLP_PRGB_LimitReached)},[{call NWG_DLGHLP_GetRndPayRefuse},"TRDR_01"],
+				{ (P_TRDR call NWG_DLGHLP_PRGB_LimitReached)},[{call NWG_DLGHLP_GetRndBack},"TRDR_01"],
+				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -698,7 +698,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_CND,	[
 				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#MEDC_PATCH_A_01#",NODE_EXIT,{true call NWG_DLG_MEDC_Patch}],
 				{1 call NWG_DLGHLP_HasMoreMoneyStartSum},["#MEDC_PATCH_A_02#",NODE_EXIT,{false call NWG_DLG_MEDC_Patch}],
-				{true},["#AGEN_EXIT_06#",NODE_EXIT]
+				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -828,10 +828,10 @@ NWG_DialogueTree = createHashMapFromArray [
 				{true},["#COMM_LVL_UNLOCK_Q_02#",{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_MoneyStr}]
 			],
 			A_CND,	[
-				{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_HasEnoughMoney},["#MECH_PAY_A_01#","COMM_LVL_UNLOCKED",{call NWG_DLG_COMM_UnlockLevel}],
-				{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_HasLessMoney},["#MECH_PAY_A_02#","COMM_LVL"],
-				{true},["#XXX_PAY_REFUSE#","COMM_LVL"],
-				{true},["#AGEN_EXIT_06#",NODE_EXIT]
+				{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_HasEnoughMoney},[{call NWG_DLGHLP_GetRndPayY},"COMM_LVL_UNLOCKED",{call NWG_DLG_COMM_UnlockLevel}],
+				{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_HasLessMoney},[{call NWG_DLGHLP_GetRndPayN},"COMM_LVL"],
+				{true},[{call NWG_DLGHLP_GetRndPayRefuse},"COMM_LVL"],
+				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -943,11 +943,11 @@ NWG_DialogueTree = createHashMapFromArray [
 				{true},["#COMM_PRGB_LETS_UPG_Q_02#",{P_COMM call NWG_DLGHLP_PRGB_PricesStr}]
 			],
 			A_CND,	[
-				{!(P_COMM call NWG_DLGHLP_PRGB_LimitReached) && { (P_COMM call NWG_DLGHLP_PRGB_CanUpgrade)}},["#COMM_PRGB_PAY_A_01#","COMM_PRGB_UPG",{P_COMM call NWG_DLGHLP_PRGB_Upgrade}],
-				{!(P_COMM call NWG_DLGHLP_PRGB_LimitReached) && {!(P_COMM call NWG_DLGHLP_PRGB_CanUpgrade)}},["#COMM_PRGB_PAY_A_02#","COMM_PRGB_LOW"],
-				{!(P_COMM call NWG_DLGHLP_PRGB_LimitReached)},["#XXX_PAY_REFUSE#","COMM_01"],
-				{ (P_COMM call NWG_DLGHLP_PRGB_LimitReached)},["#AGEN_BACK_01#","COMM_01"],
-				{true},["#COMM_PRGB_PAY_A_03#",NODE_EXIT]
+				{!(P_COMM call NWG_DLGHLP_PRGB_LimitReached) && { (P_COMM call NWG_DLGHLP_PRGB_CanUpgrade)}},[{call NWG_DLGHLP_GetRndPayY},"COMM_PRGB_UPG",{P_COMM call NWG_DLGHLP_PRGB_Upgrade}],
+				{!(P_COMM call NWG_DLGHLP_PRGB_LimitReached) && {!(P_COMM call NWG_DLGHLP_PRGB_CanUpgrade)}},[{call NWG_DLGHLP_GetRndPayN},"COMM_PRGB_LOW"],
+				{!(P_COMM call NWG_DLGHLP_PRGB_LimitReached)},[{call NWG_DLGHLP_GetRndPayRefuse},"COMM_01"],
+				{ (P_COMM call NWG_DLGHLP_PRGB_LimitReached)},[{call NWG_DLGHLP_GetRndBack},"COMM_01"],
+				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -1034,10 +1034,10 @@ NWG_DialogueTree = createHashMapFromArray [
 		"ROOF_PAY",	[
 			Q_ONE,	["#XXX_PAY_Q_01#",{(call NWG_DLG_ROOF_GetPrice) call NWG_DLGHLP_MoneyStr}],
 			A_CND,	[
-				{(call NWG_DLG_ROOF_GetPrice) call NWG_DLGHLP_HasEnoughMoney},["#ROOF_PAY_A_01#",NODE_EXIT,{call NWG_DLG_ROOF_DoReflash}],
-				{(call NWG_DLG_ROOF_GetPrice) call NWG_DLGHLP_HasLessMoney},["#ROOF_PAY_A_02#","ROOF_LOW"],
-				{true},["#XXX_PAY_REFUSE#","ROOF_01"],
-				{true},["#ROOF_PAY_A_03#",NODE_EXIT]
+				{(call NWG_DLG_ROOF_GetPrice) call NWG_DLGHLP_HasEnoughMoney},[{call NWG_DLGHLP_GetRndPayY},NODE_EXIT,{call NWG_DLG_ROOF_DoReflash}],
+				{(call NWG_DLG_ROOF_GetPrice) call NWG_DLGHLP_HasLessMoney},[{call NWG_DLGHLP_GetRndPayN},"ROOF_LOW"],
+				{true},[{call NWG_DLGHLP_GetRndPayRefuse},"ROOF_01"],
+				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -1059,8 +1059,8 @@ NWG_DialogueTree = createHashMapFromArray [
 		"ROOF_WHAT",	[
 			Q_ONE,	"#ROOF_WHAT_Q_01#",
 			A_DEF,	[
-				["#AGEN_BACK_01#","ROOF_01"],
-				["#ROOF_0X_A_EXIT1#",NODE_EXIT]
+				[{call NWG_DLGHLP_GetRndBack},"ROOF_01"],
+				[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -1091,8 +1091,8 @@ NWG_DialogueTree = createHashMapFromArray [
 				["#ROOF_KNOW_A_01#","ROOF_HIST00"],
 				["#ROOF_KNOW_A_02#","ROOF_LGND00"],
 				["#ROOF_KNOW_A_03#","ROOF_RUMR"],
-				["#ROOF_0X_A_BACK3#","ROOF_01"],
-				["#AGEN_DOUBT_06#",NODE_EXIT]
+				[{call NWG_DLGHLP_GetRndBack},"ROOF_01"],
+				[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -1114,8 +1114,8 @@ NWG_DialogueTree = createHashMapFromArray [
 				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_HIST01_A_01#","ROOF_KNOW"],
 				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_HIST01_A_02#","ROOF_KNOW"],
 				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_HIST01_A_03#","ROOF_KNOW"],
-				{true},["#ROOF_0X_A_BACK3#","ROOF_KNOW"],
-				{true},["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+				{true},[{call NWG_DLGHLP_GetRndBack},"ROOF_KNOW"],
+				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -1128,8 +1128,8 @@ NWG_DialogueTree = createHashMapFromArray [
 				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_HIST02_A_02#","ROOF_KNOW"],
 				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_HIST02_A_03#","ROOF_KNOW"],
 				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_HIST02_A_04#","ROOF_KNOW"],
-				{true},["#ROOF_0X_A_BACK3#","ROOF_KNOW"],
-				{true},["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+				{true},[{call NWG_DLGHLP_GetRndBack},"ROOF_KNOW"],
+				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -1147,8 +1147,8 @@ NWG_DialogueTree = createHashMapFromArray [
 				["#ROOF_LGND00_A_03#","ROOF_LGND_BANKA"],
 				["#ROOF_LGND00_A_04#","ROOF_LGND_HUI"],
 				["#ROOF_LGND00_A_05#","ROOF_LGND_ASMO"],
-				["#ROOF_0X_A_BACK3#","ROOF_01"],
-				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+				[{call NWG_DLGHLP_GetRndBack},"ROOF_01"],
+				[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -1166,8 +1166,8 @@ NWG_DialogueTree = createHashMapFromArray [
 				["#ROOF_LGND00_A_03#","ROOF_LGND_BANKA"],
 				["#ROOF_LGND00_A_04#","ROOF_LGND_HUI"],
 				["#ROOF_LGND00_A_05#","ROOF_LGND_ASMO"],
-				["#ROOF_0X_A_BACK3#","ROOF_01"],
-				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+				[{call NWG_DLGHLP_GetRndBack},"ROOF_01"],
+				[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -1177,8 +1177,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			Q_ONE,	"#ROOF_LGND_HOPA_Q_01#",
 			A_DEF,	[
 				["#ROOF_LGND_A_01#","ROOF_LGND01"],
-				["#ROOF_0X_A_BACK3#","ROOF_KNOW"],
-				["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+				[{call NWG_DLGHLP_GetRndBack},"ROOF_KNOW"],
+				[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -1188,8 +1188,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			Q_ONE,	"#ROOF_LGND_BIT_Q_01#",
 			A_DEF,	[
 				["#ROOF_LGND_A_01#","ROOF_LGND01"],
-				["#ROOF_0X_A_BACK3#","ROOF_KNOW"],
-				["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+				[{call NWG_DLGHLP_GetRndBack},"ROOF_KNOW"],
+				[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -1199,8 +1199,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			Q_ONE,	"#ROOF_LGND_BANKA_Q_01#",
 			A_DEF,	[
 				["#ROOF_LGND_A_01#","ROOF_LGND01"],
-				["#ROOF_0X_A_BACK3#","ROOF_KNOW"],
-				["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+				[{call NWG_DLGHLP_GetRndBack},"ROOF_KNOW"],
+				[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -1210,8 +1210,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			Q_ONE,	"#ROOF_LGND_HUI_Q_01#",
 			A_DEF,	[
 				["#ROOF_LGND_A_01#","ROOF_LGND01"],
-				["#ROOF_0X_A_BACK3#","ROOF_KNOW"],
-				["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+				[{call NWG_DLGHLP_GetRndBack},"ROOF_KNOW"],
+				[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -1221,8 +1221,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			Q_ONE,	"#ROOF_LGND_ASMO_Q_01#",
 			A_DEF,	[
 				["#ROOF_LGND_A_01#","ROOF_LGND01"],
-				["#ROOF_0X_A_BACK3#","ROOF_KNOW"],
-				["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+				[{call NWG_DLGHLP_GetRndBack},"ROOF_KNOW"],
+				[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
@@ -1246,8 +1246,8 @@ NWG_DialogueTree = createHashMapFromArray [
 				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_RUMR_A_02#","ROOF_KNOW"],
 				{[1,5] call NWG_DLGHLP_Dice},["#ROOF_RUMR_A_03#","ROOF_KNOW"],
 				{true},["#ROOF_RUMR_A_04#","ROOF_RUMR"],
-				{true},["#AGEN_BACK_01#","ROOF_KNOW"],
-				{true},["#ROOF_0X_A_EXIT2#",NODE_EXIT]
+				{true},[{call NWG_DLGHLP_GetRndBack},"ROOF_KNOW"],
+				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],

@@ -283,7 +283,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AGEN_DOUBT_02#","Хотя..."],
     ["#AGEN_DOUBT_03#","Нет, ничего"],
     ["#AGEN_DOUBT_04#","Нет, забудь"],
-    ["#AGEN_DOUBT_05#","Не уверен"],
+    ["#AGEN_DOUBT_05#","Что-то я не уверен в этом"],
     ["#AGEN_DOUBT_06#","Вообще-то нет, забудь"],
     ["#AGEN_EXIT_01#","Увидимся позже"],
     ["#AGEN_EXIT_02#","Ладно, увидимся"],
@@ -291,11 +291,25 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AGEN_EXIT_04#","Я лучше пойду"],
     ["#AGEN_EXIT_05#","Ладно, бывай"],
     ["#AGEN_EXIT_06#","Ничего, я пойду"],
+    ["#AGEN_PAY_Y_MONEY_01#","Вот, держи"],
+    ["#AGEN_PAY_Y_MONEY_02#","Забирай"],
+    ["#AGEN_PAY_Y_MONEY_03#","Вот деньги"],
+    ["#AGEN_PAY_Y_MONEY_04#","Конечно, вот"],
+    ["#AGEN_PAY_Y_MONEY_05#","Да, вот"],
+    ["#AGEN_PAY_N_MONEY_01#","У меня столько нет"],
+    ["#AGEN_PAY_N_MONEY_02#","Это больше, чем у меня есть сейчас"],
+    ["#AGEN_PAY_N_MONEY_03#","Чёрт, у меня нет столько"],
+    ["#AGEN_PAY_N_MONEY_04#","Сейчас столько нет"],
+    ["#AGEN_PAY_N_MONEY_05#","Нет с собой столько"],
+    ["#AGEN_PAY_REFUSE_01#","Знаешь, забудь"],
+    ["#AGEN_PAY_REFUSE_02#","Я передумал"],
+    ["#AGEN_PAY_REFUSE_03#","Я потом вернусь наверное"],
+    ["#AGEN_PAY_REFUSE_04#","Нет, забудь"],
+    ["#AGEN_PAY_REFUSE_05#","Мне нужно подумать"],
     /*Common answers to any NPC*/
     ["#XXX_01_Q_01#","Ещё что-нибудь?"],
     ["#XXX_QUIT_DIALOGUE#","Нет, ничего"],
     ["#XXX_PAY_Q_01#","Это будет стоить тебе %1"],
-    ["#XXX_PAY_REFUSE#","Я передумал"],
     /*====== TAXI =====*/
     /*Taxi - logic*/
     ["#TAXI_CAT_SQD#","К моей команде"],
@@ -320,10 +334,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_CS_Q_03#","Разумеется, куда?"],
     /*Taxi - TAXI_PS*/
     ["#TAXI_PS_Q_01#","А конкретно?"],
-    /*Taxi - TAXI_PAY*/
-    ["#TAXI_PAY_A_01#","Вот деньги"],
-    ["#TAXI_PAY_A_02#","Прости, у меня столько нет"],
-    ["#TAXI_PAY_A_03#","Ладно, бывай"],
     /*Taxi - TAXI_LOW*/
     ["#TAXI_LOW_Q_01#","Это печально, босс"],
     ["#TAXI_LOW_Q_02#","Приходи когда будет, босс|Или проверь другие варианты"],
@@ -406,9 +416,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_ALWHL_Q_02#","Так ты оценил моё изобретение?|Предупреждаю, это не дешёво"],
     ["#MECH_ALWHL_Q_03#","Да, мужик, давай сделаем тебе монстр-трак"],
     ["#MECH_ALWHL_Q_04#","Рад, что кто-то оценил его по достоинству"],
-    /*Mech - MECH_PAY*/
-    ["#MECH_PAY_A_01#","Забирай"],
-    ["#MECH_PAY_A_02#","Это больше, чем у меня есть"],
     /*Mech - MECH_LOW*/
     ["#MECH_LOW_Q_01#","Ну да, это не дешёво"],
     ["#MECH_LOW_Q_02#","Прости, товарищ, скидок нет"],
@@ -468,8 +475,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TRDR_ADV1_Q_01#","Совет?|Положи деньги на стол|Это мой совет|Следующий совет будет стоить %1"],
     ["#TRDR_ADV1_Q_02#","Ты слышал 'Советы дешевы'?|Но не у меня|С тебя %1"],
     ["#TRDR_ADV1_Q_03#","%1"],
-    ["#TRDR_ADV1_A_01#","Вот"],
-    ["#TRDR_ADV1_A_02#","Сейчас у меня столько нет"],
     /*Trdr - TRDR_ADV2*/
     ["#TRDR_ADV2_Q_01#","Не привязывайся к одному оружию|Всегда есть из чего пострелять|Но если ты упрямишься|Окажешься без патронов"],
     ["#TRDR_ADV2_Q_02#","Всегда делись с другими|Это может показаться странным|Но они могут тебя спасти|Или убить|И сказать что ты такой и был когда нашли|Всегда помни это|Взаимное уважение приносит больше прибыли|И больше клиентов"],
@@ -493,9 +498,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Trdr - TRDR_PRGB_LETS_UPG*/
     ["#TRDR_PRGB_LETS_UPG_Q_01#","Твоя страховка покрывает всё|Ого!|Я не знаю, кто ещё достиг этого уровня|Поздравляю"],
     ["#TRDR_PRGB_LETS_UPG_Q_02#","Ладно, давай посмотрим на деньги|Цена - %1"],
-    ["#TRDR_PRGB_PAY_A_01#","Вот они"],
-    ["#TRDR_PRGB_PAY_A_02#","Это больше, чем у меня есть"],
-    ["#TRDR_PRGB_PAY_A_03#","Я вернусь позже"],
     /*Trdr - TRDR_PRGB_LOW*/
     ["#TRDR_PRGB_LOW_Q_01#","Так почему же ты тратишь моё время?"],
     ["#TRDR_PRGB_LOW_A_01#","Мне нужно что-то другое"],
@@ -593,10 +595,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Roof - Logic*/
     ["#ROOF_NO_TERMINALS#","Кажется у меня их нет..."],
     ["#ROOF_INV_TERMINAL#","Не удалось перепрошить"],
-    /*Roof - Common answers*/
-    ["#ROOF_0X_A_BACK3#","Кое-что ещё"],
-    ["#ROOF_0X_A_EXIT1#","Мне нужно идти"],
-    ["#ROOF_0X_A_EXIT2#","Спасибо, но мне нужно идти"],
     /*Roof - ROOF_00*/
     ["#ROOF_00_Q_01#","Новенький, да?"],
     ["#ROOF_00_Q_02#","Что нового?"],
@@ -613,10 +611,6 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Reflash - terminal selection*/
     ["#ROOF_TS_Q_01#","Какая у тебя модель?"],
     ["#ROOF_TS_Q_02#","Который?"],
-    /*Reflash - payment*/
-    ["#ROOF_PAY_A_01#","Конечно, вот, держи"],
-    ["#ROOF_PAY_A_02#","У меня с собой столько нет"],
-    ["#ROOF_PAY_A_03#","Я попробую как-нибудь по-другому"],
     /*Reflash - not enough money*/
     ["#ROOF_LOW_Q_01#","Ну и чё ты тогда ждёшь?|Иди заработай|Тут это не трудно"],
     ["#ROOF_LOW_Q_02#","Денег нет, да?|Бывает"],
