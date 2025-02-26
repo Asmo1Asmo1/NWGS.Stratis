@@ -189,6 +189,10 @@ _serverModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingServerSide.sqf
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingCommon.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\voting\votingClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\voting\votingFunctions.sqf" call NWG_fnc_compile);
+//votingBan
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\votingBan\votingBanServerSide.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\votingBan\votingBanClientSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\votingBan\votingBanFunctions.sqf" call NWG_fnc_compile);
 
 //T3_Economics
 //categorizationItems

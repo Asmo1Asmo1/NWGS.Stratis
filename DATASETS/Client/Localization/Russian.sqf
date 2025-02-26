@@ -137,6 +137,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_HINT_BODY#","[+]:%1 [-]:%2 (%3)сек"],
     ["#VOTE_HINT_FOOTER_DO#","\nВведите + или - в чат"],
     ["#VOTE_HINT_FOOTER_DONE#","\nВаш голос засчитан как [%1]"],
+    //votingBan
+    ["#VOTE_BAN_TITLE#","Забанить %1?"],
     //viewDistance (direct translation)
     ["Distance view settings","Настройки дальности видимости"],
     ["Infantry:","Пехота:"],

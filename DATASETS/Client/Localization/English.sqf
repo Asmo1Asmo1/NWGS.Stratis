@@ -123,6 +123,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_HINT_BODY#","[+]:%1 [-]:%2 (%3)sec"],
     ["#VOTE_HINT_FOOTER_DO#","\nEnter + or - in chat"],
     ["#VOTE_HINT_FOOTER_DONE#","\nYour voice counted as [%1]"],
+    //votingBan
+    ["#VOTE_BAN_TITLE#","Ban %1?"],
 
     //T3_Economics
     //hunting

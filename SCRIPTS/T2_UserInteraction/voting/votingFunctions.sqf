@@ -1,19 +1,29 @@
-/*Any -> Server */
+/*Any -> Client|Server */
 //Check if vote is running
+//note: auto detects wether it is running on client or server
 //returns:
 // bool - true if vote is running, false otherwise
 NWG_fnc_voteIsRunning = {
-    call NWG_VOTE_SER_IsVoteRunning;
+    if (!isNil "NWG_VOTE_SER_IsVoteRunning") exitWith {
+        call NWG_VOTE_SER_IsVoteRunning
+    };
+    if (!isNil "NWG_VOTE_CLI_voteInProgress") exitWith {
+        NWG_VOTE_CLI_voteInProgress
+    };
+
+    "NWG_fnc_voteIsRunning: Both options are nil" call NWG_fnc_logError;
+    false
 };
 
-//Get vote result
+/*Any -> Server */
+//Get vote result on server side
 //returns:
 // number - result of the vote (-1 against, 0 undefined, 1 in favor) OR false if vote is still running
 NWG_fnc_voteGetResult = {
     call NWG_VOTE_SER_GetVoteResult;
 };
 
-//Request to start vote for server side logic
+//Request to start vote on server side
 //params:
 // _anchor - object - anchor object
 // _title - string OR array - title of the vote (singular or complex with arguments)
