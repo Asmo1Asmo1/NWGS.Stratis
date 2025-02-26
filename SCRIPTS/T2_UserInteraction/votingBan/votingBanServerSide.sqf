@@ -1,11 +1,11 @@
 #include "..\..\secrets.h"
 
 NWG_VOTE_BAN_SER_Settings = createHashMapFromArray [
+	/*Settings*/
+	["MIN_PLAYER_TO_START_VOTE",3],//Minimum count of players on server to start a ban vote
+
 	/*Localization*/
 	["VOTE_BAN_TITLE","#VOTE_BAN_TITLE#"],
-
-	/*Settings*/
-	["MIN_PLAYER_TO_START_VOTE",2],//Minimum count of players on server to start a ban vote
 
 	["",0]
 ];
