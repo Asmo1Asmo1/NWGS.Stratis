@@ -134,12 +134,14 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //hunting
     ["#A_HUNT_TITLE#",""],
     ["#A_HUNT_FORBIDDEN_MESSAGE#","Hey, %1, stay the fuck away from the dogs, you sick fuck!"],
-    //lootStorage
+    //lootMission
     ["#LS_ACTION_LOOT_TITLE#","Loot"],
     ["#LS_ACTION_LOOT_SUCCESS#","Looted"],
     ["#LS_ACTION_LOOT_FAILURE#","Nothing to take"],
+    ["#LS_ACTION_LUGGAGE_TITLE#","Loot"],
+    //lootStorage
     ["#LS_STORAGE_ACTION_TITLE#","<t size='1.4'>Open Storage</t>"],
-    ["#LS_DEPLETE_NOTIFICATION#","Taxi driver took %1%% of your loot"],
+    ["#LS_DEPLETE_NOTIFICATION#","%1%% of your loot depleted"],
     //moneyTransfer
     ["#MT_ACTION_TITLE#","Money transfer"],
     ["#MT_PLAYER_NOT_FOUND#","Player not found"],

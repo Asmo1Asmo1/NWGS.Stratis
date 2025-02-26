@@ -173,9 +173,10 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#LS_ACTION_LOOT_TITLE#","Забрать добычу"],
     ["#LS_ACTION_LOOT_SUCCESS#","Забрал"],
     ["#LS_ACTION_LOOT_FAILURE#","Ящик пуст"],
+    ["#LS_ACTION_LUGGAGE_TITLE#","Обыскать"],
     //lootStorage
     ["#LS_STORAGE_ACTION_TITLE#","<t size='1.4'>Открыть Хранилище</t>"],
-    ["#LS_DEPLETE_NOTIFICATION#","Таксист забрал %1%% добычи"],
+    ["#LS_DEPLETE_NOTIFICATION#","%1%% добычи утрачено"],
     //moneyTransfer
     ["#MT_ACTION_TITLE#","Перевод денег"],
     ["#MT_PLAYER_NOT_FOUND#","Игрок не найден"],
