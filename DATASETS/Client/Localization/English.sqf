@@ -135,10 +135,10 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#A_HUNT_TITLE#",""],
     ["#A_HUNT_FORBIDDEN_MESSAGE#","Hey, %1, stay the fuck away from the dogs, you sick fuck!"],
     //lootMission
-    ["#LS_ACTION_LOOT_TITLE#","Loot"],
+    ["#LS_ACTION_LOOT_TITLE#","<img image='a3\ui_f\data\igui\cfg\actions\gear_ca.paa' size='1.5'/>"],
     ["#LS_ACTION_LOOT_SUCCESS#","Looted"],
     ["#LS_ACTION_LOOT_FAILURE#","Nothing to take"],
-    ["#LS_ACTION_LUGGAGE_TITLE#","Loot"],
+    ["#LS_ACTION_LUGGAGE_TITLE#","<img image='a3\ui_f\data\igui\cfg\actions\gear_ca.paa' size='1.5'/>"],
     //lootStorage
     ["#LS_STORAGE_ACTION_TITLE#","<t size='1.4'>Open Storage</t>"],
     ["#LS_DEPLETE_NOTIFICATION#","%1%% of your loot depleted"],

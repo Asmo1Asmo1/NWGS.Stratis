@@ -170,10 +170,10 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#A_HUNT_TITLE#",""],
     ["#A_HUNT_FORBIDDEN_MESSAGE#","Эй, %1, держись от собак подальше, ты грёбаный живодёр!"],
     //lootMission
-    ["#LS_ACTION_LOOT_TITLE#","Забрать добычу"],
-    ["#LS_ACTION_LOOT_SUCCESS#","Забрал"],
+    ["#LS_ACTION_LOOT_TITLE#","<img image='a3\ui_f\data\igui\cfg\actions\gear_ca.paa' size='1.5'/>"],
+    ["#LS_ACTION_LOOT_SUCCESS#","Забрал добычу"],
     ["#LS_ACTION_LOOT_FAILURE#","Ящик пуст"],
-    ["#LS_ACTION_LUGGAGE_TITLE#","Обыскать"],
+    ["#LS_ACTION_LUGGAGE_TITLE#","<img image='a3\ui_f\data\igui\cfg\actions\gear_ca.paa' size='1.5'/>"],
     //lootStorage
     ["#LS_STORAGE_ACTION_TITLE#","<t size='1.4'>Открыть Хранилище</t>"],
     ["#LS_DEPLETE_NOTIFICATION#","%1%% добычи утрачено"],
