@@ -98,14 +98,18 @@ NWG_PRG_NotifyProgressChange = {
     _amount = _amount * _multiplier;
     _total = _total * _multiplier;
 
+    private _amountStr = if (_amount >= 0)
+        then {format ["+%1",_amount]}
+        else {format ["%1",_amount]};
+
     //System chat
     if ((NWG_PRG_Settings get "NOTIFY_SYSTEMCHAT") select _type) then {
-        [_locKey,_amount,_total] call NWG_fnc_systemChatMe;
+        [_locKey,_amountStr,_total] call NWG_fnc_systemChatMe;
     };
 
     //Hint
     if ((NWG_PRG_Settings get "NOTIFY_HINT") select _type) then {
-        private _message = format [(_locKey call NWG_fnc_localize),_amount,_total];
+        private _message = format [(_locKey call NWG_fnc_localize),_amountStr,_total];
         _message = _message splitString ".";
         _message = _message joinString "\n";
         hint _message;

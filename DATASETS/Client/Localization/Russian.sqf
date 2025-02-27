@@ -182,7 +182,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MT_PLAYER_NOT_FOUND#","Игрок не найден"],
     //progress
     ["#PRG_NOTIFY__EXP#","[Exp:  %1] (Всего Exp:%2)"],
-    ["#PRG_NOTIFY_TEXP#","Уровень повышен!  +%1. Новый уровень: lvl %2"],
+    ["#PRG_NOTIFY_TEXP#","Уровень повышен!  %1. Новый уровень: lvl %2"],
     ["#PRG_NOTIFY_TAXI#","Страховка такси увеличена на %1%%. Новая страховка: %2%%"],
     ["#PRG_NOTIFY_TRDR#","Страховка торговца увеличена на %1%%. Новая страховка: %2%%"],
     ["#PRG_NOTIFY_COMM#","Уровень поддержки увеличен на %1. Новый уровень поддержки: %2"],
