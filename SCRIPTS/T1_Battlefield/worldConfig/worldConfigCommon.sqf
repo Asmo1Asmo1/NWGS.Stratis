@@ -28,11 +28,11 @@ NWG_WCONF_COM_Settings = createHashMapFromArray [
 	/*Daytime settings*//*[hourStr,hourInt]*/
 	["DAYTIMES",[
 		["00:00",0],
-		["01:00",1],
+		// ["01:00",1],
 		["02:00",2],
-		["03:00",3],
+		// ["03:00",3],
 		["04:00",4],
-		["05:00",5],
+		// ["05:00",5],
 		["06:00",6],
 		["07:00",7],
 		["08:00",8],
@@ -48,9 +48,9 @@ NWG_WCONF_COM_Settings = createHashMapFromArray [
 		["18:00",18],
 		["19:00",19],
 		["20:00",20],
-		["21:00",21],
-		["22:00",22],
-		["23:00",23]
+		// ["21:00",21],
+		["22:00",22]
+		// ["23:00",23]
 	]],
 	["DAYTIME_SMOOTH_TRANSITION",true],//If true, daytime will be set with transition (see: https://community.bistudio.com/wiki/BIS_fnc_setDate)
 
@@ -60,6 +60,7 @@ NWG_WCONF_COM_Settings = createHashMapFromArray [
 		["clear",  "#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
 		["clear",  "#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
 		["clear+w","#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[3.0,6.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
+		["cloud",  "#WEATHER_CLOUD#",[/*ovc:*/[0.4,0.6],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
 		["cloud",  "#WEATHER_CLOUD#",[/*ovc:*/[0.4,0.6],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
 		["cloud+w","#WEATHER_CLOUD#",[/*ovc:*/[0.4,0.6],/*wind:*/[3.0,6.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
 		["rain",   "#WEATHER_RAIN#", [/*ovc:*/[0.6,0.9],/*wind:*/[0.0,0.0],/*rain:*/[0.5,0.8],/*lightnings:*/[0.0,0.5],/*fog:*/[0.0,0.0]]],
