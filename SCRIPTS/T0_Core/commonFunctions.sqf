@@ -65,52 +65,31 @@ NWG_fnc_selectRandomGuaranteed = {
     private _historyBook = if (_deepSave)
         then {(profileNamespace getVariable ["NWG_fnc_selectRandomGuaranteed_historyBook", createHashMap])}
         else {(localNamespace getVariable ["NWG_fnc_selectRandomGuaranteed_historyBook", createHashMap])};
-    private _history = _historyBook getOrDefault [_arrayID,[]];
 
-    //Check history validity and values
-    private ["_lastPick","_freeSpace"];
-    if ((count _history) == _arrayCount) then {
-        //valid, continue the work
-        _lastPick = _history find 2;
-        _freeSpace = _history find 0;
-    } else {
-        //invalid, reset history
-        _history resize _arrayCount;
-        _history = _history apply {0};
-        _lastPick = -1;
-        _freeSpace = 0;
-    };
+    //Check history validity, re-create if invalid (except for _lastPick - it needs to be preserved)
+    (_historyBook getOrDefault [_arrayID,[-1,-1,[]]]) params ["_lastArrayCount","_lastPick","_picksLeft"];
+    if (_lastArrayCount != _arrayCount || {(count _picksLeft) == 0}) then {
+        //Update last array count
+        _lastArrayCount = _arrayCount;
 
-    //Select random index
-    private _index = floor (random _arrayCount);
+        //Update picks left
+        _picksLeft resize _arrayCount;
+        {_picksLeft set [_forEachIndex,_forEachIndex]} forEach _picksLeft;
+        _picksLeft = _picksLeft call NWG_fnc_arrayShuffle;//Shuffle that uses Fisher-Yates algorithm
 
-    //Evaluate the index
-    _index = switch (true) do {
-        case ((_history#_index) == 0): {
-            //We stumbled upon a free space - use it
-            if (_lastPick != -1) then {_history set [_lastPick,1]};
-            _history set [_index,2];
-            _index
-        };
-        case (_freeSpace != -1): {
-            //We stumbled upon occupied space, but there is free space available - use free space
-            if (_lastPick != -1) then {_history set [_lastPick,1]};
-            _history set [_freeSpace,2];
-            _freeSpace
-        };
-        default {
-            //There is no free space left - reset history and pick new random index
-            private _newIndex = -1;
-            private _tries = 99;//Just in case, apply NASA standards
-            while {_newIndex = floor (random _arrayCount); _newIndex == _lastPick && {_tries > 0}} do {_tries = _tries - 1};
-            _history = _history apply {0};
-            _history set [_newIndex,2];
-            _newIndex
+        //Ensure that the first pick of this cycle is not the same as the last pick of the previous cycle
+        private _attempts = 10;//Just in case, apply NASA standards
+        while {(_picksLeft#0) == _lastPick && {_attempts > 0}} do {
+            _picksLeft = _picksLeft call NWG_fnc_arrayShuffle;
+            _attempts = _attempts - 1;
         };
     };
+
+    //Select random index by getting it from pre-shuffled array
+    _lastPick = _picksLeft deleteAt 0;
 
     //Save history
-    _historyBook set [_arrayID, _history];
+    _historyBook set [_arrayID,[_lastArrayCount,_lastPick,_picksLeft]];
     if (_deepSave) then {
         profileNamespace setVariable ["NWG_fnc_selectRandomGuaranteed_historyBook", _historyBook];
         saveProfileNamespace;
@@ -119,7 +98,7 @@ NWG_fnc_selectRandomGuaranteed = {
     };
 
     //return
-    (_array#_index)
+    (_array#_lastPick)
 };
 
 //===============================================================
