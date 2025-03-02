@@ -20,8 +20,8 @@ NWG_DB_PL_Settings = createHashMapFromArray [
 	/*Table*/
 	["TABLE_NAME","players"],
 	["TABLE_ID_FIELD","steam_id"],
-	["TABLE_FIELDS",["loadout","add_weapon","loot_storage_c","loot_storage_w","loot_storage_i","loot_storage_a","wallet","progress"]],
-	["TABLE_TYPES",[[],[],[],[],[],[],1,[]]],
+	["TABLE_FIELDS",["loadout","add_weapon","loot_storage_c","loot_storage_w","loot_storage_i","loot_storage_a","wallet","progress","garage"]],
+	["TABLE_TYPES",[[],[],[],[],[],[],1,[],[]]],
 
 	/*Debug and settings*/
 	// ["DEBUG_LOG",false],//Log every request to DB
@@ -33,7 +33,8 @@ NWG_DB_PL_Settings = createHashMapFromArray [
 		["add_weapon",[]],
 		["loot_storage",LOOT_ITEM_DEFAULT_CHART],
 		["wallet",20250],
-		["progress",P_DEFAULT_CHART]
+		["progress",P_DEFAULT_CHART],
+		["garage",[]]
 	]],
 
 	/*DB to State relation*/
@@ -45,7 +46,8 @@ NWG_DB_PL_Settings = createHashMapFromArray [
 		["loot_storage_i",["loot_storage",LOOT_ITEM_CAT_ITEM]],
 		["loot_storage_a",["loot_storage",LOOT_ITEM_CAT_AMMO]],
 		["wallet","wallet"],
-		["progress","progress"]
+		["progress","progress"],
+		["garage","garage"]
 	]],
 
     ["",0]

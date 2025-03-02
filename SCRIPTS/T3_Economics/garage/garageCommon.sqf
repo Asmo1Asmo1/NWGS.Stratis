@@ -34,7 +34,7 @@ NWG_GRG_VehicleToGarageArray = {
     /*GR_DAMAGE:*/
     private _hitIndexArray = [];
     {
-        if (_x > 0) then {
+        if (_x > 0.1) then {
             _hitIndexArray pushBack _forEachIndex;
             _hitIndexArray pushBack _x;
         };
