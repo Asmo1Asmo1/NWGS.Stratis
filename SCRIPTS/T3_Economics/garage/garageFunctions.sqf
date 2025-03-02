@@ -15,6 +15,34 @@ NWG_fnc_grgSetSpawnPlatformObject = {
         else {_this remoteExec ["NWG_fnc_grgSetSpawnPlatformObject",2]};
 };
 
+//Get garage array of this player
+NWG_fnc_grgGetGarageArray = {
+    // private _player = _this;
+    if !(_this isEqualType objNull) exitWith {
+        (format ["NWG_fnc_grgGetGarageArray: Invalid player object"]) call NWG_fnc_logError;
+        []
+    };
+    if (isNull _this) exitWith {
+        (format ["NWG_fnc_grgGetGarageArray: Player object is null"]) call NWG_fnc_logError;
+        []
+    };
+
+    _this call NWG_GRG_GetGarageArray;
+};
+
+//Set garage array of this player
+NWG_fnc_grgSetGarageArray = {
+    params ["_player","_garageArray"];
+    if !(_player isEqualType objNull) exitWith {
+        (format ["NWG_fnc_grgSetGarageArray: Invalid player object"]) call NWG_fnc_logError;
+    };
+    if (isNull _player) exitWith {
+        (format ["NWG_fnc_grgSetGarageArray: Player object is null"]) call NWG_fnc_logError;
+    };
+
+    _this call NWG_GRG_SetGarageArray;
+};
+
 /*Other systems->Client*/
 //Open garage
 NWG_fnc_grgOpen = {
@@ -37,7 +65,7 @@ NWG_fnc_grgDeleteVehicle = {
         else {_this remoteExec ["NWG_fnc_grgDeleteVehicle",2]};
 };
 
-//Kindly ask server to spawn vehicle at platform
+//Kindly ask server to spawn vehicle at a platform and apply garage values
 NWG_fnc_grgSpawnVehicle = {
     params ["_player","_fullItem"];
     if !(_player isEqualType objNull) exitWith {
