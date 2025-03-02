@@ -137,7 +137,7 @@ NWG_fnc_spwnGetVehicleAppearance = {
     //returns _appearance
 };
 
-//Get all the variations of vehicle appearance (safe to use with NWG_fnc_spwnSetVehicleAppearance)
+//Get all the variations of vehicle appearance bound to 0.5 probability
 //params:
 //_vehicle - vehicle to get appearance of
 //returns:

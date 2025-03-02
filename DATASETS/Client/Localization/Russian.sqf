@@ -241,7 +241,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VSHOP_CAT_SUBM#","Подводные лодки"],
     ["#VSHOP_CAT_TANK#","Танки"],
     ["#VSHOP_PLATFORM_OCCUPIED#","Платформа занята"],
-    ["#VSHOP_CANNOT_SELL_VEHICLE#","Нельзя продать эту технику"],
+    ["#VSHOP_CANNOT_SELL_VEHICLE#","Техника недоступна"],
     //vehCustomizationAppearance
     ["#CAPP_LEFT_TITLE#","Цвет"],
     ["#CAPP_RIGHT_TITLE#","Компоненты"],

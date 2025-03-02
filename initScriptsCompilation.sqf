@@ -212,6 +212,13 @@ _serverModules pushBack ("SCRIPTS\T3_Economics\database\databasePrices.sqf" call
 _serverFunctions pushBack ("SCRIPTS\T3_Economics\database\databaseFunctions.sqf" call NWG_fnc_compile);
 //economicsTest
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T3_Economics\economicsTest\economicsTest.sqf" call NWG_fnc_compile)};
+//garage
+_serverModules pushBack ("SCRIPTS\T3_Economics\garage\garageServerSide.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\garage\garageCommon.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\garage\missionMachineConnector.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\garage\garageClientSide.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\garage\garageCommon.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\garage\garageFunctions.sqf" call NWG_fnc_compile);
 //hunting
 _clientModules pushBack ("SCRIPTS\T3_Economics\hunting\huntingClient.sqf" call NWG_fnc_compile);
 //lootMission
