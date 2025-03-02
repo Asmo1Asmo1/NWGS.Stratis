@@ -356,7 +356,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_00_Q_04#","Hey, have you seen...|A guy with a red crowbar?|The fucker owes me|That's MY fucking crowbar|And it is my favorite|You meet him - you let me know|Okay?"],
     ["#MECH_00_Q_05#","Buy? Sell? Repair?"],
     ["#MECH_00_A_01#","Open the shop"],
-    ["#MECH_00_A_02#","I need your services"],
+    ["#MECH_00_A_02#","Open the garage"],
+    ["#MECH_00_A_03#","I need your services"],
     /*Mech - MECH_01*/
     ["#MECH_01_Q_02#","What?"],
     ["#MECH_01_Q_03#","Yeah, what?"],
