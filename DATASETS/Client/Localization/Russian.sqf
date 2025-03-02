@@ -241,7 +241,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VSHOP_CAT_SUBM#","Подводные лодки"],
     ["#VSHOP_CAT_TANK#","Танки"],
     ["#VSHOP_PLATFORM_OCCUPIED#","Платформа занята"],
-    ["#VSHOP_CANNOT_SELL_VEHICLE#","Нельзя продать эту технику"],
+    ["#VSHOP_CANNOT_SELL_VEHICLE#","Техника недоступна"],
     //vehCustomizationAppearance
     ["#CAPP_LEFT_TITLE#","Цвет"],
     ["#CAPP_RIGHT_TITLE#","Компоненты"],
@@ -391,7 +391,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_00_Q_04#","Эй, видел...|Пареня с красной монтировкой?|Этот чувак мне должен|Это моя монтировка|Она у меня любимая|Ты если его увидишь - скажи мне|Ладно?"],
     ["#MECH_00_Q_05#","Купить? Продать? Отремонтировать?"],
     ["#MECH_00_A_01#","Открывай магазин"],
-    ["#MECH_00_A_02#","Мне нужны твои услуги"],
+    ["#MECH_00_A_02#","Открывай гараж"],
+    ["#MECH_00_A_03#","Мне нужны твои услуги"],
     /*Mech - MECH_01*/
     ["#MECH_01_Q_02#","Что?"],
     ["#MECH_01_Q_03#","Да, что?"],

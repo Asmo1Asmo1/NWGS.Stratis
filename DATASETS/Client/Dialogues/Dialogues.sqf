@@ -264,7 +264,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				["#MECH_00_A_01#",NODE_EXIT,{call NWG_DLG_MECH_OpenShop}],
-				["#MECH_00_A_02#","MECH_SERV"],
+				["#MECH_00_A_02#",NODE_EXIT,{call NWG_DLG_MECH_OpenGarage}],
+				["#MECH_00_A_03#","MECH_SERV"],
 				{"MECH" call NWG_DLGHLP_GenerateRoot}/*["MECH_HELP","MECH_ADV",NODE_EXIT]*/
 			]
 		]
@@ -279,7 +280,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				["#MECH_00_A_01#",NODE_EXIT,{call NWG_DLG_MECH_OpenShop}],
-				["#MECH_00_A_02#","MECH_SERV"],
+				["#MECH_00_A_02#",NODE_EXIT,{call NWG_DLG_MECH_OpenGarage}],
+				["#MECH_00_A_03#","MECH_SERV"],
 				{"MECH" call NWG_DLGHLP_GenerateRoot}/*["MECH_HELP","MECH_ADV",NODE_EXIT]*/
 			]
 		]

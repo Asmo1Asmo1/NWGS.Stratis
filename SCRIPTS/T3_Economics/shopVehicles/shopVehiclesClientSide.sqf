@@ -37,7 +37,6 @@
 NWG_VSHOP_CLI_Settings = createHashMapFromArray [
 	["PRICE_SELL_TO_PLAYER_MULTIPLIER",1.5],
 	["PRICE_BUY_FROM_PLAYER_MULTIPLIER",0.75],
-	["PRICE_REDUCE_BY_DAMAGE",true],//If true, price will be reduced by damage of the vehicle
 	["PRICE_CUSTOM_SHOP_MULTIPLIER",1.1],//Multiplier for price for selling items to player in custom shop
 
 	["GROUP_LEADER_MANAGES_GROUP_VEHICLES",true],//If true, group leader will be able to sell all vehicles of the group
@@ -45,11 +44,6 @@ NWG_VSHOP_CLI_Settings = createHashMapFromArray [
 
 	["SELL_DISTANCE",100],//Distance at which vehicles can be sold
 	["SELL_DAMAGE_MULTIPLIER",0.5],//Multiplier for price reduction by damage (%50 dmg with multiplier 0.5 will reduce price by 25%)
-
-	["PLAYER_MONEY_BLINK_COLOR_ON_ERROR",[1,0,0,1]],
-	["PLAYER_MONEY_BLINK_COLOR_ON_SUCCESS",[0,1,0,1]],
-	["PLAYER_MONEY_BLINK_COLOR_INTERVAL_ON",0.3],
-	["PLAYER_MONEY_BLINK_COLOR_INTERVAL_OFF",0.2],
 
 	["ITEM_PRICE_TEMPLATE_W_CONDITION","[%1%%] (%2)"],//Item price format string
 	["ITEM_PRICE_TEMPLATE_NO_CONDITION","(%1)"],//Item price format string
