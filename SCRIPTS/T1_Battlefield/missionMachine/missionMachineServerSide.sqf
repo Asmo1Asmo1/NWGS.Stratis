@@ -79,7 +79,6 @@ NWG_MIS_SER_InterpolateInt = {
 //Mission machine heartbeat
 NWG_MIS_SER_Cycle = {
     private _exit = false;
-    private _restartOnReady = NWG_MIS_SER_Settings get "SERVER_RESTART_ON_ZERO_ONLINE_AFTER";
 
     waitUntil {
         /*Every heartbeat...*/
@@ -174,17 +173,23 @@ NWG_MIS_SER_Cycle = {
 
             /* player input expect */
             case MSTATE_READY: {
+                //Update mission info to check restart condition and players on base
+                NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightUpdateMissionInfo;
+
                 //Check restart condition - restart if players left after completing at least one level
-                _restartOnReady = if (NWG_MIS_SER_lastLevel >= 0 && {(count (call NWG_fnc_getPlayersAll)) <= 0})
-                    then {_restartOnReady - 1}
-                    else {NWG_MIS_SER_Settings get "SERVER_RESTART_ON_ZERO_ONLINE_AFTER"};
-                if (_restartOnReady <= 0) exitWith {
+                if (NWG_MIS_SER_lastLevel >= 0 && {NWG_MIS_SER_missionInfo get MINFO_IS_RESTART_CONDITION}) exitWith {
                     "No players online - restarting the server." call NWG_MIS_SER_Log;
                     MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState;
                 };
 
                 //Check mission selection
                 if (NWG_MIS_SER_selected isEqualTo []) exitWith {};//Wait for selection
+
+                //Check if all players are on the base
+                if !(NWG_MIS_SER_missionInfo get MINFO_IS_ALL_PLAYERS_ON_BASE) exitWith {
+                    "#MIS_NOT_ALL_PLAYERS_ON_BASE#" call NWG_fnc_systemChatAll;
+                    NWG_MIS_SER_selected = [];//Reset selection
+                };
 
                 //Check if may skip voting
                 if ((count (call NWG_fnc_getPlayersAll)) <= 1) exitWith {
@@ -274,6 +279,7 @@ NWG_MIS_SER_Cycle = {
                         {"NWG_MIS_SER_Cycle: Escape vehicle not found or dead - exiting." call NWG_fnc_logError; _exit = true};//Exit
                     _escapeVehicle allowDamage false;
                     NWG_MIS_SER_missionInfo set [MINFO_ESCAPE_VEHICLE,_escapeVehicle];
+                    NWG_MIS_SER_missionInfo set [MINFO_ESCAPE_VEHICLE_POS,(getPosASL _escapeVehicle)];
                 };
 
                 NWG_MIS_SER_missionObjects = _ukrep;//Save mission objects
@@ -407,6 +413,8 @@ NWG_MIS_SER_Cycle = {
             };
             case MSTATE_SERVER_RESTART: {
                 //Restart the server
+                "#MIS_RESTART_MESSAGE#" call NWG_fnc_sideChatAll;
+                sleep 3;//Give some time for the message to be displayed
                 call NWG_MIS_SER_ServerRestart;
                 _exit = true;//Exit
             };
@@ -417,8 +425,7 @@ NWG_MIS_SER_Cycle = {
                 private _curTime = round time;
                 private _exhaustAfter = NWG_MIS_SER_Settings get "ESCAPE_TIME_LIMIT";
                 NWG_MIS_SER_missionInfo set [MINFO_WILL_EXHAUST_AT,(_curTime + _exhaustAfter)];//Setup escape time limit
-                NWG_MIS_SER_missionInfo call NWG_MIS_SER_AttackPlayerBase;//Attack the player base
-                NWG_MIS_SER_missionInfo call NWG_MIS_SER_EscapeStarted;//Send signal to the clients
+                NWG_MIS_SER_missionInfo call NWG_MIS_SER_OnEscapeStarted;//Escape specific logic
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_ESCAPE_ACTIVE: {
@@ -436,16 +443,19 @@ NWG_MIS_SER_Cycle = {
                     case (NWG_MIS_SER_missionInfo get MINFO_IS_EXHAUSTED): {
                         //Players have failed to escape in time
                         NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
-                        MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState
+                        MSTATE_ESCAPE_FAILED call NWG_MIS_SER_ChangeState
                     };
-                    default {
-                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_EscapeTick;//Tick the escape mission
-                    };
+                    default {/*Do nothing*/};
                 };
             };
+            case MSTATE_ESCAPE_FAILED: {
+                //Players have failed to escape in time
+                false remoteExec ["NWG_fnc_mmEscapeCompleted",0];
+                MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState
+            };
             case MSTATE_ESCAPE_COMPLETED: {
-                sleep 3;//Give some time for event handlers to finish
-                call NWG_MIS_SER_EscapeCompleted;//Escape is completed
+                sleep 3;//Give some time for event handlers to finish (rewards, save to state holder, etc)
+                true remoteExec ["NWG_fnc_mmEscapeCompleted",0];
                 MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState;
             };
 
@@ -526,6 +536,7 @@ NWG_MIS_SER_GetStateName = {
         case MSTATE_SERVER_RESTART: {"SERVER_RESTART"};
         case MSTATE_ESCAPE_SETUP:       {"ESCAPE_SETUP"};
         case MSTATE_ESCAPE_ACTIVE:      {"ESCAPE_ACTIVE"};
+        case MSTATE_ESCAPE_FAILED:      {"ESCAPE_FAILED"};
         case MSTATE_ESCAPE_COMPLETED:   {"ESCAPE_COMPLETED"};
         default {"UNKNOWN"};
     }
@@ -938,6 +949,7 @@ NWG_MIS_SER_GenerateMissionInfo = {
     //Escape
     _missionInfo set [MINFO_IS_ESCAPE,_isEscape];
     _missionInfo set [MINFO_ESCAPE_VEHICLE,objNull];//Will be set later
+    _missionInfo set [MINFO_ESCAPE_VEHICLE_POS,[0,0,0]];//Will be set later
 
     //return
     _missionInfo
@@ -1115,8 +1127,8 @@ NWG_MIS_SER_FightUpdateMissionInfo = {
     private _playersOnline = call NWG_fnc_getPlayersAll;
     private _playersOnlineCount = (count _playersOnline);
     private _playersOnMission = call {
-        private _missionPos = _info get MINFO_POSITION;
-        private _missionRad = _info get MINFO_RADIUS;
+        private _missionPos = _info getOrDefault [MINFO_POSITION,[0,0,0]];
+        private _missionRad = _info getOrDefault [MINFO_RADIUS,0];
         _playersOnline select {(_x distance2D _missionPos) <= _missionRad}
     };
     private _playersOnBase = call {
@@ -1132,7 +1144,7 @@ NWG_MIS_SER_FightUpdateMissionInfo = {
         _info set [MINFO_LAST_ONLINE_AT,_curTime];
         _info set [MINFO_IS_RESTART_CONDITION,false];
     } else {
-        private _lastOnline = _info get MINFO_LAST_ONLINE_AT;
+        private _lastOnline = _info getOrDefault [MINFO_LAST_ONLINE_AT,0];
         private _restartDelay = NWG_MIS_SER_Settings get "SERVER_RESTART_ON_ZERO_ONLINE_AFTER";
         private _restartAt = _lastOnline + _restartDelay;
         _info set [MINFO_IS_RESTART_CONDITION,(_curTime >= _restartAt)];
@@ -1142,25 +1154,28 @@ NWG_MIS_SER_FightUpdateMissionInfo = {
     _info set [MINFO_IS_ALL_PLAYERS_ON_BASE,(_playersOnlineCount > 0 && {(count _playersOnBase) == _playersOnlineCount})];
 
     //5. Mission infiltration condition (one time switch on)
-    if !(_info get MINFO_IS_INFILTRATED) then {
+    if !(_info getOrDefault [MINFO_IS_INFILTRATED,false]) then {
         _info set [MINFO_IS_INFILTRATED,((count _playersOnMission) > 0)];//Set 'Active' if at least one player is in the mission area
     };
 
     //6. Mission engage condition (one time switch on)
-    if !(_info get MINFO_IS_ENGAGED) then {
+    if !(_info getOrDefault [MINFO_IS_ENGAGED,false]) then {
         _info set [MINFO_IS_ENGAGED,((call NWG_fnc_ykGetTotalKillcount) > 0)];//Set 'Active' if YK detected at least one kill (doesn't matter where players are)
     };
 
     //7. Mission exhausted condition (one time switch on that is setup by FightSetupExhaustion)
-    if (!(_info get MINFO_IS_EXHAUSTED) && {(_info get MINFO_WILL_EXHAUST_AT) > 0}) then {
-        _info set [MINFO_IS_EXHAUSTED,(_curTime >= (_info get MINFO_WILL_EXHAUST_AT))];
+    if (!(_info getOrDefault [MINFO_IS_EXHAUSTED,false]) && {(_info getOrDefault [MINFO_WILL_EXHAUST_AT,0]) > 0}) then {
+        _info set [MINFO_IS_EXHAUSTED,(_curTime >= (_info getOrDefault [MINFO_WILL_EXHAUST_AT,0]))];
     };
 
     //8. Escape addition
-    if (_info get MINFO_IS_ESCAPE) then {
+    if (_info getOrDefault [MINFO_IS_ESCAPE,false]) then {
         if (_playersOnlineCount == 0) exitWith {_info set [MINFO_IS_ALL_PLAYERS_IN_ESCAPE_VEHICLE,false]};//No players online - no need to check
-        private _escapeVehicle = _info get MINFO_ESCAPE_VEHICLE;
-        _info set [MINFO_IS_ALL_PLAYERS_IN_ESCAPE_VEHICLE,(_playersOnlineCount == ({isPlayer _x} count (crew _escapeVehicle)))];
+        private _escapeVehicle = _info getOrDefault [MINFO_ESCAPE_VEHICLE,objNull];
+        private _escapeVehiclePos = _info getOrDefault [MINFO_ESCAPE_VEHICLE_POS,[0,0,0]];
+        private _isInVehicle = _playersOnlineCount == ({isPlayer _x} count (crew _escapeVehicle));
+        private _isVehicleMoved = (_escapeVehicle distance2D _escapeVehiclePos) > 1000;
+        _info set [MINFO_IS_ALL_PLAYERS_IN_ESCAPE_VEHICLE,(_isInVehicle && _isVehicleMoved)];
     };
 
     //9. Return
@@ -1262,7 +1277,7 @@ NWG_MIS_SER_AutoRunEscape = {
     true
 };
 
-NWG_MIS_SER_AttackPlayerBase = {
+NWG_MIS_SER_OnEscapeStarted = {
     // private _missionInfo = _this;
 
     //Put base NPSc into 'surrender' animation
@@ -1272,17 +1287,18 @@ NWG_MIS_SER_AttackPlayerBase = {
         _x disableAI "ANIM";//Fix AI switching out of the animation (works even for agents)
     } forEach _npcs;
 
-    //Send enemy reinforcements to the player base
+    //Attack player base
     private _basePos = getPosASL NWG_MIS_SER_playerBase;
     private _groupsCount = selectRandom (NWG_MIS_SER_Settings get "ESCAPE_BASEATTACK_GROUPSCOUNT");
     private _faction = _this get MINFO_ENEMY_FACTION;
     private _side = _this get MINFO_ENEMY_SIDE;
     [_basePos,_groupsCount,_faction,[],_side] call NWG_fnc_dsSendReinforcements;
-};
 
-NWG_MIS_SER_EscapeStarted = {
-    // private _missionInfo = _this;
-    //Just play some tunes when the fighting starts
+    //Send timer to clients
+    private _secondsLeft = NWG_MIS_SER_Settings get "ESCAPE_TIME_LIMIT";
+    _secondsLeft remoteExec ["NWG_fnc_mmEscapeStarted",0];
+
+    //Play some tunes when the fighting starts
     _this spawn {
         private _missionInfo = _this;
         waitUntil {sleep 1; _missionInfo getOrDefault [MINFO_IS_ENGAGED,false]};//Wait until the fight starts
@@ -1291,23 +1307,11 @@ NWG_MIS_SER_EscapeStarted = {
     };
 };
 
-NWG_MIS_SER_EscapeTick = {
-    // private _missionInfo = _this;
-    private _curTime = round time;
-    private _endAt = _this get MINFO_WILL_EXHAUST_AT;
-    private _secondsLeft = (round (_endAt - _curTime)) max 0;
-    _secondsLeft call NWG_fnc_sideChatAll;
-};
-
-NWG_MIS_SER_EscapeCompleted = {
-    0 remoteExec ["NWG_fnc_mmEscapeCompleted",0];
-};
-
 //================================================================================================================
 //================================================================================================================
 //Server restart
 NWG_MIS_SER_ServerRestart = {
-    "NWG_MIS_SER_ServerRestart: Server restart requested" call NWG_fnc_logInfo;
+    "NWG_MIS_SER_ServerRestart: Server restart initiated" call NWG_fnc_logInfo;
     SERVER_COMMAND_PASSWORD serverCommand "#shutdown";
 };
 

@@ -275,8 +275,19 @@ NWG_MIS_CLI_OnPlayMusic = {
     playMusic _this
 };
 
+NWG_MIS_CLI_OnEscapeStarted = {
+    private _secondsLeft = _this;
+    waitUntil {
+        sleep 1;
+        _secondsLeft = _secondsLeft - 1;
+        hintSilent ([_secondsLeft,"HH:MM:SS"] call BIS_fnc_secondsToString);
+        _secondsLeft <= 0
+    };
+};
+
 NWG_MIS_CLI_OnEscapeCompleted = {
-    ["end2",true,true,false,true] call BIS_fnc_endMission;
+    private _success = _this;
+    [/*endName:*/"end2",/*isVictory:*/_success,/*fadeType:*/true,/*playMusic:*/false,/*cancelTasks:*/true] call BIS_fnc_endMission;
 };
 
 //================================================================================================================

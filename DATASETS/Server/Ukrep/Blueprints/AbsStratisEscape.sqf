@@ -1,17 +1,31 @@
 [
-    ["ABS","Escape_01",[1524.03,4983.33,0],0,16.949,0,[],[
-        ["DECO","B_CargoNet_01_ammo_F",[1530.73,4980.42,5.50081],0,345,0,0],
-        ["DECO","B_CargoNet_01_ammo_F",[1526.88,4981.69,5.50081],0,0,0,0],
-        ["DECO","B_CargoNet_01_ammo_F",[1526.54,4977.18,5.50081],0,45,0,0],
-        ["DECO","CargoNet_01_barrels_F",[1516.55,4978.94,5.50278],0,15,0,0],
-        ["DECO","CargoNet_01_barrels_F",[1516.46,4981.71,5.50278],0,60,0,0],
-        ["VEHC","B_T_VTOL_01_infantry_F",[1527.01,5000.01,5.64575],0,15,0,[[]]]]],
+    ["ABS","Escape_v1_4",[1546.42,4989.04,0],0,50.6345,0,[],[
+        ["BLDG","Land_Cargo_Tower_V3_F",[1564,4982,6],0,15,0,2],
+        ["BLDG","Land_MedicalTent_01_NATO_generic_inner_F",[1572,5013,5.551],0,105,0,1],
+        ["BLDG","Land_MedicalTent_01_NATO_generic_inner_F",[1568,4999,5.6535],0,105,0,1],
+        ["DECO","B_CargoNet_01_ammo_F",[1518,4986,5.50081],0,190,0,0],
+        ["DECO","CargoNet_01_barrels_F",[1521,4988,5.50278],0,170,0,0],
+        ["DECO","CargoNet_01_barrels_F",[1522.81,4984.79,5.50278],0,195,0,0],
+        ["DECO","Land_MetalBarrel_F",[1521.58,4986.77,5.50035],0,0,0,0],
+        ["VEHC","B_T_VTOL_01_infantry_F",[1527.01,5001.01,5.65021],0,15,0,[[]]],
+        ["VEHC","Land_VR_Target_APC_Wheeled_01_F",[1510,4968,5.5],0,15,0,[]],
+        ["VEHC","Land_VR_Target_APC_Wheeled_01_F",[1521,4977,5.5],0,170,0,[]],
+        ["VEHC","Land_VR_Target_MBT_01_cannon_F",[1595,4981,5.5],0,125,0,[]],
+        ["VEHC","Land_VR_Target_MBT_01_cannon_F",[1592,4967,5.5],0,125,0,[]],
+        ["VEHC","Land_VR_Target_MRAP_01_F",[1571,5024,5.5352],0,90.0184,0,[]]]],
 
-    ["ABS","Escape_02",[1790.97,6004.17,0],0,16.9494,0,[],[
-        ["DECO","B_CargoNet_01_ammo_F",[1788.12,6005.81,5.50081],0,180,0,0],
-        ["DECO","B_CargoNet_01_ammo_F",[1784.27,6007.08,5.50081],0,165,0,0],
-        ["DECO","B_CargoNet_01_ammo_F",[1788.46,6010.32,5.50081],0,225,0,0],
-        ["DECO","CargoNet_01_barrels_F",[1798.45,6008.56,5.50278],0,195,0,0],
-        ["DECO","CargoNet_01_barrels_F",[1798.54,6005.79,5.50278],0,240,0,0],
-        ["VEHC","B_T_VTOL_01_infantry_F",[1787.99,5987.49,5.65046],0,195.001,0,[[]]]]]
+    ["ABS","Escape_v2_4",[1808,5976.96,0],0,73.2067,0,[],[
+        ["BLDG","Land_Cargo_Tower_V3_F",[1824,5976,5.5],0,15,0,2],
+        ["BLDG","Land_MedicalTent_01_NATO_generic_inner_F",[1817,5949,5.5],0,285,0,1],
+        ["BLDG","Land_MedicalTent_01_NATO_generic_inner_F",[1820,5961,5.5],0,105,0,1],
+        ["DECO","B_CargoNet_01_ammo_F",[1791.42,6002.23,5.50081],0,190,0,0],
+        ["DECO","CargoNet_01_barrels_F",[1794.42,6004.23,5.50278],0,170,0,0],
+        ["DECO","CargoNet_01_barrels_F",[1796.23,6001.03,5.50278],0,195,0,0],
+        ["DECO","Land_MetalBarrel_F",[1795,6003,5.50035],0,0,0,0],
+        ["VEHC","B_T_VTOL_01_infantry_F",[1786.99,5982.99,5.65049],0,195,0,[[]]],
+        ["VEHC","Land_VR_Target_APC_Wheeled_01_F",[1787,6008,5.5],0,170,0,[]],
+        ["VEHC","Land_VR_Target_APC_Wheeled_01_F",[1800,6013,5.5],0,15,0,[]],
+        ["VEHC","Land_VR_Target_MBT_01_cannon_F",[1829,5920,5.5],0,125,0,[]],
+        ["VEHC","Land_VR_Target_MBT_01_cannon_F",[1826,5906,5.5],0,125,0,[]],
+        ["VEHC","Land_VR_Target_MRAP_01_F",[1837,5974,5.5],0,330.001,0,[]]]]
 ]

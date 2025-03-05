@@ -4,7 +4,7 @@
 //================================================================================================================
 //Settings
 NWG_VOTE_SER_Settings = createHashMapFromArray [
-    ["TIMEOUT",120],//Voting timeout
+    ["TIMEOUT",60],//Voting timeout
     ["THRESHOLD_MULTIPLIER",0.5],//Used to determine vote result: 'for' >= 'all'*X || 'against' >= 'all'*X
 
     ["",0]

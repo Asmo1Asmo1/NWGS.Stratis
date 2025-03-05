@@ -209,9 +209,15 @@ _commonFunctions pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizati
 _serverModules pushBack ("SCRIPTS\T3_Economics\database\databaseCommon.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\database\databasePlayers.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\database\databasePrices.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\database\databaseEscapeBillboard.sqf" call NWG_fnc_compile);
 _serverFunctions pushBack ("SCRIPTS\T3_Economics\database\databaseFunctions.sqf" call NWG_fnc_compile);
 //economicsTest
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T3_Economics\economicsTest\economicsTest.sqf" call NWG_fnc_compile)};
+//escapeBillboard
+_serverModules pushBack ("SCRIPTS\T3_Economics\escapeBillboard\escapeBillboardServerSide.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\escapeBillboard\missionMachineConnector.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\escapeBillboard\escapeBillboardClientSide.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T3_Economics\escapeBillboard\escapeBillboardFunctions.sqf" call NWG_fnc_compile);
 //garage
 _serverModules pushBack ("SCRIPTS\T3_Economics\garage\garageServerSide.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\garage\garageCommon.sqf" call NWG_fnc_compile);
@@ -294,6 +300,7 @@ _clientModules pushBack ("SCRIPTS\T3_Economics\vehOwnership\vehOwnershipClient.s
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\vehOwnership\vehOwnershipFunctions.sqf" call NWG_fnc_compile);
 //wallet
 _serverModules pushBack ("SCRIPTS\T3_Economics\wallet\walletCommon.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\wallet\missionMachineConnector.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\wallet\walletCommon.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\wallet\walletClient.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\wallet\walletFunctions.sqf" call NWG_fnc_compile);

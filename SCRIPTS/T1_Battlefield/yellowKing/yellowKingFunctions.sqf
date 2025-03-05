@@ -25,7 +25,7 @@ NWG_fnc_ykConfigure = {
 //Returns a total killcount recorded by YK for that session (between enable and disable)
 //returns: total killcount
 NWG_fnc_ykGetTotalKillcount = {
-    NWG_YK_killCountTotal
+    if (NWG_YK_Enabled) then {NWG_YK_killCountTotal} else {-1}
 };
 
 //=============================================================================

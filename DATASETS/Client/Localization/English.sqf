@@ -5,11 +5,13 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MIS_CLI_BRIEFING_1#","new destination..."],
     ["#MIS_CLI_BRIEFING_2#","Enemy: %1"],
     ["#MIS_COMPLETED_MESSAGE#","RAID COMPLETED"],
+    ["#MIS_NOT_ALL_PLAYERS_ON_BASE#","Some players are not on the base. Can not start the mission."],
     ["#MIS_VOTE_TITLE#","Vote to confirm\nRaid: %1\nLevel: %2\nEnemy: %3\nTime: %4\nWeather: %5"],
     ["#MIS_VOTE_WAITING#","Waiting for another vote to finish..."],
     ["#MIS_VOTE_CANNOT_START#","Failed to start vote"],
     ["#MIS_VOTE_ERROR#","Failed to get vote result"],
     ["#MIS_VOTE_AGAINST#","Players voted against the mission"],
+    ["#MIS_RESTART_MESSAGE#","Server restart in progress..."],
     //worldConfig
     ["#WORLD_NAME_STRATIS#","Stratis"],
     ["#WORLD_NAME_ALTIS#","Altis"],
@@ -131,6 +133,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_BAN_NOT_ENOUGH_PLAYERS#","Not enough players on server to start the vote (min: %1)"],
 
     //T3_Economics
+    //escapeBillboard
+    ["#ESCB_TITLE#","Level 17th Winners"],
+    ["#ESCB_NO_WINNERS#","\nBe the first to get here!"],
     //hunting
     ["#A_HUNT_TITLE#",""],
     ["#A_HUNT_FORBIDDEN_MESSAGE#","Hey, %1, stay the fuck away from the dogs, you sick fuck!"],
