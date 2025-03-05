@@ -107,7 +107,8 @@
 /* escape phase */
 #define MSTATE_ESCAPE_SETUP 21
 #define MSTATE_ESCAPE_ACTIVE 22
-#define MSTATE_ESCAPE_COMPLETED 23
+#define MSTATE_ESCAPE_FAILED 23
+#define MSTATE_ESCAPE_COMPLETED 24
 
 
 //Mission factions

@@ -85,10 +85,20 @@ NWG_fnc_mmPlayMusic = {
     _this call NWG_MIS_CLI_OnPlayMusic;
 };
 
-//Notifies the client that escape has been completed
-NWG_fnc_mmEscapeCompleted = {
+//Notifies the client that escape has been started
+//params: _secondsLeft - number
+NWG_fnc_mmEscapeStarted = {
+    // private _secondsLeft = _this;
     if (!hasInterface) exitWith {};//Prevent HC from executing this
-    call NWG_MIS_CLI_OnEscapeCompleted;
+    _this call NWG_MIS_CLI_OnEscapeStarted;
+};
+
+//Notifies the client that escape has been completed
+//params: _success - boolean
+NWG_fnc_mmEscapeCompleted = {
+    // private _success = _this;
+    if (!hasInterface) exitWith {};//Prevent HC from executing this
+    _this call NWG_MIS_CLI_OnEscapeCompleted;
 };
 
 //=============================================================================
@@ -179,4 +189,15 @@ NWG_fnc_mmIsPlayerOnBase = {
 NWG_fnc_mmWasPlayerOnMission = {
     // private _player = _this;
     _this getVariable ["NWG_MIS_WasOnMission",false]
+};
+
+//Returns if this player is inside escape vehicle
+//params: _player - object
+//returns: boolean
+NWG_fnc_mmIsPlayerInEscapeVehicle = {
+    // private _player = _this;
+    private _escapeVehicle = NWG_MIS_SER_missionInfo getOrDefault [MINFO_ESCAPE_VEHICLE,objNull];
+    if (isNull _escapeVehicle) exitWith {false};
+    //return
+    (vehicle _this) isEqualTo _escapeVehicle
 };

@@ -54,6 +54,7 @@
 #define MINFO_EXHAUST_AFTER "ExhaustAfter"
 #define MINFO_IS_ESCAPE "IsEscape"
 #define MINFO_ESCAPE_VEHICLE "EscapeVehicle"
+#define MINFO_ESCAPE_VEHICLE_POS "EscapeVehiclePos"
 //Mission info 'fight'
 #define MINFO_LAST_ONLINE_AT "LastOnlineAt"
 #define MINFO_IS_RESTART_CONDITION "IsRestartCondition"
