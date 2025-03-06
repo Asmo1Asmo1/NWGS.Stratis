@@ -423,6 +423,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_ADV_Q_02#","I'm not sure if I should tell it|But hell, there's so much work|So listen|Repair your own vehicle before selling it|I will buy it for more|And won't have to spend much time with it|A win-win, right?"],
     ["#MECH_ADV_Q_03#","Don't get greedy|If you see you need to sacrifice your ride|Do it|You can always get a new one|It is better to lose some additionals|Than most of what you got so far"],
     ["#MECH_ADV_Q_04#","Keep your toolkit with you|Yeah, that simple"],
+    ["#MECH_ADV_Q_05#","Every owned vehicle doubles as a loot stash|Don't worry, others can't access it|And when you come back, we'll move your stuff to Trader's"],
     /*====== TRDR =====*/
     /*Trdr - TRDR_00*/
     ["#TRDR_00_Q_01#","How come you have no money?|Look but don't touch anything|Have something to sell at least?"],
