@@ -27,6 +27,51 @@ NWG_MIS_SER_ShowAllMissionsOnMap = {
 
 //================================================================================================================
 //================================================================================================================
+// Force select mission
+//note: Will work only in READY state
+// call NWG_MIS_SER_ForceSelectMission
+NWG_MIS_SER_ForceSelectMission = {
+    params ["_missionName",["_level",1],["_faction","NATO"]];
+    if (NWG_MIS_CurrentState != MSTATE_READY) exitWith {
+        "Not a READY state"
+    };
+
+    //Find mission in missions list
+    private _missionIndex = NWG_MIS_SER_missionsList findIf {(_x#MLIST_NAME) isEqualTo _missionName};
+    if (_missionIndex isEqualTo -1) exitWith {
+        format ["Mission '%1' not found in missions list",_missionName]
+    };
+    private _mission = NWG_MIS_SER_missionsList#_missionIndex;
+
+    //Generate selection
+    private _mRad = [(NWG_MIS_SER_Settings get "MISSION_RADIUS_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateInt;
+    private _color = (NWG_MIS_SER_Settings get "ENEMY_COLORS") getOrDefault [_faction,"ColorBlack"];
+    (call NWG_fnc_wcGetRndDaytime) params ["_time","_timeStr"];
+    (call NWG_fnc_wcGetRndWeather) params ["_weather","_weatherStr"];
+    private _selection = [
+        /*SELECTION_NAME:*/_mission#MLIST_NAME,
+        /*SELECTION_LEVEL:*/_level,
+        /*SELECTION_INDEX:*/_missionIndex,
+        /*SELECTION_POS:*/_mission#MLIST_POS,
+        /*SELECTION_RAD:*/_mRad,
+        /*SELECTION_FACTION:*/_faction,
+        /*SELECTION_COLOR:*/_color,
+        /*SELECTION_TIME:*/_time,
+        /*SELECTION_TIME_STR:*/_timeStr,
+        /*SELECTION_WEATHER:*/_weather,
+        /*SELECTION_WEATHER_STR:*/_weatherStr
+    ];
+
+    //Emulate selection made
+    NWG_MIS_SER_selected = _selection;//Write into global variable
+    //The rest will be handled by heartbeat cycle...
+
+    //return to console
+    format ["Forced selection made: '%1'",_missionName]
+};
+
+//================================================================================================================
+//================================================================================================================
 // Mark all the buildings that were decorated
 //Keep it disabled - getting map objects into array long-term may lead to issues, so enable it ONLY when needed
 #define BLDG_MARK_DECORATION_TEST true
@@ -68,76 +113,4 @@ NWG_MIS_SER_ShowDecoratedBuildings = {
     {[_x,"ColorBlack"] call _markBuilding} forEach _decAndOcc;
     {[_x,"ColorRed"] call _markBuilding} forEach _decNotOcc;
     {[_x,"ColorGreen"] call _markBuilding} forEach _occNotDec;
-};
-
-//================================================================================================================
-//================================================================================================================
-// Place a mission on the map
-// ["LZConnor","NATO"] spawn NWG_MIS_SER_PlaceMissionOnMap
-NWG_MIS_SER_PlaceMissionOnMap = {
-    params [["_missionNameFilter",""],["_faction",""]];
-    private _pageName = "Abs" + (call NWG_fnc_wcGetWorldName);
-    private _blueprints = [_pageName,_missionNameFilter] call NWG_fnc_ukrpGetBlueprintsABS;
-    //["ABS","UkrepName",[ABSPos],0,Radius,0,[Payload],[Blueprint]]
-    if (count _blueprints == 0) exitWith {"No missions available for this map"};
-
-    // NWG_fnc_ukrpBuildFractalABS
-    // params ["_fractalSteps",["_faction",""],["_mapBldgsLimit",10],["_overrides",createHashMap]];
-    // _fractalStep params [["_pageName",""],["_chances",[]],["_groupRules",[]],["_blueprintNameFilter",""],["_blueprintPosFilter",[]]];
-
-    private _rootChances = [];//100% all
-    private _bldgChances = [
-        /*OBJ_TYPE_BLDG:*/1,
-        /*OBJ_TYPE_FURN:*/1,
-        /*OBJ_TYPE_DECO:*/1,
-        /*OBJ_TYPE_UNIT:*/(
-            createHashMapFromArray [
-                ["MinPercentage",0.5],
-                ["MaxPercentage",1.0],
-                ["MinCount",1],
-                ["MaxCount",20]
-            ]
-        ),
-        /*OBJ_TYPE_VEHC:*/1,
-        /*OBJ_TYPE_TRRT:*/(
-            createHashMapFromArray [
-                ["MinPercentage",0.5],
-                ["MaxPercentage",1.0],
-                ["MinCount",1],
-                ["MaxCount",3]
-            ]
-        ),
-        /*OBJ_TYPE_MINE:*/1
-    ];
-    private _furnChances = [
-        /*OBJ_TYPE_BLDG:*/1,
-        /*OBJ_TYPE_FURN:*/1,
-        /*OBJ_TYPE_DECO:*/(
-            createHashMapFromArray [
-                ["IgnoreList",[
-                    "Land_PCSet_01_case_F",
-                    "Land_PCSet_01_keyboard_F",
-                    "Land_PCSet_01_screen_F",
-                    "Land_PCSet_Intel_01_F",
-                    "Land_PCSet_Intel_02_F",
-                    "Land_FlatTV_01_F"
-                ]],
-                ["MinPercentage",0.45],
-                ["MaxPercentage",0.75],
-                ["MinCount",2]
-            ]
-        ),
-        /*OBJ_TYPE_UNIT:*/1,
-        /*OBJ_TYPE_VEHC:*/1,
-        /*OBJ_TYPE_TRRT:*/1,
-        /*OBJ_TYPE_MINE:*/1
-    ];
-
-    private _fractalSteps = [
-        /*root:*/[/*pageName:*/_pageName,_rootChances,[],_missionNameFilter],
-        /*bldg:*/[/*pageName:*/"AUTO",_bldgChances],
-        /*furn:*/[/*pageName:*/"AUTO",_furnChances]
-    ];
-    private _result = [_fractalSteps,_faction] call NWG_fnc_ukrpBuildFractalABS;
-    _result
 };
