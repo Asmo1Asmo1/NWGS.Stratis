@@ -11,6 +11,15 @@ NWG_fnc_vownPairVehAndPlayer = {
 	[_player,_veh] call NWG_fnc_vownAddOwnedVehicle;
 };
 
+//Gets the owner of a vehicle
+//params:
+//_veh: Object - The vehicle to get the owner of
+//returns: Object - The owner of the vehicle
+NWG_fnc_vownGetOwner = {
+	// private _veh = _this;
+	_this call NWG_VEHOWN_GetVehicleOwner;
+};
+
 //Sets the owner of a vehicle
 //params:
 //_veh: Object - The vehicle to set the owner of

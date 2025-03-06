@@ -239,6 +239,7 @@ _serverModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageServer.sqf
 _serverModules pushBack ("SCRIPTS\T3_Economics\lootStorage\missionMachineConnector.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageCommon.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageClient.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\addonStorageAtVehicle.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\lootStorage\lootStorageTests.sqf" call NWG_fnc_compile)};
 //moneyTransfer
