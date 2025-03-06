@@ -146,6 +146,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#LS_ACTION_LUGGAGE_TITLE#","<img image='a3\ui_f\data\igui\cfg\actions\gear_ca.paa' size='2.0'/>"],
     //lootStorage
     ["#LS_STORAGE_ACTION_TITLE#","<t size='1.4'>Open Storage</t>"],
+    ["#LS_STORAGE_ACTION_TITLE_2#","Open Storage"],
     ["#LS_DEPLETE_NOTIFICATION#","%1%% of your loot depleted"],
     //moneyTransfer
     ["#MT_ACTION_TITLE#","Money transfer"],

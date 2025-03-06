@@ -28,6 +28,11 @@ NWG_fnc_lsLootContainerByUI = {
 };
 
 /*Other systems->Client*/
+//Open loot storage
+NWG_fnc_lsOpenStorage = {
+    call NWG_LS_CLI_OpenMyStorage;
+};
+
 //Loot the container
 //params: _container - object
 //returns: boolean - true if looting was successful, false if not
