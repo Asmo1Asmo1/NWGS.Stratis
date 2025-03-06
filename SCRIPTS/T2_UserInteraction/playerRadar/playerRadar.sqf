@@ -14,12 +14,16 @@
 #define RADAR_HEIGHT_DELTA_UNIT 2
 #define RADAR_HEIGHT_DELTA_ANIM 2
 #define RADAR_HEIGHT_DELTA_VEHC 3
-#define RADAR_FORWARD_ANGLE 25
+#define RADAR_FORWARD_ANGLE_UNIT 25
+#define RADAR_FORWARD_ANGLE_ANIM 25
+#define RADAR_FORWARD_ANGLE_VEHC 35
 
 #define IS_SAME_HEIGHT_UNIT(ARG) ((abs (((getPosASL ARG) select 2) - ((getPosASL player) select 2))) < RADAR_HEIGHT_DELTA_UNIT)
 #define IS_SAME_HEIGHT_ANIM(ARG) ((abs (((getPosASL ARG) select 2) - ((getPosASL player) select 2))) < RADAR_HEIGHT_DELTA_ANIM)
 #define IS_SAME_HEIGHT_VEHC(ARG) ((abs (((getPosASL ARG) select 2) - ((getPosASL player) select 2))) < RADAR_HEIGHT_DELTA_VEHC)
-#define IS_IN_FRONT(ARG) ((player getRelDir ARG) < RADAR_FORWARD_ANGLE || {(player getRelDir ARG) > (360 - RADAR_FORWARD_ANGLE)})
+#define IS_IN_FRONT_UNIT(ARG) ((player getRelDir ARG) < RADAR_FORWARD_ANGLE_UNIT || {(player getRelDir ARG) > (360 - RADAR_FORWARD_ANGLE_UNIT)})
+#define IS_IN_FRONT_ANIM(ARG) ((player getRelDir ARG) < RADAR_FORWARD_ANGLE_ANIM || {(player getRelDir ARG) > (360 - RADAR_FORWARD_ANGLE_ANIM)})
+#define IS_IN_FRONT_VEHC(ARG) ((player getRelDir ARG) < RADAR_FORWARD_ANGLE_VEHC || {(player getRelDir ARG) > (360 - RADAR_FORWARD_ANGLE_VEHC)})
 
 //================================================================================================================
 //================================================================================================================
@@ -52,16 +56,12 @@ NWG_RADAR_OnEachFrame = {
         NWG_RADAR_vehcArond = NWG_RADAR_objNull;
     };
 
-    //Prepare variables
-    private _entities = [];
-    private _i = -1;
-
     //Search for units /*nearEntities - will filter out dead units so no need to check for alive*/
-    _entities = player nearEntities NWG_RADAR_unitArgs;
-    _i = _entities findIf {
+    private _entities = player nearEntities NWG_RADAR_unitArgs;
+    private _i = _entities findIf {
         _x isNotEqualTo player && {
         IS_SAME_HEIGHT_UNIT(_x) && {
-        IS_IN_FRONT(_x) }}
+        IS_IN_FRONT_UNIT(_x) }}
     };
     NWG_RADAR_unitFront = if (_i != -1)
         then {_entities#_i}
@@ -71,7 +71,7 @@ NWG_RADAR_OnEachFrame = {
     _entities = nearestObjects [player,["Animal"],RADAR_RADIUS_ANIM];
     _i = _entities findIf {
         IS_SAME_HEIGHT_ANIM(_x) && {
-        IS_IN_FRONT(_x) }
+        IS_IN_FRONT_ANIM(_x) }
     };
     NWG_RADAR_animFront = if (_i != -1)
         then {_entities#_i}
@@ -83,7 +83,7 @@ NWG_RADAR_OnEachFrame = {
         IS_SAME_HEIGHT_VEHC(_x)
     };
     if (_i != -1) then {
-        if (IS_IN_FRONT(_entities#_i)) then {
+        if (IS_IN_FRONT_VEHC(_entities#_i)) then {
             NWG_RADAR_vehcFront = _entities#_i;
             NWG_RADAR_vehcArond = NWG_RADAR_objNull;
         } else {
