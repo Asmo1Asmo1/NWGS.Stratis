@@ -761,12 +761,13 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"COMM_00",	[
 			Q_CND,	[
-				{call NWG_DLG_COMM_IsMissionStarted},"#COMM_00_Q_01#",
-				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#COMM_00_Q_02#",
-				{[1,4] call NWG_DLGHLP_Dice},"#COMM_00_Q_03#",
+				{call NWG_DLG_COMM_IsMissionStarted && {call NWG_DLG_COMM_IsAlone}},"#COMM_00_Q_01#",
+				{call NWG_DLG_COMM_IsMissionStarted},"#COMM_00_Q_02#",
+				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#COMM_00_Q_03#",
 				{[1,4] call NWG_DLGHLP_Dice},"#COMM_00_Q_04#",
 				{[1,4] call NWG_DLGHLP_Dice},"#COMM_00_Q_05#",
-				{true},"#COMM_00_Q_06#"
+				{[1,4] call NWG_DLGHLP_Dice},"#COMM_00_Q_06#",
+				{true},"#COMM_00_Q_07#"
 			],
 			A_CND,	[
 				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_LVL"],
@@ -782,8 +783,8 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"COMM_01",	[
 			Q_RND,	[
-				"#COMM_00_Q_03#",
-				"#COMM_00_Q_06#",
+				"#COMM_00_Q_04#",
+				"#COMM_00_Q_07#",
 				"#XXX_01_Q_01#",
 				"#MECH_01_Q_03#"
 			],
