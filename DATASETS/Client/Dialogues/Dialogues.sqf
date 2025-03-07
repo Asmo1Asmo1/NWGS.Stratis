@@ -205,7 +205,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#TAXI_PRGB_Q_02#"
 			],
 			A_GEN,	[
-				{"TAXI"    call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["TAXI_PRGB_HOW_WORK","TAXI_PRGB_CUR_STAT","TAXI_PRGB_LETS_UPG"]*/
+				{["TAXI",true,true,true] call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["TAXI_PRGB_HOW_WORK","TAXI_PRGB_CUR_STAT","TAXI_PRGB_LETS_UPG"]*/
 				{"TAXI_01" call NWG_DLGHLP_GenerateDoubtExit}  /*["TAXI_01",NODE_EXIT]*/
 			]
 		]
@@ -214,14 +214,20 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"TAXI_PRGB_HOW_WORK",	[
 			Q_ONE,	"#TAXI_PRGB_HOW_WORK_Q_01#",
-			A_GEN,	{["TAXI_PRGB","TAXI_01"] call NWG_DLGHLP_GenerateAnQBackExit}/*["TAXI_HELP","TAXI_01",NODE_EXIT]*/
+			A_GEN,	[
+				{["TAXI",false,true,true] call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["TAXI_PRGB_HOW_WORK","TAXI_PRGB_CUR_STAT","TAXI_PRGB_LETS_UPG"]*/
+				{"TAXI_01" call NWG_DLGHLP_GenerateBackExit}  /*["TAXI_01",NODE_EXIT]*/
+			]
 		]
 	],
 	/*Progress buy - current state?*/
 	[
 		"TAXI_PRGB_CUR_STAT",	[
 			Q_ONE,	["#TAXI_PRGB_CUR_STAT_Q_01#",{P_TAXI call NWG_DLGHLP_PRGB_GetProgressStr},{P_TAXI call NWG_DLGHLP_PRGB_GetRemainingStr}],
-			A_GEN,	{["TAXI_PRGB","TAXI_01"] call NWG_DLGHLP_GenerateAnQBackExit}/*["TAXI_HELP","TAXI_01",NODE_EXIT]*/
+			A_GEN,	[
+				{["TAXI",true,false,true] call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["TAXI_PRGB_HOW_WORK","TAXI_PRGB_CUR_STAT","TAXI_PRGB_LETS_UPG"]*/
+				{"TAXI_01" call NWG_DLGHLP_GenerateBackExit}  /*["TAXI_01",NODE_EXIT]*/
+			]
 		]
 	],
 	/*Progress buy - let's upgrade?*/
@@ -601,7 +607,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#TRDR_PRGB_Q_02#"
 			],
 			A_GEN,	[
-				{"TRDR"    call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["TRDR_PRGB_HOW_WORK","TRDR_PRGB_CUR_STAT","TRDR_PRGB_LETS_UPG"]*/
+				{["TRDR",true,true,true] call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["TRDR_PRGB_HOW_WORK","TRDR_PRGB_CUR_STAT","TRDR_PRGB_LETS_UPG"]*/
 				{"TRDR_01" call NWG_DLGHLP_GenerateDoubtExit}  /*["TRDR_01",NODE_EXIT]*/
 			]
 		]
@@ -610,14 +616,20 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"TRDR_PRGB_HOW_WORK",	[
 			Q_ONE,	"#TRDR_PRGB_HOW_WORK_Q_01#",
-			A_GEN,	{["TRDR_PRGB","TRDR_01"] call NWG_DLGHLP_GenerateAnQBackExit}/*["TRDR_HELP","TRDR_01",NODE_EXIT]*/
+			A_GEN,	[
+				{["TRDR",false,true,true] call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["TRDR_PRGB_HOW_WORK","TRDR_PRGB_CUR_STAT","TRDR_PRGB_LETS_UPG"]*/
+				{"TRDR_01" call NWG_DLGHLP_GenerateBackExit}  /*["TRDR_01",NODE_EXIT]*/
+			]
 		]
 	],
 	/*Progress buy - current state?*/
 	[
 		"TRDR_PRGB_CUR_STAT",	[
 			Q_ONE,	["#TRDR_PRGB_CUR_STAT_Q_01#",{P_TRDR call NWG_DLGHLP_PRGB_GetProgressStr},{P_TRDR call NWG_DLGHLP_PRGB_GetRemainingStr}],
-			A_GEN,	{["TRDR_PRGB","TRDR_01"] call NWG_DLGHLP_GenerateAnQBackExit}/*["TRDR_HELP","TRDR_01",NODE_EXIT]*/
+			A_GEN,	[
+				{["TRDR",true,false,true] call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["TRDR_PRGB_HOW_WORK","TRDR_PRGB_CUR_STAT","TRDR_PRGB_LETS_UPG"]*/
+				{"TRDR_01" call NWG_DLGHLP_GenerateBackExit}  /*["TRDR_01",NODE_EXIT]*/
+			]
 		]
 	],
 	/*Progress buy - let's upgrade?*/
@@ -920,7 +932,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#COMM_PRGB_Q_02#"
 			],
 			A_GEN,	[
-				{"COMM"    call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["COMM_PRGB_HOW_WORK","COMM_PRGB_CUR_STAT","COMM_PRGB_LETS_UPG"]*/
+				{["COMM",true,true,true] call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["COMM_PRGB_HOW_WORK","COMM_PRGB_CUR_STAT","COMM_PRGB_LETS_UPG"]*/
 				{"COMM_01" call NWG_DLGHLP_GenerateDoubtExit}  /*["COMM_01",NODE_EXIT]*/
 			]
 		]
@@ -929,14 +941,20 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"COMM_PRGB_HOW_WORK",	[
 			Q_ONE,	"#COMM_PRGB_HOW_WORK_Q_01#",
-			A_GEN,	{["COMM_PRGB","COMM_01"] call NWG_DLGHLP_GenerateAnQBackExit}/*["COMM_HELP","COMM_01",NODE_EXIT]*/
+			A_GEN,	[
+				{["COMM",false,true,true] call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["COMM_PRGB_HOW_WORK","COMM_PRGB_CUR_STAT","COMM_PRGB_LETS_UPG"]*/
+				{"COMM_01" call NWG_DLGHLP_GenerateBackExit}  /*["COMM_01",NODE_EXIT]*/
+			]
 		]
 	],
 	/*Progress buy - current state?*/
 	[
 		"COMM_PRGB_CUR_STAT",	[
 			Q_ONE,	["#COMM_PRGB_CUR_STAT_Q_01#",{P_COMM call NWG_DLGHLP_PRGB_GetProgressStr},{P_COMM call NWG_DLGHLP_PRGB_GetRemainingStr}],
-			A_GEN,	{["COMM_PRGB","COMM_01"] call NWG_DLGHLP_GenerateAnQBackExit}/*["COMM_HELP","COMM_01",NODE_EXIT]*/
+			A_GEN,	[
+				{["COMM",true,false,true] call NWG_DLGHLP_PRGB_GeneratePrgbSel},/*["COMM_PRGB_HOW_WORK","COMM_PRGB_CUR_STAT","COMM_PRGB_LETS_UPG"]*/
+				{"COMM_01" call NWG_DLGHLP_GenerateBackExit}  /*["COMM_01",NODE_EXIT]*/
+			]
 		]
 	],
 	/*Progress buy - let's upgrade?*/

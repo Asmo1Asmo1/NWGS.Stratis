@@ -150,12 +150,25 @@ NWG_DLGHLP_UI_UpdatePlayerMoney = {
 //================================================================================================================
 //Progress buy
 NWG_DLGHLP_PRGB_GeneratePrgbSel = {
-	// private _npcName = _this;
-	[
-		/*How does it work?*/[(selectRandom (NWG_DLGHLP_Settings get "PRGB_HOW_WORK_KEYS")),(format ["%1_PRGB_HOW_WORK",_this])],
-		/* How to upgrade? */[(selectRandom (NWG_DLGHLP_Settings get "PRGB_CUR_STAT_KEYS")),(format ["%1_PRGB_CUR_STAT",_this])],
-		/* Let's upgrade!  */[(selectRandom (NWG_DLGHLP_Settings get "PRGB_LETS_UPG_KEYS")),(format ["%1_PRGB_LETS_UPG",_this])]
-	]
+	params ["_npcName",["_howWork",true],["_curStat",true],["_letsUpg",true]];
+	private _result = [];
+
+	/*How does it work?*/
+	if (_howWork) then {
+		_result pushBack [(selectRandom (NWG_DLGHLP_Settings get "PRGB_HOW_WORK_KEYS")),(format ["%1_PRGB_HOW_WORK",_npcName])];
+	};
+
+	/* How to upgrade? */
+	if (_curStat) then {
+		_result pushBack [(selectRandom (NWG_DLGHLP_Settings get "PRGB_CUR_STAT_KEYS")),(format ["%1_PRGB_CUR_STAT",_npcName])];
+	};
+
+	/* Let's upgrade!  */
+	if (_letsUpg) then {
+		_result pushBack [(selectRandom (NWG_DLGHLP_Settings get "PRGB_LETS_UPG_KEYS")),(format ["%1_PRGB_LETS_UPG",_npcName])];
+	};
+
+	_result
 };
 
 NWG_DLGHLP_PRGB_GetProgressStr = {
