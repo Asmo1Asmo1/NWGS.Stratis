@@ -55,6 +55,9 @@ in other words:
 #define P_TRDR 3
 #define P_COMM 4
 
+//Colors
+#define COLOR_GREEN [0,1,0,0.75]
+
 
 NWG_DialogueTree = createHashMapFromArray [
 	//================================================================================================================
@@ -785,6 +788,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_CND,	[
 				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_LVL"],
 				{call NWG_DLG_COMM_IsMissionStarted},["#COMM_00_A_02#",NODE_EXIT],
+				{"COMM" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"COMM_QST_DISPLAY",{},0,COLOR_GREEN],
 				{true},["#COMM_00_A_03#","COMM_PRGB"],
 				{true},["#COMM_00_A_04#","COMM_HELP"],
 				{true},["#COMM_00_A_05#","COMM_ADV"],
@@ -804,6 +808,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_CND,	[
 				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_LVL"],
 				{call NWG_DLG_COMM_IsMissionStarted},["#COMM_01_A_02#",NODE_EXIT],
+				{"COMM" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"COMM_QST_DISPLAY",{},0,COLOR_GREEN],
 				{true},["#COMM_00_A_03#","COMM_PRGB"],
 				{true},["#COMM_00_A_04#","COMM_HELP"],
 				{true},["#COMM_00_A_05#","COMM_ADV"],
@@ -988,6 +993,32 @@ NWG_DialogueTree = createHashMapFromArray [
 		"COMM_PRGB_UPG",	[
 			Q_ONE,	"#COMM_PRGB_UPG_Q_01#",
 			A_GEN,	{"COMM_01" call NWG_DLGHLP_GenerateBackExit}/*["COMM_01",NODE_EXIT]*/
+		]
+	],
+	/*Quest - display quest data*/
+	[
+		"COMM_QST_DISPLAY",	[
+			Q_ONE,	["%1",{"COMM" call NWG_DLGHLP_QST_DisplayQuestData}],
+			A_GEN,	[
+				{"COMM" call NWG_DLGHLP_QST_GenerateQuestAnswers},
+				{"COMM_01" call NWG_DLGHLP_GenerateDoubtExit}/*["COMM_01",NODE_EXIT]*/
+			]
+		]
+	],
+	/*Quest Report - quest done FALSE*/
+	[
+		"COMM_QST_QUEST_DONE_FALSE",	[
+			Q_ONE,	["%1",{"COMM" call NWG_DLGHLP_GetRndQuestDoneFalseQ}],
+			A_GEN,	{"COMM_01" call NWG_DLGHLP_GenerateBackExit}/*["COMM_01",NODE_EXIT]*/
+		]
+	],
+	/*Quest Report - quest done TRUE*/
+	[
+		"COMM_QST_QUEST_DONE_TRUE",	[
+			Q_ONE,	["%1",{"COMM" call NWG_DLGHLP_GetRndQuestDoneTrueQ}],
+			A_DEF,	[
+				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT,{"COMM" call NWG_DLGHLP_CloseQuest}]
+			]
 		]
 	],
 

@@ -699,5 +699,77 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#ROOF_ADV_Q_03#","Don't tell anyone you saw me here|Actually, you know what?|Don't tell anyone anything"],
     ["#ROOF_ADV_Q_04#","Did his highness called me a 'rookie'?|That's good. That's awesome. Exactly how it should be|Wait|He won't let me go if he thinks I'm a rookie|Ah damn..."],
 
+    //T4_Quests
+    //quests
+    /*Quest chat messages*/
+    ["#QST_DESTROY_DONE#","%1 destroyed the target"],
+    ["#QST_DESTROY_CLOSED#","%1 reported to commander and closed the task"],
+    ["#QST_UNKONW_WINNER#","Somebody"],
+    /*Quest start*/
+    ["#QST_START_01#","You need something?"],
+    ["#QST_START_02#","Your name is on the map, so? What is it?"],
+    ["#QST_START_03#","Saw your name on the map"],
+    ["#QST_START_04#","Is there something you need?"],
+    ["#QST_START_05#","You got work for me?"],
+    /*Quest report*/
+    ["#QST_REPORT_01#","About that thing you asked to do..."],
+    ["#QST_REPORT_02#","About that side gig..."],
+    ["#QST_REPORT_03#","About that work..."],
+    ["#QST_REPORT_04#","I'm here to report on that side mission..."],
+    ["#QST_REPORT_05#","Done the job, here for reward..."],
+    ["#QST_REPORT_Q_01#","So you're back|Any good news?"],
+    ["#QST_REPORT_Q_02#","So?"],
+    ["#QST_REPORT_Q_03#","Is it done?"],
+    ["#QST_REPORT_Q_04#","Any good news?"],
+    ["#QST_REPORT_Q_05#","Did you get it?"],
+    /*Quest info*/
+    ["#QST_DISPLAY_VEH_STEAL#","Deliver: %1"],
+    ["#QST_DISPLAY_INTERROGATE#","Interrogate: %1"],
+    ["#QST_DISPLAY_HACK_DATA#","Hack data from: %1"],
+    ["#QST_DISPLAY_DESTROY#","Destroy: %1"],
+    ["#QST_DISPLAY_INTEL#","Gather intel (example: %1)"],
+    ["#QST_DISPLAY_INFECTION#","Stop infection (infected: %1)"],
+    ["#QST_DISPLAY_WOUNDED#","Escort to base: %1"],
+    ["#QST_DISPLAY_MED_SUPPLY#","Find med supplies (example: %1)"],
+    ["#QST_DISPLAY_TERMINAL#","Deliver: %1"],
+    ["#QST_DISPLAY_WEAPON#","Deliver: %1"],
+    ["#QST_DISPLAY_ELECTRONICS#","Find and deliver (example: %1)"],
+    ["#QST_DISPLAY_TOOLS#","Find and deliver (example: %1)"],
+    ["#QST_REWARD_TEMPLATE#","Reward: 1 Exp, 1 lvl and %1"],
+    /*Quest descriptions*/
+    ["#QST_QD_DESTROY_01#","You see that thing, soldier?|I don't like it|I want it gone"],
+    ["#QST_QD_DESTROY_02#","I need that target destroyed|Sure you can handle it?"],
+    ["#QST_QD_DESTROY_03#","There's an enemy installation on the island|I need you to take it out"],
+    /*Quest answers*/
+    ["#QST_WILL_DO_A_01#","I'll do it"],
+    ["#QST_WILL_DO_A_02#","Yeah, no problem"],
+    ["#QST_WILL_DO_A_03#","Sure thing, will be done"],
+    ["#QST_WILL_DO_A_04#","I'll take care of it"],
+    ["#QST_WILL_DO_A_05#","I'll be on it"],
+    ["#QST_DONE_A_01#","It's done"],
+    ["#QST_DONE_A_02#","I did it, where's my reward?"],
+    ["#QST_DONE_A_03#","Go check, it's done"],
+    ["#QST_DONE_A_04#","I took care of it"],
+    ["#QST_DONE_A_05#","Yeah, all is done"],
+    /*Quest completion dialogues*/
+    ["#QST_DONE_FALSE_TAXI_01#","Eh?|Boss, if that is a joke, I ain't laughing|Where're the goods?|In your storage?|You'll have to bring it here"],
+    ["#QST_DONE_TRUE_TAXI_01#","Always a pleasure working with you, boss|Here's a reward as promised"],
+    ["#QST_DONE_FALSE_MECH_01#","Sorry, pal, but I don't see it on the list|Make sure you're the rightful owner|And make sure it's here"],
+    ["#QST_DONE_TRUE_MECH_01#","Oh, yeah, that's what I like to see|You're a good sport, you know?|Hand me the keys and get your money"],
+    ["#QST_DONE_FALSE_TRDR_01#","I've got eyes, you know?|And those eyes do not see you carrying what we agreed on|If it is in your storage - take it out|We don't need it to be on papers"],
+    ["#QST_DONE_TRUE_TRDR_01#","Always a pleasure doing business with you"],
+    ["#QST_DONE_FALSE_MEDC_01#","Son, I'm old, not stupid|Come back when you're done"],
+    ["#QST_DONE_TRUE_MEDC_01#","Thank you, I won't forget that|...|What? You need something?|...Ah, the compensation, right|Here you go"],
+    ["#QST_DONE_FALSE_COMM_01#","Oh yeah? Is that so?|Well, my sources do not confirm that|How strange, right?|Why don't you try something better next time"],
+    ["#QST_DONE_TRUE_COMM_01#","At ease, soldier|Good job|Compensation, as promised, should arrive shortly"],
+    ["#QST_DONE_FALSE_ROOF_01#","Hey, 'buddy'|I don't see the goods - I don't pay the price|Got it in your storage?|Bring it here"],
+    ["#QST_DONE_TRUE_ROOF_01#","Hehe, now that will be a good one|A reward?|All right, fine, here you go|And don't tell anyone!"],
+    /*Quest close*/
+    ["#QST_CLOSE_01#","Let me know if you need anything else"],
+    ["#QST_CLOSE_02#","Likewise"],
+    ["#QST_CLOSE_03#","Sure thing"],
+    ["#QST_CLOSE_04#","I'll be around if you need anything else"],
+    ["#QST_CLOSE_05#","It's not much, but it's an honest job"],
+
     ["",""]
 ];

@@ -1,3 +1,5 @@
+#include "..\..\globalDefines.h"
+
 /*
 	This is a helper addon module for specific NPC dialogue tree.
 	It is desigend to be unique for this specific project and is allowed to know about its structure for ease of implementation.
@@ -38,6 +40,52 @@ NWG_DLGHLP_Settings = createHashMapFromArray [
 	["PAY_Y_MONEY_KEYS",["#AGEN_PAY_Y_MONEY_01#","#AGEN_PAY_Y_MONEY_02#","#AGEN_PAY_Y_MONEY_03#","#AGEN_PAY_Y_MONEY_04#","#AGEN_PAY_Y_MONEY_05#"]],
 	["PAY_N_MONEY_KEYS",["#AGEN_PAY_N_MONEY_01#","#AGEN_PAY_N_MONEY_02#","#AGEN_PAY_N_MONEY_03#","#AGEN_PAY_N_MONEY_04#","#AGEN_PAY_N_MONEY_05#"]],
 	["PAY_REFUSE_KEYS",["#AGEN_PAY_REFUSE_01#","#AGEN_PAY_REFUSE_02#","#AGEN_PAY_REFUSE_03#","#AGEN_PAY_REFUSE_04#","#AGEN_PAY_REFUSE_05#"]],
+
+	/*Quest start*/
+	["QST_START_KEYS",["#QST_START_01#","#QST_START_02#","#QST_START_03#","#QST_START_04#","#QST_START_05#"]],
+	/*Quest report*/
+	["QST_REPORT_KEYS",["#QST_REPORT_01#","#QST_REPORT_02#","#QST_REPORT_03#","#QST_REPORT_04#","#QST_REPORT_05#"]],
+	["QST_REPORT_Q_KEYS",["#QST_REPORT_Q_01#","#QST_REPORT_Q_02#","#QST_REPORT_Q_03#","#QST_REPORT_Q_04#","#QST_REPORT_Q_05#"]],
+	/*Quest info*/
+	["QST_DISPLAY_TEMPLATES",[
+        /*QST_TYPE_VEH_STEAL:*/ "#QST_DISPLAY_VEH_STEAL#",
+        /*QST_TYPE_INTERROGATE:*/ "#QST_DISPLAY_INTERROGATE#",
+        /*QST_TYPE_HACK_DATA:*/ "#QST_DISPLAY_HACK_DATA#",
+        /*QST_TYPE_DESTROY:*/ "#QST_DISPLAY_DESTROY#",
+        /*QST_TYPE_INTEL:*/ "#QST_DISPLAY_INTEL#",
+        /*QST_TYPE_INFECTION:*/ "#QST_DISPLAY_INFECTION#",
+        /*QST_TYPE_WOUNDED:*/ "#QST_DISPLAY_WOUNDED#",
+        /*QST_TYPE_MED_SUPPLY:*/ "#QST_DISPLAY_MED_SUPPLY#",
+        /*QST_TYPE_TERMINAL:*/ "#QST_DISPLAY_TERMINAL#",
+        /*QST_TYPE_WEAPON:*/ "#QST_DISPLAY_WEAPON#",
+        /*QST_TYPE_ELECTRONICS:*/ "#QST_DISPLAY_ELECTRONICS#",
+        /*QST_TYPE_TOOLS:*/ "#QST_DISPLAY_TOOLS#"
+	]],
+	["QST_REWARD_TEMPLATE","#QST_REWARD_TEMPLATE#"],
+
+	/*Quests descriptions*/
+	["QST_QD_DESTROY_KEYS",["#QST_QD_DESTROY_01#","#QST_QD_DESTROY_02#","#QST_QD_DESTROY_03#"]],
+
+	/*Quest answers*/
+	["QST_WILL_DO_A_KEYS",["#QST_WILL_DO_A_01#","#QST_WILL_DO_A_02#","#QST_WILL_DO_A_03#","#QST_WILL_DO_A_04#","#QST_WILL_DO_A_05#"]],
+	["QST_DONE_A_KEYS",["#QST_DONE_A_01#","#QST_DONE_A_02#","#QST_DONE_A_03#","#QST_DONE_A_04#","#QST_DONE_A_05#"]],
+
+	/*Quest completion dialogues*/
+	["QST_DONE_FALSE_TAXI",["#QST_DONE_FALSE_TAXI_01#"]],
+	["QST_DONE_TRUE_TAXI",["#QST_DONE_TRUE_TAXI_01#"]],
+	["QST_DONE_FALSE_MECH",["#QST_DONE_FALSE_MECH_01#"]],
+	["QST_DONE_TRUE_MECH",["#QST_DONE_TRUE_MECH_01#"]],
+	["QST_DONE_FALSE_TRDR",["#QST_DONE_FALSE_TRDR_01#"]],
+	["QST_DONE_TRUE_TRDR",["#QST_DONE_TRUE_TRDR_01#"]],
+	["QST_DONE_FALSE_MEDC",["#QST_DONE_FALSE_MEDC_01#"]],
+	["QST_DONE_TRUE_MEDC",["#QST_DONE_TRUE_MEDC_01#"]],
+	["QST_DONE_FALSE_COMM",["#QST_DONE_FALSE_COMM_01#"]],
+	["QST_DONE_TRUE_COMM",["#QST_DONE_TRUE_COMM_01#"]],
+	["QST_DONE_FALSE_ROOF",["#QST_DONE_FALSE_ROOF_01#"]],
+	["QST_DONE_TRUE_ROOF",["#QST_DONE_TRUE_ROOF_01#"]],
+
+	/*Quest close*/
+	["QST_CLOSE_KEYS",["#QST_CLOSE_01#","#QST_CLOSE_02#","#QST_CLOSE_03#","#QST_CLOSE_04#","#QST_CLOSE_05#"]],
 
 	["",0]
 ];
@@ -134,7 +182,7 @@ NWG_DLGHLP_GenerateDoubtExit = {
 //================================================================================================================
 //================================================================================================================
 //UI update
-// #define IDC_QLISTBOX 1500
+#define IDC_QLISTBOX 1500
 // #define IDC_ALISTBOX 1501
 #define IDC_TEXT_LEFT 1000
 // #define IDC_TEXT_RIGHT 1001
@@ -144,6 +192,212 @@ NWG_DLGHLP_UI_UpdatePlayerMoney = {
 	private _gui = uiNamespace getVariable ["NWG_DLG_gui",displayNull];
 	if (isNull _gui) exitWith {};
 	(_gui displayCtrl IDC_TEXT_LEFT) ctrlSetText (call (NWG_DLG_CLI_Settings get "TEXT_LEFT_FILL_FUNC"));//Using the function from the client module
+};
+
+//================================================================================================================
+//================================================================================================================
+//Quests
+/*Defines wether or not entire quest dialogue tree should be available*/
+NWG_DLGHLP_QST_ShowQuest = {
+	// private _npcName = _this;
+	if !(_this call NWG_fnc_qstHasQuest) exitWith {false};//This NPC has no quest assigned
+	if (isNil "NWG_MIS_CurrentState") exitWith {true};//Mission module is missing - fallback to showing quest if assigned to NPC
+	if (player call NWG_fnc_mmWasPlayerOnMission) exitWith {true};//Player participated in mission - assume they return to report it
+	if (NWG_MIS_CurrentState > MSTATE_VOTING) exitWith {true};//New mission started - assume player gets new quest
+	//else return
+	false
+};
+
+NWG_DLGHLP_QST_IsReporting = {
+	if (isNil "NWG_MIS_CurrentState") exitWith {false};//Mission module is missing - fallback to false as we can not determine if this is after the mission or before
+	player call NWG_fnc_mmWasPlayerOnMission
+};
+
+NWG_DLGHLP_GetRndQuestStart = {
+	if (call NWG_DLGHLP_QST_IsReporting)
+		then {selectRandom (NWG_DLGHLP_Settings get "QST_REPORT_KEYS")}
+		else {selectRandom (NWG_DLGHLP_Settings get "QST_START_KEYS")}
+};
+
+NWG_DLGHLP_QST_DisplayQuestData = {
+	disableSerialization;
+	private _npcName = _this;
+	private _onError = "[NO QUEST DATA]";
+
+	//Get quest data
+	private _questData = call NWG_fnc_qstGetQuestData;
+	if (_questData isEqualTo false) exitWith {
+		"NWG_DLGHLP_QST_DisplayQuestData: No quest data found" call NWG_fnc_logError;
+		_onError
+	};
+	if ((_questData param [QST_DATA_NPC,""]) isNotEqualTo _npcName) exitWith {
+		(format ["NWG_DLGHLP_QST_DisplayQuestData: Quest data NPC name mismatch: %1 != %2",(_questData param [QST_DATA_NPC,""]),_npcName]) call NWG_fnc_logError;
+		_onError
+	};
+
+	//Display NPC name
+	private _gui = uiNamespace getVariable ["NWG_DLG_gui",displayNull];
+	if (isNull _gui) exitWith {
+		"NWG_DLGHLP_QST_DisplayQuestData: GUI is null" call NWG_fnc_logError;
+		_onError
+	};
+	private _qListbox = _gui displayCtrl IDC_QLISTBOX;
+	if (isNull _qListbox) exitWith {
+		"NWG_DLGHLP_QST_DisplayQuestData: Quest list box is null" call NWG_fnc_logError;
+		_onError
+	};
+	private _npcNameLoc = ((NWG_DLG_CLI_Settings get "LOC_NPC_NAME") getOrDefault [_npcName,""]) call NWG_fnc_localize;
+	_qListbox lbAdd "";//Add empty line to separate records
+	_qListbox lbAdd (format [(NWG_DLG_CLI_Settings get "TEMPLATE_SPEAKER_NAME"),_npcNameLoc]);//Add speaker name
+
+	//Display quest target object based on quest type
+	private _questType = _questData param [QST_DATA_TYPE,-1];
+	private _displayName = "";
+	private _image = "";
+	switch (_questType) do {
+		case QST_TYPE_VEH_STEAL: {
+			//TODO: Implement
+		};
+		case QST_TYPE_INTERROGATE: {
+			//TODO: Implement
+		};
+		case QST_TYPE_HACK_DATA: {
+			//TODO: Implement
+		};
+		case QST_TYPE_DESTROY: {
+			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
+			private _cfg = configFile >> "CfgVehicles" >> _targetClassname;
+			if !(isClass _cfg) exitWith {
+				(format ["NWG_DLGHLP_QST_DisplayQuestData: Target classname is not a valid vehicle: '%1'",_targetClassname]) call NWG_fnc_logError;
+			};
+			_displayName = getText (_cfg >> "displayName");
+			_image = getText (_cfg >> "editorPreview");
+		};
+		case QST_TYPE_INTEL: {
+			//TODO: Implement
+		};
+		case QST_TYPE_INFECTION: {
+			//TODO: Implement
+		};
+		case QST_TYPE_WOUNDED: {
+			//TODO: Implement
+		};
+		case QST_TYPE_MED_SUPPLY: {
+			//TODO: Implement
+		};
+		case QST_TYPE_TERMINAL: {
+			//TODO: Implement
+		};
+		case QST_TYPE_WEAPON: {
+			//TODO: Implement
+		};
+		case QST_TYPE_ELECTRONICS: {
+			//TODO: Implement
+		};
+		case QST_TYPE_TOOLS: {
+			//TODO: Implement
+		};
+		default {
+			(format ["NWG_DLGHLP_QST_DisplayQuestData: Unknown quest type: '%1'",_questType]) call NWG_fnc_logError;
+		};
+	};
+	private _displayTemplate = ((NWG_DLGHLP_Settings get "QST_DISPLAY_TEMPLATES") param [_questType,"%1"]) call NWG_fnc_localize;
+	private _i = _qListbox lbAdd (format [_displayTemplate,_displayName]);
+	_qListbox lbSetPicture [_i,_image];
+
+	//Display reward
+	private _rewardTemplate = (NWG_DLGHLP_Settings get "QST_REWARD_TEMPLATE") call NWG_fnc_localize;
+	private _rewardRaw = _questData param [QST_DATA_REWARD,0];
+	private _rewardStr = switch (true) do {
+		case (_rewardRaw isEqualType 0): {_rewardRaw call NWG_fnc_wltFormatMoney};
+		case (_rewardRaw isEqualType ""): {_rewardRaw call NWG_fnc_localize};
+		default {
+			(format ["NWG_DLGHLP_QST_DisplayQuestData: Unknown reward type for '%1'",_rewardRaw]) call NWG_fnc_logError;
+			"[UNKNOWN REWARD]"
+		};
+	};
+	_qListbox lbAdd (format [_rewardTemplate,_rewardStr]);
+
+	//If player reporting - return short 'welcome back' message
+	if (call NWG_DLGHLP_QST_IsReporting) exitWith {
+		selectRandom (NWG_DLGHLP_Settings get "QST_REPORT_Q_KEYS")
+	};
+
+	//Else if starting the quest - return quest description
+	switch (_questType) do {
+		case QST_TYPE_VEH_STEAL:   {""};//TODO: Implement
+		case QST_TYPE_INTERROGATE: {""};//TODO: Implement
+		case QST_TYPE_HACK_DATA:   {""};//TODO: Implement
+		case QST_TYPE_DESTROY:     {selectRandom (NWG_DLGHLP_Settings get "QST_QD_DESTROY_KEYS")};
+		case QST_TYPE_INTEL: 	   {""};//TODO: Implement
+		case QST_TYPE_INFECTION:   {""};//TODO: Implement
+		case QST_TYPE_WOUNDED:     {""};//TODO: Implement
+		case QST_TYPE_MED_SUPPLY:  {""};//TODO: Implement
+		case QST_TYPE_TERMINAL:    {""};//TODO: Implement
+		case QST_TYPE_WEAPON:      {""};//TODO: Implement
+		case QST_TYPE_ELECTRONICS: {""};//TODO: Implement
+		case QST_TYPE_TOOLS:       {""};//TODO: Implement
+		default {""};
+	}
+};
+
+NWG_DLGHLP_QST_GenerateQuestAnswers = {
+	private _npcName = _this;
+
+	//Return 'I'll do it' answer
+	if !(call NWG_DLGHLP_QST_IsReporting) exitWith {
+		[[(selectRandom (NWG_DLGHLP_Settings get "QST_WILL_DO_A_KEYS")),NODE_EXIT]]
+	};
+
+	//Return 'I've done it' TRUE answer
+	private _doneKey = selectRandom (NWG_DLGHLP_Settings get "QST_DONE_A_KEYS");
+	if (_npcName call NWG_fnc_qstCanCloseQuest) exitWith {
+		[[_doneKey,(format ["%1_QST_QUEST_DONE_TRUE",_npcName])]]
+	};
+
+	//Return 'I've done it' FALSE answer
+	[[_doneKey,(format ["%1_QST_QUEST_DONE_FALSE",_npcName])]]
+};
+
+NWG_DLGHLP_GetRndQuestDoneFalseQ = {
+	private _npcName = _this;
+	switch (_npcName) do {
+		case NPC_TAXI: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_TAXI")};
+		case NPC_MECH: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_MECH")};
+		case NPC_TRDR: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_TRDR")};
+		case NPC_MEDC: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_MEDC")};
+		case NPC_COMM: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_COMM")};
+		case NPC_ROOF: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_ROOF")};
+		default {
+			(format ["NWG_DLGHLP_GetRndQuestDoneFalseQ: Unknown NPC name: '%1'",_npcName]) call NWG_fnc_logError;
+			""
+		};
+	}
+};
+
+NWG_DLGHLP_GetRndQuestDoneTrueQ = {
+	private _npcName = _this;
+	switch (_npcName) do {
+		case NPC_TAXI: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_TAXI")};
+		case NPC_MECH: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_MECH")};
+		case NPC_TRDR: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_TRDR")};
+		case NPC_MEDC: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_MEDC")};
+		case NPC_COMM: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_COMM")};
+		case NPC_ROOF: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_ROOF")};
+		default {
+			(format ["NWG_DLGHLP_GetRndQuestDoneTrueQ: Unknown NPC name: '%1'",_npcName]) call NWG_fnc_logError;
+			""
+		};
+	}
+};
+
+NWG_DLGHLP_GetRndQuestCloseA = {
+	selectRandom (NWG_DLGHLP_Settings get "QST_CLOSE_KEYS")
+};
+
+NWG_DLGHLP_CloseQuest = {
+	// private _npcName = _this;
+	_this call NWG_fnc_qstCloseQuest;
 };
 
 //================================================================================================================

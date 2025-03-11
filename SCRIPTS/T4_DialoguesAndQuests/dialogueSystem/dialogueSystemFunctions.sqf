@@ -32,7 +32,7 @@ NWG_fnc_dlgGetNpcNameLocalized = {
     // private _npc = _this;
     private _npcName = _this call NWG_fnc_dlgGetNpcName;
     if (_npcName isEqualTo "") exitWith {""};
-    private _locKey = (NWG_DLG_CLI_Settings get "LOCALIZATION") getOrDefault [_npcName,""];
+    private _locKey = (NWG_DLG_CLI_Settings get "LOC_NPC_NAME") getOrDefault [_npcName,""];
     if (_locKey isEqualTo "") exitWith {""};
     _locKey call NWG_fnc_localize;
 };

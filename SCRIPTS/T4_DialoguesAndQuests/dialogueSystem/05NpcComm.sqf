@@ -74,7 +74,7 @@ NWG_DLG_COMM_Settings = createHashMapFromArray [
 //Mission state
 NWG_DLG_COMM_IsMissionStarted = {
 	if (isNil "NWG_MIS_CurrentState") exitWith {false};
-	NWG_MIS_CurrentState > MSTATE_READY
+	NWG_MIS_CurrentState > MSTATE_VOTING
 };
 NWG_DLG_COMM_IsMissionReady = {
 	/*inject show player money to reverse displaying group money*/

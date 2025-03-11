@@ -113,12 +113,16 @@
 
 //Mission factions
 #define MISSION_FACTION_NATO "NATO"
-#define MISSION_FACTION_CSAT "CSAT"
-#define MISSION_FACTION_AAF "AAF"
+// #define MISSION_FACTION_CSAT "CSAT"
+// #define MISSION_FACTION_AAF "AAF"
 
-//Mission difficulties
-#define MISSION_DIFFICULTY_EASY "EASY"
-#define MISSION_DIFFICULTY_NORM "NORM"
+//NPCs
+#define NPC_TAXI "TAXI"
+#define NPC_MECH "MECH"
+#define NPC_TRDR "TRDR"
+#define NPC_MEDC "MEDC"
+#define NPC_COMM "COMM"
+#define NPC_ROOF "ROOF"
 
 //Progress
 #define P__EXP 0 /*Experience*/
@@ -128,3 +132,34 @@
 #define P_COMM 4 /*Progress with Commander*/
 
 #define P_DEFAULT_CHART [0,0,0,0,0]
+
+/*Quest Types*/
+#define QST_TYPE_VEH_STEAL 0
+#define QST_TYPE_INTERROGATE 1
+#define QST_TYPE_HACK_DATA 2
+#define QST_TYPE_DESTROY 3
+#define QST_TYPE_INTEL 4
+#define QST_TYPE_INFECTION 5
+#define QST_TYPE_WOUNDED 6
+#define QST_TYPE_MED_SUPPLY 7
+#define QST_TYPE_TERMINAL 8
+#define QST_TYPE_WEAPON 9
+#define QST_TYPE_ELECTRONICS 10
+#define QST_TYPE_TOOLS 11
+
+/*Quest States*/
+#define QST_STATE_UNASSIGNED 0
+#define QST_STATE_IN_PROGRESS 1
+#define QST_STATE_DONE 2
+#define QST_STATE_CLOSED 3
+
+/*Quest Data structure*/
+#define QST_DATA_TYPE 0
+#define QST_DATA_NPC 1
+#define QST_DATA_TARGET_OBJECT 2
+#define QST_DATA_TARGET_CLASSNAME 3
+#define QST_DATA_REWARD 4
+#define QST_DATA_MARKER 5
+
+/*Unknown Winner*/
+#define QST_UNKNOWN_WINNER "UNKWN"

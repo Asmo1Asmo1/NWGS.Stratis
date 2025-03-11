@@ -1,3 +1,4 @@
+#include "..\..\globalDefines.h"
 #include "dialogueDefines.h"
 
 /*
@@ -68,13 +69,13 @@ in other words:
 //Settings
 NWG_DLG_CLI_Settings = createHashMapFromArray [
 	/*Localization settings*/
-	["LOCALIZATION",createHashMapFromArray [
-		["TAXI","#NPC_TAXI_NAME#"],
-		["MECH","#NPC_MECH_NAME#"],
-		["TRDR","#NPC_TRDR_NAME#"],
-		["MEDC","#NPC_MEDC_NAME#"],
-		["COMM","#NPC_COMM_NAME#"],
-		["ROOF","#NPC_ROOF_NAME#"]
+	["LOC_NPC_NAME",createHashMapFromArray [
+		[NPC_TAXI,"#NPC_TAXI_NAME#"],
+		[NPC_MECH,"#NPC_MECH_NAME#"],
+		[NPC_TRDR,"#NPC_TRDR_NAME#"],
+		[NPC_MEDC,"#NPC_MEDC_NAME#"],
+		[NPC_COMM,"#NPC_COMM_NAME#"],
+		[NPC_ROOF,"#NPC_ROOF_NAME#"]
 	]],
 
 	/*Text filling functions*/
@@ -98,6 +99,7 @@ NWG_DLG_CLI_Settings = createHashMapFromArray [
 //================================================================================================================
 //Fields
 // NWG_DialogueTree = createHashMap;//Is defined and compiled in 'DATASETS\Client\Dialogues\Dialogues.sqf'
+NWG_DLG_CLI_curNpcName = "";
 
 //================================================================================================================
 //================================================================================================================
@@ -105,6 +107,7 @@ NWG_DLG_CLI_Settings = createHashMapFromArray [
 NWG_DLG_CLI_OpenDialogue = {
 	disableSerialization;
 	private _npcName = _this;
+	NWG_DLG_CLI_curNpcName = _npcName;
 
 	//Get root node of dialogue
 	private _rootNodeName = format ["%1_00",_npcName];
@@ -122,7 +125,7 @@ NWG_DLG_CLI_OpenDialogue = {
 	};
 
 	//Fill text fields
-	private _npcNameLoc = ((NWG_DLG_CLI_Settings get "LOCALIZATION") getOrDefault [_npcName,""]) call NWG_fnc_localize;
+	private _npcNameLoc = ((NWG_DLG_CLI_Settings get "LOC_NPC_NAME") getOrDefault [_npcName,""]) call NWG_fnc_localize;
 	(_gui displayCtrl IDC_TEXT_LEFT)  ctrlSetText (call (NWG_DLG_CLI_Settings get "TEXT_LEFT_FILL_FUNC"));
 	(_gui displayCtrl IDC_TEXT_RIGHT) ctrlSetText (call (NWG_DLG_CLI_Settings get "TEXT_RIGHT_FILL_FUNC"));
 	(_gui displayCtrl IDC_TEXT_NPC)   ctrlSetText _npcNameLoc;
@@ -193,6 +196,16 @@ NWG_DLG_CLI_IsUIClosed = {
 NWG_DLG_CLI_LoadNextNode = {
 	disableSerialization;
 	params ["_nodeName",["_withDelays",true]];
+
+	//Check NPC name against selected node
+	if (NWG_DLG_CLI_curNpcName isEqualTo "") exitWith {
+		"NWG_DLG_CLI_LoadNextNode: No NPC name set" call NWG_fnc_logError;
+		false
+	};
+	if !(NWG_DLG_CLI_curNpcName in _nodeName) exitWith {
+		(format ["NWG_DLG_CLI_LoadNextNode: NPC name mismatch: '%1' != '%2'",NWG_DLG_CLI_curNpcName,_nodeName]) call NWG_fnc_logError;
+		false
+	};
 
 	//Check args
 	private _node = NWG_DialogueTree get _nodeName;

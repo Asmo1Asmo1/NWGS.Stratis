@@ -71,8 +71,8 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 
 	//==================================================================================================
 	// Enemy settings
+	["ENEMY_FACTIONS",[MISSION_FACTION_NATO]],//Factions to choose from (will be used to build mission selection list)
 	["ENEMY_SIDE",west],//Side of the enemy groups (used to spawn enemy groups) (stays constant)
-	["ENEMY_FACTIONS",["NATO"]],//Factions to choose from (will be used to build mission selection list)
 	["ENEMY_COLORS", createHashMapFromArray [
 		["NATO","ColorBlue"],
 		["CSAT","ColorRed"],
