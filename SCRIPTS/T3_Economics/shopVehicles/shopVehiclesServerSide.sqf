@@ -125,7 +125,7 @@ NWG_VSHOP_SER_vehsPriceChart = [
 ];
 
 NWG_VSHOP_SER_EvaluateVeh = {
-	// private _veh = _this;
+	// private _vehClassname = _this;
 
 	//Get cached item info if exists
 	private _c = NWG_VSHOP_SER_vehsInfoCache get _this;

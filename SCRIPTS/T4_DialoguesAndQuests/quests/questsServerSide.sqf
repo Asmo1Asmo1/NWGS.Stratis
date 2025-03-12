@@ -6,10 +6,10 @@
 NWG_QST_SER_Settings = createHashMapFromArray [
     /*Quest Settings*/
     ["QUEST_ENABLED",[
-        // QST_TYPE_VEH_STEAL,
+        QST_TYPE_VEH_STEAL
         // QST_TYPE_INTERROGATE,
         // QST_TYPE_HACK_DATA,
-        QST_TYPE_DESTROY
+        // QST_TYPE_DESTROY,
         // QST_TYPE_INTEL,
         // QST_TYPE_INFECTION,
         // QST_TYPE_WOUNDED,
@@ -48,7 +48,13 @@ NWG_QST_SER_Settings = createHashMapFromArray [
         /*QST_TYPE_TOOLS:*/ 1
     ]],
     ["QUEST_REWARDS",[
-        /*QST_TYPE_VEH_STEAL:*/ {0/*TODO*/},
+        /*QST_TYPE_VEH_STEAL:*/ {
+            params ["_targetClassname","_multiplier"];
+            private _price = _targetClassname call NWG_fnc_vshopEvaluateVehPrice;
+            private _reward = _price + (_price * (_multiplier * 0.05));//Apply 5% of multiplier
+            _reward = (round (_reward / 100)) * 100;//Round to nearest 100
+            _reward
+        },
         /*QST_TYPE_INTERROGATE:*/ 1000,
         /*QST_TYPE_HACK_DATA:*/ 1000,
         /*QST_TYPE_DESTROY:*/ 1000,
@@ -64,7 +70,7 @@ NWG_QST_SER_Settings = createHashMapFromArray [
     ["QUEST_DEFAULT_REWARD",1000],
 
     /*External functions*/
-    ["FUNC_GET_REWARD_MULTIPLIER",{(call NWG_fnc_mmGetMissionLevel) + 1}],//Applies only to number type rewards
+    ["FUNC_GET_REWARD_MULTIPLIER",{(call NWG_fnc_mmGetMissionLevel) + 1}],//Applies only to number or code type rewards
     ["FUNC_REWARD_PLAYER",{
         params ["_player","_reward"];
         [_player,P__EXP,1] call NWG_fnc_pAddPlayerProgress;//Add experience
@@ -93,7 +99,7 @@ NWG_QST_SER_Settings = createHashMapFromArray [
         /*QST_TYPE_TOOLS:*/ false
     ]],
     ["LOC_QUEST_CLOSED",[
-        /*QST_TYPE_VEH_STEAL:*/ false,
+        /*QST_TYPE_VEH_STEAL:*/ "#QST_VEH_STEAL_CLOSED#",
         /*QST_TYPE_INTERROGATE:*/ false,
         /*QST_TYPE_HACK_DATA:*/ false,
         /*QST_TYPE_DESTROY:*/ "#QST_DESTROY_CLOSED#",
@@ -151,6 +157,21 @@ NWG_QST_SER_CreateNew = {
     private _dice = [];
 
     //Fill the dice
+    /*Steal vehicle quest*/
+    if (QST_TYPE_VEH_STEAL in _enabledQuests) then {
+        private _possibleTargets = (_missionObjects select OBJ_CAT_VEHC) select {
+            !(unitIsUAV _x) && {
+            (count (crew _x)) == 0 && {
+            !(_x isKindOf "Ship") && {
+            !(_x isKindOf "Plane")}}}
+        };
+        if ((count _possibleTargets) == 0) exitWith {};
+        _possibleTargets = _possibleTargets call NWG_fnc_arrayShuffle;
+        private _target = _possibleTargets select 0;
+        for "_i" from 1 to (_diceWeights select QST_TYPE_VEH_STEAL) do {
+            _dice pushBack [QST_TYPE_VEH_STEAL,_target,(typeOf _target)];
+        };
+    };
     /*Destroy object quest*/
     if (QST_TYPE_DESTROY in _enabledQuests) then {
         private _targetClassnames = NWG_QST_SER_Settings get "DESTROY_TARGETS";
@@ -183,6 +204,7 @@ NWG_QST_SER_CreateNew = {
                 ([_killer,_instigator] call NWG_QST_SER_DefinePlayerKiller) call NWG_QST_SER_OnQuestDone;
             }];
         };
+        default {};//Do nothing
     };
 
     //Get quest NPC
@@ -194,10 +216,10 @@ NWG_QST_SER_CreateNew = {
 
     //Get quest reward
     private _reward = (NWG_QST_SER_Settings get "QUEST_REWARDS") param [_questType,false];
+    private _multiplier = call (NWG_QST_SER_Settings get "FUNC_GET_REWARD_MULTIPLIER");
     _reward = switch (true) do {
         case (_reward isEqualType 1): {
             /*Number type - apply multiplier*/
-            private _multiplier = call (NWG_QST_SER_Settings get "FUNC_GET_REWARD_MULTIPLIER");
             _reward * _multiplier
         };
         case (_reward isEqualType ""): {
@@ -206,7 +228,7 @@ NWG_QST_SER_CreateNew = {
         };
         case (_reward isEqualType {}): {
             /*Code type - reward depends on target classname*/
-            _targetClassname call _reward
+            [_targetClassname,_multiplier] call _reward
         };
         default {
             (format ["NWG_QST_SER_CreateNew: Unknown reward type: '%1' for quest type: '%2'",_reward,_questType]) call NWG_fnc_logError;

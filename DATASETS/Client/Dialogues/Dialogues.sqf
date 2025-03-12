@@ -274,6 +274,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_GEN,	[
 				["#MECH_00_A_01#",NODE_EXIT,{call NWG_DLG_MECH_OpenShop}],
 				["#MECH_00_A_02#",NODE_EXIT,{call NWG_DLG_MECH_OpenGarage}],
+				{"MECH" call NWG_DLGHLP_QST_GenerateShowQuest},
 				["#MECH_00_A_03#","MECH_SERV"],
 				{"MECH" call NWG_DLGHLP_GenerateRoot}/*["MECH_HELP","MECH_ADV",NODE_EXIT]*/
 			]
@@ -290,6 +291,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_GEN,	[
 				["#MECH_00_A_01#",NODE_EXIT,{call NWG_DLG_MECH_OpenShop}],
 				["#MECH_00_A_02#",NODE_EXIT,{call NWG_DLG_MECH_OpenGarage}],
+				{"MECH" call NWG_DLGHLP_QST_GenerateShowQuest},
 				["#MECH_00_A_03#","MECH_SERV"],
 				{"MECH" call NWG_DLGHLP_GenerateRoot}/*["MECH_HELP","MECH_ADV",NODE_EXIT]*/
 			]
@@ -480,6 +482,32 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#MECH_ADV_Q_05#"
 			],
 			A_GEN,	{"MECH_01" call NWG_DLGHLP_GenerateBackExit}/*["MECH_01",NODE_EXIT]*/
+		]
+	],
+	/*Quest - display quest data*/
+	[
+		"MECH_QST_DISPLAY",	[
+			Q_ONE,	["%1",{"MECH" call NWG_DLGHLP_QST_DisplayQuestData}],
+			A_GEN,	[
+				{"MECH" call NWG_DLGHLP_QST_GenerateQuestAnswers},
+				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
+			]
+		]
+	],
+	/*Quest Report - quest done FALSE*/
+	[
+		"MECH_QST_QUEST_DONE_FALSE",	[
+			Q_ONE,	["%1",{"MECH" call NWG_DLGHLP_GetRndQuestDoneFalseQ}],
+			A_GEN,	{"MECH_01" call NWG_DLGHLP_GenerateBackExit}/*["MECH_01",NODE_EXIT]*/
+		]
+	],
+	/*Quest Report - quest done TRUE*/
+	[
+		"MECH_QST_QUEST_DONE_TRUE",	[
+			Q_ONE,	["%1",{"MECH" call NWG_DLGHLP_GetRndQuestDoneTrueQ}],
+			A_DEF,	[
+				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT,{"MECH" call NWG_DLGHLP_CloseQuest}]
+			]
 		]
 	],
 

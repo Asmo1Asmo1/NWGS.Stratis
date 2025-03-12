@@ -704,7 +704,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Quest chat messages*/
     ["#QST_DESTROY_DONE#","%1 destroyed the target"],
     ["#QST_DESTROY_CLOSED#","%1 reported to commander and closed the task"],
+    ["#QST_VEH_STEAL_CLOSED#","%1 delivered the vehicle and closed the task"],
     ["#QST_UNKONW_WINNER#","Somebody"],
+    ["#QST_CLOSE_ERROR#","Failed to close quest"],
     /*Quest start*/
     ["#QST_START_01#","You need something?"],
     ["#QST_START_02#","Your name is on the map, so? What is it?"],
@@ -737,6 +739,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DISPLAY_TOOLS#","Find and deliver (example: %1)"],
     ["#QST_REWARD_TEMPLATE#","Reward: 1 Exp, 1 lvl and %1"],
     /*Quest descriptions*/
+    ["#QST_QD_VEH_STEAL_01#","I've got a client ready to pay extra for that beauty|Can you deliver it here?|No scratches preferred"],
+    ["#QST_QD_VEH_STEAL_02#","I have a special request|Our client wants this vehicle|The payment is good|Very good even"],
+    ["#QST_QD_VEH_STEAL_03#","There's an order for something like that|Good money|Can you bring it here?"],
     ["#QST_QD_DESTROY_01#","You see that thing, soldier?|I don't like it|I want it gone"],
     ["#QST_QD_DESTROY_02#","I need that target destroyed|Sure you can handle it?"],
     ["#QST_QD_DESTROY_03#","There's an enemy installation on the island|I need you to take it out"],

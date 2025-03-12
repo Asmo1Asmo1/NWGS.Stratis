@@ -15,6 +15,9 @@
 // #define NODE_BACK -1
 #define NODE_EXIT -2
 
+//Colors
+#define COLOR_GREEN [0,1,0,0.75]
+
 //================================================================================================================
 //================================================================================================================
 //Settings
@@ -64,6 +67,7 @@ NWG_DLGHLP_Settings = createHashMapFromArray [
 	["QST_REWARD_TEMPLATE","#QST_REWARD_TEMPLATE#"],
 
 	/*Quests descriptions*/
+	["QST_QD_VEH_STEAL_KEYS",["#QST_QD_VEH_STEAL_01#","#QST_QD_VEH_STEAL_02#","#QST_QD_VEH_STEAL_03#"]],
 	["QST_QD_DESTROY_KEYS",["#QST_QD_DESTROY_01#","#QST_QD_DESTROY_02#","#QST_QD_DESTROY_03#"]],
 
 	/*Quest answers*/
@@ -207,6 +211,13 @@ NWG_DLGHLP_QST_ShowQuest = {
 	//else return
 	false
 };
+NWG_DLGHLP_QST_GenerateShowQuest = {
+	// private _npcName = _this;
+	if !(_this call NWG_DLGHLP_QST_ShowQuest) exitWith {[]};
+	private _nodeName = format ["%1_QST_DISPLAY",_this];
+	//return
+	[[{call NWG_DLGHLP_GetRndQuestStart},_nodeName,{},0,COLOR_GREEN]]
+};
 
 NWG_DLGHLP_QST_IsReporting = {
 	if (isNil "NWG_MIS_CurrentState") exitWith {false};//Mission module is missing - fallback to false as we can not determine if this is after the mission or before
@@ -255,15 +266,9 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 	private _displayName = "";
 	private _image = "";
 	switch (_questType) do {
-		case QST_TYPE_VEH_STEAL: {
-			//TODO: Implement
-		};
-		case QST_TYPE_INTERROGATE: {
-			//TODO: Implement
-		};
-		case QST_TYPE_HACK_DATA: {
-			//TODO: Implement
-		};
+		case QST_TYPE_VEH_STEAL;
+		case QST_TYPE_INTERROGATE;
+		case QST_TYPE_HACK_DATA;
 		case QST_TYPE_DESTROY: {
 			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
 			private _cfg = configFile >> "CfgVehicles" >> _targetClassname;
@@ -325,7 +330,7 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 
 	//Else if starting the quest - return quest description
 	switch (_questType) do {
-		case QST_TYPE_VEH_STEAL:   {""};//TODO: Implement
+		case QST_TYPE_VEH_STEAL:   {selectRandom (NWG_DLGHLP_Settings get "QST_QD_VEH_STEAL_KEYS")};
 		case QST_TYPE_INTERROGATE: {""};//TODO: Implement
 		case QST_TYPE_HACK_DATA:   {""};//TODO: Implement
 		case QST_TYPE_DESTROY:     {selectRandom (NWG_DLGHLP_Settings get "QST_QD_DESTROY_KEYS")};

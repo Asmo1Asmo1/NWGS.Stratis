@@ -14,6 +14,10 @@ NWG_QST_CL_Settings = createHashMapFromArray [
 		[NPC_ROOF,"#NPC_ROOF_NAME#"]
 	]],
 
+	/*External functions*/
+	["FUNC_GET_PLAYER_VEHICLES",{_this call NWG_fnc_vownGetOwnedVehicles}],
+	["FUNC_DELETE_VEHICLE",{_this call NWG_fnc_vshopDeleteVehicle}],
+
     ["",0]
 ];
 
@@ -94,6 +98,11 @@ NWG_QST_CLI_CanCloseQuest = {
 	if (_questType isEqualTo -1) exitWith {false};
 
 	private _canClose = switch (_questType) do {
+		/*Winner defined by having target vehicle or its total analogue in owned vehicles*/
+		case QST_TYPE_VEH_STEAL: {
+			!(isNull ([player,_questData] call NWG_QST_CLI_GetTargetVehicle))
+		};
+
 		/*Winner is set server side and is defined by NWG_QST_WinnerName*/
 		case QST_TYPE_INTERROGATE;
 		case QST_TYPE_HACK_DATA;
@@ -103,7 +112,6 @@ NWG_QST_CLI_CanCloseQuest = {
 			player call NWG_QST_CLI_IsWinnerByName}}
 		};
 
-		case QST_TYPE_VEH_STEAL: {true};//TODO
 		case QST_TYPE_INFECTION: {true};//TODO
 		case QST_TYPE_WOUNDED: {true};//TODO
 		case QST_TYPE_INTEL: {true};//TODO
@@ -148,10 +156,12 @@ NWG_QST_CLI_CloseQuest = {
 	// private _npcName = _this;
 	if !(_this call NWG_QST_CLI_IsQuestActiveForNpc) exitWith {
 		(format ["NWG_QST_CLI_CloseQuest: Quest is not active for NPC: '%1'",_this]) call NWG_fnc_logError;
+		"#QST_CLOSE_ERROR#" call NWG_fnc_systemChatMe;
 		false
 	};
 	if !(call NWG_QST_CLI_CanCloseQuest) exitWith {
 		"NWG_QST_CLI_CloseQuest: Quest cannot be closed by player" call NWG_fnc_logError;
+		"#QST_CLOSE_ERROR#" call NWG_fnc_systemChatMe;
 		false
 	};
 
@@ -159,7 +169,19 @@ NWG_QST_CLI_CloseQuest = {
 	private _questData = call NWG_QST_CLI_GetQuestData;
 	if (_questData isEqualTo false) exitWith {
 		"NWG_QST_CLI_CloseQuest: Failed to get quest data" call NWG_fnc_logError;
+		"#QST_CLOSE_ERROR#" call NWG_fnc_systemChatMe;
 		false
+	};
+
+	//Run quest-specific logic
+	private _questType = _questData param [QST_DATA_TYPE,-1];
+	switch (_questType) do {
+		case QST_TYPE_VEH_STEAL: {
+			private _targetVehicle = [player,_questData] call NWG_QST_CLI_GetTargetVehicle;
+			if (isNull _targetVehicle) exitWith {"NWG_QST_CLI_CloseQuest: Target vehicle is null" call NWG_fnc_logError};
+			_targetVehicle call (NWG_QST_CL_Settings get "FUNC_DELETE_VEHICLE");
+		};
+		default {};//Do nothing
 	};
 
 	//(Re)calculate reward
@@ -191,6 +213,27 @@ NWG_QST_CLI_CloseQuest = {
 
 	//Close quest
 	[player,_reward] remoteExec ["NWG_fnc_qstOnQuestClosed",2];
+};
+
+//================================================================================================================
+//================================================================================================================
+//Utils
+NWG_QST_CLI_GetTargetVehicle = {
+	params ["_player","_questData"];
+	private _questTarget = _questData param [QST_DATA_TARGET_OBJECT,objNull];
+	private _questTargetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
+	private _ownedVehicles = _player call (NWG_QST_CL_Settings get "FUNC_GET_PLAYER_VEHICLES");
+	if !(_ownedVehicles isEqualType []) exitWith {
+		(format ["NWG_QST_CLI_GetTargetVehicle: Invalid owned vehicles: '%1'",_ownedVehicles]) call NWG_fnc_logError;
+		false
+	};
+
+	_ownedVehicles = _ownedVehicles select {(_x distance _player) < 100};
+	private _i = _ownedVehicles findIf {
+		_x isEqualTo _questTarget || {
+		(typeOf _x) isEqualTo _questTargetClassname}
+	};
+	if (_i != -1) then {_ownedVehicles select _i} else {objNull}
 };
 
 //================================================================================================================
