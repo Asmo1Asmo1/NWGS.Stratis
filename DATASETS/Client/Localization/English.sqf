@@ -514,6 +514,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MEDC_ADV_Q_01#","Make sure you have enough first aid kits with you|Full Medkit is great too|But it is FAK you use to patch yourself up|Full Medkit for others, FAKs for yourself"],
     ["#MEDC_ADV_Q_02#","Don't mix those|I did|But that's okay..."],
     ["#MEDC_ADV_Q_03#","Hmm...|Just keep an eye out for each other"],
+    ["#MEDC_ADV_Q_04#","The new guy on a roof...|He was once tasked with moving fuel barrels down to the workshop|The open-air one, where mechanic resides|And the mech guy was busy with something and couldn't help|Ever since then, they have a beef|Although, I don't think the mech guy knows it|Anyway...|Don't be like a 'roof guy'|If you need help - just ask for it|It's not that hard"],
     /*====== COMM =====*/
     /*Comm - COMM_00*/
     ["#COMM_00_Q_01#","Operation already started|Good luck"],
