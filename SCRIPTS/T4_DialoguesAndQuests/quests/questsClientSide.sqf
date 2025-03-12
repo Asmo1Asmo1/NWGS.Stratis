@@ -13,6 +13,9 @@ NWG_QST_CL_Settings = createHashMapFromArray [
 		[NPC_COMM,"#NPC_COMM_NAME#"],
 		[NPC_ROOF,"#NPC_ROOF_NAME#"]
 	]],
+	["INTERROGATE_FAILED",["#QST_INTERROGATE_FAILED_01#","#QST_INTERROGATE_FAILED_02#","#QST_INTERROGATE_FAILED_03#"]],
+	["INTERROGATE_DONE",["#QST_INTERROGATE_DONE_01#","#QST_INTERROGATE_DONE_02#","#QST_INTERROGATE_DONE_03#"]],
+	["INTERROGATE_SUCCESS",["#QST_INTERROGATE_SUCCESS_01#","#QST_INTERROGATE_SUCCESS_02#","#QST_INTERROGATE_SUCCESS_03#"]],
 
 	/*External functions*/
 	["FUNC_GET_PLAYER_VEHICLES",{_this call NWG_fnc_vownGetOwnedVehicles}],
@@ -234,6 +237,32 @@ NWG_QST_CLI_GetTargetVehicle = {
 		(typeOf _x) isEqualTo _questTargetClassname}
 	};
 	if (_i != -1) then {_ownedVehicles select _i} else {objNull}
+};
+
+NWG_QST_CLI_OnInterrogateDone = {
+	params ["_targetObj","_player"];
+	//Get values
+	private _targetName = name _targetObj;
+	private _isSuccess = (_targetObj getVariable ["QST_toBreak",0]) <= 0;
+	private _isQuestDone = !isNil "NWG_QST_State" && {NWG_QST_State >= QST_STATE_DONE};
+
+	//Send system chat message
+	private _message = switch (true) do {
+		case (_isQuestDone): {selectRandom (NWG_QST_CL_Settings get "INTERROGATE_DONE")};
+		case (_isSuccess): {selectRandom (NWG_QST_CL_Settings get "INTERROGATE_SUCCESS")};
+		default {selectRandom (NWG_QST_CL_Settings get "INTERROGATE_FAILED")};
+	};
+	[
+		"[%1] %2",
+		_targetName,
+		_message
+	] call NWG_fnc_systemChatAll;
+
+	//If failed or quest is already done - exit
+	if (!_isSuccess || _isQuestDone) exitWith {};
+
+	//If succeed - report quest done
+	_player remoteExec ["NWG_fnc_qstOnQuestDone",2];
 };
 
 //================================================================================================================

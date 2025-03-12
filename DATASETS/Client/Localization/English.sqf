@@ -701,10 +701,23 @@ NWG_LocalizationDictionary = createHashMapFromArray [
 
     //T4_Quests
     //quests
+    /*Quest actions*/
+    ["#QST_INTERROGATE_TITLE#","Interrogate"],
     /*Quest chat messages*/
+    ["#QST_VEH_STEAL_CLOSED#","%1 delivered the vehicle and closed the task"],
+    ["#QST_INTERROGATE_FAILED_01#","I won't tell you nothing"],
+    ["#QST_INTERROGATE_FAILED_02#","Go fuck yourself, scum"],
+    ["#QST_INTERROGATE_FAILED_03#","You'll have to shoot me, I'm not talking"],
+    ["#QST_INTERROGATE_DONE_01#","I already told you everything"],
+    ["#QST_INTERROGATE_DONE_02#","Please, that's all I know"],
+    ["#QST_INTERROGATE_DONE_03#","I told the truth, I swear"],
+    ["#QST_INTERROGATE_SUCCESS_01#","All right, please, don't hurt me no more"],
+    ["#QST_INTERROGATE_SUCCESS_02#","Please, I'll speak! Just stop hurting me"],
+    ["#QST_INTERROGATE_SUCCESS_03#","All right, all right, I'll tell you everything"],
+    ["#QST_INTERROGATE_DONE#","%1 interogated the target"],
+    ["#QST_INTERROGATE_CLOSED#","%1 reported to commander and closed the task"],
     ["#QST_DESTROY_DONE#","%1 destroyed the target"],
     ["#QST_DESTROY_CLOSED#","%1 reported to commander and closed the task"],
-    ["#QST_VEH_STEAL_CLOSED#","%1 delivered the vehicle and closed the task"],
     ["#QST_UNKONW_WINNER#","Somebody"],
     ["#QST_CLOSE_ERROR#","Failed to close quest"],
     /*Quest start*/
@@ -742,6 +755,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_QD_VEH_STEAL_01#","I've got a client ready to pay extra for that beauty|Can you deliver it here?|No scratches preferred"],
     ["#QST_QD_VEH_STEAL_02#","I have a special request|Our client wants this vehicle|The payment is good|Very good even"],
     ["#QST_QD_VEH_STEAL_03#","There's an order for something like that|Good money|Can you bring it here?"],
+    ["#QST_QD_INTERROGATE_01#","There's an enemy officer on the island|I want to know what he knows|Can you ask him a few questions for me?"],
+    ["#QST_QD_INTERROGATE_02#","We have reports of enemy officer presence in the area|I need you to politely ask him a few questions|And don't hesitate on politness"],
+    ["#QST_QD_INTERROGATE_03#","I need you to interrogate enemy commander|Squeeze every bit of information out of him"],
     ["#QST_QD_DESTROY_01#","You see that thing, soldier?|I don't like it|I want it gone"],
     ["#QST_QD_DESTROY_02#","I need that target destroyed|Sure you can handle it?"],
     ["#QST_QD_DESTROY_03#","There's an enemy installation on the island|I need you to take it out"],

@@ -57,6 +57,14 @@ NWG_fnc_qstGetQuestData = {
 };
 
 /*Client -> Server*/
+//Informs server that quest is done
+//params: _player - player object
+//returns: nothing
+NWG_fnc_qstOnQuestDone = {
+    // private _player = _this;
+    _this call NWG_QST_SER_OnQuestDone
+};
+
 //Informs server that quest is closed
 //params:
 // - _player - player object

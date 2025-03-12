@@ -68,6 +68,7 @@ NWG_DLGHLP_Settings = createHashMapFromArray [
 
 	/*Quests descriptions*/
 	["QST_QD_VEH_STEAL_KEYS",["#QST_QD_VEH_STEAL_01#","#QST_QD_VEH_STEAL_02#","#QST_QD_VEH_STEAL_03#"]],
+	["QST_QD_INTERROGATE_KEYS",["#QST_QD_INTERROGATE_01#","#QST_QD_INTERROGATE_02#","#QST_QD_INTERROGATE_03#"]],
 	["QST_QD_DESTROY_KEYS",["#QST_QD_DESTROY_01#","#QST_QD_DESTROY_02#","#QST_QD_DESTROY_03#"]],
 
 	/*Quest answers*/
@@ -331,18 +332,18 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 	//Else if starting the quest - return quest description
 	switch (_questType) do {
 		case QST_TYPE_VEH_STEAL:   {selectRandom (NWG_DLGHLP_Settings get "QST_QD_VEH_STEAL_KEYS")};
-		case QST_TYPE_INTERROGATE: {""};//TODO: Implement
-		case QST_TYPE_HACK_DATA:   {""};//TODO: Implement
+		case QST_TYPE_INTERROGATE: {selectRandom (NWG_DLGHLP_Settings get "QST_QD_INTERROGATE_KEYS")};
+		case QST_TYPE_HACK_DATA:   {selectRandom (NWG_DLGHLP_Settings get "QST_QD_HACK_DATA_KEYS")};
 		case QST_TYPE_DESTROY:     {selectRandom (NWG_DLGHLP_Settings get "QST_QD_DESTROY_KEYS")};
-		case QST_TYPE_INTEL: 	   {""};//TODO: Implement
-		case QST_TYPE_INFECTION:   {""};//TODO: Implement
-		case QST_TYPE_WOUNDED:     {""};//TODO: Implement
-		case QST_TYPE_MED_SUPPLY:  {""};//TODO: Implement
-		case QST_TYPE_TERMINAL:    {""};//TODO: Implement
-		case QST_TYPE_WEAPON:      {""};//TODO: Implement
-		case QST_TYPE_ELECTRONICS: {""};//TODO: Implement
-		case QST_TYPE_TOOLS:       {""};//TODO: Implement
-		default {""};
+		case QST_TYPE_INTEL: 	   {selectRandom (NWG_DLGHLP_Settings get "QST_QD_INTEL_KEYS")};
+		case QST_TYPE_INFECTION:   {selectRandom (NWG_DLGHLP_Settings get "QST_QD_INFECTION_KEYS")};
+		case QST_TYPE_WOUNDED:     {selectRandom (NWG_DLGHLP_Settings get "QST_QD_WOUNDED_KEYS")};
+		case QST_TYPE_MED_SUPPLY:  {selectRandom (NWG_DLGHLP_Settings get "QST_QD_MED_SUPPLY_KEYS")};
+		case QST_TYPE_TERMINAL:    {selectRandom (NWG_DLGHLP_Settings get "QST_QD_TERMINAL_KEYS")};
+		case QST_TYPE_WEAPON:      {selectRandom (NWG_DLGHLP_Settings get "QST_QD_WEAPON_KEYS")};
+		case QST_TYPE_ELECTRONICS: {selectRandom (NWG_DLGHLP_Settings get "QST_QD_ELECTRONICS_KEYS")};
+		case QST_TYPE_TOOLS:       {selectRandom (NWG_DLGHLP_Settings get "QST_QD_TOOLS_KEYS")};
+		default {"[UNKNOWN QUEST DATA]"};
 	}
 };
 

@@ -6,8 +6,8 @@
 NWG_QST_SER_Settings = createHashMapFromArray [
     /*Quest Settings*/
     ["QUEST_ENABLED",[
-        QST_TYPE_VEH_STEAL
-        // QST_TYPE_INTERROGATE,
+        // QST_TYPE_VEH_STEAL,
+        QST_TYPE_INTERROGATE
         // QST_TYPE_HACK_DATA,
         // QST_TYPE_DESTROY,
         // QST_TYPE_INTEL,
@@ -86,7 +86,7 @@ NWG_QST_SER_Settings = createHashMapFromArray [
     /*Localization*/
     ["LOC_QUEST_DONE",[
         /*QST_TYPE_VEH_STEAL:*/ false,
-        /*QST_TYPE_INTERROGATE:*/ false,
+        /*QST_TYPE_INTERROGATE:*/ "#QST_INTERROGATE_DONE#",
         /*QST_TYPE_HACK_DATA:*/ false,
         /*QST_TYPE_DESTROY:*/ "#QST_DESTROY_DONE#",
         /*QST_TYPE_INTEL:*/ false,
@@ -100,7 +100,7 @@ NWG_QST_SER_Settings = createHashMapFromArray [
     ]],
     ["LOC_QUEST_CLOSED",[
         /*QST_TYPE_VEH_STEAL:*/ "#QST_VEH_STEAL_CLOSED#",
-        /*QST_TYPE_INTERROGATE:*/ false,
+        /*QST_TYPE_INTERROGATE:*/ "#QST_INTERROGATE_CLOSED#",
         /*QST_TYPE_HACK_DATA:*/ false,
         /*QST_TYPE_DESTROY:*/ "#QST_DESTROY_CLOSED#",
         /*QST_TYPE_INTEL:*/ false,
@@ -113,6 +113,40 @@ NWG_QST_SER_Settings = createHashMapFromArray [
         /*QST_TYPE_TOOLS:*/ false
     ]],
     ["LOC_UNKONW_WINNER","#QST_UNKONW_WINNER#"],
+
+    /*Interrogate quest*/
+    ["INTERROGATE_TARGETS",[
+        "B_Competitor_F",
+        "B_officer_F",
+        "B_Officer_Parade_F",
+        "B_Officer_Parade_Veteran_F",
+        "B_RangeMaster_F",
+        "B_Soldier_lite_F",
+        "B_recon_TL_F",
+        "B_Captain_Pettka_F",
+        "I_G_Story_SF_Captain_F",
+        "B_G_officer_F",
+        "B_CTRG_Miller_F",
+        "O_officer_F",
+        "O_Officer_Parade_F",
+        "O_Officer_Parade_Veteran_F",
+        "O_T_Officer_F",
+        "I_officer_F",
+        "I_Officer_Parade_F",
+        "I_Officer_Parade_Veteran_F",
+        "I_Story_Colonel_F",
+        "I_Story_Officer_01_F",
+        "I_Captain_Hladas_F",
+        "I_E_Officer_F",
+        "I_E_Officer_Parade_F",
+        "I_E_Officer_Parade_Veteran_F",
+        "C_Nikos",
+        "C_IDAP_Man_AidWorker_08_F",
+        "C_man_hunter_1_F"
+    ]],
+    ["INTERROGATE_BREAK_LIMIT",10],//Max number of hits to break the target
+    ["INTERROGATE_TITLE","#QST_INTERROGATE_TITLE#"],
+    ["INTERROGATE_ICON","a3\ui_f\data\igui\cfg\actions\talk_ca.paa"],
 
     /*Destroy object quest*/
     ["DESTROY_TARGETS",[
@@ -166,10 +200,19 @@ NWG_QST_SER_CreateNew = {
             !(_x isKindOf "Plane")}}}
         };
         if ((count _possibleTargets) == 0) exitWith {};
-        _possibleTargets = _possibleTargets call NWG_fnc_arrayShuffle;
-        private _target = _possibleTargets select 0;
+        private _target = selectRandom _possibleTargets;
         for "_i" from 1 to (_diceWeights select QST_TYPE_VEH_STEAL) do {
             _dice pushBack [QST_TYPE_VEH_STEAL,_target,(typeOf _target)];
+        };
+    };
+    /*Interrogate officer quest*/
+    if (QST_TYPE_INTERROGATE in _enabledQuests) then {
+        private _targetClassnames = NWG_QST_SER_Settings get "INTERROGATE_TARGETS";
+        private _possibleTargets = (_missionObjects select OBJ_CAT_UNIT) select {(typeOf _x) in _targetClassnames};
+        if ((count _possibleTargets) == 0) exitWith {};
+        private _target = selectRandom _possibleTargets;
+        for "_i" from 1 to (_diceWeights select QST_TYPE_INTERROGATE) do {
+            _dice pushBack [QST_TYPE_INTERROGATE,_target,(typeOf _target)];
         };
     };
     /*Destroy object quest*/
@@ -177,8 +220,7 @@ NWG_QST_SER_CreateNew = {
         private _targetClassnames = NWG_QST_SER_Settings get "DESTROY_TARGETS";
         private _possibleTargets = (_missionObjects select OBJ_CAT_BLDG) select {(typeOf _x) in _targetClassnames};
         if ((count _possibleTargets) == 0) exitWith {};
-        _possibleTargets = _possibleTargets call NWG_fnc_arrayShuffle;
-        private _target = _possibleTargets select 0;
+        private _target = selectRandom _possibleTargets;
         for "_i" from 1 to (_diceWeights select QST_TYPE_DESTROY) do {
             _dice pushBack [QST_TYPE_DESTROY,_target,(typeOf _target)];
         };
@@ -198,10 +240,24 @@ NWG_QST_SER_CreateNew = {
 
     //Run type-specific logic
     switch (_questType) do {
+        case QST_TYPE_INTERROGATE: {
+            //Make sure target can not be killed, only wounded
+            _targetObj removeAllEventHandlers "HandleDamage";//Remove any other logic that may have been added
+            _targetObj addEventHandler ["HandleDamage",{_this call NWG_QST_SER_OnWounded}];//Handle damage (+increases 'brake' counter)
+            //Set initial 'brake' counter
+            private _toBreak = round (random (NWG_QST_SER_Settings get "INTERROGATE_BREAK_LIMIT"));
+            _targetObj setVariable ["QST_toBreak",_toBreak,true];
+            //Add action to interrogate target
+            private _title = NWG_QST_SER_Settings get "INTERROGATE_TITLE";
+            private _icon = NWG_QST_SER_Settings get "INTERROGATE_ICON";
+            [_targetObj,_title,_icon,{_this call NWG_QST_CLI_OnInterrogateDone}] call NWG_fnc_addHoldActionGlobal;
+        };
         case QST_TYPE_DESTROY: {
+            //Add 'Killed' EH to register player who did it
             _targetObj addEventHandler ["Killed",{
                 params ["_targetObj","_killer","_instigator"/*,"_useEffects"*/];
                 ([_killer,_instigator] call NWG_QST_SER_DefinePlayerKiller) call NWG_QST_SER_OnQuestDone;
+                _targetObj removeEventHandler [_thisEvent,_thisEventHandler];
             }];
         };
         default {};//Do nothing
@@ -376,4 +432,36 @@ NWG_QST_SER_DefinePlayerKiller = {
     };
 
     _suspect
+};
+
+/*Copy of NWG_ACP_OnWounded with some changes*/
+NWG_QST_SER_OnWounded = {
+    // params ["_unit","_selection","_damage","_source","_projectile","_hitIndex","_instigator","_hitPoint"];
+    params ["_unit","_sel","_dmg"];
+    _dmg = _dmg min 0.75;//Clamp damage
+
+    switch (true) do {
+        case (!alive _unit): {};//Bypass for dead units
+        case (_dmg < 0.1): {_dmg = 0};//Drop minor damage
+        case (_sel isNotEqualTo ""): {};//Bypass non-body hits
+
+        /*If already wounded*/
+        case ((incapacitatedState _unit) isNotEqualTo ""): {
+            /*Decrease 'brake' counter*/
+            private _toBreak = _unit getVariable ["QST_toBreak",0];
+            if (_toBreak > 0) then {_unit setVariable ["QST_toBreak",(_toBreak - 1),true]};
+        };
+
+        /*Else - wound unit*/
+        default {
+            /*Wound the unit*/
+            _unit setUnconscious true;
+
+            /*Decrease 'brake' counter*/
+            private _toBreak = _unit getVariable ["QST_toBreak",0];
+            if (_toBreak > 0) then {_unit setVariable ["QST_toBreak",(_toBreak - 1),true]};
+        };
+    };
+
+    _dmg
 };

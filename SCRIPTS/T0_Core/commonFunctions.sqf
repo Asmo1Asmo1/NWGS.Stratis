@@ -372,7 +372,7 @@ NWG_fnc_addHoldAction = {
         {},                              // Code executed on interrupted
         [],                              // Arguments passed to the scripts as _this select 3
         3,                               // Action duration in seconds
-        0,                               // Priority
+        15,                              // Priority
         false,                           // Remove on completion
         false,                           // Show in unconscious state
         true                             // Auto show on screen
