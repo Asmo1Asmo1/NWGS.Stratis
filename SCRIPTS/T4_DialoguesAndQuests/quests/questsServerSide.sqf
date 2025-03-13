@@ -14,10 +14,8 @@ NWG_QST_SER_Settings = createHashMapFromArray [
         // QST_TYPE_INFECTION,
         // QST_TYPE_WOUNDED,
         // QST_TYPE_MED_SUPPLY,
-        // QST_TYPE_TERMINAL,
         // QST_TYPE_WEAPON,
         // QST_TYPE_ELECTRONICS,
-        // QST_TYPE_TOOLS
     ]],
     ["QUEST_GIVERS",[
         /*QST_TYPE_VEH_STEAL:*/ NPC_MECH,
@@ -28,10 +26,8 @@ NWG_QST_SER_Settings = createHashMapFromArray [
         /*QST_TYPE_INFECTION:*/ NPC_MECH,
         /*QST_TYPE_WOUNDED:*/ NPC_MECH,
         /*QST_TYPE_MED_SUPPLY:*/ NPC_MECH,
-        /*QST_TYPE_TERMINAL:*/ NPC_ROOF,
         /*QST_TYPE_WEAPON:*/ NPC_ROOF,
-        /*QST_TYPE_ELECTRONICS:*/ NPC_ROOF,
-        /*QST_TYPE_TOOLS:*/ NPC_TAXI
+        /*QST_TYPE_ELECTRONICS:*/ NPC_ROOF
     ]],
     ["QUEST_DICE_WEIGHTS",[
         /*QST_TYPE_VEH_STEAL:*/ 1,
@@ -42,10 +38,8 @@ NWG_QST_SER_Settings = createHashMapFromArray [
         /*QST_TYPE_INFECTION:*/ 2,
         /*QST_TYPE_WOUNDED:*/ 1,
         /*QST_TYPE_MED_SUPPLY:*/ 1,
-        /*QST_TYPE_TERMINAL:*/ 1,
         /*QST_TYPE_WEAPON:*/ 1,
-        /*QST_TYPE_ELECTRONICS:*/ 1,
-        /*QST_TYPE_TOOLS:*/ 1
+        /*QST_TYPE_ELECTRONICS:*/ 1
     ]],
     ["QUEST_REWARDS",[
         /*QST_TYPE_VEH_STEAL:*/ {
@@ -62,10 +56,8 @@ NWG_QST_SER_Settings = createHashMapFromArray [
         /*QST_TYPE_INFECTION:*/ 1000,
         /*QST_TYPE_WOUNDED:*/ 1000,
         /*QST_TYPE_MED_SUPPLY:*/ "TODO",
-        /*QST_TYPE_TERMINAL:*/ "TODO",
         /*QST_TYPE_WEAPON:*/ {0/*TODO*/},
-        /*QST_TYPE_ELECTRONICS:*/ "TODO",
-        /*QST_TYPE_TOOLS:*/ "TODO"
+        /*QST_TYPE_ELECTRONICS:*/ "TODO"
     ]],
     ["QUEST_DEFAULT_REWARD",1000],
 
@@ -93,10 +85,8 @@ NWG_QST_SER_Settings = createHashMapFromArray [
         /*QST_TYPE_INFECTION:*/ false,
         /*QST_TYPE_WOUNDED:*/ false,
         /*QST_TYPE_MED_SUPPLY:*/ false,
-        /*QST_TYPE_TERMINAL:*/ false,
         /*QST_TYPE_WEAPON:*/ false,
-        /*QST_TYPE_ELECTRONICS:*/ false,
-        /*QST_TYPE_TOOLS:*/ false
+        /*QST_TYPE_ELECTRONICS:*/ false
     ]],
     ["LOC_QUEST_CLOSED",[
         /*QST_TYPE_VEH_STEAL:*/ "#QST_VEH_STEAL_CLOSED#",
@@ -107,10 +97,8 @@ NWG_QST_SER_Settings = createHashMapFromArray [
         /*QST_TYPE_INFECTION:*/ false,
         /*QST_TYPE_WOUNDED:*/ false,
         /*QST_TYPE_MED_SUPPLY:*/ false,
-        /*QST_TYPE_TERMINAL:*/ false,
         /*QST_TYPE_WEAPON:*/ false,
-        /*QST_TYPE_ELECTRONICS:*/ false,
-        /*QST_TYPE_TOOLS:*/ false
+        /*QST_TYPE_ELECTRONICS:*/ false
     ]],
     ["LOC_UNKONW_WINNER","#QST_UNKONW_WINNER#"],
 

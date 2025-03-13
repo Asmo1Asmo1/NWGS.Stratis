@@ -113,8 +113,6 @@
 
 //Mission factions
 #define MISSION_FACTION_NATO "NATO"
-// #define MISSION_FACTION_CSAT "CSAT"
-// #define MISSION_FACTION_AAF "AAF"
 
 //NPCs
 #define NPC_TAXI "TAXI"
@@ -142,10 +140,8 @@
 #define QST_TYPE_INFECTION 5
 #define QST_TYPE_WOUNDED 6
 #define QST_TYPE_MED_SUPPLY 7
-#define QST_TYPE_TERMINAL 8
-#define QST_TYPE_WEAPON 9
-#define QST_TYPE_ELECTRONICS 10
-#define QST_TYPE_TOOLS 11
+#define QST_TYPE_WEAPON 8
+#define QST_TYPE_ELECTRONICS 9
 
 /*Quest States*/
 #define QST_STATE_UNASSIGNED 0

@@ -59,10 +59,8 @@ NWG_DLGHLP_Settings = createHashMapFromArray [
         /*QST_TYPE_INFECTION:*/ "#QST_DISPLAY_INFECTION#",
         /*QST_TYPE_WOUNDED:*/ "#QST_DISPLAY_WOUNDED#",
         /*QST_TYPE_MED_SUPPLY:*/ "#QST_DISPLAY_MED_SUPPLY#",
-        /*QST_TYPE_TERMINAL:*/ "#QST_DISPLAY_TERMINAL#",
         /*QST_TYPE_WEAPON:*/ "#QST_DISPLAY_WEAPON#",
-        /*QST_TYPE_ELECTRONICS:*/ "#QST_DISPLAY_ELECTRONICS#",
-        /*QST_TYPE_TOOLS:*/ "#QST_DISPLAY_TOOLS#"
+        /*QST_TYPE_ELECTRONICS:*/ "#QST_DISPLAY_ELECTRONICS#"
 	]],
 	["QST_REWARD_TEMPLATE","#QST_REWARD_TEMPLATE#"],
 
@@ -75,10 +73,8 @@ NWG_DLGHLP_Settings = createHashMapFromArray [
 	["QST_QD_INFECTION_KEYS",["#QST_QD_INFECTION_01#","#QST_QD_INFECTION_02#","#QST_QD_INFECTION_03#"]],
 	["QST_QD_WOUNDED_KEYS",["#QST_QD_WOUNDED_01#","#QST_QD_WOUNDED_02#","#QST_QD_WOUNDED_03#"]],
 	["QST_QD_MED_SUPPLY_KEYS",["#QST_QD_MED_SUPPLY_01#","#QST_QD_MED_SUPPLY_02#","#QST_QD_MED_SUPPLY_03#"]],
-	["QST_QD_TERMINAL_KEYS",["#QST_QD_TERMINAL_01#","#QST_QD_TERMINAL_02#","#QST_QD_TERMINAL_03#"]],
 	["QST_QD_WEAPON_KEYS",["#QST_QD_WEAPON_01#","#QST_QD_WEAPON_02#","#QST_QD_WEAPON_03#"]],
 	["QST_QD_ELECTRONICS_KEYS",["#QST_QD_ELECTRONICS_01#","#QST_QD_ELECTRONICS_02#","#QST_QD_ELECTRONICS_03#"]],
-	["QST_QD_TOOLS_KEYS",["#QST_QD_TOOLS_01#","#QST_QD_TOOLS_02#","#QST_QD_TOOLS_03#"]],
 
 	/*Quest answers*/
 	["QST_WILL_DO_A_KEYS",["#QST_WILL_DO_A_01#","#QST_WILL_DO_A_02#","#QST_WILL_DO_A_03#","#QST_WILL_DO_A_04#","#QST_WILL_DO_A_05#"]],
@@ -300,16 +296,10 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 		case QST_TYPE_MED_SUPPLY: {
 			//TODO: Implement
 		};
-		case QST_TYPE_TERMINAL: {
-			//TODO: Implement
-		};
 		case QST_TYPE_WEAPON: {
 			//TODO: Implement
 		};
 		case QST_TYPE_ELECTRONICS: {
-			//TODO: Implement
-		};
-		case QST_TYPE_TOOLS: {
 			//TODO: Implement
 		};
 		default {
@@ -348,10 +338,8 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 		case QST_TYPE_INFECTION:   {selectRandom (NWG_DLGHLP_Settings get "QST_QD_INFECTION_KEYS")};
 		case QST_TYPE_WOUNDED:     {selectRandom (NWG_DLGHLP_Settings get "QST_QD_WOUNDED_KEYS")};
 		case QST_TYPE_MED_SUPPLY:  {selectRandom (NWG_DLGHLP_Settings get "QST_QD_MED_SUPPLY_KEYS")};
-		case QST_TYPE_TERMINAL:    {selectRandom (NWG_DLGHLP_Settings get "QST_QD_TERMINAL_KEYS")};
 		case QST_TYPE_WEAPON:      {selectRandom (NWG_DLGHLP_Settings get "QST_QD_WEAPON_KEYS")};
 		case QST_TYPE_ELECTRONICS: {selectRandom (NWG_DLGHLP_Settings get "QST_QD_ELECTRONICS_KEYS")};
-		case QST_TYPE_TOOLS:       {selectRandom (NWG_DLGHLP_Settings get "QST_QD_TOOLS_KEYS")};
 		default {"[UNKNOWN QUEST DATA]"};
 	}
 };

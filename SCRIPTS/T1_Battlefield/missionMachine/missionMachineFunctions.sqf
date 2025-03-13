@@ -187,7 +187,7 @@ NWG_fnc_mmGetMissionSide = {
 //Returns mission faction (defined in globalDefines.h)
 //note: this command is reliable only starting from MSTATE_BUILD_UKREP mission state, otherwise it will either return empty string or previous mission faction
 //note: use in EVENT_ON_MISSION_STATE_CHANGED subscriber(s)
-//returns: string (MISSION_FACTION_NATO, MISSION_FACTION_CSAT, MISSION_FACTION_AAF, ...)
+//returns: string (e.g.: MISSION_FACTION_NATO )
 NWG_fnc_mmGetMissionFaction = {
     NWG_MIS_SER_missionInfo getOrDefault [MINFO_ENEMY_FACTION,""]
 };

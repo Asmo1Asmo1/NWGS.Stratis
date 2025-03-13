@@ -119,10 +119,8 @@ NWG_QST_CLI_CanCloseQuest = {
 		case QST_TYPE_WOUNDED: {true};//TODO
 		case QST_TYPE_INTEL: {true};//TODO
 		case QST_TYPE_MED_SUPPLY: {true};//TODO
-		case QST_TYPE_TERMINAL: {true};//TODO
 		case QST_TYPE_WEAPON: {true};//TODO
 		case QST_TYPE_ELECTRONICS: {true};//TODO
-		case QST_TYPE_TOOLS: {true};//TODO
 		default {false};
 	};
 
@@ -202,10 +200,8 @@ NWG_QST_CLI_CloseQuest = {
 		/*Reward calculated on client side*/
 		case QST_TYPE_INFECTION: {0};//TODO
 		case QST_TYPE_MED_SUPPLY: {0};//TODO
-		case QST_TYPE_TERMINAL: {0};//TODO
 		case QST_TYPE_WEAPON: {0};//TODO
 		case QST_TYPE_ELECTRONICS: {0};//TODO
-		case QST_TYPE_TOOLS: {0};//TODO
 
 		/*Invalid quest type*/
 		default {
