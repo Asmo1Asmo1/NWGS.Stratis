@@ -7,8 +7,8 @@ NWG_QST_SER_Settings = createHashMapFromArray [
     /*Quest Settings*/
     ["QUEST_ENABLED",[
         // QST_TYPE_VEH_STEAL,
-        QST_TYPE_INTERROGATE
-        // QST_TYPE_HACK_DATA,
+        // QST_TYPE_INTERROGATE,
+        QST_TYPE_HACK_DATA
         // QST_TYPE_DESTROY,
         // QST_TYPE_INTEL,
         // QST_TYPE_INFECTION,
@@ -121,7 +121,6 @@ NWG_QST_SER_Settings = createHashMapFromArray [
         "B_Officer_Parade_F",
         "B_Officer_Parade_Veteran_F",
         "B_RangeMaster_F",
-        "B_Soldier_lite_F",
         "B_recon_TL_F",
         "B_Captain_Pettka_F",
         "I_G_Story_SF_Captain_F",
@@ -181,6 +180,9 @@ NWG_QST_State = QST_STATE_UNASSIGNED;
 NWG_QST_Data = [];
 NWG_QST_WinnerName = "";
 
+/*Local Variables*/
+NWG_QST_lastQuestType = -1;
+
 //================================================================================================================
 //================================================================================================================
 //Quest creation
@@ -233,10 +235,21 @@ NWG_QST_SER_CreateNew = {
         false;
     };
 
+    //Remove last quest type to not repeat it second time in a row
+    if ((count _dice) > 1 && {NWG_QST_lastQuestType >= 0}) then {
+        private _lastQuestType = NWG_QST_lastQuestType;
+        private _toRemove = [];
+        {
+            if ((_x select QST_DATA_TYPE) == _lastQuestType) then {_toRemove pushBack (_dice deleteAt _forEachIndex)};
+        } forEachReversed _dice;
+        if ((count _dice) == 0) then {_dice append _toRemove};//That was the only quest available, so we undo deletion
+    };
+
     //Roll the dice
     _dice = _dice call NWG_fnc_arrayShuffle;
     (_dice select 0) params ["_questType","_targetObj","_targetClassname"];
     _dice resize 0;//Clear the dice
+    NWG_QST_lastQuestType = _questType;//Save last quest type
 
     //Run type-specific logic
     switch (_questType) do {
