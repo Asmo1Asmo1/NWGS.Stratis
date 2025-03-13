@@ -323,6 +323,8 @@ _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\06NpcRoof
 _commonFunctions pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\dialogueSystemFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\dialogueSystemTests.sqf" call NWG_fnc_compile)};
 //quests
+_serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\questsSettings.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\questsSettings.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\questsServerSide.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\missionMachineConnector.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\questsClientSide.sqf" call NWG_fnc_compile);

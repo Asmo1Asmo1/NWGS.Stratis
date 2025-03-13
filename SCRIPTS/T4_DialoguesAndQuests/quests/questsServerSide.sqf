@@ -3,162 +3,7 @@
 //================================================================================================================
 //================================================================================================================
 //Settings
-NWG_QST_SER_Settings = createHashMapFromArray [
-    /*Quest Settings*/
-    ["QUEST_ENABLED",[
-        // QST_TYPE_VEH_STEAL,
-        // QST_TYPE_INTERROGATE,
-        QST_TYPE_HACK_DATA
-        // QST_TYPE_DESTROY,
-        // QST_TYPE_INTEL,
-        // QST_TYPE_INFECTION,
-        // QST_TYPE_WOUNDED,
-        // QST_TYPE_MED_SUPPLY,
-        // QST_TYPE_WEAPON,
-        // QST_TYPE_ELECTRONICS,
-    ]],
-    ["QUEST_GIVERS",[
-        /*QST_TYPE_VEH_STEAL:*/ NPC_MECH,
-        /*QST_TYPE_INTERROGATE:*/ NPC_COMM,
-        /*QST_TYPE_HACK_DATA:*/ NPC_COMM,
-        /*QST_TYPE_DESTROY:*/ NPC_COMM,
-        /*QST_TYPE_INTEL:*/ NPC_COMM,
-        /*QST_TYPE_INFECTION:*/ NPC_MECH,
-        /*QST_TYPE_WOUNDED:*/ NPC_MECH,
-        /*QST_TYPE_MED_SUPPLY:*/ NPC_MECH,
-        /*QST_TYPE_WEAPON:*/ NPC_ROOF,
-        /*QST_TYPE_ELECTRONICS:*/ NPC_ROOF
-    ]],
-    ["QUEST_DICE_WEIGHTS",[
-        /*QST_TYPE_VEH_STEAL:*/ 1,
-        /*QST_TYPE_INTERROGATE:*/ 1,
-        /*QST_TYPE_HACK_DATA:*/ 1,
-        /*QST_TYPE_DESTROY:*/ 1,
-        /*QST_TYPE_INTEL:*/ 1,
-        /*QST_TYPE_INFECTION:*/ 2,
-        /*QST_TYPE_WOUNDED:*/ 1,
-        /*QST_TYPE_MED_SUPPLY:*/ 1,
-        /*QST_TYPE_WEAPON:*/ 1,
-        /*QST_TYPE_ELECTRONICS:*/ 1
-    ]],
-    ["QUEST_REWARDS",[
-        /*QST_TYPE_VEH_STEAL:*/ {
-            params ["_targetClassname","_multiplier"];
-            private _price = _targetClassname call NWG_fnc_vshopEvaluateVehPrice;
-            private _reward = _price + (_price * (_multiplier * 0.05));//Apply 5% of multiplier
-            _reward = (round (_reward / 100)) * 100;//Round to nearest 100
-            _reward
-        },
-        /*QST_TYPE_INTERROGATE:*/ 1000,
-        /*QST_TYPE_HACK_DATA:*/ 1000,
-        /*QST_TYPE_DESTROY:*/ 1000,
-        /*QST_TYPE_INTEL:*/ "TODO",
-        /*QST_TYPE_INFECTION:*/ 1000,
-        /*QST_TYPE_WOUNDED:*/ 1000,
-        /*QST_TYPE_MED_SUPPLY:*/ "TODO",
-        /*QST_TYPE_WEAPON:*/ {0/*TODO*/},
-        /*QST_TYPE_ELECTRONICS:*/ "TODO"
-    ]],
-    ["QUEST_DEFAULT_REWARD",1000],
-
-    /*External functions*/
-    ["FUNC_GET_REWARD_MULTIPLIER",{(call NWG_fnc_mmGetMissionLevel) + 1}],//Applies only to number or code type rewards
-    ["FUNC_REWARD_PLAYER",{
-        params ["_player","_reward"];
-        [_player,P__EXP,1] call NWG_fnc_pAddPlayerProgress;//Add experience
-        [_player,P_TEXP,1] call NWG_fnc_pAddPlayerProgress;//Add total experience (level up)
-        [_player,_reward] call NWG_fnc_wltAddPlayerMoney;//Add money reward
-    }],
-
-    /*Marker Settings*/
-    ["MARKER_TYPE","mil_warning"],
-    ["MARKER_COLOR","ColorBlack"],
-    ["MARKER_SIZE",0.75],
-
-    /*Localization*/
-    ["LOC_QUEST_DONE",[
-        /*QST_TYPE_VEH_STEAL:*/ false,
-        /*QST_TYPE_INTERROGATE:*/ "#QST_INTERROGATE_DONE#",
-        /*QST_TYPE_HACK_DATA:*/ false,
-        /*QST_TYPE_DESTROY:*/ "#QST_DESTROY_DONE#",
-        /*QST_TYPE_INTEL:*/ false,
-        /*QST_TYPE_INFECTION:*/ false,
-        /*QST_TYPE_WOUNDED:*/ false,
-        /*QST_TYPE_MED_SUPPLY:*/ false,
-        /*QST_TYPE_WEAPON:*/ false,
-        /*QST_TYPE_ELECTRONICS:*/ false
-    ]],
-    ["LOC_QUEST_CLOSED",[
-        /*QST_TYPE_VEH_STEAL:*/ "#QST_VEH_STEAL_CLOSED#",
-        /*QST_TYPE_INTERROGATE:*/ "#QST_INTERROGATE_CLOSED#",
-        /*QST_TYPE_HACK_DATA:*/ false,
-        /*QST_TYPE_DESTROY:*/ "#QST_DESTROY_CLOSED#",
-        /*QST_TYPE_INTEL:*/ false,
-        /*QST_TYPE_INFECTION:*/ false,
-        /*QST_TYPE_WOUNDED:*/ false,
-        /*QST_TYPE_MED_SUPPLY:*/ false,
-        /*QST_TYPE_WEAPON:*/ false,
-        /*QST_TYPE_ELECTRONICS:*/ false
-    ]],
-    ["LOC_UNKONW_WINNER","#QST_UNKONW_WINNER#"],
-
-    /*Interrogate quest*/
-    ["INTERROGATE_TARGETS",[
-        "B_Competitor_F",
-        "B_officer_F",
-        "B_Officer_Parade_F",
-        "B_Officer_Parade_Veteran_F",
-        "B_RangeMaster_F",
-        "B_recon_TL_F",
-        "B_Captain_Pettka_F",
-        "I_G_Story_SF_Captain_F",
-        "B_G_officer_F",
-        "B_CTRG_Miller_F",
-        "O_officer_F",
-        "O_Officer_Parade_F",
-        "O_Officer_Parade_Veteran_F",
-        "O_T_Officer_F",
-        "I_officer_F",
-        "I_Officer_Parade_F",
-        "I_Officer_Parade_Veteran_F",
-        "I_Story_Colonel_F",
-        "I_Story_Officer_01_F",
-        "I_Captain_Hladas_F",
-        "I_E_Officer_F",
-        "I_E_Officer_Parade_F",
-        "I_E_Officer_Parade_Veteran_F",
-        "C_Nikos",
-        "C_IDAP_Man_AidWorker_08_F",
-        "C_man_hunter_1_F"
-    ]],
-    ["INTERROGATE_BREAK_LIMIT",10],//Max number of hits to break the target
-    ["INTERROGATE_TITLE","#QST_INTERROGATE_TITLE#"],
-    ["INTERROGATE_ICON","a3\ui_f\data\igui\cfg\actions\talk_ca.paa"],
-
-    /*Destroy object quest*/
-    ["DESTROY_TARGETS",[
-        "Land_Cargo_HQ_V1_F",
-        "Land_Cargo_HQ_V2_F",
-        "Land_Cargo_HQ_V3_F",
-        "Land_Medevac_HQ_V1_F",
-        "Land_Research_HQ_F",
-        "Land_Cargo_Tower_V1_No1_F",
-        "Land_Cargo_Tower_V1_No2_F",
-        "Land_Cargo_Tower_V1_No3_F",
-        "Land_Cargo_Tower_V1_No4_F",
-        "Land_Cargo_Tower_V1_No5_F",
-        "Land_Cargo_Tower_V1_No6_F",
-        "Land_Cargo_Tower_V1_No7_F",
-        "Land_Cargo_Tower_V1_F",
-        "Land_Cargo_Tower_V2_F",
-        "Land_Cargo_Tower_V3_F",
-        "Land_Cargo_Tower_V4_F",
-        "Land_TTowerBig_1_F",
-        "Land_TTowerBig_2_F"
-    ]],
-
-	["",0]
-];
+/*Moved to questsSettings.sqf*/
 
 //================================================================================================================
 //================================================================================================================
@@ -176,8 +21,8 @@ NWG_QST_lastQuestType = -1;
 //Quest creation
 NWG_QST_SER_CreateNew = {
     private _missionObjects = _this;
-    private _enabledQuests = NWG_QST_SER_Settings get "QUEST_ENABLED";
-    private _diceWeights = NWG_QST_SER_Settings get "QUEST_DICE_WEIGHTS";
+    private _enabledQuests = NWG_QST_Settings get "QUEST_ENABLED";
+    private _diceWeights = NWG_QST_Settings get "QUEST_DICE_WEIGHTS";
     private _dice = [];
 
     //Fill the dice
@@ -197,7 +42,7 @@ NWG_QST_SER_CreateNew = {
     };
     /*Interrogate officer quest*/
     if (QST_TYPE_INTERROGATE in _enabledQuests) then {
-        private _targetClassnames = NWG_QST_SER_Settings get "INTERROGATE_TARGETS";
+        private _targetClassnames = NWG_QST_Settings get "INTERROGATE_TARGETS";
         private _possibleTargets = (_missionObjects select OBJ_CAT_UNIT) select {(typeOf _x) in _targetClassnames};
         if ((count _possibleTargets) == 0) exitWith {};
         private _target = selectRandom _possibleTargets;
@@ -207,7 +52,7 @@ NWG_QST_SER_CreateNew = {
     };
     /*Destroy object quest*/
     if (QST_TYPE_DESTROY in _enabledQuests) then {
-        private _targetClassnames = NWG_QST_SER_Settings get "DESTROY_TARGETS";
+        private _targetClassnames = NWG_QST_Settings get "DESTROY_TARGETS";
         private _possibleTargets = (_missionObjects select OBJ_CAT_BLDG) select {(typeOf _x) in _targetClassnames};
         if ((count _possibleTargets) == 0) exitWith {};
         private _target = selectRandom _possibleTargets;
@@ -246,11 +91,11 @@ NWG_QST_SER_CreateNew = {
             _targetObj removeAllEventHandlers "HandleDamage";//Remove any other logic that may have been added
             _targetObj addEventHandler ["HandleDamage",{_this call NWG_QST_SER_OnWounded}];//Handle damage (+increases 'brake' counter)
             //Set initial 'brake' counter
-            private _toBreak = round (random (NWG_QST_SER_Settings get "INTERROGATE_BREAK_LIMIT"));
+            private _toBreak = round (random (NWG_QST_Settings get "INTERROGATE_BREAK_LIMIT"));
             _targetObj setVariable ["QST_toBreak",_toBreak,true];
             //Add action to interrogate target
-            private _title = NWG_QST_SER_Settings get "INTERROGATE_TITLE";
-            private _icon = NWG_QST_SER_Settings get "INTERROGATE_ICON";
+            private _title = NWG_QST_Settings get "INTERROGATE_TITLE";
+            private _icon = NWG_QST_Settings get "INTERROGATE_ICON";
             [_targetObj,_title,_icon,{_this call NWG_QST_CLI_OnInterrogateDone}] call NWG_fnc_addHoldActionGlobal;
         };
         case QST_TYPE_DESTROY: {
@@ -265,15 +110,15 @@ NWG_QST_SER_CreateNew = {
     };
 
     //Get quest NPC
-    private _npc = (NWG_QST_SER_Settings get "QUEST_GIVERS") param [_questType,""];
+    private _npc = (NWG_QST_Settings get "QUEST_GIVERS") param [_questType,""];
     if (_npc isEqualTo "") exitWith {
         (format ["NWG_QST_SER_CreateNew: No NPC assigned to quest type: '%1'",_questType]) call NWG_fnc_logError;
         false;
     };
 
     //Get quest reward
-    private _reward = (NWG_QST_SER_Settings get "QUEST_REWARDS") param [_questType,false];
-    private _multiplier = call (NWG_QST_SER_Settings get "FUNC_GET_REWARD_MULTIPLIER");
+    private _reward = (NWG_QST_Settings get "QUEST_REWARDS") param [_questType,false];
+    private _multiplier = call (NWG_QST_Settings get "FUNC_GET_REWARD_MULTIPLIER");
     _reward = switch (true) do {
         case (_reward isEqualType 1): {
             /*Number type - apply multiplier*/
@@ -289,7 +134,7 @@ NWG_QST_SER_CreateNew = {
         };
         default {
             (format ["NWG_QST_SER_CreateNew: Unknown reward type: '%1' for quest type: '%2'",_reward,_questType]) call NWG_fnc_logError;
-            NWG_QST_SER_Settings get "QUEST_DEFAULT_REWARD"
+            NWG_QST_Settings get "QUEST_DEFAULT_REWARD"
         };
     };
 
@@ -299,9 +144,9 @@ NWG_QST_SER_CreateNew = {
         private _markerName = format ["NWG_QST_Marker_%1",(round time)];//Hack to get a unique marker name
         private _marker = createMarkerLocal [_markerName,_this];
         _marker setMarkerShapeLocal "icon";
-        _marker setMarkerTypeLocal (NWG_QST_SER_Settings get "MARKER_TYPE");
-        _marker setMarkerColorLocal (NWG_QST_SER_Settings get "MARKER_COLOR");
-        _marker setMarkerSize [(NWG_QST_SER_Settings get "MARKER_SIZE"),(NWG_QST_SER_Settings get "MARKER_SIZE")];
+        _marker setMarkerTypeLocal (NWG_QST_Settings get "MARKER_TYPE");
+        _marker setMarkerColorLocal (NWG_QST_Settings get "MARKER_COLOR");
+        _marker setMarkerSize [(NWG_QST_Settings get "MARKER_SIZE"),(NWG_QST_Settings get "MARKER_SIZE")];
         // _marker setMarkerText _text; //Done on Client Side for localization purposes
         _marker
     };
@@ -355,14 +200,14 @@ NWG_QST_SER_OnQuestDone = {
     if (_questType isEqualTo -1) exitWith {
         (format ["NWG_QST_SER_OnQuestDone: No quest type found"]) call NWG_fnc_logError;
     };
-    private _locKey = (NWG_QST_SER_Settings get "LOC_QUEST_DONE") param [_questType,""];
+    private _locKey = (NWG_QST_Settings get "LOC_QUEST_DONE") param [_questType,""];
     if (_locKey isEqualTo "") exitWith {
         (format ["NWG_QST_SER_OnQuestDone: No localization key found for quest type: '%1'",_questType]) call NWG_fnc_logError;
     };
     if (_locKey isEqualTo false) exitWith {};//Chat message disabled for this quest type
     private _winnerStr = if (_playerName isNotEqualTo QST_UNKNOWN_WINNER)
         then {_playerName}
-        else {NWG_QST_SER_Settings get "LOC_UNKONW_WINNER"};
+        else {NWG_QST_Settings get "LOC_UNKONW_WINNER"};
     [_locKey,_winnerStr] call NWG_fnc_sideChatAll;
 };
 
@@ -395,19 +240,19 @@ NWG_QST_SER_OnQuestClosed = {
         if (_questType isEqualTo -1) exitWith {
             (format ["NWG_QST_SER_OnQuestClosed: No quest type found"]) call NWG_fnc_logError;
         };
-        private _locKey = (NWG_QST_SER_Settings get "LOC_QUEST_CLOSED") param [_questType,""];
+        private _locKey = (NWG_QST_Settings get "LOC_QUEST_CLOSED") param [_questType,""];
         if (_locKey isEqualTo "") exitWith {
             (format ["NWG_QST_SER_OnQuestClosed: No localization key found for quest type: '%1'",_questType]) call NWG_fnc_logError;
         };
         if (_locKey isEqualTo false) exitWith {};//Chat message disabled for this quest type
         private _winnerStr = if (_playerName isNotEqualTo QST_UNKNOWN_WINNER)
             then {_playerName}
-            else {NWG_QST_SER_Settings get "LOC_UNKONW_WINNER"};
+            else {NWG_QST_Settings get "LOC_UNKONW_WINNER"};
         [_locKey,_winnerStr] call NWG_fnc_sideChatAll;
     };
 
     //Reward players
-    private _funcRewardPlayer = NWG_QST_SER_Settings get "FUNC_REWARD_PLAYER";
+    private _funcRewardPlayer = NWG_QST_Settings get "FUNC_REWARD_PLAYER";
     {
         [_x,_reward] call _funcRewardPlayer;
     } forEach ((units (group _player)) select {isPlayer _x});

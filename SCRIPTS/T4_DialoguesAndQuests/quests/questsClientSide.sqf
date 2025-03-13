@@ -3,26 +3,7 @@
 //================================================================================================================
 //================================================================================================================
 //Settings
-NWG_QST_CL_Settings = createHashMapFromArray [
-	/*Localization*/
-	["LOC_NPC_TO_MARKER_TEXT",createHashMapFromArray [
-		[NPC_TAXI,"#NPC_TAXI_NAME#"],
-		[NPC_MECH,"#NPC_MECH_NAME#"],
-		[NPC_TRDR,"#NPC_TRDR_NAME#"],
-		[NPC_MEDC,"#NPC_MEDC_NAME#"],
-		[NPC_COMM,"#NPC_COMM_NAME#"],
-		[NPC_ROOF,"#NPC_ROOF_NAME#"]
-	]],
-	["INTERROGATE_FAILED",["#QST_INTERROGATE_FAILED_01#","#QST_INTERROGATE_FAILED_02#","#QST_INTERROGATE_FAILED_03#"]],
-	["INTERROGATE_DONE",["#QST_INTERROGATE_DONE_01#","#QST_INTERROGATE_DONE_02#","#QST_INTERROGATE_DONE_03#"]],
-	["INTERROGATE_SUCCESS",["#QST_INTERROGATE_SUCCESS_01#","#QST_INTERROGATE_SUCCESS_02#","#QST_INTERROGATE_SUCCESS_03#"]],
-
-	/*External functions*/
-	["FUNC_GET_PLAYER_VEHICLES",{_this call NWG_fnc_vownGetOwnedVehicles}],
-	["FUNC_DELETE_VEHICLE",{_this call NWG_fnc_vshopDeleteVehicle}],
-
-    ["",0]
-];
+/*Moved to questsSettings.sqf*/
 
 //================================================================================================================
 //================================================================================================================
@@ -57,7 +38,7 @@ NWG_QST_CLI_OnQuestCreated = {
 	};
 
 	//Localize quest marker text
-	private _localization = NWG_QST_CL_Settings get "LOC_NPC_TO_MARKER_TEXT";
+	private _localization = NWG_QST_Settings get "LOC_NPC_TO_MARKER_TEXT";
 	if !(_npc in _localization) exitWith {
 		(format ["NWG_QST_CLI_OnQuestCreated: No localization for NPC: '%1'",_npc]) call NWG_fnc_logError;
 	};
@@ -180,7 +161,7 @@ NWG_QST_CLI_CloseQuest = {
 		case QST_TYPE_VEH_STEAL: {
 			private _targetVehicle = [player,_questData] call NWG_QST_CLI_GetTargetVehicle;
 			if (isNull _targetVehicle) exitWith {"NWG_QST_CLI_CloseQuest: Target vehicle is null" call NWG_fnc_logError};
-			_targetVehicle call (NWG_QST_CL_Settings get "FUNC_DELETE_VEHICLE");
+			_targetVehicle call (NWG_QST_Settings get "FUNC_DELETE_VEHICLE");
 		};
 		default {};//Do nothing
 	};
@@ -221,7 +202,7 @@ NWG_QST_CLI_GetTargetVehicle = {
 	params ["_player","_questData"];
 	private _questTarget = _questData param [QST_DATA_TARGET_OBJECT,objNull];
 	private _questTargetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
-	private _ownedVehicles = _player call (NWG_QST_CL_Settings get "FUNC_GET_PLAYER_VEHICLES");
+	private _ownedVehicles = _player call (NWG_QST_Settings get "FUNC_GET_PLAYER_VEHICLES");
 	if !(_ownedVehicles isEqualType []) exitWith {
 		(format ["NWG_QST_CLI_GetTargetVehicle: Invalid owned vehicles: '%1'",_ownedVehicles]) call NWG_fnc_logError;
 		false
@@ -244,9 +225,9 @@ NWG_QST_CLI_OnInterrogateDone = {
 
 	//Send system chat message
 	private _message = switch (true) do {
-		case (_isQuestDone): {selectRandom (NWG_QST_CL_Settings get "INTERROGATE_DONE")};
-		case (_isSuccess): {selectRandom (NWG_QST_CL_Settings get "INTERROGATE_SUCCESS")};
-		default {selectRandom (NWG_QST_CL_Settings get "INTERROGATE_FAILED")};
+		case (_isQuestDone): {selectRandom (NWG_QST_Settings get "INTERROGATE_DONE")};
+		case (_isSuccess): {selectRandom (NWG_QST_Settings get "INTERROGATE_SUCCESS")};
+		default {selectRandom (NWG_QST_Settings get "INTERROGATE_FAILED")};
 	};
 	[
 		"[%1] %2",
