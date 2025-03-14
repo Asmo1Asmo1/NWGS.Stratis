@@ -355,7 +355,15 @@ NWG_DLGHLP_QST_GenerateQuestAnswers = {
 	//Return 'I've done it' TRUE answer
 	private _doneKey = selectRandom (NWG_DLGHLP_Settings get "QST_DONE_A_KEYS");
 	if (_npcName call NWG_fnc_qstCanCloseQuest) exitWith {
-		[[_doneKey,(format ["%1_QST_QUEST_DONE_TRUE",_npcName])]]
+		private _closeScript = switch (_npcName) do {
+			case NPC_TAXI: {{NPC_TAXI call NWG_fnc_qstCloseQuest}};
+			case NPC_MECH: {{NPC_MECH call NWG_fnc_qstCloseQuest}};
+			case NPC_TRDR: {{NPC_TRDR call NWG_fnc_qstCloseQuest}};
+			case NPC_MEDC: {{NPC_MEDC call NWG_fnc_qstCloseQuest}};
+			case NPC_COMM: {{NPC_COMM call NWG_fnc_qstCloseQuest}};
+			case NPC_ROOF: {{NPC_ROOF call NWG_fnc_qstCloseQuest}};
+		};//Dirty hack to avoid caching npc name
+		[[_doneKey,(format ["%1_QST_QUEST_DONE_TRUE",_npcName]),_closeScript]]
 	};
 
 	//Return 'I've done it' FALSE answer
@@ -396,11 +404,6 @@ NWG_DLGHLP_GetRndQuestDoneTrueQ = {
 
 NWG_DLGHLP_GetRndQuestCloseA = {
 	selectRandom (NWG_DLGHLP_Settings get "QST_CLOSE_KEYS")
-};
-
-NWG_DLGHLP_CloseQuest = {
-	// private _npcName = _this;
-	_this call NWG_fnc_qstCloseQuest;
 };
 
 //================================================================================================================

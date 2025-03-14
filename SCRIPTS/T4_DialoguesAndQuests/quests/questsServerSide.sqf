@@ -50,6 +50,19 @@ NWG_QST_SER_CreateNew = {
             _dice pushBack [QST_TYPE_INTERROGATE,_target,(typeOf _target)];
         };
     };
+    /*Hack data quest*/
+    if (QST_TYPE_HACK_DATA in _enabledQuests) then {
+        private _targetClassnames = NWG_QST_Settings get "HACK_DATA_TARGETS";
+        private _possibleTargets = (_missionObjects select OBJ_CAT_DECO) select {
+            (typeOf _x) in _targetClassnames && {
+            !(isSimpleObject _x)}
+        };
+        if ((count _possibleTargets) == 0) exitWith {};
+        private _target = selectRandom _possibleTargets;
+        for "_i" from 1 to (_diceWeights select QST_TYPE_HACK_DATA) do {
+            _dice pushBack [QST_TYPE_HACK_DATA,_target,(typeOf _target)];
+        };
+    };
     /*Destroy object quest*/
     if (QST_TYPE_DESTROY in _enabledQuests) then {
         private _targetClassnames = NWG_QST_Settings get "DESTROY_TARGETS";
@@ -75,11 +88,11 @@ NWG_QST_SER_CreateNew = {
         {
             if ((_x select QST_DATA_TYPE) == _lastQuestType) then {_toRemove pushBack (_dice deleteAt _forEachIndex)};
         } forEachReversed _dice;
-        if ((count _dice) == 0) then {_dice append _toRemove};//That was the only quest available, so we undo deletion
+        if ((count _dice) == 0) then {_dice append _toRemove};//That was the only quest available - undo deletion
     };
 
     //Roll the dice
-    _dice = _dice call NWG_fnc_arrayShuffle;
+    _dice = _dice call NWG_fnc_arrayShuffle;//Works better than selectRandom
     (_dice select 0) params ["_questType","_targetObj","_targetClassname"];
     _dice resize 0;//Clear the dice
     NWG_QST_lastQuestType = _questType;//Save last quest type
@@ -96,7 +109,13 @@ NWG_QST_SER_CreateNew = {
             //Add action to interrogate target
             private _title = NWG_QST_Settings get "INTERROGATE_TITLE";
             private _icon = NWG_QST_Settings get "INTERROGATE_ICON";
-            [_targetObj,_title,_icon,{_this call NWG_QST_CLI_OnInterrogateDone}] call NWG_fnc_addHoldActionGlobal;
+            [_targetObj,_title,_icon,{_this call NWG_QST_CLI_OnInterrogateDone},{call NWG_QST_CLI_OnInterrogateStart}] call NWG_fnc_addHoldActionGlobal;
+        };
+        case QST_TYPE_HACK_DATA: {
+            //Set initial state
+            _targetObj setVariable ["QST_isHacked",false,true];
+            //Setup hacking for current and JIP players
+            [_targetObj,"NWG_QST_CLI_OnHackCreated",[]] call NWG_fnc_rqAddCommand;
         };
         case QST_TYPE_DESTROY: {
             //Add 'Killed' EH to register player who did it

@@ -216,32 +216,111 @@ NWG_QST_CLI_GetTargetVehicle = {
 	if (_i != -1) then {_ownedVehicles select _i} else {objNull}
 };
 
+NWG_QST_CLI_OnInterrogateStart = {
+	//Play animation
+	player playMoveNow (selectRandom ["Acts_Executioner_Backhand","Acts_Executioner_Forehand"]);
+	player playMove "Acts_Executioner_Kill_End";//Exit animation loop
+};
 NWG_QST_CLI_OnInterrogateDone = {
 	params ["_targetObj","_player"];
+
 	//Get values
 	private _targetName = name _targetObj;
-	private _isSuccess = (_targetObj getVariable ["QST_toBreak",0]) <= 0;
+	private _toBreak = _targetObj getVariable ["QST_toBreak",0];
+	private _isSuccess = _toBreak <= 0;
 	private _isQuestDone = !isNil "NWG_QST_State" && {NWG_QST_State >= QST_STATE_DONE};
 
-	//Send system chat message
+	//Define outcome
 	private _message = switch (true) do {
-		case (_isQuestDone): {selectRandom (NWG_QST_Settings get "INTERROGATE_DONE")};
-		case (_isSuccess): {selectRandom (NWG_QST_Settings get "INTERROGATE_SUCCESS")};
-		default {selectRandom (NWG_QST_Settings get "INTERROGATE_FAILED")};
+		case (_isQuestDone): {
+			/*Already done - just a message, nothing else to do*/
+			selectRandom (NWG_QST_Settings get "INTERROGATE_DONE")
+		};
+		case (_isSuccess): {
+			/*Success - report quest done and send a message*/
+			_player remoteExec ["NWG_fnc_qstOnQuestDone",2];
+			selectRandom (NWG_QST_Settings get "INTERROGATE_SUCCESS")
+		};
+		default {
+			/*Failed - deplete break counter and send a message*/
+			_targetObj setVariable ["QST_toBreak",_toBreak - 1,true];
+			selectRandom (NWG_QST_Settings get "INTERROGATE_FAILED")
+		};
 	};
+
+	//Send system chat message
 	[
 		"[%1] %2",
 		_targetName,
 		_message
 	] call NWG_fnc_systemChatAll;
-
-	//If failed or quest is already done - exit
-	if (!_isSuccess || _isQuestDone) exitWith {};
-
-	//If succeed - report quest done
-	_player remoteExec ["NWG_fnc_qstOnQuestDone",2];
 };
 
+NWG_QST_CLI_OnHackCreated = {
+	params ["_targetObj"];
+	//Check for JIP players
+	if (_targetObj getVariable ["QST_isHacked",false]) exitWith {_targetObj call NWG_QST_CLI_OnHackDone};
+
+	//Set 'hackable' textures
+	[_targetObj,false] call NWG_QST_CLI_SetHackTextures;
+
+	//Add action
+	private _title = NWG_QST_Settings get "HACK_DATA_TITLE";
+	private _icon = NWG_QST_Settings get "HACK_DATA_ICON";
+	private _actionId = [_targetObj,_title,_icon,{_this call NWG_QST_CLI_OnHackDo},{call NWG_QST_CLI_OnHackStart}] call NWG_fnc_addHoldAction;
+	if (isNil "_actionId") exitWith {
+		"NWG_QST_CLI_OnHackCreated: Failed to add action" call NWG_fnc_logError;
+		false
+	};
+
+	//Save action ID for later removal
+	_targetObj setVariable ["QST_hackActionId",_actionId];//Set locally
+};
+NWG_QST_CLI_OnHackStart = {
+	//Play animation
+	player playMoveNow "Acts_Accessing_Computer_in";
+	player playMove "Acts_Accessing_Computer_Loop";
+	player playMove "Acts_Accessing_Computer_Out_Short";
+};
+NWG_QST_CLI_OnHackDo = {
+	params ["_targetObj","_player"];
+	//Check again just in case
+	if (_targetObj getVariable ["QST_isHacked",false]) exitWith {};
+
+	//Mark hacked for everyone
+	_targetObj setVariable ["QST_isHacked",true,true];
+	_targetObj remoteExec ["NWG_fnc_qstOnHackDone",0];
+
+	//Report to server
+	_player remoteExec ["NWG_fnc_qstOnQuestDone",2];
+};
+NWG_QST_CLI_OnHackDone = {
+	private _targetObj = _this;
+
+	//Set 'hacked' textures
+	[_targetObj,true] call NWG_QST_CLI_SetHackTextures;
+
+	//Remove action
+	private _actionId = _targetObj getVariable ["QST_hackActionId",-1];
+	if (_actionId != -1) then {_targetObj removeAction _actionId};
+};
+NWG_QST_CLI_SetHackTextures = {
+	params ["_targetObj","_isHacked"];
+	private _textures = if (_isHacked)
+		then {NWG_QST_Settings get "HACK_TEXTURES_HACKED"}
+		else {NWG_QST_Settings get "HACK_TEXTURES_UNHACKED"};
+
+	private _texturePositions = [];
+	{
+		if ("#" in _x) then {_texturePositions pushBack _forEachIndex; continue};//Color as texture - valid
+		if ("military" in _x) then {continue};//Case for rugged military objects - skip
+		_texturePositions pushBack _forEachIndex;
+	} forEach (getObjectTextures _targetObj);
+
+	{
+		_targetObj setObjectTexture [_x,(selectRandom _textures)];
+	} forEach _texturePositions;
+};
 //================================================================================================================
 //================================================================================================================
 call _Init;

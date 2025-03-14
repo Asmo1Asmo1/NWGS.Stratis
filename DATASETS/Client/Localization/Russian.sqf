@@ -723,6 +723,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //quests
     /*Quest actions*/
     ["#QST_INTERROGATE_TITLE#","Допросить"],
+    ["#QST_HACK_DATA_TITLE#","Взломать"],
     /*Quest chat messages*/
     ["#QST_VEH_STEAL_CLOSED#","%1 доставил машину и закрыл задание"],
     ["#QST_INTERROGATE_FAILED_01#","Я тебе ничего не скажу!"],
@@ -736,6 +737,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_INTERROGATE_SUCCESS_03#","Ладно, ладно, я расскажу всё что знаю"],
     ["#QST_INTERROGATE_DONE#","%1 допросил цель"],
     ["#QST_INTERROGATE_CLOSED#","%1 доложил командиру и закрыл задание"],
+    ["#QST_HACK_DATA_DONE#","%1 взломал целевой компьютер"],
+    ["#QST_HACK_DATA_CLOSED#","%1 доложил командиру и закрыл задание"],
     ["#QST_DESTROY_DONE#","%1 уничтожил цель"],
     ["#QST_DESTROY_CLOSED#","%1 доложил командиру и закрыл задание"],
     ["#QST_UNKONW_WINNER#","Кто-то"],
@@ -823,7 +826,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DONE_FALSE_MEDC_01#","Сынок, я старый, а не глупый|Возвращайся когда закончишь"],
     ["#QST_DONE_TRUE_MEDC_01#","Спасибо, я не забуду|...|Что? Тебе что-то нужно?|...А, компенсация, да, вот она"],
     ["#QST_DONE_FALSE_COMM_01#","О, да? Так ли это?|А вот мои источники не подтверждают выполнение|Странно, да?|Почему бы тебе не попробовать что-то другое в следующий раз?"],
-    ["#QST_DONE_TRUE_COMM_01#","Вольно, солдат|Хорошая работа|Компенсация, как и обещал, должна прийти в ближайшее время"],
+    ["#QST_DONE_TRUE_COMM_01#","Вольно, солдат|Хорошая работа|Компенсация, как и обещал, уже должна была прийти"],
     ["#QST_DONE_FALSE_ROOF_01#","Эй, 'дружище'|Нет товара - нет оплаты|Заныкал в хранилище?|Доставай и приноси"],
     ["#QST_DONE_TRUE_ROOF_01#","Хехe, вот это уйдёт по хорошей цене|Награда?|Ладно, хорошо, вот|И не говори никому!"],
     /*Quest close*/

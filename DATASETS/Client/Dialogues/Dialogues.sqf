@@ -506,7 +506,7 @@ NWG_DialogueTree = createHashMapFromArray [
 		"MECH_QST_QUEST_DONE_TRUE",	[
 			Q_ONE,	["%1",{"MECH" call NWG_DLGHLP_GetRndQuestDoneTrueQ}],
 			A_DEF,	[
-				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT,{"MECH" call NWG_DLGHLP_CloseQuest}]
+				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT]
 			]
 		]
 	],
@@ -1046,7 +1046,7 @@ NWG_DialogueTree = createHashMapFromArray [
 		"COMM_QST_QUEST_DONE_TRUE",	[
 			Q_ONE,	["%1",{"COMM" call NWG_DLGHLP_GetRndQuestDoneTrueQ}],
 			A_DEF,	[
-				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT,{"COMM" call NWG_DLGHLP_CloseQuest}]
+				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT]
 			]
 		]
 	],

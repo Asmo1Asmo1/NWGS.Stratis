@@ -76,7 +76,7 @@ NWG_QST_Settings = createHashMapFromArray [
 	["LOC_QUEST_DONE",[
 		/*QST_TYPE_VEH_STEAL:*/ false,
 		/*QST_TYPE_INTERROGATE:*/ "#QST_INTERROGATE_DONE#",
-		/*QST_TYPE_HACK_DATA:*/ false,
+		/*QST_TYPE_HACK_DATA:*/ "#QST_HACK_DATA_DONE#",
 		/*QST_TYPE_DESTROY:*/ "#QST_DESTROY_DONE#",
 		/*QST_TYPE_INTEL:*/ false,
 		/*QST_TYPE_INFECTION:*/ false,
@@ -88,7 +88,7 @@ NWG_QST_Settings = createHashMapFromArray [
 	["LOC_QUEST_CLOSED",[
 		/*QST_TYPE_VEH_STEAL:*/ "#QST_VEH_STEAL_CLOSED#",
 		/*QST_TYPE_INTERROGATE:*/ "#QST_INTERROGATE_CLOSED#",
-		/*QST_TYPE_HACK_DATA:*/ false,
+		/*QST_TYPE_HACK_DATA:*/ "#QST_HACK_DATA_CLOSED#",
 		/*QST_TYPE_DESTROY:*/ "#QST_DESTROY_CLOSED#",
 		/*QST_TYPE_INTEL:*/ false,
 		/*QST_TYPE_INFECTION:*/ false,
@@ -151,6 +151,8 @@ NWG_QST_Settings = createHashMapFromArray [
 	]],
 	["HACK_DATA_TITLE","#QST_HACK_DATA_TITLE#"],
 	["HACK_DATA_ICON","a3\ui_f\data\igui\cfg\holdactions\holdaction_hack_ca.paa"],
+	["HACK_TEXTURES_UNHACKED",["a3\structures_f_heli\items\electronics\data\tablet_screen_co.paa"]],
+	["HACK_TEXTURES_HACKED",["a3\structures_f_epc\items\electronics\data\electronics_screens_laptop_device_co.paa","a3\structures_f\items\electronics\data\electronics_screens_laptop_co.paa"]],
 
 	/*Destroy object quest*/
 	["DESTROY_TARGETS",[

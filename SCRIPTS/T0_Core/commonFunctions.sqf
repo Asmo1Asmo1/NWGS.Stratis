@@ -345,18 +345,18 @@ NWG_fnc_addAction = {
 //Adds hold action to object on every client (MP and JIP compatible, action title localized)
 //note: action radius and conditions are hardcoded
 NWG_fnc_addHoldActionGlobal = {
-    params ["_object","_title","_icon","_onCompleted"];
+    params ["_object","_title","_icon","_onCompleted",["_onStarted",{}]];
     if (isNull _object) exitWith {
         "NWG_fnc_addHoldActionGlobal: object is Null" call NWG_fnc_logError;
     };
 
-    [_object,"NWG_fnc_addHoldAction",[_title,_icon,_onCompleted]] call NWG_fnc_rqAddCommand;
+    [_object,"NWG_fnc_addHoldAction",[_title,_icon,_onCompleted,_onStarted]] call NWG_fnc_rqAddCommand;
 };
 
 //Adds hold action to object
 //note: action radius and conditions are hardcoded
 NWG_fnc_addHoldAction = {
-    params ["_object","_title","_icon","_onCompleted"];
+    params ["_object","_title","_icon","_onCompleted",["_onStarted",{}]];
     if (!hasInterface || {isNull _object}) exitWith {};
 
     [
@@ -366,7 +366,7 @@ NWG_fnc_addHoldAction = {
         _icon,                           // Progress icon shown on screen
         "(_this distance _target) < 3",  // Condition for the action to start
         "(_caller distance _target) < 3",// Condition for the action to progress
-        {},                              // Code executed when action starts
+        _onStarted,                      // Code executed when action starts
         {},                              // Code executed on every progress tick
         _onCompleted,                    // Code executed on completion
         {},                              // Code executed on interrupted
