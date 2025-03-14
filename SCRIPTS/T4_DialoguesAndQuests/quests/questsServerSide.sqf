@@ -25,53 +25,50 @@ NWG_QST_SER_CreateNew = {
     private _diceWeights = NWG_QST_Settings get "QUEST_DICE_WEIGHTS";
     private _dice = [];
 
+    //Prepare dice fill script
+    private _fillDice = {
+        params ["_questType","_objCat","_selectBy"];
+        private _possibleTargets = (_missionObjects select _objCat) select _selectBy;
+        if ((count _possibleTargets) == 0) exitWith {};
+        private _target = selectRandom _possibleTargets;
+        for "_i" from 1 to (_diceWeights select _questType) do {
+            _dice pushBack [_questType,_target,(typeOf _target)];
+        };
+    };
+
     //Fill the dice
     /*Steal vehicle quest*/
     if (QST_TYPE_VEH_STEAL in _enabledQuests) then {
-        private _possibleTargets = (_missionObjects select OBJ_CAT_VEHC) select {
+        private _selectBy = {
             !(unitIsUAV _x) && {
             (count (crew _x)) == 0 && {
             !(_x isKindOf "Ship") && {
             !(_x isKindOf "Plane")}}}
         };
-        if ((count _possibleTargets) == 0) exitWith {};
-        private _target = selectRandom _possibleTargets;
-        for "_i" from 1 to (_diceWeights select QST_TYPE_VEH_STEAL) do {
-            _dice pushBack [QST_TYPE_VEH_STEAL,_target,(typeOf _target)];
-        };
+        [QST_TYPE_VEH_STEAL,OBJ_CAT_VEHC,_selectBy] call _fillDice;
     };
     /*Interrogate officer quest*/
     if (QST_TYPE_INTERROGATE in _enabledQuests) then {
-        private _targetClassnames = NWG_QST_Settings get "INTERROGATE_TARGETS";
-        private _possibleTargets = (_missionObjects select OBJ_CAT_UNIT) select {(typeOf _x) in _targetClassnames};
-        if ((count _possibleTargets) == 0) exitWith {};
-        private _target = selectRandom _possibleTargets;
-        for "_i" from 1 to (_diceWeights select QST_TYPE_INTERROGATE) do {
-            _dice pushBack [QST_TYPE_INTERROGATE,_target,(typeOf _target)];
-        };
+        private _selectBy = {(typeOf _x) in (NWG_QST_Settings get "INTERROGATE_TARGETS")};
+        [QST_TYPE_INTERROGATE,OBJ_CAT_UNIT,_selectBy] call _fillDice;
     };
     /*Hack data quest*/
     if (QST_TYPE_HACK_DATA in _enabledQuests) then {
-        private _targetClassnames = NWG_QST_Settings get "HACK_DATA_TARGETS";
-        private _possibleTargets = (_missionObjects select OBJ_CAT_DECO) select {
-            (typeOf _x) in _targetClassnames && {
+        private _selectBy = {
+            (typeOf _x) in (NWG_QST_Settings get "HACK_DATA_TARGETS") && {
             !(isSimpleObject _x)}
         };
-        if ((count _possibleTargets) == 0) exitWith {};
-        private _target = selectRandom _possibleTargets;
-        for "_i" from 1 to (_diceWeights select QST_TYPE_HACK_DATA) do {
-            _dice pushBack [QST_TYPE_HACK_DATA,_target,(typeOf _target)];
-        };
+        [QST_TYPE_HACK_DATA,OBJ_CAT_DECO,_selectBy] call _fillDice;
     };
     /*Destroy object quest*/
     if (QST_TYPE_DESTROY in _enabledQuests) then {
-        private _targetClassnames = NWG_QST_Settings get "DESTROY_TARGETS";
-        private _possibleTargets = (_missionObjects select OBJ_CAT_BLDG) select {(typeOf _x) in _targetClassnames};
-        if ((count _possibleTargets) == 0) exitWith {};
-        private _target = selectRandom _possibleTargets;
-        for "_i" from 1 to (_diceWeights select QST_TYPE_DESTROY) do {
-            _dice pushBack [QST_TYPE_DESTROY,_target,(typeOf _target)];
-        };
+        private _selectBy = {(typeOf _x) in (NWG_QST_Settings get "DESTROY_TARGETS")};
+        [QST_TYPE_DESTROY,OBJ_CAT_BLDG,_selectBy] call _fillDice;
+    };
+    /*Intel quest*/
+    if (QST_TYPE_INTEL in _enabledQuests) then {
+        private _selectBy = {(typeOf _x) in (NWG_QST_Settings get "INTEL_ITEMS_OBJECTS")};
+        [QST_TYPE_INTEL,OBJ_CAT_DECO,_selectBy] call _fillDice;
     };
 
     //Check dice
@@ -143,13 +140,20 @@ NWG_QST_SER_CreateNew = {
             /*Number type - apply multiplier*/
             _reward * _multiplier
         };
-        case (_reward isEqualType ""): {
-            /*String type - 'reward as a promise' (localization key) - actual reward will be calculated on client side*/
-            _reward
-        };
         case (_reward isEqualType {}): {
             /*Code type - reward depends on target classname*/
             [_targetClassname,_multiplier] call _reward
+        };
+        case (_reward isEqualType ""): {
+            /*String type - Reward is defined 'per item' and this is items collection name from settings*/
+            private _items = NWG_QST_Settings get _reward;
+            private _itemPriceMult = _multiplier call (NWG_QST_Settings get "FUNC_GET_ITEM_PRICE_MULT");
+            private _getPriceFunc = NWG_QST_Settings get "FUNC_GET_ITEM_PRICE";
+            private _priceMap = createHashMapFromArray (_items apply {[_x,(round ((_x call _getPriceFunc) * _itemPriceMult))]});
+            [
+                /*QST_REWARD_PER_ITEM_PERCENTAGE:*/(round (_itemPriceMult*100)),
+                /*QST_REWARD_PER_ITEM_PRICE_MAP:*/_priceMap
+            ]
         };
         default {
             (format ["NWG_QST_SER_CreateNew: Unknown reward type: '%1' for quest type: '%2'",_reward,_questType]) call NWG_fnc_logError;
@@ -247,13 +251,7 @@ NWG_QST_SER_OnQuestClosed = {
     publicVariable "NWG_QST_State";
     publicVariable "NWG_QST_WinnerName";
 
-    //Run type-specific quest finalization logic
-    private _questType = NWG_QST_Data param [QST_DATA_TYPE,-1];
-    switch (_questType) do {
-        default {};//Do nothing
-    };
-
-    //Notify clients (in separate scope to avoid breaking rewarding in case of errors
+    //Notify clients (in separate scope to avoid breaking rewarding in case of errors)
     call {
         private _questType = NWG_QST_Data param [QST_DATA_TYPE,-1];
         if (_questType isEqualTo -1) exitWith {

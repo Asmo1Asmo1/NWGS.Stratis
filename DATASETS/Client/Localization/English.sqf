@@ -722,6 +722,12 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_HACK_DATA_CLOSED#","%1 reported to commander and closed the task"],
     ["#QST_DESTROY_DONE#","%1 destroyed the target"],
     ["#QST_DESTROY_CLOSED#","%1 reported to commander and closed the task"],
+    ["#QST_INTEL_CLOSED#","%1 handed over the intel and closed the task"],
+    ["#QST_INFECTION_CLOSED#","%1 reported to doc and closed the task"],
+    ["#QST_WOUNDED_CLOSED#","%1 brought the wounded to base and closed the task"],
+    ["#QST_MED_SUPPLY_CLOSED#","%1 delivered the med supplies and closed the task"],
+    ["#QST_WEAPON_CLOSED#","%1 delivered the weapon and closed the task"],
+    ["#QST_ELECTRONICS_CLOSED#","%1 handed over the electronics and closed the task"],
     ["#QST_UNKONW_WINNER#","Somebody"],
     ["#QST_CLOSE_ERROR#","Failed to close quest"],
     /*Quest start*/
@@ -755,6 +761,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DISPLAY_ELECTRONICS#","Find and deliver (example: %1)"],
     ["#QST_DISPLAY_TOOLS#","Find and deliver (example: %1)"],
     ["#QST_REWARD_TEMPLATE#","Reward: 1 Exp, 1 lvl and %1"],
+    ["#QST_REWARD_TEMPLATE_PER_ITEM#","%1%% of price for each item"],
     /*Quest descriptions*/
     ["#QST_QD_VEH_STEAL_01#","I've got a client ready to pay extra for that beauty|Can you deliver it here?|No scratches preferred"],
     ["#QST_QD_VEH_STEAL_02#","I have a special request|Our client wants this vehicle|The payment is good|Very good even"],
@@ -807,7 +814,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DONE_FALSE_MEDC_01#","Son, I'm old, not stupid|Come back when you're done"],
     ["#QST_DONE_TRUE_MEDC_01#","Thank you, I won't forget that|...|What? You need something?|...Ah, the compensation, right|Here you go"],
     ["#QST_DONE_FALSE_COMM_01#","Oh yeah? Is that so?|Well, my sources do not confirm that|How strange, right?|Why don't you try something better next time"],
-    ["#QST_DONE_TRUE_COMM_01#","At ease, soldier|Good job|Compensation, as promised, should on your account"],
+    ["#QST_DONE_TRUE_COMM_01#","At ease, soldier|Good job|Compensation, as promised, should be on your account"],
     ["#QST_DONE_FALSE_ROOF_01#","Hey, 'buddy'|I don't see the goods - I don't pay the price|Got it in your storage?|Bring it here"],
     ["#QST_DONE_TRUE_ROOF_01#","Hehe, now that will be a good one|A reward?|All right, fine, here you go|And don't tell anyone!"],
     /*Quest close*/

@@ -96,12 +96,20 @@ NWG_QST_CLI_CanCloseQuest = {
 			player call NWG_QST_CLI_IsWinnerByName}}
 		};
 
+		/*Winner is defined by wether or not they have at least one item from the price map*/
+		case QST_TYPE_INTEL;
+		case QST_TYPE_MED_SUPPLY;
+		case QST_TYPE_ELECTRONICS: {
+			private _priceMap = (_questData param [QST_DATA_REWARD,[]]) param [QST_REWARD_PER_ITEM_PRICE_MAP,createHashMap];
+			private _hasItem = false;
+			private _hasItemFunc = NWG_QST_Settings get "FUNC_HAS_ITEM";
+			{if (_x call _hasItemFunc) exitWith {_hasItem = true}} forEach _priceMap;
+			_hasItem
+		};
+
 		case QST_TYPE_INFECTION: {true};//TODO
 		case QST_TYPE_WOUNDED: {true};//TODO
-		case QST_TYPE_INTEL: {true};//TODO
-		case QST_TYPE_MED_SUPPLY: {true};//TODO
 		case QST_TYPE_WEAPON: {true};//TODO
-		case QST_TYPE_ELECTRONICS: {true};//TODO
 		default {false};
 	};
 
@@ -155,17 +163,6 @@ NWG_QST_CLI_CloseQuest = {
 		false
 	};
 
-	//Run quest-specific logic
-	private _questType = _questData param [QST_DATA_TYPE,-1];
-	switch (_questType) do {
-		case QST_TYPE_VEH_STEAL: {
-			private _targetVehicle = [player,_questData] call NWG_QST_CLI_GetTargetVehicle;
-			if (isNull _targetVehicle) exitWith {"NWG_QST_CLI_CloseQuest: Target vehicle is null" call NWG_fnc_logError};
-			_targetVehicle call (NWG_QST_Settings get "FUNC_DELETE_VEHICLE");
-		};
-		default {};//Do nothing
-	};
-
 	//(Re)calculate reward
 	private _questType = _questData param [QST_DATA_TYPE,-1];
 	private _reward = _questData param [QST_DATA_REWARD,false];
@@ -175,20 +172,51 @@ NWG_QST_CLI_CloseQuest = {
 		case QST_TYPE_INTERROGATE;
 		case QST_TYPE_HACK_DATA;
 		case QST_TYPE_DESTROY;
-		case QST_TYPE_INTEL;
-		case QST_TYPE_WOUNDED: {_reward};
+		case QST_TYPE_WOUNDED;
+		case QST_TYPE_WEAPON: {_reward};
 
-		/*Reward calculated on client side*/
+		/*Reward calculated on client side per item*/
+		case QST_TYPE_INTEL;
+		case QST_TYPE_MED_SUPPLY;
+		case QST_TYPE_ELECTRONICS: {
+			private _priceMap = (_questData param [QST_DATA_REWARD,[]]) param [QST_REWARD_PER_ITEM_PRICE_MAP,createHashMap];
+			private _getCountFunc = NWG_QST_Settings get "FUNC_GET_ITEM_COUNT";
+			private _items = [];
+			private _counts = [];
+			private _count = 0;
+			private _totalReward = 0;
+			{
+				_count = _x call _getCountFunc;
+				if (_count <= 0) then {continue};
+				_totalReward = _totalReward + (_count * _y);
+				_items pushBack _x;
+				_counts pushBack _count;
+			} forEach _priceMap;
+			/*Inject removing items just not to re-calculate counts again*/
+			[_items,_counts] call (NWG_QST_Settings get "FUNC_REMOVE_ITEMS");
+			//return
+			round _totalReward
+		};
+
+		/*Reward calculated on client side per condition*/
 		case QST_TYPE_INFECTION: {0};//TODO
-		case QST_TYPE_MED_SUPPLY: {0};//TODO
-		case QST_TYPE_WEAPON: {0};//TODO
-		case QST_TYPE_ELECTRONICS: {0};//TODO
 
 		/*Invalid quest type*/
 		default {
 			"NWG_QST_CLI_CloseQuest: Invalid quest type" call NWG_fnc_logError;
 			0
 		};
+	};
+
+	//Run quest-specific logic
+	private _questType = _questData param [QST_DATA_TYPE,-1];
+	switch (_questType) do {
+		case QST_TYPE_VEH_STEAL: {
+			private _targetVehicle = [player,_questData] call NWG_QST_CLI_GetTargetVehicle;
+			if (isNull _targetVehicle) exitWith {"NWG_QST_CLI_CloseQuest: Target vehicle is null" call NWG_fnc_logError};
+			_targetVehicle call (NWG_QST_Settings get "FUNC_DELETE_VEHICLE");
+		};
+		default {};//Do nothing
 	};
 
 	//Close quest

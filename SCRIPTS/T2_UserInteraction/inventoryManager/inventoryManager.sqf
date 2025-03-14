@@ -67,8 +67,17 @@ NWG_INV_GetItemCount = {
 
 NWG_INV_RemoveItem = {
     // private _itemClassname = _this;
-    if !(_this call NWG_INV_HasItem) exitWith {false};//Item not found
+    if !(_this in NWG_INV_currentLoadoutFlattened) exitWith {false};//Item not found
     player removeItem _this;
+    call NWG_INV_CheckLoadoutChange
+};
+
+NWG_INV_RemoveItems = {
+    params ["_items","_counts"];
+    {
+        if !(_x in NWG_INV_currentLoadoutFlattened) then {continue};//Item not found
+        for "_i" from 1 to (_counts param [_forEachIndex,0]) do {player removeItem _x};
+    } forEach _items;
     call NWG_INV_CheckLoadoutChange
 };
 
@@ -80,7 +89,7 @@ NWG_INV_AddItem = {
 
 NWG_INV_ExchangeItem = {
     params ["_oldItem","_newItem"];
-    if !(_oldItem call NWG_INV_HasItem) exitWith {false};//Item not found
+    if !(_oldItem in NWG_INV_currentLoadoutFlattened) exitWith {false};//Item not found
     player removeItem _oldItem;
     player addItem _newItem;
     call NWG_INV_CheckLoadoutChange

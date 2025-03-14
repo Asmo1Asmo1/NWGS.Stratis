@@ -8,7 +8,7 @@
 NWG_VSHOP_MMC_Settings = createHashMapFromArray [
     ["SPAWN_PLATFORM","Land_JumpTarget_F"],//Classname of the object that will be used as a spawn platform
     ["CHECK_PERSISTENT_ITEMS",true],//Check validity of persistent items on economy state
-    ["ADD_ITEMS_MIN_MAX",[1,4]],//Number of items to add on mission completion
+    ["ADD_ITEMS_MIN_MAX",[1,2]],//Number of items to add on mission completion
 
     ["",0]
 ];

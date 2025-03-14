@@ -28,6 +28,17 @@ NWG_fnc_invRemoveItem = {
     _this call NWG_INV_RemoveItem
 };
 
+//Removes multiple items from the player's inventory
+//params:
+//_items: Array - the classnames of the items to remove
+//_counts: Array - the counts of the items to remove
+//returns:
+// Boolean - true if the items were removed, false otherwise
+NWG_fnc_invRemoveItems = {
+    // params ["_items","_counts"];
+    _this call NWG_INV_RemoveItems
+};
+
 //Adds an item to the player's inventory
 //params:
 //_itemClassname: String - the classname of the item to add

@@ -741,6 +741,12 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_HACK_DATA_CLOSED#","%1 доложил командиру и закрыл задание"],
     ["#QST_DESTROY_DONE#","%1 уничтожил цель"],
     ["#QST_DESTROY_CLOSED#","%1 доложил командиру и закрыл задание"],
+    ["#QST_INTEL_CLOSED#","%1 передал разведданные и закрыл задание"],
+    ["#QST_INFECTION_CLOSED#","%1 доложил доктору и закрыл задание"],
+    ["#QST_WOUNDED_CLOSED#","%1 доставил раненого на базу и закрыл задание"],
+    ["#QST_MED_SUPPLY_CLOSED#","%1 доставил медикаменты и закрыл задание"],
+    ["#QST_WEAPON_CLOSED#","%1 доставил оружие и закрыл задание"],
+    ["#QST_ELECTRONICS_CLOSED#","%1 передал электронику и закрыл задание"],
     ["#QST_UNKONW_WINNER#","Кто-то"],
     ["#QST_CLOSE_ERROR#","Не удалось закрыть задание"],
     /*Quest start*/
@@ -774,6 +780,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DISPLAY_ELECTRONICS#","Найти и доставить (пример: %1)"],
     ["#QST_DISPLAY_TOOLS#","Найти и доставить (пример: %1)"],
     ["#QST_REWARD_TEMPLATE#","Награда: 1 Exp, 1 lvl и %1"],
+    ["#QST_REWARD_TEMPLATE_PER_ITEM#","%1%% от цены за каждый предмет"],
     /*Quest descriptions*/
     ["#QST_QD_VEH_STEAL_01#","У меня есть клиент, готовый заплатить за эту красотку|Можешь доставить её сюда?|Желательно без царапин"],
     ["#QST_QD_VEH_STEAL_02#","У меня есть особая просьба|Наш клиент хочет эту машину себе|Оплата хорошая, берёшься?"],

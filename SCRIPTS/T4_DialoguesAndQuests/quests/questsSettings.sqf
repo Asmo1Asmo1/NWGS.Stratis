@@ -5,9 +5,9 @@ NWG_QST_Settings = createHashMapFromArray [
 	["QUEST_ENABLED",[
 		// QST_TYPE_VEH_STEAL,
 		// QST_TYPE_INTERROGATE,
-		QST_TYPE_HACK_DATA
+		// QST_TYPE_HACK_DATA,
 		// QST_TYPE_DESTROY,
-		// QST_TYPE_INTEL,
+		QST_TYPE_INTEL
 		// QST_TYPE_INFECTION,
 		// QST_TYPE_WOUNDED,
 		// QST_TYPE_MED_SUPPLY,
@@ -49,17 +49,19 @@ NWG_QST_Settings = createHashMapFromArray [
 		/*QST_TYPE_INTERROGATE:*/ 1000,
 		/*QST_TYPE_HACK_DATA:*/ 1000,
 		/*QST_TYPE_DESTROY:*/ 1000,
-		/*QST_TYPE_INTEL:*/ "TODO",
+		/*QST_TYPE_INTEL:*/ "INTEL_ITEMS",
 		/*QST_TYPE_INFECTION:*/ 1000,
 		/*QST_TYPE_WOUNDED:*/ 1000,
-		/*QST_TYPE_MED_SUPPLY:*/ "TODO",
+		/*QST_TYPE_MED_SUPPLY:*/ "MED_SUPPLY_ITEMS",
 		/*QST_TYPE_WEAPON:*/ {0/*TODO*/},
-		/*QST_TYPE_ELECTRONICS:*/ "TODO"
+		/*QST_TYPE_ELECTRONICS:*/ "ELECTRONICS_ITEMS"
 	]],
 	["QUEST_DEFAULT_REWARD",1000],
 
 	/*External functions*/
-	["FUNC_GET_REWARD_MULTIPLIER",{(call NWG_fnc_mmGetMissionLevel) + 1}],//Applies only to number or code type rewards
+	["FUNC_GET_REWARD_MULTIPLIER",{(call NWG_fnc_mmGetMissionLevel) + 1}],
+	["FUNC_GET_ITEM_PRICE_MULT",{1 + (_this * 0.1)}],//How to calculate item price based on reward multiplier
+	["FUNC_GET_ITEM_PRICE",{_this call NWG_fnc_ishopEvaluateItemPrice}],
 	["FUNC_REWARD_PLAYER",{
 		params ["_player","_reward"];
 		[_player,P__EXP,1] call NWG_fnc_pAddPlayerProgress;//Add experience
@@ -90,12 +92,12 @@ NWG_QST_Settings = createHashMapFromArray [
 		/*QST_TYPE_INTERROGATE:*/ "#QST_INTERROGATE_CLOSED#",
 		/*QST_TYPE_HACK_DATA:*/ "#QST_HACK_DATA_CLOSED#",
 		/*QST_TYPE_DESTROY:*/ "#QST_DESTROY_CLOSED#",
-		/*QST_TYPE_INTEL:*/ false,
-		/*QST_TYPE_INFECTION:*/ false,
-		/*QST_TYPE_WOUNDED:*/ false,
-		/*QST_TYPE_MED_SUPPLY:*/ false,
-		/*QST_TYPE_WEAPON:*/ false,
-		/*QST_TYPE_ELECTRONICS:*/ false
+		/*QST_TYPE_INTEL:*/ "#QST_INTEL_CLOSED#",
+		/*QST_TYPE_INFECTION:*/ "#QST_INFECTION_CLOSED#",
+		/*QST_TYPE_WOUNDED:*/ "#QST_WOUNDED_CLOSED#",
+		/*QST_TYPE_MED_SUPPLY:*/ "#QST_MED_SUPPLY_CLOSED#",
+		/*QST_TYPE_WEAPON:*/ "#QST_WEAPON_CLOSED#",
+		/*QST_TYPE_ELECTRONICS:*/ "#QST_ELECTRONICS_CLOSED#"
 	]],
 	["LOC_UNKONW_WINNER","#QST_UNKONW_WINNER#"],
 
@@ -176,6 +178,22 @@ NWG_QST_Settings = createHashMapFromArray [
 		"Land_TTowerBig_2_F"
 	]],
 
+	/*Intel quest*/
+	["INTEL_ITEMS_OBJECTS",[
+		"Item_SecretDocuments",
+		"Item_FileTopSecret",
+		"Item_SecretFiles",
+		"Item_Files",
+		"Item_NetworkStructure"
+	]],
+	["INTEL_ITEMS",[
+		"FilesSecret",
+		"FileTopSecret",
+		"DocumentsSecret",
+		"FileNetworkStructure",
+		"Files"
+	]],//Akshually, they are 'ammo' lol
+
 	/*Localization*/
 	["LOC_NPC_TO_MARKER_TEXT",createHashMapFromArray [
 		[NPC_TAXI,"#NPC_TAXI_NAME#"],
@@ -192,6 +210,9 @@ NWG_QST_Settings = createHashMapFromArray [
 	/*External functions*/
 	["FUNC_GET_PLAYER_VEHICLES",{_this call NWG_fnc_vownGetOwnedVehicles}],
 	["FUNC_DELETE_VEHICLE",{_this call NWG_fnc_vshopDeleteVehicle}],
+	["FUNC_HAS_ITEM",{_this call NWG_fnc_invHasItem}],
+	["FUNC_GET_ITEM_COUNT",{_this call NWG_fnc_invGetItemCount}],
+	["FUNC_REMOVE_ITEMS",{_this call NWG_fnc_invRemoveItems}],
 
 	["",0]
 ];

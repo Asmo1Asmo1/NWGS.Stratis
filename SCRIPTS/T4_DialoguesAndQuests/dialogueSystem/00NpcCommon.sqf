@@ -63,6 +63,7 @@ NWG_DLGHLP_Settings = createHashMapFromArray [
         /*QST_TYPE_ELECTRONICS:*/ "#QST_DISPLAY_ELECTRONICS#"
 	]],
 	["QST_REWARD_TEMPLATE","#QST_REWARD_TEMPLATE#"],
+	["QST_REWARD_TEMPLATE_PER_ITEM","#QST_REWARD_TEMPLATE_PER_ITEM#"],
 
 	/*Quests descriptions*/
 	["QST_QD_VEH_STEAL_KEYS",["#QST_QD_VEH_STEAL_01#","#QST_QD_VEH_STEAL_02#","#QST_QD_VEH_STEAL_03#"]],
@@ -275,7 +276,10 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 		case QST_TYPE_VEH_STEAL;
 		case QST_TYPE_INTERROGATE;
 		case QST_TYPE_HACK_DATA;
-		case QST_TYPE_DESTROY: {
+		case QST_TYPE_DESTROY;
+		case QST_TYPE_INTEL;
+		case QST_TYPE_MED_SUPPLY;
+		case QST_TYPE_ELECTRONICS: {
 			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
 			private _cfg = configFile >> "CfgVehicles" >> _targetClassname;
 			if !(isClass _cfg) exitWith {
@@ -284,22 +288,13 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 			_displayName = getText (_cfg >> "displayName");
 			_image = getText (_cfg >> "editorPreview");
 		};
-		case QST_TYPE_INTEL: {
-			//TODO: Implement
-		};
 		case QST_TYPE_INFECTION: {
 			//TODO: Implement
 		};
 		case QST_TYPE_WOUNDED: {
 			//TODO: Implement
 		};
-		case QST_TYPE_MED_SUPPLY: {
-			//TODO: Implement
-		};
 		case QST_TYPE_WEAPON: {
-			//TODO: Implement
-		};
-		case QST_TYPE_ELECTRONICS: {
 			//TODO: Implement
 		};
 		default {
@@ -315,6 +310,11 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 	private _rewardRaw = _questData param [QST_DATA_REWARD,0];
 	private _rewardStr = switch (true) do {
 		case (_rewardRaw isEqualType 0): {_rewardRaw call NWG_fnc_wltFormatMoney};
+		case (_rewardRaw isEqualType []): {
+			private _template = (NWG_DLGHLP_Settings get "QST_REWARD_TEMPLATE_PER_ITEM") call NWG_fnc_localize;
+			private _percentage = _rewardRaw param [QST_REWARD_PER_ITEM_PERCENTAGE,0];
+			format [_template,_percentage]
+		};
 		case (_rewardRaw isEqualType ""): {_rewardRaw call NWG_fnc_localize};
 		default {
 			(format ["NWG_DLGHLP_QST_DisplayQuestData: Unknown reward type for '%1'",_rewardRaw]) call NWG_fnc_logError;

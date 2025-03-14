@@ -157,5 +157,9 @@
 #define QST_DATA_REWARD 4
 #define QST_DATA_MARKER 5
 
+/*Quest Reward Per Item structure*/
+#define QST_REWARD_PER_ITEM_PERCENTAGE 0
+#define QST_REWARD_PER_ITEM_PRICE_MAP 1
+
 /*Unknown Winner*/
 #define QST_UNKNOWN_WINNER "UNKWN"

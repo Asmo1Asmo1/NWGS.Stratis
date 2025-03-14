@@ -29,6 +29,15 @@ NWG_fnc_ishopDownloadPrices = {
 	call NWG_ISHOP_SER_DownloadPrices
 };
 
+/*Other systems->Server*/
+//Evaluate item price
+//params: _itemClassname - string
+//returns: price - number
+NWG_fnc_ishopEvaluateItemPrice = {
+	// private _itemClassname = _this;
+	(_this call NWG_ISHOP_SER_EvaluateItem)
+};
+
 /*Client<->Server*/
 //Request shop values from server
 NWG_fnc_ishopShopValuesRequest = {
