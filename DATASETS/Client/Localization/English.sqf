@@ -813,9 +813,10 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DONE_TRUE_TRDR_01#","Always a pleasure doing business with you"],
     ["#QST_DONE_FALSE_MEDC_01#","Son, I'm old, not stupid|Come back when you're done"],
     ["#QST_DONE_TRUE_MEDC_01#","Thank you, I won't forget that|...|What? You need something?|...Ah, the compensation, right|Here you go"],
-    ["#QST_DONE_FALSE_COMM_01#","Oh yeah? Is that so?|Well, my sources do not confirm that|How strange, right?|Why don't you try something better next time"],
+    ["#QST_DONE_FALSE_COMM_01#","Oh yeah? Is that so?|Well, my sources do not confirm that|How strange, right?|Why don't you try something better next time|And if you have something for me in the storage"],
+    ["#QST_DONE_FALSE_COMM_ITEMS#","Then why don't I see it on the table?|If it's in your storage - bring it here"],
     ["#QST_DONE_TRUE_COMM_01#","At ease, soldier|Good job|Compensation, as promised, should be on your account"],
-    ["#QST_DONE_FALSE_ROOF_01#","Hey, 'buddy'|I don't see the goods - I don't pay the price|Got it in your storage?|Bring it here"],
+    ["#QST_DONE_FALSE_ROOF_01#","Hey, 'buddy'|I don't see the goods - I don't pay the price|Got it in your storage?|Then bring it here why don't you"],
     ["#QST_DONE_TRUE_ROOF_01#","Hehe, now that will be a good one|A reward?|All right, fine, here you go|And don't tell anyone!"],
     /*Quest close*/
     ["#QST_CLOSE_01#","Let me know if you need anything else"],

@@ -712,6 +712,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_CND,	[
 				{call NWG_DLG_MEDC_IsInjured},["#MEDC_00_A_01#","MEDC_PATCH"],
+				{"MEDC" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"MEDC_QST_DISPLAY",{},0,COLOR_GREEN],
 				{true},["#AGEN_HELP_01#","MEDC_HELP"],
 				{true},["#AGEN_ADV_01#","MEDC_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
@@ -728,6 +729,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_CND,	[
 				{call NWG_DLG_MEDC_IsInjured},["#MEDC_01_A_01#","MEDC_PATCH"],
+				{"MEDC" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"MEDC_QST_DISPLAY",{},0,COLOR_GREEN],
 				{true},["#AGEN_HELP_01#","MEDC_HELP"],
 				{true},["#AGEN_ADV_01#","MEDC_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
@@ -796,6 +798,32 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#MEDC_ADV_Q_04#"
 			],
 			A_GEN,	{"MEDC_01" call NWG_DLGHLP_GenerateBackExit}/*["MEDC_01",NODE_EXIT]*/
+		]
+	],
+	/*Quest - display quest data*/
+	[
+		"MEDC_QST_DISPLAY",	[
+			Q_ONE,	["%1",{"MEDC" call NWG_DLGHLP_QST_DisplayQuestData}],
+			A_GEN,	[
+				{"MEDC" call NWG_DLGHLP_QST_GenerateQuestAnswers},
+				{"MEDC_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MEDC_01",NODE_EXIT]*/
+			]
+		]
+	],
+	/*Quest Report - quest done FALSE*/
+	[
+		"MEDC_QST_QUEST_DONE_FALSE",	[
+			Q_ONE,	["%1",{"MEDC" call NWG_DLGHLP_GetRndQuestDoneFalseQ}],
+			A_GEN,	{"MEDC_01" call NWG_DLGHLP_GenerateBackExit}/*["MEDC_01",NODE_EXIT]*/
+		]
+	],
+	/*Quest Report - quest done TRUE*/
+	[
+		"MEDC_QST_QUEST_DONE_TRUE",	[
+			Q_ONE,	["%1",{"MEDC" call NWG_DLGHLP_GetRndQuestDoneTrueQ}],
+			A_DEF,	[
+				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT]
+			]
 		]
 	],
 

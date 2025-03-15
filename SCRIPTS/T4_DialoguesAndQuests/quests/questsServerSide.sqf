@@ -70,6 +70,11 @@ NWG_QST_SER_CreateNew = {
         private _selectBy = {(typeOf _x) in (NWG_QST_Settings get "INTEL_ITEMS_OBJECTS")};
         [QST_TYPE_INTEL,OBJ_CAT_DECO,_selectBy] call _fillDice;
     };
+    /*Med supply quest*/
+    if (QST_TYPE_MED_SUPPLY in _enabledQuests) then {
+        private _selectBy = {(typeOf _x) in (NWG_QST_Settings get "MED_SUPPLY_ITEMS_OBJECTS")};
+        [QST_TYPE_MED_SUPPLY,OBJ_CAT_DECO,_selectBy] call _fillDice;
+    };
 
     //Check dice
     if ((count _dice) == 0) exitWith {

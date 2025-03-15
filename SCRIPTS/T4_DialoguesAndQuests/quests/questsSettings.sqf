@@ -20,9 +20,9 @@ NWG_QST_Settings = createHashMapFromArray [
 		/*QST_TYPE_HACK_DATA:*/ NPC_COMM,
 		/*QST_TYPE_DESTROY:*/ NPC_COMM,
 		/*QST_TYPE_INTEL:*/ NPC_COMM,
-		/*QST_TYPE_INFECTION:*/ NPC_MECH,
-		/*QST_TYPE_WOUNDED:*/ NPC_MECH,
-		/*QST_TYPE_MED_SUPPLY:*/ NPC_MECH,
+		/*QST_TYPE_INFECTION:*/ NPC_MEDC,
+		/*QST_TYPE_WOUNDED:*/ NPC_MEDC,
+		/*QST_TYPE_MED_SUPPLY:*/ NPC_MEDC,
 		/*QST_TYPE_WEAPON:*/ NPC_ROOF,
 		/*QST_TYPE_ELECTRONICS:*/ NPC_ROOF
 	]],
@@ -193,6 +193,24 @@ NWG_QST_Settings = createHashMapFromArray [
 		"FileNetworkStructure",
 		"Files"
 	]],//Akshually, they are 'ammo' lol
+
+	/*Med Supply quest*/
+	["MED_SUPPLY_ITEMS_OBJECTS",[
+		"Item_Antibiotic",
+		"Item_Antimalaricum",
+		"Item_AntimalaricumVaccine",
+		"Item_Bandage",
+		"Item_FirstAidKit",
+		"Item_Medikit"
+	]],
+	["MED_SUPPLY_ITEMS",[
+		"Medikit",
+		"FirstAidKit",
+		"AntimalaricumVaccine",
+		"Antimalaricum",
+		"Bandage",
+		"Antibiotic"
+	]],
 
 	/*Localization*/
 	["LOC_NPC_TO_MARKER_TEXT",createHashMapFromArray [

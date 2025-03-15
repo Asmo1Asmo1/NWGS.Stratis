@@ -91,6 +91,7 @@ NWG_DLGHLP_Settings = createHashMapFromArray [
 	["QST_DONE_FALSE_MEDC",["#QST_DONE_FALSE_MEDC_01#"]],
 	["QST_DONE_TRUE_MEDC",["#QST_DONE_TRUE_MEDC_01#"]],
 	["QST_DONE_FALSE_COMM",["#QST_DONE_FALSE_COMM_01#"]],
+	["QST_DONE_FALSE_COMM_ITEMS",["#QST_DONE_FALSE_COMM_ITEMS#"]],
 	["QST_DONE_TRUE_COMM",["#QST_DONE_TRUE_COMM_01#"]],
 	["QST_DONE_FALSE_ROOF",["#QST_DONE_FALSE_ROOF_01#"]],
 	["QST_DONE_TRUE_ROOF",["#QST_DONE_TRUE_ROOF_01#"]],
@@ -287,6 +288,13 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 			};
 			_displayName = getText (_cfg >> "displayName");
 			_image = getText (_cfg >> "editorPreview");
+
+			/*Try to get image from weapon config if vehicle config failed*/
+			if (isNil "_image" || {_image isEqualTo ""}) then {
+				_cfg = configFile >> "CfgWeapons" >> ((_targetClassname splitString "_") select 1);
+				if !(isClass _cfg) exitWith {};
+				_image = getText (_cfg >> "picture");
+			};
 		};
 		case QST_TYPE_INFECTION: {
 			//TODO: Implement
@@ -377,7 +385,15 @@ NWG_DLGHLP_GetRndQuestDoneFalseQ = {
 		case NPC_MECH: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_MECH")};
 		case NPC_TRDR: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_TRDR")};
 		case NPC_MEDC: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_MEDC")};
-		case NPC_COMM: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_COMM")};
+		case NPC_COMM: {
+			/*Depending on quest type - return different false answers*/
+			private _random = selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_COMM");
+			private _questData = call NWG_fnc_qstGetQuestData;
+			if (_questData isEqualTo false) exitWith {_random};
+			private _questType = _questData param [QST_DATA_TYPE,-1];
+			if (_questType != QST_TYPE_INTEL) exitWith {_random};
+			selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_COMM_ITEMS")
+		};
 		case NPC_ROOF: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_ROOF")};
 		default {
 			(format ["NWG_DLGHLP_GetRndQuestDoneFalseQ: Unknown NPC name: '%1'",_npcName]) call NWG_fnc_logError;
