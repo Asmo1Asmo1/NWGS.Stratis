@@ -11,8 +11,8 @@ NWG_QST_Settings = createHashMapFromArray [
 		// QST_TYPE_INFECTION,
 		// QST_TYPE_WOUNDED,
 		// QST_TYPE_MED_SUPPLY,
-		// QST_TYPE_WEAPON,
-		QST_TYPE_ELECTRONICS
+		QST_TYPE_WEAPON
+		// QST_TYPE_ELECTRONICS
 	]],
 	["QUEST_GIVERS",[
 		/*QST_TYPE_VEH_STEAL:*/ NPC_MECH,
@@ -53,7 +53,13 @@ NWG_QST_Settings = createHashMapFromArray [
 		/*QST_TYPE_INFECTION:*/ 1000,
 		/*QST_TYPE_WOUNDED:*/ 1000,
 		/*QST_TYPE_MED_SUPPLY:*/ "MED_SUPPLY_ITEMS",
-		/*QST_TYPE_WEAPON:*/ {0/*TODO*/},
+		/*QST_TYPE_WEAPON:*/ {
+			params ["_targetClassname","_multiplier"];
+			private _price = _targetClassname call NWG_fnc_ishopEvaluateItemPrice;
+			private _reward = _price + (_price * (_multiplier * 0.1));//Apply 10% of multiplier
+			_reward = (round (_reward / 10)) * 10;//Round to nearest 10
+			_reward
+		},
 		/*QST_TYPE_ELECTRONICS:*/ "ELECTRONICS_ITEMS"
 	]],
 	["QUEST_DEFAULT_REWARD",1000],
@@ -249,6 +255,7 @@ NWG_QST_Settings = createHashMapFromArray [
 	["FUNC_HAS_ITEM",{_this call NWG_fnc_invHasItem}],
 	["FUNC_GET_ITEM_COUNT",{_this call NWG_fnc_invGetItemCount}],
 	["FUNC_REMOVE_ITEMS",{_this call NWG_fnc_invRemoveItems}],
+	["FUNC_ON_INVENTORY_CHANGE",{call NWG_fnc_invInvokeChangeCheck}],
 
 	["",0]
 ];

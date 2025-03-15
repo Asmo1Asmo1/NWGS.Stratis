@@ -1,3 +1,5 @@
+#include "..\..\globalDefines.h"
+
 /*Other systems->Client*/
 //Open shop
 NWG_fnc_ishopOpenShop = {
@@ -35,7 +37,12 @@ NWG_fnc_ishopDownloadPrices = {
 //returns: price - number
 NWG_fnc_ishopEvaluateItemPrice = {
 	// private _itemClassname = _this;
-	(_this call NWG_ISHOP_SER_EvaluateItem)
+	if (isNil "NWG_fnc_icatGetItemType") exitWith {_this call NWG_ISHOP_SER_EvaluateItem};
+	switch (_this call NWG_fnc_icatGetItemType) do {
+		case LOOT_ITEM_TYPE_CLTH: {(_this call NWG_fnc_icatGetBaseBackpack) call NWG_ISHOP_SER_EvaluateItem};
+		case LOOT_ITEM_TYPE_WEAP: {(_this call NWG_fnc_icatGetBaseWeapon) call NWG_ISHOP_SER_EvaluateItem};
+		default {_this call NWG_ISHOP_SER_EvaluateItem};
+	}
 };
 
 /*Client<->Server*/

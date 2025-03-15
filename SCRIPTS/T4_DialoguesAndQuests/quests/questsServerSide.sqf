@@ -80,6 +80,31 @@ NWG_QST_SER_CreateNew = {
         private _selectBy = {(typeOf _x) in (NWG_QST_Settings get "ELECTRONICS_ITEMS_OBJECTS")};
         [QST_TYPE_ELECTRONICS,OBJ_CAT_DECO,_selectBy] call _fillDice;
     };
+    /*Weapon quest*/
+    if (QST_TYPE_WEAPON in _enabledQuests) then {
+        /*This one is special - we need to select most expensive weapon from what the mission has*/
+        private _getPriceFunc = NWG_QST_Settings get "FUNC_GET_ITEM_PRICE";
+        private _mostContainer = objNull;
+        private _mostWeapon = "";
+        private _mostPrice = 0;
+        private ["_container","_price"];
+        {
+            _container = _x;
+            {
+                _price = _x call _getPriceFunc;
+                if (_price > _mostPrice) then {
+                    _mostContainer = _container;
+                    _mostWeapon = _x;
+                    _mostPrice = _price;
+                };
+            } forEach (weaponCargo _x);
+        } forEach ((_missionObjects#OBJ_CAT_DECO) select {
+            !isSimpleObject _x && {
+            _x canAdd "Antibiotic"}
+        });
+        if (isNull _mostContainer) exitWith {};//Nothing found
+        _dice pushBack [QST_TYPE_WEAPON,_mostContainer,_mostWeapon];
+    };
 
     //Check dice
     if ((count _dice) == 0) exitWith {

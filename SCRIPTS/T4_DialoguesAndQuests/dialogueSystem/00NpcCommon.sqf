@@ -303,7 +303,13 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 			//TODO: Implement
 		};
 		case QST_TYPE_WEAPON: {
-			//TODO: Implement
+			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
+			private _cfg = configFile >> "CfgWeapons" >> _targetClassname;
+			if !(isClass _cfg) exitWith {
+				(format ["NWG_DLGHLP_QST_DisplayQuestData: Target classname is not a valid vehicle: '%1'",_targetClassname]) call NWG_fnc_logError;
+			};
+			_displayName = getText (_cfg >> "displayName");
+			_image = getText (_cfg >> "picture");
 		};
 		default {
 			(format ["NWG_DLGHLP_QST_DisplayQuestData: Unknown quest type: '%1'",_questType]) call NWG_fnc_logError;

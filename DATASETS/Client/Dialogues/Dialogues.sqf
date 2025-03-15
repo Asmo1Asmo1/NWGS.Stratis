@@ -1122,6 +1122,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_CND,	[
 				{true},["#ROOF_00_A_00#","ROOF_TS"],
+				{"ROOF" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"ROOF_QST_DISPLAY",{},0,COLOR_GREEN],
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_01#","ROOF_WHAT"],
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_02#","ROOF_NO_TRUST"],
 				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#ROOF_00_A_02#","ROOF_KNOW"],
@@ -1143,6 +1144,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_CND,	[
 				{true},["#ROOF_00_A_00#","ROOF_TS"],
+				{"ROOF" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"ROOF_QST_DISPLAY",{},0,COLOR_GREEN],
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_01#","ROOF_WHAT"],
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_02#","ROOF_NO_TRUST"],
 				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#ROOF_00_A_02#","ROOF_KNOW"],
@@ -1438,6 +1440,32 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#ROOF_ADV_Q_04#"
 			],
 			A_GEN,	{"ROOF_01" call NWG_DLGHLP_GenerateBackExit}/*["ROOF_01",NODE_EXIT]*/
+		]
+	],
+	/*Quest - display quest data*/
+	[
+		"ROOF_QST_DISPLAY",	[
+			Q_ONE,	["%1",{"ROOF" call NWG_DLGHLP_QST_DisplayQuestData}],
+			A_GEN,	[
+				{"ROOF" call NWG_DLGHLP_QST_GenerateQuestAnswers},
+				{"ROOF_01" call NWG_DLGHLP_GenerateDoubtExit}/*["ROOF_01",NODE_EXIT]*/
+			]
+		]
+	],
+	/*Quest Report - quest done FALSE*/
+	[
+		"ROOF_QST_QUEST_DONE_FALSE",	[
+			Q_ONE,	["%1",{"ROOF" call NWG_DLGHLP_GetRndQuestDoneFalseQ}],
+			A_GEN,	{"ROOF_01" call NWG_DLGHLP_GenerateBackExit}/*["ROOF_01",NODE_EXIT]*/
+		]
+	],
+	/*Quest Report - quest done TRUE*/
+	[
+		"ROOF_QST_QUEST_DONE_TRUE",	[
+			Q_ONE,	["%1",{"ROOF" call NWG_DLGHLP_GetRndQuestDoneTrueQ}],
+			A_DEF,	[
+				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT]
+			]
 		]
 	],
 

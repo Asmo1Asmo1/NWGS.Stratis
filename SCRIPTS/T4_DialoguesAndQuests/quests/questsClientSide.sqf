@@ -107,9 +107,13 @@ NWG_QST_CLI_CanCloseQuest = {
 			_hasItem
 		};
 
+		/*Winner is defined by custom logic*/
 		case QST_TYPE_INFECTION: {true};//TODO
 		case QST_TYPE_WOUNDED: {true};//TODO
-		case QST_TYPE_WEAPON: {true};//TODO
+		case QST_TYPE_WEAPON: {
+			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
+			_targetClassname call (NWG_QST_Settings get "FUNC_HAS_ITEM")
+		};
 		default {false};
 	};
 
@@ -209,12 +213,34 @@ NWG_QST_CLI_CloseQuest = {
 	};
 
 	//Run quest-specific logic
-	private _questType = _questData param [QST_DATA_TYPE,-1];
 	switch (_questType) do {
 		case QST_TYPE_VEH_STEAL: {
+			//Delete target vehicle
 			private _targetVehicle = [player,_questData] call NWG_QST_CLI_GetTargetVehicle;
 			if (isNull _targetVehicle) exitWith {"NWG_QST_CLI_CloseQuest: Target vehicle is null" call NWG_fnc_logError};
 			_targetVehicle call (NWG_QST_Settings get "FUNC_DELETE_VEHICLE");
+		};
+		case QST_TYPE_WEAPON: {
+			//Delete target weapon from player
+			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
+			if !(_targetClassname call (NWG_QST_Settings get "FUNC_HAS_ITEM")) exitWith {
+				"NWG_QST_CLI_CloseQuest: Target weapon not found" call NWG_fnc_logError;
+			};
+			//Delete from loadout
+			private _loadout = getUnitLoadout player;
+			private _deleted = false;
+			{
+				if (_targetClassname in (flatten (_loadout select _x))) exitWith {
+					_loadout set [_x,[]];
+					player setUnitLoadout _loadout;
+					_deleted = true;
+				};
+			} forEach [0,1,2,8];//Primary,Secondary,Handgun,Binoculars
+			if (_deleted) exitWith {
+				player call (NWG_QST_Settings get "FUNC_ON_INVENTORY_CHANGE");
+			};
+			//Delete from inventory (uniform, vest, backpack)
+			[[_targetClassname],[1]] call (NWG_QST_Settings get "FUNC_REMOVE_ITEMS");
 		};
 		default {};//Do nothing
 	};
