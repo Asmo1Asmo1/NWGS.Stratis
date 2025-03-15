@@ -105,6 +105,14 @@ NWG_QST_SER_CreateNew = {
         if (isNull _mostContainer) exitWith {};//Nothing found
         _dice pushBack [QST_TYPE_WEAPON,_mostContainer,_mostWeapon];
     };
+    /*Wounded quest*/
+    if (QST_TYPE_WOUNDED in _enabledQuests) then {
+        /*We need to find a unit that will be replaced with a wounded civilian*/
+        private _possibleTargets = (_missionObjects#OBJ_CAT_UNIT) select {isNull (objectParent _x)};
+        if ((count _possibleTargets) == 0) exitWith {};
+        private _target = selectRandom _possibleTargets;
+        _dice pushBack [QST_TYPE_WOUNDED,_target,""];
+    };
 
     //Check dice
     if ((count _dice) == 0) exitWith {
@@ -156,6 +164,31 @@ NWG_QST_SER_CreateNew = {
                 ([_killer,_instigator] call NWG_QST_SER_DefinePlayerKiller) call NWG_QST_SER_OnQuestDone;
                 _targetObj removeEventHandler [_thisEvent,_thisEventHandler];
             }];
+        };
+        case QST_TYPE_WOUNDED: {
+            //Replace unit with a wounded civilian
+            //Get random unit type from config (exempt from 'BIS_fnc_moduleCivilianPresence')
+            private _cfg = configFile >> "CfgVehicles" >> "ModuleCivilianPresence_F" >> "UnitTypes";
+			private _cfgUnitTypes = _cfg >> worldName;
+			if (isNull _cfgUnitTypes) then { _cfgUnitTypes = _cfg >> "other" };
+			private _unitType = selectRandom (getArray _cfgUnitTypes);
+            if (isNil "_unitType") exitWith {
+                (format ["NWG_QST_SER_CreateNew: No unit type found for quest type: '%1'",_questType]) call NWG_fnc_logError;
+                false;
+            };
+            //Replace selected unit with a wounded civilian
+            private _dir = getDir _targetObj;
+            private _wounded = createAgent [_unitType,_targetObj,[],0,"CAN_COLLIDE"];
+            deleteVehicle _targetObj;
+            _wounded setDir _dir;
+            _targetObj = _wounded;
+            _targetClassname = (typeOf _wounded);
+            //Apply wounded state
+            private _pos = getPosASL _wounded;
+            _wounded setDamage 0.5;
+            _wounded playMoveNow "Acts_ExecutionVictim_Loop";
+            //Setup command for current and JIP players
+            [_targetObj,"NWG_QST_CLI_OnWoundedCreated",[]] call NWG_fnc_rqAddCommand;
         };
         default {};//Do nothing
     };

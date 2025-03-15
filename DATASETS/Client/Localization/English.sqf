@@ -705,6 +705,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Quest actions*/
     ["#QST_INTERROGATE_TITLE#","Interrogate"],
     ["#QST_HACK_DATA_TITLE#","Hack data"],
+    ["#QST_WOUNDED_TITLE#","Untie"],
     /*Quest chat messages*/
     ["#QST_VEH_STEAL_CLOSED#","%1 delivered the vehicle and closed the task"],
     ["#QST_INTERROGATE_FAILED_01#","I won't tell you nothing"],
@@ -724,7 +725,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DESTROY_CLOSED#","%1 reported to commander and closed the task"],
     ["#QST_INTEL_CLOSED#","%1 handed over the intel and closed the task"],
     ["#QST_INFECTION_CLOSED#","%1 reported to doc and closed the task"],
-    ["#QST_WOUNDED_CLOSED#","%1 brought the wounded to base and closed the task"],
+    ["#QST_WOUNDED_DONE#","%1 brought wounded to the base"],
+    ["#QST_WOUNDED_CLOSED#","%1 reported to doc and closed the task"],
     ["#QST_MED_SUPPLY_CLOSED#","%1 delivered the med supplies and closed the task"],
     ["#QST_WEAPON_CLOSED#","%1 delivered the weapon and closed the task"],
     ["#QST_ELECTRONICS_CLOSED#","%1 handed over the electronics and closed the task"],

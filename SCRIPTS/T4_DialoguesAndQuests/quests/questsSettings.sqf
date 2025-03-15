@@ -9,9 +9,9 @@ NWG_QST_Settings = createHashMapFromArray [
 		// QST_TYPE_DESTROY,
 		// QST_TYPE_INTEL,
 		// QST_TYPE_INFECTION,
-		// QST_TYPE_WOUNDED,
+		QST_TYPE_WOUNDED
 		// QST_TYPE_MED_SUPPLY,
-		QST_TYPE_WEAPON
+		// QST_TYPE_WEAPON,
 		// QST_TYPE_ELECTRONICS
 	]],
 	["QUEST_GIVERS",[
@@ -88,7 +88,7 @@ NWG_QST_Settings = createHashMapFromArray [
 		/*QST_TYPE_DESTROY:*/ "#QST_DESTROY_DONE#",
 		/*QST_TYPE_INTEL:*/ false,
 		/*QST_TYPE_INFECTION:*/ false,
-		/*QST_TYPE_WOUNDED:*/ false,
+		/*QST_TYPE_WOUNDED:*/ "#QST_WOUNDED_DONE#",
 		/*QST_TYPE_MED_SUPPLY:*/ false,
 		/*QST_TYPE_WEAPON:*/ false,
 		/*QST_TYPE_ELECTRONICS:*/ false
@@ -200,6 +200,10 @@ NWG_QST_Settings = createHashMapFromArray [
 		"Files"
 	]],//Akshually, they are 'ammo' lol
 
+	/*Wounded quest*/
+	["WOUNDED_TITLE","#QST_WOUNDED_TITLE#"],
+	["WOUNDED_ICON","a3\ui_f\data\igui\cfg\holdactions\holdaction_secure_ca.paa"],
+
 	/*Med Supply quest*/
 	["MED_SUPPLY_ITEMS_OBJECTS",[
 		"Item_Antibiotic",
@@ -256,6 +260,7 @@ NWG_QST_Settings = createHashMapFromArray [
 	["FUNC_GET_ITEM_COUNT",{_this call NWG_fnc_invGetItemCount}],
 	["FUNC_REMOVE_ITEMS",{_this call NWG_fnc_invRemoveItems}],
 	["FUNC_ON_INVENTORY_CHANGE",{call NWG_fnc_invInvokeChangeCheck}],
+	["FUNC_ON_WOUNDED_UNTIED",{_this remoteExec ["NWG_QST_MC_SetWounded",2]}],
 
 	["",0]
 ];

@@ -80,6 +80,12 @@ NWG_fnc_qstOnHackDone = {
 	// private _targetObj = _this;
     if (!hasInterface) exitWith {};
     if (isNil "NWG_QST_CLI_OnHackDone") exitWith {};
-
     _this call NWG_QST_CLI_OnHackDone;
+};
+
+NWG_fnc_qstOnUntieWoundedDone = {
+	// private _targetObj = _this;
+    if (!hasInterface) exitWith {};
+    if (isNil "NWG_QST_CLI_OnUntieWoundedDone") exitWith {};
+    _this call NWG_QST_CLI_OnUntieWoundedDone;
 };

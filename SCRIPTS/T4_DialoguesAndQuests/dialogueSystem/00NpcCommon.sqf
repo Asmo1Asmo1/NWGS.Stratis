@@ -280,7 +280,8 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 		case QST_TYPE_DESTROY;
 		case QST_TYPE_INTEL;
 		case QST_TYPE_MED_SUPPLY;
-		case QST_TYPE_ELECTRONICS: {
+		case QST_TYPE_ELECTRONICS;
+		case QST_TYPE_WOUNDED: {
 			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
 			private _cfg = configFile >> "CfgVehicles" >> _targetClassname;
 			if !(isClass _cfg) exitWith {
@@ -297,9 +298,6 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 			};
 		};
 		case QST_TYPE_INFECTION: {
-			//TODO: Implement
-		};
-		case QST_TYPE_WOUNDED: {
 			//TODO: Implement
 		};
 		case QST_TYPE_WEAPON: {

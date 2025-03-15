@@ -71,6 +71,19 @@ NWG_MED_COM_MarkMedic = {
     _unit setVariable ["NWG_MED_CLI_medic",_isMedic,true];
 };
 
+NWG_MED_COM_IsHealable = {
+    // private _unit = _this;
+    if (isNull _this || {!alive _this}) exitWith {false};
+    if (isPlayer _this) exitWith {true};
+    _this getVariable ["NWG_MED_CLI_healable",false]
+};
+NWG_MED_COM_MarkHealable = {
+    params ["_unit","_isHealable"];
+    if (isNull _unit || {!alive _unit}) exitWith {};
+    if ((_unit getVariable ["NWG_MED_CLI_healable",-1]) isEqualTo _isHealable) exitWith {};//Update only if needed
+    _unit setVariable ["NWG_MED_CLI_healable",_isHealable,true];
+};
+
 /*Time is completely local and never shared with others*/
 NWG_MED_COM_GetTime = {
     // private _unit = _this;

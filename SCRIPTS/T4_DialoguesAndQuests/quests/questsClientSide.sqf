@@ -90,7 +90,8 @@ NWG_QST_CLI_CanCloseQuest = {
 		/*Winner is set server side and is defined by NWG_QST_WinnerName*/
 		case QST_TYPE_INTERROGATE;
 		case QST_TYPE_HACK_DATA;
-		case QST_TYPE_DESTROY: {
+		case QST_TYPE_DESTROY;
+		case QST_TYPE_WOUNDED: {
 			!isNil "NWG_QST_State" && {
 			NWG_QST_State == QST_STATE_DONE && {
 			player call NWG_QST_CLI_IsWinnerByName}}
@@ -109,7 +110,6 @@ NWG_QST_CLI_CanCloseQuest = {
 
 		/*Winner is defined by custom logic*/
 		case QST_TYPE_INFECTION: {true};//TODO
-		case QST_TYPE_WOUNDED: {true};//TODO
 		case QST_TYPE_WEAPON: {
 			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
 			_targetClassname call (NWG_QST_Settings get "FUNC_HAS_ITEM")
@@ -374,6 +374,45 @@ NWG_QST_CLI_SetHackTextures = {
 	{
 		_targetObj setObjectTexture [_x,(selectRandom _textures)];
 	} forEach _texturePositions;
+};
+
+NWG_QST_CLI_OnWoundedCreated = {
+	params ["_targetObj"];
+	//Check for JIP players
+	if (_targetObj getVariable ["QST_isUntied",false]) exitWith {_targetObj call NWG_QST_CLI_OnUntieWoundedDone};
+
+	//Add action
+	private _title = NWG_QST_Settings get "WOUNDED_TITLE";
+	private _icon = NWG_QST_Settings get "WOUNDED_ICON";
+	private _actionId = [_targetObj,_title,_icon,{_this call NWG_QST_CLI_OnUntieWounded}] call NWG_fnc_addHoldAction;
+	if (isNil "_actionId") exitWith {
+		"NWG_QST_CLI_OnWoundedCreated: Failed to add action" call NWG_fnc_logError;
+		false
+	};
+
+	//Save action ID for later removal
+	_targetObj setVariable ["QST_untieActionId",_actionId];//Set locally
+};
+NWG_QST_CLI_OnUntieWounded = {
+	params ["_targetObj","_player"];
+	//Check again just in case
+	if (_targetObj getVariable ["QST_isUntied",false]) exitWith {};
+
+	//Mark untied for everyone
+	_targetObj setVariable ["QST_isUntied",true,true];
+	_targetObj remoteExec ["NWG_fnc_qstOnUntieWoundedDone",0];
+
+	//Finalize
+	if (alive _targetObj) then {
+		_targetObj call (NWG_QST_Settings get "FUNC_ON_WOUNDED_UNTIED");
+	};
+};
+NWG_QST_CLI_OnUntieWoundedDone = {
+	private _targetObj = _this;
+
+	//Remove action
+	private _actionId = _targetObj getVariable ["QST_untieActionId",-1];
+	if (_actionId != -1) then {_targetObj removeAction _actionId};
 };
 //================================================================================================================
 //================================================================================================================

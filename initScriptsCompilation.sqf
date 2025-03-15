@@ -327,6 +327,7 @@ _serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\questsSettings.sq
 _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\questsSettings.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\questsServerSide.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\missionMachineConnector.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\medicineConnector.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\questsClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\questsFunctions.sqf" call NWG_fnc_compile);
 

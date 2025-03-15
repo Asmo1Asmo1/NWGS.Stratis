@@ -198,10 +198,9 @@ NWG_fnc_mmGetMissionFaction = {
 //returns: boolean
 NWG_fnc_mmIsPlayerOnBase = {
     // private _player = _this;
-    private _basePos = NWG_MIS_SER_playerBasePos;
-    if (_basePos isEqualTo []) exitWith {true};//Fallback to true if base position is not set yet
+    if (isNil "NWG_MIS_SER_playerBase" || {isNull NWG_MIS_SER_playerBase}) exitWith {true};//Fallback to true if base is not set yet
     private _baseRad = NWG_MIS_SER_Settings get "PLAYER_BASE_RADIUS";
-    (_this distance _basePos) <= _baseRad
+    (_this distance NWG_MIS_SER_playerBase) <= _baseRad
 };
 
 //Returns if this player was on mission
