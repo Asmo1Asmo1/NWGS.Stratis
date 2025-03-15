@@ -527,12 +527,13 @@ NWG_DialogueTree = createHashMapFromArray [
 				{[1,4] call NWG_DLGHLP_Dice},"#TRDR_00_Q_07#",
 				{true},"#TRDR_00_Q_08#"
 			],
-			A_DEF,	[
-				["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
-				["#TRDR_00_A_02#","TRDR_PRGB"],
-				["#AGEN_HELP_01#","TRDR_HELP"],
-				["#AGEN_ADV_01#","TRDR_ADV1"],
-				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			A_CND,	[
+				{true},["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
+				{"TRDR" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"TRDR_QST_DISPLAY",{},0,COLOR_GREEN],
+				{true},["#TRDR_00_A_02#","TRDR_PRGB"],
+				{true},["#AGEN_HELP_01#","TRDR_HELP"],
+				{true},["#AGEN_ADV_01#","TRDR_ADV1"],
+				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
 			]
 		]
 	],
@@ -544,12 +545,13 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#TRDR_01_Q_02#",
 				"#TRDR_01_Q_03#"
 			],
-			A_DEF,	[
-				["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
-				["#TRDR_00_A_02#","TRDR_PRGB"],
-				["#AGEN_HELP_01#","TRDR_HELP"],
-				["#AGEN_ADV_01#","TRDR_ADV1"],
-				["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
+			A_CND,	[
+				{true},["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
+				{"TRDR" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"TRDR_QST_DISPLAY",{},0,COLOR_GREEN],
+				{true},["#TRDR_00_A_02#","TRDR_PRGB"],
+				{true},["#AGEN_HELP_01#","TRDR_HELP"],
+				{true},["#AGEN_ADV_01#","TRDR_ADV1"],
+				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
 			]
 		]
 	],
@@ -694,6 +696,32 @@ NWG_DialogueTree = createHashMapFromArray [
 		"TRDR_PRGB_UPG",	[
 			Q_ONE,	"#TRDR_PRGB_UPG_Q_01#",
 			A_GEN,	{"TRDR_01" call NWG_DLGHLP_GenerateBackExit}/*["TRDR_01",NODE_EXIT]*/
+		]
+	],
+	/*Quest - display quest data*/
+	[
+		"TRDR_QST_DISPLAY",	[
+			Q_ONE,	["%1",{"TRDR" call NWG_DLGHLP_QST_DisplayQuestData}],
+			A_GEN,	[
+				{"TRDR" call NWG_DLGHLP_QST_GenerateQuestAnswers},
+				{"TRDR_01" call NWG_DLGHLP_GenerateDoubtExit}/*["TRDR_01",NODE_EXIT]*/
+			]
+		]
+	],
+	/*Quest Report - quest done FALSE*/
+	[
+		"TRDR_QST_QUEST_DONE_FALSE",	[
+			Q_ONE,	["%1",{"TRDR" call NWG_DLGHLP_GetRndQuestDoneFalseQ}],
+			A_GEN,	{"TRDR_01" call NWG_DLGHLP_GenerateBackExit}/*["TRDR_01",NODE_EXIT]*/
+		]
+	],
+	/*Quest Report - quest done TRUE*/
+	[
+		"TRDR_QST_QUEST_DONE_TRUE",	[
+			Q_ONE,	["%1",{"TRDR" call NWG_DLGHLP_GetRndQuestDoneTrueQ}],
+			A_DEF,	[
+				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT]
+			]
 		]
 	],
 

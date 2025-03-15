@@ -7,12 +7,12 @@ NWG_QST_Settings = createHashMapFromArray [
 		// QST_TYPE_INTERROGATE,
 		// QST_TYPE_HACK_DATA,
 		// QST_TYPE_DESTROY,
-		QST_TYPE_INTEL
+		// QST_TYPE_INTEL,
 		// QST_TYPE_INFECTION,
 		// QST_TYPE_WOUNDED,
 		// QST_TYPE_MED_SUPPLY,
 		// QST_TYPE_WEAPON,
-		// QST_TYPE_ELECTRONICS,
+		QST_TYPE_ELECTRONICS
 	]],
 	["QUEST_GIVERS",[
 		/*QST_TYPE_VEH_STEAL:*/ NPC_MECH,
@@ -24,7 +24,7 @@ NWG_QST_Settings = createHashMapFromArray [
 		/*QST_TYPE_WOUNDED:*/ NPC_MEDC,
 		/*QST_TYPE_MED_SUPPLY:*/ NPC_MEDC,
 		/*QST_TYPE_WEAPON:*/ NPC_ROOF,
-		/*QST_TYPE_ELECTRONICS:*/ NPC_ROOF
+		/*QST_TYPE_ELECTRONICS:*/ NPC_TRDR
 	]],
 	["QUEST_DICE_WEIGHTS",[
 		/*QST_TYPE_VEH_STEAL:*/ 1,
@@ -210,6 +210,24 @@ NWG_QST_Settings = createHashMapFromArray [
 		"Antimalaricum",
 		"Bandage",
 		"Antibiotic"
+	]],
+
+	/*Electronics quest*/
+	["ELECTRONICS_ITEMS_OBJECTS",[
+		"Item_FlashDisk",
+		"Item_Laptop_closed",
+		"Item_Laptop_Unfolded",
+		"Item_SmartPhone",
+		"Item_MobilePhone",
+		"Item_SatPhone"
+	]],
+	["ELECTRONICS_ITEMS",[
+		"FlashDisk",
+		"Laptop_Closed",
+		"SmartPhone",
+		"MobilePhone",
+		"SatPhone",
+		"Laptop_Unfolded"
 	]],
 
 	/*Localization*/
