@@ -64,7 +64,7 @@ NWG_QST_CLI_IsQuestActiveForNpc = {
 };
 
 NWG_QST_CLI_GetQuestData = {
-	if !(call NWG_QST_CLI_IsQuestActive) exitWith {false};
+	if (isNil "NWG_QST_State" || {NWG_QST_State == QST_STATE_UNASSIGNED}) exitWith {false};
 	//return (shallow copy to prevent data corruption)
 	NWG_QST_Data + []
 };
@@ -109,7 +109,9 @@ NWG_QST_CLI_CanCloseQuest = {
 		};
 
 		/*Winner is defined by custom logic*/
-		case QST_TYPE_INFECTION: {true};//TODO
+		case QST_TYPE_INFECTION: {
+			(call NWG_QST_CLI_CalcInfectionOutcome) != 0
+		};
 		case QST_TYPE_WEAPON: {
 			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
 			_targetClassname call (NWG_QST_Settings get "FUNC_HAS_ITEM")
@@ -203,7 +205,11 @@ NWG_QST_CLI_CloseQuest = {
 		};
 
 		/*Reward calculated on client side per condition*/
-		case QST_TYPE_INFECTION: {0};//TODO
+		case QST_TYPE_INFECTION: {
+			if ((call NWG_QST_CLI_CalcInfectionOutcome) < 0)
+				then {round (_reward * 0.5)}
+				else {_reward}
+		};
 
 		/*Invalid quest type*/
 		default {
@@ -414,6 +420,18 @@ NWG_QST_CLI_OnUntieWoundedDone = {
 	private _actionId = _targetObj getVariable ["QST_untieActionId",-1];
 	if (_actionId != -1) then {_targetObj removeAction _actionId};
 };
+
+NWG_QST_CLI_CalcInfectionOutcome = {
+	if (isNil "NWG_QST_InfectionData") exitWith {
+		"NWG_QST_CLI_CalcInfectionOutcome: Infection data is nil" call NWG_fnc_logError;
+		0
+	};
+
+	NWG_QST_InfectionData params [["_infectedCount",0],["_healedCount",0],["_killedCount",0]];
+	if ((_healedCount + _killedCount) < (_infectedCount * 0.66)) exitWith {0};//It's not over yet
+	if (_healedCount > _killedCount) then {1} else {-1}
+};
+
 //================================================================================================================
 //================================================================================================================
 call _Init;

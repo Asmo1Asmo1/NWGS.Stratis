@@ -113,6 +113,12 @@ NWG_QST_SER_CreateNew = {
         private _target = selectRandom _possibleTargets;
         _dice pushBack [QST_TYPE_WOUNDED,_target,""];
     };
+    /*Infection quest*/
+    if (QST_TYPE_INFECTION in _enabledQuests) then {
+        private _possibleTargets = (_missionObjects#OBJ_CAT_UNIT) select {(typeOf _x) in (NWG_QST_Settings get "INFECTED_TARGETS")};
+        if ((count _possibleTargets) == 0) exitWith {};
+        _dice pushBack [QST_TYPE_INFECTION,_possibleTargets,""];
+    };
 
     //Check dice
     if ((count _dice) == 0) exitWith {
@@ -189,6 +195,14 @@ NWG_QST_SER_CreateNew = {
             _wounded playMoveNow "Acts_ExecutionVictim_Loop";
             //Setup command for current and JIP players
             [_targetObj,"NWG_QST_CLI_OnWoundedCreated",[]] call NWG_fnc_rqAddCommand;
+        };
+        case QST_TYPE_INFECTION: {
+            //Track player's actions towards infected
+            private _infectedUnits = _targetObj;
+            _infectedUnits call NWG_QST_SER_OnInfectionCreated;
+            //Re-write variables
+            _targetObj = selectRandom _infectedUnits;
+            _targetClassname = (typeOf _targetObj);
         };
         default {};//Do nothing
     };
@@ -395,4 +409,45 @@ NWG_QST_SER_OnWounded = {
     };
 
     _dmg
+};
+
+/*Infection utils*/
+NWG_QST_SER_OnInfectionCreated = {
+    private _infectedUnits = _this;
+
+    //Set initial state
+    NWG_QST_InfectionData = [(count _infectedUnits),/*healed:*/0,/*killed:*/0];
+    publicVariable "NWG_QST_InfectionData";
+
+    //Setup event handlers
+    {
+        _x setVariable ["QST_isHealed",false];
+        _x addEventHandler ["HandleHeal",{_this call NWG_QST_SER_OnInfectionHealed; false}];
+        _x addEventHandler ["Killed",{_this call NWG_QST_SER_OnInfectionKilled}];
+    } forEach _infectedUnits;
+};
+NWG_QST_SER_OnInfectionHealed = {
+    // params ["_infectedUnit","_healer","_isMedic"];
+    private _infectedUnit = _this#0;
+    if (!alive _infectedUnit) exitWith {};//Bypass for dead units
+    if (_infectedUnit getVariable ["QST_isHealed",false]) exitWith {};//Already healed
+    //Update states
+    _infectedUnit setVariable ["QST_isHealed",true];
+    NWG_QST_InfectionData set [1,((NWG_QST_InfectionData select 1) + 1)];//Increment healed counter
+    publicVariable "NWG_QST_InfectionData";
+    //Remove event handler
+    _infectedUnit removeEventHandler [_thisEvent,_thisEventHandler];
+};
+NWG_QST_SER_OnInfectionKilled = {
+    // params ["_targetObj","_killer","_instigator","_useEffects"];
+    private _infectedUnit = _this#0;
+    //Check if previously healed
+    if (_infectedUnit getVariable ["QST_isHealed",false]) then {
+        NWG_QST_InfectionData set [1,((NWG_QST_InfectionData select 1) - 1)];//Decrement healed counter if previously healed
+    };
+    //Update states
+    NWG_QST_InfectionData set [2,((NWG_QST_InfectionData select 2) + 1)];//Increment killed counter
+    publicVariable "NWG_QST_InfectionData";
+    //Remove event handler
+    _infectedUnit removeEventHandler [_thisEvent,_thisEventHandler];//Remove event handler
 };

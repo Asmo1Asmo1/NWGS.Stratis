@@ -8,8 +8,8 @@ NWG_QST_Settings = createHashMapFromArray [
 		// QST_TYPE_HACK_DATA,
 		// QST_TYPE_DESTROY,
 		// QST_TYPE_INTEL,
-		// QST_TYPE_INFECTION,
-		QST_TYPE_WOUNDED
+		QST_TYPE_INFECTION
+		// QST_TYPE_WOUNDED,
 		// QST_TYPE_MED_SUPPLY,
 		// QST_TYPE_WEAPON,
 		// QST_TYPE_ELECTRONICS
@@ -199,6 +199,20 @@ NWG_QST_Settings = createHashMapFromArray [
 		"FileNetworkStructure",
 		"Files"
 	]],//Akshually, they are 'ammo' lol
+
+	/*Infection quest*/
+	["INFECTED_TARGETS",[
+		"C_Man_casual_1_F_afro_sick",
+		"C_Man_casual_3_F_afro_sick",
+		"C_man_sport_2_F_afro_sick",
+		"C_Man_casual_4_F_afro_sick",
+		"C_Man_casual_5_F_afro_sick",
+		"C_Man_casual_6_F_afro_sick",
+		"C_man_polo_1_F_afro_sick",
+		"C_man_polo_2_F_afro_sick",
+		"C_man_polo_3_F_afro_sick",
+		"C_man_polo_6_F_afro_sick"
+	]],
 
 	/*Wounded quest*/
 	["WOUNDED_TITLE","#QST_WOUNDED_TITLE#"],

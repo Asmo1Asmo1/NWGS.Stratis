@@ -90,6 +90,8 @@ NWG_DLGHLP_Settings = createHashMapFromArray [
 	["QST_DONE_TRUE_TRDR",["#QST_DONE_TRUE_TRDR_01#"]],
 	["QST_DONE_FALSE_MEDC",["#QST_DONE_FALSE_MEDC_01#"]],
 	["QST_DONE_TRUE_MEDC",["#QST_DONE_TRUE_MEDC_01#"]],
+	["QST_DONE_TRUE_MEDC_INFECTION_GOOD_ENDING",["#QST_DONE_TRUE_MEDC_INFECTION_GOOD_ENDING_01#"]],
+	["QST_DONE_TRUE_MEDC_INFECTION_BAD_ENDING",["#QST_DONE_TRUE_MEDC_INFECTION_BAD_ENDING_01#"]],
 	["QST_DONE_FALSE_COMM",["#QST_DONE_FALSE_COMM_01#"]],
 	["QST_DONE_FALSE_COMM_ITEMS",["#QST_DONE_FALSE_COMM_ITEMS#"]],
 	["QST_DONE_TRUE_COMM",["#QST_DONE_TRUE_COMM_01#"]],
@@ -281,6 +283,7 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 		case QST_TYPE_INTEL;
 		case QST_TYPE_MED_SUPPLY;
 		case QST_TYPE_ELECTRONICS;
+		case QST_TYPE_INFECTION;
 		case QST_TYPE_WOUNDED: {
 			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
 			private _cfg = configFile >> "CfgVehicles" >> _targetClassname;
@@ -296,9 +299,6 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 				if !(isClass _cfg) exitWith {};
 				_image = getText (_cfg >> "picture");
 			};
-		};
-		case QST_TYPE_INFECTION: {
-			//TODO: Implement
 		};
 		case QST_TYPE_WEAPON: {
 			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
@@ -412,7 +412,19 @@ NWG_DLGHLP_GetRndQuestDoneTrueQ = {
 		case NPC_TAXI: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_TAXI")};
 		case NPC_MECH: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_MECH")};
 		case NPC_TRDR: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_TRDR")};
-		case NPC_MEDC: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_MEDC")};
+		case NPC_MEDC: {
+			/*Depending on quest type - return different true answers*/
+			private _random = selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_MEDC");
+			private _questData = call NWG_fnc_qstGetQuestData;
+			if (_questData isEqualTo false) exitWith {_random};
+			private _questType = _questData param [QST_DATA_TYPE,-1];
+			if (_questType != QST_TYPE_INFECTION) exitWith {_random};
+			switch (call NWG_QST_CLI_CalcInfectionOutcome) do {
+				case 1: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_MEDC_INFECTION_GOOD_ENDING")};
+				case -1: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_MEDC_INFECTION_BAD_ENDING")};
+				default {_random};
+			}
+		};
 		case NPC_COMM: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_COMM")};
 		case NPC_ROOF: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_ROOF")};
 		default {
