@@ -276,16 +276,86 @@ NWG_QST_CLI_GetTargetVehicle = {
 	if (_i != -1) then {_ownedVehicles select _i} else {objNull}
 };
 
-NWG_QST_CLI_OnInterrogateStart = {
-	//Play animation
-	player playMoveNow (selectRandom ["Acts_Executioner_Backhand","Acts_Executioner_Forehand"]);
-	player playMove "Acts_Executioner_Kill_End";//Exit animation loop
+NWG_QST_CLI_OnInterrogateCreated = {
+	params ["_targetObj"];
+
+	//Prepare 'add action' script
+	private _addAction = {
+		params ["_title","_icon","_condition","_onStarted","_onCompleted"];
+		[
+			_targetObj,                      // Object the action is attached to
+			(_title call NWG_fnc_localize),  // Title of the action
+			_icon,                           // Idle icon shown on screen
+			_icon,                           // Progress icon shown on screen
+			(format ["(_this distance _target) < 3 && {%1}",_condition]),  // Condition for the action to start
+			(format ["(_caller distance _target) < 3 && {%1}",_condition]),// Condition for the action to progress
+			_onStarted,                      // Code executed when action starts
+			{},                              // Code executed on every progress tick
+			_onCompleted,                    // Code executed on completion
+			{},                              // Code executed on interrupted
+			[],                              // Arguments passed to the scripts as _this select 3
+			3,                               // Action duration in seconds
+			15,                              // Priority
+			false,                           // Remove on completion
+			false,                           // Show in unconscious state
+			true                             // Auto show on screen
+    	] call BIS_fnc_holdActionAdd
+	};
+
+	//Add 'Tie Up' action
+	[
+		NWG_QST_Settings get "INTERROGATE_TIE_TITLE",
+		NWG_QST_Settings get "INTERROGATE_TIE_ICON",
+		"[_target,false] call NWG_QST_CLI_InterrogateCondition",
+		{},
+		{_this call NWG_QST_CLI_OnInterrogateTieAction}
+	] call _addAction;
+
+	//Add 'Interrogate' action
+	[
+		NWG_QST_Settings get "INTERROGATE_TITLE",
+		NWG_QST_Settings get "INTERROGATE_ICON",
+		"[_target,true] call NWG_QST_CLI_InterrogateCondition",
+		{_this call NWG_QST_CLI_OnInterrogateStart},
+		{_this call NWG_QST_CLI_OnInterrogateAction}
+	] call _addAction;
 };
-NWG_QST_CLI_OnInterrogateDone = {
+NWG_QST_CLI_InterrogateCondition = {
+	params ["_targetObj","_expectedTied"];
+	if (isNull _targetObj || {!alive _targetObj}) exitWith {false};
+	(_targetObj getVariable ["QST_isTied",false]) isEqualTo _expectedTied
+};
+NWG_QST_CLI_OnInterrogateTieAction = {
 	params ["_targetObj","_player"];
+	if (_targetObj getVariable ["QST_isTied",false]) exitWith {};
+	_targetObj setVariable ["QST_isTied",true,true];
+	[_targetObj,player] remoteExec ["NWG_fnc_qstOnInterrogateTied",2];
+};
+NWG_QST_CLI_OnInterrogateStart = {
+	// params ["_targetObj","_player"];
+	_this spawn {
+		params ["_targetObj","_player"];
+		if ((currentWeapon player) isNotEqualTo "") then {
+			player action ["SwitchWeapon",player,player,-1];
+			sleep 2.5;
+			player switchMove [""];
+		};
+
+		//Play animation
+		private _animFlag = selectRandom [0,1];
+		private _anim = ["Acts_Executioner_Backhand","Acts_Executioner_Forehand"] select _animFlag;
+		player playMoveNow _anim;//Immediate animation
+		player playMove "Acts_Executioner_Kill_End";//Exit animation loop
+		//Send to server so that target could play corresponding animation
+		if (_animFlag == 0) then {sleep 0.25} else {sleep 0.4};
+		[_targetObj,_animFlag] remoteExec ["NWG_fnc_qstOnInterrogateAction",2];
+	};
+};
+NWG_QST_CLI_OnInterrogateAction = {
+	params ["_targetObj","_player"];
+	if (!alive _targetObj) exitWith {};//Dead men tell no tales
 
 	//Get values
-	private _targetName = name _targetObj;
 	private _toBreak = _targetObj getVariable ["QST_toBreak",0];
 	private _isSuccess = _toBreak <= 0;
 	private _isQuestDone = !isNil "NWG_QST_State" && {NWG_QST_State >= QST_STATE_DONE};
@@ -308,12 +378,8 @@ NWG_QST_CLI_OnInterrogateDone = {
 		};
 	};
 
-	//Send system chat message
-	[
-		"[%1] %2",
-		_targetName,
-		_message
-	] call NWG_fnc_systemChatAll;
+	//Output message
+	[(name _targetObj),(_message call NWG_fnc_localize)] call BIS_fnc_showSubtitle;
 };
 
 NWG_QST_CLI_OnHackCreated = {

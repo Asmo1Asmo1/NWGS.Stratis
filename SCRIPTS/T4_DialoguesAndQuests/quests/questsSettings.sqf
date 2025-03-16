@@ -4,11 +4,11 @@ NWG_QST_Settings = createHashMapFromArray [
 	/*Quest Settings*/
 	["QUEST_ENABLED",[
 		// QST_TYPE_VEH_STEAL,
-		// QST_TYPE_INTERROGATE,
+		QST_TYPE_INTERROGATE
 		// QST_TYPE_HACK_DATA,
 		// QST_TYPE_DESTROY,
 		// QST_TYPE_INTEL,
-		QST_TYPE_INFECTION
+		// QST_TYPE_INFECTION,
 		// QST_TYPE_WOUNDED,
 		// QST_TYPE_MED_SUPPLY,
 		// QST_TYPE_WEAPON,
@@ -50,7 +50,7 @@ NWG_QST_Settings = createHashMapFromArray [
 		/*QST_TYPE_HACK_DATA:*/ 1000,
 		/*QST_TYPE_DESTROY:*/ 1000,
 		/*QST_TYPE_INTEL:*/ "INTEL_ITEMS",
-		/*QST_TYPE_INFECTION:*/ 1000,
+		/*QST_TYPE_INFECTION:*/ 1200,
 		/*QST_TYPE_WOUNDED:*/ 1000,
 		/*QST_TYPE_MED_SUPPLY:*/ "MED_SUPPLY_ITEMS",
 		/*QST_TYPE_WEAPON:*/ {
@@ -137,6 +137,9 @@ NWG_QST_Settings = createHashMapFromArray [
 		"C_man_hunter_1_F"
 	]],
 	["INTERROGATE_BREAK_LIMIT",10],//Max number of hits to break the target
+	["INTERROGATE_KILL_LIMIT",-2],//If break counter is below this, the target will be killed (keep below zero as 'zero' means target will talk)
+	["INTERROGATE_TIE_TITLE","#QST_INTERROGATE_TIE_TITLE#"],
+	["INTERROGATE_TIE_ICON","a3\ui_f\data\igui\cfg\holdactions\holdaction_secure_ca.paa"],
 	["INTERROGATE_TITLE","#QST_INTERROGATE_TITLE#"],
 	["INTERROGATE_ICON","a3\ui_f\data\igui\cfg\actions\talk_ca.paa"],
 

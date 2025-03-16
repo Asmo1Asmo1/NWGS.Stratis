@@ -152,10 +152,8 @@ NWG_QST_SER_CreateNew = {
             //Set initial 'brake' counter
             private _toBreak = round (random (NWG_QST_Settings get "INTERROGATE_BREAK_LIMIT"));
             _targetObj setVariable ["QST_toBreak",_toBreak,true];
-            //Add action to interrogate target
-            private _title = NWG_QST_Settings get "INTERROGATE_TITLE";
-            private _icon = NWG_QST_Settings get "INTERROGATE_ICON";
-            [_targetObj,_title,_icon,{_this call NWG_QST_CLI_OnInterrogateDone},{call NWG_QST_CLI_OnInterrogateStart}] call NWG_fnc_addHoldActionGlobal;
+            //Setup interrogate target for current and JIP players
+            [_targetObj,"NWG_QST_CLI_OnInterrogateCreated",[]] call NWG_fnc_rqAddCommand;
         };
         case QST_TYPE_HACK_DATA: {
             //Set initial state
@@ -380,31 +378,43 @@ NWG_QST_SER_DefinePlayerKiller = {
 };
 
 /*Copy of NWG_ACP_OnWounded with some changes*/
+NWG_QST_SER_nextDamageAt = 0;
 NWG_QST_SER_OnWounded = {
     // params ["_unit","_selection","_damage","_source","_projectile","_hitIndex","_instigator","_hitPoint"];
     params ["_unit","_sel","_dmg"];
-    _dmg = _dmg min 0.75;//Clamp damage
 
     switch (true) do {
         case (!alive _unit): {};//Bypass for dead units
         case (_dmg < 0.1): {_dmg = 0};//Drop minor damage
-        case (_sel isNotEqualTo ""): {};//Bypass non-body hits
-
-        /*If already wounded*/
-        case ((incapacitatedState _unit) isNotEqualTo ""): {
-            /*Decrease 'brake' counter*/
-            private _toBreak = _unit getVariable ["QST_toBreak",0];
-            if (_toBreak > 0) then {_unit setVariable ["QST_toBreak",(_toBreak - 1),true]};
-        };
-
-        /*Else - wound unit*/
+        case (_sel isNotEqualTo ""): {_dmg = _dmg min 0.75};//Clamp damage for non-body hits
+        case (time < NWG_QST_SER_nextDamageAt): {_dmg = _dmg min 0.75};//Repeated damage
         default {
-            /*Wound the unit*/
-            _unit setUnconscious true;
-
-            /*Decrease 'brake' counter*/
+            NWG_QST_SER_nextDamageAt = time + 0.25;
+            private _isWounded = (incapacitatedState _unit) isNotEqualTo "";
+            private _isTied = _unit getVariable ["QST_isTied",false];
             private _toBreak = _unit getVariable ["QST_toBreak",0];
-            if (_toBreak > 0) then {_unit setVariable ["QST_toBreak",(_toBreak - 1),true]};
+            private _isDead = _toBreak <= (NWG_QST_Settings get "INTERROGATE_KILL_LIMIT");
+
+            switch (true) do {
+                case (_isDead): {
+                    /*Unit is dead - disable actions and pass full damage*/
+                    _unit setVariable ["QST_isTied",-1,true];//Invalid value so that actions conditions are not met
+                    _unit removeEventHandler [_thisEvent,_thisEventHandler];//Remove event handler
+                    _dmg = 1;//Pass full damage
+                };
+                case (!_isWounded && !_isTied): {
+                    /*Unit is standing - put them on the ground*/
+                    _unit setUnconscious true;//Put on the ground
+                    _unit setVariable ["QST_toBreak",(_toBreak - 1),true];//Decrease 'brake' counter
+                    _dmg = _dmg max 0.75;//Clamp damage
+                };
+                case (_isWounded || _isTied): {
+                    /*Unit is wounded or tied up*/
+                    _unit setVariable ["QST_toBreak",(_toBreak - 1),true];//Decrease 'brake' counter
+                    _dmg = _dmg max 0.75;//Clamp damage
+                };
+                default {_dmg = _dmg max 0.75};//Clamp damage
+            };
         };
     };
 

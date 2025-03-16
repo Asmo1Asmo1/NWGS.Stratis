@@ -83,6 +83,54 @@ NWG_fnc_qstOnHackDone = {
     _this call NWG_QST_CLI_OnHackDone;
 };
 
+NWG_fnc_qstOnInterrogateTied = {
+	params ["_targetObj","_player"];
+    if (isNull _targetObj || {!alive _targetObj}) exitWith {
+        (format ["NWG_fnc_qstOnInterrogateTied: Invalid target object: '%1'",_targetObj]) call NWG_fnc_logError;
+    };
+    if !(local _targetObj) exitWith {
+        _this remoteExec ["NWG_fnc_qstOnInterrogateTied",_targetObj];//Run where target is local
+    };
+
+    //Check unconscious state
+    private _isWounded = (incapacitatedState _targetObj) isNotEqualTo "";
+    if (_isWounded) then {
+        _targetObj setUnconscious false;
+        _targetObj switchMove [""];
+    };
+
+    //Position target where player is looking
+    private _playerPos = getPosASL _player;
+    private _playerDir = getDir _player;
+    private _forwardX = (sin _playerDir) * 0.3;
+    private _forwardY = (cos _playerDir) * 0.3;
+    _targetObj setPosASL [
+        (_playerPos#0) + _forwardX,
+        (_playerPos#1) + _forwardY,
+        (_playerPos#2)
+    ];
+    _targetObj setDir _playerDir;
+
+    //Play animation
+    _targetObj disableAI "ALL";
+    _targetObj playMoveNow "Acts_ExecutionVictim_Loop";
+};
+
+NWG_fnc_qstOnInterrogateAction = {
+	params ["_targetObj","_animFlag"];
+    if (isNull _targetObj || {!alive _targetObj}) exitWith {
+        (format ["NWG_fnc_qstOnInterrogateAction: Invalid target object: '%1'",_targetObj]) call NWG_fnc_logError;
+    };
+    if !(local _targetObj) exitWith {
+        _targetObj remoteExec ["NWG_fnc_qstOnInterrogateAction",_targetObj];//Run where target is local
+    };
+
+    //Play animation
+    private _anim = ["Acts_ExecutionVictim_Backhand","Acts_ExecutionVictim_Forehand"] select _animFlag;
+    _targetObj playMoveNow _anim;//Immediate animation
+    _targetObj playMove "Acts_ExecutionVictim_Loop";//Fallback to loop
+};
+
 NWG_fnc_qstOnUntieWoundedDone = {
 	// private _targetObj = _this;
     if (!hasInterface) exitWith {};

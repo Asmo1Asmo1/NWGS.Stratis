@@ -722,6 +722,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //T4_Quests
     //quests
     /*Quest actions*/
+    ["#QST_INTERROGATE_TIE_TITLE#","Связать"],
     ["#QST_INTERROGATE_TITLE#","Допросить"],
     ["#QST_HACK_DATA_TITLE#","Взломать"],
     ["#QST_WOUNDED_TITLE#","Развязать"],
