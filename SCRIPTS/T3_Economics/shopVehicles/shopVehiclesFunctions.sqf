@@ -37,6 +37,14 @@ NWG_fnc_vshopDownloadPrices = {
 	call NWG_VSHOP_SER_DownloadPrices
 };
 
+//Evaluate vehicle price
+//params: _vehClassname - string
+//returns: price - number
+NWG_fnc_vshopEvaluateVehPrice = {
+    // private _vehClassname = _this;
+    (_this call NWG_fnc_vcatGetUnifiedClassname) call NWG_VSHOP_SER_EvaluateVeh
+};
+
 /*Other systems->Client*/
 //Open shop
 NWG_fnc_vshopOpenPlatformShop = {

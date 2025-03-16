@@ -24,22 +24,22 @@ NWG_DLG_COMM_Settings = createHashMapFromArray [
 	/*Player level requirements for mission level selection*/
 	["MISSION_TO_PLAYER_LEVEL",[
 		/*Level 01*/ 0,
-		/*Level 02*/ 1,
-		/*Level 03*/ 2,
-		/*Level 04*/ 4,
-		/*Level 05*/ 6,
-		/*Level 06*/ 8,
-		/*Level 07*/ 10,
-		/*Level 08*/ 12,
-		/*Level 09*/ 14,
-		/*Level 10*/ 17,
-		/*Level 11*/ 20,
-		/*Level 12*/ 23,
-		/*Level 13*/ 26,
-		/*Level 14*/ 30,
-		/*Level 15*/ 34,
-		/*Level 16*/ 38,
-		/*Level 17 - ESCAPE*/ 42
+		/*Level 02*/ 2,
+		/*Level 03*/ 4,
+		/*Level 04*/ 8,
+		/*Level 05*/ 12,
+		/*Level 06*/ 16,
+		/*Level 07*/ 20,
+		/*Level 08*/ 24,
+		/*Level 09*/ 28,
+		/*Level 10*/ 34,
+		/*Level 11*/ 40,
+		/*Level 12*/ 46,
+		/*Level 13*/ 52,
+		/*Level 14*/ 60,
+		/*Level 15*/ 68,
+		/*Level 16*/ 76,
+		/*Level 17 - ESCAPE*/ 84
 	]],
 
 	/*Level unlock prices*/
@@ -74,7 +74,7 @@ NWG_DLG_COMM_Settings = createHashMapFromArray [
 //Mission state
 NWG_DLG_COMM_IsMissionStarted = {
 	if (isNil "NWG_MIS_CurrentState") exitWith {false};
-	NWG_MIS_CurrentState > MSTATE_READY
+	NWG_MIS_CurrentState > MSTATE_VOTING
 };
 NWG_DLG_COMM_IsMissionReady = {
 	/*inject show player money to reverse displaying group money*/

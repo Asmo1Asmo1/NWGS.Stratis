@@ -716,7 +716,8 @@ NWG_MED_CLI_UA_HealCondition = {
     !(player call NWG_MED_COM_IsWounded) && {
     (NWG_MED_CLI_hasFAKkit || NWG_MED_CLI_hasMedkit) && {
     (call NWG_fnc_radarGetUnitInFront) call NWG_MED_COM_IsWounded && {
-    ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_COM_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}}
+    (call NWG_fnc_radarGetUnitInFront) call NWG_MED_COM_IsHealable && {
+    ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_COM_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}}}
 };
 NWG_MED_CLI_UA_OnHealStarted = {
     NWG_MED_CLI_UA_healTarget = call NWG_fnc_radarGetUnitInFront;//Lock unit

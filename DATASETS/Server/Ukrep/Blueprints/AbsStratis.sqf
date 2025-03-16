@@ -631,7 +631,7 @@
         ["DECO","Land_FieldToilet_F",[1693,5069,5.5],0,105,0,0],
         ["DECO","Land_FieldToilet_F",[1693,5074,5.5],0,105,0,0],
         ["DECO","Land_FireExtinguisher_F",[1646.74,5044.48,6.87541],0,150,0,0],
-        ["DECO","Land_Laptop_03_black_F",[1657.33,5064.05,6.128],0,225.001,0,0],
+        ["DECO","Land_Laptop_03_black_F",[1657.33,5064.05,6.128],0,225.001,0,1],
         ["DECO","Land_MarketShelter_F",[1644,5085,5.5],0,105,0,1],
         ["DECO","Land_Pallet_F",[1663.8,5045.4,5.49932],0,0,0,0],
         ["DECO","Land_Pallets_F",[1662.3,5044.22,5.5],0,330,0,1],

@@ -41,7 +41,9 @@ NWG_fnc_wltAddPlayerMoney = {
 	if (!alive _player || {isNull _player}) exitWith {
 		"NWG_fnc_wltAddPlayerMoney: Player is dead or null" call NWG_fnc_logError;
 	};
-	if (_amount == 0) exitWith {};//Do nothing, not even log
+	if (isNil "_amount") exitWith {
+		"NWG_fnc_wltAddPlayerMoney: Amount is nil" call NWG_fnc_logError;
+	};
 
 	if (local _player)
 		then {_this call NWG_WLT_AddPlayerMoney}

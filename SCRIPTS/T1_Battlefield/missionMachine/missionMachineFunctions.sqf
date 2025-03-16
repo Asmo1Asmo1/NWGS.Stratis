@@ -115,6 +115,7 @@ NWG_fnc_mmGetStatus = {
 
 //=============================================================================
 /*Other systems->Mission machine*/
+/*=== Objects ===*/
 //Returns player base and its decorations
 //note: these exist only on MSTATE_BASE_ECONOMY and MSTATE_BASE_QUESTS mission states, use in EVENT_ON_MISSION_STATE_CHANGED subscriber(s)
 //returns: [obj,[array]]
@@ -132,20 +133,17 @@ NWG_fnc_mmGetMissionObjects = {
     NWG_MIS_SER_missionObjects
 };
 
-//Returns mission faction (defined in globalDefines.h)
-//note: this command is reliable only starting from MSTATE_BUILD_UKREP mission state, otherwise it will either return empty string or previous mission faction
-//note: use in EVENT_ON_MISSION_STATE_CHANGED subscriber(s)
-//returns: string (MISSION_FACTION_NATO, MISSION_FACTION_CSAT, MISSION_FACTION_AAF, ...)
-NWG_fnc_mmGetMissionFaction = {
-    NWG_MIS_SER_missionInfo getOrDefault [MINFO_ENEMY_FACTION,""]
+/*=== Mission Info ===*/
+//Returns mission name
+//returns: string
+NWG_fnc_mmGetMissionName = {
+    NWG_MIS_SER_missionInfo getOrDefault [MINFO_NAME,""]
 };
 
-//Returns mission side
-//note: this command is reliable only starting from MSTATE_BUILD_UKREP mission state, otherwise it will either return empty string or previous mission faction
-//note: use in EVENT_ON_MISSION_STATE_CHANGED subscriber(s)
-//returns: WEST, EAST, GUER
-NWG_fnc_mmGetMissionSide = {
-    NWG_MIS_SER_missionInfo getOrDefault [MINFO_ENEMY_SIDE,west]
+//Returns mission level
+//returns: number
+NWG_fnc_mmGetMissionLevel = {
+    NWG_MIS_SER_missionInfo getOrDefault [MINFO_LEVEL,0]
 };
 
 //Interpolates min-max according to selected level
@@ -156,7 +154,14 @@ NWG_fnc_mmGetMissionSide = {
 NWG_fnc_mmInterpolateByLevelInt = {
     // params ["_min","_max"];
     private _level = NWG_MIS_SER_missionInfo getOrDefault [MINFO_LEVEL,0];
-    [_this,_level] call NWG_MIS_SER_InterpolateInt;
+    [_this,_level] call NWG_MIS_SER_InterpolateInt
+};
+
+//Returns if this is a last 'Escape' level
+//returns: boolean
+NWG_fnc_mmIsEscapeLevel = {
+    private _level = NWG_MIS_SER_missionInfo getOrDefault [MINFO_LEVEL,0];
+    _level call NWG_MIS_SER_IsEscapeLvl
 };
 
 //Returns tiers of this mission
@@ -171,15 +176,31 @@ NWG_fnc_mmGetMissionPos = {
     [(NWG_MIS_SER_missionInfo getOrDefault [MINFO_POSITION,[0,0,0]]),(NWG_MIS_SER_missionInfo getOrDefault [MINFO_RADIUS,0])]
 };
 
+//Returns mission side
+//note: this command is reliable only starting from MSTATE_BUILD_UKREP mission state, otherwise it will either return empty string or previous mission faction
+//note: use in EVENT_ON_MISSION_STATE_CHANGED subscriber(s)
+//returns: WEST, EAST, GUER
+NWG_fnc_mmGetMissionSide = {
+    NWG_MIS_SER_missionInfo getOrDefault [MINFO_ENEMY_SIDE,west]
+};
+
+//Returns mission faction (defined in globalDefines.h)
+//note: this command is reliable only starting from MSTATE_BUILD_UKREP mission state, otherwise it will either return empty string or previous mission faction
+//note: use in EVENT_ON_MISSION_STATE_CHANGED subscriber(s)
+//returns: string (e.g.: MISSION_FACTION_NATO )
+NWG_fnc_mmGetMissionFaction = {
+    NWG_MIS_SER_missionInfo getOrDefault [MINFO_ENEMY_FACTION,""]
+};
+
+/*=== Player Checks ===*/
 //Returns if this unit is currently in the base area
 //params: _player - object
 //returns: boolean
 NWG_fnc_mmIsPlayerOnBase = {
     // private _player = _this;
-    private _basePos = NWG_MIS_SER_playerBasePos;
-    if (_basePos isEqualTo []) exitWith {true};//Fallback to true if base position is not set yet
+    if (isNil "NWG_MIS_SER_playerBase" || {isNull NWG_MIS_SER_playerBase}) exitWith {true};//Fallback to true if base is not set yet
     private _baseRad = NWG_MIS_SER_Settings get "PLAYER_BASE_RADIUS";
-    (_this distance _basePos) <= _baseRad
+    (_this distance NWG_MIS_SER_playerBase) <= _baseRad
 };
 
 //Returns if this player was on mission

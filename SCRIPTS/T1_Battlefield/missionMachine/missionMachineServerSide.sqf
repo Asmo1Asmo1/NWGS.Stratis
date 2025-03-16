@@ -296,7 +296,7 @@ NWG_MIS_SER_Cycle = {
                 call NWG_MIS_SER_NextState;
             };
             case MSTATE_BUILD_QUESTS: {
-                //TODO: Generate side quests using QUESTS
+                //EVENT_ON_MISSION_STATE_CHANGED subscriber(s) did the job. We do nothing.
                 NWG_MIS_SER_missionObjects resize 0;//Release mission objects
                 call NWG_MIS_SER_NextState;
             };

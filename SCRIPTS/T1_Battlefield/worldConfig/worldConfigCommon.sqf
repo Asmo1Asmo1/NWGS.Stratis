@@ -56,17 +56,17 @@ NWG_WCONF_COM_Settings = createHashMapFromArray [
 
 	/*Weather settings*//*[_weatherStr,_weatherLocKey,_settings: [[_overcastMinMax],[_windMinMax],[_rainMinMax],[_lightningsMinMax],[_fogMinMax]]]*/
 	["WEATHERS",[
-		["clear",  "#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
-		["clear",  "#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
-		["clear",  "#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
-		["clear+w","#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[3.0,6.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
-		["cloud",  "#WEATHER_CLOUD#",[/*ovc:*/[0.4,0.6],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
-		["cloud",  "#WEATHER_CLOUD#",[/*ovc:*/[0.4,0.6],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
-		["cloud+w","#WEATHER_CLOUD#",[/*ovc:*/[0.4,0.6],/*wind:*/[3.0,6.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0]]],
-		["rain",   "#WEATHER_RAIN#", [/*ovc:*/[0.6,0.9],/*wind:*/[0.0,0.0],/*rain:*/[0.5,0.8],/*lightnings:*/[0.0,0.5],/*fog:*/[0.0,0.0]]],
-		["rain+w", "#WEATHER_RAIN#", [/*ovc:*/[0.6,0.9],/*wind:*/[1.5,2.5],/*rain:*/[0.5,0.8],/*lightnings:*/[0.0,0.7],/*fog:*/[0.0,0.0]]],
-		["fog",    "#WEATHER_FOG#",  [/*ovc:*/[0.4,0.6],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.3,0.5]]],
-		["storm",  "#WEATHER_STORM#",[/*ovc:*/[1.0,1.0],/*wind:*/[6.0,9.0],/*rain:*/[1.0,1.0],/*lightnings:*/[1.0,1.0],/*fog:*/[0.0,0.0]]]
+		["clear",  "#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0],/*waves:*/[0.0,0.3]]],
+		["clear",  "#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0],/*waves:*/[0.0,0.3]]],
+		["clear",  "#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0],/*waves:*/[0.0,0.3]]],
+		["clear+w","#WEATHER_CLEAR#",[/*ovc:*/[0.0,0.3],/*wind:*/[3.0,6.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0],/*waves:*/[0.4,0.7]]],
+		["cloud",  "#WEATHER_CLOUD#",[/*ovc:*/[0.4,0.6],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0],/*waves:*/[0.0,0.3]]],
+		["cloud",  "#WEATHER_CLOUD#",[/*ovc:*/[0.4,0.6],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0],/*waves:*/[0.0,0.3]]],
+		["cloud+w","#WEATHER_CLOUD#",[/*ovc:*/[0.4,0.6],/*wind:*/[3.0,6.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.0,0.0],/*waves:*/[0.4,0.7]]],
+		["rain",   "#WEATHER_RAIN#", [/*ovc:*/[0.6,0.9],/*wind:*/[0.0,0.0],/*rain:*/[0.5,0.8],/*lightnings:*/[0.0,0.5],/*fog:*/[0.0,0.0],/*waves:*/[0.2,0.5]]],
+		["rain+w", "#WEATHER_RAIN#", [/*ovc:*/[0.6,0.9],/*wind:*/[1.5,2.5],/*rain:*/[0.5,0.8],/*lightnings:*/[0.0,0.7],/*fog:*/[0.0,0.0],/*waves:*/[0.4,0.7]]],
+		["fog",    "#WEATHER_FOG#",  [/*ovc:*/[0.4,0.6],/*wind:*/[0.0,0.0],/*rain:*/[0.0,0.0],/*lightnings:*/[0.0,0.0],/*fog:*/[0.4,0.6],/*waves:*/[0.0,0.3]]],
+		["storm",  "#WEATHER_STORM#",[/*ovc:*/[1.0,1.0],/*wind:*/[6.0,9.0],/*rain:*/[1.0,1.0],/*lightnings:*/[1.0,1.0],/*fog:*/[0.0,0.0],/*waves:*/[1.0,1.0]]]
 	]],
 
 	["",0]
@@ -136,7 +136,7 @@ NWG_WCONF_COM_SetDaytimeAndWeather = {
 		(format ["NWG_WCONF_COM_SetWeatherStr: Weather not found: %1",_weatherStr]) call NWG_fnc_logError;
 		false
 	};
-	((_weathers#_i)#WEATHER_SETTINGS) params ["_overcastMinMax","_windMinMax","_rainMinMax","_lightningsMinMax","_fogMinMax"];
+	((_weathers#_i)#WEATHER_SETTINGS) params ["_overcastMinMax","_windMinMax","_rainMinMax","_lightningsMinMax","_fogMinMax","_wavesMinMax"];
 
 	//Setup new weather
 	0 setOvercast (_overcastMinMax call NWG_fnc_randomRangeFloat); forceWeatherChange;
@@ -156,5 +156,9 @@ NWG_WCONF_COM_SetDaytimeAndWeather = {
 	if (_fog > 0)
 		then {0 setFog [_fog,(_fog / 2),(_fog * 4)]}
 		else {0 setFog 0};
+	forceWeatherChange;
+
+	//Setup waves
+	0 setWaves (_wavesMinMax call NWG_fnc_randomRangeFloat);
 	forceWeatherChange;
 };

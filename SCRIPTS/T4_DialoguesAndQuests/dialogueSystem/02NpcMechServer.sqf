@@ -9,7 +9,7 @@
 NWG_DLG_MECH_PricesRequest = {
 	params ["_vehArray","_player"];
 	if (isNull _player) exitWith {};
-	private _prices = _vehArray apply {_x call NWG_VSHOP_SER_EvaluateVeh};//Inner method of 'shopVehiclesServerSide.sqf'
+	private _prices = _vehArray apply {_x call NWG_fnc_vshopEvaluateVehPrice};
 	[_vehArray,_prices] remoteExec ["NWG_DLG_MECH_OnVehPriceResponse",_player];
 };
 

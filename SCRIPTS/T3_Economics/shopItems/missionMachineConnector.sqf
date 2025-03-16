@@ -7,7 +7,7 @@
 //Settings
 NWG_ISHOP_MMC_Settings = createHashMapFromArray [
     ["CHECK_PERSISTENT_ITEMS",true],//Check validity of persistent items on economy state
-    ["ADD_ITEMS_MIN_MAX",[1,4]],//Number of items to add on mission completion
+    ["ADD_ITEMS_MIN_MAX",[1,2]],//Number of items to add on mission completion
 
     ["",0]
 ];
