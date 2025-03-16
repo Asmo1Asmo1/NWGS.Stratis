@@ -63,6 +63,9 @@ NWG_DLG_COMM_Settings = createHashMapFromArray [
 		/*Level 17 - ESCAPE*/ 1000000
 	]],
 
+	/*Level unlock notification template*/
+	["NOTIFICATION_TEMPLATE","#COMM_LVLNLCK_NOTIFICATION#"],
+
 	["COLOR_REQ_LOCKED",[1,1,1,0.5]],
 	["COLOR_LOCKED",[0,1,0,0.5]],
 
@@ -123,7 +126,7 @@ NWG_DLG_COMM_GenerateLevelSelect = {
 		_price = _unlockPrices  param [_forEachIndex,0];
 
 		//Check if player is of lower level than required
-		if (_playerLevel < _req) then {
+		if (_playerLevel < _req) exitWith {
 			_result pushBack [
 				/*A_STR:*/["#COMM_LVLSEL_LVLREQ#",_req],
 				/*A_NEXT_NODE:*/"COMM_LVL_REQ_LOCKED",
@@ -131,11 +134,10 @@ NWG_DLG_COMM_GenerateLevelSelect = {
 				/*A_CODE_ARGS:*/_lvl,
 				/*A_COLOR:*/(NWG_DLG_COMM_Settings get "COLOR_REQ_LOCKED")
 			];
-			continue;
 		};
 
 		//Check if level is locked
-		if (!_x) then {
+		if (!_x) exitWith {
 			_result pushBack [
 				/*A_STR:*/["#COMM_LVLSEL_LOCKED#",(_price call NWG_fnc_wltFormatMoney)],
 				/*A_NEXT_NODE:*/"COMM_LVL_UNLOCK_PAY",
@@ -143,7 +145,6 @@ NWG_DLG_COMM_GenerateLevelSelect = {
 				/*A_CODE_ARGS:*/_lvl,
 				/*A_COLOR:*/(NWG_DLG_COMM_Settings get "COLOR_LOCKED")
 			];
-			continue;
 		};
 
 		_result pushBack [
@@ -219,6 +220,10 @@ NWG_DLG_COMM_UnlockLevel = {
 
 	//Update UI
 	call NWG_DLGHLP_UI_UpdatePlayerMoney;
+
+	//Notify everyone
+	private _template = NWG_DLG_COMM_Settings get "NOTIFICATION_TEMPLATE";
+	[_template,(name player),(_selectedLevel + 1)] call NWG_fnc_sideChatAll;
 
 	//return
 	true
