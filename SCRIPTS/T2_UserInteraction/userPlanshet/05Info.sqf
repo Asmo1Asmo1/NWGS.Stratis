@@ -16,7 +16,7 @@ NWG_UP_05Info_Settings = createHashMapFromArray [
 		["#UP_INFO_GENERAL#",{name player},{player call NWG_fnc_pGetMyLvl},{player call NWG_fnc_pGetMyExp}],
 		["#UP_INFO_TAXI_LVL#",{(player call NWG_fnc_pGetMyTaxiLvl) * 10}],
 		["#UP_INFO_TRDR_LVL#",{(player call NWG_fnc_pGetMyTraderLvl) * 10}],
-		["#UP_INFO_COMM_LVL#",{(player call NWG_fnc_pGetMySupportLvl) * 10}]
+		["#UP_INFO_COMM_LVL#",{(player call NWG_fnc_pGetMySupportLvl)}]
 	]],
 
 	["",0]

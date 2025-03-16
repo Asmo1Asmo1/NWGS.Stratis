@@ -38,7 +38,9 @@ NWG_fnc_avAllWheelOff = {
 // - success - Boolean
 NWG_fnc_avAllWheelSign = {
 	// private _vehicle = _this;
-	_this call NWG_AV_AllWheel_SignVehicle
+	if (isNull _this) exitWith {false};
+	_this setVariable ["NWG_AV_AllWheel_Sign",true,true];
+	true
 };
 
 //Check if vehicle is signed
@@ -48,7 +50,8 @@ NWG_fnc_avAllWheelSign = {
 // - success - Boolean
 NWG_fnc_avAllWheelIsSigned = {
 	// private _vehicle = _this;
-	_this call NWG_AV_AllWheel_IsSigned
+	if (isNull _this) exitWith {false};
+	_this getVariable ["NWG_AV_AllWheel_Sign",false]
 };
 
 //Check if vehicle is supported (thus there is a sense to sign it)

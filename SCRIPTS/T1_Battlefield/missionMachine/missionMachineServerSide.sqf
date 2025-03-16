@@ -558,11 +558,12 @@ NWG_MIS_SER_UpdateUnlockedLevels = {
     //Re-scan unlocked levels
     private _curUnlockedLevels = NWG_MIS_UnlockedLevels;
     {_newUnlockedLevels set [_forEachIndex,_x]} forEach _curUnlockedLevels;
-    if (_newUnlockedLevels isEqualTo _curUnlockedLevels) exitWith {};//No changes
+    if (_newUnlockedLevels isEqualTo _curUnlockedLevels) exitWith {false};//No changes
 
     //Update unlocked levels
     NWG_MIS_UnlockedLevels = _newUnlockedLevels;
     publicVariable "NWG_MIS_UnlockedLevels";
+    true
 };
 
 NWG_MIS_SER_OnUnlockLevelRequest = {

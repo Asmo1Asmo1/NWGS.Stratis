@@ -146,7 +146,7 @@ NWG_PSH_DPL_Deplete = {
     if (!isNil "_state") then {
         private _loadout = _state + [];//Shallow copy
         private _defaultLoadout = NWG_PSH_DPL_Settings get "LOADOUT_DEFAULT";
-        if (_loadout isEqualTo _defaultLoadout) exitWith {};//No loadout changes
+        if (_loadout isEqualTo _defaultLoadout) exitWith {};//No loadout changes in compare to default
 
         private _insuranceCount = _taxi;
         if (_insuranceCount < 0 || {_insuranceCount > 10}) exitWith {
@@ -184,7 +184,7 @@ NWG_PSH_DPL_Deplete = {
     if (!isNil "_state") then {
         private _addWeapon = _state;
         private _defaultAddWeapon = NWG_PSH_DPL_Settings get "ADD_WEAPON_DEFAULT";
-        if (_addWeapon isEqualTo _defaultAddWeapon) exitWith {};//No additional weapon changes
+        if (_addWeapon isEqualTo _defaultAddWeapon) exitWith {};//No additional on player
 
         private _insuranceChance = _taxi / 10;
         if (_insuranceChance < 0 || {_insuranceChance > 1}) exitWith {
@@ -206,7 +206,7 @@ NWG_PSH_DPL_Deplete = {
     _state = _playerState get _stateName;
     if (!isNil "_state") then {
         private _loot = _state + [];//Shallow copy
-        if (_loot isEqualTo (NWG_PSH_DPL_Settings get "LOOT_DEFAULT")) exitWith {};//No loot changes
+        if (_loot isEqualTo (NWG_PSH_DPL_Settings get "LOOT_DEFAULT")) exitWith {};//No loot stored
 
         private _insuranceMultiplier = _trdr / 10;
         if (_insuranceMultiplier < 0 || {_insuranceMultiplier > 1}) exitWith {
@@ -223,6 +223,7 @@ NWG_PSH_DPL_Deplete = {
             _loot set [_forEachIndex,(_toKeep call NWG_fnc_compactStringArray)];
             _toSellAll append _toSell;
         } forEach _loot;
+        if (count _toSellAll == 0) exitWith {};//No loot to sell
 
         _playerState set [_stateName,_loot];
         if (_notify && {!isNull _playerObj}) then {
@@ -238,15 +239,16 @@ NWG_PSH_DPL_Deplete = {
         } forEach _toSellAll;
         _sellPrice = round (_sellPrice * (NWG_PSH_DPL_Settings get "LOOT_SELL_MULTIPLIER"));
         if (_sellPrice <= 0) exitWith {};//No money earned
-        if (!isNull _playerObj) exitWith {[_playerObj,_sellPrice] call NWG_fnc_wltAddPlayerMoney};//Send money in ususal manner (so that player would get notification)
 
-        /*Modify wallet state*/
         _stateName = NWG_PSH_DPL_Settings get "WALLET_STATE_NAME";
         _state = _playerState get _stateName;
         if (isNil "_state") exitWith {
             (format ["NWG_PSH_DPL_Deplete: Wallet state not found for player: '%1' with steamID: '%2'",(name _playerObj),_steamID]) call NWG_fnc_logError;
         };
         _playerState set [_stateName,(_state + _sellPrice)];
+        if (_notify && {!isNull _playerObj}) then {
+            [_playerObj,_sellPrice] remoteExec ["NWG_WLT_NotifyMoneyChange",_playerObj];//Use inner method of 'walletClient.sqf' to notify player properly
+        };
     } else {
         (format ["NWG_PSH_DPL_Deplete: Loot state not found for player: '%1' with steamID: '%2'",(name _playerObj),_steamID]) call NWG_fnc_logError;
     };

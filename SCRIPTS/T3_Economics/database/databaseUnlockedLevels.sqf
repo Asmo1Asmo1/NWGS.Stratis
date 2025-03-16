@@ -49,15 +49,18 @@ NWG_DB_UL_LoadLevels = {
 			_success = false;
 		};
 		_getResultArray = (_getResultArray#1)#0;//wtf
-		if !(_getResultArray isEqualTypeArray [0,""]) exitWith {
-			(format ["NWG_DB_UL_LoadLevels: Incorrect type or number of fields in result. Id: '%1'. Result: '%2'",_id,_getResultArray]) call NWG_fnc_logError;
-			_success = false;
-		};
 		// if (DEBUG_LOG) then {(format ["NWG_DB_UL_LoadLevels: Get success. Result: '%1'",_getResultArray]) call NWG_fnc_logInfo};
 
 		//Parse into variables
 		// _id = _getResultArray#0;//Not used
-		_chartToLoadTo = _getResultArray#1;
+		_chartToLoadTo = (_getResultArray#1);
+		if (_chartToLoadTo isEqualType "") then {
+			_chartToLoadTo = parseSimpleArray _chartToLoadTo;
+		};
+		if !(_chartToLoadTo isEqualType []) exitWith {
+			(format ["NWG_DB_UL_LoadLevels: Incorrect type or number of fields in result. Id: '%1'. Result: '%2'",_id,_getResultArray]) call NWG_fnc_logError;
+			_success = false;
+		};
 	};
 
 	//Return result
@@ -92,7 +95,7 @@ NWG_DB_UL_SaveLevels = {
 	private ["_item","_insertResult"];
 	if (true) then {
 		_item = _chartToSave;
-		_insertResult = "extDB3" callExtension (format ["0:%1:INSERT INTO %2 (id,array) VALUES (%3,%4)",NWG_DB_Protocol,TABLE_NAME,_id,_item]);
+		_insertResult = "extDB3" callExtension (format ["0:%1:INSERT INTO %2 (id,array) VALUES (%3,'%4')",NWG_DB_Protocol,TABLE_NAME,_id,_item]);
 		if (_insertResult isNotEqualTo DB_OK) exitWith {
 			(format ["NWG_DB_UL_SaveLevels: Insert failed. Table: '%1'. Insert result: '%2'",TABLE_NAME,_insertResult]) call NWG_fnc_logError;
 			_success = false;
