@@ -3,7 +3,7 @@
 
 /*
 	Annotation
-	Fixed module for escape billboard
+	Hardcoded module for escape billboard
 */
 
 //======================================================================================================

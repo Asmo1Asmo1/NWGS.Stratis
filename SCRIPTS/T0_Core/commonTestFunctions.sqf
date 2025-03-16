@@ -34,7 +34,16 @@ NWG_fnc_testDumpToRptAndClipboard = {
 };
 
 NWG_fnc_testFullProgress = {
-    player setCaptive true;
     [player,1000000] call NWG_fnc_wltAddPlayerMoney;
     [player,[50,50,10,10,10]] call NWG_fnc_pSetPlayerProgress;
+};
+
+NWG_fnc_testRaiseLvlAndMoney = {
+    params ["_addLvl",["_addMoney",0]];
+
+    [player,0,_addLvl] call NWG_fnc_pAddPlayerProgress;
+    [player,1,_addLvl] call NWG_fnc_pAddPlayerProgress;
+    if (_addMoney > 0) then {
+        [player,_addMoney] call NWG_fnc_wltAddPlayerMoney;
+    };
 };

@@ -541,6 +541,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_LVLSEL_LVLREQ#","[LOCKED. Required lvl: %1]"],
     ["#COMM_LVLSEL_LOCKED#","[LOCKED. Unlock price: %1]"],
     ["#COMM_LVLSEL#","Level %1"],
+    ["#COMM_LVLNLCK_EXPLAIN_A_01#","How does this level unlock thing works?"],
+    ["#COMM_LVLNLCK_EXPLAIN_Q_01#","By going on a mission you earn our trust|The more we trust you - the harder missions we can offer|But you also make a one time 'donation' - you buy the intel|Like it or not - that's how it is|But cheer up|If you are a squad leader - entire squad chips in|And once the level is unlocked - it can be accessed anytime|Well, until we leave this island that is|Then it's all over again"],
+    ["#COMM_LVLNLCK_NOTIFICATION#","%1 has unlocked Level %2"],
     /*Comm - COMM_LVL_REQ_LOCKED*/
     ["#COMM_LVL_REQ_LOCKED_Q_01#","I can not trust you with this one yet|Required level: %1"],
     ["#COMM_LVL_REQ_LOCKED_Q_02#","It's above my confidence in you|Required level: %1"],

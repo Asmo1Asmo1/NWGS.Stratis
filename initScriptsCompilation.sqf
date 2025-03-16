@@ -70,6 +70,7 @@ _serverModules pushBack ("SCRIPTS\T1_Battlefield\kostyli\kostyliServer.sqf" call
 //missionMachine
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachineSettings.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachineServerSide.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T1_Battlefield\missionMachine\databaseConnector.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachineClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachineFunctions.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T1_Battlefield\missionMachine\missionMachineTests.sqf" call NWG_fnc_compile)};
@@ -210,6 +211,7 @@ _serverModules pushBack ("SCRIPTS\T3_Economics\database\databaseCommon.sqf" call
 _serverModules pushBack ("SCRIPTS\T3_Economics\database\databasePlayers.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\database\databasePrices.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\database\databaseEscapeBillboard.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\database\databaseUnlockedLevels.sqf" call NWG_fnc_compile);
 _serverFunctions pushBack ("SCRIPTS\T3_Economics\database\databaseFunctions.sqf" call NWG_fnc_compile);
 //economicsTest
 if (_isDevBuild) then {_serverModules pushBack ("SCRIPTS\T3_Economics\economicsTest\economicsTest.sqf" call NWG_fnc_compile)};
