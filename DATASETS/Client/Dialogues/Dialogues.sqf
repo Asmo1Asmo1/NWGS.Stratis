@@ -911,9 +911,17 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{call NWG_DLG_COMM_GenerateLevelSelect},
+				["#COMM_LVLNLCK_EXPLAIN_A_01#","COMM_LVLNLCK_EXPLAIN"],
 				["#COMM_LVL_A_02#","COMM_01"],
 				["#COMM_LVL_A_03#",NODE_EXIT]
 			]
+		]
+	],
+	/*Level select - explanation*/
+	[
+		"COMM_LVLNLCK_EXPLAIN",	[
+			Q_ONE,	"#COMM_LVLNLCK_EXPLAIN_Q_01#",
+			A_GEN,	{"COMM_LVL" call NWG_DLGHLP_GenerateBackExit}
 		]
 	],
 	/*Level select - Level Locked by player level requirements*/
