@@ -45,7 +45,7 @@ NWG_DLG_COMM_Settings = createHashMapFromArray [
 	/*Level unlock prices*/
 	["UNLOCK_PRICES",[
 		/*Level 01*/ 1000,
-		/*Level 02*/ 75000,
+		/*Level 02*/ 15000,
 		/*Level 03*/ 250000,
 		/*Level 04*/ 400000,
 		/*Level 05*/ 550000,

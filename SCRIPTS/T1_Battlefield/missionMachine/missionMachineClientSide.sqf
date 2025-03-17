@@ -287,7 +287,7 @@ NWG_MIS_CLI_OnEscapeStarted = {
 
 NWG_MIS_CLI_OnEscapeCompleted = {
     private _success = _this;
-    [/*endName:*/"end2",/*isVictory:*/_success,/*fadeType:*/true,/*playMusic:*/false,/*cancelTasks:*/true] call BIS_fnc_endMission;
+    [/*endName:*/"end2",/*isVictory:*/_success,/*fadeType:*/true,/*playMusic:*/true,/*cancelTasks:*/true] call BIS_fnc_endMission;
 };
 
 //================================================================================================================

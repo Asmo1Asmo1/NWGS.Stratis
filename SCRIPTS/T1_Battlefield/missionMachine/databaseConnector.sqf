@@ -27,11 +27,16 @@ NWG_MM_DBC_OnMissionStateChanged = {
             if (_unlockedLevels isEqualTo false) exitWith {
                 "NWG_MM_DBC_OnMissionStateChanged: Failed to load unlocked levels" call NWG_fnc_logError;
             };
-			if !(_unlockedLevels isEqualTypeArray [false]) exitWith {
+			private _isEmpty = _unlockedLevels isEqualTo [];
+			private _isValid = _unlockedLevels isEqualType [] && {_unlockedLevels isEqualTypeAll false};
+			if !(_isEmpty || _isValid) exitWith {
 				(format ["NWG_MM_DBC_OnMissionStateChanged: Invalid unlocked levels format: '%1'",_unlockedLevels]) call NWG_fnc_logError;
             };
             NWG_MIS_UnlockedLevels = _unlockedLevels;//Assign to global variable
-			call NWG_MIS_SER_UpdateUnlockedLevels;//Update for server and clients
+			private _updated = call NWG_MIS_SER_UpdateUnlockedLevels;//Update for server and clients
+			if !(_updated) exitWith {
+				publicVariable "NWG_MIS_UnlockedLevels";//Force update for clients if levels are "same as before" because they are not
+			};
         };
 
 		/*Escape completed state - save unlocked levels to DB as empty array (we're dropping unlocked levels after escape mission)*/
@@ -41,7 +46,7 @@ NWG_MM_DBC_OnMissionStateChanged = {
 				"NWG_MM_DBC_OnMissionStateChanged: db function is not defined" call NWG_fnc_logError;
 			};
 			private _ok = [] call NWG_fnc_dbSaveUnlockedLevels;
-			if !(_ok) then {
+			if !(_ok) exitWith {
 				"NWG_MM_DBC_OnMissionStateChanged: Failed to save unlocked levels" call NWG_fnc_logError;
 			};
 			"NWG_MM_DBC_OnMissionStateChanged: Unlocked levels saved on ESCAPE COMPLETED" call NWG_fnc_logInfo;
@@ -63,7 +68,7 @@ NWG_MM_DBC_OnMissionStateChanged = {
 			};
             private _unlockedLevels = NWG_MIS_UnlockedLevels + [];//Shallow copy
             private _ok = _unlockedLevels call NWG_fnc_dbSaveUnlockedLevels;
-            if !(_ok) then {
+            if !(_ok) exitWith {
                 "NWG_MM_DBC_OnMissionStateChanged: Failed to save unlocked levels" call NWG_fnc_logError;
             };
 			"NWG_MM_DBC_OnMissionStateChanged: Unlocked levels saved on RESET/RESTART" call NWG_fnc_logInfo;

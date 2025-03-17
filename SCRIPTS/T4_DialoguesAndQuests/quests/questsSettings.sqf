@@ -48,10 +48,10 @@ NWG_QST_Settings = createHashMapFromArray [
 		},
 		/*QST_TYPE_INTERROGATE:*/ 1000,
 		/*QST_TYPE_HACK_DATA:*/ 1000,
-		/*QST_TYPE_DESTROY:*/ 1000,
+		/*QST_TYPE_DESTROY:*/ 900,
 		/*QST_TYPE_INTEL:*/ "INTEL_ITEMS",
 		/*QST_TYPE_INFECTION:*/ 1200,
-		/*QST_TYPE_WOUNDED:*/ 1000,
+		/*QST_TYPE_WOUNDED:*/ 1100,
 		/*QST_TYPE_MED_SUPPLY:*/ "MED_SUPPLY_ITEMS",
 		/*QST_TYPE_WEAPON:*/ {
 			params ["_targetClassname","_multiplier"];

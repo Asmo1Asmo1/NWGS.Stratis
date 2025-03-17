@@ -159,6 +159,13 @@ NWG_WCONF_COM_SetDaytimeAndWeather = {
 	forceWeatherChange;
 
 	//Setup waves
-	0 setWaves (_wavesMinMax call NWG_fnc_randomRangeFloat);
+	private _wavesValue = _wavesMinMax call NWG_fnc_randomRangeFloat;
+	_wavesValue remoteExec ["NWG_WCONF_COM_SetWaves",0];
 	forceWeatherChange;
+};
+
+/*The only Le command that requires all-sides execution*/
+NWG_WCONF_COM_SetWaves = {
+	// private _value = _this;
+	0 setWaves _this;
 };

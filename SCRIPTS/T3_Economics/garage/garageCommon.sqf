@@ -59,7 +59,7 @@ NWG_GRG_VehicleToGarageArray = {
     _result pushBack (if (_totalMaxAmmo > 0) then {_totalCurAmmo / _totalMaxAmmo} else {1});
 
     /*GR_APPEARANCE:*/
-    (_this call NWG_fnc_spwnGetVehicleAppearance) params ["_colors","_animations"];
+    (_this call BIS_fnc_getVehicleCustomization) params ["_colors","_animations"];
     _animations = _animations select {_x isEqualType 1};//Omit strings - they are not changing ("Save 12kb of data"©Sezam)
     _result pushBack [_colors,_animations];
 
@@ -88,7 +88,7 @@ NWG_GRG_ApplyGarageArray = {
     /*GR_APPEARANCE:*/
     (_garageArray param [GR_APPEARANCE,[]]) params [["_colors",[]],["_animationsNumbers",[]]];
     _animationsNumbers = _animationsNumbers + [];//Shallow copy
-    (_vehicle call NWG_fnc_spwnGetVehicleAppearance) params ["","_animations"];
+    (_vehicle call BIS_fnc_getVehicleCustomization) params ["","_animations"];
     private _number = 0;
     {
         if (_x isEqualType "") then {continue};//Skip strings
@@ -96,7 +96,7 @@ NWG_GRG_ApplyGarageArray = {
         if (isNil "_number") then {continue};//Prevent errors
         _animations set [_forEachIndex,_number];
     } forEach _animations;
-    [_vehicle,[_colors,_animations]] call NWG_fnc_spwnSetVehicleAppearance;
+    [_vehicle,_colors,_animations] call BIS_fnc_initVehicle;
 
     /*GR_ALLWHEEL:*/
     private _signed = _garageArray param [GR_ALLWHEEL,false];

@@ -106,7 +106,7 @@ NWG_DB_ESCB_SaveWinners = {
 	{
 		_id = _id + 1;
 		_item = _x;
-		_insertResult = "extDB3" callExtension (format ["0:%1:INSERT INTO %2 (id,name) VALUES (%3,%4)",NWG_DB_Protocol,TABLE_NAME,_id,_item]);
+		_insertResult = "extDB3" callExtension (format ["0:%1:INSERT INTO %2 (id,name) VALUES (%3,'%4')",NWG_DB_Protocol,TABLE_NAME,_id,_item]);
 		if (_insertResult isNotEqualTo DB_OK) exitWith {
 			(format ["NWG_DB_PRC_Save: Insert failed. Table: '%1'. Insert result: '%2'",TABLE_NAME,_insertResult]) call NWG_fnc_logError;
 			_success = false;
