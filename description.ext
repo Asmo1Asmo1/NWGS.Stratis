@@ -18,7 +18,7 @@
 //Loading screen
 author			= "Asmo";
 onLoadName		= "NWG: Scavenger";
-onLoadMission	= "Scavenger v1.0.3";
+onLoadMission	= "Scavenger v2.0 [Reborn]";
 
 class Header
 {
@@ -73,3 +73,15 @@ allowFunctionsRecompile = 0;
 //===========================================================
 //Irrelative settings
 onCheat = "hint str _this";//for GETALLGEAR cheat (deprecated)
+
+//===========================================================
+//Configs
+class CfgCommands
+{
+	// a list of URIs supported by HTMLLoad
+	// note that in case of clients connected to dedicated server, restrictions defined in its config have priority.
+	allowedHTMLLoadURIs[] =
+	{
+		"https://discord.gg/*",
+	};
+};

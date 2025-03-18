@@ -11,6 +11,8 @@ NWG_AK_Settings = createHashMapFromArray [
 
 	["PARACHUTE_DEPLOYMENT_MIN_ALTITUDE",5],
 
+	["QUICK_VEH_ACCESS_DISTANCE",5],
+
 	["",0]
 ];
 
@@ -74,3 +76,24 @@ NWG_AK_ParachuteDeployment = {
 	};
 };
 
+//================================================================================================================
+//================================================================================================================
+//Quick vehicle access
+NWG_AK_QuickVehicleAccess = {
+	if (isNull player || {!alive player || {!isNull objectParent player}}) exitWith {};//Ignore if player is not alive or in vehicle
+	if (!isNil "NWG_fnc_medIsWounded" && {player call NWG_fnc_medIsWounded}) exitWith {};//Ignore if player is wounded
+
+	private _veh = cursorObject;
+	if (isNull _veh) exitWith {};//Ignore if there is no object under cursor
+	if ((["ParachuteBase","Car","Tank","Helicopter","Plane","Ship"] findIf {_veh isKindOf _x}) <= 0) exitWith {};//Ignore if cursorObject is not a vehicle
+	if ((player distance _veh) > (NWG_AK_Settings get "QUICK_VEH_ACCESS_DISTANCE")) exitWith {};//Ignore if player is too far from the vehicle
+	if (unitIsUAV _veh) exitWith {};//Ignore if cursorObject is a UAV
+
+	if (((crew _veh) findIf {
+		!captive _x && {
+		(side (group _x)) isNotEqualTo (side (group player))}
+	}) != -1) exitWith {};//Ignore if any crew member is not captive and from different side (prevent getting into enemy vehicles)
+
+	//Try to get in (safely handles case when vehicle is already full, so no need to check that)
+	player moveInAny _veh;
+};

@@ -4,22 +4,23 @@
     It is compiled for both, exists for both and may be internally used in both server and client side modules and functions
 */
 
-NWG_VOTE_COM_IsValid = {
+NWG_VOTE_COM_IsValidAnchor = {
     // private _anchor = _this;
-    !isNull _this && {alive _this && {!isNil {_this getVariable "NWG_VOTE_for"}}}
+    !isNull _this && {alive _this && {!isNil {_this getVariable "NWG_VOTE_infavor"}}}
 };
 
-NWG_VOTE_COM_GetFor = {
+NWG_VOTE_COM_GetInfavor = {
     // private _anchor = _this;
-    _this getVariable ["NWG_VOTE_for",0]
+    _this getVariable ["NWG_VOTE_infavor",0]
 };
-NWG_VOTE_COM_SetFor = {
+NWG_VOTE_COM_SetInfavor = {
     params ["_anchor","_value"];
-    _anchor setVariable ["NWG_VOTE_for",_value,true];
+    _anchor setVariable ["NWG_VOTE_infavor",_value,true];
 };
-NWG_VOTE_COM_AddFor = {
+NWG_VOTE_COM_AddInfavor = {
     // private _anchor = _this;
-    [_this,((_this call NWG_VOTE_COM_GetFor) + 1)] call NWG_VOTE_COM_SetFor;
+    if !(_this call NWG_VOTE_COM_IsValidAnchor) exitWith {};
+    [_this,((_this call NWG_VOTE_COM_GetInfavor) + 1)] call NWG_VOTE_COM_SetInfavor;
 };
 
 NWG_VOTE_COM_GetAgainst = {
@@ -32,11 +33,13 @@ NWG_VOTE_COM_SetAgainst = {
 };
 NWG_VOTE_COM_AddAgainst = {
     // private _anchor = _this;
+    if !(_this call NWG_VOTE_COM_IsValidAnchor) exitWith {};
     [_this,((_this call NWG_VOTE_COM_GetAgainst) + 1)] call NWG_VOTE_COM_SetAgainst;
 };
 
 NWG_VOTE_COM_Clear = {
     // private _anchor = _this;
-    _this setVariable ["NWG_VOTE_for",nil,true];
+    if !(_this call NWG_VOTE_COM_IsValidAnchor) exitWith {};
+    _this setVariable ["NWG_VOTE_infavor",nil,true];
     _this setVariable ["NWG_VOTE_against",nil,true];
 };

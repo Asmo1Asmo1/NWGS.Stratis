@@ -55,3 +55,34 @@ NWG_fnc_dbSaveVehiclePrices = {
 	_this call NWG_DB_PRC_SaveVehiclePrices;
 };
 
+/*==== Escape billboard ====*/
+//Load winners names
+//params: none
+//returns: array of strings - winners names OR false if failed
+NWG_fnc_dbLoadEscapeWinners = {
+	call NWG_DB_ESCB_LoadWinners;
+};
+
+//Save winners names
+//params: array of strings - winners names
+//returns: boolean - true if success, false if failed
+NWG_fnc_dbSaveEscapeWinners = {
+	// private _winners = _this;
+	_this call NWG_DB_ESCB_SaveWinners;
+};
+
+/*==== Unlocked levels ====*/
+//Load unlocked levels
+//params: none
+//returns: array of integers - unlocked levels OR false if failed
+NWG_fnc_dbLoadUnlockedLevels = {
+	call NWG_DB_UL_LoadLevels;
+};
+
+//Save unlocked levels
+//params: array of integers - unlocked levels
+//returns: boolean - true if success, false if failed
+NWG_fnc_dbSaveUnlockedLevels = {
+	// private _levels = _this;
+	_this call NWG_DB_UL_SaveLevels;
+};

@@ -320,12 +320,10 @@ NWG_ECOT_MissionProfit_Test = {
 
 	//11. Form report
 	private _playerMoney = player call NWG_fnc_wltGetPlayerMoney;
-	private _misDifficulty = call NWG_fnc_mmGetMissionDifficulty;
 	private _report = [];
 
 	/*Add header*/
 	_report pushBack "===== [Mission Profit Test] =====";
-	_report pushBack (format ["Mission difficulty: '%1'",_misDifficulty]);
 	_report pushBack (format ["Player earned: '%1' (Loot sell: '%2' | Vehicles sell: '%3')",(_playerMoney toFixed 0),(_lootYield toFixed 0),(_sellYield toFixed 0)]);
 	private _toFixedStringLength = {
 		private _string = _this;

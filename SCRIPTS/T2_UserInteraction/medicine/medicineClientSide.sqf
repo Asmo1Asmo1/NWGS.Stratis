@@ -291,10 +291,9 @@ NWG_MED_CLI_BLEEDING_Cycle = {
 
         //Calculate closest player
         private _allValidPlayers = (call NWG_fnc_getPlayersAll) select {
-            alive _x && {
             _x isNotEqualTo player && {
             !(_x call NWG_MED_COM_IsWounded) && {
-            (side (group _x)) isEqualTo (side (group player))}}}
+            (side (group _x)) isEqualTo (side (group player))}}
         };
         private _closestPlayer = if ((count _allValidPlayers) > 0) then {
             _allValidPlayers = _allValidPlayers apply {[(_x distance player),_x]};
@@ -717,7 +716,8 @@ NWG_MED_CLI_UA_HealCondition = {
     !(player call NWG_MED_COM_IsWounded) && {
     (NWG_MED_CLI_hasFAKkit || NWG_MED_CLI_hasMedkit) && {
     (call NWG_fnc_radarGetUnitInFront) call NWG_MED_COM_IsWounded && {
-    ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_COM_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}}
+    (call NWG_fnc_radarGetUnitInFront) call NWG_MED_COM_IsHealable && {
+    ((call NWG_fnc_radarGetUnitInFront) call NWG_MED_COM_GetSubstate) isEqualTo SUBSTATE_DOWN}}}}}}}
 };
 NWG_MED_CLI_UA_OnHealStarted = {
     NWG_MED_CLI_UA_healTarget = call NWG_fnc_radarGetUnitInFront;//Lock unit

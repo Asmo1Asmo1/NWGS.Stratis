@@ -280,9 +280,7 @@ NWG_ACA_GetArtilleryVehicles = {
     // private _group = _this;
     private _result = (units _this) apply {vehicle _x};
     _result = _result arrayIntersect _result;//Remove duplicates
-    _result = _result select {alive _x && {_x call NWG_fnc_ocIsVehicle && {(getArtilleryAmmo [_x]) isNotEqualTo [] && {alive (gunner _x)}}}};
-    //return
-    _result
+    _result select {alive _x && {_x call NWG_fnc_ocIsVehicle && {((getArtilleryAmmo [_x]) isNotEqualTo []) && {alive (gunner _x)}}}}
 };
 
 NWG_ACA_CanDoArtilleryStrike = {
@@ -297,21 +295,12 @@ NWG_ACA_IsInRange = {
 
 NWG_ACA_CanDoArtilleryStrikeOnTarget = {
     params ["_group","_target"];
-    private _artillery = _group call NWG_ACA_GetArtilleryVehicles;
-    if (_artillery isEqualTo []) exitWith {false};
-    _artillery = _artillery select {[_x,(position _target)] call NWG_ACA_IsInRange};
-    _artillery isNotEqualTo []
+    ((_group call NWG_ACA_GetArtilleryVehicles) findIf {[_x,(position _target)] call NWG_ACA_IsInRange}) != -1
 };
 
 NWG_ACA_SendArtilleryStrike = {
     params ["_group","_target",["_precise",false]];
-
-    //Check if group can do artillery strike on said position
-    private _artillery = _group call NWG_ACA_GetArtilleryVehicles;
-    if (_artillery isEqualTo []) exitWith {"NWG_ACA_SendArtilleryStrike: No artillery units found" call NWG_fnc_logError; false};
-    _artillery = _artillery select {[_x,(position _target)] call NWG_ACA_IsInRange};
-    if (_artillery isEqualTo []) exitWith {false};
-
+    if !([_group,_target] call NWG_ACA_CanDoArtilleryStrikeOnTarget) exitWith {false};
     [_group,NWG_ACA_ArtilleryStrike,_target,_precise] call NWG_ACA_StartAdvancedLogic;
     true
 };
@@ -335,7 +324,7 @@ NWG_ACA_ArtilleryStrike = {
         (NWG_ACA_Settings get "ARTILLERY_STRIKE_WARNING_PAUSE"),
         (NWG_ACA_Settings get "ARTILLERY_STRIKE_RADIUS"),
         _precise,
-        (NWG_ACA_Settings get "ARTILLERY_STRIKE_TIMEOUT")
+        (time + (NWG_ACA_Settings get "ARTILLERY_STRIKE_TIMEOUT"))
     ] call NWG_ACA_ArtilleryStrikeCore
 };
 
@@ -443,9 +432,7 @@ NWG_ACA_GetMortars = {
     // private _group = _this;
     private _result = (units _this) apply {vehicle _x};
     _result = _result arrayIntersect _result;//Remove duplicates
-    _result = _result select {alive _x && {_x call NWG_fnc_ocIsTurret && {(getArtilleryAmmo [_x]) isNotEqualTo []}}};
-    //return
-    _result
+    _result select {alive _x && {_x call NWG_fnc_ocIsTurret && {(getArtilleryAmmo [_x]) isNotEqualTo []}}}
 };
 
 NWG_ACA_CanDoMortarStrike = {
@@ -455,21 +442,12 @@ NWG_ACA_CanDoMortarStrike = {
 
 NWG_ACA_CanDoMortarStrikeOnTarget = {
     params ["_group","_target"];
-    private _mortars = _group call NWG_ACA_GetMortars;
-    if (_mortars isEqualTo []) exitWith {false};
-    _mortars = _mortars select {[_x,(position _target)] call NWG_ACA_IsInRange};
-    _mortars isNotEqualTo []
+    ((_group call NWG_ACA_GetMortars) findIf {[_x,(position _target)] call NWG_ACA_IsInRange}) != -1
 };
 
 NWG_ACA_SendMortarStrike = {
     params ["_group","_target",["_precise",false]];
-
-    //Check if group can do mortar strike on said position
-    private _mortars = _group call NWG_ACA_GetMortars;
-    if (_mortars isEqualTo []) exitWith {"NWG_ACA_SendMortarStrike: No mortar units found" call NWG_fnc_logError; false};
-    _mortars = _mortars select {[_x,(position _target)] call NWG_ACA_IsInRange};
-    if (_mortars isEqualTo []) exitWith {false};
-
+    if !([_group,_target] call NWG_ACA_CanDoMortarStrikeOnTarget) exitWith {false};
     [_group,NWG_ACA_MortarStrike,_target,_precise] call NWG_ACA_StartAdvancedLogic;
     true
 };
@@ -493,7 +471,7 @@ NWG_ACA_MortarStrike = {
         (NWG_ACA_Settings get "MORTAR_STRIKE_WARNING_PAUSE"),
         (NWG_ACA_Settings get "MORTAR_STRIKE_RADIUS"),
         _precise,
-        (NWG_ACA_Settings get "MORTAR_STRIKE_TIMEOUT")
+        (time + (NWG_ACA_Settings get "MORTAR_STRIKE_TIMEOUT"))
     ] call NWG_ACA_ArtilleryStrikeCore
 };
 
@@ -503,9 +481,9 @@ NWG_ACA_CanDoVehDemolition = {
     // private _group = _this;
     private _veh = vehicle (leader _group);
     if !(_veh isKindOf "Tank"  || {_veh isKindOf "Wheeled_APC_F"}) exitWith {false};
-    if ((!alive (gunner _veh)) || {!alive (driver _veh)}) exitWith {false};
+    if !((alive (gunner _veh)) && {alive (driver _veh)}) exitWith {false};
     if ((_veh call NWG_ACA_GetDataForVehicleForceFire) isEqualTo []) exitWith {false};
-    //return
+    //All checks passed
     true
 };
 

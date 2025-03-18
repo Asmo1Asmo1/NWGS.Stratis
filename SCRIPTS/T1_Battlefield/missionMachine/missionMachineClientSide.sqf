@@ -5,8 +5,13 @@
 //================================================================================================================
 //Settings
 NWG_MIS_CLI_Settings = createHashMapFromArray [
-    ["SELECTION_MARKER_TEXT_TEMPLATE","  %1 : %2"],//Template for Name:Difficulty of a mission
-    ["SELECTION_MAPCLICK_MIN_DISTANCE",500],//Map distance to count map click as selection
+	["MAP_MIS_MARKER_TYPE","mil_objective"],//Marker type for missions
+	["MAP_MIS_MARKER_SIZE",1.25],//Marker size for missions
+	["MAP_MIS_OUTLINE_ALPHA",0.6],//Alpha value of outline for missions
+    ["MAP_MIS_MARKER_TEXT_TEMPLATE","  %1 : %2 : %3 : %4"],//Template for Name:Faction:Time:Weather of a mission
+    ["MAP_MIS_MAPCLICK_MIN_DISTANCE",500],//Map distance to count map click as selection
+
+    ["BRIEFING_INFO_TEMPLATE","%1 - %2 - %3"],//Template for Island:Time:Weather of a mission
 
     ["MISSION_COMPLETED_RELOAD_SELF_HEAL",true],//Call medicine system to reload self-heal chance on mission completion
     ["MISSION_COMPLETED_CELEBRATE",true],//Play sound and show visuals on mission completion
@@ -30,18 +35,73 @@ private _Init = {
 
 //================================================================================================================
 //================================================================================================================
-//Missions selection process
-NWG_MIS_CLI_selections = [];
-NWG_MIS_CLI_selectionMarkers = [];
-NWG_MIS_CLI_selectionInProgress = false;
-
-NWG_MIS_CLI_RequestMissionSelection = {
-    if (isNil "NWG_MIS_CurrentState" || {NWG_MIS_CurrentState != MSTATE_READY})
-        exitWith {"NWG_MIS_CLI_RequestMissionSelection: NWG_MIS_CurrentState is not READY" call NWG_fnc_logError};
-
-    [] remoteExec ["NWG_fnc_mmRequestSelectionOptions",2];
+//Levels and level unlocking
+NWG_MIS_CLI_GetUnlockedLevels = {
+    if (isNil "NWG_MIS_UnlockedLevels") exitWith {[]};
+    //return shallow copy
+    (NWG_MIS_UnlockedLevels + [])
 };
 
+NWG_MIS_CLI_UnlockLevel = {
+    private _level = _this;
+
+    //Check state
+    if (isNil "NWG_MIS_CurrentState" || {NWG_MIS_CurrentState != MSTATE_READY}) exitWith {
+        "NWG_MIS_CLI_UnlockLevel: NWG_MIS_CurrentState is not READY" call NWG_fnc_logError;
+        false
+    };
+
+    //Check level argument
+    private _unlockedLevels = call NWG_MIS_CLI_GetUnlockedLevels;
+    if (_level < 0 || _level >= (count _unlockedLevels)) exitWith {
+        (format ["NWG_MIS_CLI_UnlockLevel: Invalid level. level:'%1' levels count:'%2'",_level,(count _unlockedLevels)]) call NWG_fnc_logError;
+        false
+    };
+    if (_unlockedLevels param [_level,false]) exitWith {
+        (format ["NWG_MIS_CLI_UnlockLevel: Level '%1' is already unlocked",_level]) call NWG_fnc_logError;
+        false
+    };
+
+    //Send request
+    _level remoteExec ["NWG_fnc_mmUnlockLevelRequest",2];
+
+    //return
+    true
+};
+
+//================================================================================================================
+//================================================================================================================
+//Missions selection process
+NWG_MIS_CLI_RequestMissionSelection = {
+    private _level = _this;
+
+    //Check state
+    if (isNil "NWG_MIS_CurrentState" || {NWG_MIS_CurrentState != MSTATE_READY}) exitWith {
+        "NWG_MIS_CLI_RequestMissionSelection: NWG_MIS_CurrentState is not READY" call NWG_fnc_logError;
+        false
+    };
+
+    //Check level argument
+    private _unlockedLevels = call NWG_MIS_CLI_GetUnlockedLevels;
+    if (_level < 0 || _level >= (count _unlockedLevels)) exitWith {
+        (format ["NWG_MIS_CLI_RequestMissionSelection: Invalid level. level:'%1' levels count:'%2'",_level,(count _unlockedLevels)]) call NWG_fnc_logError;
+        false
+    };
+    if !(_unlockedLevels param [_level,false]) exitWith {
+        (format ["NWG_MIS_CLI_RequestMissionSelection: Level '%1' is not unlocked",_level]) call NWG_fnc_logError;
+        false
+    };
+
+    //Send request
+    _level remoteExec ["NWG_fnc_mmSelectionRequest",2];
+
+    //return
+    true
+};
+
+NWG_MIS_CLI_selectionList = [];
+NWG_MIS_CLI_selectionMarkers = [];
+NWG_MIS_CLI_selectionInProgress = false;
 NWG_MIS_CLI_OnSelectionOptionsReceived = {
     private _selections = _this;
 
@@ -55,37 +115,39 @@ NWG_MIS_CLI_OnSelectionOptionsReceived = {
     NWG_MIS_CLI_selectionInProgress = true;
 
     //Create markers on the map
-    private ["_markerName","_marker"];
+    private ["_selName","_selPos","_selRadius","_selFaction","_selColor","_selTime","_selWeather","_markerName","_marker"];
     private _markers = [];
     {
-        _x params ["_name","_pos","_radius","_difficulty","_markerType","_markerColor","_markerSize","_outlineAlpha"];
-
-        //Localize variables
-        _name = _name call NWG_fnc_localize;
-        _difficulty = _difficulty call NWG_fnc_localize;
+        _selName    = (_x select SELECTION_NAME) call NWG_fnc_localize;
+        _selPos     = _x select SELECTION_POS;
+        _selRadius  = _x select SELECTION_RAD;
+        _selFaction = (_x select SELECTION_FACTION) call NWG_fnc_localize;
+        _selColor   = _x select SELECTION_COLOR;
+        _selTime    = (_x select SELECTION_TIME_STR) call NWG_fnc_localize;
+        _selWeather = (_x select SELECTION_WEATHER_STR) call NWG_fnc_localize;
 
         //Create background outline marker
         _markerName = format ["selection_outline_%1",_forEachIndex];
-        _marker = createMarkerLocal [_markerName,_pos];
-        _marker setMarkerSizeLocal [_radius,_radius];
+        _marker = createMarkerLocal [_markerName,_selPos];
+        _marker setMarkerSizeLocal [_selRadius,_selRadius];
         _marker setMarkerShapeLocal "ELLIPSE";
-        _marker setMarkerColorLocal _markerColor;
-        _marker setMarkerAlpha _outlineAlpha;
+        _marker setMarkerColorLocal _selColor;
+        _marker setMarkerAlpha (NWG_MIS_CLI_Settings get "MAP_MIS_OUTLINE_ALPHA");
         _markers pushBack _marker;
 
         //Create main marker
         _markerName = format ["selection_%1",_forEachIndex];
-        _marker = createMarkerLocal [_markerName,_pos];
-        _marker setMarkerTypeLocal _markerType;
-        _marker setMarkerSizeLocal [_markerSize,_markerSize];
-        _marker setMarkerTextLocal (format [(NWG_MIS_CLI_Settings get "SELECTION_MARKER_TEXT_TEMPLATE"),_name,_difficulty]);
-        _marker setMarkerColor _markerColor;
+        _marker = createMarkerLocal [_markerName,_selPos];
+        _marker setMarkerTypeLocal (NWG_MIS_CLI_Settings get "MAP_MIS_MARKER_TYPE");
+        _marker setMarkerSizeLocal [(NWG_MIS_CLI_Settings get "MAP_MIS_MARKER_SIZE"),(NWG_MIS_CLI_Settings get "MAP_MIS_MARKER_SIZE")];
+        _marker setMarkerTextLocal (format [(NWG_MIS_CLI_Settings get "MAP_MIS_MARKER_TEXT_TEMPLATE"),_selName,_selFaction,_selTime,_selWeather]);
+        _marker setMarkerColor _selColor;
         _markers pushBack _marker;
     } forEach _selections;
 
     //Save
     NWG_MIS_CLI_selectionMarkers = _markers;
-    NWG_MIS_CLI_selections = _selections;
+    NWG_MIS_CLI_selectionList = _selections;
 
     //Force open map
 	if ( (((getUnitLoadout player) param [9,[]]) param [0,""]) isEqualTo "")
@@ -98,23 +160,25 @@ NWG_MIS_CLI_OnSelectionOptionsReceived = {
 NWG_MIS_CLI_OnMapClick = {
     // params ["_units","_pos","_alt","_shift"];
     if (!NWG_MIS_CLI_selectionInProgress) exitWith {};
-    if ((count NWG_MIS_CLI_selections) == 0) exitWith {};
+    if ((count NWG_MIS_CLI_selectionList) == 0) exitWith {};
 
     //Process the click
     private _clickPos = _this select 1;
-    private _minDistance = NWG_MIS_CLI_Settings get "SELECTION_MAPCLICK_MIN_DISTANCE";
+    private _minDistance = NWG_MIS_CLI_Settings get "MAP_MIS_MAPCLICK_MIN_DISTANCE";
     private _i = -1;
     private _dist = 0;
     {
         _dist = _clickPos distance2D (_x#SELECTION_POS);
         if (_dist <= _minDistance)
             then {_minDistance = _dist; _i = _forEachIndex};
-    } forEach NWG_MIS_CLI_selections;
+    } forEach NWG_MIS_CLI_selectionList;
     if (_i == -1) exitWith {};
+    private _selected = NWG_MIS_CLI_selectionList param [_i,[]];
+    if (count _selected == 0) exitWith {};
 
     //Cleanup
     {deleteMarker _x} forEach NWG_MIS_CLI_selectionMarkers;
-    NWG_MIS_CLI_selections resize 0;
+    NWG_MIS_CLI_selectionList resize 0;
     NWG_MIS_CLI_selectionMarkers resize 0;
     NWG_MIS_CLI_selectionInProgress = false;
 
@@ -123,25 +187,31 @@ NWG_MIS_CLI_OnMapClick = {
     openMap false;
 
     //Send selection
-    _i remoteExec ["NWG_fnc_mmSelectionMade",2];
+    _selected remoteExec ["NWG_fnc_mmSelectionMade",2];
 };
 
-//Just a nice visuals to show the progress
-NWG_MIS_CLI_OnSelectionConfirmed = {
-    // private _missionName = _this;
+//================================================================================================================
+//================================================================================================================
+//Mission briefing
+NWG_MIS_CLI_ShowMissionBriefing = {
+    // private _selection = _this;
 
-    //Show mission info
-    private _missionName = _this call NWG_fnc_localize;
-    private _subtitle = "#MIS_CLI_CONFIRMED_SUBTITLE#" call NWG_fnc_localize;
+    private _missionName    = (_this select SELECTION_NAME) call NWG_fnc_localize;
+    private _missionFaction = (_this select SELECTION_FACTION) call NWG_fnc_localize;
+    private _missionTime    = (_this select SELECTION_TIME_STR) call NWG_fnc_localize;
+    private _missionWeather = (_this select SELECTION_WEATHER_STR) call NWG_fnc_localize;
+
+    //Show mission name
+    private _subtitle = "#MIS_CLI_BRIEFING_1#" call NWG_fnc_localize;
     private _missionInfo = parseText (format ["<t font='RobotoCondensedBold' size='2'>%1</t><br/>%2", _missionName, _subtitle]);
     [_missionInfo, true, nil, 7, 2, 0] spawn BIS_fnc_textTiles;
 
     //Delay
     sleep 3;
 
-    //Show player info
-    private _line1 = format [("#MIS_CLI_CONFIRMED_PLAYER_TEMPLATE#" call NWG_fnc_localize),(name player)];
-    private _line2 = format ["%1: %2",((call NWG_fnc_wcGetWorldNameLocKey) call NWG_fnc_localize),(dayTime call BIS_fnc_timeToString)];
+    //Show mission details
+    private _line1 = format [("#MIS_CLI_BRIEFING_2#" call NWG_fnc_localize),_missionFaction];
+    private _line2 = format [(NWG_MIS_CLI_Settings get "BRIEFING_INFO_TEMPLATE"),((call NWG_fnc_wcGetWorldNameLocKey) call NWG_fnc_localize),_missionTime,_missionWeather];
     [
         [
             [_line1, "<t align = 'right' shadow = '1' size = '1'>%1</t><br/>"],
@@ -205,8 +275,19 @@ NWG_MIS_CLI_OnPlayMusic = {
     playMusic _this
 };
 
+NWG_MIS_CLI_OnEscapeStarted = {
+    private _secondsLeft = _this;
+    waitUntil {
+        sleep 1;
+        _secondsLeft = _secondsLeft - 1;
+        hintSilent ([_secondsLeft,"HH:MM:SS"] call BIS_fnc_secondsToString);
+        _secondsLeft <= 0
+    };
+};
+
 NWG_MIS_CLI_OnEscapeCompleted = {
-    ["end2",true,true,false,true] call BIS_fnc_endMission;
+    private _success = _this;
+    [/*endName:*/"end2",/*isVictory:*/_success,/*fadeType:*/true,/*playMusic:*/true,/*cancelTasks:*/true] call BIS_fnc_endMission;
 };
 
 //================================================================================================================

@@ -13,7 +13,7 @@ NWG_fnc_testPlaceMarker = {
 };
 
 NWG_fnc_testDumpToRptAndClipboard = {
-    private _array = _this;
+    private _array = _this + [];//Shallow copy
 
     //Convert to strings
     {
@@ -31,4 +31,19 @@ NWG_fnc_testDumpToRptAndClipboard = {
 
     //Return the array
     _array
+};
+
+NWG_fnc_testFullProgress = {
+    [player,1000000] call NWG_fnc_wltAddPlayerMoney;
+    [player,[50,50,10,10,10]] call NWG_fnc_pSetPlayerProgress;
+};
+
+NWG_fnc_testRaiseLvlAndMoney = {
+    params ["_addLvl",["_addMoney",0]];
+
+    [player,0,_addLvl] call NWG_fnc_pAddPlayerProgress;
+    [player,1,_addLvl] call NWG_fnc_pAddPlayerProgress;
+    if (_addMoney > 0) then {
+        [player,_addMoney] call NWG_fnc_wltAddPlayerMoney;
+    };
 };

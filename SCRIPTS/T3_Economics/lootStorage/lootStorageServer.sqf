@@ -7,5 +7,5 @@ NWG_LS_SER_SetStorageObject = {
     };
 
     [_this,true] remoteExecCall ["lockInventory",0,_this];//Lock its vanilla inventory
-    [_this,"#LS_STORAGE_ACTION_TITLE#",{call NWG_LS_CLI_OpenMyStorage}] call NWG_fnc_addActionGlobal;//Add action
+    [_this,"#LS_STORAGE_ACTION_TITLE#",{call NWG_fnc_lsOpenStorage}] call NWG_fnc_addActionGlobal;//Add action
 };

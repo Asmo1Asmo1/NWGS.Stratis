@@ -17,10 +17,11 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 		["C0I0",1000],//Scout drone
 		["C0I1",1100],//Suicide drone (HE 44)
 		["C0I2",1200],//Suicide drone (HEAT 55)
-		["C0I3",1500],//Suicide drone (HEAT 75)
-		["C0I4",2500],//EMI drone
-		["C0I5",2500],//Bomber drone
-		["C0I6",50000],//Ababil
+		["C0I3",1300],//Suicide drone (HEAT 75)
+		["C0I4",1500],//Mine drone
+		["C0I5",2500],//EMI drone
+		["C0I6",2500],//Bomber drone
+		["C0I7",50000],//Ababil
 
 		["C1I0",1000],//Single strike
 		["C1I1",1500],//Double tap
@@ -41,9 +42,10 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 		["C0I1",[200,150,0]],//Suicide drone (HE 44)
 		["C0I2",[200,150,0]],//Suicide drone (HEAT 55)
 		["C0I3",[200,150,0]],//Suicide drone (HEAT 75)
-		["C0I4",[300,200,0]],//EMI drone
-		["C0I5",[300,200,0]],//Bomber drone
-		["C0I6",[5000,500,0]],//Ababil
+		["C0I4",[200,150,0]],//Mine drone
+		["C0I5",[300,200,0]],//EMI drone
+		["C0I6",[300,200,0]],//Bomber drone
+		["C0I7",[5000,500,0]],//Ababil
 
 		["C1I0",[200,100,0]],//Single strike
 		["C1I1",[300,100,0]],//Double tap
@@ -64,9 +66,10 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 		["C0I1",false],//Suicide drone (HE 44)
 		["C0I2",false],//Suicide drone (HEAT 55)
 		["C0I3",false],//Suicide drone (HEAT 75)
-		["C0I4",false],//EMI drone
-		["C0I5",false],//Bomber drone
-		["C0I6",false],//Ababil
+		["C0I4",false],//Mine drone
+		["C0I5",false],//EMI drone
+		["C0I6",false],//Bomber drone
+		["C0I7",false],//Ababil
 
 		["C1I0",["hd_destroy_noShadow","ColorBlack"]],//Single strike
 		["C1I1",["hd_destroy_noShadow","ColorBlack"]],//Double tap
@@ -82,13 +85,40 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 	]],
 	["MARKER_PRESERVE_COUNT",5],//How many markers to preserve at the same time (older ones will be deleted)
 
+	/*Support levels*/
+	["SUPPORT_LEVELS",createHashMapFromArray [
+		["C0I0",1],//Scout drone
+		["C0I1",2],//Suicide drone (HE 44)
+		["C0I2",2],//Suicide drone (HEAT 55)
+		["C0I3",2],//Suicide drone (HEAT 75)
+		["C0I4",3],//Mine drone
+		["C0I5",4],//EMI drone
+		["C0I6",4],//Bomber drone
+		["C0I7",5],//Ababil
+
+		["C1I0",1],//Single strike
+		["C1I1",2],//Double tap
+		["C1I2",3],//Three in a row
+		["C1I3",4],//Barrage
+		["C1I4",1],//Illumination shells
+		["C1I5",1],//Smoke shells
+
+		["C2I0",1],//Team (2)
+		["C2I1",2],//Squad (3)
+		["C2I2",3],//Company (5)
+		["C2I3",4] //Fire team (8)
+	]],
+
 	/*Function connectors*/
 	["FUNC_SPAWN_DRONE",{_this call NWG_MSHOP_DSC_SpawnGroup}],    //params: ["_player","_itemName","_targetPos"]; returns: _drone object OR false in case of error
 	["FUNC_SPAWN_INF_GROUP",{_this call NWG_MSHOP_DSC_SpawnGroup}],//params: ["_player","_itemName","_targetPos"]; returns: _units array OR false in case of error
 	["FUNC_SPAWN_VEHICLE",{_this call NWG_MSHOP_DSC_SpawnVehicle}],//params: ["_player","_itemName","_targetPos"]; returns: _vehicle object OR false in case of error
 
 	/*Drone actions settings*/
-	["EMI_RADIUS",50],
+	["MINE_DEPLOY_HEIGHT",1],//Height at which mine will be deployed
+	["MINE_DEPLOY_COUNT",3],
+	["MINE_DEPLOY_DRONE_DELETE_DELAY",5],
+	["EMI_RADIUS",25],
 	["EMI_TARGETS",["engine","turret","gun","light","rotor"]],//Vehicle parts targeted by EMI impulse
 	["EMI_DAMAGE_MIN",0.25],//Minimum damage to be inflicted by EMI impulse
 	["EMI_DAMAGE_MAX",0.97],//Maximum damage to be inflicted by EMI impulse
@@ -137,13 +167,14 @@ NWG_MSHOP_SER_InitPriceMap = {
 //Shop
 NWG_MSHOP_SER_OnShopRequest = {
 	private _player = _this;
-	private _prices = [];
+	private _result = [];
 	{
-		_prices pushBack _x;
-		_prices pushBack _y;
+		_result pushBack _x;
+		_result pushBack _y;
+		_result pushBack ((NWG_MSHOP_SER_Settings get "SUPPORT_LEVELS") get _x);
 	} forEach NWG_MSHOP_SER_priceMap;
 
-	_prices remoteExec ["NWG_fnc_mshopShopValuesResponse",_player];
+	_result remoteExec ["NWG_fnc_mshopShopValuesResponse",_player];
 };
 
 //================================================================================================================
@@ -282,8 +313,49 @@ NWG_MSHOP_SER_SpawnDrone = {
 			}];
 		};
 
-		//Thunder EMI drone - create lightning with EMI effect
+		//Mine deployment drone - deploy AT mine
 		case "C0I4": {
+			//Save for later use
+			_drone setVariable ["NWG_owner",_player];//Save locally
+			_drone setVariable ["NWG_owner",_player,2];//Save on server
+
+			//Replace container with mine deployment (kinda)
+			_drone animateSource ["Utility_drone",0];
+			_drone animateSource ["Antimine_drone",1];
+
+			//Create visible attachments
+			private _mineCount = NWG_MSHOP_SER_Settings get "MINE_DEPLOY_COUNT";
+			private _attachTo = [0,0.025,0.035];
+			private _attachStep = -0.075;
+			private ["_visualObj"];
+			for "_i" from 0 to (_mineCount-1) do {
+				_visualObj = createSimpleObject ["\A3\Weapons_f\Explosives\mine_at",(getPosASL _drone)];
+				_visualObj attachTo [_drone,(_attachTo vectorAdd [0,0,(_attachStep*_i)])];
+				_visualObj setVectorDirAndUp [[1,4.37114e-08,-8.74228e-08],[-8.74228e-08,-8.74228e-08,1]];
+			};
+
+			//Disable regular drone functionality
+			_drone setAutonomous false;
+			_drone enableUAVWaypoints false;
+			{_drone removeWeapon _x} forEach weapons _drone;
+
+			//Setup destruction logic
+			_drone addMPEventHandler ["MPKilled", {
+				// params ["_unit", "_killer", "_instigator", "_useEffects"];
+				params ["_drone"];
+				removeAllActions _drone;
+				if (isServer) then {
+					_drone removeMPEventHandler [_thisEvent,_thisEventHandler];//Delete event handler
+					{deleteVehicle _x} forEach (attachedObjects _drone);//Delete visual object
+				};
+			}];
+
+			//Setup Mine deployment logic
+			[_drone,"#MSHOP_C0I4_ActionTitle#",{_this remoteExec ["NWG_MSHOP_MineDeployment_Action",2]}] remoteExec ["NWG_fnc_addAction",0];
+		};
+
+		//Thunder EMI drone - create lightning with EMI effect
+		case "C0I5": {
 			//Save for later use
 			_drone setVariable ["NWG_owner",_player];//Save locally (note different 'owner' variable notation - it is for 'NWG_fnc_moduleLightning'
 			_drone setVariable ["NWG_owner",_player,2];//Save on server
@@ -310,12 +382,12 @@ NWG_MSHOP_SER_SpawnDrone = {
 			}];
 
 			//Setup EMI logic
-			[_drone,"#MSHOP_C0I4_ActionTitle#",{_this remoteExec ["NWG_MSHOP_EmiDrone_Action",2]}] remoteExec ["NWG_fnc_addAction",0];
+			[_drone,"#MSHOP_C0I5_ActionTitle#",{_this remoteExec ["NWG_MSHOP_EmiDrone_Action",2]}] remoteExec ["NWG_fnc_addAction",0];
 		};
 
 		//Bomber and Ababil drones - delete once they're used their ammo
-		case "C0I5";
-		case "C0I6": {
+		case "C0I6";
+		case "C0I7": {
 			_drone setVariable ["NWG_MSHOP_owner",_player];//Save locally
 			_drone setVariable ["NWG_MSHOP_owner",_player,2];//Save on server
 
@@ -331,6 +403,56 @@ NWG_MSHOP_SER_SpawnDrone = {
 
 	//return
 	true
+};
+
+NWG_MSHOP_MineDeployment_Action = {
+	// params ["_target", "_caller", "_actionId", "_arguments"];
+	params ["_drone"];
+	private _owner = _drone getVariable ["NWG_owner",objNull];
+	private _mineDeployHeight = NWG_MSHOP_SER_Settings get "MINE_DEPLOY_HEIGHT";
+
+	//Get lowest mock mine attached to the drone
+	private _mineMocks = (attachedObjects _drone);
+	if ((count _mineMocks) == 0) exitWith {};
+	reverse _mineMocks;//Get last added mine
+	private _mineFakeObj = _mineMocks deleteAt 0;
+	if (isNil "_mineFakeObj") then {
+		"NWG_MSHOP_MineDeployment_Action: No mine fake object" call NWG_fnc_logError;
+		_mineFakeObj = objNull;
+	};
+
+	//Get placement position
+	private _thisASL = if (!isNull _mineFakeObj)
+		then {getPosASL _mineFakeObj}
+		else {getPosASL _drone};
+	private _raycast = lineIntersectsSurfaces [_thisASL,(_thisASL vectorAdd [0,0,-_mineDeployHeight]),_drone,_mineFakeObj,true,1,"GEOM","NONE"];
+	if ((count _raycast) == 0) exitWith {
+		if (isNull _owner || {!alive _owner}) exitWith {};
+		"#MSHOP_C0I4_ActionTooHigh#" remoteExec ["NWG_fnc_systemChatMe",_owner];
+	};
+
+	//Delete mock mine
+	if (!isNull _mineFakeObj) then {
+		detach _mineFakeObj;
+		deleteVehicle _mineFakeObj;
+	};
+
+	//Create real
+	(_raycast select 0) params ["_intersectPos","_intersectNormal"];
+	private _mine = createMine ["ATMine",(ASLToAGL _intersectPos),[],0];
+	_mine setVectorUp _intersectNormal;
+	if (!isNull _owner) then {
+		_mine setShotParents [_owner,_owner];
+	};
+
+	//Delete drone if no mines are left
+	if ((count _mineMocks) <= 0) then {
+		_drone spawn {
+			// private _drone = _this;
+			sleep (NWG_MSHOP_SER_Settings get "MINE_DEPLOY_DRONE_DELETE_DELAY");
+			deleteVehicle _this;
+		};
+	};
 };
 
 NWG_MSHOP_EmiDrone_Action = {

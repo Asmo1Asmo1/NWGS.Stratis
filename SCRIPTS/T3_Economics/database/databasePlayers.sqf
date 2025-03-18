@@ -20,8 +20,8 @@ NWG_DB_PL_Settings = createHashMapFromArray [
 	/*Table*/
 	["TABLE_NAME","players"],
 	["TABLE_ID_FIELD","steam_id"],
-	["TABLE_FIELDS",["loadout","add_weapon","loot_storage_c","loot_storage_w","loot_storage_i","loot_storage_a","wallet"]],
-	["TABLE_TYPES",[[],[],[],[],[],[],1]],
+	["TABLE_FIELDS",["loadout","add_weapon","loot_storage_c","loot_storage_w","loot_storage_i","loot_storage_a","wallet","progress","garage"]],
+	["TABLE_TYPES",[[],[],[],[],[],[],1,[],[]]],
 
 	/*Debug and settings*/
 	// ["DEBUG_LOG",false],//Log every request to DB
@@ -32,7 +32,9 @@ NWG_DB_PL_Settings = createHashMapFromArray [
 		["loadout",[]],
 		["add_weapon",[]],
 		["loot_storage",LOOT_ITEM_DEFAULT_CHART],
-		["wallet",20250]
+		["wallet",20250],
+		["progress",P_DEFAULT_CHART],
+		["garage",[]]
 	]],
 
 	/*DB to State relation*/
@@ -43,7 +45,9 @@ NWG_DB_PL_Settings = createHashMapFromArray [
 		["loot_storage_w",["loot_storage",LOOT_ITEM_CAT_WEAP]],
 		["loot_storage_i",["loot_storage",LOOT_ITEM_CAT_ITEM]],
 		["loot_storage_a",["loot_storage",LOOT_ITEM_CAT_AMMO]],
-		["wallet","wallet"]
+		["wallet","wallet"],
+		["progress","progress"],
+		["garage","garage"]
 	]],
 
     ["",0]
@@ -145,6 +149,9 @@ NWG_DB_PL_UpdateById = {
 		if (isNil "_stateValue") then {
 			(format ["NWG_DB_PL_UpdateById: State value is nil for field: '%1', key: '%2'",_field,_stateKey]) call NWG_fnc_logError;
 			continue;
+		};
+		if (_stateValue isEqualType 1) then {
+			_stateValue = text (_stateValue toFixed 0);
 		};
 		// if (_debugLog) then {(format ["NWG_DB_PL_UpdateById: Sequence field: [%1,%2]",_field,_stateValue]) call NWG_fnc_logInfo};
 

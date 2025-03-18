@@ -6,11 +6,14 @@
 //Settings
 NWG_DSPAWN_Settings = createHashMapFromArray [
     ["CATALOGUE_ADDRESS","DATASETS\Server\Dspawn"],
+    ["CATALOGUE_MAX_TIER",4],//Max tier of groups that can be spawned
+
+    ["WAYPOINT_RADIUS",25],//Default radius for any waypoint-related logic, the more - the easier for big vehicles and complicated terrains
+
     ["TRIGGER_POPULATION_DISTRIBUTION",[5,3,1,1,1]],//Default population as INF/VEH/ARM/AIR/BOAT
     ["TRIGGER_MAX_BUILDINGS_TO_OCCUPY",5],//Max number of buildings that dspawn will try to occupy with 'ambush' infantry forces
     ["TRIGGER_INF_BUILDINGS_DYNAMIC_SIMULATION",false],//If true - infantry spawned in buildings will act only when players are nearby
     ["TRIGGER_INF_BUILDINGS_DISABLE_PATH",false],//If true - infantry spawned in buildings will not leave their positions, becoming static enemies
-    ["WAYPOINT_RADIUS",25],//Default radius for any waypoint-related logic, the more - the easier for big vehicles and complicated terrains
 
     ["PARADROP_RADIUS",3000],//Radius for paradrop vehicle to spawn, fly by and despawn
     ["PARADROP_HEIGHT",200],//Height of paradropping
@@ -34,7 +37,43 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
 //================================================================================================================
 //================================================================================================================
 //Fields
+/*Dspawn configs*/
+NWG_DSPAWN_CFG_Side = west;
+NWG_DSPAWN_CFG_Faction = "NATO";
+NWG_DSPAWN_CFG_Tiers = [1,2,3,4];
+NWG_DSPAWN_CFG_ReinfMap = [nil,nil,nil,nil];
+
+/*Dspawn last populated trigger (for reinforcements to patrol after duty)*/
 NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
+
+//================================================================================================================
+//================================================================================================================
+//Config
+NWG_DSPAWN_Configure = {
+    params ["_side","_faction","_tiers","_reinfMap"];
+    if (isNil "_side" || {!(_side in [west,east,independent])}) exitWith {
+        (format ["NWG_DSPAWN_Configure: Invalid side '%1'",_side]) call NWG_fnc_logError;
+        false
+    };
+    if (isNil "_faction" || {!(_faction isEqualType "")}) exitWith {
+        (format ["NWG_DSPAWN_Configure: Invalid faction '%1'",_faction]) call NWG_fnc_logError;
+        false
+    };
+    if (isNil "_tiers") exitWith {
+        (format ["NWG_DSPAWN_Configure: Invalid tiers '%1'",_tiers]) call NWG_fnc_logError;
+        false
+    };
+    if (isNil "_reinfMap" || {!(_reinfMap isEqualTypeArray [[],[],[],[]])}) exitWith {
+        (format ["NWG_DSPAWN_Configure: Invalid reinfMap '%1'",_reinfMap]) call NWG_fnc_logError;
+        false
+    };
+
+    NWG_DSPAWN_CFG_Side = _side;
+    NWG_DSPAWN_CFG_Faction = _faction;
+    NWG_DSPAWN_CFG_Tiers = _tiers;
+    NWG_DSPAWN_CFG_ReinfMap = _reinfMap;
+    true
+};
 
 //================================================================================================================
 //================================================================================================================
@@ -51,6 +90,18 @@ NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
 #define G_INDEX_AIR 3
 #define G_INDEX_BOAT 4
 
+NWG_DSPAWN_TRIGGER_PopulateTriggerCfg = {
+    params ["_trigger","_groupsCount",["_filter",[]]];
+    _filter = [(_filter param [0,[]]),(_filter param [1,[]]),NWG_DSPAWN_CFG_Tiers];
+
+    [
+        _trigger,
+        _groupsCount,
+        NWG_DSPAWN_CFG_Faction,
+        _filter,
+        NWG_DSPAWN_CFG_Side
+    ] call NWG_DSPAWN_TRIGGER_PopulateTrigger;
+};
 NWG_DSPAWN_TRIGGER_PopulateTrigger = {
     params ["_trigger","_groupsCount","_faction",["_filter",[]],["_side",west]];
     NWG_DSPAWN_TRIGGER_lastPopulatedTrigger = [];
@@ -361,6 +412,19 @@ NWG_DSPAWN_TRIGGER_FindOccupiableBuildings = {
 //================================================================================================================
 //================================================================================================================
 //Send reinforcements
+NWG_DSPAWN_REINF_SendReinforcementsCfg = {
+    params ["_attackPos","_groupsCount",["_filter",[]]];
+    _filter = [(_filter param [0,[]]),(_filter param [1,[]]),NWG_DSPAWN_CFG_Tiers];
+
+    [
+        _attackPos,
+        _groupsCount,
+        NWG_DSPAWN_CFG_Faction,
+        _filter,
+        NWG_DSPAWN_CFG_Side,
+        NWG_DSPAWN_CFG_ReinfMap
+    ] call NWG_DSPAWN_REINF_SendReinforcements;
+};
 NWG_DSPAWN_REINF_SendReinforcements = {
     params ["_attackPos","_groupsCount","_faction",["_filter",[]],["_side",west],["_spawnMap",[nil,nil,nil,nil]]];
 
@@ -600,25 +664,10 @@ NWG_DSPAWN_GetCataloguePage = {
 
     //Expand groups (multiply by spawn chance (tier))
     private _expanded = [];
+    private _maxCount = (NWG_DSPAWN_Settings get "CATALOGUE_MAX_TIER") + 1;
     //do
     {
-        switch (_x#DESCR_TIER) do {
-            case (1): {
-                _expanded pushBack _x;
-                _expanded pushBack _x;
-                _expanded pushBack _x;
-            };
-            case (2): {
-                _expanded pushBack _x;
-                _expanded pushBack _x;
-            };
-            case (3): {
-                _expanded pushBack _x;
-            };
-            default {
-                (format ["NWG_DSPAWN_GetCataloguePage: Invalid group tier '%1':'%2'",_pageName,_x]) call NWG_fnc_logError;
-            };
-        };
+        for "_i" from 1 to ((_maxCount - (_x#DESCR_TIER)) max 1) do {_expanded pushBack _x};
     } forEach _groupsContainer;/*foreach groupDescr in _groupsContainer*/
     _groupsContainer resize 0;
     _groupsContainer append _expanded;
@@ -678,11 +727,9 @@ NWG_DSPAWN_FillWithPassengers = {
     if (_maxCount == 0) exitWith {_unitsDescr};
     private _result = _unitsDescr - ["RANDOM"];
 
-    private _count = switch (true) do {
-        case (_maxCount == (count _unitsDescr)): {_maxCount};//The entire group is random units, 'passengers' logic is inapplicable
-        case (_maxCount < 3): {round (random _maxCount)};//0-2 additional passengers
-        default {_maxCount - (round (random (_maxCount*0.33)))};//66%-100% additional passengers
-    };
+    private _count = if (_maxCount < (count _unitsDescr))
+        then {([(round (_maxCount / 2)),(_maxCount + 2)] call NWG_fnc_randomRangeInt) min _maxCount}
+        else {_maxCount};//The entire group is random units
     if (_count > 0) then {
         _result append ([_passengersContainer,_count] call NWG_DSPAWN_GeneratePassengers);
     };
@@ -1094,7 +1141,7 @@ NWG_DSPAWN_SendToPatrol = {
 
 //================================================================================================================
 //================================================================================================================
-//Attack logic
+//Position attack logic
 NWG_DSPAWN_SendToAttack = {
     params ["_group","_attackPos"];
 
@@ -1473,6 +1520,37 @@ NWG_DSPAWN_DeleteAirMotGroup = {
 
     //Delete group
     deleteGroup _group;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Target destruction logic
+NWG_DSPAWN_SendToDestroy = {
+    params ["_group","_target"];
+
+    //Check if anyone is alive
+    if (({alive _x} count (units _group)) == 0) exitWith {};
+
+    //Set combat behaviour
+    _group setCombatMode "RED";
+    _group setSpeedMode "FULL";
+    _group setBehaviourStrong "AWARE";
+
+    //Clear waypoints
+    _group call NWG_DSPAWN_ClearWaypoints;
+
+    //Reveal target
+    _group reveal _target;
+
+    //Add 'DESTROY' waypoint
+    private _wp1 = _group addWaypoint [_target,-1];
+    _wp1 setWaypointType "DESTROY";
+
+    //Add returning waypoint
+    private _groupPos = getPosASL (vehicle (leader _group));
+    _groupPos = ASLToAGL _groupPos;
+    private _wp2 = [_group,_groupPos] call NWG_DSPAWN_AddWaypoint;
+    _wp2 setWaypointStatements ["true","if (local this) then {this call NWG_DSPAWN_ReturnToPatrol}"];
 };
 
 //================================================================================================================

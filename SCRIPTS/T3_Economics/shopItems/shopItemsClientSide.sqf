@@ -41,9 +41,8 @@ NWG_ISHOP_CLI_Settings = createHashMapFromArray [
 	["MULTIPLIER_BUTTON_ACTIVE_COLOR",[1,1,1,1]],
 	["MULTIPLIER_BUTTON_INACTIVE_COLOR",[1,1,1,0.2]],
 
-	["ITEM_LIST_NAME_LIMIT",30],//Max number of letters for the item name
-	["ITEM_LIST_TEMPLATE_W_COUNT","%1 [x%2] (%3)"],//Item list format string
-	["ITEM_LIST_TEMPLATE_W_NO_COUNT","%1 (%2)"],//Item list format string
+	["ITEM_PRICE_TEMPLATE_W_COUNT","[x%1] (%2)"],//Item price format string
+	["ITEM_PRICE_TEMPLATE_W_NO_COUNT","(%1)"],//Item price format string
 
 	["",0]
 ];
@@ -327,36 +326,30 @@ NWG_ISHOP_CLI_UpdateItemsList = {
 	private _count = 1;
 	private _price = 0;
 	private _i = -1;
+	private _rightPart = "";
+	private _formatRightPart = {
+		params ["_count","_price"];
+		if (_count > 1)
+			then {format [(NWG_ISHOP_CLI_Settings get "ITEM_PRICE_TEMPLATE_W_COUNT"),_count,(_price call NWG_fnc_wltFormatMoney)]}
+			else {format [(NWG_ISHOP_CLI_Settings get "ITEM_PRICE_TEMPLATE_W_NO_COUNT"),(_price call NWG_fnc_wltFormatMoney)]}
+	};
 	//forEach _itemsToShow
 	{
-		if (_x isEqualType 0) then {_count = _x; continue};//If array elemnt is number (else string)
+		//Update count
+		if (_x isEqualType 0) then {_count = _x; continue};
 
+		//Get item info
 		(_x call NWG_ISHOP_CLI_GetItemInfo) params [["_displayName",""],["_picture",""]];
 		_price = [_x,_isPlayerSide] call NWG_ISHOP_CLI_TRA_GetPrice;
+		_rightPart = [_count,_price] call _formatRightPart;
 
-		_i = _list lbAdd ([_displayName,_count,_price] call NWG_ISHOP_CLI_FormatListRecord);//Add formatted record
+		_i = _list lbAdd _displayName;//Add display name
+		_list lbSetTextRight [_i,_rightPart];//Set right part with price and count
+		_list lbSetTooltip [_i,(_displayName + " " + _rightPart)];//Set tooltip (limitless display name)
 		_list lbSetData [_i,_x];//Set data (item classname)
 		_list lbSetPicture [_i, _picture];//Set picture
 		_count = 1;//Reset count
 	} forEach _itemsToShow;
-};
-
-NWG_ISHOP_CLI_FormatListRecord = {
-	params ["_displayName","_count","_price"];
-
-	//Limit display name
-	private _limit = NWG_ISHOP_CLI_Settings get "ITEM_LIST_NAME_LIMIT";
-	if ((count _displayName) > _limit) then {
-		//Shorten the string and replace last 3 letters with '...'
-		_displayName = (_displayName select [0,(_limit-3)]) + "...";
-	};
-
-	//Format and return
-	if (_count > 1) then {
-		format [(NWG_ISHOP_CLI_Settings get "ITEM_LIST_TEMPLATE_W_COUNT"),_displayName,_count,(_price call NWG_fnc_wltFormatMoney)]
-	} else {
-		format [(NWG_ISHOP_CLI_Settings get "ITEM_LIST_TEMPLATE_W_NO_COUNT"),_displayName,(_price call NWG_fnc_wltFormatMoney)]
-	}
 };
 
 //================================================================================================================

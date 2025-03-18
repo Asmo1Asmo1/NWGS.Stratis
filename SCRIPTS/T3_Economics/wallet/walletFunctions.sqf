@@ -1,6 +1,7 @@
 /*Any->Wallet*/
 //Returns the amount of money a player has
-//_player: Object - The player to get the money of
+//params:
+//	_player: Object - The player to get the money of
 //return: Number - The amount of money the player has
 NWG_fnc_wltGetPlayerMoney = {
     // private _player = _this;
@@ -40,7 +41,9 @@ NWG_fnc_wltAddPlayerMoney = {
 	if (!alive _player || {isNull _player}) exitWith {
 		"NWG_fnc_wltAddPlayerMoney: Player is dead or null" call NWG_fnc_logError;
 	};
-	if (_amount == 0) exitWith {};//Do nothing, not even log
+	if (isNil "_amount") exitWith {
+		"NWG_fnc_wltAddPlayerMoney: Amount is nil" call NWG_fnc_logError;
+	};
 
 	if (local _player)
 		then {_this call NWG_WLT_AddPlayerMoney}
@@ -63,6 +66,35 @@ NWG_fnc_wltSetPlayerMoney = {
 	if (local _player)
 		then {_this call NWG_WLT_SetPlayerMoney}
 		else {_this remoteExec ["NWG_fnc_wltSetPlayerMoney",_player]};//Call where the player is local
+};
+
+//Returns the sum of money the group has
+//params:
+//	_group: Group - The group to get the money of
+//return: Number - The sum of money the group has
+NWG_fnc_wltGetGroupMoney = {
+	// private _group = _this;
+	if (!(_this isEqualType grpNull) || {isNull _this}) exitWith {
+		"NWG_fnc_wltGetGroupMoney: Invalid group" call NWG_fnc_logError;
+		0
+	};
+
+	//return
+	_this call NWG_WLT_GetGroupMoney
+};
+
+//Splits money between players in a group
+//params:
+//	_group: Group - The group to split the money between
+//	_money: Number - The amount of money to split
+//note: positive amount will be split equally, negative will be balanced out if any player has less than fair share
+NWG_fnc_wltSplitMoneyToGroup = {
+	params ["_group","_money"];
+	if (!(_group isEqualType grpNull) || {isNull _group}) exitWith {
+		"NWG_fnc_wltSplitMoneyToGroup: Invalid group" call NWG_fnc_logError;
+	};
+
+	_this call NWG_WLT_SplitMoneyToGroup
 };
 
 //Formats money into a string

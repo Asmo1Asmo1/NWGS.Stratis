@@ -29,7 +29,8 @@ NWG_KB_Keybindings = [
 	[25,"P","#AV_SEAT_SWITCH_NEXT_TITLE#",{call NWG_fnc_avSeatSwitchNext},false],
 	[24,"O","#AV_SEAT_SWITCH_PREV_TITLE#",{call NWG_fnc_avSeatSwitchPrev},false],
 	[KEY_NOT_SET,EXPRESSION_NOT_SET,"#AV_ALL_WHEEL_TITLE_ON#",{call NWG_fnc_avAllWheelOn},false],
-	[KEY_NOT_SET,EXPRESSION_NOT_SET,"#AV_ALL_WHEEL_TITLE_OFF#",{call NWG_fnc_avAllWheelOff},false]
+	[KEY_NOT_SET,EXPRESSION_NOT_SET,"#AV_ALL_WHEEL_TITLE_OFF#",{call NWG_fnc_avAllWheelOff},false],
+	[KEY_NOT_SET,EXPRESSION_NOT_SET,"#AV_QUICK_VEH_ACCESS_TITLE#",{call NWG_fnc_akQuickVehicleAccess},false]
 ];
 
 //================================================================================================================
@@ -147,8 +148,8 @@ NWG_KB_keyToButtonMap = createHashMapFromArray [
 //Init
 private _Init = {
 	//Setup key handler
-	waitUntil {!isNull (findDisplay 46)};//46 is a mission display, see https://community.bistudio.com/wiki/findDisplay
-	findDisplay 46 displayAddEventHandler ["KeyDown", {
+	waitUntil {sleep 0.1; !isNull (findDisplay 46)};//46 is a mission display, see https://community.bistudio.com/wiki/findDisplay
+	(findDisplay 46) displayAddEventHandler ["KeyDown", {
 		// params ["_displayOrControl","_key","_shift","_ctrl","_alt"];
 		_this call NWG_KB_OnKeyDown;
 	}];

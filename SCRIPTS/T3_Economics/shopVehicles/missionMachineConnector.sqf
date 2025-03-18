@@ -8,10 +8,7 @@
 NWG_VSHOP_MMC_Settings = createHashMapFromArray [
     ["SPAWN_PLATFORM","Land_JumpTarget_F"],//Classname of the object that will be used as a spawn platform
     ["CHECK_PERSISTENT_ITEMS",true],//Check validity of persistent items on economy state
-
-    ["ADD_ITEMS_EASY",[2,3]],//Number of items to add on easy missions
-    ["ADD_ITEMS_NORM",[3,4]],//Number of items to add on normal missions
-    ["ADD_ITEMS_DFLT",[2,3]],//Number of items to add if mission difficulty is unknown
+    ["ADD_ITEMS_MIN_MAX",[1,2]],//Number of items to add on mission completion
 
     ["",0]
 ];
@@ -80,17 +77,9 @@ NWG_VSHOP_MMC_OnMissionStateChanged = {
         /*Mission completed state - Add vehicles to dynamic shop items*/
         case MSTATE_COMPLETED: {
             //Add vehicles to dynamic shop items
-            private _mDiffclt = call NWG_fnc_mmGetMissionDifficulty;
-            private _addItems = switch (_mDiffclt) do {
-                case MISSION_DIFFICULTY_EASY: {NWG_VSHOP_MMC_Settings get "ADD_ITEMS_EASY"};
-                case MISSION_DIFFICULTY_NORM: {NWG_VSHOP_MMC_Settings get "ADD_ITEMS_NORM"};
-                default {
-                    (format ["NWG_VSHOP_MMC_OnMissionStateChanged: Unknown mission difficulty: %1",_mDiffclt]) call NWG_fnc_logError;
-                    NWG_VSHOP_MMC_Settings get "ADD_ITEMS_DFLT";
-                };
-            };
-            _addItems = _addItems call NWG_fnc_randomRangeInt;
-            _addItems call NWG_fnc_vshopAddDynamicItems;
+            private _itemsCount = NWG_VSHOP_MMC_Settings get "ADD_ITEMS_MIN_MAX";
+            _itemsCount = _itemsCount call NWG_fnc_mmInterpolateByLevelInt;
+            _itemsCount call NWG_fnc_vshopAddDynamicItems;
         };
 
         /*Server reset/restart - save prices to DB before shutting down*/

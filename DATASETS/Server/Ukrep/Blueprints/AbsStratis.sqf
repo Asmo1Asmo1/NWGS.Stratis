@@ -1,5 +1,5 @@
 [
-    ["ABS","LZConnor_01",[2990.66,1861.99,0],0,92.5497,0,[],[
+    ["ABS","LZConnor_v1_2",[2990.66,1861.99,0],0,92.5497,0,[],[
         ["BLDG","CamoNet_BLUFOR_open_F",[2964.29,1856.44,171.548],0,60,0,1],
         ["BLDG","Land_Cargo_Patrol_V2_F",[3001,1839,168.957],0,330,0,2],
         ["BLDG","Land_Cargo_Patrol_V2_F",[2942,1849,174.042],0,60,0,2],
@@ -25,7 +25,7 @@
         ["VEHC","Land_VR_Target_MRAP_01_F",[2993,1888,171.122],0,75,0,[]],
         ["HELP","ModuleHideTerrainObjects_F",[2956,1873,171.365],0,0,0,[["#filter",4],["objectarea",[10,10,0,false,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","LZConnor_02",[2976.27,1865.81,0],0,101.251,0,[],[
+    ["ABS","LZConnor_v2_2",[2976.27,1865.81,0],0,101.251,0,[],[
         ["BLDG","CamoNet_BLUFOR_open_F",[2964.29,1856.44,171.548],0,60,0,1],
         ["BLDG","Land_Cargo_HQ_V2_F",[2981,1870,171.4],0,60,0,2],
         ["BLDG","Land_Cargo_Patrol_V2_F",[3001,1839,168.957],0,330,0,2],
@@ -44,7 +44,7 @@
         ["VEHC","Land_VR_Target_APC_Wheeled_01_F",[2997,1899,170],0,45,0,[]],
         ["HELP","ModuleHideTerrainObjects_F",[2956,1873,171.365],0,0,0,[["#filter",4],["objectarea",[10,10,0,false,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","AgiosCephas",[2778.55,1746.92,0],0,59.1847,0,[],[
+    ["ABS","AgiosCephas_v1_2",[2778.55,1746.92,0],0,59.1847,0,[],[
         ["FURN","Land_CampingTable_small_F",[2776.87,1742.98,143.315],0,180.091,0,0],
         ["DECO","Land_BarrelWater_F",[2776.39,1735.21,142.92],0,44.9189,0,0],
         ["DECO","Land_Can_Dented_F",[2765.25,1689.25,141.729],0,0,0,0],
@@ -63,7 +63,7 @@
         ["VEHC","C_Truck_02_box_F",[2781.79,1772.97,144.895],0,195.025,0,[[]]],
         ["VEHC","Land_VR_Target_MRAP_01_F",[2786.5,1743.88,143.528],0,30,0,[]]]],
 
-    ["ABS","JayCove",[2399.65,1128.94,0],0,82.3245,0,[],[
+    ["ABS","JayCove_v1_1",[2399.65,1128.94,0],0,82.3245,0,[],[
         ["DECO","BloodPool_01_Large_Old_F",[2390.88,1126.63,0.60878],0,0,0,1],
         ["DECO","Land_Bodybag_01_black_F",[2389.99,1128.62,0.563104],0,270.211,0,0],
         ["DECO","Land_Bodybag_01_black_F",[2390.62,1126.12,0.579962],0,270.093,0,0],
@@ -79,7 +79,7 @@
         ["VEHC","B_GEN_Van_02_vehicle_F",[2418.01,1130.74,2.19051],0,270.156,0,[["B_GEN_Soldier_F"],[["Gendarmerie",1],["Enable_Cargo",0,"Door_1_source",0,"Door_2_source",0,"Door_3_source",0,"Door_4_source",0,"Hide_Door_1_source",0,"Hide_Door_2_source",0,"Hide_Door_3_source",0,"Hide_Door_4_source",0,"lights_em_hide",0,"ladder_hide",1,"spare_tyre_holder_hide",1,"spare_tyre_hide",1,"reflective_tape_hide",0,"roof_rack_hide",1,"LED_lights_hide",0,"sidesteps_hide",1,"rearsteps_hide",1,"side_protective_frame_hide",0,"front_protective_frame_hide",0,"beacon_front_hide",0,"beacon_rear_hide",0]],false]],
         ["VEHC","B_T_Boat_Armed_01_minigun_F",[2360.39,1114.01,-0.857406],0,270.002,0,[[3,"B_Soldier_VR_F"]]]]],
 
-    ["ABS","SouthLighthouse",[2731.63,953.727,0],0,53.3967,0,[],[
+    ["ABS","SouthLighthouse_v1_1",[2731.63,953.727,0],0,53.3967,0,[],[
         ["BLDG","Land_i_Stone_Shed_V1_F",[2728.5,957,81.3275],0,154.341,0,2],
         ["DECO","Land_Axe_F",[2735.88,957.876,80.8674],0,180,0,0],
         ["DECO","Land_Bodybag_01_black_F",[2736.14,958.628,80.8931],0,314.371,0,0],
@@ -94,7 +94,7 @@
         ["DECO","Land_ShellCrater_01_F",[2736.13,958.75,80.75],0,0,0,1],
         ["HELP","ModuleHideTerrainObjects_F",[2729.25,955.625,81.3144],0,0,0,[["#filter",1],["objectarea",[5,5,0,false,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","StrogosBay",[2148.4,1901.23,0],0,77.009,0,[],[
+    ["ABS","StrogosBay_v1_1",[2148.4,1901.23,0],0,77.009,0,[],[
         ["BLDG","CamoNet_BLUFOR_open_F",[2131,1905,2.48123],0,270.251,0,1],
         ["BLDG","Land_Slum_03_F",[2149.38,1900,3.25],0,0,0,2],
         ["FURN","Land_WoodenTable_large_F",[2144.79,1911.75,3.88917],0,224.996,0,0],
@@ -152,7 +152,7 @@
         ["TRRT","B_static_AA_F",[2152.71,1891.12,2.6592],0,209.956,0,["B_Soldier_VR_F"]],
         ["HELP","ModuleHideTerrainObjects_F",[2150.75,1907.25,3.33625],0,0,0,[["#filter",4],["objectarea",[5,5,0,false,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","TheSpartan",[2645.46,542.027,0],0,90.3499,0,[],[
+    ["ABS","TheSpartan_v1_1",[2645.46,542.027,0],0,90.3499,0,[],[
         ["BLDG","Land_ConnectorTent_01_white_cross_F",[2633,609,65.625],0,270.484,0,1],
         ["BLDG","Land_ConnectorTent_01_white_cross_F",[2618.13,602.5,64.375],0,120.285,0,1],
         ["BLDG","Land_ConnectorTent_01_white_cross_F",[2640,602.875,65.625],0,315.242,0,1],
@@ -189,7 +189,7 @@
         ["UNIT","B_Soldier_VR_F",[2692.85,521.998,0.273416],0,150,0,0],
         ["UNIT","B_Soldier_VR_F",[2693.27,526.983,1.03842],0,225,0,0]]],
 
-    ["ABS","SouthVillage",[2435.24,823.676,0],0,43.2993,0,[],[
+    ["ABS","SouthVillage_v1_2",[2435.24,823.676,0],0,43.2993,0,[],[
         ["BLDG","Land_i_Stone_HouseSmall_V1_F",[2466,818.5,6.66125],0,90,0,2],
         ["BLDG","Land_i_Stone_Shed_V1_F",[2449,813,6],0,180,0,2],
         ["BLDG","Land_Slum_House02_F",[2450.5,830.5,5.75],0,0,0,2],
@@ -202,7 +202,7 @@
         ["DECO","Land_GarbageBarrel_01_F",[2443.5,817.595,4.85399],0,270.032,0,0],
         ["DECO","Land_Sunshade_F",[2393.87,832.435,1.23339],0,0,0,1]]],
 
-    ["ABS","AgiosIoannis",[3066.39,2150.48,0],0,56.1091,0,[],[
+    ["ABS","AgiosIoannis_v1_2",[3066.39,2150.48,0],0,56.1091,0,[],[
         ["DECO","Land_Can_Dented_F",[3080.09,2097.3,170.986],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[3080.26,2203.81,156.445],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[3122.25,2145.25,172.279],0,0,0,0],
@@ -211,7 +211,7 @@
         ["VEHC","C_Quadbike_01_F",[3073.29,2117.5,168.397],0,74.5809,0,[[],[["Blue",1],[]],false]],
         ["HELP","Site_Ambient",[3059.25,2152.13,167.567],0,0,0,[["radius",10],["sitetype","Animal_poultry"],["animalcount",5],["animalsinradius","1"]]]]],
 
-    ["ABS","Tsoukalia",[4278.81,2665.12,0],0,69.1885,0,[],[
+    ["ABS","Tsoukalia_v1_1",[4278.81,2665.12,0],0,69.1885,0,[],[
         ["DECO","Land_Boat_03_abandoned_cover_F",[4267.11,2661.51,1.86438],0,0,0,1],
         ["DECO","Land_Campfire_F",[4280.84,2666.54,2.74647],0,240,0,2],
         ["DECO","Land_Can_Dented_F",[4303.74,2722.86,19.0782],0,0,0,0],
@@ -223,14 +223,14 @@
         ["VEHC","C_Scooter_Transport_01_F",[4281.12,2632.09,-0.241483],0,194.999,0,[[],[["Red",1],[]],false]],
         ["VEHC","C_Scooter_Transport_01_F",[4280.51,2638.97,-0.241483],0,165,0,[[],[["Black",1],[]],false]]]],
 
-    ["ABS","MaxwellVillage",[3677.82,2883.2,0],0,55.6099,0,[],[
+    ["ABS","MaxwellVillage_v1_1",[3677.82,2883.2,0],0,55.6099,0,[],[
         ["DECO","Land_Can_Dented_F",[3714.32,2841.24,148.461],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[3694.37,2913.12,161.866],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[3643.41,2896.01,158.276],0,0,0,0],
         ["VEHC","C_Truck_02_box_F",[3660.63,2881.77,157.804],0,104.636,0,[[]]],
         ["VEHC","C_Truck_02_box_F",[3676.36,2883.86,156.657],0,224.471,0,[[]]]]],
 
-    ["ABS","CampMaxwell",[3354.11,2946.52,0],0,99.165,0,[],[
+    ["ABS","CampMaxwell_v1_2",[3354.11,2946.52,0],0,99.165,0,[],[
         ["BLDG","CamoNet_BLUFOR_big_F",[3278.5,2924.75,229.19],0,246.278,0,1],
         ["BLDG","CamoNet_BLUFOR_F",[3298.5,2941.38,229.027],0,45.7037,0,1],
         ["DECO","B_CargoNet_01_ammo_F",[3396.5,3003.48,212.484],0,131.693,0,0],
@@ -257,7 +257,7 @@
         ["HELP","ModuleHideTerrainObjects_F",[3277.13,2924.25,229.19],0,0,0,[["#filter",13],["objectarea",[7,7,0,false,-1]],["#hidelocally",false]]],
         ["HELP","ModuleHideTerrainObjects_F",[3392.25,3001.5,212.523],0,0,0,[["#filter",15],["objectarea",[10,10,0,false,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","GirnaForestCamp",[2712.45,2978.1,0],0,46.5488,0,[],[
+    ["ABS","GirnaForestCamp_v1_1",[2712.45,2978.1,0],0,46.5488,0,[],[
         ["BLDG","Land_d_Stone_HouseSmall_V1_F",[2710.25,2972.25,109.658],0,359.86,0,1],
         ["FURN","Land_ShelvesWooden_khaki_F",[2714.34,2970.87,109.487],0,168.241,0,0],
         ["FURN","Land_WoodenTable_large_F",[2719.02,2973.47,109.562],0,269.072,0,0],
@@ -289,7 +289,7 @@
         ["DECO","MemorialWreath_01_F",[2706.63,3022.63,104.729],0,314.692,0,1],
         ["TRRT","B_Mortar_01_F",[2710.39,2980.73,110.098],0,0.0012314,0,["B_Soldier_VR_F"]]]],
 
-    ["ABS","Girna",[2007.06,2705.7,0],0,163.962,0,[],[
+    ["ABS","Girna_v1_3",[2007.06,2705.7,0],0,163.962,0,[],[
         ["BLDG","Land_Cargo_Patrol_V3_F",[1865.75,2742.63,13.9537],0,60,0,2],
         ["BLDG","Land_Cargo_Patrol_V3_F",[2013,2612.38,14.0953],0,15,0,2],
         ["BLDG","Land_Cargo_Patrol_V3_F",[2122.25,2776.63,10.1066],0,240,0,2],
@@ -323,7 +323,7 @@
         ["HELP","ModuleCivilianPresence_F",[2006.5,2736,2.905],0,0,0,[["#debug",false],["#oncreated",{true}],["#ondeleted",{true}],["#unitcount",15],["#useagents",true],["objectarea",[100,100,0,true,-1]],["#unitpreset",""],["#usepanicmode",true]]],
         ["HELP","Site_Ambient",[2064.88,2690.5,8.31344],0,0,0,[["radius",10],["sitetype","Animal_poultry"],["animalcount",5],["animalsinradius","1"]]]]],
 
-    ["ABS","CampTempest",[1947.68,3529.22,0],0,90.0138,0,[],[
+    ["ABS","CampTempest_v1_2",[1947.68,3529.22,0],0,90.0138,0,[],[
         ["BLDG","Land_Cargo_Patrol_V1_F",[1954.63,3519,2.84281],0,78.0006,0,2],
         ["DECO","Land_Can_Dented_F",[2027.55,3487.7,8.3484],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[2019.91,3563.03,4.40043],0,0,0,0],
@@ -334,7 +334,7 @@
         ["VEHC","Land_VR_Target_APC_Wheeled_01_F",[1953.13,3527,2.89853],0,284.991,0,[]],
         ["VEHC","Land_VR_Target_MRAP_01_F",[1985.88,3515.13,2.40626],0,0,0,[]]]],
 
-    ["ABS","TempestVillage",[2832.28,3711.56,0],0,45.0192,0,[],[
+    ["ABS","TempestVillage_v1_1",[2832.28,3711.56,0],0,45.0192,0,[],[
         ["BLDG","Land_i_Stone_HouseSmall_V1_F",[2812.13,3717.13,42.625],0,0,0,2],
         ["BLDG","Land_i_Stone_Shed_V1_F",[2838.63,3714.63,44],0,15,0,2],
         ["BLDG","Land_i_Stone_Shed_V1_F",[2853.25,3709.5,44.75],0,52.1687,0,2],
@@ -350,7 +350,7 @@
         ["VEHC","C_Truck_02_box_F",[2825.4,3715.82,44.0145],0,210.107,0,[[]]],
         ["HELP","ModuleHideTerrainObjects_F",[2822.88,3718.88,43.8459],0,0,0,[["#filter",1],["objectarea",[22,22,0,false,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","NisiBay",[2026.91,4130.7,0],0,74.3054,0,[],[
+    ["ABS","NisiBay_v1_2",[2026.91,4130.7,0],0,74.3054,0,[],[
         ["BLDG","CamoNet_BLUFOR_big_F",[2041,4144,2.745],0,36.6275,0,1],
         ["BLDG","Land_Cargo_HQ_V3_F",[2026,4106,2.94],0,0,0,2],
         ["BLDG","Land_Cargo_Patrol_V3_F",[2078,4162,4],0,285,0,2],
@@ -398,7 +398,7 @@
         ["VEHC","B_Boat_Transport_01_F",[1966.82,4117.63,2.63735],0,90.0321,0,[[]]],
         ["HELP","ModuleHideTerrainObjects_F",[2014,4120,3.34],0,0,0,[["#filter",15],["objectarea",[35,35,0,false,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","ShipWreck",[1746.13,2818.47,0],0,156.154,0,[],[
+    ["ABS","ShipWreck_v1_1",[1746.13,2818.47,0],0,156.154,0,[],[
         ["BLDG","Land_MedicalTent_01_NATO_generic_inner_F",[1887.38,2751.88,14.0908],0,170.177,0,1],
         ["DECO","B_CargoNet_01_ammo_F",[1656.68,2873.49,-23.502],0,0,0,0],
         ["DECO","B_CargoNet_01_ammo_F",[1673.72,2874.81,-25.6346],0,0,0,0],
@@ -463,7 +463,7 @@
         ["VEHC","B_Boat_Transport_01_F",[1680.65,2855.36,-0.253714],0,3.07439e-06,0,[["B_Soldier_F"]]],
         ["VEHC","C_Boat_Transport_02_F",[1659.37,2867.75,-0.270794],0,360,0,[[]]]]],
 
-    ["ABS","Mike26_01",[4345.84,3844.11,0],0,184.438,0,[],[
+    ["ABS","Mike26_v1_4",[4345.84,3844.11,0],0,184.438,0,[],[
         ["BLDG","Land_Cargo_Patrol_V1_F",[4286.5,3905.5,228.179],0,110.13,0,2],
         ["DECO","Land_Can_Dented_F",[4247.43,3922.75,218.66],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[4435.51,3940.51,222.885],0,0,0,0],
@@ -471,7 +471,7 @@
         ["VEHC","Land_VR_Target_MBT_01_cannon_F",[4366.25,3823.63,226.915],0,105.1,0,[]],
         ["VEHC","Land_VR_Target_MBT_01_cannon_F",[4367.63,3810.75,226.658],0,105.096,0,[]]]],
 
-    ["ABS","Mike26_02",[4358.28,3824.7,0],0,163.755,0,[],[
+    ["ABS","Mike26_v2_4",[4358.28,3824.7,0],0,163.755,0,[],[
         ["BLDG","CamoNet_BLUFOR_big_F",[4376.38,3825,227.26],0,60.028,0,1],
         ["BLDG","Land_Cargo_Patrol_V1_F",[4286.5,3905.5,228.179],0,110.13,0,2],
         ["DECO","B_CargoNet_01_ammo_F",[4374.28,3815.92,226.924],0,165.002,0,0],
@@ -486,7 +486,7 @@
         ["VEHC","Land_VR_Target_APC_Wheeled_01_F",[4367.38,3783,225.625],0,180.201,0,[]],
         ["VEHC","Land_VR_Target_MRAP_01_F",[4341.4,3795.11,224.933],0,270.827,0,[]]]],
 
-    ["ABS","Junkyard",[2140.34,4742.1,0],0,34.5208,0,[],[
+    ["ABS","Junkyard_v1_2",[2140.34,4742.1,0],0,34.5208,0,[],[
         ["BLDG","CamoNet_BLUFOR_open_F",[2127.38,4737.25,1.88047],0,1.00149e-05,0,1],
         ["BLDG","Land_Cargo_House_V2_F",[2125.88,4728.88,2.10219],0,180,0,2],
         ["BLDG","Land_Cargo_Patrol_V2_F",[2157.5,4724.13,2.59156],0,270,0,2],
@@ -602,7 +602,7 @@
         ["TRRT","B_static_AA_F",[2138.58,4766.46,2.01849],0,179.988,0,["B_Soldier_VR_F"]],
         ["TRRT","B_static_AA_F",[2114.88,4758.98,1.83976],0,315.07,0,["B_Soldier_VR_F"]]]],
 
-    ["ABS","StratisAirport_concert",[1658.42,5055.54,0],0,39.1954,0,[],[
+    ["ABS","Festival_v1_1",[1658.42,5055.54,0],0,39.1954,0,[],[
         ["BLDG","Land_MedicalTent_01_NATO_generic_inner_F",[1642.88,5027.42,5.5],0,195,0,1],
         ["BLDG","Land_MedicalTent_01_NATO_generic_inner_F",[1633,5030,5.5],0,15,0,1],
         ["DECO","DeconShower_02_F",[1653.63,5049.25,6.875],0,15,0,0],
@@ -631,7 +631,7 @@
         ["DECO","Land_FieldToilet_F",[1693,5069,5.5],0,105,0,0],
         ["DECO","Land_FieldToilet_F",[1693,5074,5.5],0,105,0,0],
         ["DECO","Land_FireExtinguisher_F",[1646.74,5044.48,6.87541],0,150,0,0],
-        ["DECO","Land_Laptop_03_black_F",[1657.33,5064.05,6.128],0,225.001,0,0],
+        ["DECO","Land_Laptop_03_black_F",[1657.33,5064.05,6.128],0,225.001,0,1],
         ["DECO","Land_MarketShelter_F",[1644,5085,5.5],0,105,0,1],
         ["DECO","Land_Pallet_F",[1663.8,5045.4,5.49932],0,0,0,0],
         ["DECO","Land_Pallets_F",[1662.3,5044.22,5.5],0,330,0,1],
@@ -664,7 +664,7 @@
         ["VEHC","C_Truck_02_box_F",[1656.01,5020,5.49661],0,105.002,0,[[]]],
         ["VEHC","C_Truck_02_box_F",[1659.01,5025.5,5.49371],0,90.0015,0,[[]]]]],
 
-    ["ABS","ShootingRange",[2177.15,5384.32,0],0,175.564,0,[],[
+    ["ABS","ShootingRange_v1_2",[2177.15,5384.32,0],0,175.564,0,[],[
         ["BLDG","Land_Cargo_Patrol_V1_F",[2148.5,5390,8.72],0,95,0,2],
         ["BLDG","Land_Cargo_Patrol_V1_F",[2155.25,5343.38,8.74156],0,6.29912,0,2],
         ["DECO","B_CargoNet_01_ammo_F",[2139.12,5363.7,8.71936],0,80.1174,0,0],
@@ -695,7 +695,7 @@
         ["VEHC","Land_VR_Target_MRAP_01_F",[2141.7,5355.69,8.74001],0,90.0003,0,[]],
         ["VEHC","Land_VR_Target_MRAP_01_F",[2141.17,5349.39,8.74357],0,75.0007,0,[]]]],
 
-    ["ABS","StratisAirport_karting",[1819.96,5762.98,0],0,330.154,0,[],[
+    ["ABS","Karting_v1_2",[1819.96,5762.98,0],0,330.154,0,[],[
         ["DECO","KartSteertingWheel_01_black_F",[1912.29,5898.05,6.39417],0,180,0,0],
         ["DECO","KartSteertingWheel_01_red_F",[1911.74,5898.38,5.51776],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[2003.71,5700.48,5.70431],0,0,0,0],
@@ -750,20 +750,26 @@
         ["VEHC","C_Truck_02_box_F",[1901.99,5805.02,5.51154],0,285,0,[[]]],
         ["VEHC","C_Truck_02_box_F",[1900.99,5799.01,5.53477],0,270.001,0,[[]]]]],
 
-    ["ABS","StratisAirbase",[2179.37,5740.41,0],0,192.721,0,[],[
+    ["ABS","StratisAirbase_v1_4",[2179.37,5740.41,0],0,192.721,0,[],[
         ["DECO","Land_Can_Dented_F",[2200.51,5557.94,6.69073],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[2042.69,5677.92,5.56605],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[2285.86,5769.25,5.26876],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[2292,5794,5.22428],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[2075.8,5902.94,5.95818],0,0,0,0]]],
 
-    ["ABS","GasStation",[2637.81,5685.17,0],0,222.903,0,[],[
-        ["DECO","Land_Can_Dented_F",[2820.55,5719.7,6.69078],0,0,0,0],
-        ["DECO","Land_Can_Dented_F",[2417.5,5681.5,71.733],0,0,0,0],
-        ["DECO","Land_Can_Dented_F",[2739.85,5867.68,2.27182],0,0,0,0],
-        ["DECO","Land_Can_Dented_F",[2573.34,5471.79,82.8432],0,0,0,0]]],
+    ["ABS","GasStation_v1_1",[2708.12,5789.56,0],0,29.4261,0,[],[
+        ["VEHC","C_Truck_02_box_F",[2708.25,5791.25,2.59395],0,120.001,0,[[]]],
+        ["VEHC","C_Truck_02_box_F",[2699.24,5801.5,2.58563],0,165.001,0,[[]]],
+        ["VEHC","C_Truck_02_box_F",[2734.23,5775.98,2.7881],0,139.949,0,[[]]],
+        ["VEHC","Land_VR_Target_MRAP_01_F",[2690.75,5789.5,2.59315],0,330,0,[]]]],
 
-    ["ABS","AgiaMarina_north",[2930.56,6057.5,0],0,210.223,0,[],[
+    ["ABS","Overlook_v1_2",[2459.93,5683.1,0],0,47.7868,0,[],[
+        ["BLDG","Land_BagBunker_Small_F",[2458.25,5670.75,73.8049],0,299.997,0,2],
+        ["BLDG","Land_Cargo_Patrol_V1_F",[2449.75,5665.75,73.2013],0,25,0,2],
+        ["BLDG","Land_Cargo_Patrol_V1_F",[2431.25,5687.5,73.4268],0,120,0,2],
+        ["DECO","Land_Can_Dented_F",[2500.46,5708.41,73.11],0,0,0,0]]],
+
+    ["ABS","AgiaMarina_v1_3",[2930.56,6057.5,0],0,210.223,0,[],[
         ["BLDG","CamoNet_BLUFOR_open_F",[2867.5,6070.5,2.69575],0,210.011,0,1],
         ["DECO","B_CargoNet_01_ammo_F",[2874.49,6067.5,2.83128],0,299.998,0,0],
         ["DECO","B_CargoNet_01_ammo_F",[2874.43,6064.08,2.90521],0,0,0,0],
@@ -805,7 +811,7 @@
         ["HELP","Site_Ambient",[2868.5,6043,1.65255],0,0,0,[["side","Animals"],["radius",15],["sitetype","Animal_dog"],["processed",true],["animalcount",5],["cba_xeh_hit",[{['hit',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_put",[{['put',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["interactive","No"],["cba_xeh_fuel",[{['fuel',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_gear",[{['gear',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_init",[{['init',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_take",[{['take',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_fired",[{['fired',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_getin",[{['get_in',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_local",[{['local',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_engine",[{['engine',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_getout",[{['get_out',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_killed",[{['killed',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["clientinitdone",true],["animalsinradius","0"],["cba_xeh_hitpart",[{['hit_part',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_respawn",[{['respawn',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_animdone",[{['anim_done',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_dammaged",[{['dammaged',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_explosion",[{['explosion',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_firednear",[{['fired_near',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_epecontact",[{['epe_contact',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_animchanged",[{['anim_changed',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_isprocessed",true],["cba_xeh_soundplayed",[{['sound_played',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["conditionofpresence","TRUE"],["cba_xeh_seatswitched",[{['seat_switched',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_epecontactend",[{['epe_contact_end',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_isinitialized",true],["cba_xeh_landedstopped",[{['landed_stopped',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_containerclosed",[{['container_closed',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_containeropened",[{['container_opened',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_controlsshifted",[{['controls_shifted',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_epecontactstart",[{['epe_contact_start',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_incomingmissile",[{['incoming_missile',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_inventoryclosed",[{['inventory_closed',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_inventoryopened",[{['inventory_opened',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_landedtouchdown",[{['landed_touch_down',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_weaponassembled",[{['weapon_assembled',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_animstatechanged",[{['anim_state_changed',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]],["cba_xeh_weapondisassembled",[{['weapon_disassembled',  _this] call (uiNamespace getVariable 'intercept_fnc_event');;}]]]],
         ["HELP","Site_Ambient",[2868.5,6043,1.65125],0,0,0,[["radius",15],["sitetype","Animal_dog"],["animalcount",5],["animalsinradius","0"]]]]],
 
-    ["ABS","AgiaMarina_south",[2926.52,5939.02,0],0,204.268,0,[],[
+    ["ABS","AgiaMarina_v2_3",[2926.52,5939.02,0],0,204.268,0,[],[
         ["DECO","Land_Basketball_01_F",[2850.78,5997.73,3.38414],0,0,0,0],
         ["DECO","Land_ClothesLine_01_F",[2930,5921,3.3225],0,0,0,1],
         ["DECO","Land_ClothesLine_01_full_F",[2961.5,5934.5,3.475],0,285,0,1],
@@ -822,7 +828,7 @@
         ["HELP","ModuleCivilianPresence_F",[2979.5,5928.5,3.39875],0,0,0,[["#debug",false],["#oncreated",{true}],["#ondeleted",{true}],["#unitcount",15],["#useagents",true],["objectarea",[150,150,0,true,-1]],["#unitpreset",""],["#usepanicmode",true]]],
         ["HELP","Site_Ambient",[2905,5921,3.38],0,0,0,[["radius",10],["sitetype","Animal_poultry"],["animalcount",5],["animalsinradius","1"]]]]],
 
-    ["ABS","AgiaMarinaBase",[3273.54,5789.62,0],0,100.334,0,[],[
+    ["ABS","AgiaMarinaBase_v1_3",[3273.54,5789.62,0],0,100.334,0,[],[
         ["BLDG","Land_Cargo_Patrol_V1_F",[3284.5,5764,5.33875],0,307,0,2],
         ["DECO","CargoNet_01_barrels_F",[3291.01,5821.02,4.48012],0,45.1117,0,0],
         ["DECO","CargoNet_01_barrels_F",[3291.51,5822.66,4.40569],0,135.024,0,0],
@@ -838,7 +844,7 @@
         ["VEHC","Land_VR_Target_MRAP_01_F",[3251,5787,5.41762],0,120,0,[]],
         ["HELP","ModuleHideTerrainObjects_F",[3284.5,5763,5.34125],0,0,0,[["#filter",13],["objectarea",[6,6,0,false,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","ArmouredRange",[4194.28,5347.15,0],0,97.5761,0,[],[
+    ["ABS","ArmouredRange_v1_2",[4194.28,5347.15,0],0,97.5761,0,[],[
         ["BLDG","Land_Cargo_Patrol_V1_F",[4228.38,5327.25,37.5342],0,270,0,2],
         ["BLDG","Land_Cargo_Patrol_V1_F",[4181.38,5366.63,38.5897],0,135,0,2],
         ["BLDG","Land_ConnectorTent_01_NATO_closed_F",[4199.5,5361.5,39.25],0,314.876,0,1],
@@ -854,14 +860,14 @@
         ["VEHC","Land_VR_Target_MBT_01_cannon_F",[4243.75,5347.88,36.4065],0,270.289,0,[]],
         ["HELP","ModuleHideTerrainObjects_F",[4189.38,5344,38.3303],0,0,0,[["#filter",15],["objectarea",[20,20,0,false,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","OldOutpost",[4327.66,4363.79,0],0,49.8153,0,[],[
+    ["ABS","OldOutpost_v1_2",[4327.66,4363.79,0],0,49.8153,0,[],[
         ["DECO","Land_Can_Dented_F",[4302.52,4343.41,176.829],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[4302.87,4387.62,177.437],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[4377.38,4360.8,177.902],0,0,0,0],
         ["VEHC","Land_VR_Target_APC_Wheeled_01_F",[4346.25,4343.38,177.3],0,300.007,0,[]],
         ["VEHC","Land_VR_Target_MRAP_01_F",[4309.25,4383.75,177.537],0,74.9313,0,[]]]],
 
-    ["ABS","LimeriBay",[5388.84,3744.59,0],0,52.8402,0,[],[
+    ["ABS","LimeriBay_v1_1",[5388.84,3744.59,0],0,52.8402,0,[],[
         ["BLDG","CamoNet_BLUFOR_F",[5354.5,3738.75,2.34313],0,284.862,0,1],
         ["BLDG","Land_PierWooden_02_hut_F",[5410.63,3724.25,-1.875],0,315,0,1],
         ["BLDG","Land_Slum_03_F",[5349.38,3776.75,11.3291],0,210,0,2],
@@ -885,7 +891,7 @@
         ["VEHC","B_Boat_Armed_01_minigun_F",[5397.34,3729.64,-0.816331],0,135.001,0,[[3,"B_Soldier_VR_F"]]],
         ["HELP","ModuleHideTerrainObjects_F",[5345.63,3775,11.3472],0,0,0,[["#filter",15],["objectarea",[5,5,0,false,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","RadioTowers",[5208.94,4999.23,0],0,52.9445,0,[],[
+    ["ABS","RadioTowers_v1_2",[5208.94,4999.23,0],0,52.9445,0,[],[
         ["BLDG","Land_Cargo_Patrol_V1_F",[5190.75,4971.38,223],0,333,0,2],
         ["BLDG","Land_Cargo_Patrol_V1_F",[5205.88,5018.25,223.122],0,153,0,2],
         ["BLDG","Land_ConnectorTent_01_white_closed_F",[5204.38,4990.63,222.98],0,153,0,1],
@@ -908,7 +914,7 @@
         ["UNIT","C_man_polo_6_F_afro_sick",[5201.65,4998.42,222.981],0,0,0,1],
         ["UNIT","C_man_sport_2_F_afro_sick",[5206.28,4999.13,223.017],0,239,0,1]]],
 
-    ["ABS","ResearchSite",[3326.66,6547.04,0],0,39.6613,0,[],[
+    ["ABS","ResearchSite_v1_2",[3326.66,6547.04,0],0,39.6613,0,[],[
         ["BLDG","Land_Cargo_Patrol_V1_F",[3287,6547.38,2.31469],0,85,0,2],
         ["BLDG","Land_Cargo_Patrol_V1_F",[3338.13,6523.88,4.37094],0,325,0,2],
         ["BLDG","Land_Cargo_Patrol_V1_F",[3333.63,6579.5,3.49094],0,205,0,2],
@@ -958,27 +964,27 @@
         ["VEHC","C_Truck_02_covered_F",[3342.73,6558.05,2.50302],0,105.094,0,[[]]],
         ["HELP","ModuleHideTerrainObjects_F",[3325.5,6549.13,2.44844],0,0,0,[["#filter",15],["objectarea",[35,35,0,false,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","LZBaldy",[4602.97,5289.47,0],0,16.5804,0,[],[
+    ["ABS","LZBaldy_v1_2",[4602.97,5289.47,0],0,16.5804,0,[],[
         ["BLDG","Land_Cargo_HQ_V1_F",[4607.5,5294.88,129.824],0,0,0,2],
         ["BLDG","Land_Cargo_Patrol_V1_F",[4593.75,5303.25,128.875],0,130,0,2],
         ["DECO","Land_TBox_F",[4602.88,5280.5,130.015],0,90.0001,0,2],
         ["DECO","Land_TTowerBig_2_F",[4607.75,5279.25,131.125],0,0,0,2]]],
 
-    ["ABS","RogainVillage",[4965.36,5417.71,0],0,33.3923,0,[],[
+    ["ABS","RogainVillage_v1_1",[4965.36,5417.71,0],0,33.3923,0,[],[
         ["BLDG","Land_i_Stone_HouseBig_V1_F",[4967.13,5402.75,153.75],0,208,0,2],
         ["DECO","Land_Can_Dented_F",[4970.5,5391.25,151.989],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[4938.41,5437.43,150.662],0,0,0,0],
         ["DECO","Land_cargo_addon02_V2_F",[4975.75,5429.13,154.572],0,265,0,1],
         ["DECO","Land_StallWater_F",[4975,5428,154.53],0,2.00359,0,1]]],
 
-    ["ABS","CampRogain",[4997.3,5888.14,0],0,132.356,0,[],[
+    ["ABS","CampRogain_v1_2",[4997.3,5888.14,0],0,132.356,0,[],[
         ["BLDG","Land_Cargo_Patrol_V1_F",[5039.5,5889.38,208.832],0,359,0,2],
         ["DECO","Land_Can_Dented_F",[5038.69,5850.29,207.577],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[5063.8,5971.99,190.81],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[4866.39,5907.64,184.701],0,0,0,0],
         ["HELP","Site_Ambient",[4978.13,5821.38,191.496],0,0,0,[["radius",10],["sitetype","Animal_goat"],["animalcount",6],["animalsinradius","0"]]]]],
 
-    ["ABS","RefugeeCamp",[3585.85,7476.74,0],0,197.431,0,[],[
+    ["ABS","RefugeeCamp_v1_3",[3585.85,7476.74,0],0,197.431,0,[],[
         ["BLDG","Land_cargo_house_slum_F",[3612.01,7490.62,3.64566],0,105,0,1],
         ["BLDG","Land_Cargo_Patrol_V1_F",[3605,7516,4.7275],0,15,0,2],
         ["BLDG","Land_Cargo_Patrol_V1_F",[3582,7443,9.315],0,195,0,2],
@@ -1158,7 +1164,7 @@
         ["VEHC","B_Boat_Transport_01_F",[3541.23,7505.92,0.0944374],0,103.827,0,[[]]],
         ["HELP","Site_Ambient",[3594.12,7488.37,3.42509],0,0,0,[["radius",10],["sitetype","Animal_poultry"],["animalcount",5],["animalsinradius","1"]]]]],
 
-    ["ABS","HotelGold",[4502.44,6814.08,0],0,136.517,0,[],[
+    ["ABS","HotelGold_v1_2",[4502.44,6814.08,0],0,136.517,0,[],[
         ["BLDG","Land_Hotel_02_F",[4504.25,6812.25,105],0,90,0,2],
         ["FURN","Land_TablePlastic_01_F",[4518.38,6824.18,104.118],0,315,0,0],
         ["FURN","Land_TablePlastic_01_F",[4514.41,6824.44,104.144],0,330,0,0],
@@ -1184,13 +1190,22 @@
         ["HELP","ModuleHideTerrainObjects_F",[4496.63,6822.88,100.358],0,0,0,[["#filter",4],["objectarea",[10,10,0,false,-1]],["#hidelocally",false]]],
         ["HELP","ModuleHideTerrainObjects_F",[4503,6804.75,105.149],0,0,0,[["#filter",15],["objectarea",[20,15,0,true,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","TreasureCave",[4176.93,7327.32,0],0,156.987,0,[],[
+    ["ABS","TreasureCave_v1_1",[4176.93,7327.32,0],0,156.987,0,[],[
         ["BLDG","Land_i_Stone_Shed_V1_F",[4120.25,7473.25,9.16],0,0,0,2],
         ["DECO","Land_Boat_04_wreck_F",[4167.5,7312.13,-1.125],0,300,0,1],
         ["DECO","Land_TentLamp_01_suspended_red_F",[4161.38,7308.38,1.18253],0,150,0,2],
         ["DECO","Land_VR_Shape_01_cube_1m_F",[4164.38,7311.25,-0.707187],0,180,0,1],
         ["DECO","Land_VR_Shape_01_cube_1m_F",[4165.25,7313.38,0.25],0,0,0,1],
         ["DECO","Land_WoodenCrate_01_stack_x3_F",[4162.5,7312.25,-0.75],0,0,0,1],
+        ["DECO","Item_U_B_Wetsuit",[4120.88,7469.38,9.87493],0,115.001,0,2],
+        ["DECO","Item_U_B_Wetsuit",[4120.5,7469.38,9.87516],0,260,0,2],
+        ["DECO","Land_WoodenCrate_01_F",[4120.86,7469.37,9.29976],0,100,0,0],
+        ["DECO","Land_WoodenCrate_01_F",[4119.3,7469.04,9.42021],0,65,0,0],
+        ["DECO","Vest_V_RebreatherB",[4121.32,7469.38,9.87513],0,15.0001,0,2],
+        ["DECO","Vest_V_RebreatherB",[4120.76,7468.62,9.41197],0,115.316,0,2],
+        ["DECO","Weapon_arifle_SDAR_F",[4119.13,7469,10.125],0,240,0,2],
+        ["DECO","Weapon_arifle_SDAR_F",[4119.38,7469.13,10.125],0,250,0,2],
+        ["DECO","Weapon_arifle_SDAR_F",[4118.88,7468.88,10.125],0,255,0,2],
         ["UNIT","B_diver_exp_F",[4217.88,7298.67,-5.51921],0,0,0,0],
         ["UNIT","B_diver_F",[4207.88,7298.67,-6.94173],0,0,0,0],
         ["UNIT","B_diver_F",[4222.88,7293.74,-5.35797],0,0,0,0],
@@ -1199,10 +1214,11 @@
         ["UNIT","B_T_Diver_F",[4178.13,7309.8,-2.74856],0,28.8,0,0],
         ["UNIT","B_T_Diver_F",[4167.63,7309.05,-0.248561],0,345.6,0,0],
         ["UNIT","B_T_Diver_TL_F",[4172.63,7314.05,-1.10601],0,0,0,0],
+        ["VEHC","B_Boat_Transport_01_F",[4133.74,7430.18,-0.157316],0,180.011,0,[[]]],
         ["VEHC","B_Boat_Transport_01_F",[4212.88,7293.61,-0.129309],0,0.000382033,0,[["B_Soldier_F"]]],
         ["HELP","ModuleHideTerrainObjects_F",[4120,7473.63,9.13875],0,0,0,[["#filter",15],["objectarea",[5,5,0,false,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","PythosIsland",[7096.73,5947.26,0],0,75.9465,0,[],[
+    ["ABS","PythosIsland_v1_2",[7096.73,5947.26,0],0,75.9465,0,[],[
         ["BLDG","Land_Cargo_HQ_V2_F",[7109.38,5980.25,6.625],0,210,0,2],
         ["BLDG","Land_Cargo_Patrol_V2_F",[7113.88,6021.25,9.53406],0,195,0,2],
         ["BLDG","Land_Cargo_Patrol_V2_F",[7045.75,5918.75,9.46812],0,60,0,2],
@@ -1243,7 +1259,7 @@
         ["TRRT","B_static_AA_F",[7098.98,5891.36,5.96878],0,150,0,["B_Soldier_VR_F"]],
         ["HELP","ModuleHideTerrainObjects_F",[7117.5,5968.25,5.04125],0,0,0,[["#filter",15],["objectarea",[5,5,0,false,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","KaminoVillage",[6065.5,5619.7,0],0,50.9749,0,[],[
+    ["ABS","KaminoVillage_v1_2",[6065.5,5619.7,0],0,50.9749,0,[],[
         ["BLDG","Land_i_Stone_HouseBig_V1_F",[6041.75,5616.75,18.3724],0,118,0,2],
         ["BLDG","Land_i_Stone_HouseSmall_V1_F",[6062.13,5655,16.25],0,25,0,2],
         ["BLDG","Land_i_Stone_Shed_V1_F",[6089.88,5642.38,18],0,115,0,2],
@@ -1254,11 +1270,11 @@
         ["HELP","ModuleHideTerrainObjects_F",[6091.63,5642.25,17.7731],0,0,0,[["#filter",1],["objectarea",[5,5,0,false,-1]],["#hidelocally",false]]],
         ["HELP","ModuleHideTerrainObjects_F",[6043,5614.13,18.4638],0,0,0,[["#filter",1],["objectarea",[5,5,0,false,-1]],["#hidelocally",false]]]]],
 
-    ["ABS","NorthLighthouse",[6575.4,5122.17,0],0,91.1408,0,[],[
+    ["ABS","NorthLighthouse_v1_1",[6575.4,5122.17,0],0,91.1408,0,[],[
         ["DECO","Land_Can_Dented_F",[6615.28,5204.12,78.7949],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[6535.52,5040.22,44.4613],0,0,0,0]]],
 
-    ["ABS","KaminoFiringRange",[6378.73,5394.23,0],0,254.939,0,[],[
+    ["ABS","KaminoFiringRange_v1_3",[6378.73,5394.23,0],0,254.939,0,[],[
         ["DECO","B_CargoNet_01_ammo_F",[6402.5,5405.51,7.7446],0,0,0,0],
         ["DECO","B_CargoNet_01_ammo_F",[6400.08,5407.31,7.71328],0,305,0,0],
         ["DECO","B_supplyCrate_F",[6397.23,5406.08,7.7613],0,145,0,0],
@@ -1297,7 +1313,7 @@
         ["VEHC","Land_VR_Target_MRAP_01_F",[6494,5371.25,7.80048],0,324.993,0,[]],
         ["VEHC","Land_VR_Target_MRAP_01_F",[6475,5386.25,7.63933],0,330.06,0,[]]]],
 
-    ["ABS","Convoy",[3952.27,6347.94,0],0,67.9612,0,[],[
+    ["ABS","Convoy_v1_2",[3952.27,6347.94,0],0,67.9612,0,[],[
         ["BLDG","CamoNet_BLUFOR_F",[3941.5,6354,117.5],0,0,0,1],
         ["BLDG","Land_BagBunker_Tower_F",[3923.5,6353,115.537],0,90,0,1],
         ["DECO","B_CargoNet_01_ammo_F",[3931.91,6351.14,116.171],0,225,0,0],
