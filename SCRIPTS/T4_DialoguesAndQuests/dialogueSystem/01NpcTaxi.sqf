@@ -59,6 +59,14 @@ private _Init = {
 //================================================================================================================
 //================================================================================================================
 //Dialogue answers generation
+NWG_DLG_TAXI_GenerateDropRoot = {
+	//Check if escape is active
+	if (isNil "NWG_DLG_TAXI_IsEscape")
+		then {[["#TAXI_00_A_01#","TAXI_CS"]]}
+		else {[["#TAXI_00_A_01#","TAXI_ESCAPE"]]};
+};
+
+
 NWG_DLG_TAXI_GenerateDropCategories = {
 	private _categories = [];
 

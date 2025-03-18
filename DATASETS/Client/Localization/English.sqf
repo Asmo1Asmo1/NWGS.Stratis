@@ -307,6 +307,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_00_A_02#","About my insurance..."],
     /*Taxi - TAXI_01*/
     ["#TAXI_01_Q_02#","So?"],
+    /*Taxi - TAXI_ESCAPE*/
+    ["#TAXI_ESCAPE_Q_01#","Sorry, boss|You're on your own now|I ain't dying here"],
     /*Taxi - TAXI_CS*/
     ["#TAXI_CS_Q_01#","Where to, boss?"],
     ["#TAXI_CS_Q_02#","Sure thing, boss|Where do you need to?"],

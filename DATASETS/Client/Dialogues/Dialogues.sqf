@@ -73,7 +73,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				{true},"#TAXI_00_Q_04#"
 			],
 			A_GEN,	[
-				["#TAXI_00_A_01#","TAXI_CS"],
+				{call NWG_DLG_TAXI_GenerateDropRoot},
 				["#TAXI_00_A_02#","TAXI_PRGB"],
 				{"TAXI" call NWG_DLGHLP_GenerateRoot}/*["TAXI_HELP","TAXI_ADV",NODE_EXIT]*/
 			]
@@ -87,9 +87,18 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#TAXI_01_Q_02#"
 			],
 			A_GEN,	[
-				["#TAXI_00_A_01#","TAXI_CS"],
+				{call NWG_DLG_TAXI_GenerateDropRoot},
 				["#TAXI_00_A_02#","TAXI_PRGB"],
 				{"TAXI" call NWG_DLGHLP_GenerateRoot}/*["TAXI_HELP","TAXI_ADV",NODE_EXIT]*/
+			]
+		]
+	],
+	/*Escape*/
+	[
+		"TAXI_ESCAPE",	[
+			Q_ONE,	"#TAXI_ESCAPE_Q_01#",
+			A_DEF,	[
+				[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
 	],
