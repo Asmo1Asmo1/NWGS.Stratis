@@ -60,10 +60,11 @@ private _Init = {
 //================================================================================================================
 //Dialogue answers generation
 NWG_DLG_TAXI_GenerateDropRoot = {
-	//Check if escape is active
-	if (isNil "NWG_DLG_TAXI_IsEscape")
-		then {[["#TAXI_00_A_01#","TAXI_CS"]]}
-		else {[["#TAXI_00_A_01#","TAXI_ESCAPE"]]};
+	switch (true) do {
+		case (!isNil "NWG_DLG_TAXI_IsEscape"): {[["#TAXI_00_A_01#","TAXI_ESCAPE"]]};//Escape is active
+		case (!isNil "NWG_MIS_CurrentState" && {NWG_MIS_CurrentState < MSTATE_BUILD_CONFIG}): {[["#TAXI_00_A_01#","TAXI_EARLY"]]};//Mission is not started
+		default {[["#TAXI_00_A_01#","TAXI_CS"]]};//Valid state for transportation
+	}
 };
 
 

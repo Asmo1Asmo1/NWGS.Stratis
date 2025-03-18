@@ -93,13 +93,20 @@ NWG_DialogueTree = createHashMapFromArray [
 			]
 		]
 	],
-	/*Escape*/
+	/*Drop me by - escape is active*/
 	[
 		"TAXI_ESCAPE",	[
 			Q_ONE,	"#TAXI_ESCAPE_Q_01#",
 			A_DEF,	[
 				[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
+		]
+	],
+	/*Drop me by - early*/
+	[
+		"TAXI_EARLY",	[
+			Q_ONE,	"#TAXI_EARLY_Q_01#",
+			A_GEN,	{"TAXI_01" call NWG_DLGHLP_GenerateBackExit}
 		]
 	],
 	/*Drop me by - category selection*/

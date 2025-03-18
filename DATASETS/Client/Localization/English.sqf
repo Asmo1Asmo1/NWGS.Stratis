@@ -309,6 +309,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_01_Q_02#","So?"],
     /*Taxi - TAXI_ESCAPE*/
     ["#TAXI_ESCAPE_Q_01#","Sorry, boss|You're on your own now|I ain't dying here"],
+    /*Taxi - TAXI_EARLY*/
+    ["#TAXI_EARLY_Q_01#","What do you mean, boss?|But there's no destination yet, right?|Speak with the commander, he'll assign it"],
     /*Taxi - TAXI_CS*/
     ["#TAXI_CS_Q_01#","Where to, boss?"],
     ["#TAXI_CS_Q_02#","Sure thing, boss|Where do you need to?"],
@@ -345,7 +347,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_PRGB_Q_01#","What about it, boss?"],
     ["#TAXI_PRGB_Q_02#","Yeah? What about it?"],
     /*Taxi - TAXI_PRGB_HOW_WORK*/
-    ["#TAXI_PRGB_HOW_WORK_Q_01#","Why don't you just make it back on your own, boss?|That will spare us from having a tough conversation|But... Yeah, all right, listen|I do emergency evac, all right?|And bossman inside says I do it 'pro bono'|Meaning I am forbidden from charging you guys money for it|Like it was a part of my deal with the bossman|And, honestly|I won't have time to bargain anyway if things get rough|So... I say ok, I'll go another route|I'll need to cut off what's on you|To make my job easier|Remove the heavy, you know?|And where it goes - it goes|Now, if you want me to keep it for you - we can strike a deal|You pay better - I try harder. How does that sound?"],
+    ["#TAXI_PRGB_HOW_WORK_Q_01#","Why don't you just make it back on your own, boss?|That will spare us from having a tough conversation|But... Yeah, all right, listen|I do emergency evac, all right?|And bossman inside says I do it 'pro bono'|Meaning I am forbidden from charging you guys money for it|Like it was a part of my deal with the company|And, honestly|I won't have time to bargain anyway if things get rough|So... I say ok, I'll go another route|I'll need to cut off what's on you|To make my job easier|Remove the heavy, you know?|And where it goes - it goes|Now, if you want me to keep it for you - we can strike a deal|You pay better - I try harder. How does that sound?"],
     /*Taxi - TAXI_PRGB_CUR_STAT*/
     ["#TAXI_PRGB_CUR_STAT_Q_01#","Your current insurance covers %1|Meaning I'll take %2 of your stuff|And there's a %2 chance I'll take your additional weapon"],
     /*Taxi - TAXI_PRGB_LETS_UPG*/
@@ -568,7 +570,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Comm - COMM_HELP_TALK*/
     ["#COMM_HELP_TALK_Q_01#","You're making a right choice talking to me right now|Getting your new objective should be a priority|Outside you will find our delivery guy|He can take you closer to the target|There are also an engineer and a medic|Both are part of our task force|Trader there is a hired specialist|You should talk to him when you have something to sell|And the last one is the rookie on the roof|He is watching over supplies and dispatching drones"],
     /*Comm - COMM_HELP_USERFLOW*/
-    ["#COMM_HELP_USERFLOW_Q_01#","Plain and simple, soldier|We collect the data on enemy activity in the area|You decide which way to go|Get in. Get as much as you can. Get out|Elimination of hostiles is NOT a priority|But you do that if situation requires|You'll see we range options based on enemy presence|The more there are enemy forces - the harder the work|But likely more you will find there of value|And yes, you pay for the intel|As we didn't get it for freew|Is it fair? Probably not|Is it the only way for us to survive? Yes it is|But based on average data, you'll earn more than that|So that shouldn't be an issue|Now, press 'F3' on your tablet and go to 'Field Support'|You'll see the various support options we can provide|Want to unlock more?|Go earn some and come back - we'll figure it out|And one more thing - pay attention to additional markers|If you see one of our callsigns on the map|That means there is some additional interest in the area|Go talk to whoever's name is mentioned|They might have a request|That's all"],
+    ["#COMM_HELP_USERFLOW_Q_01#","Plain and simple, soldier|We collect the data on enemy activity in the area|You decide which way to go|Get in. Get as much as you can. Get out|Elimination of hostiles is NOT a priority|But you do that if situation requires|You'll see we range options based on enemy presence|The more there are enemy forces - the harder the work|But likely more you will find there of value|And yes, you pay for the intel|As we didn't get it for free ourselves|Is it fair? Probably not|Is it the only way for us to survive? Yes it is|But based on average data, you'll earn more than that|So that shouldn't be an issue|Now, press 'F3' on your tablet and go to 'Field Support'|You'll see the various support options we can provide|Want to unlock more?|Go earn some and come back - we'll figure it out|And one more thing - pay attention to additional markers|If you see one of our callsigns on the map|That means there is some additional interest in the area|Go talk to whoever's name is mentioned|They might have a request|That's all"],
     /*Comm - COMM_ADV*/
     ["#COMM_ADV_Q_01#","Always communicate and keep your map at hand|Make sure you know where others are|And that they know your position|To avoid friendly fire and provide timely support"],
     ["#COMM_ADV_Q_02#","Keep radio channels busy with info|And free from garbage"],
@@ -756,7 +758,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_REPORT_Q_04#","Any good news?"],
     ["#QST_REPORT_Q_05#","Did you get it?"],
     /*Quest info*/
-    ["#QST_DISPLAY_VEH_STEAL#","Deliver: %1"],
+    ["#QST_DISPLAY_VEH_STEAL#","Deliver vehicle: %1"],
     ["#QST_DISPLAY_INTERROGATE#","Interrogate: %1"],
     ["#QST_DISPLAY_HACK_DATA#","Hack data from: %1"],
     ["#QST_DISPLAY_DESTROY#","Destroy: %1"],
@@ -764,10 +766,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DISPLAY_INFECTION#","Stop infection (infected: %1)"],
     ["#QST_DISPLAY_WOUNDED#","Escort to base: %1"],
     ["#QST_DISPLAY_MED_SUPPLY#","Find med supplies (example: %1)"],
-    ["#QST_DISPLAY_TERMINAL#","Deliver: %1"],
-    ["#QST_DISPLAY_WEAPON#","Deliver: %1"],
-    ["#QST_DISPLAY_ELECTRONICS#","Find and deliver (example: %1)"],
-    ["#QST_DISPLAY_TOOLS#","Find and deliver (example: %1)"],
+    ["#QST_DISPLAY_WEAPON#","Find and deliver: %1"],
+    ["#QST_DISPLAY_ELECTRONICS#","Find electronic devices (example: %1)"],
     ["#QST_REWARD_TEMPLATE#","Reward: 1 Exp, 1 lvl and %1"],
     ["#QST_REWARD_TEMPLATE_PER_ITEM#","%1%% of price for each item"],
     /*Quest descriptions*/
@@ -823,7 +823,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DONE_TRUE_MEDC_01#","Thank you, I won't forget that|...|What? You need something?|...Ah, the compensation, right|Here you go"],
     ["#QST_DONE_TRUE_MEDC_INFECTION_GOOD_ENDING_01#","Thank you, thank you, son!|You really helped these poor people|I'll make sure to tell them about you|Here is your reward in full, as promised"],
     ["#QST_DONE_TRUE_MEDC_INFECTION_BAD_ENDING_01#","I guess...|Killing them also stopped the infection...|But still, I'm disappointed in you...|Oh, forgive the old fool for becoming emotional|I'll make sure they are properly cremated|Half of your reward will be used for that matter|Additional expenses|As you people say, nothing personal? Just a business, right?"],
-    ["#QST_DONE_FALSE_COMM_01#","Oh yeah? Is that so?|Well, my sources do not confirm that|How strange, right?|Why don't you try something better next time|And if you have something for me in the storage"],
+    ["#QST_DONE_FALSE_COMM_01#","Oh yeah? Is that so?|Well, my sources do not confirm that|How strange, right?|Why don't you try something better next time"],
     ["#QST_DONE_FALSE_COMM_ITEMS#","Then why don't I see it on the table?|If it's in your storage - bring it here"],
     ["#QST_DONE_TRUE_COMM_01#","At ease, soldier|Good job|Compensation, as promised, should be on your account"],
     ["#QST_DONE_FALSE_ROOF_01#","Hey, 'buddy'|I don't see the goods - I don't pay the price|Got it in your storage?|Then bring it here why don't you"],

@@ -32,6 +32,10 @@ NWG_MM_DBC_OnMissionStateChanged = {
 			if !(_isEmpty || _isValid) exitWith {
 				(format ["NWG_MM_DBC_OnMissionStateChanged: Invalid unlocked levels format: '%1'",_unlockedLevels]) call NWG_fnc_logError;
             };
+			private _levelCount = count (NWG_MIS_SER_Settings get "LEVELS_AND_TIERS");
+			if ((count _unlockedLevels) >= _levelCount) then {
+				_unlockedLevels resize (_levelCount-1);//Exclude last level on load
+			};
             NWG_MIS_UnlockedLevels = _unlockedLevels;//Assign to global variable
 			private _updated = call NWG_MIS_SER_UpdateUnlockedLevels;//Update for server and clients
 			if !(_updated) exitWith {
@@ -71,7 +75,6 @@ NWG_MM_DBC_OnMissionStateChanged = {
             if !(_ok) exitWith {
                 "NWG_MM_DBC_OnMissionStateChanged: Failed to save unlocked levels" call NWG_fnc_logError;
             };
-			"NWG_MM_DBC_OnMissionStateChanged: Unlocked levels saved on RESET/RESTART" call NWG_fnc_logInfo;
         };
 
         default {};

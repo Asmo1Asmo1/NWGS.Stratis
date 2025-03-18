@@ -27,16 +27,16 @@ NWG_QST_Settings = createHashMapFromArray [
 		/*QST_TYPE_ELECTRONICS:*/ NPC_TRDR
 	]],
 	["QUEST_DICE_WEIGHTS",[
-		/*QST_TYPE_VEH_STEAL:*/ 1,
-		/*QST_TYPE_INTERROGATE:*/ 1,
-		/*QST_TYPE_HACK_DATA:*/ 1,
-		/*QST_TYPE_DESTROY:*/ 1,
-		/*QST_TYPE_INTEL:*/ 1,
-		/*QST_TYPE_INFECTION:*/ 2,
-		/*QST_TYPE_WOUNDED:*/ 1,
-		/*QST_TYPE_MED_SUPPLY:*/ 1,
-		/*QST_TYPE_WEAPON:*/ 1,
-		/*QST_TYPE_ELECTRONICS:*/ 1
+		/*QST_TYPE_VEH_STEAL:*/   3,
+		/*QST_TYPE_INTERROGATE:*/ 3,
+		/*QST_TYPE_HACK_DATA:*/   3,
+		/*QST_TYPE_DESTROY:*/     3,
+		/*QST_TYPE_INTEL:*/       3,
+		/*QST_TYPE_INFECTION:*/   5,
+		/*QST_TYPE_WOUNDED:*/     2,
+		/*QST_TYPE_MED_SUPPLY:*/  3,
+		/*QST_TYPE_WEAPON:*/      3,
+		/*QST_TYPE_ELECTRONICS:*/ 3
 	]],
 	["QUEST_REWARDS",[
 		/*QST_TYPE_VEH_STEAL:*/ {
@@ -184,7 +184,8 @@ NWG_QST_Settings = createHashMapFromArray [
 		"Land_Cargo_Tower_V3_F",
 		"Land_Cargo_Tower_V4_F",
 		"Land_TTowerBig_1_F",
-		"Land_TTowerBig_2_F"
+		"Land_TTowerBig_2_F",
+		"Land_Radar_F"
 	]],
 
 	/*Intel quest*/

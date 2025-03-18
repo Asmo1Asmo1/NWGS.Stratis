@@ -338,12 +338,14 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_00_Q_02#","Как дела, босс?"],
     ["#TAXI_00_Q_03#","Подбросить?"],
     ["#TAXI_00_Q_04#","Привет, как оно, босс?"],
-    ["#TAXI_00_A_01#","Подбросить меня..."],
+    ["#TAXI_00_A_01#","Подбрось меня..."],
     ["#TAXI_00_A_02#","Насчёт страховки..."],
     /*Taxi - TAXI_01*/
     ["#TAXI_01_Q_02#","Итак?"],
     /*Taxi - TAXI_ESCAPE*/
     ["#TAXI_ESCAPE_Q_01#","Прости, босс|Теперь каждый сам за себя|Я тут подыхать не собираюсь"],
+    /*Taxi - TAXI_EARLY*/
+    ["#TAXI_EARLY_Q_01#","В каком смысле, босс?|Пока ведь некуда отправляться|Подойди к командиру, пусть назначит точку"],
     /*Taxi - TAXI_CS*/
     ["#TAXI_CS_Q_01#","Куда, босс?"],
     ["#TAXI_CS_Q_02#","Конечно, босс|Куда тебе нужно?"],
@@ -775,7 +777,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_REPORT_Q_04#","Ты с хорошими новостями?"],
     ["#QST_REPORT_Q_05#","Всё удалось?"],
     /*Quest info*/
-    ["#QST_DISPLAY_VEH_STEAL#","Доставить: %1"],
+    ["#QST_DISPLAY_VEH_STEAL#","Доставить на базу: %1"],
     ["#QST_DISPLAY_INTERROGATE#","Допросить: %1"],
     ["#QST_DISPLAY_HACK_DATA#","Взломать: %1"],
     ["#QST_DISPLAY_DESTROY#","Уничтожить: %1"],
@@ -783,10 +785,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DISPLAY_INFECTION#","Остановить инфекцию (заражённые: %1)"],
     ["#QST_DISPLAY_WOUNDED#","Сопроводить на базу: %1"],
     ["#QST_DISPLAY_MED_SUPPLY#","Найти медикаменты (пример: %1)"],
-    ["#QST_DISPLAY_TERMINAL#","Доставить: %1"],
-    ["#QST_DISPLAY_WEAPON#","Доставить: %1"],
-    ["#QST_DISPLAY_ELECTRONICS#","Найти и доставить (пример: %1)"],
-    ["#QST_DISPLAY_TOOLS#","Найти и доставить (пример: %1)"],
+    ["#QST_DISPLAY_WEAPON#","Найти и доставить: %1"],
+    ["#QST_DISPLAY_ELECTRONICS#","Собрать электронику (пример: %1)"],
     ["#QST_REWARD_TEMPLATE#","Награда: 1 Exp, 1 lvl и %1"],
     ["#QST_REWARD_TEMPLATE_PER_ITEM#","%1%% от цены за каждый предмет"],
     /*Quest descriptions*/
