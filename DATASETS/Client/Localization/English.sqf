@@ -299,7 +299,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_INV_DROP_POINT#","Failed to drop you"],
     ["#TAXI_PARADROP_HINT#","Hint: Deploy parachute\n'Space' by default while in air"],
     /*Taxi - TAXI_00*/
-    ["#TAXI_00_Q_01#","Always good to see new faces"],
+    ["#TAXI_00_Q_01#","Always good to see new faces|You here for work?|Go find the commander then|He's in a far left corner inside the base"],
     ["#TAXI_00_Q_02#","How's it going, boss?"],
     ["#TAXI_00_Q_03#","Need a ride?"],
     ["#TAXI_00_Q_04#","Hey, what's up, boss?"],
@@ -310,7 +310,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Taxi - TAXI_ESCAPE*/
     ["#TAXI_ESCAPE_Q_01#","Sorry, boss|You're on your own now|I ain't dying here"],
     /*Taxi - TAXI_EARLY*/
-    ["#TAXI_EARLY_Q_01#","What do you mean, boss?|But there's no destination yet, right?|Speak with the commander, he'll assign it"],
+    ["#TAXI_EARLY_Q_01#","What do you mean, boss?|But there's no destination yet, right?|Speak with the commander first"],
     /*Taxi - TAXI_CS*/
     ["#TAXI_CS_Q_01#","Where to, boss?"],
     ["#TAXI_CS_Q_02#","Sure thing, boss|Where do you need to?"],
