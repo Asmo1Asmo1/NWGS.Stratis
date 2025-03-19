@@ -15,7 +15,7 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["TIME_BLEEDING_TIME",900],//Start bleeding with this amount of 'time left'
     ["TIME_DAMAGE_DEPLETES",4],//How much time is subtracted when damage received in wounded state (will be multiplied by damage cascade)
 
-    ["SELF_HEAL_INITIAL_CHANCE",100],//Initial success chance of 'self-heal' action
+    ["SELF_HEAL_INITIAL_CHANCE",80],//Initial success chance of 'self-heal' action
     ["SELF_HEAL_CHANCE_DECREASE",10],//Amount by which success chance of 'self-heal' action decreased by every successful attempt
     ["SELF_HEAL_CHANCE_BOOST_ON_LAST_FAK",40],//Amount by which success chance of 'self-heal' action increased on last FAK
     ["SELF_HEAL_ACTION_PRIORITY",13],//Priority of 'self-heal' action
