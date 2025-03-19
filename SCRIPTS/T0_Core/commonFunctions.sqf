@@ -397,6 +397,78 @@ NWG_fnc_setHitIndex = {
 	};
 };
 
+//Returns full crew array of a valid vehicle in driver->gunner->commander->turret->cargo order
+//note: fixes Arma's fullCrew complete mess of an order driver->cargo->turret->gunner->commander, like wtf
+//params: _vehicle - vehicle object
+//returns: full crew array or empty array if vehicle is not valid
+#define FULL_CREW_INCLUDE_EMPTY true
+#define FULL_CREW_UNIT 0
+#define FULL_CREW_ROLE 1
+#define FULL_CREW_CARGO_INDEX 2
+#define FULL_CREW_TURRET_PATH 3
+NWG_fnc_getFullCrew = {
+	private _vehicle = _this;
+    if (isNull _vehicle || {!alive _vehicle}) exitWith {[]};
+	if ((["ParachuteBase","Car","Tank","Helicopter","Plane","Ship"] findIf {_vehicle isKindOf _x}) <= 0) exitWith {[]};
+
+    //Get full crew
+	private _fullCrew = fullCrew [_vehicle,"",FULL_CREW_INCLUDE_EMPTY];
+	if ((count _fullCrew) <= 1) exitWith {[]};
+
+	//Sort crew by predefined order
+	private _order = ["driver","gunner","commander","turret","cargo"];
+	_fullCrew = _fullCrew apply {[(_order find (_x#FULL_CREW_ROLE)),(_x#FULL_CREW_CARGO_INDEX),_x]};
+	_fullCrew sort true;
+	_fullCrew = _fullCrew apply {_x#2};
+
+    //return
+    _fullCrew
+};
+
+//Places unit into the first available seat in a vehicle
+//params:
+// _vehicle - vehicle object
+// _fullCrew - full crew array from 'NWG_fnc_getFullCrew' (you can modify it before calling this function)
+// _unit - unit to place into a seat
+// _allowReplacingDead - (optional, default true) if true, unit will be placed into a seat even if it is occupied by another dead unit
+//returns: true if unit was placed into a seat, false if there are no available seats
+NWG_fnc_placeUnitInFullCrewSeat = {
+    params ["_vehicle","_fullCrew","_unit",["_allowReplacingDead",true]];
+
+    //Find next available seat
+	private _nextAvailableSeat = if (_allowReplacingDead)
+        then {_fullCrew findIf {!alive (_x#FULL_CREW_UNIT)}}
+        else {_fullCrew findIf {isNull (_x#FULL_CREW_UNIT)}};
+	if (_nextAvailableSeat == -1) exitWith {false};
+
+	//Place unit into the next available seat
+	private _newSeat = _fullCrew select _nextAvailableSeat;
+	switch (_newSeat#FULL_CREW_ROLE) do {
+		case "driver": {
+			_unit assignAsDriver _vehicle;
+			_unit moveInDriver _vehicle
+		};
+		case "commander": {
+			_unit assignAsCommander _vehicle;
+			_unit moveInCommander _vehicle
+		};
+		case "gunner": {
+			_unit assignAsGunner _vehicle;
+			_unit moveInGunner _vehicle
+		};
+		case "turret": {
+			_unit assignAsTurret [_vehicle,(_newSeat#FULL_CREW_TURRET_PATH)];
+			_unit moveInTurret [_vehicle,(_newSeat#FULL_CREW_TURRET_PATH)]
+		};
+		case "cargo": {
+			_unit assignAsCargo _vehicle;
+			_unit moveInCargo [_vehicle,(_newSeat#FULL_CREW_CARGO_INDEX)];
+		};
+	};
+
+    //return
+    true
+};
 //===============================================================
 //Containers
 //Clears container cargo in a JIP-friendly manner - only clear what is needed
