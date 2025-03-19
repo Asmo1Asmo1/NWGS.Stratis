@@ -953,8 +953,15 @@ NWG_MED_CLI_UA_ForceRelease = {
 
 /*Vehicle load*/
 NWG_MED_CLI_UA_VehLoadCondition = {
-    !(isNull NWG_MED_CLI_UA_draggedUnit && {isNull NWG_MED_CLI_UA_carriedUnit}) && {
-    !isNull (call NWG_fnc_radarGetVehAround)}
+    if (isNull NWG_MED_CLI_UA_draggedUnit && {isNull NWG_MED_CLI_UA_carriedUnit}) exitWith {false};
+    if (isNull (call NWG_fnc_radarGetVehAround)) exitWith {false};
+    private _vehicle = call NWG_fnc_radarGetVehAround;
+    if (((crew _vehicle) findIf {
+		alive _x && {
+		(incapacitatedState _x) isEqualTo "" && {
+		(side (group _x)) isNotEqualTo (side (group player))}}
+	}) != -1) exitWith {false};//Occupied by enemy
+    true
 };
 NWG_MED_CLI_UA_VehLoadAction = {
     private _targetUnit = if (!isNull NWG_MED_CLI_UA_draggedUnit)

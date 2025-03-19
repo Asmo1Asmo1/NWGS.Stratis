@@ -116,20 +116,41 @@ NWG_MED_SER_OnMedAction = {
             if (isNull (attachedTo _unit)) exitWith {};//Already released
             detach _unit;
 
-            private _allSeats = ((fullCrew [_vehicle,"",true]) select {isNull (_x#0) && {(_x#2) >= 0}}) apply {_x#2};
-            reverse _allSeats;//Prefer the last seat
-
-            if ((count _allSeats) > 0) then {
-                /*Load into available seat*/
-                private _seat = _allSeats select 0;
-                [_unit,_vehicle,_seat] call NWG_fnc_medLoadIntoVehicle;
-                [_unit,SUBSTATE_INVH] call NWG_MED_COM_SetSubstate;
-            } else {
+            private _abort = {
                 /*Place on the ground like in 'ACTION_RELEASE'*/
                 _unit call NWG_fnc_medFlipUnit;
                 [_unit,"UnconsciousFaceUp"] call NWG_fnc_playAnimGlobal;
                 [_unit,SUBSTATE_DOWN] call NWG_MED_COM_SetSubstate;
             };
+
+            if (!alive _vehicle || {_vehicle isEqualTo _activeUnit}) exitWith {call _abort};
+            if (((crew _vehicle) findIf {
+                alive _x && {
+                (incapacitatedState _x) isEqualTo "" && {
+                (side (group _x)) isNotEqualTo (side (group _activeUnit))}}
+            }) != -1) exitWith {call _abort};//Occupied by enemy
+            private _fullCrew = _vehicle call NWG_fnc_getFullCrew;
+            if (_fullCrew isEqualTo []) exitWith {call _abort};//Invalid vehicle
+            private _cargoSeats = [];
+            private _restSeats = [];
+            {
+                if (alive (_x#0)) then {continue};//Skip occupied seats
+                if ((_x#1) isEqualTo "driver") then {continue};//Skip driver
+                if ((_x#2) >= 0)
+                    then {_cargoSeats pushBack _x}
+                    else {_restSeats pushBack _x};
+            } forEach _fullCrew;
+            if !("Offroad_02" in (typeOf _vehicle)) then {
+                reverse _cargoSeats;
+                reverse _restSeats;
+            };//Exception for one particularly nasty vehicle that may have last seats invalid resulting in wounded unit to drop on the ground
+
+            _fullCrew = _cargoSeats + _restSeats;
+            if (_fullCrew isEqualTo []) exitWith {call _abort};//No available seats
+
+            /*Load into vehicle*/
+            [_unit,_vehicle,_fullCrew] call NWG_fnc_medLoadIntoVehicle;
+            [_unit,SUBSTATE_INVH] call NWG_MED_COM_SetSubstate;
         };
         default {
             "NWG_MED_SER_OnMedAction: Unknown action type" call NWG_fnc_logError;

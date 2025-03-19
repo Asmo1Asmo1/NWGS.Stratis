@@ -14,7 +14,6 @@ NWG_AV_Settings = createHashMapFromArray [
 	["SEAT_SWITCH_ACTION_NEXT_TITLE","#AV_SEAT_SWITCH_NEXT_TITLE#"],
 	["SEAT_SWITCH_ACTION_PREV_TITLE","#AV_SEAT_SWITCH_PREV_TITLE#"],
 	["SEAT_SWITCH_ACTION_PRIORITY",0],
-	["SEAT_SWITCH_SEATS_ORDER",["driver","gunner","commander","turret","cargo"]],
 
 	["ALL_WHEEL_ACTION_ASSIGN",true],
 	["ALL_WHEEL_ACTION_SIGNATURE_REQUIRED",true],//If true, only signed vehicles will get this action
@@ -149,22 +148,15 @@ NWG_AV_SeatSwitch_Action = {
 	//Get values
 	private _vehicle = vehicle player;
 	if (!alive _vehicle || {_vehicle isEqualTo player}) exitWith {};
-	private _fullCrew = fullCrew [_vehicle,"",FULL_CREW_INCLUDE_EMPTY];
-	if ((count _fullCrew) <= 1) exitWith {};
-
-	//Sort crew by predefined order
-	//(Fix Arma's fullCrew complete mess of an order driver->cargo->turret->gunner->commander, like wtf)
-	private _order = NWG_AV_Settings get "SEAT_SWITCH_SEATS_ORDER";
-	private _i = -1;//Fix inconsistent sorting
-	_fullCrew = _fullCrew apply {_i = _i + 1; [(_order find (_x#FULL_CREW_ROLE)),_i,_x]};
-	_fullCrew sort true;
-	_fullCrew = _fullCrew apply {_x#2};
+	private _fullCrew = _vehicle call NWG_fnc_getFullCrew;
+	if (_fullCrew isEqualTo []) exitWith {};//Invalid vehicle
+	if ((_fullCrew findIf {!alive (_x#FULL_CREW_UNIT)}) == -1) exitWith {};//No available seats
 
 	//Find player's index
 	private _playerIndex = _fullCrew findIf {(_x#FULL_CREW_UNIT) isEqualTo player};
 	if (_playerIndex == -1) exitWith {};
 
-	//Reorganize and find next available seat
+	//Reorder seats for next/prev placement
 	private _fullCrewPrev = _fullCrew select [0,_playerIndex];
 	private _fullCrewNext = _fullCrew select [_playerIndex + 1];
 	private _fullCrew = if (_toNext) then {
@@ -176,35 +168,11 @@ NWG_AV_SeatSwitch_Action = {
 		reverse _fullCrewNext;
 		_fullCrewPrev + _fullCrewNext
 	};
-	private _nextAvailableSeat = _fullCrew findIf {isNull (_x#FULL_CREW_UNIT)};
-	if (_nextAvailableSeat == -1) exitWith {};
 
 	//Place unit into the next available seat
 	player disableCollisionWith _vehicle;
 	player moveOut _vehicle;//Mandatory, see: https://community.bistudio.com/wiki/moveInAny
-	private _newSeat = _fullCrew select _nextAvailableSeat;
-	switch (_newSeat#FULL_CREW_ROLE) do {
-		case "driver": {
-			player assignAsDriver _vehicle;
-			player moveInDriver _vehicle
-		};
-		case "commander": {
-			player assignAsCommander _vehicle;
-			player moveInCommander _vehicle
-		};
-		case "gunner": {
-			player assignAsGunner _vehicle;
-			player moveInGunner _vehicle
-		};
-		case "turret": {
-			player assignAsTurret [_vehicle,(_newSeat#FULL_CREW_TURRET_PATH)];
-			player moveInTurret [_vehicle,(_newSeat#FULL_CREW_TURRET_PATH)]
-		};
-		case "cargo": {
-			player assignAsCargo _vehicle;
-			player moveInCargo [_vehicle,(_newSeat#FULL_CREW_CARGO_INDEX)];
-		};
-	};
+	[_vehicle,_fullCrew,player] call NWG_fnc_placeUnitInFullCrewSeat;
 	player enableCollisionWith _vehicle;
 };
 
