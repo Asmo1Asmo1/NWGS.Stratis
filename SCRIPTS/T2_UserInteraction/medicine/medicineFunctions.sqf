@@ -96,13 +96,14 @@ NWG_fnc_medPlayAnim = {
 //params:
 //_unit - the unit to load
 //_veh - the vehicle to load into
-//_seat - the cargo seat to load into
+//_fullCrew - modified full crew array from 'NWG_fnc_getFullCrew'
 NWG_fnc_medLoadIntoVehicle = {
-    params ["_unit","_veh","_seat"];
+    params ["_unit","_veh","_fullCrew"];
     if (isNull _unit) exitWith {};
     if (!local _unit) exitWith {_this remoteExec ["NWG_fnc_medLoadIntoVehicle",_unit]};//Enforce locality
+    [_veh,_fullCrew,_unit] call NWG_fnc_placeUnitInFullCrewSeat;
 
-    _unit moveInCargo [_veh,_seat];
+    /*Post-load actions*/
     if (!(isPlayer _unit)) exitWith {};//Don't do anything additional if it's an NPC
     _unit playActionNow "Unconscious";
     _unit setCaptive false;

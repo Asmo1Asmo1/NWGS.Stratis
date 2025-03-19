@@ -83,17 +83,22 @@ NWG_AK_QuickVehicleAccess = {
 	if (isNull player || {!alive player || {!isNull objectParent player}}) exitWith {};//Ignore if player is not alive or in vehicle
 	if (!isNil "NWG_fnc_medIsWounded" && {player call NWG_fnc_medIsWounded}) exitWith {};//Ignore if player is wounded
 
-	private _veh = cursorObject;
-	if (isNull _veh) exitWith {};//Ignore if there is no object under cursor
-	if ((["ParachuteBase","Car","Tank","Helicopter","Plane","Ship"] findIf {_veh isKindOf _x}) <= 0) exitWith {};//Ignore if cursorObject is not a vehicle
-	if ((player distance _veh) > (NWG_AK_Settings get "QUICK_VEH_ACCESS_DISTANCE")) exitWith {};//Ignore if player is too far from the vehicle
-	if (unitIsUAV _veh) exitWith {};//Ignore if cursorObject is a UAV
+	//Get target vehicle
+	private _vehicle = cursorObject;
+	if (isNull _vehicle) exitWith {};//Ignore if there is no object under cursor
+	if ((["ParachuteBase","Car","Tank","Helicopter","Plane","Ship"] findIf {_vehicle isKindOf _x}) <= 0) exitWith {};//Ignore if cursorObject is not a vehicle
+	if ((player distance _vehicle) > (NWG_AK_Settings get "QUICK_VEH_ACCESS_DISTANCE")) exitWith {};//Ignore if player is too far from the vehicle
+	if (unitIsUAV _vehicle) exitWith {};//Ignore if cursorObject is a UAV
 
-	if (((crew _veh) findIf {
-		!captive _x && {
-		(side (group _x)) isNotEqualTo (side (group player))}
-	}) != -1) exitWith {};//Ignore if any crew member is not captive and from different side (prevent getting into enemy vehicles)
+	//Prevent getting into enemy vehicles
+	if (((crew _vehicle) findIf {
+		alive _x && {
+		(incapacitatedState _x) isEqualTo "" && {
+		(side (group _x)) isNotEqualTo (side (group player))}}
+	}) != -1) exitWith {};
 
-	//Try to get in (safely handles case when vehicle is already full, so no need to check that)
-	player moveInAny _veh;
+	//Try to get in
+	private _fullCrew = _vehicle call NWG_fnc_getFullCrew;
+	if (_fullCrew isEqualTo []) exitWith {};
+	[_vehicle,_fullCrew,player] call NWG_fnc_placeUnitInFullCrewSeat;
 };
