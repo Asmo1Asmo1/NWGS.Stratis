@@ -27,23 +27,3 @@ NWG_fnc_ykConfigure = {
 NWG_fnc_ykGetTotalKillcount = {
     if (NWG_YK_Enabled) then {NWG_YK_killCountTotal} else {-1}
 };
-
-//=============================================================================
-/*Debug*/
-/*
-    Example: add to 'watch' field:
-    [call NWG_fnc_ykGetStatus, call NWG_fnc_ykGetTimeToNextReaction]
-*/
-//Returns the current state of the Yellow King system
-//returns: string
-NWG_fnc_ykGetStatus = {
-    NWG_YK_Status
-};
-
-//Returns the time before the next reaction
-//returns: time in seconds OR -1 if no reaction is scheduled at the moment
-NWG_fnc_ykGetTimeToNextReaction = {
-    if (NWG_YK_Status isEqualTo STATUS_PREPARING)
-        then {NWG_YK_reactTime - time}
-        else {-1}
-};
