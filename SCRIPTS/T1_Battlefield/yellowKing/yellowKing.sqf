@@ -55,14 +55,20 @@ NWG_YK_Settings = createHashMapFromArray [
             [/*_minReact*/3, /*_maxIgnores*/0, /*_maxMoves*/4, /*_maxReinfs*/2, /*_maxSpecials*/3]
     ]],//YellowKing difficulty presets
 
+    /*Berserk mode*/
+    ["BERSEK_MODE_COOLDOWN",60],//Mandatory cooldown before next berserk round can start (stacks with the difficulty cooldown)
+
     ["",0]
 ];
 
 //======================================================================================================
 //======================================================================================================
 //Fields
-/* main flags */
+/* main flag */
 NWG_YK_Enabled = false;
+/* berserk mode */
+NWG_YK_BerserkMode = false;
+NWG_YK_BerserkSelectBy = {true};
 /* counters */
 NWG_YK_killCount = 0;
 NWG_YK_killCountTotal = 0;
@@ -104,12 +110,43 @@ NWG_YK_Disable = {
     if (!isNull NWG_YK_reactHandle || {!scriptDone NWG_YK_reactHandle})
         then {terminate NWG_YK_reactHandle};//Terminate the reaction script
     call NWG_YK_STAT_OnDisable;//Statistics
+    NWG_YK_BerserkMode = false;//Disable berserk mode
+    NWG_YK_BerserkSelectBy = {true};//Drop the selectBy predicate
     NWG_YK_Enabled = false;
     true
 };
 NWG_YK_Configure = {
     params ["_kingSide"];
     if !(isNil "_kingSide") then {NWG_YK_Settings set ["KING_SIDE",_kingSide]};
+};
+
+//======================================================================================================
+//======================================================================================================
+//Berserk mode
+NWG_YK_GoBerserk = {
+    params [["_selectBy",{true}]];
+    if !(NWG_YK_Enabled) exitWith {
+        "NWG_YK_GoBerserk: YK is disabled" call NWG_fnc_logError;
+        false
+    };
+    if (NWG_YK_BerserkMode) exitWith {
+        "NWG_YK_GoBerserk: Berserk mode is already active" call NWG_fnc_logError;
+        false
+    };
+
+    NWG_YK_BerserkMode = true;
+    NWG_YK_BerserkSelectBy = _selectBy;
+    if (!isNull NWG_YK_reactHandle || {!scriptDone NWG_YK_reactHandle})
+        then {terminate NWG_YK_reactHandle};//Terminate the current reaction script
+    [] spawn NWG_YK_BerserkReload;//Start chain reaction
+    true
+};
+NWG_YK_BerserkReload = {
+    sleep (NWG_YK_Settings get "BERSEK_MODE_COOLDOWN");//Mandatory cooldown
+    if !(NWG_YK_Enabled) exitWith {};//YK was disabled while we were waiting
+    NWG_YK_reactList = (call NWG_fnc_getPlayersAll) select NWG_YK_BerserkSelectBy;
+    NWG_YK_reactTime = time + ((NWG_YK_Settings get "DIFFICULTY_REACTION_TIME") call NWG_fnc_randomRangeInt);
+    NWG_YK_reactHandle = [] spawn NWG_YK_React;
 };
 
 //======================================================================================================
@@ -132,7 +169,7 @@ NWG_YK_GetDifficultyPreset = {
 NWG_YK_OnKilled = {
     params ["_object","_objType","_actualKiller","_isPlayerKiller"];
 
-    //Check
+    //Checks
     if !(NWG_YK_Enabled) exitWith {};//System is disabled
     if (isNull _object || {isNull _actualKiller || {!alive _actualKiller}}) exitWith {};//Unprocessable kill
     if (!(_objType in (NWG_YK_Settings get "REACT_TO_TYPES_KILLED"))) exitWith {};//Not a kill of interest
@@ -145,10 +182,11 @@ NWG_YK_OnKilled = {
     //Record the kill
     NWG_YK_killCount = NWG_YK_killCount + 1;
     NWG_YK_killCountTotal = NWG_YK_killCountTotal + 1;
-    NWG_YK_reactList pushBackUnique _actualKiller;
     if (NWG_YK_Settings get "SHOW_DEBUG_MESSAGES") then {systemChat (format ["NWG_YK: %1 killed %2",(name _actualKiller),(name _object)])};
+    if (NWG_YK_BerserkMode) exitWith {};//System is in berserk mode - no further action needed
 
     //Setup reaction
+    NWG_YK_reactList pushBackUnique _actualKiller;
     if (isNull NWG_YK_reactHandle || {scriptDone NWG_YK_reactHandle}) then {
         NWG_YK_reactTime = time + ((NWG_YK_Settings get "DIFFICULTY_REACTION_TIME") call NWG_fnc_randomRangeInt);
         NWG_YK_reactHandle = [] spawn NWG_YK_React;
@@ -175,6 +213,7 @@ NWG_YK_React = {
     private _onExit = {
         NWG_YK_reactList resize 0;
         NWG_YK_killCount = 0;
+        if (NWG_YK_BerserkMode) then {[] spawn NWG_YK_BerserkReload};//Go at it again
     };
     /*Statistics and status*/
     [STAT_REACTION_COUNT,1] call NWG_YK_STAT_Increment;
@@ -185,6 +224,8 @@ NWG_YK_React = {
 
     //2. Get difficulty settings
     (call NWG_YK_GetDifficultyPreset) params ["_minReact","_ignoresLeft","_movesLeft","_reinfsLeft","_speciaslLeft"];
+    if (NWG_YK_BerserkMode) then {_reinfsLeft = 0};//Berserk mode - no reinforcements
+    private _isMoveDistanceRestrictions = !NWG_YK_BerserkMode;//Distance restrictions apply only in normal mode
 
     //3. Process and convert the targets
     /*Apply min reaction count*/
@@ -208,7 +249,7 @@ NWG_YK_React = {
     //forEach target
     {
         //Fill the dice
-        private _dice = [_x,_hunters,(_ignoresLeft > 0),(_movesLeft > 0),(_reinfsLeft > 0),(_speciaslLeft > 0)] call NWG_YK_FillDice;
+        private _dice = [_x,_hunters,(_ignoresLeft > 0),(_movesLeft > 0),_isMoveDistanceRestrictions,(_reinfsLeft > 0),(_speciaslLeft > 0)] call NWG_YK_FillDice;
         if ((count _dice) == 0) then {continue};//There is nothing we can do.. | Napoleon Meme
 
         //Roll the dice (Need for Speed IV Soundtrack - Roll The Dice) https://www.youtube.com/watch?v=ZgmQK1wVPzg
@@ -516,7 +557,7 @@ NWG_YK_RunPassiveSpecials = {
 //======================================================================================================
 //Fill the dice
 NWG_YK_FillDice = {
-    params ["_target","_hunters","_fillIgnore","_fillMove","_fillReinf","_fillSpecials"];
+    params ["_target","_hunters","_fillIgnore","_fillMove","_isMoveDistanceRestrictions","_fillReinf","_fillSpecials"];
     private _dice = [];
 
     /*Fill with ignore*/
@@ -576,10 +617,18 @@ NWG_YK_FillDice = {
         };
 
         /*Define distances that we can send hunters over*/
-        private _iDistCheck = {((_this#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "HUNT_INF_MOVE_RADIUS")};
-        private _vDistCheck = {((_this#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "HUNT_VEH_MOVE_RADIUS")};
-        private _aDistCheck = {((_this#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "HUNT_AIR_MOVE_RADIUS")};
-        private _bDistCheck = {((_this#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "HUNT_BOAT_MOVE_RADIUS")};
+        private ["_iDistCheck","_vDistCheck","_aDistCheck","_bDistCheck"];
+        if (_isMoveDistanceRestrictions) then {
+            _iDistCheck = {((_this#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "HUNT_INF_MOVE_RADIUS")};
+            _vDistCheck = {((_this#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "HUNT_VEH_MOVE_RADIUS")};
+            _aDistCheck = {((_this#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "HUNT_AIR_MOVE_RADIUS")};
+            _bDistCheck = {((_this#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "HUNT_BOAT_MOVE_RADIUS")};
+        } else {
+            _iDistCheck = {true};
+            _vDistCheck = {true};
+            _aDistCheck = {true};
+            _bDistCheck = {true};
+        };
 
         /*Find hunter index to send*/
         private _hunterIndex = _hunters findIf {
@@ -604,7 +653,7 @@ NWG_YK_FillDice = {
 
     /*Fill with specials?*/
     if (!_fillSpecials) exitWith {_dice};
-    if ((_target#TARGET_TYPE) isEqualTo TARGET_TYPE_AIR_FLY) exitWith {_dice};
+    if ((_target#TARGET_TYPE) isEqualTo TARGET_TYPE_AIR_FLY) exitWith {_dice};//There is no special against air targets
 
     /*Fill with specials*/
     private _i = -1;

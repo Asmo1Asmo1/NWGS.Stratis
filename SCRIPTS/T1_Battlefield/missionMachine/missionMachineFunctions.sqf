@@ -209,7 +209,9 @@ NWG_fnc_mmIsPlayerOnBase = {
 //returns: boolean
 NWG_fnc_mmWasPlayerOnMission = {
     // private _player = _this;
-    _this getVariable ["NWG_MIS_WasOnMission",false]
+    if (!isNil "NWG_MIS_SER_GetWasOnMission")
+        then {_this call NWG_MIS_SER_GetWasOnMission}/*Server side*/
+        else {_this getVariable ["NWG_MIS_WasOnMission",false]}/*Any side*/
 };
 
 //Returns if this player is inside escape vehicle
