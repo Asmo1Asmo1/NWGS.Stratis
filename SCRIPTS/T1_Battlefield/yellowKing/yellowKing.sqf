@@ -27,7 +27,7 @@ NWG_YK_Settings = createHashMapFromArray [
     ["SPECIAL_MORTAR_RADIUS",100000],//Radius at which groups will be ordered to do mortar strike
     ["SPECIAL_VEHDEMOLITION_ENABLED",true],//Is vehicle demolition allowed
     ["SPECIAL_VEHDEMOLITION_RADIUS",500],//Radius at which groups will be sent to do vehdemolition
-    ["SPECIAL_INFSTORM_ENABLED",false],//Is infantry building storm allowed
+    ["SPECIAL_INFSTORM_ENABLED",true],//Is infantry building storm allowed
     ["SPECIAL_INFSTORM_RADIUS",500],//Radius at which groups will be sent to do infstorm
 
     /*Passive specials*/
