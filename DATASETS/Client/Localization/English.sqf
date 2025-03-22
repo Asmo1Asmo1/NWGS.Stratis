@@ -431,7 +431,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*====== TRDR =====*/
     /*Trdr - TRDR_00*/
     ["#TRDR_00_Q_01#","How come you have no money?|Look but don't touch anything|Have something to sell at least?"],
-    ["#TRDR_00_Q_02#","Newcomer?|You would be wise to buy a UAV terminal and a radio|It's a good investment|Here, I have some for sale"],
+    ["#TRDR_00_Q_02#","Newcomer?|Your loot storage is there - in the box in the corner|Whatever you loot or buy goes there|Speaking of...|You would be wise to buy a UAV terminal and a radio|It's a good investment|Here, I have some for sale"],
     ["#TRDR_00_Q_03#","Welcome to my shop, friend"],
     ["#TRDR_00_Q_04#","My favorite customer|How are you today?"],
     ["#TRDR_00_Q_05#","Yes?"],

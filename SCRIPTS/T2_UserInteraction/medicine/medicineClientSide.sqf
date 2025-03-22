@@ -20,9 +20,11 @@ NWG_MED_CLI_Settings = createHashMapFromArray [
     ["SELF_HEAL_CHANCE_BOOST_ON_LAST_FAK",40],//Amount by which success chance of 'self-heal' action increased on last FAK
     ["SELF_HEAL_ACTION_PRIORITY",13],//Priority of 'self-heal' action
     ["SELF_HEAL_ACTION_DURATION",8],//Duration of 'self-heal' action
+    ["SELF_HEAL_ACTION_AUTOSHOW",true],//If true - will automatically show on screen in suggestive manner
 
     ["RESPAWN_ACTION_PRIORITY",12],//Priority of 'respawn' action
     ["RESPAWN_ACTION_DURATION",5],//Duration of 'respawn' action
+    ["RESPAWN_ACTION_AUTOSHOW",true],//If true - will automatically show on screen in suggestive manner
 
     ["HEAL_WITH_FAK_CHANCE",50],//Chance to heal another unit using only FAK
     ["HEAL_CHANCE_BOOST_ON_LAST_FAK",40],//Amount by which success chance of 'heal' action increased on last FAK
@@ -511,7 +513,8 @@ NWG_MED_CLI_SA_AddSelfActions = {
         {call NWG_MED_CLI_SA_OnSelfHealStarted},/*_onStarted*/
         {call NWG_MED_CLI_SA_OnSelfHealInterrupted},/*_onInterrupted*/
         {call NWG_MED_CLI_SA_OnSelfHealCompleted},/*_onCompleted*/
-        true/*_showWhileWounded*/
+        true,/*_showWhileWounded*/
+        (NWG_MED_CLI_Settings get "SELF_HEAL_ACTION_AUTOSHOW")/*_autoShow*/
     ] call NWG_MED_CLI_AddHoldAction);
 
     /*Respawn*/
@@ -524,7 +527,8 @@ NWG_MED_CLI_SA_AddSelfActions = {
         {},/*_onStarted*/
         {},/*_onInterrupted*/
         {call NWG_MED_CLI_SA_OnRespawnCompleted},/*_onCompleted*/
-        true/*_showWhileWounded*/
+        true,/*_showWhileWounded*/
+        (NWG_MED_CLI_Settings get "RESPAWN_ACTION_AUTOSHOW")/*_autoShow*/
     ] call NWG_MED_CLI_AddHoldAction);
 
     /*Crawl*/
