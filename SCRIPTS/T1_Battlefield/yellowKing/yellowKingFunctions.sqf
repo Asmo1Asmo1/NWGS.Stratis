@@ -8,6 +8,19 @@ NWG_fnc_ykEnable = {
     call NWG_YK_Enable
 };
 
+//Enables berserk mode
+//notes:
+// 1. Berserk mode is disabled only when entire YK is disabled by 'NWG_fnc_ykDisable'
+// 2. In berserk mode YK will attack over and over again without waiting for player actions
+// 3. In berserk mode reinforcements are disabled but so are distance restrictions for attacking targets
+//params:
+//  _selectBy: (optional) predicate to select targets applied to 'NWG_fnc_getPlayersAll' (default: {true})
+//returns: true on success, false in case of errors
+NWG_fnc_ykGoBerserk = {
+    // params [["_selectBy",{true}]];
+    _this call NWG_YK_GoBerserk
+};
+
 //Disables the YK system
 //returns: true on success, false if already disabled
 NWG_fnc_ykDisable = {
@@ -26,24 +39,4 @@ NWG_fnc_ykConfigure = {
 //returns: total killcount
 NWG_fnc_ykGetTotalKillcount = {
     if (NWG_YK_Enabled) then {NWG_YK_killCountTotal} else {-1}
-};
-
-//=============================================================================
-/*Debug*/
-/*
-    Example: add to 'watch' field:
-    [call NWG_fnc_ykGetStatus, call NWG_fnc_ykGetTimeToNextReaction]
-*/
-//Returns the current state of the Yellow King system
-//returns: string
-NWG_fnc_ykGetStatus = {
-    NWG_YK_Status
-};
-
-//Returns the time before the next reaction
-//returns: time in seconds OR -1 if no reaction is scheduled at the moment
-NWG_fnc_ykGetTimeToNextReaction = {
-    if (NWG_YK_Status isEqualTo STATUS_PREPARING)
-        then {NWG_YK_reactTime - time}
-        else {-1}
 };
