@@ -2,7 +2,7 @@
 
 //Progress
 // #define P__EXP 0 /*Experience*/
-// #define P_TEXP 1 /*Total Experience*/
+// #define P__LVL 1 /*Total Experience*/
 // #define P_TAXI 2 /*Progress with Taxi*/
 // #define P_TRDR 3 /*Progress with Trader*/
 // #define P_COMM 4 /*Progress with Commander*/
@@ -18,7 +18,7 @@ NWG_PRG_Settings = createHashMapFromArray [
     /*Upper limits*/
 	["LIMITS",[
 		-1,/*P__EXP*/
-		-1,/*P_TEXP*/
+		-1,/*P__LVL*/
 		10,/*P_TAXI*/
 		10,/*P_TRDR*/
 		5  /*P_COMM*/
@@ -41,28 +41,28 @@ NWG_PRG_Settings = createHashMapFromArray [
     /*Notifications*/
     ["NOTIFY_LOCALIZATION",[
         "#PRG_NOTIFY__EXP#",/*P__EXP*/
-        "#PRG_NOTIFY_TEXP#",/*P_TEXP*/
+        "#PRG_NOTIFY_TEXP#",/*P__LVL*/
         "#PRG_NOTIFY_TAXI#",/*P_TAXI*/
         "#PRG_NOTIFY_TRDR#",/*P_TRDR*/
         "#PRG_NOTIFY_COMM#"/*P_COMM*/
     ]],
     ["NOTIFY_MULTIPLIER",[
         1,/*P__EXP*/
-        1,/*P_TEXP*/
+        1,/*P__LVL*/
         10,/*P_TAXI*/
         10,/*P_TRDR*/
         1/*P_COMM*/
     ]],
     ["NOTIFY_SYSTEMCHAT",[
         true,/*P__EXP*/
-        false,/*P_TEXP*/
+        false,/*P__LVL*/
         true,/*P_TAXI*/
         true,/*P_TRDR*/
         true/*P_COMM*/
     ]],
     ["NOTIFY_HINT",[
         false,/*P__EXP*/
-        true,/*P_TEXP*/
+        true,/*P__LVL*/
         true,/*P_TAXI*/
         true,/*P_TRDR*/
         true/*P_COMM*/
@@ -71,7 +71,7 @@ NWG_PRG_Settings = createHashMapFromArray [
     /*Stringifying*/
     ["STRINGIFY",[
         "Exp: %1",/*P__EXP*/
-        "lvl %1", /*P_TEXP*/
+        "lvl %1", /*P__LVL*/
         "%1%%",   /*P_TAXI*/
         "%1%%",   /*P_TRDR*/
         "%1"      /*P_COMM*/
