@@ -22,7 +22,7 @@ NWG_PRG_MMC_OnMissionStateChanged = {
 
 	{
         [_x,P__EXP,1] call NWG_fnc_pAddPlayerProgress;//Add experience
-        [_x,P_TEXP,1] call NWG_fnc_pAddPlayerProgress;//Add total experience (level up)
+        [_x,P__LVL,1] call NWG_fnc_pAddPlayerProgress;//Level up
     } forEach _players;
 };
 

@@ -50,7 +50,7 @@ in other words:
 
 //Progress enum (see globalDefines.h)
 #define P__EXP 0
-#define P_TEXP 1
+#define P__LVL 1
 #define P_TAXI 2
 #define P_TRDR 3
 #define P_COMM 4

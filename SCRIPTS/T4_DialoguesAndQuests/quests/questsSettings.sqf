@@ -71,7 +71,7 @@ NWG_QST_Settings = createHashMapFromArray [
 	["FUNC_REWARD_PLAYER",{
 		params ["_player","_reward"];
 		[_player,P__EXP,1] call NWG_fnc_pAddPlayerProgress;//Add experience
-		[_player,P_TEXP,1] call NWG_fnc_pAddPlayerProgress;//Add total experience (level up)
+		[_player,P__LVL,1] call NWG_fnc_pAddPlayerProgress;//Level up
 		[_player,_reward] call NWG_fnc_wltAddPlayerMoney;//Add money reward
 	}],
 

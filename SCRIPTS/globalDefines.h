@@ -124,7 +124,7 @@
 
 //Progress
 #define P__EXP 0 /*Experience*/
-#define P_TEXP 1 /*Total Experience*/
+#define P__LVL 1 /*Player Level*/
 #define P_TAXI 2 /*Progress with Taxi*/
 #define P_TRDR 3 /*Progress with Trader*/
 #define P_COMM 4 /*Progress with Commander*/
