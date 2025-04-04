@@ -136,6 +136,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //escapeBillboard
     ["#ESCB_TITLE#","Level 17th Winners"],
     ["#ESCB_NO_WINNERS#","\nBe the first to get here!"],
+    //garage
+    ["#GRG_RETURN_TO_GARAGE_ACTION_TITLE#","Return to garage (%1)"],
+    ["#GRG_MSG_FAILED_TO_RETURN#","Failed to return vehicle"],
+    ["#GRG_MSG_GARAGE_FULL#","Garage is full"],
+    ["#GRG_MSG_NO_MONEY#","Not enough money"],
     //hunting
     ["#A_HUNT_TITLE#",""],
     ["#A_HUNT_FORBIDDEN_MESSAGE#","Hey, %1, stay the fuck away from the dogs, you sick fuck!"],

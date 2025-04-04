@@ -171,6 +171,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //escapeBillboard
     ["#ESCB_TITLE#","Победители 17-го уровня"],
     ["#ESCB_NO_WINNERS#","\nБудь первым, кто попадет сюда!"],
+    //garage
+    ["#GRG_RETURN_TO_GARAGE_ACTION_TITLE#","Вернуть в гараж (%1)"],
+    ["#GRG_MSG_FAILED_TO_RETURN#","Не удалось вернуть технику"],
+    ["#GRG_MSG_GARAGE_FULL#","Гараж заполнен"],
+    ["#GRG_MSG_NO_MONEY#","Недостаточно денег"],
     //hunting
     ["#A_HUNT_TITLE#",""],
     ["#A_HUNT_FORBIDDEN_MESSAGE#","Эй, %1, держись от собак подальше, ты грёбаный живодёр!"],

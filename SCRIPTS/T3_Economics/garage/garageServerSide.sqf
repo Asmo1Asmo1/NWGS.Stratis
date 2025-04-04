@@ -79,6 +79,9 @@ NWG_GRG_SER_SpawnVehicleAtPlatform = {
 	//Apply vehicle stats
 	[_vehicle,_fullItem] call NWG_GRG_ApplyGarageArray;
 
+	//Mark as spawned from garage
+	_vehicle setVariable ["NWG_GRG_SpawnedFromGarage",true,true];
+
 	//return
 	true
 };

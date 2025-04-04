@@ -228,6 +228,8 @@ _serverModules pushBack ("SCRIPTS\T3_Economics\garage\missionMachineConnector.sq
 _clientModules pushBack ("SCRIPTS\T3_Economics\garage\garageClientSide.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\garage\garageCommon.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\garage\garageFunctions.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\garage\addonReturnToGarageClient.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\garage\addonReturnToGarageServer.sqf" call NWG_fnc_compile);
 //hunting
 _clientModules pushBack ("SCRIPTS\T3_Economics\hunting\huntingClient.sqf" call NWG_fnc_compile);
 //lootMission
