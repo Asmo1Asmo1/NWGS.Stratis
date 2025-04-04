@@ -48,7 +48,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //inventoryUI
     ["#INV_BUTTON_LOOT_TOOLTIP#","Loot to storage"],
     ["#INV_BUTTON_WEAP_TOOLTIP#","Switch weapon"],
-    ["#INV_BUTTON_UNIF_TOOLTIP#","Change uniform"],
+    ["#INV_BUTTON_UNIF_TOOLTIP#","Equip selected uniform/vest/backpack"],
     ["#INV_BUTTON_MAGR_TOOLTIP#","Repack magazines"],
     //keybindings
     ["#KB_USER_PLANSHET#","User Tablet"],

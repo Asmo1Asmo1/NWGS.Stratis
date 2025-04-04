@@ -48,7 +48,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //inventoryUI
     ["#INV_BUTTON_LOOT_TOOLTIP#","Отправить в хранилище"],
     ["#INV_BUTTON_WEAP_TOOLTIP#","Сменить оружие"],
-    ["#INV_BUTTON_UNIF_TOOLTIP#","Сменить форму"],
+    ["#INV_BUTTON_UNIF_TOOLTIP#","Надеть выбранную форму/жилет/рюкзак"],
     ["#INV_BUTTON_MAGR_TOOLTIP#","Перепаковать магазины"],
     //keybindings
     ["#KB_USER_PLANSHET#","Планшет оператора"],
