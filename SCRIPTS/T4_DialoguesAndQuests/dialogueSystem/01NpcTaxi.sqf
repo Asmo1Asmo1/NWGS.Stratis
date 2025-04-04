@@ -289,8 +289,24 @@ NWG_DLG_TAXI_OnMapClick = {
 	openMap [true,false];
 	openMap false;
 
-	//Teleport
+	//Set position
 	_pos set [2,(NWG_DLG_TAXI_Settings get "PARADROP_ALTITUDE")];
+
+	//Create fake plane
+	private _planePos = _pos vectorAdd [0,0,1];
+	private _plane = createVehicleLocal ["C_Plane_Civil_01_F",_planePos,[],0,"FLY"];
+	_plane setPosATL _planePos;
+	private _dir = getDir _plane;
+	_plane setVelocity [(15*(sin _dir)),(15*(cos _dir)),0];
+	_plane allowDamage false;
+	_plane disableCollisionWith player;
+	_plane spawn {
+		private _plane = _this;
+		sleep 10;
+		deleteVehicle _plane;
+	};
+
+	//Teleport player
 	player setPosATL _pos;
 };
 

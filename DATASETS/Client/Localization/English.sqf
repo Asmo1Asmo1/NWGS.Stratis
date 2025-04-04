@@ -36,7 +36,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AV_QUICK_VEH_ACCESS_TITLE#","Quick vehicle get in"],
     //actionsItems
     ["#AI_CAMP_TITLE#","Deploy camp"],
-    ["#AI_CAMP_TO_BASE_TITLE#","Return to base"],
+    ["#AI_CAMP_TO_BASE_TITLE#","Return to base (%1)"],
     ["#AI_CAMP_TO_BASE_ENEMIES#","Taxi: 'Sorry, boss, but there are enemies nearby'"],
     ["#AI_CAMP_TO_BASE_MONEY_LOW#","Taxi: 'That would be %1. Seems you don't have that'"],
     ["#AI_SMOKE_TITLE#","Smoke out"],
@@ -136,6 +136,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //escapeBillboard
     ["#ESCB_TITLE#","Level 17th Winners"],
     ["#ESCB_NO_WINNERS#","\nBe the first to get here!"],
+    //garage
+    ["#GRG_RETURN_TO_GARAGE_ACTION_TITLE#","Return to garage (%1)"],
+    ["#GRG_MSG_FAILED_TO_RETURN#","Failed to return vehicle"],
+    ["#GRG_MSG_GARAGE_FULL#","Garage is full"],
+    ["#GRG_MSG_NO_MONEY#","Not enough money"],
     //hunting
     ["#A_HUNT_TITLE#",""],
     ["#A_HUNT_FORBIDDEN_MESSAGE#","Hey, %1, stay the fuck away from the dogs, you sick fuck!"],

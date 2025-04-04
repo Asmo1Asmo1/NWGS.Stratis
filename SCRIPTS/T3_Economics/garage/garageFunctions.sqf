@@ -79,3 +79,18 @@ NWG_fnc_grgSpawnVehicle = {
         then {_this call NWG_GRG_SER_SpawnVehicleAtPlatform}
         else {_this remoteExec ["NWG_fnc_grgSpawnVehicle",2]};
 };
+
+/*Utils*/
+NWG_fnc_grgIsSpawnedFromGarage = {
+    // private _vehicle = _this;
+    if !(_this isEqualType objNull) exitWith {
+        (format ["NWG_fnc_grgIsSpawnedFromGarage: Invalid vehicle object"]) call NWG_fnc_logError;
+        false
+    };
+    if (isNull _this) exitWith {
+        (format ["NWG_fnc_grgIsSpawnedFromGarage: Vehicle is null"]) call NWG_fnc_logError;
+        false
+    };
+
+    _this getVariable ["NWG_GRG_SpawnedFromGarage",false]
+};
