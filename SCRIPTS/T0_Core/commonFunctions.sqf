@@ -327,7 +327,7 @@ NWG_fnc_addAction = {
     if (!hasInterface || {isNull _object}) exitWith {};
 
     _object addAction [
-        (_title call NWG_fnc_localize),
+        (_title call NWG_fnc_translateMessage),
         _script,
         nil,   // arguments
         1.5,   // priority
@@ -361,7 +361,7 @@ NWG_fnc_addHoldAction = {
 
     [
         _object,                         // Object the action is attached to
-        (_title call NWG_fnc_localize),  // Title of the action
+        (_title call NWG_fnc_translateMessage),  // Title of the action
         _icon,                           // Idle icon shown on screen
         _icon,                           // Progress icon shown on screen
         "(_this distance _target) < 3",  // Condition for the action to start

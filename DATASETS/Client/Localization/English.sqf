@@ -36,7 +36,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AV_QUICK_VEH_ACCESS_TITLE#","Quick vehicle get in"],
     //actionsItems
     ["#AI_CAMP_TITLE#","Deploy camp"],
-    ["#AI_CAMP_TO_BASE_TITLE#","Return to base"],
+    ["#AI_CAMP_TO_BASE_TITLE#","Return to base (%1)"],
     ["#AI_CAMP_TO_BASE_ENEMIES#","Taxi: 'Sorry, boss, but there are enemies nearby'"],
     ["#AI_CAMP_TO_BASE_MONEY_LOW#","Taxi: 'That would be %1. Seems you don't have that'"],
     ["#AI_SMOKE_TITLE#","Smoke out"],

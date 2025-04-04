@@ -1,4 +1,4 @@
-/*Any->Wallet*/
+/*Any->Any*/
 //Returns the amount of money a player has
 //params:
 //	_player: Object - The player to get the money of
@@ -16,17 +16,6 @@ NWG_fnc_wltGetPlayerMoney = {
 
     //return
     _this call NWG_WLT_GetPlayerMoney
-};
-
-//Returns initial money amount that player starts with
-//note: initial money setting exists only on client side
-//return: Number - The initial money amount
-NWG_fnc_wltGetInitialMoney = {
-	if (isNil "NWG_WLT_Settings") exitWith {
-		"NWG_fnc_wltGetInitialMoney: NWG_WLT_Settings is not defined, make sure you call this function on client side" call NWG_fnc_logError;
-		0
-	};
-	NWG_WLT_Settings get "INITIAL_MONEY"
 };
 
 //Adds money to a player (+sends notification)
@@ -68,6 +57,33 @@ NWG_fnc_wltSetPlayerMoney = {
 		else {_this remoteExec ["NWG_fnc_wltSetPlayerMoney",_player]};//Call where the player is local
 };
 
+//Formats money into a string
+//params:
+//	_money: Number - The amount of money to format
+//return: String - The formatted money string
+NWG_fnc_wltFormatMoney = {
+	// private _money = _this;
+	if !(_this isEqualType 0) exitWith {
+		"NWG_fnc_wltFormatMoney: Invalid money" call NWG_fnc_logError;
+		""
+	};
+
+	//return
+	_this call NWG_WLT_MoneyToString
+};
+
+/*Any->Client*/
+//Returns initial money amount that player starts with
+//note: initial money setting exists only on client side
+//return: Number - The initial money amount
+NWG_fnc_wltGetInitialMoney = {
+	if (isNil "NWG_WLT_CLI_Settings") exitWith {
+		"NWG_fnc_wltGetInitialMoney: NWG_WLT_CLI_Settings is not defined, make sure you call this function on client side" call NWG_fnc_logError;
+		0
+	};
+	NWG_WLT_CLI_Settings get "INITIAL_MONEY"
+};
+
 //Returns the sum of money the group has
 //params:
 //	_group: Group - The group to get the money of
@@ -95,21 +111,6 @@ NWG_fnc_wltSplitMoneyToGroup = {
 	};
 
 	_this call NWG_WLT_SplitMoneyToGroup
-};
-
-//Formats money into a string
-//params:
-//	_money: Number - The amount of money to format
-//return: String - The formatted money string
-NWG_fnc_wltFormatMoney = {
-	// private _money = _this;
-	if !(_this isEqualType 0) exitWith {
-		"NWG_fnc_wltFormatMoney: Invalid money" call NWG_fnc_logError;
-		""
-	};
-
-	//return
-	_this call NWG_WLT_MoneyToString
 };
 
 //Sends a notification to a player about their money change
