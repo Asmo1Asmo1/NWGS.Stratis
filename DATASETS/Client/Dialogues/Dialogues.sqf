@@ -67,7 +67,7 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"TAXI_00",	[
 			Q_CND,	[
-				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#TAXI_00_Q_01#",
+				{call NWG_DLGHLP_IsNewPlayer},"#TAXI_00_Q_01#",
 				{[1,3] call NWG_DLGHLP_Dice},"#TAXI_00_Q_02#",
 				{[1,3] call NWG_DLGHLP_Dice},"#TAXI_00_Q_03#",
 				{true},"#TAXI_00_Q_04#"
@@ -281,7 +281,7 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"MECH_00",	[
 			Q_CND,	[
-				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#MECH_00_Q_01#",
+				{call NWG_DLGHLP_IsNewPlayer},"#MECH_00_Q_01#",
 				{[1,3] call NWG_DLGHLP_Dice},"#MECH_00_Q_02#",
 				{[1,3] call NWG_DLGHLP_Dice},"#MECH_00_Q_03#",
 				{[1,15] call NWG_DLGHLP_Dice},"#MECH_00_Q_04#",
@@ -535,7 +535,7 @@ NWG_DialogueTree = createHashMapFromArray [
 		"TRDR_00",	[
 			Q_CND,	[
 				{0.1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#TRDR_00_Q_01#",
-				{1   call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#TRDR_00_Q_02#",
+				{call NWG_DLGHLP_IsNewPlayer},"#TRDR_00_Q_02#",
 				{10  call NWG_DLGHLP_HasMoreMoneyStartSum},"#TRDR_00_Q_03#",
 				{100 call NWG_DLGHLP_HasMoreMoneyStartSum},"#TRDR_00_Q_04#",
 				{[1,4] call NWG_DLGHLP_Dice},"#TRDR_00_Q_05#",
@@ -784,12 +784,12 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"MEDC_PATCH",	[
 			Q_CND,	[
-				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#MEDC_PATCH_Q_01#",
-				{1 call NWG_DLGHLP_HasMoreMoneyStartSum},["#MEDC_PATCH_Q_02#",{(call NWG_DLG_MEDC_GetPatchPrice) call NWG_DLGHLP_MoneyStr}]
+				{call NWG_DLGHLP_IsNewPlayer},"#MEDC_PATCH_Q_01#",
+				{!(call NWG_DLGHLP_IsNewPlayer)},["#MEDC_PATCH_Q_02#",{(call NWG_DLG_MEDC_GetPatchPrice) call NWG_DLGHLP_MoneyStr}]
 			],
 			A_CND,	[
-				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#MEDC_PATCH_A_01#",NODE_EXIT,{true call NWG_DLG_MEDC_Patch}],
-				{1 call NWG_DLGHLP_HasMoreMoneyStartSum},["#MEDC_PATCH_A_02#",NODE_EXIT,{false call NWG_DLG_MEDC_Patch}],
+				{call NWG_DLGHLP_IsNewPlayer},["#MEDC_PATCH_A_01#",NODE_EXIT,{true call NWG_DLG_MEDC_Patch}],
+				{!(call NWG_DLGHLP_IsNewPlayer)},["#MEDC_PATCH_A_02#",NODE_EXIT,{false call NWG_DLG_MEDC_Patch}],
 				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
@@ -880,7 +880,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			Q_CND,	[
 				{call NWG_DLG_COMM_IsMissionStarted && {call NWG_DLG_COMM_IsAlone}},"#COMM_00_Q_01#",
 				{call NWG_DLG_COMM_IsMissionStarted},"#COMM_00_Q_02#",
-				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#COMM_00_Q_03#",
+				{call NWG_DLGHLP_IsNewPlayer},"#COMM_00_Q_03#",
 				{[1,4] call NWG_DLGHLP_Dice},"#COMM_00_Q_04#",
 				{[1,4] call NWG_DLGHLP_Dice},"#COMM_00_Q_05#",
 				{[1,4] call NWG_DLGHLP_Dice},"#COMM_00_Q_06#",
@@ -1138,7 +1138,7 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"ROOF_00",	[
 			Q_CND,	[
-				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#ROOF_00_Q_01#",
+				{call NWG_DLGHLP_IsNewPlayer},"#ROOF_00_Q_01#",
 				{[1,4] call NWG_DLGHLP_Dice},"#ROOF_00_Q_02#",
 				{[1,4] call NWG_DLGHLP_Dice},"#ROOF_00_Q_03#",
 				{[1,4] call NWG_DLGHLP_Dice},"#ROOF_00_Q_04#",
