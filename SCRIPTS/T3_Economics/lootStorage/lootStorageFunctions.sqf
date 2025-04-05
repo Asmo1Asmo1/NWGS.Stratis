@@ -33,6 +33,12 @@ NWG_fnc_lsOpenStorage = {
     call NWG_LS_CLI_OpenMyStorage;
 };
 
+//Returns true if loot storage is open currently
+//note: use with event handler "InventoryOpened"
+NWG_fnc_lsIsStorageOpen = {
+    !isNil "NWG_LS_CLI_invisibleBox" && {!isNull NWG_LS_CLI_invisibleBox}
+};
+
 //Loot the container
 //params: _container - object
 //returns: boolean - true if looting was successful, false if not

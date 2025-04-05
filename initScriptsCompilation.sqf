@@ -336,6 +336,12 @@ _serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\missionMachineCon
 _serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\medicineConnector.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\questsClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T4_DialoguesAndQuests\quests\questsFunctions.sqf" call NWG_fnc_compile);
+//tutorial
+_clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\tutorial\tutorialClientSide.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\tutorial\dialoguesHelper.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\tutorial\tutorialServerSide.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\tutorial\missionMachineConnector.sqf" call NWG_fnc_compile);
+_commonFunctions pushBack ("SCRIPTS\T4_DialoguesAndQuests\tutorial\tutorialFunctions.sqf" call NWG_fnc_compile);
 
 //T0_Core
 //remoteQueue

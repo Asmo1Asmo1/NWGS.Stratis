@@ -55,5 +55,5 @@ NWG_PRG_SetPlayerLevel = {
 //Get player level
 NWG_PRG_GetPlayerLevel = {
     // private _player = _this;
-    _this getVariable ["NWG_PRG_Lvl",0];
+    _this getVariable ["NWG_PRG_Lvl",-1];
 };
