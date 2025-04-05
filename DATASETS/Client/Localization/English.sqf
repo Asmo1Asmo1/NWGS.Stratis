@@ -248,10 +248,10 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AGEN_PRGB_CUR_STAT_01#","What's the current state?"],
     ["#AGEN_PRGB_LETS_UPG_01#","I want to upgrade it"],
     ["#AGEN_HELP_01#","What should I know?"],
-    ["#AGEN_HELP_PLC_01#","What is this place?"],
+    ["#AGEN_HELP_UFL_01#","How things are done here?"],
     ["#AGEN_HELP_WHO_01#","Who are you?"],
     ["#AGEN_HELP_TLK_01#","Who should I talk to?"],
-    ["#AGEN_HELP_UFL_01#","How things are done here?"],
+    ["#AGEN_HELP_PLC_01#","What is this place?"],
     ["#AGEN_ADV_01#","Any advice?"],
     ["#AGEN_ANQ_01#","Another question"],
     ["#AGEN_ANQ_02#","I have another question"],
@@ -334,14 +334,14 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_HELP_Q_02#","Depends. What would you like to know, boss?"],
     ["#TAXI_HELP_Q_03#","A lot of things, boss|But is there anything specific?"],
     ["#TAXI_HELP_Q_04#","Shoot your question, boss"],
-    /*Taxi - TAXI_HELP_PLACE*/
-    ["#TAXI_HELP_PLACE_Q_01#","You mean the base or my stand in particular, boss?|Well, the base is a base|As for my stand - it is a pickup point for my customers|For you guys that is|You can always meet me here and ask for a ride|Or just chat, I don't mind|Whatever floats your boat, boss"],
-    /*Taxi - TAXI_HELP_WHO*/
-    ["#TAXI_HELP_WHO_Q_01#","They call me a 'taxi driver' or 'taxi' for short|Suits me fine|Don't know what else to tell you|I like a good tea and I save money to buy me a new car|I do a straightforward exchange of your funds for my services|Oh, and recently I partnered with a local fella having a plane|So now we're 'taxi airline' too|You should try it, boss, just ask for a paradrop"],
-    /*Taxi - TAXI_HELP_TALK*/
-    ["#TAXI_HELP_TALK_Q_01#","You should definitely talk to a bossman inside|Tell him I said hi|There's also a mech guy - awesome fella|Always helps me with my vehicles|You can buy yourself one too, of course|But then, it's easier to just ask me for a ride|Cheaper too|Then there's a trader guy, charming lad, you'll like him|Medic and some shady guy on the roof, don't know him honestly|And that's about it"],
     /*Taxi - TAXI_HELP_USERFLOW*/
-    ["#TAXI_HELP_USERFLOW_Q_01#","Quite simple, just tell me where to drop you off|I'll calculate the price and get you there in no time|As for getting back...|If you grab a sleeping bag and deploy a camp - sure, no problem|But if you don't|Sorry, boss, but you'll have to figure it out yourself then|Nothing personal, just a safety measure|Speaking of safety|I actually do one extreme thing - the emergency evac|But only if it's a 'life or death' situation|And it won't even cost you money, ain't that great?|I'll just take your equipment as a payment|Sounds fair, right?|Oh c'mon, boss, a man has to keep his business afloat|If you're so against it - let's discuss the insurance"],
+    ["#TAXI_HELP_USERFLOW_Q_01#","Just tell me where to drop you off|I'll calculate the price and get you there in no time|As for getting back...|If you grab a sleeping bag and deploy a camp - sure, no problem|Otherwise... you're on your own|Hey, nothing personal, just a safety measure, you know?|Speaking of safety|I do one extreme thing - the emergency evac|But only if it's a 'life or death'|And it won't even cost you money, ain't that great?|I'll just take your equipment as a payment|Sounds fair, right?|Oh c'mon, boss, a man has to keep his business afloat|If you're so against it - let's discuss the insurance"],
+    /*Taxi - TAXI_HELP_WHO*/
+    ["#TAXI_HELP_WHO_Q_01#","Call me a 'taxi driver' or 'taxi' for short - suits me fine|Don't know what else to tell you|I like me a good tea and I save money to buy a new car|Oh, and recently I partnered with a local fella having a plane|So now we're 'taxi airline' too|You should try it, boss, just ask for a paradrop"],
+    /*Taxi - TAXI_HELP_TALK*/
+    ["#TAXI_HELP_TALK_Q_01#","You should definitely talk to a bossman inside|Tell him I said hi|There's also a mech guy over there - awesome fella|Always helps me with my vehicles|Then there's a trader guy, charming lad, you'll like him|Medic and some shady guy on the roof, don't know him honestly|And that's about it"],
+    /*Taxi - TAXI_HELP_PLACE*/
+    ["#TAXI_HELP_PLACE_Q_01#","This place? Best place to be, boss - so much opportunities|As for my stand - it is a pickup point for my customers|You can always meet me here and ask for a ride|Or just chat, I don't mind a little company"],
     /*Taxi - TAXI_ADV*/
     ["#TAXI_ADV_Q_01#","Always plan your exit route|As much as I like doing my job and getting my cut|Just as much I want my customers to turn into regulars|You know what I mean?"],
     ["#TAXI_ADV_Q_02#","Don't rush into the fight|If you want me to drop you near you squad|Ask them first if it is safe"],
@@ -352,11 +352,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_PRGB_Q_01#","What about it, boss?"],
     ["#TAXI_PRGB_Q_02#","Yeah? What about it?"],
     /*Taxi - TAXI_PRGB_HOW_WORK*/
-    ["#TAXI_PRGB_HOW_WORK_Q_01#","Why don't you just make it back on your own, boss?|That will spare us from having a tough conversation|But... Yeah, all right, listen|I do emergency evac, all right?|And bossman inside says I do it 'pro bono'|Meaning I am forbidden from charging you guys money for it|Like it was a part of my deal with the company|And, honestly|I won't have time to bargain anyway if things get rough|So... I say ok, I'll go another route|I'll need to cut off what's on you|To make my job easier|Remove the heavy, you know?|And where it goes - it goes|Now, if you want me to keep it for you - we can strike a deal|You pay better - I try harder. How does that sound?"],
+    ["#TAXI_PRGB_HOW_WORK_Q_01#","Do we have to?|Yeah, all right, listen|I do emergency evac|And bossman inside says I do it 'pro bono'|Meaning I don't charge money for this|Like it was a part of my deal with the company|Great news for you, right? Me risking my life for free|So... I say fine, I'll go another route|I'll need to cut off your equipment|Remove the heavy, make my job easier|And where it goes - it goes|Now, if you want me to keep it for you, we can strike a deal|You pay better - I try harder. How does that sound?"],
     /*Taxi - TAXI_PRGB_CUR_STAT*/
     ["#TAXI_PRGB_CUR_STAT_Q_01#","Your current insurance covers %1|Meaning I'll take %2 of your stuff|And there's a %2 chance I'll take your additional weapon"],
     /*Taxi - TAXI_PRGB_LETS_UPG*/
-    ["#TAXI_PRGB_LETS_UPG_Q_01#","Hey, boss, I've got a good news for you|Your insurance is absolute|That's a money well spent|So... no, there's nothing to upgrade|Mr. Big Boss"],
+    ["#TAXI_PRGB_LETS_UPG_Q_01#","Hey, boss, your insurance is absolute|So... no, there's nothing to upgrade|Congratulations, Mr. Big Boss"],
     ["#TAXI_PRGB_LETS_UPG_Q_02#","Sure thing, boss, that would be|%1"],
     /*Taxi - TAXI_PRGB_UPG*/
     ["#TAXI_PRGB_UPG_Q_01#","Always a pleasure dealing with you, boss|I'll write it down under your name"],
@@ -419,18 +419,18 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_HELP_Q_01#","About what?"],
     ["#MECH_HELP_Q_02#","Yeah? About what?"],
     ["#MECH_HELP_Q_03#","In particular?"],
-    /*Mech - MECH_HELP_PLACE*/
-    ["#MECH_HELP_PLACE_Q_01#","This is a place where you can sell or buy your own vehicle|I also do repairs, refueling and other services"],
+    /*Mech - MECH_HELP_USERFLOW*/
+    ["#MECH_HELP_USERFLOW_Q_01#","Let's see...|I have a vehicle shop open 24/7|If you sell - I don't ask where it came from|But I do check for damages - that will lower the price|If you buy - buy here or through your tablet|'F3' 'Field support' 'Vehicle delivery'|Prices there include delivery so there's a bit extra|Check out my shop after every mission|The more we clear this island - the more I have to offer|Are you a squad leader?|If so - you can buy using your squad's funds|Just make sure they're all agreed to chip in|And if you sell - the profit is split between all of you|... what else?|Check out the garage - we can keep up to 3 rides for you|Or ask me about services - there's much I can do"],
     /*Mech - MECH_HELP_WHO*/
     ["#MECH_HELP_WHO_Q_01#","Sorry, there are no names here|So just call me 'mechanic' or 'mech guy'|It should be pretty obvious what I do"],
     /*Mech - MECH_HELP_TALK*/
     ["#MECH_HELP_TALK_Q_01#","Talk to?|The taxi guy over there does deliveries|I work with vehicles|Trader inside will buy your stuff|And if you don't know where to start|Go report to the field commander|He'll explain everything"],
-    /*Mech - MECH_HELP_USERFLOW*/
-    ["#MECH_HELP_USERFLOW_Q_01#","Well, my shop is open for business 24/7|You bring in vehicles - I don't ask where they came from|I buy everything - military grade, civilian, cars, quads...|Naturally, I will have to check them for any damage and fix it|That will lower the price for you|Oh, and don't forget anything inside - it goes straight to trash|You can also buy vehicles from me|We do have a 'buy back' program|Where you can buy something others sold|Or there are occasional new offers if you interested|They are mostly based on our reputation and progress|The more we clear - the more I have to offer|Lastly, you can order a delivery through your tablet|We will charge a little extra for that|Just go to 'F3' 'Field support' 'Vehicle delivery'|Oh, and things become more interesting if you are a squad leader|In that case|You can buy vehicles using your entire squad's funds|And if you sell - the profit is split between all of you"],
+    /*Mech - MECH_HELP_PLACE*/
+    ["#MECH_HELP_PLACE_Q_01#","This is my open-air workshop, buddy|I buy and sell vehicles|And also do repairs, refueling and other services"],
     /*Mech - MECH_ADV*/
     ["#MECH_ADV_Q_01#","Avoid drowning your vehicle|You can repair it if it's broken|Refuel it if it's empty|Hell, even flip it back on it's wheels|But drowning?|That's a 'no return' and 'warranty void'|Nothing you can do"],
     ["#MECH_ADV_Q_02#","I'm not sure if I should tell it|But hell, there's so much work|So listen|Repair your own vehicle before selling it|I will buy it for more|And won't have to spend much time with it|A win-win, right?"],
-    ["#MECH_ADV_Q_03#","Don't get greedy|If you see you need to sacrifice your ride|Do it|You can always get a new one|It is better to lose some additionals|Than most of what you got so far"],
+    ["#MECH_ADV_Q_03#","Don't get greedy|If you see you need to abandon your ride|Do it|You can always get a new one"],
     ["#MECH_ADV_Q_04#","Keep your toolkit with you|Yeah, that simple"],
     ["#MECH_ADV_Q_05#","Every owned vehicle doubles as a loot stash|Don't worry, others can't access it|And when you come back, we'll move your stuff to Trader's"],
     /*====== TRDR =====*/
@@ -453,21 +453,21 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TRDR_HELP_Q_01#","About what?"],
     ["#TRDR_HELP_Q_02#","Yeah? About what?"],
     ["#TRDR_HELP_Q_03#","I'm a busy man, keep it short"],
-    /*Trdr - TRDR_HELP_PLACE*/
-    ["#TRDR_HELP_PLACE_Q_01#","Look around, this is my shop|This is where the money are made|And other there is your storage|You can check it out before selling things to me|Everything you get from outside goes into this box|And if you want to sell something that's on you at the moment|You should put it there"],
+    /*Trdr - TRDR_HELP_USERFLOW*/
+    ["#TRDR_HELP_USERFLOW_Q_01#","You find something of value out there|You put it in your storage using inventory actions|And then come back here and we trade|Want to buy something? Good, I have goods for sale|And what you buy goes to that box in the corner, pick it there|Come check my shop time to time|After each operation I usually have more to offer"],
     /*Trdr - TRDR_HELP_WHO*/
     ["#TRDR_HELP_WHO_Q_01#","I am your best friend here|Seriously, you may not like me,|But as long as we both mean business - it doesn't matter|We'll get along just fine"],
     /*Trdr - TRDR_HELP_TALK*/
-    ["#TRDR_HELP_TALK_Q_01#","You want me... to tell you about others?|(stares at you)|No|How about you go ask them yourself?"],
-    /*Trdr - TRDR_HELP_USERFLOW*/
-    ["#TRDR_HELP_USERFLOW_Q_01#","Listen, it's pretty simple|You find something of value out there|You put it in your storage|And then come back here and we trade|The more we expand our operations - the more I have to offer"],
+    ["#TRDR_HELP_TALK_Q_01#","You want me... to tell you about others?|No|How about you go ask them yourself?"],
+    /*Trdr - TRDR_HELP_PLACE*/
+    ["#TRDR_HELP_PLACE_Q_01#","Look around, this is my shop|This is where the money are made|And other there in the corner is your storage|You can check it out before selling things to me|Everything you get from outside goes into this box"],
     /*Trdr - TRDR_ADV1*/
     ["#TRDR_ADV1_Q_01#","Advice?|Put your money on the table|That's my advice|Next advice will cost you %1"],
     ["#TRDR_ADV1_Q_02#","Have you ever heard 'Advices are cheap'?|Well|Not mine though|How about %1?"],
     ["#TRDR_ADV1_Q_03#","%1"],
     /*Trdr - TRDR_ADV2*/
     ["#TRDR_ADV2_Q_01#","Don't stick with just one gun|There is always something to shoot from|But if you stick with one and only|You'll have a hard time finding ammo"],
-    ["#TRDR_ADV2_Q_02#","Always share with others|Might sound stupid|But they can get your ass out of trouble|Or frag you|And say you were like that when they found you|Always remember that|Mutual respect brings more profit|And more customers"],
+    ["#TRDR_ADV2_Q_02#","Always share with others|Might sound stupid|But they can get your ass out of trouble|Or frag you|And say you were like that when they found you|Always remember that|Mutual respect brings profits|And more customers"],
     ["#TRDR_ADV2_Q_03#","Found a pile of bodies?|Loot them|Only then move on|You never know if you see them again"],
     /*Trdr - TRDR_LOW*/
     ["#TRDR_LOW_Q_01#","Don't waste my time then|Advice he needs... pfft"],
@@ -478,7 +478,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TRDR_PRGB_Q_01#","What about it?"],
     ["#TRDR_PRGB_Q_02#","Want to know more? Or strike a deal?"],
     /*Trdr - TRDR_PRGB_HOW_WORK*/
-    ["#TRDR_PRGB_HOW_WORK_Q_01#","So here's the deal|You find some precious items out there|And you bring them here|If you don't come back yourself|Someone else has to bring them|And I have to pay them for that|So I sell what you've got and split the profit|Don't worry, I'll give you your cut as well|But don't expect much|If you don't like it - let's strike a deal|You make one time payment and I increase my generosity|I'll leave more of your loot untouched|Interested?"],
+    ["#TRDR_PRGB_HOW_WORK_Q_01#","So here's the deal|You find some loot out there and bring it here|If you don't come back yourself - someone else has to bring it|And I have to pay them for that, see where I'm going?|So I sell what you've got and split the profit|Don't worry, I'll give you your cut, just don't expect much|If you don't like it - let's strike a deal|You make one time payment and I increase my generosity|I'll leave more of your loot untouched|Interested?"],
     /*Trdr - TRDR_PRGB_CUR_STAT*/
     ["#TRDR_PRGB_CUR_STAT_Q_01#","Let's see...|Your current insurance rate is %1|Which means I'll sell %2 of your loot if you screw up|Nothing personal, just a business"],
     /*Trdr - TRDR_PRGB_LETS_UPG*/
@@ -511,19 +511,19 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Medc - MEDC_HELP*/
     ["#MEDC_HELP_Q_01#","What would you like to know, son?"],
     ["#MEDC_HELP_Q_02#","Sure, what is it?"],
-    /*Medc - MEDC_HELP_PLACE*/
-    ["#MEDC_HELP_PLACE_Q_01#","Why, this is a hospital, of course.|You're not feeling well, son?|Do you know what year it is?"],
-    /*Medc - MEDC_HELP_WHO*/
-    ["#MEDC_HELP_WHO_Q_01#","My name is Dr. Jean-Baptiste Adebayo|But you can call me 'Doc'|Everybody here calls me that|They act strange when I use my full name|Like it is prohibited|But that is just natural for a man to have a name|We're not dogs"],
-    /*Medc - MEDC_HELP_TALK*/
-    ["#MEDC_HELP_TALK_Q_01#","Others?|Hmm, yes, I guess there are others|What about them?"],
     /*Medc - MEDC_HELP_USERFLOW*/
-    ["#MEDC_HELP_USERFLOW_Q_01#","I'm just making sure everyone's wounds are treated here|These new FAK packages are something else, I tell you|Makes you feel like nothing's happened, and you're good as new|But that's just emergency medicine, son|Underneath|Your body gets damaged, and each new wound may be your last|You'll see|How it's getting harder and harder to pull yourself up|With each new shot you take|That's when you should come visit me|Or at least allow that driver to take you|I'll put you up on your feet. That's a promise"],
+    ["#MEDC_HELP_USERFLOW_Q_01#","Take a lot of first aid kits (FAKs) with you, son|Use them when wounded to get back on your feet|They are something else, I tell you, not like the old ones|Make you feel like nothing ever happened...|Like you're good as new... hmm...|Where was I? Oh, right...|But that's just emergency medicine|Your body gets damaged, and each new wound may be your last|You'll see...|How it's getting harder and harder to pull yourself up|That's when you should come visit me|Or at least allow that taxi driver to take you|I'll fix you up in no time. That's a promise"],
+    /*Medc - MEDC_HELP_WHO*/
+    ["#MEDC_HELP_WHO_Q_01#","My name is Dr. Jean-Baptiste Lamark|But you can call me 'Doc'|Everybody here calls me that|They act strange when I use my full name|Like it is prohibited|But that is just natural for a man to have a name|We're not dogs, after all... Not diamond ones..."],
+    /*Medc - MEDC_HELP_TALK*/
+    ["#MEDC_HELP_TALK_Q_01#","Others?|Hmm, yes, I guess there are others...|What about them?"],
+    /*Medc - MEDC_HELP_PLACE*/
+    ["#MEDC_HELP_PLACE_Q_01#","Why, this is a hospital, of course|You're not feeling well, son?"],
     /*Medc - MEDC_ADV*/
-    ["#MEDC_ADV_Q_01#","Make sure you have enough first aid kits with you|Full Medkit is great too|But it is FAK you use to patch yourself up|Full Medkit for others, FAKs for yourself"],
+    ["#MEDC_ADV_Q_01#","Make sure you have enough first aid kits with you|Full Medkit is great too|But it is FAK you use to patch yourself up when wounded"],
     ["#MEDC_ADV_Q_02#","Don't mix those|I did|But that's okay..."],
     ["#MEDC_ADV_Q_03#","Hmm...|Just keep an eye out for each other"],
-    ["#MEDC_ADV_Q_04#","The new guy on a roof...|He was once tasked with moving fuel barrels down to the workshop|The open-air one, where mechanic resides|And the mech guy was busy with something and couldn't help|Ever since then, they have a beef|Although, I don't think the mech guy knows it|Anyway...|Don't be like a 'roof guy'|If you need help - just ask for it|It's not that hard"],
+    ["#MEDC_ADV_Q_04#","The new guy on a roof...|He was once tasked with moving fuel barrels down to the workshop|And the mech guy was busy with something and couldn't help|Ever since then, they have a beef|Although, I don't think the mechanic knows it|Anyway...|Don't be like a 'roof guy'|If you need help - just ask for it|It's not that hard|And you won't look stupid"],
     /*====== COMM =====*/
     /*Comm - COMM_00*/
     ["#COMM_00_Q_01#","Operation already started|Good luck"],
@@ -541,9 +541,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Comm - COMM_01*/
     ["#COMM_01_A_02#","I'll be on my way"],
     /*Comm - COMM_LVL*/
-    ["#COMM_LVL_Q_01#","Goodspeed, soldier|Here's what we dealing with"],
-    ["#COMM_LVL_Q_02#","Here are the options"],
-    ["#COMM_LVL_Q_03#","Intelligence hinted on several points"],
+    ["#COMM_LVL_Q_01#","Goodspeed, soldier|Here's what we're have to choose from"],
+    ["#COMM_LVL_Q_02#","Here are the difficulty options"],
+    ["#COMM_LVL_Q_03#","Intelligence hinted on several points of interest|How ready you are in threat level numbers?"],
     ["#COMM_LVL_A_01#","Show me the map"],
     ["#COMM_LVL_A_02#","Something else first"],
     ["#COMM_LVL_A_03#","Need more time for preparations"],
@@ -568,25 +568,25 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Comm - COMM_HELP*/
     ["#COMM_HELP_Q_01#","What is it?"],
     ["#COMM_HELP_Q_02#","Sure, what is it?"],
-    /*Comm - COMM_HELP_PLACE*/
-    ["#COMM_HELP_PLACE_Q_01#","This is our field operation center|We gather all the information|And make plans on where to go next"],
+    /*Comm - COMM_HELP_USERFLOW*/
+    ["#COMM_HELP_USERFLOW_Q_01#","We collect the data on enemy activity in the area|You decide the threat level you ready to face and which way to go|Your main task is to bring back enemy weapons and equipment|Get in. Get as much as you can. Get out. Sell it.|The higher the threat level - the more there are enemy forces|But at the same time - the more valuable items you will find|See one of our callsigns on the map?|Go talk to that person and ask what they need|That way you earn even more money, our trust and experience|You use all that to strike deals and unlock new levels|And when you finally reach the hardest mission...|I'm not sure what exactly happens then...|But you'll get your name known, that's for sure|...|One more thing|Press 'F3' on your tablet and go to 'Field Support'|As you can see, we provide a wide range of support options|Although, you'll have to unlock them as well"],
     /*Comm - COMM_HELP_WHO*/
     ["#COMM_HELP_WHO_Q_01#","You should go see the doctor if you ask questions like that|But all right|You're looking at your field officer in charge|I gather intelligence from our sources|Communicate with local resistance cells|And mark current points of interest|But it is up to you to make a final decision|I just lay out the options"],
     /*Comm - COMM_HELP_TALK*/
     ["#COMM_HELP_TALK_Q_01#","You're making a right choice talking to me right now|Getting your new objective should be a priority|Outside you will find our delivery guy|He can take you closer to the target|There are also an engineer and a medic|Both are part of our task force|Trader there is a hired specialist|You should talk to him when you have something to sell|And the last one is the rookie on the roof|He is watching over supplies and dispatching drones"],
-    /*Comm - COMM_HELP_USERFLOW*/
-    ["#COMM_HELP_USERFLOW_Q_01#","Plain and simple, soldier|We collect the data on enemy activity in the area|You decide which way to go|Get in. Get as much as you can. Get out|Elimination of hostiles is NOT a priority|But you do that if situation requires|You'll see we range options based on enemy presence|The more there are enemy forces - the harder the work|But likely more you will find there of value|And yes, you pay for the intel|As we didn't get it for free ourselves|Is it fair? Probably not|Is it the only way for us to survive? Yes it is|But based on average data, you'll earn more than that|So that shouldn't be an issue|Now, press 'F3' on your tablet and go to 'Field Support'|You'll see the various support options we can provide|Want to unlock more?|Go earn some and come back - we'll figure it out|And one more thing - pay attention to additional markers|If you see one of our callsigns on the map|That means there is some additional interest in the area|Go talk to whoever's name is mentioned|They might have a request|That's all"],
+    /*Comm - COMM_HELP_PLACE*/
+    ["#COMM_HELP_PLACE_Q_01#","This is our field operation center|We gather all the information|And make plans on where to go next"],
     /*Comm - COMM_ADV*/
-    ["#COMM_ADV_Q_01#","Always communicate and keep your map at hand|Make sure you know where others are|And that they know your position|To avoid friendly fire and provide timely support"],
+    ["#COMM_ADV_Q_01#","Always communicate and keep your map at hand|Make sure you know where others are|And that they know your position|That helps to avoid friendly fire and provide timely support"],
     ["#COMM_ADV_Q_02#","Keep radio channels busy with info|And free from garbage"],
-    ["#COMM_ADV_Q_03#","Don't just rush into the fight|Plan everything beforehand|Make sure you know the number of targets and where they are|Mark routes you will take to approach the target|Prepare the exfil route and backup plan"],
+    ["#COMM_ADV_Q_03#","Don't just rush into the fight - that's stupid|Plan everything beforehand|Make sure you know the number of targets and where they are|Mark routes you will take to approach the target|Prepare the exfil route and backup plan"],
     ["#COMM_ADV_Q_04#","You can smoke out the crew out of the vehicle|By placing a smoke or regular grenade into its vent intakes|But be careful|You will need to get really close to pull this off"],
     ["#COMM_ADV_Q_05#","Your personal descending device|Compact parachute|Should always be with you|You never know when you might need it|'Space' by default while in the air"],
     /*Comm - COMM_PRGB*/
     ["#COMM_PRGB_Q_01#","Yes? What about it?"],
     ["#COMM_PRGB_Q_02#","You have a question, soldier?"],
     /*Comm - COMM_PRGB_HOW_WORK*/
-    ["#COMM_PRGB_HOW_WORK_Q_01#","We are short on resources|So we can not just give away our drones and what not|Even if you can pay for it|It's not about the money|It's about trust and limits of it|Prove you're a reliable earner|Complete the raids|Donate to our organization|And we'll give you access to a top notch stuff"],
+    ["#COMM_PRGB_HOW_WORK_Q_01#","We are short on resources|So we can not just give away our drones and what not|It's not about the money - it's about trust and limits of it|Prove you're a reliable earner|Complete the raids|Donate to our organization|And we'll give you access to a top notch stuff"],
     /*Comm - COMM_PRGB_CUR_STAT*/
     ["#COMM_PRGB_CUR_STAT_Q_01#","Your available support level is %1|With %2 more to go"],
     /*Comm - COMM_PRGB_LETS_UPG*/

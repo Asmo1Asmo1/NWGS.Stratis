@@ -71,10 +71,10 @@ NWG_DLG_TAXI_GenerateDropRoot = {
 NWG_DLG_TAXI_GenerateDropCategories = {
 	private _categories = [];
 
+	_categories pushBack ["#TAXI_CAT_AIR#","TAXI_PAY",{NWG_DLG_TAXI_SelectedCat = CAT_AIR}];
 	_categories pushBack ["#TAXI_CAT_SQD#","TAXI_PS", {NWG_DLG_TAXI_SelectedCat = CAT_SQD}];
 	_categories pushBack ["#TAXI_CAT_VHC#","TAXI_PS", {NWG_DLG_TAXI_SelectedCat = CAT_VHC}];
 	_categories pushBack ["#TAXI_CAT_CMP#","TAXI_PS", {NWG_DLG_TAXI_SelectedCat = CAT_CMP}];
-	_categories pushBack ["#TAXI_CAT_AIR#","TAXI_PAY",{NWG_DLG_TAXI_SelectedCat = CAT_AIR}];
 
 	//return
 	_categories
