@@ -57,6 +57,7 @@ in other words:
 
 //Colors
 #define COLOR_GREEN [0,1,0,0.75]
+#define COLOR_YELLOW [1,1,0,0.75]
 
 
 NWG_DialogueTree = createHashMapFromArray [
@@ -74,7 +75,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{call NWG_DLG_TAXI_GenerateDropRoot},
-				["#TAXI_00_A_02#","TAXI_PRGB"],
+				["#TAXI_00_A_02#","TAXI_PRGB",{},[],COLOR_YELLOW],
 				{"TAXI" call NWG_DLGHLP_GenerateRoot}/*["TAXI_HELP","TAXI_ADV",NODE_EXIT]*/
 			]
 		]
@@ -88,7 +89,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{call NWG_DLG_TAXI_GenerateDropRoot},
-				["#TAXI_00_A_02#","TAXI_PRGB"],
+				["#TAXI_00_A_02#","TAXI_PRGB",{},[],COLOR_YELLOW],
 				{"TAXI" call NWG_DLGHLP_GenerateRoot}/*["TAXI_HELP","TAXI_ADV",NODE_EXIT]*/
 			]
 		]
@@ -546,7 +547,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_CND,	[
 				{true},["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
 				{"TRDR" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"TRDR_QST_DISPLAY",{},0,COLOR_GREEN],
-				{true},["#TRDR_00_A_02#","TRDR_PRGB"],
+				{true},["#TRDR_00_A_02#","TRDR_PRGB",{},[],COLOR_YELLOW],
 				{true},["#AGEN_HELP_01#","TRDR_HELP"],
 				{true},["#AGEN_ADV_01#","TRDR_ADV1"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
@@ -564,7 +565,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_CND,	[
 				{true},["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
 				{"TRDR" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"TRDR_QST_DISPLAY",{},0,COLOR_GREEN],
-				{true},["#TRDR_00_A_02#","TRDR_PRGB"],
+				{true},["#TRDR_00_A_02#","TRDR_PRGB",{},[],COLOR_YELLOW],
 				{true},["#AGEN_HELP_01#","TRDR_HELP"],
 				{true},["#AGEN_ADV_01#","TRDR_ADV1"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
@@ -890,7 +891,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_LVL"],
 				{call NWG_DLG_COMM_IsMissionStarted},["#COMM_00_A_02#",NODE_EXIT],
 				{"COMM" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"COMM_QST_DISPLAY",{},0,COLOR_GREEN],
-				{true},["#COMM_00_A_03#","COMM_PRGB"],
+				{true},["#COMM_00_A_03#","COMM_PRGB",{},[],COLOR_YELLOW],
 				{true},["#COMM_00_A_04#","COMM_HELP"],
 				{true},["#COMM_00_A_05#","COMM_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
@@ -910,7 +911,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_LVL"],
 				{call NWG_DLG_COMM_IsMissionStarted},["#COMM_01_A_02#",NODE_EXIT],
 				{"COMM" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"COMM_QST_DISPLAY",{},0,COLOR_GREEN],
-				{true},["#COMM_00_A_03#","COMM_PRGB"],
+				{true},["#COMM_00_A_03#","COMM_PRGB",{},[],COLOR_YELLOW],
 				{true},["#COMM_00_A_04#","COMM_HELP"],
 				{true},["#COMM_00_A_05#","COMM_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
