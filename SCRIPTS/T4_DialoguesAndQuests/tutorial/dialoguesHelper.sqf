@@ -234,6 +234,7 @@ NWG_TUTDLG_TAXI_Paradrop = {
 			hintSilent "";//Clear hint
 			hint ("#TAXI_PARA_AIR_HINT#" call NWG_fnc_localize);//Show air hint
 			removeMissionEventHandler ["Map",_thisEventHandler];
+			call NWG_TUT_NextStep;//Finish the tutorial
 		};
 	}];
 };

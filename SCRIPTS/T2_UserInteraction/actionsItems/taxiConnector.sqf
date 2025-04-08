@@ -11,7 +11,7 @@ NWG_AI_TC_SetupCampFire = {
 	private _campFireObj = _this;
 
 	private _teleportTo = NWG_MIS_SER_playerBase;//From 'missionMachineServerSide.sqf'
-	private _price = ((((round ((player distance _teleportTo) / 1000))) * PRICE_CMP_KM) + PRICE_CMP_RAW);
+	private _price = ((((round ((_campFireObj distance _teleportTo) / 1000))) * PRICE_CMP_KM) + PRICE_CMP_RAW);
 
 	private _title = ["#AI_CAMP_TO_BASE_TITLE#",(_price call NWG_fnc_wltFormatMoney)];
 	private _icon = "\a3\ui_f\data\igui\cfg\holdactions\holdaction_unloaddevice_ca.paa";

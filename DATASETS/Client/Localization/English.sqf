@@ -512,7 +512,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MEDC_HELP_Q_01#","What would you like to know, son?"],
     ["#MEDC_HELP_Q_02#","Sure, what is it?"],
     /*Medc - MEDC_HELP_USERFLOW*/
-    ["#MEDC_HELP_USERFLOW_Q_01#","Take a lot of first aid kits (FAKs) with you, son|Use them when wounded to get back on your feet|They are something else, I tell you, not like the old ones|Make you feel like nothing ever happened...|Like you're good as new... hmm...|Where was I? Oh, right...|But that's just emergency medicine|Your body gets damaged, and each new wound may be your last|You'll see...|How it's getting harder and harder to pull yourself up|That's when you should come visit me|Or at least allow that taxi driver to take you|I'll fix you up in no time. That's a promise"],
+    ["#MEDC_HELP_USERFLOW_Q_01#","Take a lot of first aid kits (FAKs) with you, son|Use them when wounded to get back on your feet|They are something else, I tell you, make you feel good as new|But that's just emergency medicine|You'll see...|How it's getting harder and harder to pull yourself up|But you don't have to be on your own|If needed - you can crawl to your squad mates|By pressing forward|That way they can provide help|And if things get too bad - let that taxi driver evac you|I'll fix you up in no time. That's a promise"],
     /*Medc - MEDC_HELP_WHO*/
     ["#MEDC_HELP_WHO_Q_01#","My name is Dr. Jean-Baptiste Lamark|But you can call me 'Doc'|Everybody here calls me that|They act strange when I use my full name|Like it is prohibited|But that is just natural for a man to have a name|We're not dogs, after all... Not diamond ones..."],
     /*Medc - MEDC_HELP_TALK*/

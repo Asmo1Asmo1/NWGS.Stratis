@@ -57,7 +57,7 @@ private _Init = {
 	private _getLvlFunc = NWG_TUT_CLI_Settings get "FUNC_GET_PLAYER_LEVEL";
 	private _playerLvl = -1;
 	waitUntil {
-		sleep 0.5;
+		sleep 2;
 		if (time > _timeoutAt) exitWith {true};//Timeout reached
 		if (isNull (findDisplay 46)) exitWith {false};//Game display not found
 		if (isNil "NWG_TUT_TutorialObjects") exitWith {false};//Tutorial objects did not arrive yet
