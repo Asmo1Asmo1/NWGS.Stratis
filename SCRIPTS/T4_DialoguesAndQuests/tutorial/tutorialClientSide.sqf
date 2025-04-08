@@ -4,7 +4,7 @@
 //================================================================================================================
 //Settings
 NWG_TUT_CLI_Settings = createHashMapFromArray [
-	["SKIP_IN_DEV_BUILD",false],//Skip tutorial in dev build
+	["SKIP_IN_DEV_BUILD",true],//Skip tutorial in dev build
 
 	/*Dialogue roots*/
 	["DIALOGUE_INITIAL_ROOT","%1_00"],
