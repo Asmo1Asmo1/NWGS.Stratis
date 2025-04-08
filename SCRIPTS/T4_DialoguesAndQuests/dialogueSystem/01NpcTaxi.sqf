@@ -267,7 +267,6 @@ NWG_DLG_TAXI_Teleport = {
 			if ( (((getUnitLoadout player) param [9,[]]) param [0,""]) isEqualTo "")
 				then {player addItem "ItemMap"; player assignItem "ItemMap"};
 			openMap [true,true];
-			hint ("#TAXI_PARADROP_HINT#" call NWG_fnc_localize);//Show hint
 			//To be continued in map click handler 'NWG_DLG_TAXI_OnMapClick'....
 		};
 	};

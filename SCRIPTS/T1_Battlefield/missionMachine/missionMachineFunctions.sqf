@@ -125,6 +125,12 @@ NWG_fnc_mmGetPlayerBase = {
     [NWG_MIS_SER_playerBase,NWG_MIS_SER_playerBaseDecoration]
 };
 
+//Returns player base NPCs
+//returns: array of agents
+NWG_fnc_mmGetPlayerBaseNPCs = {
+    NWG_MIS_SER_playerBaseNPCs
+};
+
 //Returns mission objects
 //note: these exist only on MSTATE_BUILD_ECONOMY, MSTATE_BUILD_DSPAWN and MSTATE_BUILD_QUESTS mission states, use in EVENT_ON_MISSION_STATE_CHANGED subscriber(s)
 //returns: [array]
