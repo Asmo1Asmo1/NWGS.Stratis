@@ -246,12 +246,23 @@ NWG_AI_CampDeploy_OnCompleted = {
 
 //================================================================================================================
 //================================================================================================================
+//Common vehicle conditions
+NWG_AI_IsEnemyInside = {
+	// private _vehicle = _this;
+	((crew _this) findIf {
+		alive _x && {
+		(incapacitatedState _x) isEqualTo "" && {
+		(side (group _x)) isNotEqualTo (side (group player))}}
+	}) != -1
+};
+
+//================================================================================================================
+//================================================================================================================
 //Smoke out
 NWG_AI_SmokeOut_Condition = {
 	if (isNull (call NWG_fnc_radarGetVehInFront)) exitWith {false};//Also checks if player is valid and if it is in vehicle
 	private _veh = call NWG_fnc_radarGetVehInFront;
-	if ((count (crew _veh)) == 0) exitWith {false};//Don't do on empty vehicles
-	if ((side _veh) isEqualTo (side (group player))) exitWith {false};//Don't do on friendly vehicles
+	if !(_veh call NWG_AI_IsEnemyInside) exitWith {false};//No enemy to smoke out
 	if (unitIsUAV _veh) exitWith {false};//Don't do on UAVs
 	//All checks passed
 	true
@@ -312,11 +323,12 @@ NWG_AI_SmokeOut_OnCompleted = {
 //Vehicle fix (Repair action)
 NWG_AI_VehicleFix_lowestDownTo = -1;
 NWG_AI_VehicleFix_Condition = {
-    //Simple checks
     if (isNull (call NWG_fnc_radarGetVehInFront)) exitWith {false};
+	private _veh = call NWG_fnc_radarGetVehInFront;
+	if (_veh call NWG_AI_IsEnemyInside) exitWith {false};//Don't fix enemy vehicles
 
     //Short-circuit check for undamaged vehicles
-    (getAllHitPointsDamage (call NWG_fnc_radarGetVehInFront)) params ["_vehParts","","_vehDamages"];
+    (getAllHitPointsDamage _veh) params ["_vehParts","","_vehDamages"];
     if ((_vehDamages findIf {_x > NWG_AI_VehicleFix_lowestDownTo}) == -1) exitWith {false};
 
     //Complex check for vehicle parts
@@ -360,7 +372,9 @@ NWG_AI_VehicleFix_OnCompleted = {
 //Vehicle unflip
 NWG_AI_VehicleUnflip_Condition = {
     if (isNull (call NWG_fnc_radarGetVehInFront)) exitWith {false};
-    ((vectorUp (call NWG_fnc_radarGetVehInFront)) select 2) < 0.5
+	private _veh = call NWG_fnc_radarGetVehInFront;
+	if (_veh call NWG_AI_IsEnemyInside) exitWith {false};//Don't unflip enemy vehicles
+    ((vectorUp _veh) select 2) < 0.5
 };
 NWG_AI_VehicleUnflip_OnCompleted = {
     call NWG_AI_ResetAnimation;

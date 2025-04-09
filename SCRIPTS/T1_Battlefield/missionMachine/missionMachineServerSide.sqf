@@ -347,7 +347,7 @@ NWG_MIS_SER_Cycle = {
                     };
                     case (NWG_MIS_SER_missionInfo get MINFO_IS_EXHAUSTED): {
                         //Players have exhausted the mission
-                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
+                        call NWG_MIS_SER_FightEscalate;//<-- Remaining units will attack players by cooldown
                         MSTATE_FIGHT_EXHAUSTED call NWG_MIS_SER_ChangeState;
                     };
                     case (NWG_MIS_SER_missionInfo get MINFO_IS_ALL_PLAYERS_ON_BASE): {
@@ -367,7 +367,7 @@ NWG_MIS_SER_Cycle = {
                     };
                     case (NWG_MIS_SER_missionInfo get MINFO_IS_EXHAUSTED): {
                         //Players have exhausted the mission
-                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
+                        call NWG_MIS_SER_FightEscalate;//<-- Remaining units will attack players by cooldown
                         MSTATE_FIGHT_EXHAUSTED call NWG_MIS_SER_ChangeState
                     };
                     case (NWG_MIS_SER_missionInfo get MINFO_IS_ALL_PLAYERS_ON_BASE && {NWG_MIS_SER_missionInfo get MINFO_IS_INFILTRATED}): {
@@ -396,7 +396,7 @@ NWG_MIS_SER_Cycle = {
             /* mission end */
             case MSTATE_COMPLETED: {
                 //Mission is completed
-                NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
+                call NWG_MIS_SER_FightTeardown;//<-- Disable the YellowKing system
                 (NWG_MIS_SER_missionInfo get MINFO_NAME) remoteExec ["NWG_fnc_mmMissionCompleted",0];//Send mission completed signal to all the clients
                 call NWG_MIS_SER_NextState;
             };
@@ -442,7 +442,7 @@ NWG_MIS_SER_Cycle = {
                     };
                     case (NWG_MIS_SER_missionInfo get MINFO_IS_EXHAUSTED): {
                         //Players have failed to escape in time
-                        NWG_MIS_SER_missionInfo call NWG_MIS_SER_FightTeardown;
+                        call NWG_MIS_SER_FightTeardown;//<-- Disable the YellowKing system
                         MSTATE_ESCAPE_FAILED call NWG_MIS_SER_ChangeState
                     };
                     default {/*Do nothing*/};
@@ -599,6 +599,10 @@ NWG_MIS_SER_OnUnlockLevelRequest = {
 NWG_MIS_SER_SetWasOnMission = {
     params ["_players","_setFlag"];
     {_x setVariable ["NWG_MIS_WasOnMission",_setFlag,true]} forEach (_players select {(_x getVariable ["NWG_MIS_WasOnMission",false]) isNotEqualTo _setFlag});
+};
+NWG_MIS_SER_GetWasOnMission = {
+    // private _player = _this;
+    _this getVariable ["NWG_MIS_WasOnMission",false]
 };
 
 //================================================================================================================
@@ -1183,14 +1187,15 @@ NWG_MIS_SER_FightUpdateMissionInfo = {
     _info
 };
 
-NWG_MIS_SER_FightTeardown = {
-    // private _missionInfo = _this;
+NWG_MIS_SER_FightEscalate = {
+    //Trigger berserk mode - stop reinforcements but make units attack players by cooldown
+    private _selectBy = {_x call NWG_MIS_SER_GetWasOnMission};//Attack players that were on a mission
+    [_selectBy] call NWG_fnc_ykGoBerserk;
+};
 
+NWG_MIS_SER_FightTeardown = {
     //Disable the YellowKing system
     call NWG_fnc_ykDisable;//It's ok to call it more than once
-
-    //return
-    _this
 };
 
 //================================================================================================================

@@ -26,10 +26,10 @@ NWG_ISHOP_SER_Settings = createHashMapFromArray [
 
 	//Items that are added to each shop interaction
 	["SHOP_PERSISTENT_ITEMS",[
-		[],
-		["arifle_MX_F","arifle_MXC_F","arifle_AKM_F","arifle_AKS_F"],
-		["ItemRadio","ItemCompass","ItemMap","O_UavTerminal","acc_flashlight","MineDetector",10,"FirstAidKit"],
-		[10,"30Rnd_65x39_caseless_mag",10,"30Rnd_762x39_Mag_F",10,"30Rnd_545x39_Mag_F"]
+		["B_AssaultPack_khk"],
+		["arifle_MX_F","arifle_MXC_F"],
+		["ItemRadio","ItemCompass","ItemMap","O_UavTerminal","acc_flashlight","MineDetector",10,"FirstAidKit","Sleeping_bag_folded_01"],
+		[10,"30Rnd_65x39_caseless_mag"]
 	]],
 	["SHOP_CHECK_PERSISTENT_ITEMS_ON_INIT",false],//Check validity of persistent items on init
 	["SHOP_SKIP_SENDING_PLAYER_LOOT",true],//If you're using 'lootStorage' module, player loot is already synchronized between players and server

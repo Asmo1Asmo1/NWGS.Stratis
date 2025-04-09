@@ -32,7 +32,7 @@ NWG_DLGHLP_Settings = createHashMapFromArray [
 	["ADV_KEYS",["#AGEN_ADV_01#"]],
 
 	["ANOTHER_Q_KEYS",["#AGEN_ANQ_01#","#AGEN_ANQ_02#","#AGEN_ANQ_03#","#AGEN_ANQ_04#","#AGEN_ANQ_05#"]],
-	["BACK_KEYS",["#AGEN_BACK_01#","#AGEN_BACK_02#","#AGEN_BACK_03#","#AGEN_BACK_04#","#AGEN_BACK_05#"]],
+	["BACK_KEYS",["#AGEN_BACK_01#","#AGEN_BACK_02#","#AGEN_BACK_03#","#AGEN_BACK_04#","#AGEN_BACK_05#","#AGEN_BACK_06#"]],
 	["DOUBT_KEYS",["#AGEN_DOUBT_01#","#AGEN_DOUBT_02#","#AGEN_DOUBT_03#","#AGEN_DOUBT_04#","#AGEN_DOUBT_05#","#AGEN_DOUBT_06#"]],
 	["EXIT_KEYS",["#AGEN_EXIT_01#","#AGEN_EXIT_02#","#AGEN_EXIT_03#","#AGEN_EXIT_04#","#AGEN_EXIT_05#","#AGEN_EXIT_06#"]],
 
@@ -114,6 +114,13 @@ NWG_DLGHLP_Dice = {
 
 //================================================================================================================
 //================================================================================================================
+//New player check (used in conditions)
+NWG_DLGHLP_IsNewPlayer = {
+	(player call NWG_fnc_pGetMyLvl) < 3
+};
+
+//================================================================================================================
+//================================================================================================================
 //Money compare logic (used in conditions)
 NWG_DLGHLP_HasEnoughMoney = {
 	// private _moneyReq = _this;
@@ -158,10 +165,10 @@ NWG_DLGHLP_GenerateRoot = {
 NWG_DLGHLP_GenerateHelp = {
 	// private _npcName = _this;
 	[
-		/*Place Node*/   [(selectRandom (NWG_DLGHLP_Settings get "HELP_PLC_KEYS")),(format ["%1_HELP_PLACE",_this])],
+		/*Userflow Node*/[(selectRandom (NWG_DLGHLP_Settings get "HELP_UFL_KEYS")),(format ["%1_HELP_USERFLOW",_this])],
 		/*Who Node*/     [(selectRandom (NWG_DLGHLP_Settings get "HELP_WHO_KEYS")),(format ["%1_HELP_WHO",_this])],
 		/*Talk Node*/    [(selectRandom (NWG_DLGHLP_Settings get "HELP_TLK_KEYS")),(format ["%1_HELP_TALK",_this])],
-		/*Userflow Node*/[(selectRandom (NWG_DLGHLP_Settings get "HELP_UFL_KEYS")),(format ["%1_HELP_USERFLOW",_this])]
+		/*Place Node*/   [(selectRandom (NWG_DLGHLP_Settings get "HELP_PLC_KEYS")),(format ["%1_HELP_PLACE",_this])]
 	]
 };
 

@@ -73,6 +73,7 @@ NWG_MARKERS_GetMarkerTypeForVehicle = {
     // private _vehicle = _this;
     switch (true) do {
         case (_this isKindOf "Tank" || {_this isKindOf "Wheeled_APC_F"}): {ICON_TANK};
+        case (_this isKindOf "ParachuteBase"): {ICON_UNIT_HIGHER};
         case (_this isKindOf "Plane"):      {ICON_PLANE};
         case (_this isKindOf "Helicopter"): {ICON_HELI};
         case (_this isKindOf "Ship"):       {ICON_BOAT};

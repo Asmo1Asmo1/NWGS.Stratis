@@ -71,10 +71,10 @@ NWG_DLG_TAXI_GenerateDropRoot = {
 NWG_DLG_TAXI_GenerateDropCategories = {
 	private _categories = [];
 
+	_categories pushBack ["#TAXI_CAT_AIR#","TAXI_PAY",{NWG_DLG_TAXI_SelectedCat = CAT_AIR}];
 	_categories pushBack ["#TAXI_CAT_SQD#","TAXI_PS", {NWG_DLG_TAXI_SelectedCat = CAT_SQD}];
 	_categories pushBack ["#TAXI_CAT_VHC#","TAXI_PS", {NWG_DLG_TAXI_SelectedCat = CAT_VHC}];
 	_categories pushBack ["#TAXI_CAT_CMP#","TAXI_PS", {NWG_DLG_TAXI_SelectedCat = CAT_CMP}];
-	_categories pushBack ["#TAXI_CAT_AIR#","TAXI_PAY",{NWG_DLG_TAXI_SelectedCat = CAT_AIR}];
 
 	//return
 	_categories
@@ -267,7 +267,6 @@ NWG_DLG_TAXI_Teleport = {
 			if ( (((getUnitLoadout player) param [9,[]]) param [0,""]) isEqualTo "")
 				then {player addItem "ItemMap"; player assignItem "ItemMap"};
 			openMap [true,true];
-			hint ("#TAXI_PARADROP_HINT#" call NWG_fnc_localize);//Show hint
 			//To be continued in map click handler 'NWG_DLG_TAXI_OnMapClick'....
 		};
 	};
@@ -289,8 +288,24 @@ NWG_DLG_TAXI_OnMapClick = {
 	openMap [true,false];
 	openMap false;
 
-	//Teleport
+	//Set position
 	_pos set [2,(NWG_DLG_TAXI_Settings get "PARADROP_ALTITUDE")];
+
+	//Create fake plane
+	private _planePos = _pos vectorAdd [0,0,1];
+	private _plane = createVehicleLocal ["C_Plane_Civil_01_F",_planePos,[],0,"FLY"];
+	_plane setPosATL _planePos;
+	private _dir = getDir _plane;
+	_plane setVelocity [(15*(sin _dir)),(15*(cos _dir)),0];
+	_plane allowDamage false;
+	_plane disableCollisionWith player;
+	_plane spawn {
+		private _plane = _this;
+		sleep 10;
+		deleteVehicle _plane;
+	};
+
+	//Teleport player
 	player setPosATL _pos;
 };
 

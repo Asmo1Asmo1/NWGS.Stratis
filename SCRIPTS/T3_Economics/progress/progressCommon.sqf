@@ -28,6 +28,11 @@ NWG_PRG_AddPlayerProgress = {
     if (local _player && {_player isEqualTo player}) then {
         [EVENT_ON_PROGRESS_CHANGED,[_type,_amount,_total]] call NWG_fnc_raiseClientEvent;
     };
+
+    //Update public level if needed
+    if (_type isEqualTo P__LVL) then {
+        [_player,_total] call NWG_PRG_SetPlayerLevel;
+    };
 };
 
 NWG_PRG_SetPlayerProgress = {
@@ -36,4 +41,19 @@ NWG_PRG_SetPlayerProgress = {
     //Set new progress amount
     private _publicFlag = if (isServer) then {[(owner _player),2]} else {[clientOwner,2]};
     _player setVariable ["NWG_PRG_Progress",_progress,_publicFlag];
+
+    //Update public level
+    [_player,(_progress param [P__LVL,0])] call NWG_PRG_SetPlayerLevel;
+};
+
+//Level is the only progress type that should be set globally for others to see
+NWG_PRG_SetPlayerLevel = {
+    params ["_player","_level"];
+    _player setVariable ["NWG_PRG_Lvl",_level,true];
+};
+
+//Get player level
+NWG_PRG_GetPlayerLevel = {
+    // private _player = _this;
+    _this getVariable ["NWG_PRG_Lvl",-1];
 };

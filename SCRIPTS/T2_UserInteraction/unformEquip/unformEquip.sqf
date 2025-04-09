@@ -10,8 +10,10 @@
     So unfortunately this module requires the arguments of "InventoryOpened" handler to be sent
 */
 /*
-    Known issues:
-    - If there are items in the uniform, they will be lost.
+    Important notes:
+    - Items placed inside the uniform/vest/backpack are not transferred
+    - This is a feature - we can swap items without manually relocating items
+    - And a bug - if we swap while not wearing anything - we'll equip empty uniform/vest/backpack and items inside will be lost
 */
 //================================================================================================================
 //Defines
@@ -22,8 +24,11 @@
 #define MAIN_CONTAINER_LIST 640
 #define SECN_CONTAINER_LIST 632
 
-//Enum helper
-#define UNIFORM_IN_LOADOUT 3
+//Swap types
+#define SWAP_NONE -1
+#define SWAP_UNIF 3
+#define SWAP_VEST 4
+#define SWAP_BACK 5
 
 //================================================================================================================
 //Script
@@ -42,7 +47,7 @@ NWG_UNEQ_EquipSelectedUniform = {
         false
     };
 
-    //Find UI container with selected item
+    //Get UI container with selected item
     private _uiContainerID = -1;
     {
         if ((lbCurSel (_inventoryDisplay displayCtrl _x)) > -1) exitWith {_uiContainerID = _x};
@@ -50,11 +55,7 @@ NWG_UNEQ_EquipSelectedUniform = {
     if (_uiContainerID == -1) exitWith {false};//Nothing is selected anywhere
     private _uiContainer = _inventoryDisplay displayCtrl _uiContainerID;
 
-    //Get selected item
-    private _selectedItem = _uiContainer lbData (lbCurSel _uiContainer);
-    if ((getNumber (configFile >> "CfgWeapons" >> _selectedItem >> "ItemInfo" >> "type")) != 801) exitWith {false};//Not a uniform
-
-    //Get physical container (Another arma fix, container IDs get swapped when looting units lying on boxes)
+    //Get physical container (with a shit ton of fixes)
     private _containers = switch (true) do {
         case (_uiContainerID == MAIN_CONTAINER_LIST): {[_mainContainer,_secdContainer]};
         case (_uiContainerID == SECN_CONTAINER_LIST && {!isNull _mainContainer && {_mainContainer isKindOf "Man"}}): {[_mainContainer,_secdContainer]};
@@ -68,8 +69,6 @@ NWG_UNEQ_EquipSelectedUniform = {
         "NWG_LS_CLI_LootByInventoryUI: Inventory containers are not available." call NWG_fnc_logError;
         false
     };
-
-    //Container fixes
     _secdContainer = _containers#1;
     switch (true) do {
         //Fix Arma 2.18 introducing weaponholders instead of actual units
@@ -91,22 +90,45 @@ NWG_UNEQ_EquipSelectedUniform = {
         };
     };
 
-    //Get player's uniform
-    private _playerUniformLoadout = (getUnitLoadout player) select UNIFORM_IN_LOADOUT;
-    private _playerUniformClass = _playerUniformLoadout param [0,""];
-    if (_playerUniformClass isEqualTo _selectedItem) exitWith {false};//Already wearing this uniform
+    //Get selected item
+    private _selectedIndex = lbCurSel _uiContainer;
+    private _selectedItem = _uiContainer lbData _selectedIndex;
+    /*Fix for backpacks in boxes (seriously, Arma?)*/
+    if (_selectedIndex > 0 && {_selectedItem isEqualTo ""}) then {
+        private _selectedItemDisplayName = _uiContainer lbText _selectedIndex;
+        private _backpacks = (getBackpackCargo _container) param [0,[]];
+        private _i = _backpacks findIf {(getText (configFile >> "CfgVehicles" >> _x >> "displayName")) isEqualTo _selectedItemDisplayName};
+        if (_i == -1) exitWith {};
+        _selectedItem = _backpacks#_i;
+    };
+    if (_selectedItem isEqualTo "") exitWith {false};
+
+    //Define swap type (and check selected item along the way)
+    private _itemType = getNumber (configFile >> "CfgWeapons" >> _selectedItem >> "ItemInfo" >> "type");
+    private _isBackpack = if (_itemType == 0) then {isClass (configFile >> "CfgVehicles" >> _selectedItem)} else {false};
+    private _swapType = switch (true) do {
+        case (_itemType == 801): {SWAP_UNIF};/*Uniform*/
+        case (_itemType == 701): {SWAP_VEST};/*Vest*/
+        case (_isBackpack): {SWAP_BACK};/*Backpack*/
+        default {SWAP_NONE};/*Not a supported item*/
+    };
+    if (_swapType == SWAP_NONE) exitWith {false};
+
+    //Get player's uniform/vest/backpack to swap
+    private _playerItem = ((getUnitLoadout player) select _swapType) param [0,""];
+    if (_playerItem isEqualTo _selectedItem) exitWith {false};//Already wearing this item
 
     //Update the container based on what it is
     if (_container isKindOf "Man") then {
         //Fix uniform duplication abuse (by just ignoring uniform that was put into dead unit's inventory)
-        if (((getUnitLoadout _container)#UNIFORM_IN_LOADOUT) param [0,""] isNotEqualTo _selectedItem) exitWith {};//Not the same uniform
-        //Swap uniforms
-        [_container,_playerUniformClass] call NWG_UNEQ_ReplaceUniformForUnit;//Replace uniform for the (apparently dead) unit
-        [player,_selectedItem] call NWG_UNEQ_ReplaceUniformForUnit;//Update player's loadout
+        if (((getUnitLoadout _container) select _swapType) param [0,""] isNotEqualTo _selectedItem) exitWith {};//Not the same item
+        //Swap items
+        [_container,_playerItem,_swapType] call NWG_UNEQ_ReplaceOnUnit;//Replace item for the (apparently dead) unit
+        [player,_selectedItem,_swapType] call NWG_UNEQ_ReplaceOnUnit;//Update player's loadout
     } else {
-        //Swap uniforms
-        [_container,_selectedItem,_playerUniformClass] call NWG_UNEQ_ReplaceUniformInContainer;//Replace uniform in the container
-        [player,_selectedItem] call NWG_UNEQ_ReplaceUniformForUnit;//Update player's loadout
+        //Swap items
+        [_container,_selectedItem,_playerItem,_swapType] call NWG_UNEQ_ReplaceInContainer;//Replace item in the container
+        [player,_selectedItem,_swapType] call NWG_UNEQ_ReplaceOnUnit;//Update player's loadout
     };
 
     //Apply fixes
@@ -129,42 +151,63 @@ NWG_UNEQ_EquipSelectedUniform = {
 
 //================================================================================================================
 //Utils
-NWG_UNEQ_ReplaceUniformInContainer = {
-    params ["_container","_uniToRemove","_uniToAdd"];
+NWG_UNEQ_ReplaceInContainer = {
+    params ["_container","_itemToRemove","_itemToAdd","_swapType"];
 
-    //Remove old uniform from the container
-    //In a most inconvenient Arma approved way - remove all items, then add them back except for the one to remove
-    (getItemCargo _container) params ["_items","_counts"];
-    clearItemCargoGlobal _container;
-    //forEach item record
-    {
-        if (_x isNotEqualTo _uniToRemove) then {
-            _container addItemCargoGlobal [_x,(_counts#_forEachIndex)];//Add it back
-            continue;
+    if (_swapType == SWAP_UNIF || _swapType == SWAP_VEST) exitWith {
+        //Remove old item from the container
+        //In a most inconvenient Arma way possible - remove all items, then add them back except for the one to remove
+        (getItemCargo _container) params ["_items","_counts"];
+        clearItemCargoGlobal _container;
+        private _i = _items find _itemToRemove;
+        if (_i != -1) then {
+            //Modify target count or remove item completely
+            if ((_counts#_i) > 1)
+                then {_counts set [_i,((_counts#_i) - 1)]}
+                else {_counts deleteAt _i; _items deleteAt _i};
+            //Add all back
+            {_container addItemCargoGlobal [_x,(_counts#_forEachIndex)]} forEach _items;
         };
-        if ((_counts#_forEachIndex) > 1) then {
-            _container addItemCargoGlobal [_x,((_counts#_forEachIndex)-1)];//Decrease count
-        };
-        //else - Just don't add it back at all
-    } forEach _items;
 
-    //Add new uniform to the container
-    if (_uniToAdd isNotEqualTo "") then {_container addItemCargoGlobal [_uniToAdd,1]};
+        //Add new item to the container
+        if (_itemToAdd isNotEqualTo "") then {_container addItemCargoGlobal [_itemToAdd,1]};
+    };
+
+    if (_swapType == SWAP_BACK) exitWith {
+        //Remove old item from the container
+        //In a most inconvenient Arma way possible - remove all items, then add them back except for the one to remove
+        (getBackpackCargo _container) params ["_backpacks","_counts"];
+        clearBackpackCargoGlobal _container;
+        private _i = _backpacks find _itemToRemove;
+        if (_i != -1) then {
+            //Modify target count or remove item completely
+            if ((_counts#_i) > 1)
+                then {_counts set [_i,((_counts#_i) - 1)]}
+                else {_counts deleteAt _i; _backpacks deleteAt _i};
+            //Add all back
+            {_container addBackpackCargoGlobal [_x,(_counts#_forEachIndex)]} forEach _backpacks;
+        };
+
+        //Add new item to the container
+        _itemToAdd = _itemToAdd call BIS_fnc_basicBackpack;//Prevent adding backpacks with pre-defined cargo (ammo dup fix)
+        if (_itemToAdd isNotEqualTo "") then {_container addBackpackCargoGlobal [_itemToAdd,1]};
+    };
 };
 
-NWG_UNEQ_ReplaceUniformForUnit = {
-    params ["_unit","_newUniform"];
-
-    private _unitUniformLoadout = (getUnitLoadout _unit) select UNIFORM_IN_LOADOUT;
-    if (_unitUniformLoadout isEqualTo []) then {
-        _unitUniformLoadout = [_newUniform,nil];//Dress up naked units
-    } else {
-        _unitUniformLoadout set [0,_newUniform];//Replace uniform
+NWG_UNEQ_ReplaceOnUnit = {
+    params ["_unit","_itemToAdd","_swapType"];
+    if (_swapType == SWAP_BACK) then {
+        _itemToAdd = _itemToAdd call BIS_fnc_basicBackpack;//Prevent adding backpacks with pre-defined cargo (ammo dup fix)
     };
+
+    private _itemLoadout = (getUnitLoadout _unit) select _swapType;
+    if (_itemLoadout isEqualTo [])
+        then {_itemLoadout = [_itemToAdd,nil]}/*Dress up naked units*/
+        else {_itemLoadout set [0,_itemToAdd]};/*Replace root item*/
 
     private _newLoadout = [];
     _newLoadout resize 10;//Get array with 10 'nil' elements
-    _newLoadout set [UNIFORM_IN_LOADOUT,_unitUniformLoadout];
+    _newLoadout set [_swapType,_itemLoadout];
 
     _unit setUnitLoadout _newLoadout;
 };

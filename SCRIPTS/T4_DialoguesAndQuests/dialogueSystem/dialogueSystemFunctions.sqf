@@ -63,6 +63,14 @@ NWG_fnc_dlgOpenByNpc = {
     _npcName call NWG_fnc_dlgOpenByName;
 };
 
+//Set dialogue root
+//params:
+// - _root - string - dialogue root with %1 as placeholder for npc name (e.g. "%1_00")
+NWG_fnc_dlgSetRoot = {
+    // private _root = _this;
+    NWG_DLG_CLI_dialogueRoot = _this;
+};
+
 //Check if dialogue is open
 //returns: true if dialogue is open, false otherwise
 NWG_fnc_dlgIsOpen = {

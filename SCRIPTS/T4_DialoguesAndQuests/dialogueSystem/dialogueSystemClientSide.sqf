@@ -99,6 +99,7 @@ NWG_DLG_CLI_Settings = createHashMapFromArray [
 //================================================================================================================
 //Fields
 // NWG_DialogueTree = createHashMap;//Is defined and compiled in 'DATASETS\Client\Dialogues\Dialogues.sqf'
+NWG_DLG_CLI_dialogueRoot = "%1_00";
 NWG_DLG_CLI_curNpcName = "";
 
 //================================================================================================================
@@ -110,7 +111,7 @@ NWG_DLG_CLI_OpenDialogue = {
 	NWG_DLG_CLI_curNpcName = _npcName;
 
 	//Get root node of dialogue
-	private _rootNodeName = format ["%1_00",_npcName];
+	private _rootNodeName = format [NWG_DLG_CLI_dialogueRoot,_npcName];
 	private _rootNode = NWG_DialogueTree get _rootNodeName;
 	if (isNil "_rootNode") exitWith {
 		(format ["NWG_DLG_CLI_OpenDialogue: Root node not found: '%1'",_rootNodeName]) call NWG_fnc_logError;

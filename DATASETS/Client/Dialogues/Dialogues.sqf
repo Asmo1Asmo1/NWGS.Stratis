@@ -50,13 +50,14 @@ in other words:
 
 //Progress enum (see globalDefines.h)
 #define P__EXP 0
-#define P_TEXP 1
+#define P__LVL 1
 #define P_TAXI 2
 #define P_TRDR 3
 #define P_COMM 4
 
 //Colors
 #define COLOR_GREEN [0,1,0,0.75]
+#define COLOR_YELLOW [1,1,0,0.75]
 
 
 NWG_DialogueTree = createHashMapFromArray [
@@ -67,14 +68,14 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"TAXI_00",	[
 			Q_CND,	[
-				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#TAXI_00_Q_01#",
+				{call NWG_DLGHLP_IsNewPlayer},"#TAXI_00_Q_01#",
 				{[1,3] call NWG_DLGHLP_Dice},"#TAXI_00_Q_02#",
 				{[1,3] call NWG_DLGHLP_Dice},"#TAXI_00_Q_03#",
 				{true},"#TAXI_00_Q_04#"
 			],
 			A_GEN,	[
 				{call NWG_DLG_TAXI_GenerateDropRoot},
-				["#TAXI_00_A_02#","TAXI_PRGB"],
+				["#TAXI_00_A_02#","TAXI_PRGB",{},[],COLOR_YELLOW],
 				{"TAXI" call NWG_DLGHLP_GenerateRoot}/*["TAXI_HELP","TAXI_ADV",NODE_EXIT]*/
 			]
 		]
@@ -88,7 +89,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{call NWG_DLG_TAXI_GenerateDropRoot},
-				["#TAXI_00_A_02#","TAXI_PRGB"],
+				["#TAXI_00_A_02#","TAXI_PRGB",{},[],COLOR_YELLOW],
 				{"TAXI" call NWG_DLGHLP_GenerateRoot}/*["TAXI_HELP","TAXI_ADV",NODE_EXIT]*/
 			]
 		]
@@ -281,7 +282,7 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"MECH_00",	[
 			Q_CND,	[
-				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#MECH_00_Q_01#",
+				{call NWG_DLGHLP_IsNewPlayer},"#MECH_00_Q_01#",
 				{[1,3] call NWG_DLGHLP_Dice},"#MECH_00_Q_02#",
 				{[1,3] call NWG_DLGHLP_Dice},"#MECH_00_Q_03#",
 				{[1,15] call NWG_DLGHLP_Dice},"#MECH_00_Q_04#",
@@ -535,7 +536,7 @@ NWG_DialogueTree = createHashMapFromArray [
 		"TRDR_00",	[
 			Q_CND,	[
 				{0.1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#TRDR_00_Q_01#",
-				{1   call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#TRDR_00_Q_02#",
+				{call NWG_DLGHLP_IsNewPlayer},"#TRDR_00_Q_02#",
 				{10  call NWG_DLGHLP_HasMoreMoneyStartSum},"#TRDR_00_Q_03#",
 				{100 call NWG_DLGHLP_HasMoreMoneyStartSum},"#TRDR_00_Q_04#",
 				{[1,4] call NWG_DLGHLP_Dice},"#TRDR_00_Q_05#",
@@ -546,7 +547,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_CND,	[
 				{true},["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
 				{"TRDR" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"TRDR_QST_DISPLAY",{},0,COLOR_GREEN],
-				{true},["#TRDR_00_A_02#","TRDR_PRGB"],
+				{true},["#TRDR_00_A_02#","TRDR_PRGB",{},[],COLOR_YELLOW],
 				{true},["#AGEN_HELP_01#","TRDR_HELP"],
 				{true},["#AGEN_ADV_01#","TRDR_ADV1"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
@@ -564,7 +565,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_CND,	[
 				{true},["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
 				{"TRDR" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"TRDR_QST_DISPLAY",{},0,COLOR_GREEN],
-				{true},["#TRDR_00_A_02#","TRDR_PRGB"],
+				{true},["#TRDR_00_A_02#","TRDR_PRGB",{},[],COLOR_YELLOW],
 				{true},["#AGEN_HELP_01#","TRDR_HELP"],
 				{true},["#AGEN_ADV_01#","TRDR_ADV1"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
@@ -784,12 +785,12 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"MEDC_PATCH",	[
 			Q_CND,	[
-				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#MEDC_PATCH_Q_01#",
-				{1 call NWG_DLGHLP_HasMoreMoneyStartSum},["#MEDC_PATCH_Q_02#",{(call NWG_DLG_MEDC_GetPatchPrice) call NWG_DLGHLP_MoneyStr}]
+				{call NWG_DLGHLP_IsNewPlayer},"#MEDC_PATCH_Q_01#",
+				{!(call NWG_DLGHLP_IsNewPlayer)},["#MEDC_PATCH_Q_02#",{(call NWG_DLG_MEDC_GetPatchPrice) call NWG_DLGHLP_MoneyStr}]
 			],
 			A_CND,	[
-				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#MEDC_PATCH_A_01#",NODE_EXIT,{true call NWG_DLG_MEDC_Patch}],
-				{1 call NWG_DLGHLP_HasMoreMoneyStartSum},["#MEDC_PATCH_A_02#",NODE_EXIT,{false call NWG_DLG_MEDC_Patch}],
+				{call NWG_DLGHLP_IsNewPlayer},["#MEDC_PATCH_A_01#",NODE_EXIT,{true call NWG_DLG_MEDC_Patch}],
+				{!(call NWG_DLGHLP_IsNewPlayer)},["#MEDC_PATCH_A_02#",NODE_EXIT,{false call NWG_DLG_MEDC_Patch}],
 				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
 		]
@@ -880,7 +881,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			Q_CND,	[
 				{call NWG_DLG_COMM_IsMissionStarted && {call NWG_DLG_COMM_IsAlone}},"#COMM_00_Q_01#",
 				{call NWG_DLG_COMM_IsMissionStarted},"#COMM_00_Q_02#",
-				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#COMM_00_Q_03#",
+				{call NWG_DLGHLP_IsNewPlayer},"#COMM_00_Q_03#",
 				{[1,4] call NWG_DLGHLP_Dice},"#COMM_00_Q_04#",
 				{[1,4] call NWG_DLGHLP_Dice},"#COMM_00_Q_05#",
 				{[1,4] call NWG_DLGHLP_Dice},"#COMM_00_Q_06#",
@@ -890,7 +891,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_LVL"],
 				{call NWG_DLG_COMM_IsMissionStarted},["#COMM_00_A_02#",NODE_EXIT],
 				{"COMM" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"COMM_QST_DISPLAY",{},0,COLOR_GREEN],
-				{true},["#COMM_00_A_03#","COMM_PRGB"],
+				{true},["#COMM_00_A_03#","COMM_PRGB",{},[],COLOR_YELLOW],
 				{true},["#COMM_00_A_04#","COMM_HELP"],
 				{true},["#COMM_00_A_05#","COMM_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
@@ -910,7 +911,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_LVL"],
 				{call NWG_DLG_COMM_IsMissionStarted},["#COMM_01_A_02#",NODE_EXIT],
 				{"COMM" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"COMM_QST_DISPLAY",{},0,COLOR_GREEN],
-				{true},["#COMM_00_A_03#","COMM_PRGB"],
+				{true},["#COMM_00_A_03#","COMM_PRGB",{},[],COLOR_YELLOW],
 				{true},["#COMM_00_A_04#","COMM_HELP"],
 				{true},["#COMM_00_A_05#","COMM_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
@@ -1138,7 +1139,7 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"ROOF_00",	[
 			Q_CND,	[
-				{1 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},"#ROOF_00_Q_01#",
+				{call NWG_DLGHLP_IsNewPlayer},"#ROOF_00_Q_01#",
 				{[1,4] call NWG_DLGHLP_Dice},"#ROOF_00_Q_02#",
 				{[1,4] call NWG_DLGHLP_Dice},"#ROOF_00_Q_03#",
 				{[1,4] call NWG_DLGHLP_Dice},"#ROOF_00_Q_04#",
@@ -1489,6 +1490,411 @@ NWG_DialogueTree = createHashMapFromArray [
 			Q_ONE,	["%1",{"ROOF" call NWG_DLGHLP_GetRndQuestDoneTrueQ}],
 			A_DEF,	[
 				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT]
+			]
+		]
+	],
+
+	//================================================================================================================
+	//================================================================================================================
+	//Tutorial
+	/*Step 01 - Taxi*/
+	[
+		"TAXI_TUTOR01_00",	[
+			Q_ONE,	"#TAXI_TUTOR01_00_Q#",/*New faces, you here for a job?*/
+			A_DEF,	[
+				["#TAXI_TUTOR01_00_A_01#","TAXI_TUTOR01_01v1"],/*Yes*/
+				["#TAXI_TUTOR01_00_A_02#","TAXI_TUTOR01_01v1"],/*I'm here for fun*/
+				["#TAXI_TUTOR01_00_A_03#","TAXI_TUTOR01_01v2"],/*I guess so?*/
+				["#TAXI_TUTOR01_00_A_04#","TAXI_TUTOR01_01v2"] /*I don't even know where I am*/
+			]
+		]
+	],
+	[
+		"TAXI_TUTOR01_01v1",	[
+			Q_ONE,	"#TAXI_TUTOR01_01v1_Q#",/*That's the spirit! Commander busy, go to Trader*/
+			A_DEF,	[
+				["#ALL_TUTOR_JOB_A#","TAXI_TUTOR01_02"],/*So what's the job?*/
+				["#TAXI_TUTOR01_01_A_02#",NODE_EXIT,{call NWG_TUT_NextStep}]/*Yeah, thanks*/
+			]
+		]
+	],
+	[
+		"TAXI_TUTOR01_01v2",	[
+			Q_ONE,	"#TAXI_TUTOR01_01v2_Q#",/*Guess so? You lost or something? Go to Trader*/
+			A_DEF,	[
+				["#ALL_TUTOR_JOB_A#","TAXI_TUTOR01_02"],/*So what's the job?*/
+				["#TAXI_TUTOR01_01_A_02#",NODE_EXIT,{call NWG_TUT_NextStep}]/*Yeah, thanks*/
+			]
+		]
+	],
+	[
+		"TAXI_TUTOR01_02",	[
+			Q_ONE,	"#TAXI_TUTOR01_02_Q#",/*Getting rich. Go to Trader*/
+			A_DEF,	[
+				[{call NWG_DLGHLP_GetRndBack},NODE_EXIT,{call NWG_TUT_NextStep}]/*Yeah, thanks*/
+			]
+		]
+	],
+	[
+		"MECH_TUTOR01_00",	[
+			Q_ONE,	"#MECH_TUTOR01_00_Q#",/*Go talk to Taxi*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"TRDR_TUTOR01_00",	[
+			Q_ONE,	"#TRDR_TUTOR01_00_Q#",/*Go talk to Taxi*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"MEDC_TUTOR01_00",	[
+			Q_ONE,	"#MEDC_TUTOR01_00_Q#",/*Go talk to Taxi*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"COMM_TUTOR01_00",	[
+			Q_ONE,	"#COMM_TUTOR01_00_Q#",/*Go talk to Taxi*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"ROOF_TUTOR01_00",	[
+			Q_ONE,	"#ROOF_TUTOR_Q#",/*Do I know you?*/
+			A_DEF,	[[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	/*Step 02 - Trader*/
+	[
+		"TAXI_TUTOR02_00",	[
+			Q_ONE,	"#TAXI_TUTOR02_00_Q#",/*Go talk to Trader*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"MECH_TUTOR02_00",	[
+			Q_ONE,	"#MECH_TUTOR02_00_Q#",/*Go talk to Trader*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"TRDR_TUTOR02_00",	[
+			Q_ONE,	"#TRDR_TUTOR02_00_Q#",/*A new customer. What? Is the commander busy?*/
+			A_DEF,	[
+				["#TRDR_TUTOR02_00_A_01#","TRDR_TUTOR02_01"]/*I need a gun*/
+			]
+		]
+	],
+	[
+		"TRDR_TUTOR02_01",	[
+			Q_ONE,	"#TRDR_TUTOR02_01_Q#",/*Of course you are. Did anyone tell you how to earn money?*/
+			A_DEF,	[
+				["#TRDR_TUTOR02_01_A_01#","TRDR_TUTOR02_02v1"],/*No. How?*/
+				["#TRDR_TUTOR02_01_A_02#","TRDR_TUTOR02_02v2"] /*Don't care*/
+			]
+		]
+	],
+	[
+		"TRDR_TUTOR02_02v1",	[
+			Q_ONE,	["%1",{call NWG_TUTDLG_TRDR_DisplayTutorial}],/*Those are the basics. The rest you'll figure out yourself. Now buy and go to storage*/
+			A_DEF,	[
+				[{call NWG_DLGHLP_GetRndBack},NODE_EXIT,{call NWG_TUTDLG_TRDR_OpenItemsShop}],/*Open shop*/
+				["#ALL_TUTOR_JOB_A#","TRDR_TUTOR02_03"]
+			]
+		]
+	],
+	[
+		"TRDR_TUTOR02_02v2",	[
+			Q_ONE,	"#TRDR_TUTOR02_02v2_Q#",/*Less talking more shooting? Fine by me, less time wasted*/
+			A_DEF,	[
+				["Ok",NODE_EXIT,{call NWG_TUTDLG_TRDR_OpenItemsShop}]/*Open shop*/
+			]
+		]
+	],
+	[
+		"TRDR_TUTOR02_03",	[
+			Q_ONE,	"#TRDR_TUTOR02_03_Q#",/*Black market*/
+			A_DEF,	[
+				[{call NWG_DLGHLP_GetRndBack},NODE_EXIT,{call NWG_TUTDLG_TRDR_OpenItemsShop}]/*Open shop*/
+			]
+		]
+	],
+	[
+		"MEDC_TUTOR02_00",	[
+			Q_ONE,	"#MEDC_TUTOR02_00_Q#",//*Go talk to Trader*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"COMM_TUTOR02_00",	[
+			Q_ONE,	"#COMM_TUTOR02_00_Q#",/*Go talk to Trader*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"ROOF_TUTOR02_00",	[
+			Q_ONE,	"#ROOF_TUTOR_Q#",/*Do I know you?*/
+			A_DEF,	[[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	/*Step 03 - Storage*/
+	[
+		"TAXI_TUTOR03_00",	[
+			Q_ONE,	"#TAXI_TUTOR03_00_Q#",/*Go to Storage*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"MECH_TUTOR03_00",	[
+			Q_ONE,	"#MECH_TUTOR03_00_Q#",/*Go to Storage*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"TRDR_TUTOR03_00",	[
+			Q_ONE,	"#TRDR_TUTOR03_00_Q#",/*Go to Storage*/
+			A_DEF, [
+				["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],/*Open shop*/
+				[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]/*Ok, bye*/
+			]
+		]
+	],
+	[
+		"MEDC_TUTOR03_00",	[
+			Q_ONE,	"#MEDC_TUTOR03_00_Q#",/*Go to Storage*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"COMM_TUTOR03_00",	[
+			Q_ONE,	"#COMM_TUTOR03_00_Q#",/*Go to Storage*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"ROOF_TUTOR03_00",	[
+			Q_ONE,	"#ROOF_TUTOR_Q#",/*Do I know you?*/
+			A_DEF,	[[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	/*Step 04 - Commander*/
+	[
+		"TAXI_TUTOR04_00",	[
+			Q_ONE,	"#TAXI_TUTOR04_00_Q#",/*Go to Commander*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"MECH_TUTOR04_00",	[
+			Q_ONE,	"#MECH_TUTOR04_00_Q#",/*Go to Commander*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"TRDR_TUTOR04_00",	[
+			Q_ONE,	"#TRDR_TUTOR04_00_Q#",/*Go to Commander*/
+			A_DEF, [
+				["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],/*Open shop*/
+				[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]/*Ok, bye*/
+			]
+		]
+	],
+	[
+		"MEDC_TUTOR04_00",	[
+			Q_ONE,	"#MEDC_TUTOR04_00_Q#",/*Go to Commander*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"COMM_TUTOR04_00",	[
+			Q_ONE,	["#COMM_TUTOR04_00_Q#",{name player}],/*Silence in radio. You up for the job?*/
+			A_DEF,	[
+				["#COMM_TUTOR04_00_A_01#","COMM_TUTOR04_02"],/*Yeah, sure*/
+				["#ALL_TUTOR_JOB_A#","COMM_TUTOR04_01"]/*What's the job?*/
+			]
+		]
+	],
+	[
+		"COMM_TUTOR04_01",	[
+			Q_ONE,	"#COMM_TUTOR04_01_Q#",/*Explains the job*/
+			A_DEF,	[
+				[{call NWG_DLGHLP_GetRndBack},"COMM_TUTOR04_02"],/*Ok, got it*/
+				["#COMM_TUTOR04_01_A_02#","COMM_TUTOR04_015"]/*Wait, really?*/
+			]
+		]
+	],
+	[
+		"COMM_TUTOR04_015",	[
+			Q_ONE,	"#COMM_TUTOR04_015_Q#",/*Need to keep troops motivated*/
+			A_DEF,	[[{call NWG_DLGHLP_GetRndBack},"COMM_TUTOR04_02"]]/*Ok, got it*/
+		]
+	],
+	[
+		"COMM_TUTOR04_02",	[
+			Q_ONE,	"#COMM_TUTOR04_02_Q#",/*Press 'F3' to open your tablet*/
+			A_DEF, [["#COMM_TUTOR04_02_A_01#","COMM_TUTOR04_03"]]/*Done*/
+		]
+	],
+	[
+		"COMM_TUTOR04_03",	[
+			Q_ONE,	"#COMM_TUTOR04_03_Q#",/*Any questions?*/
+			A_DEF, [
+				["#COMM_TUTOR04_03_A_01#","COMM_TUTOR04_04v1"],/*How things are done here?*/
+				["#COMM_TUTOR04_03_A_02#","COMM_TUTOR04_04v2"],/*No questions*/
+				["#COMM_TUTOR04_03_A_03#","COMM_TUTOR04_04v3"]/*How much longer this will take? I'm here to shoot*/
+			]
+		]
+	],
+	[
+		"COMM_TUTOR04_04v1",	[
+			Q_ONE,	"#COMM_HELP_USERFLOW_Q_01#",/*Explains things*/
+			A_CND,	[
+				{call NWG_TUTDLG_COMM_IsReadyState},  [{call NWG_DLGHLP_GetRndBack},"COMM_TUTOR04_05v1"],/*Ok, got it*/
+				{call NWG_TUTDLG_COMM_IsFightState},  [{call NWG_DLGHLP_GetRndBack},"COMM_TUTOR04_05v2"],/*Ok, got it*/
+				{call NWG_TUTDLG_COMM_IsInvalidState},["#COMM_TUTOR04_04_A_03#","COMM_TUTOR04_05v3",{call NWG_TUTDLG_COMM_WarnDeveloper}]/*Is something wrong?*/
+			]
+		]
+	],
+	[
+		"COMM_TUTOR04_04v2",	[
+			Q_ONE,	"#COMM_TUTOR04_04v2_Q#",/*Are you sure?*/
+			A_CND,	[
+				{call NWG_TUTDLG_COMM_IsReadyState},  [{call NWG_DLGHLP_GetRndBack},"COMM_TUTOR04_05v1"],/*Ok, got it*/
+				{call NWG_TUTDLG_COMM_IsFightState},  [{call NWG_DLGHLP_GetRndBack},"COMM_TUTOR04_05v2"],/*Ok, got it*/
+				{call NWG_TUTDLG_COMM_IsInvalidState},["#COMM_TUTOR04_04_A_03#","COMM_TUTOR04_05v3",{call NWG_TUTDLG_COMM_WarnDeveloper}]/*Is something wrong?*/
+			]
+		]
+	],
+	[
+		"COMM_TUTOR04_04v3",	[
+			Q_ONE,	"#COMM_TUTOR04_04v3_Q#",/*Regrets life choices*/
+			A_CND,	[
+				{call NWG_TUTDLG_COMM_IsReadyState},  [{call NWG_DLGHLP_GetRndBack},"COMM_TUTOR04_05v1"],/*Ok, got it*/
+				{call NWG_TUTDLG_COMM_IsFightState},  [{call NWG_DLGHLP_GetRndBack},"COMM_TUTOR04_05v2"],/*Ok, got it*/
+				{call NWG_TUTDLG_COMM_IsInvalidState},["#COMM_TUTOR04_04_A_03#","COMM_TUTOR04_05v3",{call NWG_TUTDLG_COMM_WarnDeveloper}]/*Is something wrong?*/
+			]
+		]
+	],
+	[
+		"COMM_TUTOR04_05v1",	[
+			Q_ONE,	"#COMM_TUTOR04_05v1_Q#",/*Let's select a mission*/
+			A_CND,	[
+				{call NWG_TUTDLG_COMM_LevelUnlocked},["#COMM_TUTOR04_05v1_A_01#",NODE_EXIT,{call NWG_TUTDLG_COMM_OpenMissionSelect}],
+				{!(call NWG_TUTDLG_COMM_LevelUnlocked)},[["#COMM_TUTOR04_05v1_A_02#",{call NWG_TUTDLG_COMM_GetLevelUnlockPrice}],NODE_EXIT,{call NWG_TUTDLG_COMM_OpenMissionSelect}]
+			]
+		]
+	],
+	[
+		"COMM_TUTOR04_05v2",	[
+			Q_ONE,	"#COMM_TUTOR04_05v2_Q#",/*The mission is ready*/
+			A_DEF,	[["#COMM_TUTOR04_05v2_A_01#",NODE_EXIT,{call NWG_TUT_NextStep}]]/*On my way*/
+		]
+	],
+	[
+		"COMM_TUTOR04_05v3",	[
+			Q_ONE,	"#COMM_TUTOR04_05v3_Q#",/*Mission is broken, let's try again*/
+			A_DEF,	[[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, got it*/
+		]
+	],
+	[
+		"ROOF_TUTOR04_00",	[
+			Q_ONE,	"#ROOF_TUTOR_Q#",/*Do I know you?*/
+			A_DEF,	[[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	/*Step 05 - Taxi*/
+	[
+		"TAXI_TUTOR05_00",	[
+			Q_ONE,	"#TAXI_TUTOR05_00_Q#",/*So? Are you ready for your first one?*/
+			A_DEF, [
+				["#TAXI_TUTOR05_00_A_01#","TAXI_TUTOR05_01"],/*All set*/
+				["#TAXI_TUTOR05_00_A_02#",NODE_EXIT]/*No, something else first*/
+			]
+		]
+	],
+	[
+		"TAXI_TUTOR05_01",	[
+			Q_ONE,	"#TAXI_TUTOR05_01_Q#",/*Before we go. Discord?*/
+			A_DEF,	[
+				["#TAXI_TUTOR05_01_A_01#","TAXI_TUTOR05_02",{call NWG_TUTDLG_TAXI_OpenDiscord}],/*Yes*/
+				["#TAXI_TUTOR05_01_A_02#","TAXI_TUTOR05_03"]/*No, thanks*/
+			]
+		]
+	],
+	[
+		"TAXI_TUTOR05_02",	[
+			Q_ONE,	"#TAXI_TUTOR05_02_Q#",/*Discord*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},"TAXI_TUTOR05_03"]]/*Ok, got it*/
+		]
+	],
+	[
+		"TAXI_TUTOR05_03",	[
+			Q_ONE,	"#TAXI_TUTOR05_03_Q#",/*So? Where to?*/
+			A_DEF, [
+				["#TAXI_TUTOR05_03_A_01#","TAXI_TUTOR05_04"]/*Paradrop on the house*/
+			]
+		]
+	],
+	[
+		"TAXI_TUTOR05_04",	[
+			Q_ONE,	"#TAXI_TUTOR05_04_Q#",/*Paradrop on the house? How about you pay?*/
+			A_CND, [
+				{true},["#TAXI_TUTOR05_04_A_01#","TAXI_TUTOR05_05"],/*On the house*/
+				{call NWG_TUTDLG_TAXI_HasMoneyForPara},[["#TAXI_TUTOR05_04_A_02#",{call NWG_TUTDLG_TAXI_GetParaPriceStr}],"TAXI_TUTOR05_05",{call NWG_TUTDLG_TAXI_PayForPara}],/*Ok, I'll pay*/
+				{call NWG_TUTDLG_TAXI_HasMoneyForPara},[["#TAXI_TUTOR05_04_A_03#",{call NWG_TUTDLG_TAXI_GetTipPriceStr}],"TAXI_TUTOR05_05",{call NWG_TUTDLG_TAXI_PayTip}]/*Have a tip*/
+			]
+		]
+	],
+	[
+		"TAXI_TUTOR05_05",	[
+			Q_ONE,	"#TAXI_TUTOR05_05_Q#",/*You're the boss. Ready?*/
+			A_DEF, [["#TAXI_TUTOR05_05_A_01#",NODE_EXIT,{call NWG_TUTDLG_TAXI_Paradrop}]]/*Yeah, let's go!*/
+		]
+	],
+	[
+		"MECH_TUTOR05_00",	[
+			Q_ONE,	"#MECH_TUTOR05_00_Q#",/*Go to Taxi*/
+			A_GEN, [
+				{"MECH" call NWG_DLGHLP_QST_GenerateShowQuest},
+				[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]/*Ok, bye*/
+			]
+		]
+	],
+	[
+		"TRDR_TUTOR05_00",	[
+			Q_ONE,	"#TRDR_TUTOR05_00_Q#",/*Go to Taxi*/
+			A_GEN, [
+				["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],/*Open shop*/
+				{"TRDR" call NWG_DLGHLP_QST_GenerateShowQuest},
+				[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]/*Ok, bye*/
+			]
+		]
+	],
+	[
+		"MEDC_TUTOR05_00",	[
+			Q_ONE,	"#MEDC_TUTOR05_00_Q#",/*Go to Taxi*/
+			A_GEN, [
+				{"MEDC" call NWG_DLGHLP_QST_GenerateShowQuest},
+				[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]/*Ok, bye*/
+			]
+		]
+	],
+	[
+		"COMM_TUTOR05_00",	[
+			Q_ONE,	"#COMM_TUTOR05_00_Q#",/*Go to Taxi*/
+			A_GEN, [
+				{"COMM" call NWG_DLGHLP_QST_GenerateShowQuest},
+				[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]/*Ok, bye*/
+			]
+		]
+	],
+	[
+		"ROOF_TUTOR05_00",	[
+			Q_ONE,	"#ROOF_TUTOR_Q#",/*Do I know you?*/
+			A_GEN, [
+				{"ROOF" call NWG_DLGHLP_QST_GenerateShowQuest},
+				[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]/*Ok, bye*/
 			]
 		]
 	],
