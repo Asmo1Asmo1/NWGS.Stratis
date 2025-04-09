@@ -913,7 +913,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_TUTOR04_05v2_Q#","There is a mission in progress already|So you just need to catch up with the others|Get back to the Taxi driver|Tell him I said your first paradrop is on the house"],
     ["#COMM_TUTOR04_05v2_A_01#","On my way"],
     ["#COMM_TUTOR04_05v3_Q#","Yeah, something is wrong with the computer|'Unexpected state' hmm...|Let me log the error and come back in a few minutes|At ease"],
-    ["#COMM_TUTOR04_MAP_HINT#","Click on the mission area"],
+    ["#COMM_TUTOR04_MAP_HINT#","RMB - to drag the map\nLMB - click on the mission area to select it"],
     /*Step 05 - Taxi*/
     ["#TAXI_TUTOR05_00_Q#","So? Ready for your first one?"],
     ["#TAXI_TUTOR05_00_A_01#","All set"],
@@ -931,7 +931,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_TUTOR05_04_A_03#","Here. Have a tip [LEAVE A TIP (%1)]"],
     ["#TAXI_TUTOR05_05_Q#","Well, well, well...|You're the boss all right|Ok, ready?"],
     ["#TAXI_TUTOR05_05_A_01#","Yeah, let's go!"],
-    ["#TAXI_PARA_MAP_HINT#","Click on the map to select\nthe paradrop point"],
+    ["#TAXI_PARA_MAP_HINT#","RMB - to drag the map\nLMB - click to select the paradrop point"],
     ["#TAXI_PARA_AIR_HINT#","To deploy parachute\nPress 'Space' while in the air"],
     ["#MECH_TUTOR05_00_Q#","No.. I'm obviously not a taxi driver|You need a guy over there under the umbrella"],
     ["#TRDR_TUTOR05_00_Q#","So? Ready for your first gig?|The taxi driver is outside and to the right|Under the umbrella"],
