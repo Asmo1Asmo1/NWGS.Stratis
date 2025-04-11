@@ -108,7 +108,10 @@ NWG_QST_SER_CreateNew = {
     /*Wounded quest*/
     if (QST_TYPE_WOUNDED in _enabledQuests) then {
         /*We need to find a unit that will be replaced with a wounded civilian*/
-        private _possibleTargets = (_missionObjects#OBJ_CAT_UNIT) select {isNull (objectParent _x)};
+        private _possibleTargets = (_missionObjects#OBJ_CAT_UNIT) select {
+            isNull (objectParent _x) && {/*Only on-foot units*/
+            ((getPosASL _x)#2) >= 0}/*Exclude units underwater*/
+        };
         if ((count _possibleTargets) == 0) exitWith {};
         private _target = selectRandom _possibleTargets;
         _dice pushBack [QST_TYPE_WOUNDED,_target,""];
