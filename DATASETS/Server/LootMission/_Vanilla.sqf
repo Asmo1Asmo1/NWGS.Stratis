@@ -781,7 +781,7 @@
 		]
 	],
 	[
-		["CIV","ANYVEH","LOOT","WEAP"],TIER_3,[
+		["CIV","ANYVEH","LOOT","WEAP"],TIER_4,[
 			[],
 			[],
 			[],
