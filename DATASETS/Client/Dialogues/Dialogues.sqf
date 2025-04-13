@@ -959,8 +959,8 @@ NWG_DialogueTree = createHashMapFromArray [
 				{true},["#COMM_LVL_UNLOCK_Q_02#",{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_MoneyStr}]
 			],
 			A_CND,	[
-				{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_HasEnoughMoney},[{call NWG_DLGHLP_GetRndPayY},"COMM_LVL_UNLOCKED",{call NWG_DLG_COMM_UnlockLevel}],
-				{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_HasLessMoney},[{call NWG_DLGHLP_GetRndPayN},"COMM_LVL"],
+				{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLG_COMM_HasEnoughMoneyGroup},[{call NWG_DLGHLP_GetRndPayY},"COMM_LVL_UNLOCKED",{call NWG_DLG_COMM_UnlockLevel}],
+				{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLG_COMM_HasLessMoneyGroup},[{call NWG_DLGHLP_GetRndPayN},"COMM_LVL"],
 				{true},[{call NWG_DLGHLP_GetRndPayRefuse},"COMM_LVL"],
 				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
