@@ -318,7 +318,6 @@ _clientModules pushBack ("DATASETS\Client\Dialogues\Dialogues.sqf" call NWG_fnc_
 _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\dialogueSystemClientSide.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\00NpcCommon.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\01NpcTaxi.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\01NpcTaxiServer.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\02NpcMech.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\02NpcMechServer.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\03NpcTrdr.sqf" call NWG_fnc_compile);

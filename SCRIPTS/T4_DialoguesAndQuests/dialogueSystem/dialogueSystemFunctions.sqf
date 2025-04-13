@@ -68,6 +68,7 @@ NWG_fnc_dlgOpenByNpc = {
 // - _root - string - dialogue root with %1 as placeholder for npc name (e.g. "%1_00")
 NWG_fnc_dlgSetRoot = {
     // private _root = _this;
+    if (!hasInterface) exitWith {};
     NWG_DLG_CLI_dialogueRoot = _this;
 };
 
