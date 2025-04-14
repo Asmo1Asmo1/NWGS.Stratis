@@ -622,6 +622,7 @@ NWG_UKREP_PlacementCore = {
     /*Sort into groups*/
     private _hlprs = []; private _bldgs = []; private _furns = []; private _decos = [];
     private _units = []; private _vehcs = []; private _trrts = []; private _mines = [];
+    private _unitsCiv = [];
     {
         switch (_x#BP_OBJTYPE) do {
             case "HELP": {_hlprs pushBack _x};
@@ -629,6 +630,7 @@ NWG_UKREP_PlacementCore = {
             case OBJ_TYPE_FURN: {_furns pushBack _x};
             case OBJ_TYPE_DECO: {_decos pushBack _x};
             case OBJ_TYPE_UNIT: {_units pushBack _x};
+            case "UNIT_CIV": {_unitsCiv pushBack _x};
             case OBJ_TYPE_VEHC: {_vehcs pushBack _x};
             case OBJ_TYPE_TRRT: {_trrts pushBack _x};
             case OBJ_TYPE_MINE: {_mines pushBack _x};
@@ -685,6 +687,12 @@ NWG_UKREP_PlacementCore = {
     if ((count _units) > 0) then {
         _units = _units apply {[(_x#BP_CLASSNAME),(_x#BP_POS),(_x#BP_DIR),(_x#BP_PAYLOAD)]};//Repack into func argument
         _units = [_units,(GET_GROUP_UNIT call _getGroup)] call NWG_fnc_spwnSpawnUnitsExact;
+    };
+
+    /*Place UNIT_CIV - civilians units (not a part of any logic, just for entourage)*/
+    if ((count _unitsCiv) > 0) then {
+        _unitsCiv = _unitsCiv apply {[(_x#BP_CLASSNAME),(_x#BP_POS),(_x#BP_DIR),(_x#BP_PAYLOAD)]};//Repack into func argument
+        _unitsCiv = [_unitsCiv,civilian] call NWG_fnc_spwnSpawnUnitsExact;
     };
 
     /*Place VEHC - vehicles*/

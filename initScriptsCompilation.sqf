@@ -274,7 +274,6 @@ if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\shopItems\
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopMobile\shopMobileServerSide.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopMobile\missionMachineConnector.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\shopMobile\dspawnConnectorServer.sqf" call NWG_fnc_compile);
-_clientModules pushBack ("SCRIPTS\T3_Economics\shopMobile\dspawnConnectorClient.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\shopMobile\shopMobileClientSide.sqf" call NWG_fnc_compile);
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\shopMobile\shopMobileFunctions.sqf" call NWG_fnc_compile);
 //shopVehicles
@@ -319,7 +318,6 @@ _clientModules pushBack ("DATASETS\Client\Dialogues\Dialogues.sqf" call NWG_fnc_
 _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\dialogueSystemClientSide.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\00NpcCommon.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\01NpcTaxi.sqf" call NWG_fnc_compile);
-_serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\01NpcTaxiServer.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\02NpcMech.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\02NpcMechServer.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T4_DialoguesAndQuests\dialogueSystem\03NpcTrdr.sqf" call NWG_fnc_compile);

@@ -136,7 +136,7 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 	]],
 
 	/*Units settings*/
-	["UNITS_AA_UNIT","I_G_Survivor_F"],//Unit that will be dressed as AA operator
+	["UNITS_AA_UNIT","O_G_Soldier_unarmed_F"],//Unit that will be dressed as AA operator
 
 	/*Vehicle settings*/
 	["VEHICLE_MARKER_SETTING",["hd_end_noShadow","ColorBlack"]],
@@ -659,7 +659,7 @@ NWG_MSHOP_SER_SpawnInfSupport = {
 			["B_Kitbag_rgr",[["Titan_AA",2,1],["50Rnd_570x28_SMG_03",3,50]]]
 			,nil,nil,nil,nil
 		];
-	} forEach (_units select {typeOf _x isEqualTo _aaUnit});
+	} forEach (_units select {(typeOf _x) isEqualTo _aaUnit});
 
 	//return
 	true

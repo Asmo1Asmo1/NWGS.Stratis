@@ -312,10 +312,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_00_A_02#","About my insurance..."],
     /*Taxi - TAXI_01*/
     ["#TAXI_01_Q_02#","So?"],
-    /*Taxi - TAXI_ESCAPE*/
-    ["#TAXI_ESCAPE_Q_01#","Sorry, boss|You're on your own now|I ain't dying here"],
     /*Taxi - TAXI_EARLY*/
-    ["#TAXI_EARLY_Q_01#","What do you mean, boss?|But there's no destination yet, right?|Speak with the commander first"],
+    ["#TAXI_EARLY_Q_01#","What do you mean, boss?|There's no destination yet, right?|Speak with the commander first"],
     /*Taxi - TAXI_CS*/
     ["#TAXI_CS_Q_01#","Where to, boss?"],
     ["#TAXI_CS_Q_02#","Sure thing, boss|Where do you need to?"],
@@ -937,6 +935,14 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TRDR_TUTOR05_00_Q#","So? Ready for your first gig?|The taxi driver is outside and to the right|Under the umbrella"],
     ["#MEDC_TUTOR05_00_Q#","Don't forget to buy first aid kits|Then go outside and to the right|Taxi driver is waiting for you"],
     ["#COMM_TUTOR05_00_Q#","That's all for now|Taxi driver is waiting for you outside|And your first paradrop is on the house|Good luck!"],
+
+    //T4_Escape dialogues
+    ["#TAXI_ESCAPE_00_Q#","Sorry, boss|You're on your own now|I ain't dying here for you"],
+    ["#MECH_ESCAPE_00_Q#","Shit!|They jammed my systems|I can't even get a ride for myself|Try your tablet, maybe this thing still works"],
+    ["#TRDR_ESCAPE_00_Q#","Well...|It's not the first time people are coming to kill me|And I'm sure we'll negotiate price for my head|As for you...|Sorry, kid, you're not a part of our deal"],
+    ["#MEDC_ESCAPE_00_Q#","I have a bad feeling about this"],
+    ["#COMM_ESCAPE_00_Q#","I'm sorry, soldier|I've let you down on this one|Run|Run for your life!|Survive! That's an order"],
+    ["#ROOF_ESCAPE_00_Q#","HEEEY! UP HERE!|I'M NOT WITH THEM!|I'M ON YOUR SIDE!"],
 
     ["",""]
 ];

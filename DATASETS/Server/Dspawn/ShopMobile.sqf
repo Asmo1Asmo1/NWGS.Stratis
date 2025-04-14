@@ -19,6 +19,13 @@
     Note: UNIT_CLASSNAMES uses a shortened format, example: [2,"aaa","bbb",3,"ccc"] that will be uncompacted into ["aaa","aaa","bbb","ccc","ccc","ccc"]
     Note: ADDITIONAL_CODE will recieve 'params ["_group","_vehicle","_units"]'
 */
+/*
+    Note about this specific catalog:
+    - We use OPFOR classnames because this project uses OPFOR as a player faction
+    - Hence you will have to replace them if your faction is different
+    - I tried writing logic to allow cross-faction usage, but still, when moving units to player group during locality change they loose assigned side and fallback to original
+    - Solving this problem requires quite a bit of effort and spaghetti code, so in the end I decided to just replace with OPFOR classnames
+*/
 
 //===============================================
 // ShopMobile faction (the support player can order)
@@ -27,33 +34,33 @@
     //Passenger container (used to fill 'RANDOM' slots - usually passenger seats in vehicles)
     [
         /*Common units (60% chance)*/
-        ["I_G_Soldier_A_F",
-		"I_G_medic_F",
-		"I_G_engineer_F",
-		"I_G_Soldier_exp_F",
-		"I_G_Soldier_F",
-		"I_G_Soldier_lite_F",
-		"I_G_Soldier_SL_F",
-		"I_G_Soldier_M_F",
-		"I_G_officer_F",
-		"I_G_Soldier_LAT_F",
-		"I_G_Soldier_AR_F",
-		"I_G_Soldier_GL_F",
-		"I_G_Sharpshooter_F",
-		"I_G_Survivor_F",
-		"I_G_Soldier_LAT2_F"],
+        ["O_G_Soldier_A_F",
+		"O_G_medic_F",
+		"O_G_engineer_F",
+		"O_G_Soldier_exp_F",
+		"O_G_Soldier_F",
+		"O_G_Soldier_lite_F",
+		"O_G_Soldier_SL_F",
+		"O_G_Soldier_M_F",
+		"O_G_officer_F",
+		"O_G_Soldier_LAT_F",
+		"O_G_Soldier_AR_F",
+		"O_G_Soldier_GL_F",
+		"O_G_Sharpshooter_F",
+		"O_G_Soldier_unarmed_F",
+		"O_G_Soldier_LAT2_F"],
 
         /*Uncommon units (30% chance) (AT soldiers or heavy machinegunners for example)*/
-        ["I_G_Soldier_M_F",
-		"I_G_officer_F",
-		"I_G_Soldier_LAT_F",
-		"I_G_Soldier_AR_F",
-		"I_G_Soldier_GL_F"],
+        ["O_G_Soldier_M_F",
+		"O_G_officer_F",
+		"O_G_Soldier_LAT_F",
+		"O_G_Soldier_AR_F",
+		"O_G_Soldier_GL_F"],
 
         /*Rare units (10% chance) (AA soldiers or marksmans for example)*/
-        ["I_G_Sharpshooter_F",
-		"I_G_Survivor_F",
-		"I_G_Soldier_LAT2_F"]
+        ["O_G_Sharpshooter_F",
+		"O_G_Soldier_unarmed_F",
+		"O_G_Soldier_LAT2_F"]
     ],
     //===========================================
     //Paradrop vehicle(s) (used to imitate vehicles drop from the sky) (leave empty to disable for this faction)

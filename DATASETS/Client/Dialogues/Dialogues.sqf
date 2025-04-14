@@ -94,15 +94,6 @@ NWG_DialogueTree = createHashMapFromArray [
 			]
 		]
 	],
-	/*Drop me by - escape is active*/
-	[
-		"TAXI_ESCAPE",	[
-			Q_ONE,	"#TAXI_ESCAPE_Q_01#",
-			A_DEF,	[
-				[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
-			]
-		]
-	],
 	/*Drop me by - early*/
 	[
 		"TAXI_EARLY",	[
@@ -959,8 +950,8 @@ NWG_DialogueTree = createHashMapFromArray [
 				{true},["#COMM_LVL_UNLOCK_Q_02#",{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_MoneyStr}]
 			],
 			A_CND,	[
-				{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_HasEnoughMoney},[{call NWG_DLGHLP_GetRndPayY},"COMM_LVL_UNLOCKED",{call NWG_DLG_COMM_UnlockLevel}],
-				{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLGHLP_HasLessMoney},[{call NWG_DLGHLP_GetRndPayN},"COMM_LVL"],
+				{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLG_COMM_HasEnoughMoneyGroup},[{call NWG_DLGHLP_GetRndPayY},"COMM_LVL_UNLOCKED",{call NWG_DLG_COMM_UnlockLevel}],
+				{(call NWG_DLG_COMM_GetLevelUnlockPrice) call NWG_DLG_COMM_HasLessMoneyGroup},[{call NWG_DLGHLP_GetRndPayN},"COMM_LVL"],
 				{true},[{call NWG_DLGHLP_GetRndPayRefuse},"COMM_LVL"],
 				{true},[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]
 			]
@@ -1896,6 +1887,46 @@ NWG_DialogueTree = createHashMapFromArray [
 				{"ROOF" call NWG_DLGHLP_QST_GenerateShowQuest},
 				[{call NWG_DLGHLP_GetRndExit},NODE_EXIT]/*Ok, bye*/
 			]
+		]
+	],
+
+	//================================================================================================================
+	//================================================================================================================
+	//Escape
+	[
+		"TAXI_ESCAPE_00",	[
+			Q_ONE,	"#TAXI_ESCAPE_00_Q#",/*I'm not dying here!*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"MECH_ESCAPE_00",	[
+			Q_ONE,	"#MECH_ESCAPE_00_Q#",/*I'm not dying here!*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"TRDR_ESCAPE_00",	[
+			Q_ONE,	"#TRDR_ESCAPE_00_Q#",/*I'm not dying here!*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"MEDC_ESCAPE_00",	[
+			Q_ONE,	"#MEDC_ESCAPE_00_Q#",/*I'm not dying here!*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"COMM_ESCAPE_00",	[
+			Q_ONE,	"#COMM_ESCAPE_00_Q#",/*I'm not dying here!*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
+		]
+	],
+	[
+		"ROOF_ESCAPE_00",	[
+			Q_ONE,	"#ROOF_ESCAPE_00_Q#",/*I'm not dying here!*/
+			A_DEF, [[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]]/*Ok, bye*/
 		]
 	],
 

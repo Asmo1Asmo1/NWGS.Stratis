@@ -28,29 +28,36 @@ private _Init = {
 NWG_DLG_MMC_OnMissionStateChanged = {
     // params ["_oldState","_newState"];
     params ["","_newState"];
-    if (_newState != MSTATE_BASE_QUESTS) exitWith {};
+    switch (_newState) do {
+        /*Base building quests state - Initialize dialogue module*/
+        case MSTATE_BASE_QUESTS: {
+            //Get player base decorations
+            //returns: [obj,[array]]
+            // - obj - persistent player base or objNull if there are none
+            // - array - decorations in format ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"] or
+            (call NWG_fnc_mmGetPlayerBase) params ["","_baseDecor"];
+            if (isNil "_baseDecor" || {!(_baseDecor isEqualType [])}) exitWith {
+                "NWG_DLG_MMC_OnMissionStateChanged: Invalid base decor" call NWG_fnc_logError;
+            };
+            private _baseNpcs = _baseDecor param [OBJ_CAT_UNIT,[]];
+            if ((count _baseNpcs) == 0) exitWith {
+                "NWG_DLG_MMC_OnMissionStateChanged: No NPCs found in base decor" call NWG_fnc_logError;
+            };
 
-    /*Base building quests state - Initialize dialogue module*/
-    //Get player base decorations
-    //returns: [obj,[array]]
-    // - obj - persistent player base or objNull if there are none
-    // - array - decorations in format ["_bldgs","_furns","_decos","_units","_vehcs","_trrts","_mines"] or
-    (call NWG_fnc_mmGetPlayerBase) params ["","_baseDecor"];
-    if (isNil "_baseDecor" || {!(_baseDecor isEqualType [])}) exitWith {
-        "NWG_DLG_MMC_OnMissionStateChanged: Invalid base decor" call NWG_fnc_logError;
-    };
-    private _baseNpcs = _baseDecor param [OBJ_CAT_UNIT,[]];
-    if ((count _baseNpcs) == 0) exitWith {
-        "NWG_DLG_MMC_OnMissionStateChanged: No NPCs found in base decor" call NWG_fnc_logError;
-    };
+            //Assign npc marks
+            {
+                private _npcName = NWG_DLG_MMC_Settings get (typeOf _x);
+                if (!isNil "_npcName")
+                    then {[_x,_npcName] call NWG_fnc_dlgSetNpcName}
+                    else {format ["NWG_DLG_MMC_OnMissionStateChanged: NPC name not found in NWG_DLG_MMC_Settings: %1",(typeOf _x)] call NWG_fnc_logError};
+            } forEach _baseNpcs;
+        };
 
-    //Assign npc marks
-    {
-        private _npcName = NWG_DLG_MMC_Settings get (typeOf _x);
-        if (!isNil "_npcName")
-            then {[_x,_npcName] call NWG_fnc_dlgSetNpcName}
-            else {format ["NWG_DLG_MMC_OnMissionStateChanged: NPC name not found in NWG_DLG_MMC_Settings: %1",(typeOf _x)] call NWG_fnc_logError};
-    } forEach _baseNpcs;
+        /*Escape setup state - Replace dialogue root*/
+        case MSTATE_ESCAPE_SETUP: {
+            "%1_ESCAPE_00" remoteExec ["NWG_fnc_dlgSetRoot",0,true];
+        };
+    };
 };
 
 //================================================================================================================
