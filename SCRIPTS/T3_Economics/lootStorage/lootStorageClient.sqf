@@ -223,11 +223,21 @@ NWG_LS_CLI_GetAllContainerItems = {
             private ["_class","_count"];
             {
                 _class = _x param [0,""];
-                _count = _x param [1,1];
                 if (_class isEqualTo "") then {continue};//Skip empty
-                if !(_count isEqualType 1) then {_count = 1};//Fix for backpacks (true/false) and weapons ("")
-                //Ignore ammo count inside magazines - not interested (think of it as a free refill)
-                //Ignore 'weapon stored inside backpack' - rare usecase and AI units don't do that at all
+
+                //Handle weapons inside uniforms/vests/backpacks
+                if (_class isEqualType []) then {
+                    {
+                        _allContainerItems pushBack 1;
+                        _allContainerItems pushBack _x;
+                    } forEach ((flatten _class) select {_x isEqualType "" && {_x isNotEqualTo ""}});
+                    continue;
+                };
+
+                //Handle normal items
+                //note: we ignore ammo count inside magazines - not interested (think of it as a free refill)
+                _count = _x param [1,1];
+                if !(_count isEqualType 1) then {_count = 1};//Fix for backpacks (true/false)
                 _allContainerItems pushBack _count;
                 _allContainerItems pushBack _class;
             } forEach ((_loadout#_i) deleteAt 1);//Extract what is stored inside

@@ -5,6 +5,12 @@ NWG_ICAT_GetItemType = {
     private _item = _this;
     if (_item isEqualType objNull) then {_item = typeOf _item};
 
+    //Check strange error with looting underwater corpse
+    if !(_item isEqualType "") exitWith {
+        (format ["NWG_ICAT_GetItemType: Invalid item type for item '%1'",_item]) call NWG_fnc_logError;
+        ""
+    };
+
     //Check cache
     private _cached = NWG_ICAT_itemTypeCache get _item;
     if (!isNil "_cached") exitWith {_cached};

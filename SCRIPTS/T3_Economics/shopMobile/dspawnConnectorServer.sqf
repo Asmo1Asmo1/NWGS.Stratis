@@ -31,11 +31,6 @@ NWG_MSHOP_DSC_SpawnGroup = {
 	};
 
 	//Define category-specific values
-	// private _membership = switch (_cat) do {
-	// 	case "C0": {side _player};//Side for drones
-	// 	case "C2": {group _player};//Group for units
-	// UPD: Joining to player's group (non-local for server) breaks things. Units die in the air and/or shoot each other if from different faction.
-	// };
 	private _membership = side (group _player);/*Fix for infantry support (PART 1)*//*Fix for renegade player*/
 	private _spawnRadius = switch (_cat) do {
 		case "C0": {NWG_MSHOP_DSC_Settings get "RADIUS_DRONE"};
@@ -61,10 +56,7 @@ NWG_MSHOP_DSC_SpawnGroup = {
 
 	/*Fix for infantry support (PART 2)*/
 	if (_cat isEqualTo "C2") then {
-		private _leader = leader (group _player);//Fix for non-leader player buying units
-		if (isNull _leader || {!isPlayer _leader}) exitWith {(format ["NWG_MSHOP_DSC_SpawnGroup: Failed to get player's leader for player '%1'",(name _player)]) call NWG_fnc_logError};
-		{_x setCaptive true} forEach _units;//Fix units firing at each other
-		_units remoteExec ["NWG_MSHOP_DSC_AdoptUnits",_leader];
+		[_player,_units] spawn NWG_MSHOP_DSC_AdoptUnits;
 	};
 
 	//return
@@ -72,6 +64,54 @@ NWG_MSHOP_DSC_SpawnGroup = {
 		case "C0": {_vehicle};
 		case "C2": {_units};
 	}
+};
+
+#define ADOPT_MAX_ATTEMPTS 100
+#define ADOPT_DELAY 0.5
+NWG_MSHOP_DSC_AdoptUnits = {
+	params ["_player","_units"];
+	if (isNil "_player" || {isNull _player}) exitWith {
+		(format ["NWG_MSHOP_DSC_AdoptUnits: Invalid player: '%1'",_player]) call NWG_fnc_logError;
+	};
+	if (isNil "_units" || {(count _units) == 0}) exitWith {
+		(format ["NWG_MSHOP_DSC_AdoptUnits: Invalid units: '%1'",_units]) call NWG_fnc_logError;
+	};
+
+	private _attempts = ADOPT_MAX_ATTEMPTS;
+	private _group = group _player;
+	if (isNull _group) exitWith {
+		(format ["NWG_MSHOP_DSC_AdoptUnits: Invalid player group: '%1'",_group]) call NWG_fnc_logError;
+	};
+
+	waitUntil {
+		_attempts = _attempts - 1;
+		if (_attempts <= 0) exitWith {true};
+		if (isNull _group) exitWith {true};
+		if ((count _units) <= 0) exitWith {true};
+		sleep ADOPT_DELAY;
+		{
+			private _unit = _x;
+			if (isNil "_unit" || {!alive _unit}) then {
+				_units deleteAt _forEachIndex;
+				continue;
+			};
+			if (_unit in (units _group) && {(side _unit) isEqualTo (side _group)}) then {
+				_units deleteAt _forEachIndex;
+				continue;
+			};
+
+			[_unit] joinSilent _group;
+			sleep ADOPT_DELAY;
+		} forEachReversed _units;
+
+		false//Go to next iteration
+	};
+	if (_attempts <= 0) then {
+		(format ["NWG_MSHOP_DSC_AdoptUnits: Attempts limit reached. Units not adopted: '%1'",_units]) call NWG_fnc_logError;
+	};
+	if (isNull _group) exitWith {
+		(format ["NWG_MSHOP_DSC_AdoptUnits: Player group is null. Units not adopted: '%1'",_units]) call NWG_fnc_logError;
+	};
 };
 
 //================================================================================================================

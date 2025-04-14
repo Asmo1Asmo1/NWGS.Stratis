@@ -175,6 +175,19 @@ NWG_DLG_COMM_GetLevelUnlockPrice = {
 	(NWG_DLG_COMM_Settings get "UNLOCK_PRICES") param [NWG_DLG_COMM_selectedLevel,0]
 };
 
+NWG_DLG_COMM_HasEnoughMoneyGroup = {
+	// private _moneyReq = _this;
+	if (call NWG_DLG_COMM_IsGroupLeader)
+		then {((group player) call NWG_fnc_wltGetGroupMoney) >= _this}
+		else {(player call NWG_fnc_wltGetPlayerMoney) >= _this};
+};
+NWG_DLG_COMM_HasLessMoneyGroup = {
+	// private _moneyReq = _this;
+	if (call NWG_DLG_COMM_IsGroupLeader)
+		then {((group player) call NWG_fnc_wltGetGroupMoney) < _this}
+		else {(player call NWG_fnc_wltGetPlayerMoney) < _this};
+};
+
 NWG_DLG_COMM_UnlockLevel = {
 	//Check selected level validity
 	private _selectedLevel = NWG_DLG_COMM_selectedLevel;

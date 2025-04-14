@@ -47,6 +47,11 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 	["MLIST_CHECK_NO_MISSIONS_EXIT",false],//Exit heartbeat cycle if no missions left (not recommended, will look like server stuck) (low priority)
 
 	//==================================================================================================
+	// Voting settings
+	["MVOTE_SKIP_FOR_ONE",true],//Skip voting if only one player is online
+	["MVOTE_SHUFFLE_ON_AGAINST",true],//Shuffle missions on against vote (sort of like refusing to play this specific mission)
+
+	//==================================================================================================
 	// Mission levels and tiers (defines number of levels and tiers matrix) (the last level is always escape)
 	["LEVELS_AND_TIERS",[
 		/*Level 01*/[1],

@@ -99,7 +99,8 @@ NWG_DLG_CLI_Settings = createHashMapFromArray [
 //================================================================================================================
 //Fields
 // NWG_DialogueTree = createHashMap;//Is defined and compiled in 'DATASETS\Client\Dialogues\Dialogues.sqf'
-NWG_DLG_CLI_dialogueRoot = "%1_00";
+// NWG_DLG_CLI_dialogueRoot = "%1_00";//Can be set before this module is initialized
+if (isNil "NWG_DLG_CLI_dialogueRoot") then {NWG_DLG_CLI_dialogueRoot = "%1_00"};//Default value
 NWG_DLG_CLI_curNpcName = "";
 
 //================================================================================================================

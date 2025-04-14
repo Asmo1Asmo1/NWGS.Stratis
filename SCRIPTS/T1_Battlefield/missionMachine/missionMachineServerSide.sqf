@@ -192,7 +192,7 @@ NWG_MIS_SER_Cycle = {
                 };
 
                 //Check if may skip voting
-                if ((count (call NWG_fnc_getPlayersAll)) <= 1) exitWith {
+                if (NWG_MIS_SER_Settings get "MVOTE_SKIP_FOR_ONE" && {(count (call NWG_fnc_getPlayersAll)) <= 1}) exitWith {
                     "Only one player online - skipping voting" call NWG_MIS_SER_Log;
                     MSTATE_BUILD_CONFIG call NWG_MIS_SER_ChangeState;
                 };
@@ -231,6 +231,9 @@ NWG_MIS_SER_Cycle = {
                     //Players voted against the mission
                     "#MIS_VOTE_AGAINST#" call NWG_fnc_systemChatAll;
                     NWG_MIS_SER_selected = [];//Reset selection
+                    if (NWG_MIS_SER_Settings get "MVOTE_SHUFFLE_ON_AGAINST")
+                        then {NWG_MIS_SER_missionsList = NWG_MIS_SER_missionsList call NWG_fnc_arrayShuffle};//Re-shuffle missions list
+
                     MSTATE_READY call NWG_MIS_SER_ChangeState;//Return to the ready state
                 };
                 //Players voted in favor of the mission or vote is undefined (still treat it as a vote in favor, fuck indecisiveness)
