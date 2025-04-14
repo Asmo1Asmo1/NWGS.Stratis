@@ -1544,6 +1544,7 @@ NWG_DSPAWN_SendToDestroy = {
 
     //Add 'DESTROY' waypoint
     private _wp1 = _group addWaypoint [_target,-1];
+    _wp1 waypointAttachObject _target;
     _wp1 setWaypointType "DESTROY";
 
     //Add returning waypoint
