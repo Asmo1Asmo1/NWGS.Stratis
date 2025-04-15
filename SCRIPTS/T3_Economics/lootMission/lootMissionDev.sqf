@@ -81,7 +81,7 @@ NWG_LM_GATHER_GatherLoadout = {
 	//Format lines
 	private _lines = [];
 	_lines pushBack "	[";
-	_lines pushBack (format ["		%1,[",text (str NWG_LM_GATHER_tagsToUse)]);
+	_lines pushBack (format ["		%1,TIER_1,[",text (str NWG_LM_GATHER_tagsToUse)]);
 	_lines pushBack (format ["			%1,",text (str (NWG_LM_GATHER_gatheredItems#LOOT_ITEM_CAT_CLTH))]);
 	_lines pushBack (format ["			%1,",text (str (NWG_LM_GATHER_gatheredItems#LOOT_ITEM_CAT_WEAP))]);
 	_lines pushBack (format ["			%1,",text (str (NWG_LM_GATHER_gatheredItems#LOOT_ITEM_CAT_ITEM))]);
