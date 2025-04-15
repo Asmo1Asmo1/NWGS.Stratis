@@ -112,6 +112,8 @@
         [["INF","REG"],TIER_2,false,["I_Soldier_TL_F","I_engineer_F",2,"I_Soldier_exp_F"]],
         //Sentry
         [["INF","REG"],TIER_2,false,["I_Soldier_GL_F","I_soldier_F",3,"RANDOM"]],
+        //'Recon' team
+        [["INF","SPN"],TIER_2,false,[3,"I_Spotter_F",3,"RANDOM"]],
 
         /*[Tier 3]*/
         //Air-defense team (v2)
@@ -124,10 +126,14 @@
         [["INF","REG"],TIER_3,false,["I_Soldier_SL_F","I_soldier_F","I_Soldier_LAT_F","I_Soldier_M_F","I_Soldier_TL_F","I_Soldier_AR_F","I_Soldier_A_F","I_medic_F"]],
         //Weapons squad
         [["INF","REG"],TIER_3,false,["I_Soldier_SL_F","I_Soldier_AR_F","I_Soldier_GL_F","I_Soldier_M_F","I_Soldier_AT_F","I_Soldier_AAT_F","I_Soldier_A_F","I_medic_F"]],
+        //'Recon' team
+        [["INF","SPN"],TIER_3,false,[3,"I_Spotter_F","I_ghillie_sard_F","I_soldier_UAV_F","I_Soldier_AA_F","I_Soldier_AT_F"]],
 
         /*[Tier 4]*/
         //Sniper team
         [["INF","SPN"],TIER_4,false,["I_Sniper_F","I_Spotter_F",3,"RANDOM"]],
+        //'Recon' team
+        [["INF","SPN"],TIER_4,false,[3,"I_Spotter_F",2,"I_ghillie_sard_F","I_soldier_UAV_F","I_Soldier_AA_F","I_Soldier_AT_F"]],
 
 
         //=============================================
