@@ -95,41 +95,41 @@ createHashMapFromArray [
 [
     "Land_VR_Target_APC_Wheeled_01_F",/*Medium VR vehicle*/
     [
-        ["I_APC_Wheeled_03_cannon_F",   /*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep",1],["showCamonetHull",0.5,"showBags",0.5,"showBags2",0.5,"showTools",0.5,"showSLATHull",0.5]]],
-        ["I_APC_Wheeled_03_cannon_F",   /*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep",1],["showCamonetHull",0.5,"showBags",0.5,"showBags2",0.5,"showTools",0.5,"showSLATHull",0.5]]],
-        ["I_APC_Wheeled_03_cannon_F",   /*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep",1],["showCamonetHull",0.5,"showBags",0.5,"showBags2",0.5,"showTools",0.5,"showSLATHull",0.5]]],
-        ["I_APC_Wheeled_03_cannon_F",   /*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep",1],["showCamonetHull",0.5,"showBags",0.5,"showBags2",0.5,"showTools",0.5,"showSLATHull",0.5]]],
-        ["I_APC_tracked_03_cannon_F",   /*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep_01",1],["showBags",0,"showBags2",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5,"showTools",0.5,"showSLATHull",0.5,"showSLATTurret",0.5]]],
-        ["I_APC_tracked_03_cannon_F",   /*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep_01",1],["showBags",0,"showBags2",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5,"showTools",0.5,"showSLATHull",0.5,"showSLATTurret",0.5]]],
-        ["I_APC_tracked_03_cannon_F",   /*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep_01",1],["showBags",0,"showBags2",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5,"showTools",0.5,"showSLATHull",0.5,"showSLATTurret",0.5]]],
-        ["I_APC_tracked_03_cannon_F",   /*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep_01",1],["showBags",0,"showBags2",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5,"showTools",0.5,"showSLATHull",0.5,"showSLATTurret",0.5]]],
-        ["I_Truck_02_MRL_F",            /*crew:*/[2,"I_soldier_F"]],
-        ["I_Truck_02_MRL_F",            /*crew:*/[2,"I_soldier_F"]],
-        ["I_Truck_02_MRL_F",            /*crew:*/[2,"I_soldier_F"]],
-        ["I_Truck_02_MRL_F",            /*crew:*/[2,"I_soldier_F"]],
-        ["I_Truck_02_ammo_F",           /*crew:*/[]],
-        ["I_Truck_02_ammo_F",           /*crew:*/["I_soldier_F"]],
-        ["I_Truck_02_fuel_F",           /*crew:*/[]],
-        ["I_Truck_02_fuel_F",           /*crew:*/["I_soldier_F"]],
-        ["I_Truck_02_medical_F",        /*crew:*/[]],
-        ["I_Truck_02_medical_F",        /*crew:*/["I_soldier_F"]],
-        ["I_Truck_02_box_F",            /*crew:*/[]],
-        ["I_Truck_02_box_F",            /*crew:*/["I_soldier_F"]],
-        ["I_Truck_02_transport_F",      /*crew:*/[]],
-        ["I_Truck_02_transport_F",      /*crew:*/[5,"I_soldier_F"]],
-        ["I_Truck_02_covered_F",        /*crew:*/[]],
-        ["I_Truck_02_covered_F",        /*crew:*/[5,"I_soldier_F"]],
+        ["I_APC_Wheeled_03_cannon_F",   [/*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep",1],["showCamonetHull",0.5,"showBags",0.5,"showBags2",0.5,"showTools",0.5,"showSLATHull",0.5]]]],
+        ["I_APC_Wheeled_03_cannon_F",   [/*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep",1],["showCamonetHull",0.5,"showBags",0.5,"showBags2",0.5,"showTools",0.5,"showSLATHull",0.5]]]],
+        ["I_APC_Wheeled_03_cannon_F",   [/*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep",1],["showCamonetHull",0.5,"showBags",0.5,"showBags2",0.5,"showTools",0.5,"showSLATHull",0.5]]]],
+        ["I_APC_Wheeled_03_cannon_F",   [/*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep",1],["showCamonetHull",0.5,"showBags",0.5,"showBags2",0.5,"showTools",0.5,"showSLATHull",0.5]]]],
+        ["I_APC_tracked_03_cannon_F",   [/*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep_01",1],["showBags",0,"showBags2",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5,"showTools",0.5,"showSLATHull",0.5,"showSLATTurret",0.5]]]],
+        ["I_APC_tracked_03_cannon_F",   [/*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep_01",1],["showBags",0,"showBags2",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5,"showTools",0.5,"showSLATHull",0.5,"showSLATTurret",0.5]]]],
+        ["I_APC_tracked_03_cannon_F",   [/*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep_01",1],["showBags",0,"showBags2",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5,"showTools",0.5,"showSLATHull",0.5,"showSLATTurret",0.5]]]],
+        ["I_APC_tracked_03_cannon_F",   [/*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep_01",1],["showBags",0,"showBags2",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5,"showTools",0.5,"showSLATHull",0.5,"showSLATTurret",0.5]]]],
+        ["I_Truck_02_MRL_F",            [/*crew:*/[2,"I_soldier_F"]]],
+        ["I_Truck_02_MRL_F",            [/*crew:*/[2,"I_soldier_F"]]],
+        ["I_Truck_02_MRL_F",            [/*crew:*/[2,"I_soldier_F"]]],
+        ["I_Truck_02_MRL_F",            [/*crew:*/[2,"I_soldier_F"]]],
+        ["I_Truck_02_ammo_F",           [/*crew:*/[]]],
+        ["I_Truck_02_ammo_F",           [/*crew:*/["I_soldier_F"]]],
+        ["I_Truck_02_fuel_F",           [/*crew:*/[]]],
+        ["I_Truck_02_fuel_F",           [/*crew:*/["I_soldier_F"]]],
+        ["I_Truck_02_medical_F",        [/*crew:*/[]]],
+        ["I_Truck_02_medical_F",        [/*crew:*/["I_soldier_F"]]],
+        ["I_Truck_02_box_F",            [/*crew:*/[]]],
+        ["I_Truck_02_box_F",            [/*crew:*/["I_soldier_F"]]],
+        ["I_Truck_02_transport_F",      [/*crew:*/[]]],
+        ["I_Truck_02_transport_F",      [/*crew:*/[5,"I_soldier_F"]]],
+        ["I_Truck_02_covered_F",        [/*crew:*/[]]],
+        ["I_Truck_02_covered_F",        [/*crew:*/[5,"I_soldier_F"]]]
     ]
 ],
 
 [
     "Land_VR_Target_MBT_01_cannon_F",/*Large VR vehicle*/
     [
-        ["I_APC_Wheeled_03_cannon_F",   /*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep",1],["showCamonetHull",0.5,"showBags",0.5,"showBags2",0.5,"showTools",0.5,"showSLATHull",0.5]]],
-        ["I_APC_tracked_03_cannon_F",   /*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep_01",1],["showBags",0,"showBags2",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5,"showTools",0.5,"showSLATHull",0.5,"showSLATTurret",0.5]]],
-        ["I_Truck_02_MRL_F",            /*crew:*/[2,"I_soldier_F"]],
-        ["I_MBT_03_cannon_F",           /*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep_01",1],["HideTurret",0.5,"HideHull",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5]]],
-        ["I_MBT_03_cannon_F",           /*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep_01",1],["HideTurret",0.5,"HideHull",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5]]]
+        ["I_APC_Wheeled_03_cannon_F",   [/*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep",1],["showCamonetHull",0.5,"showBags",0.5,"showBags2",0.5,"showTools",0.5,"showSLATHull",0.5]]]],
+        ["I_APC_tracked_03_cannon_F",   [/*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep_01",1],["showBags",0,"showBags2",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5,"showTools",0.5,"showSLATHull",0.5,"showSLATTurret",0.5]]]],
+        ["I_Truck_02_MRL_F",            [/*crew:*/[2,"I_soldier_F"]]],
+        ["I_MBT_03_cannon_F",           [/*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep_01",1],["HideTurret",0.5,"HideHull",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5]]]],
+        ["I_MBT_03_cannon_F",           [/*crew:*/[3,"I_crew_F"],/*appearance:*/[["Indep_01",1],["HideTurret",0.5,"HideHull",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5]]]]
     ]
 ],
 
@@ -138,12 +138,12 @@ createHashMapFromArray [
 [
     "B_Heli_Transport_03_unarmed_F",/*Unarmed black huron*/
     [
-        ["I_Heli_Transport_02_F",               /*crew:*/[2,"I_helipilot_F"]],
-        ["I_Heli_Transport_02_F",               /*crew:*/[]],
-        ["I_Heli_light_03_dynamicLoadout_F",    /*crew:*/[2,"I_helipilot_F"]],
-        ["I_Heli_light_03_dynamicLoadout_F",    /*crew:*/[]],
-        ["I_Heli_light_03_unarmed_F",           /*crew:*/[2,"I_helipilot_F"],/*appearance:*/[["Indep",1],[]]],
-        ["I_Heli_light_03_unarmed_F",           /*crew:*/[],/*appearance:*/[["Indep",1],[]]]
+        ["I_Heli_Transport_02_F",               [/*crew:*/[2,"I_helipilot_F"]]],
+        ["I_Heli_Transport_02_F",               [/*crew:*/[]]],
+        ["I_Heli_light_03_dynamicLoadout_F",    [/*crew:*/[2,"I_helipilot_F"]]],
+        ["I_Heli_light_03_dynamicLoadout_F",    [/*crew:*/[]]],
+        ["I_Heli_light_03_unarmed_F",           [/*crew:*/[2,"I_helipilot_F"],/*appearance:*/[["Indep",1],[]]]],
+        ["I_Heli_light_03_unarmed_F",           [/*crew:*/[],/*appearance:*/[["Indep",1],[]]]]
     ]
 ],
 
