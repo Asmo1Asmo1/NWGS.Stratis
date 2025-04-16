@@ -30,6 +30,7 @@ NWG_MIS_SER_ShowAllMissionsOnMap = {
 // Force select mission
 //note: Will work only in READY state
 // call NWG_MIS_SER_ForceSelectMission
+// ["LZConnor",10,"AAF"] call NWG_MIS_SER_ForceSelectMission
 NWG_MIS_SER_ForceSelectMission = {
     params ["_missionName",["_level",1],["_faction","NATO"]];
     if (NWG_MIS_CurrentState != MSTATE_READY) exitWith {
