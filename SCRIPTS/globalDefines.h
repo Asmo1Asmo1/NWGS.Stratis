@@ -113,6 +113,7 @@
 
 //Mission factions
 #define MISSION_FACTION_NATO "NATO"
+#define MISSION_FACTION_AAF "AAF"
 
 //NPCs
 #define NPC_TAXI "TAXI"

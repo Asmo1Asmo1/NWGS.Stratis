@@ -61,7 +61,11 @@ NWG_DSPAWN_Dev_Gather = {
     //Gather appearance info
     private _vehicleAppearance = _grpVehicle call NWG_fnc_spwnGetVehicleAppearance;
     private _defaultAppearance = _defaultVehicle call NWG_fnc_spwnGetVehicleAppearance;
-    private _appearance = if (_vehicleAppearance isEqualTo _defaultAppearance) then {false} else {_vehicleAppearance};
+    private _appearance = if (_vehicleAppearance isEqualTo _defaultAppearance) then {false} else {
+        _vehicleAppearance params ["_colors","_details"];//Unpack
+        {if (_x isEqualType 1 && {_x == 1}) then {_details set [_forEachIndex,0.5]}} forEach _details;//Assign details randomization for enabled details
+        [_colors,_details]//Repack (actually is not needed but for clarity of what we do)
+    };
 
     //Gather pylons info
     private _vehiclePylons = _grpVehicle call NWG_fnc_spwnGetVehiclePylons;
