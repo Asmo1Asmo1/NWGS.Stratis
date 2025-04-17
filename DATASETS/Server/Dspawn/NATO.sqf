@@ -144,13 +144,13 @@ private _faction = [
         //=============================================
         /*VEH MOT - Motorized Vehicles (transport, unarmed)*/
         /*[Tier 1]*/
-        //Hunter transport
+        //Hunter unarmed (low crew)
         [
             ["VEH","MOT","REG"],TIER_1,
             ["B_MRAP_01_F"],
             [2,"B_Soldier_F"]
         ],
-        //Prowler transport
+        //Prowler unarmed (low crew)
         [
             ["VEH","MOT","REG","PARADROPPABLE+"],TIER_1,
             ["B_LSV_01_unarmed_F"],
@@ -177,13 +177,13 @@ private _faction = [
             ["B_Truck_01_covered_F"],
             ["B_Soldier_F",8,"RANDOM"]
         ],
-        //Hunter transport
+        //Hunter unarmed
         [
             ["VEH","MOT","REG"],TIER_2,
             ["B_MRAP_01_F"],
             ["B_Soldier_F",3,"RANDOM"]
         ],
-        //Prowler transport
+        //Prowler unarmed
         [
             ["VEH","MOT","REG","PARADROPPABLE+"],TIER_2,
             ["B_LSV_01_unarmed_F"],
@@ -217,7 +217,7 @@ private _faction = [
             ["B_Truck_01_covered_F"],
             ["B_Soldier_F",17,"RANDOM"]
         ],
-        //Prowler transport (SPN group)
+        //Prowler unarmed (SPN group)
         [
             ["VEH","MOT","SPN","PARADROPPABLE+"],TIER_3,
             ["B_LSV_01_unarmed_F",[["Sand",1],["HideDoor1",1,"HideDoor2",1,"HideDoor3",1,"HideDoor4",1]],false],
@@ -270,17 +270,17 @@ private _faction = [
             ["B_LSV_01_armed_F"],
             [3,"B_Soldier_F",2,"RANDOM"]
         ],
-        //Marshall (low crew)
+        //Marshall (no passengers)
         [
             ["VEH","MEC","AT","PARADROPPABLE+"],TIER_2,
             ["B_APC_Wheeled_01_cannon_F",[["Sand",1],["showBags",0.5,"showCamonetHull",0.5,"showCamonetTurret",0.5,"showSLATHull",0.5,"showSLATTurret",0.5]],false],
-            [3,"B_crew_F",4,"RANDOM"]
+            [3,"B_crew_F"]
         ],
-        //Panther (low crew)
+        //Panther (no passengers)
         [
             ["VEH","MEC","REG"],TIER_2,
             ["B_APC_Tracked_01_rcws_F",[["Sand",1],["showCamonetHull",0.5,"showBags",0.5]],false],
-            [3,"B_crew_F",4,"RANDOM"]
+            [3,"B_crew_F"]
         ],
         //Stomper UAV
         [
@@ -474,6 +474,12 @@ private _faction = [
 
         //=============================================
         /*BOATS - Sea boats*/
+        //Assault boat (low crew)
+        [
+            ["BOAT","MOT","REG"],TIER_1,
+            ["B_Boat_Transport_01_F"],
+            ["B_Soldier_F",2,"RANDOM"]
+        ],
         //Assault boat
         [
             ["BOAT","MOT","REG"],TIER_2,

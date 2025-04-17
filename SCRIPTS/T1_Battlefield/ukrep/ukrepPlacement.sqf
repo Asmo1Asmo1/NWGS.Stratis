@@ -571,21 +571,18 @@ NWG_UKREP_BP_ApplyFaction = {
 
         //Replace classname and payload
         if (_classname in _factionPage) then {
-            _replacement = _factionPage get _classname;//Get array of replacements
-            _replacement = [_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_classname])] call NWG_fnc_selectRandomGuaranteed;//Select random replacement
-            switch (true) do {
-                case (_replacement isEqualType ""): {
-                    _x set [BP_CLASSNAME,_replacement];
-                };
-                case (_replacement isEqualType []): {
-                    _x set [BP_CLASSNAME,(_replacement param [0,""])];
-                    _x set [BP_PAYLOAD,  (_replacement param [1,[]])];
-                };
-                default {
-                    //Log error
-                    (format ["NWG_UKREP_BP_ApplyFaction: Unexpected replacement type for %1",_classname]) call NWG_fnc_logError;
-                };
-            };
+            _replacement = _factionPage get _classname;
+
+            /*Single classname*/
+            if (_replacement isEqualType "") exitWith {_x set [BP_CLASSNAME,_replacement]};
+
+            /*Array of classnames*/
+            _replacement = [_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_classname])] call NWG_fnc_selectRandomGuaranteed;
+            if (_replacement isEqualType "") exitWith {_x set [BP_CLASSNAME,_replacement]};
+
+            /*As array of [classname,payload]*/
+            _x set [BP_CLASSNAME,(_replacement param [0,""])];
+            _x set [BP_PAYLOAD,  (_replacement param [1,[]])];
         };
 
         //Replace crew of the vehicle or turret
@@ -597,8 +594,9 @@ NWG_UKREP_BP_ApplyFaction = {
             {
                 if !(_x isEqualType "")  then {continue};
                 if !(_x in _factionPage) then {continue};
-                _replacement = _factionPage get _x;//Get array of replacements
-                _replacement = [_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_x])] call NWG_fnc_selectRandomGuaranteed;//Select random replacement
+                _replacement = _factionPage get _x;
+                if (_replacement isEqualType "") then {_crew set [_forEachIndex,_replacement]; continue};
+                _replacement = [_replacement,(format ["NWG_UKREP_BP_ApplyFaction_%1",_x])] call NWG_fnc_selectRandomGuaranteed;
                 _replacement = if (_replacement isEqualType []) then {_replacement param [0,""]} else {_replacement};
                 _crew set [_forEachIndex,_replacement];//Yes, this is legal
             } forEach _crew;
