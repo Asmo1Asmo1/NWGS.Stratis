@@ -35,32 +35,35 @@
 //================================================================================================================
 //Settings
 NWG_ACA_Settings = createHashMapFromArray [
-    ["AIRSTRIKE_PREPARE_RADIUS",2250],//Distance to fly away from the target in order to prepare for the airsrike
+    ["AIRSTRIKE_PREPARE_RADIUS",2000],//Distance to fly away from the target in order to prepare for the airsrike
     ["AIRSTRIKE_PREPARE_HEIGHT",600],//Height at which airstrike will prepare
-    ["AIRSTRIKE_YELLOW_RADIUS",1600],//Distance at which plane will start descending
-    ["AIRSTRIKE_FIRE_RADIUS",1000],//Distance at which to start fireing
-    ["AIRSTRIKE_STOP_RADIUS",500],//Distance at which to pull up
+    ["AIRSTRIKE_YELLOW_RADIUS",1400],//Distance at which plane will start descending
+    ["AIRSTRIKE_FIRE_RADIUS",800],//Distance at which to start fireing
+    ["AIRSTRIKE_STOP_RADIUS",400],//Distance at which to pull up
+    ["AIRSTRIKE_LASER_CLASSNAME","LaserTargetW"],//Classname for laser target (faction matters!)
 
     ["ARTILLERY_STRIKE_WARNING_RADIUS",100],//Radius for warning strike
     ["ARTILLERY_STRIKE_WARNING_PAUSE",1],//Pause between warning strike and actual strike
     ["ARTILLERY_STRIKE_RADIUS",50],//Radius for actual fire (only if using !_precise argument)
-    ["ARTILLERY_STRIKE_TIMEOUT",180],//Timeout for artillery strike (in case of any errors)
+    ["ARTILLERY_STRIKE_TIMEOUT",300],//Timeout for artillery strike (in case of any errors)
 
     ["MORTAR_STRIKE_WARNING_RADIUS",100],//Radius for warning strike
     ["MORTAR_STRIKE_WARNING_PAUSE",1],//Pause between warning strike and actual strike
     ["MORTAR_STRIKE_RADIUS",35],//Radius for actual fire (only if using !_precise argument)
-    ["MORTAR_STRIKE_TIMEOUT",180],//Timeout for mortar strike (in case of any errors)
+    ["MORTAR_STRIKE_TIMEOUT",300],//Timeout for mortar strike (in case of any errors)
 
     ["VEH_DEMOLITION_FIRE_RADIUS",150],//Radius for fireing
-    ["VEH_DEMOLITION_TIMEOUT",180],//Timeout for veh demolition
+    ["VEH_DEMOLITION_TIMEOUT",300],//Timeout for veh demolition
 
     ["INF_STORM_FIRE_RADIUS",50],//Radius for fireing
     ["INF_STORM_FIRE_TIME",10],//Time for fireing
     ["INF_STORM_STORM_TIME",20],//Time for storming the building
-    ["INF_STORM_TIMEOUT",180],//Timeout for inf building storm
+    ["INF_STORM_TIMEOUT",300],//Timeout for inf building storm
 
     ["VEH_REPAIR_RADIUS",250],//Radius for vehicle to move to repair
-    ["VEH_REPAIR_TIMEOUT",180],//Timeout for veh repair
+    ["VEH_REPAIR_TIMEOUT",300],//Timeout for veh repair
+
+    ["HELPER_CLASSNAMES",["O_Quadbike_01_F","O_Soldier_AT_F"]],//params ["_invisibleVehicle","_agentToPutIntoVehicle"] (faction matters!)
 
     ["",0]
 ];
@@ -73,7 +76,7 @@ NWG_ACA_StartAdvancedLogic = {
     private _logicHandle = _group getVariable ["NWG_ACA_LogicHandle",scriptNull];
     if (!isNull _logicHandle && {!scriptDone _logicHandle}) then {terminate _logicHandle};
     private _logicHelper = _group getVariable ["NWG_ACA_LogicHelper",objNull];
-    if (!isNull _logicHelper) then {_group call NWG_ACA_DeleteHelper};
+    if (!isNull _logicHelper) then {_logicHelper call NWG_ACA_DeleteHelper};
     //Start new logic
     _group setVariable ["NWG_ACA_LogicHandle",([_group,_arg1,_arg2] spawn _logic)];
 };
@@ -86,26 +89,24 @@ NWG_ACA_IsDoingAdvancedLogic = {
 
 NWG_ACA_CreateHelper = {
     params ["_group","_target"];
-    private _helper = createVehicle ["CBA_O_InvisibleTargetVehicle",_target,[],0,"CAN_COLLIDE"];
-    createVehicleCrew _helper;
-    private _laser = createVehicle ["LaserTargetW",_helper,[],0,"CAN_COLLIDE"];
-    _laser attachTo [_helper,[0,0,0]];
-    _helper setVariable ["NWG_ACA_laser",_laser];
-    _group setVariable ["NWG_ACA_LogicHelper",_helper];
+    (NWG_ACA_Settings get "HELPER_CLASSNAMES") params ["_invisibleVehicle","_agentToPutIntoVehicle"];
+    private _helperVeh = createVehicle [_invisibleVehicle,_target,[],0,"CAN_COLLIDE"];
+    _helperVeh hideObjectGlobal true;
+    _helperVeh allowDamage false;
+    private _helperUnit = createAgent [_agentToPutIntoVehicle,_helperVeh,[],0,"CAN_COLLIDE"];
+    _helperUnit hideObjectGlobal true;
+    _helperUnit allowDamage false;
+    _helperUnit moveInAny _helperVeh;
+    _group setVariable ["NWG_ACA_LogicHelper",_helperVeh];
     //return
-    _helper
+    _helperVeh
 };
 
 NWG_ACA_DeleteHelper = {
-    // private _group = _this;
-    if (isNull _this) exitWith {};
-    private _helper = _this getVariable ["NWG_ACA_LogicHelper",objNull];
-    if (isNull _helper) exitWith {};
-    private _helperGroup = group _helper;
-    private _laser = _helper getVariable ["NWG_ACA_laser",objNull];
-    if (!isNull _laser) then {deleteVehicle _laser};
+    private _helper = _this;
+    if (isNull _helper) exitWith {"NWG_ACA_DeleteHelper: helper is null" call NWG_fnc_logError};
+    {_helper deleteVehicleCrew _x } forEach (crew _helper);
     deleteVehicle _helper;
-    deleteGroup _helperGroup;
 };
 
 //================================================================================================================
@@ -143,9 +144,11 @@ NWG_ACA_Airstrike = {
     _plane setVehicleAmmo 1;//Lock'n'load
     private _strikeData = _plane call NWG_ACA_GetDataForVehicleForceFire;
     private _strikeTeam = crew _plane;
-    private _helper = [_group,_target] call NWG_ACA_CreateHelper;
-    private _originalAltitude = (getPosASL _plane)#2;
     private _prepareAltitude = (NWG_ACA_Settings get "AIRSTRIKE_PREPARE_HEIGHT");
+
+    private _helper = [_group,_target] call NWG_ACA_CreateHelper;
+    private _laser = createVehicle [(NWG_ACA_Settings get "AIRSTRIKE_LASER_CLASSNAME"),_helper,[],0,"CAN_COLLIDE"];
+    _laser attachTo [_helper,[0,0,0]];
 
     //Start Airstrike cycle
     private _counter = 0;
@@ -154,12 +157,14 @@ NWG_ACA_Airstrike = {
         if (call _abortCondition) exitWith {true};
 
         //0. Fix pilots stucking in one place
-        private _crew = (crew _plane) select {alive _x};
-        _group leaveVehicle _plane;
-        {_x disableCollisionWith _plane; _x moveOut _plane} forEach _crew;
-        _plane engineOn true;
-        _group addVehicle _plane;
-        {_x moveInAny _plane} forEach _crew;
+        if !(unitIsUAV _plane) then {
+            private _crew = (crew _plane) select {alive _x};
+            _group leaveVehicle _plane;
+            {_x disableCollisionWith _plane; _x moveOut _plane} forEach _crew;
+            _plane engineOn true;
+            _group addVehicle _plane;
+            {_x moveInAny _plane} forEach _crew;
+        };
 
         //1. Fly away from the target
         private _preparePos = _helper getPos [(NWG_ACA_Settings get "AIRSTRIKE_PREPARE_RADIUS"),(random 360)];
@@ -168,7 +173,7 @@ NWG_ACA_Airstrike = {
         _plane flyInHeightASL [_prepareAltitude,_prepareAltitude,_prepareAltitude];
         _pilot doMove _preparePos;
         waitUntil {
-            sleep 0.5;
+            sleep 0.25;
             (call _abortCondition || {(_plane distance2D _preparePos) < 100})
         };
         if (call _abortCondition) exitWith {true};
@@ -177,7 +182,7 @@ NWG_ACA_Airstrike = {
         _pilot doMove (position _helper);
         waitUntil {
             {_x reveal _helper; _x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
-            sleep 0.5;
+            sleep 0.25;
             (call _abortCondition || {(_plane distance2D _helper) <= (NWG_ACA_Settings get "AIRSTRIKE_YELLOW_RADIUS")})
         };
         if (call _abortCondition) exitWith {true};
@@ -202,8 +207,9 @@ NWG_ACA_Airstrike = {
         if (call _abortCondition) exitWith {true};
 
         //4. Release and reload
-        _plane flyInHeight [_originalAltitude,true];
-        _plane flyInHeightASL [_originalAltitude,_originalAltitude,_originalAltitude];
+        private _restoreAltitude = call NWG_fnc_dtsGetAirHeight;
+        _plane flyInHeight [_restoreAltitude,true];
+        _plane flyInHeightASL [_restoreAltitude,_restoreAltitude,_restoreAltitude];
         {_x doWatch objNull; _x doTarget objNull} forEach _strikeTeam;
         _plane setVehicleAmmo 1;
 
@@ -213,8 +219,9 @@ NWG_ACA_Airstrike = {
     };
 
     //Cleanup
+    deleteVehicle _laser;
+    _helper call NWG_ACA_DeleteHelper;
     if (!isNull _group) then {
-        _group call NWG_ACA_DeleteHelper;
         _group setBehaviourStrong "AWARE";
         _group setCombatBehaviour "AWARE";
     };
@@ -494,6 +501,10 @@ NWG_ACA_SendToVehDemolition = {
         "NWG_ACA_SendToVehDemolition: tried to send group that can't do veh demolition" call NWG_fnc_logError;
         false;
     };
+    if !(_target call NWG_fnc_ocIsBuilding) exitWith {
+        "NWG_ACA_SendToVehDemolition: target is not a building" call NWG_fnc_logError;
+        false;
+    };
 
     [_group,NWG_ACA_VehDemolition,_target] call NWG_ACA_StartAdvancedLogic;
     true
@@ -505,56 +516,47 @@ NWG_ACA_IsClearLineBetween = {
     private _raycastTo = getPosASL _obj2;
     private _raycast = lineIntersectsSurfaces [_raycastFrom,_raycastTo,_obj1,objNull,true,1,"FIRE","VIEW",true];
 
-    switch (true) do {
-        case ((count _raycast) == 0): {true};/*No obstacles*/
-        case (((_raycast#0)#2) isEqualTo _obj2): {true};/*The first/only obstacle is the target itself*/
-        case (((_raycast#0)#3) isEqualTo _obj2): {true};/*The first/only obstacle is the target itself*/
-        default {false};/*There is an obstacle between the two objects*/
-    }
+    if ((count _raycast) == 0) exitWith {true};/*No obstacles*/
+    if (((_raycast#0)#2) isEqualTo _obj2) exitWith {true};/*The first/only obstacle is the target itself*/
+    if (((_raycast#0)#3) isEqualTo _obj2) exitWith {true};/*The first/only obstacle is the target itself*/
+    false/*There is an obstacle between the two objects*/
 };
 
 NWG_ACA_VehDemolition = {
     params ["_group","_target"];
     private _veh = vehicle (leader _group);
-    private _driver = driver _veh;
-    private _gunner = gunner _veh;
-
-    private _timeOut = time + (NWG_ACA_Settings get "VEH_DEMOLITION_TIMEOUT");
-    private _abortCondition = {!alive _veh || {!alive _driver || {!alive _gunner || {!alive _target || {time > _timeOut}}}}};
+    private _timeoutAt = time + (NWG_ACA_Settings get "VEH_DEMOLITION_TIMEOUT");
+    private _abortCondition = {!alive _veh || {!alive (driver _veh) || {!alive (gunner _veh) || {!alive _target || {time > _timeoutAt}}}}};
     if (call _abortCondition) exitWith {};//Immediate check
 
+    _veh setVehicleAmmo 1;
     private _strikeData = _veh call NWG_ACA_GetDataForVehicleForceFire;
     private _strikeTeam = crew _veh;
-    _veh setVehicleAmmo 1;
-
-    private _helper = [_group,_target] call NWG_ACA_CreateHelper;
-    _group setBehaviourStrong "CARELESS";
-    _group setCombatBehaviour "CARELESS";
-    private _onExit = {
-        if (!isNull _group) then {
-            _group setBehaviourStrong "AWARE";
-            _group setCombatBehaviour "AWARE";
-            _group call NWG_ACA_DeleteHelper;
-        };
-    };
+    _group setCombatMode "RED";
+    _group setSpeedMode "FULL";
+    _group setBehaviourStrong "AWARE";
 
     //Move to the target
-    _strikeTeam doMove (position _helper);
+    _strikeTeam doMove (position _target);
+    private _lastPos = getPosATL _veh;
     waitUntil {
-        sleep ((random 1)+1);
+        sleep 3;
         if (call _abortCondition) exitWith {true};
-        if ((_veh distance _helper) > (NWG_ACA_Settings get "VEH_DEMOLITION_FIRE_RADIUS")) exitWith {false};//Out of range
+        if ((_veh distance _lastPos) < 1) then {_strikeTeam doMove (position _target)};
+        _lastPos = getPosATL _veh;
+        if ((_veh distance _target) > (NWG_ACA_Settings get "VEH_DEMOLITION_FIRE_RADIUS")) exitWith {false};//Out of range
         if !([_veh,_target] call NWG_ACA_IsClearLineBetween) exitWith {false};//Obstacle between
         true
     };
-    if (call _abortCondition) exitWith _onExit;
+    if (call _abortCondition) exitWith {};
 
     //Watch
+    private _helper = [_group,_target] call NWG_ACA_CreateHelper;
     {doStop _x; _x reveal _helper; _x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
-    sleep ((random 1)+1);
-    if (call _abortCondition) exitWith _onExit;
+    sleep 1;//Wait for turret to turn
+    if (call _abortCondition) exitWith {_helper call NWG_ACA_DeleteHelper};
 
-    //Fire
+    //Fire until _abortCondition is met
     waitUntil {
         sleep ((random 1)+1);
         if (call _abortCondition) exitWith {true};
@@ -562,8 +564,7 @@ NWG_ACA_VehDemolition = {
         _veh setVehicleAmmo 1;
         false
     };
-
-    call _onExit;
+    _helper call NWG_ACA_DeleteHelper;
 };
 
 //================================================================================================================
@@ -593,35 +594,34 @@ NWG_ACA_SendToInfBuildingStorm = {
     true
 };
 
+#define FIRE_TYPE_SPPRS 0
+#define FIRE_TYPE_WEAPN 1
+#define FIRE_TYPE_GRNDE 2
 NWG_ACA_InfBuildingStorm = {
     params ["_group","_target"];
 
     private _timeOut = time + (NWG_ACA_Settings get "INF_STORM_TIMEOUT");
-    private _abortCondition = {({alive _x} count (units _group)) < 1 || {!alive _target || {time > _timeOut}}};
+    private _abortCondition = {({alive _x} count (units _group)) < 1 || {time > _timeOut}};
     if (call _abortCondition) exitWith {};//Immediate check
 
     _group setCombatMode "RED";
     _group setSpeedMode "FULL";
     _group setBehaviourStrong "AWARE";
 
-    private _helper = [_group,_target] call NWG_ACA_CreateHelper;
-    private _onExit = {
-        if (!isNull _group) then {_group call NWG_ACA_DeleteHelper};
-    };
-
     //Get closer to the building
-    (units _group) doMove (position _helper);
+    (units _group) doMove (position _target);
     waitUntil {
-        sleep 3;
+        sleep 2;
         if (call _abortCondition) exitWith {true};
-        (units _group) doMove (position _helper);
-        if (((leader _group) distance _helper) > (NWG_ACA_Settings get "INF_STORM_FIRE_RADIUS")) exitWith {false};//Out of range
+        (units _group) doMove (position _target);
+        if (((leader _group) distance _target) > (NWG_ACA_Settings get "INF_STORM_FIRE_RADIUS")) exitWith {false};//Out of range
         if !([(leader _group),_target] call NWG_ACA_IsClearLineBetween) exitWith {false};//Obstacle between
         true
     };
-    if (call _abortCondition) exitWith _onExit;
+    if (call _abortCondition) exitWith {};
 
     //Attack the building
+    private _helper = [_group,_target] call NWG_ACA_CreateHelper;
     private _units = (units _group) select {alive _x};
     doStop _units;
     _group reveal [_helper,4];
@@ -637,48 +637,59 @@ NWG_ACA_InfBuildingStorm = {
         {
             _unit = _x;
             _weaponsInfo = _unit weaponsInfo [""];
-            _primaryWeapon = primaryWeapon _unit;
-            _secondaryWeapon = secondaryWeapon _unit;
-            _g = -1;
-            _fireType = "";
 
-            _i = switch (true) do {
+            _i = call {
+                _primaryWeapon = primaryWeapon _unit;
+                _secondaryWeapon = secondaryWeapon _unit;
+
                 //Obstacle between unit and a target
-                case (!([_unit,_target] call NWG_ACA_IsClearLineBetween)):
-                    {_fireType = "SUPPRESS"; _weaponsInfo findIf {(_x#2) isEqualTo _primaryWeapon}};
+                if (!([_unit,_target] call NWG_ACA_IsClearLineBetween)) exitWith {
+                    _fireType = FIRE_TYPE_SPPRS;
+                    _weaponsInfo findIf {(_x#2) isEqualTo _primaryWeapon};
+                };
                 //AT unit that sees the target
-                case (_secondaryWeapon isNotEqualTo "" && {(_unit call NWG_fnc_dsDefineWeaponTagForObject) isEqualTo "AT"}):
-                    {_fireType = "WEAPON"; _weaponsInfo findIf {(_x#2) isEqualTo _secondaryWeapon}};
+                if (_secondaryWeapon isNotEqualTo "") exitWith {
+                    _fireType = FIRE_TYPE_WEAPN;
+                    _weaponsInfo findIf {(_x#2) isEqualTo _secondaryWeapon};
+                };
                 //Sub-barrel grenade launcher
                 _g = _weaponsInfo findIf {(_x#5) isEqualTo "1Rnd_HE_Grenade_shell" && {(_x#6) > 0}};
-                case (_g != -1):
-                    {_fireType = "WEAPON"; _g};
+                if (_g != -1) exitWith {_fireType = FIRE_TYPE_WEAPN; _g};
                 //Grenades
                 _g = _weaponsInfo findIf {(_x#5) isEqualTo "HandGrenade" && {(_x#6) > 0}};
-                case (_g != -1):
-                    {_fireType = "GRENADE"; _g};
+                if (_g != -1) exitWith {_fireType = FIRE_TYPE_GRNDE; _g};
                 _g = _weaponsInfo findIf {(_x#5) isEqualTo "MiniGrenade" && {(_x#6) > 0}};
-                case (_g != -1):
-                    {_fireType = "GRENADE"; _g};
+                if (_g != -1) exitWith {_fireType = FIRE_TYPE_GRNDE; _g};
                 //Fallback to primary weapon
-                default
-                    {_fireType = "SUPPRESS"; _weaponsInfo findIf {(_x#2) isEqualTo _primaryWeapon}};
+                _fireType = FIRE_TYPE_SPPRS;
+                _weaponsInfo findIf {(_x#2) isEqualTo _primaryWeapon};
             };
             if (_i == -1) then {continue};//Something went wrong
             _muzzle = (_weaponsInfo#_i)#3;
             _unit doTarget _helper;
             switch (_fireType) do {
-                case ("SUPPRESS"): {_unit doSuppressiveFire _helper};
-                case ("WEAPON")  : {_unit selectWeapon _muzzle; _unit fire _muzzle};
-                case ("GRENADE") : {[_unit,_muzzle] call BIS_fnc_fire};
+                case FIRE_TYPE_SPPRS : {_unit doSuppressiveFire _helper};
+                case FIRE_TYPE_WEAPN : {_unit selectWeapon _muzzle; _unit fire _muzzle};
+                case FIRE_TYPE_GRNDE : {[_unit,_muzzle] call BIS_fnc_fire};
             };
+            sleep (random 0.5);
         } forEach _units;
 
-        sleep 5;
+        sleep 3;
         time > _fireTime
     };
-    if (call _abortCondition) exitWith _onExit;
-    _group call NWG_ACA_DeleteHelper;
+    _helper call NWG_ACA_DeleteHelper;
+    if (call _abortCondition) exitWith {};
+
+    //Check if target is (half-destroyed)
+    private _continue = true;
+    if (!alive _target || {isObjectHidden _target || {((getPosATL _target)#2) < 0}}) then {
+        private _replacements = nearestObjects [_target,["house"],10,true];
+        _replacements = _replacements - [_target];
+        if ((count _replacements) <= 0) exitWith {_continue = false};//Target is destroyed and there are no replacements
+        _target = _replacements select 0;//Get closest replacement
+    };
+    if (!_continue) exitWith {};
 
     //Prepare storming positions
     _units = _units select {alive _x};//Update list
@@ -706,8 +717,6 @@ NWG_ACA_InfBuildingStorm = {
         sleep 3;
         time > _stormTime
     };
-
-    call _onExit;
 };
 
 //================================================================================================================
