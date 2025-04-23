@@ -72,7 +72,7 @@ NWG_ISHOP_SER_itemsPriceChart = [
 ];
 
 NWG_ISHOP_SER_EvaluateItem = {
-	// private _item = _this;
+	// private _itemClassname = _this;
 
 	//Get cached item info if exists
 	private _c = NWG_ISHOP_SER_itemsInfoCache get _this;
@@ -116,6 +116,37 @@ NWG_ISHOP_SER_EvaluateItem = {
 
 	//return price
 	_defaultPrice
+};
+
+NWG_ISHOP_SER_EvaluateItemFull = {
+	// private _itemClassname = _this;
+	private _currentPrice = _this call NWG_ISHOP_SER_EvaluateItem;
+	private _itemType = _this call NWG_fnc_icatGetItemType;
+	private _defaultPrice = switch (_itemType) do {
+		case LOOT_ITEM_TYPE_AMMO: {NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_AMMO"};
+		case LOOT_ITEM_TYPE_ITEM: {NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_ITEM"};
+		case LOOT_ITEM_TYPE_WEAP: {NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_WEAP"};
+		case LOOT_ITEM_TYPE_CLTH: {NWG_ISHOP_SER_Settings get "DEFAULT_PRICE_CLTH"};
+		default {
+			(format["NWG_ISHOP_SER_EvaluateItemFull: Invalid item type '%1' for item '%2'",_itemType,_this]) call NWG_fnc_logError;
+			1
+		};
+	};
+	//return
+	[_currentPrice,_defaultPrice,(_currentPrice / _defaultPrice)]
+};
+
+NWG_ISHOP_SER_SetItemPrice = {
+	params ["_itemClassname","_newPrice"];
+	private _cachedInfo = NWG_ISHOP_SER_itemsInfoCache get _itemClassname;
+	if (isNil "_cachedInfo") exitWith {
+		(format["NWG_ISHOP_SER_SetItemPrice: Item '%1' is not cached, evaluate item before setting price",_itemClassname]) call NWG_fnc_logError;
+		false
+	};
+	_cachedInfo params ["_iCat","_iIndex"];
+	((NWG_ISHOP_SER_itemsPriceChart select _iCat) select CHART_PRICES) set [_iIndex,_newPrice];
+	//return
+	true
 };
 
 NWG_ISHOP_SER_UpdatePrices = {
