@@ -14,6 +14,7 @@
 NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 	/*Default prices*/
 	["DEFAULT_PRICES",createHashMapFromArray [
+		/*Drones*/
 		["C0I0",1000],//Scout drone
 		["C0I1",1100],//Suicide drone (HE 44)
 		["C0I2",1200],//Suicide drone (HEAT 55)
@@ -23,6 +24,7 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 		["C0I6",2500],//Bomber drone
 		["C0I7",50000],//Ababil
 
+		/*Mortars*/
 		["C1I0",1000],//Single strike
 		["C1I1",1500],//Double tap
 		["C1I2",2000],//Three in a row
@@ -30,34 +32,37 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 		["C1I4",1500],//Illumination shells
 		["C1I5",1500],//Smoke shells
 
-		["C2I0",10000],//Team (2)
-		["C2I1",15000],//Squad (3)
-		["C2I2",20000],//Company (5)
-		["C2I3",30000] //Fire team (8)
+		/*Infantry support*/
+		["C2I0",8000],//Team (2)
+		["C2I1",10000],//Squad (3)
+		["C2I2",15000],//Company (5)
+		["C2I3",20000] //Fire team (8)
 	]],
 
 	/*Price increase settings*//*params ["_itemIncrease","_catIncrease","_allIncrease"]*//*Applied consecutively*/
 	["PRICE_INCREASE_SETTINGS",createHashMapFromArray [
-		["C0I0",[200,100,0]],//Scout drone
-		["C0I1",[200,150,0]],//Suicide drone (HE 44)
-		["C0I2",[200,150,0]],//Suicide drone (HEAT 55)
-		["C0I3",[200,150,0]],//Suicide drone (HEAT 75)
-		["C0I4",[200,150,0]],//Mine drone
-		["C0I5",[300,200,0]],//EMI drone
-		["C0I6",[300,200,0]],//Bomber drone
+		["C0I0",[100,500,0]],//Scout drone
+		["C0I1",[200,500,0]],//Suicide drone (HE 44)
+		["C0I2",[200,500,0]],//Suicide drone (HEAT 55)
+		["C0I3",[200,500,0]],//Suicide drone (HEAT 75)
+		["C0I4",[200,500,0]],//Mine drone
+		["C0I5",[500,500,0]],//EMI drone
+		["C0I6",[500,500,0]],//Bomber drone
 		["C0I7",[5000,500,0]],//Ababil
 
-		["C1I0",[200,100,0]],//Single strike
-		["C1I1",[300,100,0]],//Double tap
-		["C1I2",[400,200,0]],//Three in a row
-		["C1I3",[1000,500,0]],//Barrage
+		/*Mortars*/
+		["C1I0",[100,500,0]],//Single strike
+		["C1I1",[200,500,0]],//Double tap
+		["C1I2",[300,500,0]],//Three in a row
+		["C1I3",[1000,1000,0]],//Barrage
 		["C1I4",[200,100,0]],//Illumination shells
 		["C1I5",[200,100,0]],//Smoke shells
 
-		["C2I0",[1000,1000,0]],//Team (2)
-		["C2I1",[2000,1000,0]],//Squad (3)
-		["C2I2",[3000,1000,0]],//Company (5)
-		["C2I3",[5000,1000,0]] //Fire team (8)
+		/*Infantry support*/
+		["C2I0",[0,1000,0]],//Team (2)
+		["C2I1",[0,2000,0]],//Squad (3)
+		["C2I2",[0,3000,0]],//Company (5)
+		["C2I3",[0,4000,0]] //Fire team (8)
 	]],
 
 	/*Marker settings*//*params ["_markerType","_markerColor"]*/
