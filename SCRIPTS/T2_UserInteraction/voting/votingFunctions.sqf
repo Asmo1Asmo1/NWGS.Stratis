@@ -40,7 +40,7 @@ NWG_fnc_voteRequestServer = {
 // _anchor - object - anchor object
 // _title - string OR array - title of the vote (singular or complex with arguments)
 // _timeout - number - timeout of the vote
-NWG_fnc_voteStarted = {
+NWG_fnc_voteOnStarted = {
     // params ["_anchor","_title","_timeout"];
     if (!hasInterface) exitWith {};
     if (isNil "NWG_VOTE_CLI_OnVoteStart") exitWith {};//Fix client not ready yet
@@ -52,7 +52,7 @@ NWG_fnc_voteStarted = {
 //params:
 // _title - string OR array - title of the vote (singular or complex with arguments)
 // _result - number - result of the vote
-NWG_fnc_voteEnded = {
+NWG_fnc_voteOnEnded = {
     // params ["_title","_result"];
     if (!hasInterface) exitWith {};
     if (isNil "NWG_VOTE_CLI_OnVoteEnd") exitWith {};//Fix client not ready yet

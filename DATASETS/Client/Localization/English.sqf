@@ -108,6 +108,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_GROUP_TITLE#","Group management"],
     ["#UP_GROUP_MENU#","Open group menu"],
     ["#UP_GROUP_VOTE_BAN#","Ban vote"],
+    ["#UP_GROUP_VOTE_KICK#","Kick vote"],
     ["#UP_GROUP_DISCORD#","Discord"],
     ["#UP_GROUP_DISCORD_BUTTON#","-=   Join NWGS Discord   =-"],
     //05Info
@@ -128,6 +129,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_HINT_FOOTER_DONE#","\nYour voice counted as [%1]"],
     //votingBan
     ["#VOTE_BAN_TITLE#","Ban %1?"],
+    ["#VOTE_KICK_TITLE#","Kick %1?"],
     ["#VOTE_BAN_ALREADY_RUNNING#","Another vote is running"],
     ["#VOTE_BAN_NO_TARGET#","No such player '%1'"],
     ["#VOTE_BAN_NOT_ENOUGH_PLAYERS#","Not enough players on server to start the vote (min: %1)"],

@@ -23,18 +23,19 @@ NWG_WLT_AddPlayerMoney = {
     if (_amount == 0) exitWith {};//Nothing to do
 
     //Calculate new money amount
-    private _money = _player getVariable ["NWG_WLT_Money",0];
-    _money = (round (_money + _amount)) min 999999999;
+    private _oldMoney = _player getVariable ["NWG_WLT_Money",0];
+    private _newMoney = (round (_oldMoney + _amount)) min 999999999;
+    private _delta = _newMoney - _oldMoney;
 
     //Set new money amount
-    _player setVariable ["NWG_WLT_Money",_money,true];
+    _player setVariable ["NWG_WLT_Money",_newMoney,true];
 
     //Notify about money change
     [_player,_amount] call NWG_fnc_wltNotifyMoneyChange;
 
     //Raise event
     if (local _player && {_player isEqualTo player}) then {
-        [EVENT_ON_MONEY_CHANGED,_money] call NWG_fnc_raiseClientEvent;
+        [EVENT_ON_MONEY_CHANGED,[_oldMoney,_newMoney,_delta]] call NWG_fnc_raiseClientEvent;
     };
 };
 
@@ -42,11 +43,16 @@ NWG_WLT_SetPlayerMoney = {
     params ["_player","_amount"];
 
     //Set new money amount
-    _player setVariable ["NWG_WLT_Money",(round _amount),true];
+    private _oldMoney = _player getVariable ["NWG_WLT_Money",0];
+    private _newMoney = round _amount;
+    private _delta = _newMoney - _oldMoney;
+
+    //Set new money amount
+    _player setVariable ["NWG_WLT_Money",_newMoney,true];
 
     //Raise event
     if (local _player && {_player isEqualTo player}) then {
-        [EVENT_ON_MONEY_CHANGED,_amount] call NWG_fnc_raiseClientEvent;
+        [EVENT_ON_MONEY_CHANGED,[_oldMoney,_newMoney,_delta]] call NWG_fnc_raiseClientEvent;
     };
 };
 

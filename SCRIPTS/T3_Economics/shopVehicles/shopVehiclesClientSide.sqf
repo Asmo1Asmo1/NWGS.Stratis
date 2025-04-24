@@ -59,6 +59,14 @@ NWG_VSHOP_CLI_shopType = SHOP_TYPE_PLATFM;
 
 //================================================================================================================
 //================================================================================================================
+//Init
+private _Init = {
+	//Update shop's player money when it's changed outside of shop (money transfer, quest completion, etc)
+	[EVENT_ON_MONEY_CHANGED,{_this call NWG_VSHOP_CLI_TRA_OnMoneyChangedOutside}] call NWG_fnc_subscribeToClientEvent;
+};
+
+//================================================================================================================
+//================================================================================================================
 //Shop
 NWG_VSHOP_CLI_OpenPlatformShop = {
 	//Check platform
@@ -762,10 +770,34 @@ NWG_VSHOP_CLI_TRA_OnOpen = {
 	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_soldToPlayer",[]];
 	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_boughtFromPlayer",[]];
 	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_playerMoney",_playerMoney];
+	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_playerMoney_Mem",_playerMoney];
 };
 
 NWG_VSHOP_CLI_TRA_GetPlayerMoney = {
 	uiNamespace getVariable ["NWG_VSHOP_CLI_TRA_playerMoney",0]
+};
+
+NWG_VSHOP_CLI_TRA_OnMoneyChangedOutside = {
+	// params ["_oldMoney","_newMoney","_delta"];
+
+	//Check if shop is open
+	if (isNil {uiNamespace getVariable "NWG_VSHOP_CLI_TRA_playerMoney"}) exitWith {};//Shop is not open
+
+	//Re-get player money (of single player or group)
+	private _playerMoney = if (NWG_VSHOP_CLI_Settings get "GROUP_LEADER_MANAGES_GROUP_MONEY" && {player isEqualTo (leader (group player))})
+		then {(group player) call NWG_fnc_wltGetGroupMoney}
+		else {player call NWG_fnc_wltGetPlayerMoney};
+
+	//Compare with memory
+	private _memorized = uiNamespace getVariable ["NWG_VSHOP_CLI_TRA_playerMoney_Mem",0];
+	private _delta = _playerMoney - _memorized;
+
+	//Update player virtual money
+	private _virtMoney = uiNamespace getVariable ["NWG_VSHOP_CLI_TRA_playerMoney",0];
+	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_playerMoney",(_virtMoney + _delta)];
+
+	//Update money text
+	call NWG_VSHOP_CLI_UpdatePlayerMoneyText;
 };
 
 NWG_VSHOP_CLI_TRA_GetPrice = {
@@ -893,4 +925,9 @@ NWG_VSHOP_CLI_TRA_OnClose = {
 	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_soldToPlayer",nil];
 	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_boughtFromPlayer",nil];
 	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_playerMoney",nil];
+	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_playerMoney_Mem",nil];
 };
+
+//================================================================================================================
+//================================================================================================================
+call _Init;

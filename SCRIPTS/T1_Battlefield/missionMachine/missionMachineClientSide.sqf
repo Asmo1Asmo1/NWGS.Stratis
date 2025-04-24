@@ -132,7 +132,7 @@ NWG_MIS_CLI_OnSelectionOptionsReceived = {
         _marker setMarkerSizeLocal [_selRadius,_selRadius];
         _marker setMarkerShapeLocal "ELLIPSE";
         _marker setMarkerColorLocal _selColor;
-        _marker setMarkerAlpha (NWG_MIS_CLI_Settings get "MAP_MIS_OUTLINE_ALPHA");
+        _marker setMarkerAlphaLocal (NWG_MIS_CLI_Settings get "MAP_MIS_OUTLINE_ALPHA");
         _markers pushBack _marker;
 
         //Create main marker
@@ -141,7 +141,7 @@ NWG_MIS_CLI_OnSelectionOptionsReceived = {
         _marker setMarkerTypeLocal (NWG_MIS_CLI_Settings get "MAP_MIS_MARKER_TYPE");
         _marker setMarkerSizeLocal [(NWG_MIS_CLI_Settings get "MAP_MIS_MARKER_SIZE"),(NWG_MIS_CLI_Settings get "MAP_MIS_MARKER_SIZE")];
         _marker setMarkerTextLocal (format [(NWG_MIS_CLI_Settings get "MAP_MIS_MARKER_TEXT_TEMPLATE"),_selName,_selFaction,_selTime,_selWeather]);
-        _marker setMarkerColor _selColor;
+        _marker setMarkerColorLocal _selColor;
         _markers pushBack _marker;
     } forEach _selections;
 

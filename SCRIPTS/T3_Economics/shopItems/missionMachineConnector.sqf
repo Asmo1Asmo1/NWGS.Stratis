@@ -6,8 +6,9 @@
 //================================================================================================================
 //Settings
 NWG_ISHOP_MMC_Settings = createHashMapFromArray [
-    ["CHECK_PERSISTENT_ITEMS",true],//Check validity of persistent items on economy state
-    ["ADD_ITEMS_MIN_MAX",[1,2]],//Number of items to add on mission completion
+    ["CHECK_PERSISTENT_ITEMS",true],//Check validity of persistent items on base economy state
+    ["MAX_PERST_ITEM_RATIO",2.5],//Max 'current price / default price' ratio to enforce on base economy state
+    ["ADD_ITEMS_MIN_MAX",[1,2]],//Number of sets to add on mission completion
 
     ["",0]
 ];
@@ -44,6 +45,9 @@ NWG_ISHOP_MMC_OnMissionStateChanged = {
             if !(_ok) then {
                 "NWG_ISHOP_MMC_OnMissionStateChanged: Failed to upload items prices" call NWG_fnc_logError;
             };
+
+            //Clamp persistent items prices
+            call NWG_ISHOP_MMC_ClampPersistentItemsPrices;
         };
 
         /*Mission completed state - Add items to dynamic shop items*/
@@ -74,6 +78,18 @@ NWG_ISHOP_MMC_OnMissionStateChanged = {
 
         default {};
     };
+};
+
+//================================================================================================================
+//Clamp persistent items prices
+NWG_ISHOP_MMC_ClampPersistentItemsPrices = {
+    private _persistentItems = call NWG_fnc_ishopGetPersistentItems;
+    private _maxRatio = NWG_ISHOP_MMC_Settings get "MAX_PERST_ITEM_RATIO";
+
+    {
+        (_x call NWG_fnc_ishopEvaluateItemPriceFull) params ["","_defaultPrice","_ratio"];
+        if (_ratio > _maxRatio) then {[_x,(_defaultPrice * _maxRatio)] call NWG_fnc_ishopSetItemPrice};
+    } forEach ((flatten _persistentItems) select {_x isEqualType ""});
 };
 
 //================================================================================================================

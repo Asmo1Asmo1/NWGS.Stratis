@@ -68,7 +68,7 @@
 //Client events (arguments for NWG_fnc_subscribeToClientEvent and NWG_fnc_raiseClientEvent)
 #define EVENT_ON_LOADOUT_CHANGED "OnLoadoutChanged" //Called by 'inventoryManager' subsystem when a loadout is changed.     params ["_loadOut","_flattenLoadOut"];
 #define EVENT_ON_LOOT_CHANGED "OnLootChanged" //Called by 'lootStorage' subsystem when a loot is changed.     params ["_loot"];
-#define EVENT_ON_MONEY_CHANGED "OnMoneyChanged" //Called by 'wallet' subsystem when a money is changed.     params ["_money"];
+#define EVENT_ON_MONEY_CHANGED "OnMoneyChanged" //Called by 'wallet' subsystem when a money is changed.     params ["_oldMoney","_newMoney","_delta"];
 #define EVENT_ON_PROGRESS_CHANGED "OnProgressChanged" //Called by 'progress' subsystem when a progress is changed.     params ["_type","_amount","_total"];
 #define EVENT_ON_GARAGE_CHANGED "OnGarageChanged" //Called by 'garage' subsystem when a garage is changed.     params ["_garageArray"];
 
