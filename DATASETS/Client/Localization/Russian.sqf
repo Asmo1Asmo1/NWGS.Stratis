@@ -122,6 +122,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_GROUP_TITLE#","Управление группой"],
     ["#UP_GROUP_MENU#","Открыть меню группы"],
     ["#UP_GROUP_VOTE_BAN#","Голосование за бан"],
+    ["#UP_GROUP_VOTE_KICK#","Голосование за кик"],
     ["#UP_GROUP_DISCORD#","Discord"],
     ["#UP_GROUP_DISCORD_BUTTON#","-=   Присоединиться к NWGS Discord   =-"],
     //05Info
@@ -142,6 +143,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_HINT_FOOTER_DONE#","\nВаш голос засчитан как [%1]"],
     //votingBan
     ["#VOTE_BAN_TITLE#","Забанить %1?"],
+    ["#VOTE_KICK_TITLE#","Кикнуть %1?"],
     ["#VOTE_BAN_ALREADY_RUNNING#","Другое голосование уже запущено"],
     ["#VOTE_BAN_NO_TARGET#","Нет такого игрока '%1'"],
     ["#VOTE_BAN_NOT_ENOUGH_PLAYERS#","Недостаточно игроков на сервере для начала голосования (мин: %1)"],

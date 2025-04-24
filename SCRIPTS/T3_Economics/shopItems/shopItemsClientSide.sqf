@@ -49,6 +49,14 @@ NWG_ISHOP_CLI_Settings = createHashMapFromArray [
 
 //================================================================================================================
 //================================================================================================================
+//Init
+private _Init = {
+	//Update shop's player money when it's changed outside of shop (money transfer, quest completion, etc)
+	[EVENT_ON_MONEY_CHANGED,{_this call NWG_ISHOP_CLI_TRA_OnMoneyChangedOutside}] call NWG_fnc_subscribeToClientEvent;
+};
+
+//================================================================================================================
+//================================================================================================================
 //Shop
 NWG_ISHOP_CLI_OpenShop = {
 	//Send request to server
@@ -551,6 +559,19 @@ NWG_ISHOP_CLI_TRA_GetPlayerMoney = {
 	uiNamespace getVariable ["NWG_ISHOP_CLI_TRA_playerMoney",0]
 };
 
+NWG_ISHOP_CLI_TRA_OnMoneyChangedOutside = {
+	// params ["_oldMoney","_newMoney","_delta"];
+	params ["","","_delta"];
+	if (isNil {uiNamespace getVariable "NWG_ISHOP_CLI_TRA_playerMoney"}) exitWith {};//Shop is not open
+
+	//Update player virtual money
+	private _virtMoney = uiNamespace getVariable ["NWG_ISHOP_CLI_TRA_playerMoney",0];
+	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney",(_virtMoney + _delta)];
+
+	//Update money text
+	call NWG_ISHOP_CLI_UpdatePlayerMoneyText;
+};
+
 NWG_ISHOP_CLI_TRA_GetPrice = {
 	params ["_item","_isPlayerSide"];
 	private _price = (uiNamespace getVariable ["NWG_ISHOP_CLI_TRA_pricesMap",createHashMap]) getOrDefault [_item,0];
@@ -648,3 +669,7 @@ NWG_ISHOP_CLI_TRA_OnClose = {
 	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_boughtFromPlayer",nil];
 	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney",nil];
 };
+
+//================================================================================================================
+//================================================================================================================
+call _Init;

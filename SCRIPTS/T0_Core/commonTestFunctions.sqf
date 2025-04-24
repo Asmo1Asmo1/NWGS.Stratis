@@ -34,8 +34,9 @@ NWG_fnc_testDumpToRptAndClipboard = {
 };
 
 NWG_fnc_testFullProgress = {
-    [player,1000000] call NWG_fnc_wltAddPlayerMoney;
-    [player,[50,50,10,10,10]] call NWG_fnc_pSetPlayerProgress;
+    [player,10000000] call NWG_fnc_wltAddPlayerMoney;
+    [player,[100,100,10,10,10]] call NWG_fnc_pSetPlayerProgress;
+    NWG_MIS_UnlockedLevels = NWG_MIS_UnlockedLevels apply {true};
 };
 
 NWG_fnc_testRaiseLvlAndMoney = {

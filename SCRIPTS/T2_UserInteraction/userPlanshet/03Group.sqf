@@ -13,6 +13,7 @@
 /*enum*/
 #define GROUP_MENU "GROUP_MENU"
 #define GROUP_VOTE_BAN "GROUP_VOTE_BAN"
+#define GROUP_VOTE_KICK "GROUP_VOTE_KICK"
 #define GROUP_DISCORD "DISCORD"
 
 //--- scale helpers
@@ -31,6 +32,7 @@ NWG_UP_03Group_Settings = createHashMapFromArray [
 	["PLANSHET_ROWS",[
 		["#UP_GROUP_MENU#",GROUP_MENU],
 		["#UP_GROUP_VOTE_BAN#",GROUP_VOTE_BAN],
+		["#UP_GROUP_VOTE_KICK#",GROUP_VOTE_KICK],
 		["#UP_GROUP_DISCORD#",GROUP_DISCORD]
 	]],
 
@@ -59,6 +61,7 @@ NWG_UP_03Group_Open = {
 		switch (_settingName) do {
 			case GROUP_MENU: {call NWG_UP_03Group_Menu_Open};
 			case GROUP_VOTE_BAN: {call NWG_UP_03Group_VoteBan_Open};
+			case GROUP_VOTE_KICK: {call NWG_UP_03Group_VoteKick_Open};
 			case GROUP_DISCORD: {call NWG_UP_03Group_Discord_Open};
 			default {(format ["NWG_UP_03Group_OnRowSelected: Unknown setting: '%1'",_settingName]) call NWG_fnc_logError};
 		};
@@ -104,6 +107,33 @@ NWG_UP_03Group_VoteBan_Open = {
 		private _name = _listBox lbData _selectedIndex;
 		call NWG_fnc_upCloseAllMenus;
 		_name call NWG_fnc_voteBan;
+	};
+
+	//Open interface
+	private _interface = [_windowName,_playerNames,_playerNames,_callback] call NWG_fnc_upOpenSecondaryMenuPrefilled;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Vote kick
+NWG_UP_03Group_VoteKick_Open = {
+	disableSerialization;
+
+	//Prepare interface open
+	private _planshetRows = NWG_UP_03Group_Settings get "PLANSHET_ROWS";
+	private _windowName = (_planshetRows param [(_planshetRows findIf {(_x#1) isEqualTo GROUP_VOTE_KICK}),[]]) param [0,""];
+	private _playerNames = call {
+		private _players = call NWG_fnc_getPlayersAll;
+		private _isDevBuild = (is3DENPreview || {is3DENMultiplayer});
+		if (!_isDevBuild) then {_players = _players - [player]};
+		_players apply {name _x}
+	};
+	private _callback = {
+		// params ["_listBox","_selectedIndex","_withTitleRow"];
+		params ["_listBox","_selectedIndex"];
+		private _name = _listBox lbData _selectedIndex;
+		call NWG_fnc_upCloseAllMenus;
+		_name call NWG_fnc_voteKick;
 	};
 
 	//Open interface

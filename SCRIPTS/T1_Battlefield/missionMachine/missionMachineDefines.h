@@ -63,4 +63,4 @@
 #define MINFO_IS_ENGAGED "IsEngaged"
 #define MINFO_IS_EXHAUSTED "IsExhausted"
 #define MINFO_WILL_EXHAUST_AT "WillExhaustAt"
-#define MINFO_IS_ALL_PLAYERS_IN_ESCAPE_VEHICLE "IsAllPlayersInEscapeVehicle"
+#define MINFO_IS_ESCAPE_VEH_MOVED "IsEscapeVehMoved"

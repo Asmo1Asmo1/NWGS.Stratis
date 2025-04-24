@@ -84,17 +84,17 @@
         //=======================================
         /*AIR - Air vehicles*/
         //Scout drone
-        [
-            ["AIR","MEC","HELI","UAV","REG","C0I0"],2,
-            ["I_UAV_01_F"],
-            [2,"O_UAV_AI"]
-        ],
+        [["AIR","MEC","HELI","UAV","REG","C0I0"],2,["B_UAV_01_F"],[2,"O_UAV_AI"]],
+        [["AIR","MEC","HELI","UAV","REG","C0I0"],2,["O_UAV_01_F"],[2,"O_UAV_AI"]],
+        [["AIR","MEC","HELI","UAV","REG","C0I0"],2,["I_UAV_01_F"],[2,"O_UAV_AI"]],
+        [["AIR","MEC","HELI","UAV","REG","C0I0"],2,["I_E_UAV_01_F"],[2,"O_UAV_AI"]],
+        [["AIR","MEC","HELI","UAV","REG","C0I0"],2,["C_IDAP_UAV_01_F"],[2,"O_UAV_AI"]],
 		//Suicide and EMI drones
-		[
-			["AIR","MEC","HELI","UAV","REG","C0I1","C0I2","C0I3","C0I5"],2,
-			["I_UAV_01_F"],
-			["O_UAV_AI"]
-		],
+		[["AIR","MEC","HELI","UAV","REG","C0I1","C0I2","C0I3","C0I5"],2,["B_UAV_01_F"],["O_UAV_AI"]],
+        [["AIR","MEC","HELI","UAV","REG","C0I1","C0I2","C0I3","C0I5"],2,["O_UAV_01_F"],["O_UAV_AI"]],
+        [["AIR","MEC","HELI","UAV","REG","C0I1","C0I2","C0I3","C0I5"],2,["I_UAV_01_F"],["O_UAV_AI"]],
+        [["AIR","MEC","HELI","UAV","REG","C0I1","C0I2","C0I3","C0I5"],2,["I_E_UAV_01_F"],["O_UAV_AI"]],
+        [["AIR","MEC","HELI","UAV","REG","C0I1","C0I2","C0I3","C0I5"],2,["C_IDAP_UAV_01_F"],["O_UAV_AI"]],
         //Mine deployment drone
         [
 			["AIR","MEC","HELI","UAV","REG","C0I4"],2,
