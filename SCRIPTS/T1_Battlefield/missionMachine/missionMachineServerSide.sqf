@@ -1096,8 +1096,19 @@ NWG_MIS_SER_BuildMission_Dspawn = {
     //Calculate count of groups to populate trigger with
     private _groupsCount = [(NWG_MIS_SER_Settings get "DSPAWN_GROUPS_MIN_MAX"),_level] call NWG_MIS_SER_InterpolateInt;
 
-    //populate and return the result
-    [[_missionPos,_missionRad],_groupsCount] call NWG_fnc_dsPopulateTriggerCfg
+    //Populate and return the result
+    private _resultCount = [[_missionPos,_missionRad],_groupsCount] call NWG_fnc_dsPopulateTriggerCfg;
+    if (_resultCount isEqualTo false) exitWith {
+        (format ["NWG_MIS_SER_BuildMission_Dspawn: Failed to populate the trigger! faction:'%1' side:'%2'",_faction,_side]) call NWG_fnc_logError;
+        false
+    };
+    if (_resultCount != _groupsCount) exitWith {
+        (format ["NWG_MIS_SER_BuildMission_Dspawn: Groups count mismatch! Wanted:'%1' Got:'%2'",_groupsCount,_resultCount]) call NWG_fnc_logError;
+        true//Error, but not a blocker
+    };
+
+    //return
+    true
 };
 
 //================================================================================================================
