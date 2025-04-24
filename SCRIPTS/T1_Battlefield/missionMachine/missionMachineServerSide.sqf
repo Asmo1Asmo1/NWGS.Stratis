@@ -439,7 +439,7 @@ NWG_MIS_SER_Cycle = {
                         //No players online for a while
                         MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState
                     };
-                    case (NWG_MIS_SER_missionInfo get MINFO_IS_ALL_PLAYERS_IN_ESCAPE_VEHICLE): {
+                    case (NWG_MIS_SER_missionInfo get MINFO_IS_ESCAPE_VEH_MOVED): {
                         //Players have escaped the island
                         MSTATE_ESCAPE_COMPLETED call NWG_MIS_SER_ChangeState;//<-- Mission is completed
                     };
@@ -458,7 +458,15 @@ NWG_MIS_SER_Cycle = {
             };
             case MSTATE_ESCAPE_COMPLETED: {
                 sleep 3;//Give some time for event handlers to finish (rewards, save to state holder, etc)
-                true remoteExec ["NWG_fnc_mmEscapeCompleted",0];
+                private _allPlayers = call NWG_fnc_getPlayersAll;
+                private _winners = _allPlayers select {_x call NWG_fnc_mmIsPlayerInEscapeVehicle};
+                private _losers  = _allPlayers - _winners;
+                if ((count _winners) > 0) then {
+                    true remoteExec ["NWG_fnc_mmEscapeCompleted",_winners];//Show 'victory' message to winners
+                };
+                if ((count _losers) > 0) then {
+                    false remoteExec ["NWG_fnc_mmEscapeCompleted",_losers];//Show 'defeat' message to losers
+                };
                 MSTATE_SERVER_RESTART call NWG_MIS_SER_ChangeState;
             };
 
@@ -1112,7 +1120,7 @@ NWG_MIS_SER_FightSetup = {
     _this set [MINFO_IS_ENGAGED,false];
     _this set [MINFO_IS_EXHAUSTED,false];
     _this set [MINFO_WILL_EXHAUST_AT,-1];
-    _this set [MINFO_IS_ALL_PLAYERS_IN_ESCAPE_VEHICLE,false];
+    _this set [MINFO_IS_ESCAPE_VEH_MOVED,false];
 
     //return
     _this
@@ -1178,12 +1186,12 @@ NWG_MIS_SER_FightUpdateMissionInfo = {
 
     //8. Escape addition
     if (_info getOrDefault [MINFO_IS_ESCAPE,false]) then {
-        if (_playersOnlineCount == 0) exitWith {_info set [MINFO_IS_ALL_PLAYERS_IN_ESCAPE_VEHICLE,false]};//No players online - no need to check
+        if (_playersOnlineCount == 0) exitWith {_info set [MINFO_IS_ESCAPE_VEH_MOVED,false]};//No players online - no need to check
         private _escapeVehicle = _info getOrDefault [MINFO_ESCAPE_VEHICLE,objNull];
         private _escapeVehiclePos = _info getOrDefault [MINFO_ESCAPE_VEHICLE_POS,[0,0,0]];
-        private _isInVehicle = _playersOnlineCount == ({isPlayer _x} count (crew _escapeVehicle));
+        private _isInVehicle = ({isPlayer _x} count (crew _escapeVehicle)) > 0;
         private _isVehicleMoved = (_escapeVehicle distance2D _escapeVehiclePos) > 1000;
-        _info set [MINFO_IS_ALL_PLAYERS_IN_ESCAPE_VEHICLE,(_isInVehicle && _isVehicleMoved)];
+        _info set [MINFO_IS_ESCAPE_VEH_MOVED,(_isInVehicle && _isVehicleMoved)];
     };
 
     //9. Return
