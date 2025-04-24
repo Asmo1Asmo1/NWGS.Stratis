@@ -114,16 +114,28 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
     };
     {_x call NWG_fnc_arrayShuffle} forEach _spawnMap;
     private _spawnPoints = [
-        ((_spawnMap#0)+(_spawnMap#1)),//_plains + _roads
-        (_spawnMap#2),//_water
-        (_spawnMap#3),//_roadsAway
-        (_spawnMap#4),//_locations
-        (_spawnMap#5)//_air
+        /*SP_INDEX_GROUND:*/((_spawnMap#0)+(_spawnMap#1)),//_plains + _roads
+        /*SP_INDEX_WATER:*/(_spawnMap#2),//_water
+        /*SP_INDEX_ROADS_AWAY:*/(_spawnMap#3),//_roadsAway
+        /*SP_INDEX_LOCATIONS:*/(_spawnMap#4),//_locations
+        /*SP_INDEX_AIR:*/(_spawnMap#5)//_air
     ];
     private _spawnPointsPointers = [0,0,0,0,0];
 
     //Calculate trigger population distribution
-    private _population = [_groupsCount,_filter] call NWG_DSPAWN_TRIGGER_CalculatePopulationDistribution;
+    private _popFilter = call {
+        _filter params [["_whiteList",[]],["_blackList",[]]];
+        _blackList = _blackList + [];//Shallow copy
+
+        if ((count (_spawnPoints#SP_INDEX_GROUND)) == 0) then {_blackList pushBackUnique "INF"};
+        if ((count (_spawnPoints#SP_INDEX_WATER)) == 0) then {_blackList pushBackUnique "BOAT"};
+        if ((count (_spawnPoints#SP_INDEX_AIR)) == 0) then {_blackList pushBackUnique "AIR"};
+        if ((count (_spawnPoints#SP_INDEX_GROUND)) == 0 && {(count (_spawnPoints#SP_INDEX_ROADS_AWAY)) == 0}) then {_blackList pushBackUnique "VEH"};
+
+        //return
+        [_whiteList,_blackList]
+    };
+    private _population = [_groupsCount,_popFilter] call NWG_DSPAWN_TRIGGER_CalculatePopulationDistribution;
     if ((count _population) != 5 || {(_population findIf {_x > 0}) == -1}) exitWith {
         (format ["NWG_DSPAWN_TRIGGER_PopulateTrigger: Trigger population distribution '%1' is invalid",_population]) call NWG_fnc_logError;
         false
@@ -360,11 +372,11 @@ NWG_DSPAWN_TRIGGER_CalculatePopulationDistribution = {
         if (_whiteList isNotEqualTo []) then {_set = _set select {_x in _whiteList}};
         if (_blackList isNotEqualTo []) then {_set = _set select {!(_x in _blackList)}};
 
-        if (!("INF" in _set)) then {_result set [0,0]};
-        if (!("VEH" in _set)) then {_result set [1,0]};
-        if (!("ARM" in _set)) then {_result set [2,0]};
-        if (!("AIR" in _set)) then {_result set [3,0]};
-        if (!("BOAT" in _set)) then {_result set [4,0]};
+        if !("INF" in _set)  then {_result set [G_INDEX_INF,0]};
+        if !("VEH" in _set)  then {_result set [G_INDEX_VEH,0]};
+        if !("ARM" in _set)  then {_result set [G_INDEX_ARM,0]};
+        if !("AIR" in _set)  then {_result set [G_INDEX_AIR,0]};
+        if !("BOAT" in _set) then {_result set [G_INDEX_BOAT,0]};
 
         if ((call _updateCurCount) <= 0) then {
             (format ["NWG_DSPAWN_TRIGGER_CalculatePopulation: Trigger filter '%1' resulted in ZERO population",_filter]) call NWG_fnc_logError;

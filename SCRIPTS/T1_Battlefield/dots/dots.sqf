@@ -408,11 +408,11 @@ NWG_DOTS_IsPlainSurfaceAt = {
     // private _dot = _this;
 
     // Is position flat and bit away from terrain objects
-    if ((count (_this isFlatEmpty [1,-1,0.25,1,([0,2] select (surfaceIsWater _this))])) == 0) exitWith {false};
+    if ((count (_this isFlatEmpty [1,-1,0.5,1,([0,2] select (surfaceIsWater _this))])) == 0) exitWith {false};
 
     // Is it indeed away from terrain and mission objects
-    if ((count (nearestTerrainObjects [_this,[],8,false,true])) > 0) exitWith {false};
-    if ((count (_this nearEntities 8)) > 0) exitWith {false};
+    if ((count (nearestTerrainObjects [_this,[],5,false,true])) > 0) exitWith {false};
+    if ((count (_this nearEntities 5)) > 0) exitWith {false};
 
     // Is not inside some rock or building
     private _thisASL = AGLtoASL _this;
