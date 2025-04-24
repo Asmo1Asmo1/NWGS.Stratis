@@ -6,16 +6,16 @@ NWG_DOTS_Settings = createHashMapFromArray [
     ["AREA_AIR_HEIGHT",[150,175,200,225,250,275,300]],//Height that would be randomly assigned as a z coordinate for air spawn points
 
     ["TRIGGER_SPAWNSEARCH_SETTINGS_MULTIPLIER",1],//Multiplier for AREA_SPAWNSEARCH settings for trigger markup (leave it 1)
-    ["TRIGGER_LOCATIONS_RADIUS",[25,100]],//Radius outside trigger to search for locations (_triggerRad + TRIGGER_LOCATIONS_RADIUS)
+    ["TRIGGER_LOCATIONS_RADIUS",[50,150]],//Radius outside trigger to search for locations (_triggerRad + TRIGGER_LOCATIONS_RADIUS)
     ["TRIGGER_LOCATIONS_MINBETWEEN",100],//Min distance between locations in trigger markup
-    ["TRIGGER_ROADS_RADIUS",[100,200]],//Radius outside trigger to search for roads in trigger markup
+    ["TRIGGER_ROADS_RADIUS",[150,300]],//Radius outside trigger to search for roads in trigger markup
     ["TRIGGER_AIR_RADIUS",300],//(Max) radius outside trigger to markup air spawn points
 
     ["REINF_SPAWNSEARCH_SETTINGS_MULTIPLIER",5],//Multiplier for AREA_SPAWNSEARCH settings for reinforcement markup, keep it >1 - it does not need to be so precise as trigger search
     ["REINF_SHORECHECK_RADIUS",300],//Radius to check if there are shores around given position to decide whether or not calculate water positions
-    ["REINF_INFANTRY_RADIUS",[500,700]],//Min-Max radius of the infantry spawn
-    ["REINF_VEHICLE_RADIUS",[1200,1400]],//Min-Max radius of the vehicle spawn
-    ["REINF_AIR_RADIUS",[3000,4000]],//Min-Max radius of the air spawn
+    ["REINF_INFANTRY_RADIUS",[400,600]],//Min-Max radius of the infantry spawn
+    ["REINF_VEHICLE_RADIUS",[1000,1200]],//Min-Max radius of the vehicle spawn
+    ["REINF_AIR_RADIUS",[2500,3500]],//Min-Max radius of the air spawn
     ["REINF_AIR_COUNT",7],//Number of air dots to generate for reinforcement markup
 
     ["",0]
