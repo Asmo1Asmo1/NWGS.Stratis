@@ -80,22 +80,34 @@ NWG_DLG_TAXI_GenerateDropCategories = {
 NWG_DLG_TAXI_GenerateDropPoints = {
 	private _dropPoints = switch (NWG_DLG_TAXI_SelectedCat) do {
 		case CAT_SQD: {
-			private _minDist = NWG_DLG_TAXI_Settings get "MIN_DIST_SQD";
 			private _squadMembers = (units (group player)) - [player];
+			private _minDist = NWG_DLG_TAXI_Settings get "MIN_DIST_SQD";
 			_squadMembers = _squadMembers select {
 				alive _x && {
 				(player distance _x) >= _minDist}
 			};
-			_squadMembers apply {[
-				(name _x),
-				"TAXI_PAY",
-				{NWG_DLG_TAXI_SelectedItem = _this},
-				_x
-			]}
+			private _medCheck = if (!isNil "NWG_fnc_medIsWounded")
+				then {{!(_this call NWG_fnc_medIsWounded)}}
+				else {{{true}}};
+			private _flyCheck = {
+				private _veh = vehicle _this;
+				if (_veh isKindOf "ParachuteBase") exitWith {false};
+				if (_veh isKindOf "Man") exitWith {
+					if (((getPos _veh)#2) < 1) exitWith {true};//Ok for unit on ground
+					if (((getPosASL _veh)#2) < 0) exitWith {true};//Ok for unit underwater
+					false
+				};
+				true
+			};
+			_squadMembers apply {
+				if (_x call _medCheck && {_x call _flyCheck})
+					then {[(name _x),"TAXI_PAY",{NWG_DLG_TAXI_SelectedItem = _this},_x]}
+					else {[(name _x),"TAXI_SQD_UNFIT"]};
+			}
 		};
 		case CAT_VHC: {
-			private _minDist = NWG_DLG_TAXI_Settings get "MIN_DIST_VHC";
 			private _ownedVehicles = player call NWG_fnc_vownGetOwnedVehicles;
+			private _minDist = NWG_DLG_TAXI_Settings get "MIN_DIST_VHC";
 			_ownedVehicles = _ownedVehicles select {
 				alive _x && {
 				!unitIsUAV _x && {

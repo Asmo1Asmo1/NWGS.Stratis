@@ -125,6 +125,17 @@ NWG_DialogueTree = createHashMapFromArray [
 			]
 		]
 	],
+	/*Drop me by - squad member unfit for drop by*/
+	[
+		"TAXI_SQD_UNFIT",	[
+			Q_RND,	[
+				"#TAXI_SQD_UNFIT_Q_01#",
+				"#TAXI_SQD_UNFIT_Q_02#",
+				"#TAXI_SQD_UNFIT_Q_03#"
+			],
+			A_DEF,	[[{call NWG_DLGHLP_GetRndBack},"TAXI_PS"]]
+		]
+	],
 	/*Drop me by - payment*/
 	[
 		"TAXI_PAY",	[
