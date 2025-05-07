@@ -232,10 +232,9 @@ NWG_GC_OnReportTrash = {
 NWG_GC_Collect = {
     params ["_object","_binIndex"];
 
-    //Add object to the bin
+    //Check double collection
     private _bin = NWG_GC_garbageBin select _binIndex;
     if (_object in _bin) exitWith {};//<= EXIT if already in the bin
-    _bin pushBack _object;
 
     //Filter out invalid bin objects
     private _shouldForget = switch (_binIndex) do {
@@ -252,7 +251,9 @@ NWG_GC_Collect = {
         default {[0,0]};
     };
     _limits params ["_min","_max"];
-    if ((count _bin) <= _min) exitWith {};//<= EXIT if lower limit not reached
+    _min = _min - 1;//Skip the last object we will add
+    _max = _max - 1;
+    if ((count _bin) <= _min) exitWith {_bin pushBack _object};//<= EXIT if lower limit not reached
 
     //Prepare variables
     private _allPlayers = call NWG_fnc_getPlayersOrOccupiedVehicles;
@@ -268,19 +269,24 @@ NWG_GC_Collect = {
     reverse _bin;//We will delete from the end to the beginning
 
     //Delete old->new based on distance to players until limit is reached
-    {
-        if ((count _bin) <= _min) exitWith {};//Exit loop if limit reached
-        if (_forEachIndex == 0) exitWith {};//Skip last added object (prevent 'kill->delete' situation)
-        if (_x call _isNoPlayerNear) then {(_bin deleteAt _forEachIndex) call _terminate};//Delete if no players around
-    } forEachReversed _bin;
-    if ((count _bin) <= _max) exitWith {reverse _bin};//<= EXIT if max limit not reached
+    if ((count _bin) > _min) then {
+        {
+            if (_x call _isNoPlayerNear) then {(_bin deleteAt _forEachIndex) call _terminate};//Delete if no players around
+            if ((count _bin) <= _min) exitWith {};//Exit loop if limit reached
+        } forEachReversed _bin;
+    };
 
     //Delete old->new until max limit is reached
-    {
-        if ((count _bin) <= _max) exitWith {};//Exit loop if max limit reached
-        (_bin deleteAt _forEachIndex) call _terminate;
-    } forEachReversed _bin;
+    if ((count _bin) > _max) then {
+        {
+            (_bin deleteAt _forEachIndex) call _terminate;
+            if ((count _bin) <= _max) exitWith {};//Exit loop if max limit reached
+        } forEachReversed _bin;
+    };
+
+    //Re-form bin
     reverse _bin;//Restore original order
+    _bin pushBack _object;//Add new object on top
 };
 
 //======================================================================================================
