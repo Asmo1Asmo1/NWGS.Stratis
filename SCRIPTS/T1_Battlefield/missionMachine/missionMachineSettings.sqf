@@ -166,7 +166,7 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 
 	//==================================================================================================
 	// Dspawn settings
-	["DSPAWN_GROUPS_MIN_MAX",[3,20]],
+	["DSPAWN_GROUPS_MIN_MAX",[3,18]],
 
 	["",0]
 ];
