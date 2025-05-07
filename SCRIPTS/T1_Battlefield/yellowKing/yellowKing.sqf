@@ -143,8 +143,12 @@ NWG_YK_GoBerserk = {
 };
 NWG_YK_BerserkReload = {
     sleep (NWG_YK_Settings get "BERSEK_MODE_COOLDOWN");//Mandatory cooldown
-    if !(NWG_YK_Enabled) exitWith {};//YK was disabled while we were waiting
-    NWG_YK_reactList = (call NWG_fnc_getPlayersAll) select NWG_YK_BerserkSelectBy;
+    if (!NWG_YK_Enabled || !NWG_YK_BerserkMode) exitWith {};//YK was disabled while we were waiting
+
+    //Setup reaction
+    {
+        NWG_YK_reactList pushBackUnique _x;
+    } forEach ((call NWG_fnc_getPlayersAll) select NWG_YK_BerserkSelectBy);
     NWG_YK_reactTime = time + ((NWG_YK_Settings get "DIFFICULTY_REACTION_TIME") call NWG_fnc_randomRangeInt);
     NWG_YK_reactHandle = [] spawn NWG_YK_React;
 };
@@ -183,10 +187,10 @@ NWG_YK_OnKilled = {
     NWG_YK_killCount = NWG_YK_killCount + 1;
     NWG_YK_killCountTotal = NWG_YK_killCountTotal + 1;
     if (NWG_YK_Settings get "SHOW_DEBUG_MESSAGES") then {systemChat (format ["NWG_YK: %1 killed %2",(name _actualKiller),(name _object)])};
-    if (NWG_YK_BerserkMode) exitWith {};//System is in berserk mode - no further action needed
 
     //Setup reaction
     NWG_YK_reactList pushBackUnique _actualKiller;
+    if (NWG_YK_BerserkMode) exitWith {};//System is in berserk mode - no further action needed
     if (isNull NWG_YK_reactHandle || {scriptDone NWG_YK_reactHandle}) then {
         NWG_YK_reactTime = time + ((NWG_YK_Settings get "DIFFICULTY_REACTION_TIME") call NWG_fnc_randomRangeInt);
         NWG_YK_reactHandle = [] spawn NWG_YK_React;
