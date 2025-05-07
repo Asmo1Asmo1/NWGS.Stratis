@@ -42,13 +42,13 @@ NWG_YK_Settings = createHashMapFromArray [
     ["STATISTICS_TO_PROFILENAMESPACE",false],//If true, the statistics will be saved to profileNamespace
 
     /*Difficulty*/
-    ["DIFFICULTY_REACTION_COOLDOWN",[60,120]],//Min and max time before the next reaction can be started  (will be defined randomly between the two)
+    ["DIFFICULTY_REACTION_COOLDOWN",[45,90]],//Min and max time before the next reaction can be started  (will be defined randomly between the two)
     ["DIFFICULTY_REACTION_TIME",[10,60]],//Min and max time between actions and reactions (will be defined randomly between the two)
     ["DIFFICULTY_REACTION_IMMEDIATE_ON_KILLCOUNT",10],//Number of kills to immediately react to (skips remaining reaction time, but not cooldown)
     ["DIFFICULTY_CURVE",[0,1,0,1,2,1,2,0,1,1,2,0,1,2,2,1,0]],//Yellow King difficulty curve
     ["DIFFUCULTY_PRESETS",[
         /*Easy*/
-            [/*_minReact*/1, /*_maxIgnores*/2, /*_maxMoves*/2, /*_maxReinfs*/0, /*_maxSpecials*/1],
+            [/*_minReact*/1, /*_maxIgnores*/1, /*_maxMoves*/2, /*_maxReinfs*/0, /*_maxSpecials*/1],
         /*Medium*/
             [/*_minReact*/2, /*_maxIgnores*/1, /*_maxMoves*/3, /*_maxReinfs*/1, /*_maxSpecials*/2],
         /*Hard*/
