@@ -477,6 +477,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TRDR_ADV2_Q_01#","Don't stick with just one gun|There is always something to shoot from|But if you stick with one and only|You'll have a hard time finding ammo"],
     ["#TRDR_ADV2_Q_02#","Always share with others|Might sound stupid|But they can get your ass out of trouble|Or frag you|And say you were like that when they found you|Always remember that|Mutual respect brings profits|And more customers"],
     ["#TRDR_ADV2_Q_03#","Found a pile of bodies?|Loot them|Only then move on|You never know if you see them again"],
+    ["#TRDR_ADV2_Q_04#","Hunting is also an option here|We all want something better than a can of beans|So hunt small game and you'll earn some cash"],
     /*Trdr - TRDR_LOW*/
     ["#TRDR_LOW_Q_01#","Don't waste my time then|Advice he needs... pfft"],
     ["#TRDR_LOW_A_01#","Not like I wanted your stupid advice anyway"],
