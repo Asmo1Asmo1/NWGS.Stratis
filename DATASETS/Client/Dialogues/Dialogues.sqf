@@ -1808,10 +1808,14 @@ NWG_DialogueTree = createHashMapFromArray [
 	/*Step 05 - Taxi*/
 	[
 		"TAXI_TUTOR05_00",	[
-			Q_ONE,	"#TAXI_TUTOR05_00_Q#",/*So? Are you ready for your first one?*/
-			A_DEF, [
-				["#TAXI_TUTOR05_00_A_01#","TAXI_TUTOR05_01"],/*All set*/
-				["#TAXI_TUTOR05_00_A_02#",NODE_EXIT]/*No, something else first*/
+			Q_CND,	[
+				{!(call NWG_TUTDLG_COMM_IsFightState)},"#TAXI_TUTOR05_00_Q0#",/*Hold on, mission did not start yet*/
+				{true},"#TAXI_TUTOR05_00_Q1#"/*So? Are you ready for your first one?*/
+			],
+			A_CND, [
+				{call NWG_TUTDLG_COMM_IsFightState},["#TAXI_TUTOR05_00_A_01#","TAXI_TUTOR05_01"],/*All set*/
+				{call NWG_TUTDLG_COMM_IsFightState},["#TAXI_TUTOR05_00_A_02#",NODE_EXIT],/*No, something else first*/
+				{!(call NWG_TUTDLG_COMM_IsFightState)},[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]
 			]
 		]
 	],
@@ -1820,7 +1824,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			Q_ONE,	"#TAXI_TUTOR05_01_Q#",/*Before we go. Discord?*/
 			A_DEF,	[
 				["#TAXI_TUTOR05_01_A_01#","TAXI_TUTOR05_02",{call NWG_TUTDLG_TAXI_OpenDiscord}],/*Yes*/
-				["#TAXI_TUTOR05_01_A_02#","TAXI_TUTOR05_03"]/*No, thanks*/
+				["#TAXI_TUTOR05_01_A_02#","TAXI_TUTOR05_02",{call NWG_TUTDLG_TAXI_OpenDiscord}],/*Why not*/
+				["#TAXI_TUTOR05_01_A_03#","TAXI_TUTOR05_03"]/*No, thanks*/
 			]
 		]
 	],
