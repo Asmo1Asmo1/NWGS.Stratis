@@ -381,7 +381,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_01_Q_02#","What?"],
     ["#MECH_01_Q_03#","Yeah, what?"],
     /*Mech - MECH_SERV*/
-    ["#MECH_SERV_Q_01#","What kind of?"],
+    ["#MECH_SERV_Q_01#","So, what can I do for you?"],
+    ["#MECH_SERV_Q_02#","You're in a right place|What can I do for you?"],
+    ["#MECH_SERV_Q_03#","So? We're doing what?"],
     ["#MECH_SERV_A_01#","I need repair"],
     ["#MECH_SERV_A_02#","I need refuel"],
     ["#MECH_SERV_A_03#","I need my vehicle rearmed"],

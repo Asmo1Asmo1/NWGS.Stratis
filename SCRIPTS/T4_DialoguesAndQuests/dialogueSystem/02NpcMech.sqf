@@ -25,13 +25,14 @@ NWG_DLG_MECH_Settings = createHashMapFromArray [
 	["MAX_DIST",100],
 
 	/*Prices*/
-	["PRICE_REPIR_DEFAULT",10000],
+	["PRICE_VEH_DEFAULT",10000],
 	["PRICE_REPIR_MULTIPLIER",0.75],//Final price = (vehPrice * damage) * multiplier | Acts as discount
-	["PRICE_REFEL",1000],
-	["PRICE_REARM",2500],
-	["PRICE_APRNC",2500],
-	["PRICE_PYLON",5000],
-	["PRICE_ALWHL",5000],
+	["PRICE_PERCENTAGE",0.05],//Percentage of vehicle price to use as service price
+	["PRICE_REFEL_DEFAULT",1000],
+	["PRICE_REARM_DEFAULT",2500],
+	["PRICE_APRNC_DEFAULT",2500],
+	["PRICE_PYLON_DEFAULT",5000],
+	["PRICE_ALWHL_DEFAULT",5000],
 
 	["",0]
 ];
@@ -51,6 +52,21 @@ NWG_DLG_MECH_OpenShop = {
 
 NWG_DLG_MECH_OpenGarage = {
 	call NWG_fnc_grgOpen;
+};
+
+
+//================================================================================================================
+//================================================================================================================
+//Inject getting vehicle prices
+NWG_DLG_MECH_vehPrices = createHashMap;
+NWG_DLG_MECH_GetVehPrices = {
+	private _vehicles = (player call NWG_fnc_vownGetOwnedVehicles) select {alive _x && {!unitIsUAV _x}};
+	if ((count _vehicles) == 0) exitWith {};
+	[(_vehicles apply {typeOf _x}),player] remoteExec ["NWG_DLG_MECH_VehPricesRequest",2];
+};
+NWG_DLG_MECH_OnVehPriceResponse = {
+	params ["_vehArray","_prices"];
+	{NWG_DLG_MECH_vehPrices set [_x,(_prices select _forEachIndex)]} forEach _vehArray;
 };
 
 //================================================================================================================
@@ -73,12 +89,7 @@ NWG_DLG_MECH_GenerateChoices = {
 		case CAT_PYLN: {_vehicles select {_x call NWG_fnc_vcpIsValid}};
 		case CAT_AWHL: {_vehicles select {_x call NWG_fnc_avAllWheelIsSupported && {!(_x call NWG_fnc_avAllWheelIsSigned)}}};
 	};
-	if ((count _vehicles) == 0) exitWith {[["#MECH_NO_VEHICLES#","MECH_01"]]};
-
-	/*Inject getting vehicle prices here*/
-	if (_cat isEqualTo CAT_REPR) then {
-		[(_vehicles apply {typeOf _x}),player] remoteExec ["NWG_DLG_MECH_PricesRequest",2];
-	};
+	if ((count _vehicles) == 0) exitWith {[["#MECH_NO_VEHICLES#","MECH_SERV"]]};
 
 	NWG_DLG_MECH_SelectedCategory = _cat;
 	_vehicles apply {[
@@ -92,14 +103,6 @@ NWG_DLG_MECH_GenerateChoices = {
 //================================================================================================================
 //================================================================================================================
 //Prices
-NWG_DLG_MECH_vehPrices = createHashMap;
-NWG_DLG_MECH_OnVehPriceResponse = {
-	params ["_vehArray","_prices"];
-	{
-		NWG_DLG_MECH_vehPrices set [_x,(_prices select _forEachIndex)];
-	} forEach _vehArray;
-};
-
 NWG_DLG_MECH_lastPrice = [];
 NWG_DLG_MECH_GetPrice = {
 	private _cat = NWG_DLG_MECH_SelectedCategory;
@@ -110,20 +113,26 @@ NWG_DLG_MECH_GetPrice = {
 	if (_prevCat isEqualTo _cat && {_prevVeh isEqualTo _veh && {(time - _prevTime) < 0.25}}) exitWith {_prevPrice};
 
 	//Calculate price
-	private _price = switch (_cat) do {
-		case CAT_REPR: {
-			private _vehPrice = NWG_DLG_MECH_vehPrices getOrDefault [(typeOf _veh),(NWG_DLG_MECH_Settings get "PRICE_REPIR_DEFAULT")];
-			private _damage = _veh call NWG_VSHOP_CLI_GetDamageOfOwnedVehicle;//Inner method of 'shopVehiclesClientSide.sqf'
-			private _multiplier = NWG_DLG_MECH_Settings get "PRICE_REPIR_MULTIPLIER";
-			private _repPrice = ((_vehPrice * _damage) * _multiplier);
-			_repPrice = (round (_repPrice / 100)) * 100;//Round to nearest 100
-			(_repPrice max 100)
+	private _vehPrice = NWG_DLG_MECH_vehPrices getOrDefault [(typeOf _veh),(NWG_DLG_MECH_Settings get "PRICE_VEH_DEFAULT")];
+	private _price = if (_cat isEqualTo CAT_REPR) then {
+		private _damage = _veh call NWG_VSHOP_CLI_GetDamageOfOwnedVehicle;//Inner method of 'shopVehiclesClientSide.sqf'
+		private _multiplier = NWG_DLG_MECH_Settings get "PRICE_REPIR_MULTIPLIER";
+		private _repPrice = ((_vehPrice * _damage) * _multiplier);
+		_repPrice = (round (_repPrice / 100)) * 100;//Round to nearest 100
+		(_repPrice max 100)//Charge at least 100
+	} else {
+		private _defaultPrice = switch (_cat) do {
+			case CAT_FUEL: {NWG_DLG_MECH_Settings get "PRICE_REFEL_DEFAULT"};
+			case CAT_RARM: {NWG_DLG_MECH_Settings get "PRICE_REARM_DEFAULT"};
+			case CAT_APPR: {NWG_DLG_MECH_Settings get "PRICE_APRNC_DEFAULT"};
+			case CAT_PYLN: {NWG_DLG_MECH_Settings get "PRICE_PYLON_DEFAULT"};
+			case CAT_AWHL: {NWG_DLG_MECH_Settings get "PRICE_ALWHL_DEFAULT"};
 		};
-		case CAT_FUEL: {NWG_DLG_MECH_Settings get "PRICE_REFEL"};
-		case CAT_RARM: {NWG_DLG_MECH_Settings get "PRICE_REARM"};
-		case CAT_APPR: {NWG_DLG_MECH_Settings get "PRICE_APRNC"};
-		case CAT_PYLN: {NWG_DLG_MECH_Settings get "PRICE_PYLON"};
-		case CAT_AWHL: {NWG_DLG_MECH_Settings get "PRICE_ALWHL"};
+		private _calcPrice = _vehPrice * (NWG_DLG_MECH_Settings get "PRICE_PERCENTAGE");
+		_calcPrice = (round (_calcPrice / 100)) * 100;//Round to nearest 100
+		if (_calcPrice > _defaultPrice)
+			then {_calcPrice}
+			else {_defaultPrice};
 	};
 
 	//Cache result

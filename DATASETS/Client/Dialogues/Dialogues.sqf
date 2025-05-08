@@ -294,7 +294,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				["#MECH_00_A_01#",NODE_EXIT,{call NWG_DLG_MECH_OpenShop}],
 				["#MECH_00_A_02#",NODE_EXIT,{call NWG_DLG_MECH_OpenGarage}],
 				{"MECH" call NWG_DLGHLP_QST_GenerateShowQuest},
-				["#MECH_00_A_03#","MECH_SERV"],
+				["#MECH_00_A_03#","MECH_SERV",{call NWG_DLG_MECH_GetVehPrices}],
 				{"MECH" call NWG_DLGHLP_GenerateRoot}/*["MECH_HELP","MECH_ADV",NODE_EXIT]*/
 			]
 		]
@@ -311,7 +311,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				["#MECH_00_A_01#",NODE_EXIT,{call NWG_DLG_MECH_OpenShop}],
 				["#MECH_00_A_02#",NODE_EXIT,{call NWG_DLG_MECH_OpenGarage}],
 				{"MECH" call NWG_DLGHLP_QST_GenerateShowQuest},
-				["#MECH_00_A_03#","MECH_SERV"],
+				["#MECH_00_A_03#","MECH_SERV",{call NWG_DLG_MECH_GetVehPrices}],
 				{"MECH" call NWG_DLGHLP_GenerateRoot}/*["MECH_HELP","MECH_ADV",NODE_EXIT]*/
 			]
 		]
@@ -319,7 +319,11 @@ NWG_DialogueTree = createHashMapFromArray [
 	/*Services - category selection*/
 	[
 		"MECH_SERV",	[
-			Q_ONE,	"#MECH_SERV_Q_01#",
+			Q_RND,	[
+				"#MECH_SERV_Q_01#",
+				"#MECH_SERV_Q_02#",
+				"#MECH_SERV_Q_03#"
+			],
 			A_GEN,	[
 				["#MECH_SERV_A_01#","MECH_REPAIR"],
 				["#MECH_SERV_A_02#","MECH_REFUEL"],
@@ -340,7 +344,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"REPR" call NWG_DLG_MECH_GenerateChoices},
-				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
+				{"MECH_SERV" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -353,7 +357,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"FUEL" call NWG_DLG_MECH_GenerateChoices},
-				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
+				{"MECH_SERV" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -366,7 +370,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"RARM" call NWG_DLG_MECH_GenerateChoices},
-				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
+				{"MECH_SERV" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -379,7 +383,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"APPR" call NWG_DLG_MECH_GenerateChoices},
-				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
+				{"MECH_SERV" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -393,7 +397,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"PYLN" call NWG_DLG_MECH_GenerateChoices},
-				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
+				{"MECH_SERV" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -408,7 +412,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"AWHL" call NWG_DLG_MECH_GenerateChoices},
-				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
+				{"MECH_SERV" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
