@@ -10,6 +10,7 @@
 #define SAVEID_SMOK "ItemAction_SmokeOut"
 #define SAVEID_REPR "ItemAction_Repair"
 #define SAVEID_FLIP "ItemAction_VehFlip"
+#define SAVEID_REFUEL "ItemAction_Refuel"
 
 //================================================================================================================
 //================================================================================================================
@@ -52,6 +53,13 @@ NWG_AI_Settings = createHashMapFromArray [
     ["UNFLIP_PRIORITY",20],
     ["UNFLIP_DURATION",12],
 	["UNFLIP_AUTOSHOW",true],
+
+	["REFUEL_ITEM","ButaneCanister"],
+	["REFUEL_TITLE","#AI_REFUEL_TITLE#"],
+	["REFUEL_ICON","a3\ui_f\data\igui\cfg\actions\refuel_ca.paa"],
+	["REFUEL_PRIORITY",19],
+	["REFUEL_DURATION",12],
+	["REFUEL_AUTOSHOW",true],
 
 	["",0]
 ];
@@ -171,6 +179,29 @@ NWG_AI_ReloadActions = {
 			] call NWG_AI_AssignAction;
 		};
 		case (!_hasItem && _isActionAssigned): {SAVEID_FLIP call NWG_AI_RemoveAction};//Remove action
+		default {};//Do nothing
+	};
+
+	//Refuel
+	_hasItem = (NWG_AI_Settings get "REFUEL_ITEM") in _flattenLoadOut;
+	_isActionAssigned = SAVEID_REFUEL call NWG_AI_IsActionAssigned;
+	switch (true) do {
+		case (_hasItem && !_isActionAssigned): {
+			//Assign action
+			[
+				/*_saveID:*/SAVEID_REFUEL,
+				/*_title:*/(NWG_AI_Settings get "REFUEL_TITLE"),
+				/*_icon:*/(NWG_AI_Settings get "REFUEL_ICON"),
+				/*_priority:*/(NWG_AI_Settings get "REFUEL_PRIORITY"),
+				/*_duration:*/(NWG_AI_Settings get "REFUEL_DURATION"),
+				/*_condition:*/"call NWG_AI_VehicleRefuel_Condition",
+				/*_onStarted:*/{call NWG_AI_VehicleFix_OnStarted},//Reuse the same animation
+				/*_onInterrupted:*/{call NWG_AI_VehicleFix_OnInterrupted},//Reuse the same interruption
+				/*_onCompleted:*/{call NWG_AI_VehicleRefuel_OnCompleted},
+				/*_autoShow:*/(NWG_AI_Settings get "REFUEL_AUTOSHOW")
+			] call NWG_AI_AssignAction;
+		};
+		case (!_hasItem && _isActionAssigned): {SAVEID_REFUEL call NWG_AI_RemoveAction};//Remove action
 		default {};//Do nothing
 	};
 };
@@ -381,6 +412,27 @@ NWG_AI_VehicleUnflip_OnCompleted = {
     private _vehicle = call NWG_fnc_radarGetVehInFront;
     if (isNull _vehicle) exitWith {};
     [player,_vehicle] call BIS_fnc_unflipThing;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Vehicle refuel
+NWG_AI_VehicleRefuel_Condition = {
+	if (isNull (call NWG_fnc_radarGetVehInFront)) exitWith {false};
+	private _veh = call NWG_fnc_radarGetVehInFront;
+	if (_veh call NWG_AI_IsEnemyInside) exitWith {false};//Don't refuel enemy vehicles
+	if (unitIsUAV _veh) exitWith {false};//Don't refuel UAVs
+	if ((fuel _veh) > 0.95) exitWith {false};//Don't refuel full vehicles
+	true
+};
+NWG_AI_VehicleRefuel_OnCompleted = {
+	call NWG_AI_ResetAnimation;
+	private _veh = call NWG_fnc_radarGetVehInFront;
+	if (isNull _veh) exitWith {};
+	private _removeOk = (NWG_AI_Settings get "REFUEL_ITEM") call NWG_fnc_invRemoveItem;
+	if (!_removeOk) exitWith {format ["NWG_AI_VehicleRefuel_OnCompleted: Failed to remove item '%1'",(NWG_AI_Settings get "REFUEL_ITEM")] call NWG_fnc_logError};
+	private _newFuel = ((fuel _veh) + 0.1) min 1;
+	[_veh,_newFuel] call NWG_fnc_setFuel;//Run where the vehicle is local
 };
 
 //================================================================================================================

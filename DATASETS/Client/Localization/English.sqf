@@ -42,6 +42,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AI_SMOKE_TITLE#","Smoke out"],
     ["#AI_REPAIR_TITLE#","Repair"],
     ["#AI_UNFLIP_TITLE#","Unflip"],
+    ["#AI_REFUEL_TITLE#","Refuel"],
     //actionsKeybind
     ["#AK_EARPLUGS_ON#","Earplugs on"],
     ["#AK_EARPLUGS_OFF#","Earplugs off"],
@@ -439,6 +440,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_ADV_Q_03#","Don't get greedy|If you see you need to abandon your ride|Do it|You can always get a new one"],
     ["#MECH_ADV_Q_04#","Keep your toolkit with you|Yeah, that simple"],
     ["#MECH_ADV_Q_05#","Every owned vehicle doubles as a loot stash|Don't worry, others can't access it|And when you come back, we'll move your stuff to Trader's"],
+    ["#MECH_ADV_Q_06#","You can refuel your vehicle using butane canisters|Don't expect much|But it should be just enough to make it back to base"],
     /*====== TRDR =====*/
     /*Trdr - TRDR_00*/
     ["#TRDR_00_Q_01#","How come you have no money?|Look but don't touch anything|Have something to sell at least?"],

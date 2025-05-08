@@ -397,6 +397,17 @@ NWG_fnc_setHitIndex = {
 	};
 };
 
+//Set fuel for vehicle
+//params:
+//	_vehicle - vehicle object
+//	_fuel - fuel value (0-1)
+NWG_fnc_setFuel = {
+	params ["_vehicle","_fuel"];
+	if (isNull _vehicle || {!alive _vehicle}) exitWith {};
+    if (!local _vehicle) exitWith {_this remoteExec ["NWG_fnc_setFuel",_vehicle]};
+	_vehicle setFuel _fuel;
+};
+
 //Returns full crew array of a valid vehicle in driver->gunner->commander->turret->cargo order
 //note: fixes Arma's fullCrew complete mess of an order driver->cargo->turret->gunner->commander, like wtf
 //params: _vehicle - vehicle object
