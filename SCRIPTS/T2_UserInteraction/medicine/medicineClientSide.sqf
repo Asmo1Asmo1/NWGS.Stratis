@@ -266,13 +266,20 @@ NWG_MED_CLI_BLEEDING_Cycle = {
 
         //Deplete by damage
         private _damager = NWG_MED_CLI_BLEEDING_lastDamager;
-        private _depleteByDamage = if (!isNull _damager) then {
-            NWG_MED_CLI_BLEEDING_lastDamager = objNull;//Reset last damager
-            NWG_MED_CLI_BLEEDING_damageCascade = NWG_MED_CLI_BLEEDING_damageCascade + 1;//Increase cascade
-            ((NWG_MED_CLI_Settings get "TIME_DAMAGE_DEPLETES") * NWG_MED_CLI_BLEEDING_damageCascade)//Multiply by cascade
-        } else {
-            NWG_MED_CLI_BLEEDING_damageCascade = 0;//Reset cascade
-            0
+        private _depleteByDamage = switch (true) do {
+            case (!isNull _damager): {
+                NWG_MED_CLI_BLEEDING_lastDamager = objNull;//Reset last damager
+                NWG_MED_CLI_BLEEDING_damageCascade = NWG_MED_CLI_BLEEDING_damageCascade + 1;//Increase cascade
+                ((NWG_MED_CLI_Settings get "TIME_DAMAGE_DEPLETES") * NWG_MED_CLI_BLEEDING_damageCascade)//Multiply by cascade
+            };
+            case (NWG_MED_CLI_BLEEDING_damageCascade > 0): {
+                NWG_MED_CLI_BLEEDING_damageCascade = NWG_MED_CLI_BLEEDING_damageCascade - 1;//Decrease cascade
+                ((NWG_MED_CLI_Settings get "TIME_DAMAGE_DEPLETES") * NWG_MED_CLI_BLEEDING_damageCascade)//Multiply by cascade
+            };
+            default {
+                NWG_MED_CLI_BLEEDING_damageCascade = 0;//Reset cascade
+                0
+            };
         };
         _timeLeft = _timeLeft - _depleteByDamage;
 
