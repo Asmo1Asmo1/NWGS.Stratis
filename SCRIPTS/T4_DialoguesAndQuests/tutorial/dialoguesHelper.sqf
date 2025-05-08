@@ -110,14 +110,14 @@ NWG_TUTDLG_TRDR_OpenItemsShop = {
 			"NWG_TUTDLG_TRDR_OpenItemsShop: timeout" call NWG_fnc_logError;
 			false
 		};
+		//Show shop hint
+		hint ("#TRDR_TUTOR02_SHOP_HINT#" call NWG_fnc_localize);
 		//Wait for shop to close
 		_shopGUI displayAddEventHandler ["Unload",{
 			hintSilent "";//Clear hint
 			call NWG_TUT_NextStep;
 		}];
 	};
-	//Show shop hint
-	hint ("#TRDR_TUTOR02_SHOP_HINT#" call NWG_fnc_localize);
 };
 
 //================================================================================================================
@@ -200,7 +200,6 @@ NWG_TUTDLG_TAXI_OpenDiscord = {
 NWG_TUTDLG_TAXI_HasMoneyForPara = {
 	(player call NWG_fnc_wltGetPlayerMoney) >= (NWG_DLG_TAXI_Settings get "PRICE_AIR_RAW")//Use of inner method from 'dialogueSystem' subsystem
 };
-
 NWG_TUTDLG_TAXI_GetParaPriceStr = {
 	(NWG_DLG_TAXI_Settings get "PRICE_AIR_RAW") call NWG_fnc_wltFormatMoney
 };
@@ -219,7 +218,6 @@ NWG_TUTDLG_TAXI_PayTip = {
 
 NWG_TUTDLG_TAXI_Paradrop = {
 	//Force open map
-	NWG_DLG_TAXI_mapClickExpected = true;//Use of inner logic from 'dialogueSystem' subsystem
 	if ( (((getUnitLoadout player) param [9,[]]) param [0,""]) isEqualTo "")
 		then {player addItem "ItemMap"; player assignItem "ItemMap"};
 	openMap [true,true];
@@ -227,14 +225,31 @@ NWG_TUTDLG_TAXI_Paradrop = {
 	//Show map hint
 	hint ("#TAXI_PARA_MAP_HINT#" call NWG_fnc_localize);
 
-	//Wait for map to be closed
-	addMissionEventHandler ["Map", {
-		params ["_mapIsOpened", "_mapIsForced"];
-		if (!_mapIsOpened) then {
-			hintSilent "";//Clear hint
-			hint ("#TAXI_PARA_AIR_HINT#" call NWG_fnc_localize);//Show air hint
-			removeMissionEventHandler ["Map",_thisEventHandler];
-			call NWG_TUT_NextStep;//Finish the tutorial
+	//Handle map click (wrap checking for map click to be in mission area around normal paradrop)
+	addMissionEventHandler ["MapSingleClick",{
+		// params ["_units","_pos","_alt","_shift"];
+		private _pos = _this select 1;
+		switch (true) do {
+			case (isNil "NWG_AI_MissionPos" || {!(NWG_AI_MissionPos isEqualType [])}): {
+				private _npcNameLoc = ((NWG_DLG_CLI_Settings get "LOC_NPC_NAME") getOrDefault [NPC_TAXI,""]) call NWG_fnc_localize;
+				private _messageLoc = ("#TAXI_PARA_MAP_HINT_MIS_NOT_SET#" call NWG_fnc_localize);
+				hint _messageLoc;
+				[_npcNameLoc,_messageLoc] call BIS_fnc_showSubtitle;
+			};
+			case ((_pos distance2D (NWG_AI_MissionPos param [0,[0,0,0]])) > 750): {
+				private _npcNameLoc = ((NWG_DLG_CLI_Settings get "LOC_NPC_NAME") getOrDefault [NPC_TAXI,""]) call NWG_fnc_localize;
+				private _messageLoc = ("#TAXI_PARA_MAP_HINT_TOO_FAR#" call NWG_fnc_localize);
+				hint _messageLoc;
+				[_npcNameLoc,_messageLoc] call BIS_fnc_showSubtitle;
+			};
+			default {
+				["",""] call BIS_fnc_showSubtitle;//Clear subtitle
+				hint ("#TAXI_PARA_AIR_HINT#" call NWG_fnc_localize);//Show air hint
+				NWG_DLG_TAXI_mapClickExpected = true;//Raise expected flag
+				_this call NWG_DLG_TAXI_OnMapClick;//Use of inner method from 'dialogueSystem' subsystem
+				call NWG_TUT_NextStep;//Finish the tutorial
+				removeMissionEventHandler ["MapSingleClick",_thisEventHandler];//Remove this event handler
+			};
 		};
 	}];
 };

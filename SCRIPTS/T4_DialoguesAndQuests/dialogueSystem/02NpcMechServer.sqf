@@ -6,7 +6,7 @@
 	Same goes the other way around - there are no 'functions' with documentation declared, methods of this module are used directly in dialogue tree structure.
 	Dialogue tree structure can be found at 'DATASETS/Client/Dialogues/Dialogues.sqf'
 */
-NWG_DLG_MECH_PricesRequest = {
+NWG_DLG_MECH_VehPricesRequest = {
 	params ["_vehArray","_player"];
 	if (isNull _player) exitWith {};
 	private _prices = _vehArray apply {_x call NWG_fnc_vshopEvaluateVehPrice};

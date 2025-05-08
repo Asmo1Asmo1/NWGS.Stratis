@@ -1211,7 +1211,7 @@ NWG_MIS_SER_FightUpdateMissionInfo = {
 
 NWG_MIS_SER_FightEscalate = {
     //Trigger berserk mode - stop reinforcements but make units attack players by cooldown
-    private _selectBy = {_x call NWG_MIS_SER_GetWasOnMission};//Attack players that were on a mission
+    private _selectBy = {_x call NWG_fnc_mmWasPlayerOnMission && {!(_x call NWG_fnc_mmIsPlayerOnBase)}};
     [_selectBy] call NWG_fnc_ykGoBerserk;
 };
 

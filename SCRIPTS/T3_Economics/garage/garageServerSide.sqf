@@ -66,7 +66,7 @@ NWG_GRG_SER_SpawnVehicleAtPlatform = {
 	};
 
 	//Setup vehicle ownership
-	[_vehicle,_player] call NWG_fnc_vownPairVehAndPlayer;
+	[_vehicle,_player] call NWG_fnc_vownSetOwner;
 
 	//Clear vehicle cargo
 	_vehicle call NWG_fnc_clearContainerCargo;

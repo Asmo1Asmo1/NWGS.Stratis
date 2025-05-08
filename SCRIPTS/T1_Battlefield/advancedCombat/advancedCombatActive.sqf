@@ -145,10 +145,8 @@ NWG_ACA_Airstrike = {
     private _strikeData = _plane call NWG_ACA_GetDataForVehicleForceFire;
     private _strikeTeam = crew _plane;
     private _prepareAltitude = (NWG_ACA_Settings get "AIRSTRIKE_PREPARE_HEIGHT");
-
-    private _helper = [_group,_target] call NWG_ACA_CreateHelper;
-    private _laser = createVehicle [(NWG_ACA_Settings get "AIRSTRIKE_LASER_CLASSNAME"),_helper,[],0,"CAN_COLLIDE"];
-    _laser attachTo [_helper,[0,0,0]];
+    private _helper = objNull;
+    private _laser = objNull;
 
     //Start Airstrike cycle
     private _counter = 0;
@@ -167,7 +165,7 @@ NWG_ACA_Airstrike = {
         };
 
         //1. Fly away from the target
-        private _preparePos = _helper getPos [(NWG_ACA_Settings get "AIRSTRIKE_PREPARE_RADIUS"),(random 360)];
+        private _preparePos = _target getPos [(NWG_ACA_Settings get "AIRSTRIKE_PREPARE_RADIUS"),(random 360)];
         _preparePos set [2,_prepareAltitude];
         _plane flyInHeight [_prepareAltitude,true];
         _plane flyInHeightASL [_prepareAltitude,_prepareAltitude,_prepareAltitude];
@@ -178,7 +176,12 @@ NWG_ACA_Airstrike = {
         };
         if (call _abortCondition) exitWith {true};
 
-        //2. Fly toward target
+        //2. Create airstrike helper at current target position
+        _helper = [_group,_target] call NWG_ACA_CreateHelper;
+        _laser = createVehicle [(NWG_ACA_Settings get "AIRSTRIKE_LASER_CLASSNAME"),_helper,[],0,"CAN_COLLIDE"];
+        _laser attachTo [_helper,[0,0,0]];
+
+        //3. Fly toward target
         _pilot doMove (position _helper);
         waitUntil {
             {_x reveal _helper; _x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
@@ -187,7 +190,7 @@ NWG_ACA_Airstrike = {
         };
         if (call _abortCondition) exitWith {true};
 
-        //3. Descend and fire
+        //4. Descend and fire
         _plane flyInHeight [0,true];
         _plane flyInHeightASL [0,0,0];
         {_x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
@@ -206,12 +209,29 @@ NWG_ACA_Airstrike = {
         };
         if (call _abortCondition) exitWith {true};
 
-        //4. Release and reload
+        //5. Release and reload
         private _restoreAltitude = call NWG_fnc_dtsGetAirHeight;
         _plane flyInHeight [_restoreAltitude,true];
         _plane flyInHeightASL [_restoreAltitude,_restoreAltitude,_restoreAltitude];
         {_x doWatch objNull; _x doTarget objNull} forEach _strikeTeam;
         _plane setVehicleAmmo 1;
+
+        //6. Cleanup after flyby
+        private _distOld = _plane distance2D _target;
+        private _distNew = _distOld;
+        waitUntil {
+            sleep 0.25;
+            if (call _abortCondition) exitWith {true};
+            _distNew = _plane distance2D _target;
+            if (_distNew > _distOld) exitWith {true};
+            _distOld = _distNew;
+            false
+        };
+        if (call _abortCondition) exitWith {true};
+        if (!isNull _helper) then {
+            deleteVehicle _laser;
+            _helper call NWG_ACA_DeleteHelper;
+        };
 
         //return
         _counter = _counter + 1;
@@ -219,13 +239,15 @@ NWG_ACA_Airstrike = {
     };
 
     //Cleanup
-    deleteVehicle _laser;
-    _helper call NWG_ACA_DeleteHelper;
+    if (!isNull _helper) then {
+        deleteVehicle _laser;
+        _helper call NWG_ACA_DeleteHelper;
+    };
     if (!isNull _group) then {
         _group setBehaviourStrong "AWARE";
         _group setCombatBehaviour "AWARE";
     };
-    if (!isNull _plane) then {
+    if (alive _plane) then {
         _plane setVehicleAmmo 1;
     };
 };

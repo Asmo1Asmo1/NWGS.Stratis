@@ -2,15 +2,24 @@
 /*Server -> GC*/
 //Adds provided objects to the oroginal objects list (GC will handle them as if they are original objects of the map and will not delete them)
 //params:
-// _objects: the objects to add
+// _objects: array of objects to add
 NWG_fnc_gcAddOriginalObjects = {
     // private _objects = _this;
     _this call NWG_GC_AddToOriginalObjects
 };
 
+//Checks if that object is in the original objects list
+//params:
+// _object: the object to check
+//returns: true if the object is in the original objects list, false otherwise
+NWG_fnc_gcIsOriginalObject = {
+    // private _object = _this;
+    _this in NWG_GC_originalObjects
+};
+
 //Adds provided markers to the oroginal markers list (GC will handle them as if they are original markers of the map and will not delete them)
 //params:
-// _markers: the markers to add
+// _markers: array of markers to add
 NWG_fnc_gcAddOriginalMarkers = {
     // private _markers = _this;
     _this call NWG_GC_AddToOriginalMarkers

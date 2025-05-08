@@ -378,7 +378,7 @@ NWG_VSHOP_CLI_GetOwnedVehicles = {
 	//Get raw list of owned vehicles
 	private _getGroupVehicles = (NWG_VSHOP_CLI_Settings get "GROUP_LEADER_MANAGES_GROUP_VEHICLES") && {player isEqualTo (leader (group player))};
 	private _ownedVehicles = if (_getGroupVehicles)
-		then {flatten ((units (group player)) apply {_x call NWG_fnc_vownGetOwnedVehicles})}
+		then {(group player) call NWG_fnc_vownGetOwnedVehiclesGroup}
 		else {player call NWG_fnc_vownGetOwnedVehicles};
 	if ((count _ownedVehicles) == 0) exitWith {_ownedVehicles};//<= Exit if no vehicles owned
 
