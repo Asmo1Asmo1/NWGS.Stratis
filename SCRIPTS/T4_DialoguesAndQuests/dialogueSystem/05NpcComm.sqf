@@ -30,16 +30,16 @@ NWG_DLG_COMM_Settings = createHashMapFromArray [
 		/*Level 05*/ 12,
 		/*Level 06*/ 16,
 		/*Level 07*/ 20,
-		/*Level 08*/ 24,
-		/*Level 09*/ 28,
-		/*Level 10*/ 34,
-		/*Level 11*/ 40,
-		/*Level 12*/ 46,
-		/*Level 13*/ 52,
-		/*Level 14*/ 60,
-		/*Level 15*/ 68,
-		/*Level 16*/ 76,
-		/*Level 17 - ESCAPE*/ 84
+		/*Level 08*/ 28,
+		/*Level 09*/ 36,
+		/*Level 10*/ 44,
+		/*Level 11*/ 52,
+		/*Level 12*/ 60,
+		/*Level 13*/ 70,
+		/*Level 14*/ 80,
+		/*Level 15*/ 90,
+		/*Level 16*/ 100,
+		/*Level 17 - ESCAPE*/ 100
 	]],
 
 	/*Level unlock prices*/

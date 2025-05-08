@@ -125,6 +125,17 @@ NWG_DialogueTree = createHashMapFromArray [
 			]
 		]
 	],
+	/*Drop me by - squad member unfit for drop by*/
+	[
+		"TAXI_SQD_UNFIT",	[
+			Q_RND,	[
+				"#TAXI_SQD_UNFIT_Q_01#",
+				"#TAXI_SQD_UNFIT_Q_02#",
+				"#TAXI_SQD_UNFIT_Q_03#"
+			],
+			A_DEF,	[[{call NWG_DLGHLP_GetRndBack},"TAXI_PS"]]
+		]
+	],
 	/*Drop me by - payment*/
 	[
 		"TAXI_PAY",	[
@@ -283,7 +294,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				["#MECH_00_A_01#",NODE_EXIT,{call NWG_DLG_MECH_OpenShop}],
 				["#MECH_00_A_02#",NODE_EXIT,{call NWG_DLG_MECH_OpenGarage}],
 				{"MECH" call NWG_DLGHLP_QST_GenerateShowQuest},
-				["#MECH_00_A_03#","MECH_SERV"],
+				["#MECH_00_A_03#","MECH_SERV",{call NWG_DLG_MECH_GetVehPrices}],
 				{"MECH" call NWG_DLGHLP_GenerateRoot}/*["MECH_HELP","MECH_ADV",NODE_EXIT]*/
 			]
 		]
@@ -300,7 +311,7 @@ NWG_DialogueTree = createHashMapFromArray [
 				["#MECH_00_A_01#",NODE_EXIT,{call NWG_DLG_MECH_OpenShop}],
 				["#MECH_00_A_02#",NODE_EXIT,{call NWG_DLG_MECH_OpenGarage}],
 				{"MECH" call NWG_DLGHLP_QST_GenerateShowQuest},
-				["#MECH_00_A_03#","MECH_SERV"],
+				["#MECH_00_A_03#","MECH_SERV",{call NWG_DLG_MECH_GetVehPrices}],
 				{"MECH" call NWG_DLGHLP_GenerateRoot}/*["MECH_HELP","MECH_ADV",NODE_EXIT]*/
 			]
 		]
@@ -308,7 +319,11 @@ NWG_DialogueTree = createHashMapFromArray [
 	/*Services - category selection*/
 	[
 		"MECH_SERV",	[
-			Q_ONE,	"#MECH_SERV_Q_01#",
+			Q_RND,	[
+				"#MECH_SERV_Q_01#",
+				"#MECH_SERV_Q_02#",
+				"#MECH_SERV_Q_03#"
+			],
 			A_GEN,	[
 				["#MECH_SERV_A_01#","MECH_REPAIR"],
 				["#MECH_SERV_A_02#","MECH_REFUEL"],
@@ -329,7 +344,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"REPR" call NWG_DLG_MECH_GenerateChoices},
-				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
+				{"MECH_SERV" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -342,7 +357,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"FUEL" call NWG_DLG_MECH_GenerateChoices},
-				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
+				{"MECH_SERV" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -355,7 +370,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"RARM" call NWG_DLG_MECH_GenerateChoices},
-				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
+				{"MECH_SERV" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -368,7 +383,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"APPR" call NWG_DLG_MECH_GenerateChoices},
-				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
+				{"MECH_SERV" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -382,7 +397,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"PYLN" call NWG_DLG_MECH_GenerateChoices},
-				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
+				{"MECH_SERV" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -397,7 +412,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_GEN,	[
 				{"AWHL" call NWG_DLG_MECH_GenerateChoices},
-				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
+				{"MECH_SERV" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
@@ -487,7 +502,8 @@ NWG_DialogueTree = createHashMapFromArray [
 				"#MECH_ADV_Q_02#",
 				"#MECH_ADV_Q_03#",
 				"#MECH_ADV_Q_04#",
-				"#MECH_ADV_Q_05#"
+				"#MECH_ADV_Q_05#",
+				"#MECH_ADV_Q_06#"
 			],
 			A_GEN,	{"MECH_01" call NWG_DLGHLP_GenerateBackExit}/*["MECH_01",NODE_EXIT]*/
 		]
@@ -624,7 +640,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			Q_RNG,	[
 				"#TRDR_ADV2_Q_01#",
 				"#TRDR_ADV2_Q_02#",
-				"#TRDR_ADV2_Q_03#"
+				"#TRDR_ADV2_Q_03#",
+				"#TRDR_ADV2_Q_04#"
 			],
 			A_GEN,	{"TRDR_01" call NWG_DLGHLP_GenerateBackExit}/*["TRDR_01",NODE_EXIT]*/
 		]
@@ -1797,10 +1814,14 @@ NWG_DialogueTree = createHashMapFromArray [
 	/*Step 05 - Taxi*/
 	[
 		"TAXI_TUTOR05_00",	[
-			Q_ONE,	"#TAXI_TUTOR05_00_Q#",/*So? Are you ready for your first one?*/
-			A_DEF, [
-				["#TAXI_TUTOR05_00_A_01#","TAXI_TUTOR05_01"],/*All set*/
-				["#TAXI_TUTOR05_00_A_02#",NODE_EXIT]/*No, something else first*/
+			Q_CND,	[
+				{!(call NWG_TUTDLG_COMM_IsFightState)},"#TAXI_TUTOR05_00_Q0#",/*Hold on, mission did not start yet*/
+				{true},"#TAXI_TUTOR05_00_Q1#"/*So? Are you ready for your first one?*/
+			],
+			A_CND, [
+				{call NWG_TUTDLG_COMM_IsFightState},["#TAXI_TUTOR05_00_A_01#","TAXI_TUTOR05_01"],/*All set*/
+				{call NWG_TUTDLG_COMM_IsFightState},["#TAXI_TUTOR05_00_A_02#",NODE_EXIT],/*No, something else first*/
+				{!(call NWG_TUTDLG_COMM_IsFightState)},[{call NWG_DLGHLP_GetRndBack},NODE_EXIT]
 			]
 		]
 	],
@@ -1809,7 +1830,8 @@ NWG_DialogueTree = createHashMapFromArray [
 			Q_ONE,	"#TAXI_TUTOR05_01_Q#",/*Before we go. Discord?*/
 			A_DEF,	[
 				["#TAXI_TUTOR05_01_A_01#","TAXI_TUTOR05_02",{call NWG_TUTDLG_TAXI_OpenDiscord}],/*Yes*/
-				["#TAXI_TUTOR05_01_A_02#","TAXI_TUTOR05_03"]/*No, thanks*/
+				["#TAXI_TUTOR05_01_A_02#","TAXI_TUTOR05_02",{call NWG_TUTDLG_TAXI_OpenDiscord}],/*Why not*/
+				["#TAXI_TUTOR05_01_A_03#","TAXI_TUTOR05_03"]/*No, thanks*/
 			]
 		]
 	],

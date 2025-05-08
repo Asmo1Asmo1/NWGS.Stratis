@@ -689,7 +689,7 @@ NWG_MSHOP_SER_OnVehicleBought = {
 
 	//Connect vehicle to player
 	(group _player) addVehicle _vehicle;
-	[_vehicle,_player] call NWG_fnc_vownPairVehAndPlayer;
+	[_vehicle,_player] call NWG_fnc_vownSetOwner;
 
 	//return
 	true

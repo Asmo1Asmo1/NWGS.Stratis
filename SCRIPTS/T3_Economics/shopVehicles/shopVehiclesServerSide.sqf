@@ -733,7 +733,7 @@ NWG_VSHOP_SER_SpawnVehicleAtPlatform = {
 	_vehicle remoteExec ["NWG_fnc_vshopAddVehicleToSellPool",_player];
 
 	//Setup vehicle ownership
-	[_vehicle,_player] call NWG_fnc_vownPairVehAndPlayer;
+	[_vehicle,_player] call NWG_fnc_vownSetOwner;
 
 	//Clear vehicle cargo
 	_vehicle call NWG_fnc_clearContainerCargo;

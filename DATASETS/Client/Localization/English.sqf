@@ -42,6 +42,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#AI_SMOKE_TITLE#","Smoke out"],
     ["#AI_REPAIR_TITLE#","Repair"],
     ["#AI_UNFLIP_TITLE#","Unflip"],
+    ["#AI_REFUEL_TITLE#","Refuel"],
     //actionsKeybind
     ["#AK_EARPLUGS_ON#","Earplugs on"],
     ["#AK_EARPLUGS_OFF#","Earplugs off"],
@@ -322,6 +323,10 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_CS_Q_03#","Okay, where to?"],
     /*Taxi - TAXI_PS*/
     ["#TAXI_PS_Q_01#","Which one?"],
+    /*Taxi - TAXI_SQD_UNFIT*/
+    ["#TAXI_SQD_UNFIT_Q_01#","Eh...|Sorry, boss, but this one is out of my reach"],
+    ["#TAXI_SQD_UNFIT_Q_02#","Nah, this one is out of reach for now"],
+    ["#TAXI_SQD_UNFIT_Q_03#","Sorry, can't get you to this one|Pick someone else"],
     /*Taxi - TAXI_LOW*/
     ["#TAXI_LOW_Q_01#","That's a shame, boss"],
     ["#TAXI_LOW_Q_02#","Come back when you have it, boss|Or check other options"],
@@ -377,7 +382,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_01_Q_02#","What?"],
     ["#MECH_01_Q_03#","Yeah, what?"],
     /*Mech - MECH_SERV*/
-    ["#MECH_SERV_Q_01#","What kind of?"],
+    ["#MECH_SERV_Q_01#","So, what can I do for you?"],
+    ["#MECH_SERV_Q_02#","You're in a right place|What can I do for you?"],
+    ["#MECH_SERV_Q_03#","So? We're doing what?"],
     ["#MECH_SERV_A_01#","I need repair"],
     ["#MECH_SERV_A_02#","I need refuel"],
     ["#MECH_SERV_A_03#","I need my vehicle rearmed"],
@@ -433,6 +440,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_ADV_Q_03#","Don't get greedy|If you see you need to abandon your ride|Do it|You can always get a new one"],
     ["#MECH_ADV_Q_04#","Keep your toolkit with you|Yeah, that simple"],
     ["#MECH_ADV_Q_05#","Every owned vehicle doubles as a loot stash|Don't worry, others can't access it|And when you come back, we'll move your stuff to Trader's"],
+    ["#MECH_ADV_Q_06#","You can refuel your vehicle using butane canisters|Don't expect much|But it should be just enough to make it back to base"],
     /*====== TRDR =====*/
     /*Trdr - TRDR_00*/
     ["#TRDR_00_Q_01#","How come you have no money?|Look but don't touch anything|Have something to sell at least?"],
@@ -469,6 +477,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TRDR_ADV2_Q_01#","Don't stick with just one gun|There is always something to shoot from|But if you stick with one and only|You'll have a hard time finding ammo"],
     ["#TRDR_ADV2_Q_02#","Always share with others|Might sound stupid|But they can get your ass out of trouble|Or frag you|And say you were like that when they found you|Always remember that|Mutual respect brings profits|And more customers"],
     ["#TRDR_ADV2_Q_03#","Found a pile of bodies?|Loot them|Only then move on|You never know if you see them again"],
+    ["#TRDR_ADV2_Q_04#","Hunting is also an option here|We all want something better than a can of beans|So hunt small game and you'll earn some cash"],
     /*Trdr - TRDR_LOW*/
     ["#TRDR_LOW_Q_01#","Don't waste my time then|Advice he needs... pfft"],
     ["#TRDR_LOW_A_01#","Not like I wanted your stupid advice anyway"],
@@ -915,23 +924,27 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_TUTOR04_05v3_Q#","Yeah, something is wrong with the computer|'Unexpected state' hmm...|Let me log the error and come back in a few minutes|At ease"],
     ["#COMM_TUTOR04_MAP_HINT#","Move cursor to the mission area\nAnd click once to select it"],
     /*Step 05 - Taxi*/
-    ["#TAXI_TUTOR05_00_Q#","So? Ready for your first one?"],
+    ["#TAXI_TUTOR05_00_Q0#","Hold on, mission did not start yet"],
+    ["#TAXI_TUTOR05_00_Q1#","So? Ready for your first one?"],
     ["#TAXI_TUTOR05_00_A_01#","All set"],
     ["#TAXI_TUTOR05_00_A_02#","No, something else first"],
     ["#TAXI_TUTOR05_01_Q#","Before we go|Do you want to join our Discord?"],
     ["#TAXI_TUTOR05_01_A_01#","Yes"],
-    ["#TAXI_TUTOR05_01_A_02#","No, thanks"],
+    ["#TAXI_TUTOR05_01_A_02#","Yeah, why not"],
+    ["#TAXI_TUTOR05_01_A_03#","No, thanks"],
     ["#TAXI_DISCORD_HINT#","Click the button to open invite in browser\nPress 'Esc' to close"],
     ["#TAXI_TUTOR05_02_Q#","Discord was opened in your browser|Whenever you feel like it, switch tabs and accept the invite"],
     ["#TAXI_TUTOR05_03_Q#","So? Where to?"],
     ["#TAXI_TUTOR05_03_A_01#","Paradrop. Commander said it's on the house"],
-    ["#TAXI_TUTOR05_04_Q#","Paradrop on the house?|Yeah, right...|And surely I won't have troubles collecting the payment|Unlike... let me think... several other times?|Hey, I'm not pushing, but...|How about you pay? Or at least leave tip"],
+    ["#TAXI_TUTOR05_04_Q#","Paradrop on the house?|Yeah, right...|And surely I won't have troubles collecting the payment|Unlike... let me think... dozen other times?|Hey, I'm not pushing, but...|How about you pay? Or at least leave tip"],
     ["#TAXI_TUTOR05_04_A_01#","On the house. Talk to Commander, his words, not mine"],
     ["#TAXI_TUTOR05_04_A_02#","I have no problem paying [PAY FOR PARADROP (%1)]"],
     ["#TAXI_TUTOR05_04_A_03#","Here. Have a tip [LEAVE A TIP (%1)]"],
     ["#TAXI_TUTOR05_05_Q#","Well, well, well...|You're the boss all right|Ok, ready?"],
     ["#TAXI_TUTOR05_05_A_01#","Yeah, let's go!"],
     ["#TAXI_PARA_MAP_HINT#","Move cursor close to the mission area\nAnd click once to paradrop"],
+    ["#TAXI_PARA_MAP_HINT_MIS_NOT_SET#","No mission area set yet, wait a little"],
+    ["#TAXI_PARA_MAP_HINT_TOO_FAR#","Boss, that's too far from the mission area, click closer to it"],
     ["#TAXI_PARA_AIR_HINT#","To deploy parachute\nPress 'Space' while in the air"],
     ["#MECH_TUTOR05_00_Q#","No.. I'm obviously not a taxi driver|You need a guy over there under the umbrella"],
     ["#TRDR_TUTOR05_00_Q#","So? Ready for your first gig?|The taxi driver is outside and to the right|Under the umbrella"],
