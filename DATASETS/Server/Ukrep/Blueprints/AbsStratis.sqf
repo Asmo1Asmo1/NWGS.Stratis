@@ -797,7 +797,14 @@
         ["DECO","Land_Can_Dented_F",[2042.69,5677.92,5.56605],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[2285.86,5769.25,5.26876],0,0,0,0],
         ["DECO","Land_Can_Dented_F",[2292,5794,5.22428],0,0,0,0],
-        ["DECO","Land_Can_Dented_F",[2075.8,5902.94,5.95818],0,0,0,0]]],
+        ["DECO","Land_RepairDepot_01_green_F",[2238.75,5740,6],0,280,0,0],
+        ["DECO","Land_TankEngine_01_used_F",[2233.25,5737.25,6.00001],0,180,0,0],
+        ["DECO","Land_TankTracks_01_long_F",[2231.25,5737.5,6.00003],0,75,0,0],
+        ["DECO","Land_Can_Dented_F",[2075.8,5902.94,5.95818],0,0,0,0],
+        ["VEHC","Land_VR_Target_APC_Wheeled_01_F",[2178.75,5726.75,6],0,15,0,[]],
+        ["VEHC","Land_VR_Target_APC_Wheeled_01_F",[2163.75,5731.5,6],0,10,0,[]],
+        ["VEHC","Land_VR_Target_APC_Wheeled_01_F",[2171.5,5730,6],0,10,0,[]],
+        ["VEHC","Land_VR_Target_MBT_01_cannon_F",[2222.75,5743,6],0,280,0,[]]]],
 
     ["ABS","GasStation_v1_1",[2708.12,5789.56,0],0,29.4261,0,[],[
         ["VEHC","C_Truck_02_box_F",[2708.25,5791.25,2.59395],0,120.001,0,[[]]],
