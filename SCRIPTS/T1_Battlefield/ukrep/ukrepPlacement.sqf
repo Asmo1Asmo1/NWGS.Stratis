@@ -712,12 +712,15 @@ NWG_UKREP_PlacementCore = {
     /*Place MINE - mines*/
     if ((count _mines) > 0) then {
         private _minesDirs = [];//Fix for mines direction in MP
+        private ["_mine","_pos"];
         _mines = _mines apply {
-            private _pos = if ((_x#BP_CLASSNAME) isEqualTo "APERSTripMine")
-                then {(_x#BP_POS) vectorAdd [0,0,0.1]}
-                else {(_x#BP_POS)};//Fix for APERSTripMine
+            _pos = switch (_x#BP_CLASSNAME) do {
+                case "APERSTripMine": {(_x#BP_POS) vectorAdd [0,0,0.1]};//Fix for APERSTripMine going a bit underground
+                case "UnderwaterMine": {(_x#BP_POS) vectorAdd [0,0,44]};//Fix for UnderwaterMine going WAY underground
+                default {(_x#BP_POS)};
+            };
 
-            private _mine = createMine [(_x#BP_CLASSNAME),(ASLToAGL _pos),[],0];
+            _mine = createMine [(_x#BP_CLASSNAME),(ASLToAGL _pos),[],0];
             _mine enableDynamicSimulation true;//Doesn't work now but left just in case it would in the future, see: https://community.bistudio.com/wiki/enableDynamicSimulation
             _mine setDir (_x#BP_DIR);
 

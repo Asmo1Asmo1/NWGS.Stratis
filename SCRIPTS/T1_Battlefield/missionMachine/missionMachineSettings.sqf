@@ -39,7 +39,7 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 	["BLUEPRINTS_EMPTY_BLDG_PAGENAME","BldgEmpty"],//Pagename with blueprints to fill empty buildings with
 
 	/*Missions list init settings*/
-	["MLIST_MIN_DISTANCE",100],//Min distance between missions to be added to the list (example: several variants of the same mission, only one will be added by distance rule)
+	["MLIST_MIN_DISTANCE",150],//Min distance between missions to be added to the list (example: several variants of the same mission, only one will be added by distance rule)
 
 	/*Missions list check settings*/
 	["MLIST_CHECK_NO_MISSIONS_RESTART",true],//Go to RESTART state if no missions left (high priority)

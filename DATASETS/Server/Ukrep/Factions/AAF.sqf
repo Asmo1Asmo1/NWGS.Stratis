@@ -151,6 +151,8 @@ createHashMapFromArray [
 /*  ==== BOATS ==== */
 ["B_Boat_Armed_01_minigun_F", "I_Boat_Armed_01_minigun_F"],
 ["B_Boat_Transport_01_F",     "I_Boat_Transport_01_F"],
+/*  ==== SUBMARINES ==== */
+["B_SDV_01_F", "I_SDV_01_F"],
 
 //========================================================================================================
 /*  ====   TURRETS    ====*/
