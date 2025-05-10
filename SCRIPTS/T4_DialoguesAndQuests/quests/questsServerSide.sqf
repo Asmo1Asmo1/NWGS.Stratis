@@ -157,6 +157,12 @@ NWG_QST_SER_CreateNew = {
             _targetObj setVariable ["QST_toBreak",_toBreak,true];
             //Setup interrogate target for current and JIP players
             [_targetObj,"NWG_QST_CLI_OnInterrogateCreated",[]] call NWG_fnc_rqAddCommand;
+            //Setup failure
+            _targetObj addEventHandler ["Killed",{
+                params ["_targetObj"/*,"_killer","_instigator","_useEffects"*/];
+                if (NWG_QST_State isEqualTo QST_STATE_IN_PROGRESS) then {call NWG_QST_SER_OnQuestFailed};
+                _targetObj removeEventHandler [_thisEvent,_thisEventHandler];
+            }];
         };
         case QST_TYPE_HACK_DATA: {
             //Set initial state
@@ -196,6 +202,12 @@ NWG_QST_SER_CreateNew = {
             _wounded playMoveNow "Acts_ExecutionVictim_Loop";
             //Setup command for current and JIP players
             [_targetObj,"NWG_QST_CLI_OnWoundedCreated",[]] call NWG_fnc_rqAddCommand;
+            //Setup failure
+            _targetObj addEventHandler ["Killed",{
+                params ["_targetObj"/*,"_killer","_instigator","_useEffects"*/];
+                if (NWG_QST_State isEqualTo QST_STATE_IN_PROGRESS) then {call NWG_QST_SER_OnQuestFailed};
+                _targetObj removeEventHandler [_thisEvent,_thisEventHandler];
+            }];
         };
         case QST_TYPE_INFECTION: {
             //Track player's actions towards infected
@@ -284,6 +296,14 @@ NWG_QST_SER_ClearAll = {
 //================================================================================================================
 //================================================================================================================
 //Quest completion
+NWG_QST_SER_OnQuestFailed = {
+    if (NWG_QST_State != QST_STATE_IN_PROGRESS) exitWith {
+        (format ["NWG_QST_SER_OnQuestFailed: Quest is not in progress: '%1'",NWG_QST_State]) call NWG_fnc_logError;
+    };
+    NWG_QST_State = QST_STATE_FAILED;
+    publicVariable "NWG_QST_State";
+};
+
 NWG_QST_SER_OnQuestDone = {
     private _player = _this;
     if (NWG_QST_State != QST_STATE_IN_PROGRESS) exitWith {
@@ -319,7 +339,7 @@ NWG_QST_SER_OnQuestDone = {
 
 NWG_QST_SER_OnQuestClosed = {
     params ["_player","_reward"];
-    if !(NWG_QST_State in [QST_STATE_IN_PROGRESS,QST_STATE_DONE]) exitWith {
+    if !(NWG_QST_State in [QST_STATE_IN_PROGRESS,QST_STATE_DONE,QST_STATE_FAILED]) exitWith {
         (format ["NWG_QST_SER_OnQuestClosed: Quest is not in progress or done: '%1'",NWG_QST_State]) call NWG_fnc_logError;
     };
 
@@ -352,10 +372,12 @@ NWG_QST_SER_OnQuestClosed = {
     };
 
     //Reward players
+    if (_reward isEqualTo false || {NWG_QST_State isEqualTo QST_STATE_FAILED}) exitWith {};//No reward or failed quest
     private _funcRewardPlayer = NWG_QST_Settings get "FUNC_REWARD_PLAYER";
+    private _funcRewardablePlayer = NWG_QST_Settings get "FUNC_REWARDABLE_PLAYER";
     {
         [_x,_reward] call _funcRewardPlayer;
-    } forEach ((units (group _player)) select {isPlayer _x});
+    } forEach ((units (group _player)) select {_x call _funcRewardablePlayer});
 };
 
 //================================================================================================================

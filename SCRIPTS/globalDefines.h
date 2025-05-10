@@ -147,8 +147,9 @@
 /*Quest States*/
 #define QST_STATE_UNASSIGNED 0
 #define QST_STATE_IN_PROGRESS 1
-#define QST_STATE_DONE 2
-#define QST_STATE_CLOSED 3
+#define QST_STATE_FAILED 2
+#define QST_STATE_DONE 3
+#define QST_STATE_CLOSED 4
 
 /*Quest Results*/
 #define QST_RESULT_BD_END -1

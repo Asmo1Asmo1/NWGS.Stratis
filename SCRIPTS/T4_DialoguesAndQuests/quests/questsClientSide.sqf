@@ -112,7 +112,10 @@ NWG_QST_CLI_TryCloseQuest = {
 				"NWG_QST_CLI_TryCloseQuest: Quest state is nil" call NWG_fnc_logError;
 				false
 			};
-			if (NWG_QST_State != QST_STATE_DONE) exitWith {
+			if (NWG_QST_State isEqualTo QST_STATE_FAILED) exitWith {
+				QST_RESULT_BD_END
+			};
+			if (NWG_QST_State isNotEqualTo QST_STATE_DONE) exitWith {
 				QST_RESULT_UNDONE
 			};
 			if (player call NWG_QST_CLI_IsWinnerByName)
@@ -155,6 +158,11 @@ NWG_QST_CLI_TryCloseQuest = {
 		false
 	};
 	if (_questResult isEqualTo QST_RESULT_UNDONE) exitWith {QST_RESULT_UNDONE};//Quest is not done yet
+	if !(_questResult in [QST_RESULT_GD_END,QST_RESULT_BD_END]) exitWith {
+		"NWG_QST_CLI_TryCloseQuest: Invalid quest result: '%1'" call NWG_fnc_logError;
+		"#QST_CLOSE_ERROR#" call NWG_fnc_systemChatMe;
+		false
+	};
 
 	//(Re)calculate reward
 	private _reward = _questData param [QST_DATA_REWARD,false];
@@ -165,12 +173,17 @@ NWG_QST_CLI_TryCloseQuest = {
 		case QST_TYPE_HACK_DATA;
 		case QST_TYPE_DESTROY;
 		case QST_TYPE_WOUNDED;
-		case QST_TYPE_WEAPON: {_reward};
+		case QST_TYPE_WEAPON: {
+			if (_questResult isEqualTo QST_RESULT_BD_END) exitWith {false};//Quest failed
+			_reward
+		};
 
 		/*Reward calculated on client side per item*/
 		case QST_TYPE_INTEL;
 		case QST_TYPE_MED_SUPPLY;
 		case QST_TYPE_ELECTRONICS: {
+			if (_questResult isEqualTo QST_RESULT_BD_END) exitWith {false};//Quest failed
+
 			private _priceMap = (_questData param [QST_DATA_REWARD,[]]) param [QST_REWARD_PER_ITEM_PRICE_MAP,createHashMap];
 			private _getCountFunc = NWG_QST_Settings get "FUNC_GET_ITEM_COUNT";
 			private _count = 0;

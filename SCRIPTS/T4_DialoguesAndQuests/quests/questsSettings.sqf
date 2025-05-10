@@ -68,6 +68,10 @@ NWG_QST_Settings = createHashMapFromArray [
 	["FUNC_GET_REWARD_MULTIPLIER",{(call NWG_fnc_mmGetMissionLevel) + 1}],
 	["FUNC_GET_ITEM_PRICE_MULT",{1 + (_this * 0.1)}],//How to calculate item price based on reward multiplier
 	["FUNC_GET_ITEM_PRICE",{_this call NWG_fnc_ishopEvaluateItemPrice}],
+	["FUNC_REWARDABLE_PLAYER",{
+		// private _player = _this;
+		isPlayer _this && {_this call NWG_fnc_mmWasPlayerOnMission}
+	}],
 	["FUNC_REWARD_PLAYER",{
 		params ["_player","_reward"];
 		[_player,P__EXP,1] call NWG_fnc_pAddPlayerProgress;//Add experience
