@@ -317,7 +317,7 @@ NWG_QST_Settings = createHashMapFromArray [
 	["INTERROGATE_SUCCESS",["#QST_INTERROGATE_SUCCESS_01#","#QST_INTERROGATE_SUCCESS_02#","#QST_INTERROGATE_SUCCESS_03#"]],
 
 	/*External functions*/
-	["FUNC_GET_PLAYER_VEHICLES",{_this call NWG_fnc_vownGetOwnedVehicles}],
+	["FUNC_GET_PLAYER_VEHICLES",{(group _this) call NWG_fnc_vownGetOwnedVehiclesGroup}],
 	["FUNC_DELETE_VEHICLE",{_this call NWG_fnc_vshopDeleteVehicle}],
 	["FUNC_HAS_ITEM",{_this call NWG_fnc_invHasItem}],
 	["FUNC_GET_ITEM_COUNT",{_this call NWG_fnc_invGetItemCount}],
