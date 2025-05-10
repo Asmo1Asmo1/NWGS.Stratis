@@ -143,6 +143,7 @@
 #define QST_TYPE_MED_SUPPLY 7
 #define QST_TYPE_WEAPON 8
 #define QST_TYPE_ELECTRONICS 9
+#define QST_TYPE_BURNDOWN 10
 
 /*Quest States*/
 #define QST_STATE_UNASSIGNED 0

@@ -76,6 +76,14 @@ NWG_fnc_qstOnHackDone = {
     _this call NWG_QST_CLI_OnHackDone;
 };
 
+NWG_fnc_qstOnBurnDone = {
+	// private _targetObj = _this;
+    if (isServer) exitWith {createVehicle ["test_EmptyObjectForFireBig",_this,[],0,"CAN_COLLIDE"]};//Create fire on server
+    if (!hasInterface) exitWith {};
+    if (isNil "NWG_QST_CLI_OnBurnDone") exitWith {};
+    _this call NWG_QST_CLI_OnBurnDone;
+};
+
 NWG_fnc_qstOnInterrogateTied = {
 	params ["_targetObj","_player"];
     if (isNull _targetObj || {!alive _targetObj}) exitWith {

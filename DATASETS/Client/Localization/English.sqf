@@ -728,6 +728,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_INTERROGATE_TITLE#","Interrogate"],
     ["#QST_HACK_DATA_TITLE#","Hack data"],
     ["#QST_WOUNDED_TITLE#","Untie"],
+    ["#QST_BURNDOWN_TITLE#","Burn down"],
     /*Quest chat messages*/
     ["#QST_VEH_STEAL_CLOSED#","%1 delivered the vehicle and closed the task"],
     ["#QST_INTERROGATE_FAILED_01#","I won't tell you nothing"],
@@ -752,6 +753,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_MED_SUPPLY_CLOSED#","%1 delivered the med supplies and closed the task"],
     ["#QST_WEAPON_CLOSED#","%1 delivered the weapon and closed the task"],
     ["#QST_ELECTRONICS_CLOSED#","%1 handed over the electronics and closed the task"],
+    ["#QST_BURNDOWN_DONE#","%1 burned down the stash (report to trader)"],
+    ["#QST_BURNDOWN_CLOSED#","%1 reported to trader and closed the task"],
     ["#QST_UNKONW_WINNER#","Somebody"],
     ["#QST_CLOSE_ERROR#","Failed to close quest"],
     /*Quest start*/
@@ -777,6 +780,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DISPLAY_MED_SUPPLY#","Find med supplies (example: %1)"],
     ["#QST_DISPLAY_WEAPON#","Find and deliver: %1"],
     ["#QST_DISPLAY_ELECTRONICS#","Find electronic devices (example: %1)"],
+    ["#QST_DISPLAY_BURNDOWN#","Burn down: %1"],
     ["#QST_REWARD_TEMPLATE#","Reward: 1 Exp, 1 lvl and %1"],
     ["#QST_REWARD_TEMPLATE_PER_ITEM#","%1%% of price for each item"],
     /*Quest descriptions*/
@@ -810,6 +814,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DESCR_ELECTRONICS_01#","My business is physical stuff and merchandise|But you know what costs less and pays better?|Information|So I'm looking for someone to bring it to me|Consider that 'expanding the market'|Commander doesn't need to know|This is strictly between you and me|Interested?"],
     ["#QST_DESCR_ELECTRONICS_02#","I've heard our enemies lost some of their shipment|It would be nice to know where|And where it went|For that, I need you to bring me the data|Laptops, flash drives, phones...|Anything that could possibly have the clues"],
     ["#QST_DESCR_ELECTRONICS_03#","I want to dig under enemy supply chains|See if some of it could be... redirected|Bring me every piece of electronics you find|Everything that has phone numbers, accounts, data sheets|The price would be sufficient|Are you in?"],
+    ["#QST_DESCR_BURNDOWN_01#","Listen, it's between you and me|Some of my merchandise...|Ended up in the wrong hands|And I don't need that kind of attention|So...|You will burn it down for me|And I will gladly compensate your efforts|Is that a deal?"],
+    ["#QST_DESCR_BURNDOWN_02#","This is a small world we live in|Some time ago I sold some... stuff... to local buyer|Turns out, he's working for our adversaries|They now have boxes with my name on it|As you understand - that is quite bad for business|So...|I want you to destroy that merchandise|Leave no trace"],
+    ["#QST_DESCR_BURNDOWN_03#","Our enemies have a stash on the island|I need it gone|Reasons are irrelevant|What's important is that I will pay well for the job|... And for you to keep your mouth shut|So?|Will you do it?"],
     /*Quest description answers*/
     ["#QST_ANY_START_A_01#","Yeah, I'm in"],
     ["#QST_ANY_START_A_02#","Yeah, no problem"],
@@ -838,6 +845,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_WEAPON_START_A_02#","Bring that here, yeah, no problem"],
     ["#QST_ELECTRONICS_START_A_01#","Grab any electronic devices, yeah, got it"],
     ["#QST_ELECTRONICS_START_A_02#","Phones, laptops, flash drives. Ok, got it"],
+    ["#QST_BURNDOWN_START_A_01#","Burn it down, got it"],
+    ["#QST_BURNDOWN_START_A_02#","Burn it down, yeah, no problem"],
     /*Quest reports questions*/
     ["#QST_ANY_REPORT_Q_01#","Well?"],
     ["#QST_ANY_REPORT_Q_02#","So?"],
@@ -866,6 +875,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_UNDONE_MEDC_ANY_DELIVER_Q_01#","Then let us see it|Hm?|Son, if it's in your storage - bring it here"],
     ["#QST_UNDONE_ROOF_ANY_DELIVER_Q_01#","Hey, 'buddy'|I don't see the goods - I don't pay the price|Got it in your storage?|Then bring it here why don't you"],
     ["#QST_UNDONE_TRDR_ANY_DELIVER_Q_01#","I've got eyes, you know?|And those eyes do not see you carrying what we agreed on|If it is in your storage - take it out|We don't need it to go on papers"],
+    ["#QST_UNDONE_TRDR_ANY_ACTION_Q_01#","Don't try to fuck with me|I'm not in the mood|Return when you're done"],
     /*Quest UNDONE answers*/
     ["#QST_UNDONE_ANY_A_01#","Oh c'mon"],
     ["#QST_UNDONE_ANY_A_02#","Can you check again?"],

@@ -107,7 +107,8 @@ NWG_QST_CLI_TryCloseQuest = {
 		case QST_TYPE_INTERROGATE;
 		case QST_TYPE_HACK_DATA;
 		case QST_TYPE_DESTROY;
-		case QST_TYPE_WOUNDED: {
+		case QST_TYPE_WOUNDED;
+		case QST_TYPE_BURNDOWN: {
 			if (isNil "NWG_QST_State") exitWith {
 				"NWG_QST_CLI_TryCloseQuest: Quest state is nil" call NWG_fnc_logError;
 				false
@@ -173,7 +174,8 @@ NWG_QST_CLI_TryCloseQuest = {
 		case QST_TYPE_HACK_DATA;
 		case QST_TYPE_DESTROY;
 		case QST_TYPE_WOUNDED;
-		case QST_TYPE_WEAPON: {
+		case QST_TYPE_WEAPON;
+		case QST_TYPE_BURNDOWN: {
 			if (_questResult isEqualTo QST_RESULT_BD_END) exitWith {false};//Quest failed
 			_reward
 		};
@@ -527,6 +529,43 @@ NWG_QST_CLI_CalcInfectionOutcome = {
 	NWG_QST_InfectionData params [["_infectedCount",0],["_healedCount",0],["_killedCount",0]];
 	if ((_healedCount + _killedCount) < (_infectedCount * 0.66)) exitWith {QST_RESULT_UNDONE};//It's not over yet
 	if (_healedCount > _killedCount) then {QST_RESULT_GD_END} else {QST_RESULT_BD_END}
+};
+
+NWG_QST_CLI_OnBurnCreated = {
+	params ["_targetObj"];
+	//Check for JIP players
+	if (_targetObj getVariable ["QST_isBurned",false]) exitWith {_targetObj call NWG_QST_CLI_OnBurnDone};
+
+	//Add action
+	private _title = NWG_QST_Settings get "BURNDOWN_TITLE";
+	private _icon = NWG_QST_Settings get "BURNDOWN_ICON";
+	private _actionId = [_targetObj,_title,_icon,{_this call NWG_QST_CLI_OnBurnDo}] call NWG_fnc_addHoldAction;
+	if (isNil "_actionId") exitWith {
+		"NWG_QST_CLI_OnBurnCreated: Failed to add action" call NWG_fnc_logError;
+		false
+	};
+
+	//Save action ID for later removal
+	_targetObj setVariable ["QST_burnActionId",_actionId];//Set locally
+};
+NWG_QST_CLI_OnBurnDo = {
+	params ["_targetObj","_player"];
+	//Check again just in case
+	if (_targetObj getVariable ["QST_isBurned",false]) exitWith {};
+
+	//Mark burned for everyone
+	_targetObj setVariable ["QST_isBurned",true,true];
+	_targetObj remoteExec ["NWG_fnc_qstOnBurnDone",0];//Also creates fire
+
+	//Report to server
+	_player remoteExec ["NWG_fnc_qstOnQuestDone",2];
+};
+NWG_QST_CLI_OnBurnDone = {
+	private _targetObj = _this;
+
+	//Remove action
+	private _actionId = _targetObj getVariable ["QST_burnActionId",-1];
+	if (_actionId != -1) then {_targetObj removeAction _actionId};
 };
 
 //================================================================================================================

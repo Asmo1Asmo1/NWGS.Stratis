@@ -3,16 +3,17 @@
 NWG_QST_Settings = createHashMapFromArray [
 	/*Quest Settings*/
 	["QUEST_ENABLED",[
-		QST_TYPE_VEH_STEAL,
-		QST_TYPE_INTERROGATE,
-		QST_TYPE_HACK_DATA,
-		QST_TYPE_DESTROY,
-		QST_TYPE_INTEL,
-		QST_TYPE_INFECTION,
-		QST_TYPE_WOUNDED,
-		QST_TYPE_MED_SUPPLY,
-		QST_TYPE_WEAPON,
-		QST_TYPE_ELECTRONICS
+		// QST_TYPE_VEH_STEAL,
+		// QST_TYPE_INTERROGATE,
+		// QST_TYPE_HACK_DATA,
+		// QST_TYPE_DESTROY,
+		// QST_TYPE_INTEL,
+		// QST_TYPE_INFECTION,
+		// QST_TYPE_WOUNDED,
+		// QST_TYPE_MED_SUPPLY,
+		// QST_TYPE_WEAPON,
+		// QST_TYPE_ELECTRONICS,
+		QST_TYPE_BURNDOWN
 	]],
 	["QUEST_GIVERS",[
 		/*QST_TYPE_VEH_STEAL:*/ NPC_MECH,
@@ -24,7 +25,8 @@ NWG_QST_Settings = createHashMapFromArray [
 		/*QST_TYPE_WOUNDED:*/ NPC_MEDC,
 		/*QST_TYPE_MED_SUPPLY:*/ NPC_MEDC,
 		/*QST_TYPE_WEAPON:*/ NPC_ROOF,
-		/*QST_TYPE_ELECTRONICS:*/ NPC_TRDR
+		/*QST_TYPE_ELECTRONICS:*/ NPC_TRDR,
+		/*QST_TYPE_BURNDOWN:*/ NPC_TRDR
 	]],
 	["QUEST_DICE_WEIGHTS",[
 		/*QST_TYPE_VEH_STEAL:*/   3,
@@ -36,7 +38,8 @@ NWG_QST_Settings = createHashMapFromArray [
 		/*QST_TYPE_WOUNDED:*/     2,
 		/*QST_TYPE_MED_SUPPLY:*/  3,
 		/*QST_TYPE_WEAPON:*/      3,
-		/*QST_TYPE_ELECTRONICS:*/ 3
+		/*QST_TYPE_ELECTRONICS:*/ 3,
+		/*QST_TYPE_BURNDOWN:*/    3
 	]],
 	["QUEST_REWARDS",[
 		/*QST_TYPE_VEH_STEAL:*/ {
@@ -60,7 +63,8 @@ NWG_QST_Settings = createHashMapFromArray [
 			_reward = (round (_reward / 10)) * 10;//Round to nearest 10
 			_reward
 		},
-		/*QST_TYPE_ELECTRONICS:*/ "ELECTRONICS_ITEMS"
+		/*QST_TYPE_ELECTRONICS:*/ "ELECTRONICS_ITEMS",
+		/*QST_TYPE_BURNDOWN:*/ 1000
 	]],
 	["QUEST_DEFAULT_REWARD",1000],
 
@@ -95,7 +99,8 @@ NWG_QST_Settings = createHashMapFromArray [
 		/*QST_TYPE_WOUNDED:*/ "#QST_WOUNDED_DONE#",
 		/*QST_TYPE_MED_SUPPLY:*/ false,
 		/*QST_TYPE_WEAPON:*/ false,
-		/*QST_TYPE_ELECTRONICS:*/ false
+		/*QST_TYPE_ELECTRONICS:*/ false,
+		/*QST_TYPE_BURNDOWN:*/ "#QST_BURNDOWN_DONE#"
 	]],
 	["LOC_QUEST_CLOSED",[
 		/*QST_TYPE_VEH_STEAL:*/ "#QST_VEH_STEAL_CLOSED#",
@@ -107,7 +112,8 @@ NWG_QST_Settings = createHashMapFromArray [
 		/*QST_TYPE_WOUNDED:*/ "#QST_WOUNDED_CLOSED#",
 		/*QST_TYPE_MED_SUPPLY:*/ "#QST_MED_SUPPLY_CLOSED#",
 		/*QST_TYPE_WEAPON:*/ "#QST_WEAPON_CLOSED#",
-		/*QST_TYPE_ELECTRONICS:*/ "#QST_ELECTRONICS_CLOSED#"
+		/*QST_TYPE_ELECTRONICS:*/ "#QST_ELECTRONICS_CLOSED#",
+		/*QST_TYPE_BURNDOWN:*/ "#QST_BURNDOWN_CLOSED#"
 	]],
 	["LOC_UNKONW_WINNER","#QST_UNKONW_WINNER#"],
 
@@ -261,6 +267,24 @@ NWG_QST_Settings = createHashMapFromArray [
 		"SatPhone",
 		"Laptop_Unfolded"
 	]],
+
+	/*Burndown quest*/
+	["BURNDOWN_TARGETS",[
+		"I_supplyCrate_F",
+		"O_supplyCrate_F",
+		"C_T_supplyCrate_F",
+		"C_supplyCrate_F",
+		"IG_supplyCrate_F",
+		"I_EAF_supplyCrate_F",
+		"B_supplyCrate_F",
+		"I_CargoNet_01_ammo_F",
+		"O_CargoNet_01_ammo_F",
+		"C_IDAP_CargoNet_01_supplies_F",
+		"I_E_CargoNet_01_ammo_F",
+		"B_CargoNet_01_ammo_F"
+	]],
+	["BURNDOWN_TITLE","#QST_BURNDOWN_TITLE#"],
+	["BURNDOWN_ICON","a3\ui_f\data\igui\cfg\actions\obsolete\ui_action_fire_in_flame_ca.paa"],
 
 	/*Localization*/
 	["LOC_NPC_TO_MARKER_TEXT",createHashMapFromArray [

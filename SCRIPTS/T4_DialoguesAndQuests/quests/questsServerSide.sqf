@@ -122,6 +122,11 @@ NWG_QST_SER_CreateNew = {
         if ((count _possibleTargets) == 0) exitWith {};
         _dice pushBack [QST_TYPE_INFECTION,_possibleTargets,""];
     };
+    /*Burn down quest*/
+    if (QST_TYPE_BURNDOWN in _enabledQuests) then {
+        private _selectBy = {(typeOf _x) in (NWG_QST_Settings get "BURNDOWN_TARGETS")};
+        [QST_TYPE_BURNDOWN,OBJ_CAT_DECO,_selectBy] call _fillDice;
+    };
 
     //Check dice
     if ((count _dice) == 0) exitWith {
@@ -216,6 +221,12 @@ NWG_QST_SER_CreateNew = {
             //Re-write variables
             _targetObj = selectRandom _infectedUnits;
             _targetClassname = (typeOf _targetObj);
+        };
+        case QST_TYPE_BURNDOWN: {
+            //Set initial state
+            _targetObj setVariable ["QST_isBurned",false,true];
+            //Setup burning for current and JIP players
+            [_targetObj,"NWG_QST_CLI_OnBurnCreated",[]] call NWG_fnc_rqAddCommand;
         };
         default {};//Do nothing
     };
