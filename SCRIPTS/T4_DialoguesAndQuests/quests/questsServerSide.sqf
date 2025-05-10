@@ -14,7 +14,7 @@ NWG_QST_Data = [];
 NWG_QST_WinnerName = "";
 
 /*Local Variables*/
-NWG_QST_lastQuestType = -1;
+NWG_QST_lastQuestTypes = [];
 
 //================================================================================================================
 //================================================================================================================
@@ -151,21 +151,24 @@ NWG_QST_SER_CreateNew = {
         false;
     };
 
-    //Remove last quest type to not repeat it second time in a row
-    if ((count _dice) > 1 && {NWG_QST_lastQuestType >= 0}) then {
-        private _lastQuestType = NWG_QST_lastQuestType;
-        private _toRemove = [];
-        {
-            if ((_x select QST_DATA_TYPE) == _lastQuestType) then {_toRemove pushBack (_dice deleteAt _forEachIndex)};
-        } forEachReversed _dice;
-        if ((count _dice) == 0) then {_dice append _toRemove};//That was the only quest available - undo deletion
+    //Remove last quest type(s) to not repeat it second time in a row
+    if ((count _dice) > 1 && {(count NWG_QST_lastQuestTypes) > 0}) then {
+        private _toKeep = _dice select {!((_x#QST_DATA_TYPE) in NWG_QST_lastQuestTypes)};
+        if ((count _toKeep) > 0) then {_dice = _toKeep};//Replace dice with filtered results
     };
 
     //Roll the dice
     _dice = _dice call NWG_fnc_arrayShuffle;//Works better than selectRandom
     (_dice select 0) params ["_questType","_targetObj","_targetClassname"];
     _dice resize 0;//Clear the dice
-    NWG_QST_lastQuestType = _questType;//Save last quest type
+
+    //Remember last quest type(s)
+    NWG_QST_lastQuestTypes pushBack _questType;
+    if ((count NWG_QST_lastQuestTypes) > (NWG_QST_Settings get "QUETS_IGNORE_LAST")) then {
+        reverse NWG_QST_lastQuestTypes;
+        NWG_QST_lastQuestTypes resize (NWG_QST_Settings get "QUETS_IGNORE_LAST");
+        reverse NWG_QST_lastQuestTypes;
+    };
 
     //Run type-specific logic
     switch (_questType) do {

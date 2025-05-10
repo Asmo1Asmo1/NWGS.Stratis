@@ -71,6 +71,7 @@ NWG_QST_Settings = createHashMapFromArray [
 		/*QST_TYPE_TOOLS:*/ "TOOLS_ITEMS"
 	]],
 	["QUEST_DEFAULT_REWARD",1000],
+	["QUETS_IGNORE_LAST",3],//Ignore last N quest types if possible (try not to repeat them in a row)
 
 	/*External functions*/
 	["FUNC_GET_REWARD_MULTIPLIER",{(call NWG_fnc_mmGetMissionLevel) + 1}],
