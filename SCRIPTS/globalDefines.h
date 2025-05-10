@@ -150,6 +150,11 @@
 #define QST_STATE_DONE 2
 #define QST_STATE_CLOSED 3
 
+/*Quest Results*/
+#define QST_RESULT_BD_END -1
+#define QST_RESULT_UNDONE 0
+#define QST_RESULT_GD_END 1
+
 /*Quest Data structure*/
 #define QST_DATA_TYPE 0
 #define QST_DATA_NPC 1

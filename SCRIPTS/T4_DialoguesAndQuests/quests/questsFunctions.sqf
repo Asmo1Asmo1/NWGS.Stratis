@@ -33,20 +33,13 @@ NWG_fnc_qstHasQuest = {
     _this call NWG_QST_CLI_IsQuestActiveForNpc
 };
 
-//Checks if player can close quest
+//Attempts to close quest
+//note: in case of good/bad ending will assign reward and report to server
 //params: _npcName - name of the NPC quest is assigned to
-//returns: boolean - true if player can close quest, false otherwise
-NWG_fnc_qstCanCloseQuest = {
+//returns: close result: 0 - quest is not done, 1 - good ending, -1 - bad ending, FALSE - error occurred
+NWG_fnc_qstTryCloseQuest = {
     // private _npcName = _this;
-    _this call NWG_QST_CLI_CanCloseQuest
-};
-
-//Closes quest
-//params: _npcName - name of the NPC quest is assigned to
-//returns: nothing
-NWG_fnc_qstCloseQuest = {
-    // private _npcName = _this;
-    _this call NWG_QST_CLI_CloseQuest
+    _this call NWG_QST_CLI_TryCloseQuest
 };
 
 //Returns quest data

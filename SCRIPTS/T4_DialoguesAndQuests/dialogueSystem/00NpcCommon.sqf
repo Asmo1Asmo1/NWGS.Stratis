@@ -18,6 +18,9 @@
 //Colors
 #define COLOR_GREEN [0,1,0,0.75]
 
+//N data for quests
+#define LOC_NO_DATA "[NO DATA]"
+
 //================================================================================================================
 //================================================================================================================
 //Settings
@@ -44,12 +47,10 @@ NWG_DLGHLP_Settings = createHashMapFromArray [
 	["PAY_N_MONEY_KEYS",["#AGEN_PAY_N_MONEY_01#","#AGEN_PAY_N_MONEY_02#","#AGEN_PAY_N_MONEY_03#","#AGEN_PAY_N_MONEY_04#","#AGEN_PAY_N_MONEY_05#"]],
 	["PAY_REFUSE_KEYS",["#AGEN_PAY_REFUSE_01#","#AGEN_PAY_REFUSE_02#","#AGEN_PAY_REFUSE_03#","#AGEN_PAY_REFUSE_04#","#AGEN_PAY_REFUSE_05#"]],
 
-	/*Quest start*/
-	["QST_START_KEYS",["#QST_START_01#","#QST_START_02#","#QST_START_03#","#QST_START_04#","#QST_START_05#"]],
-	/*Quest report*/
-	["QST_REPORT_KEYS",["#QST_REPORT_01#","#QST_REPORT_02#","#QST_REPORT_03#","#QST_REPORT_04#","#QST_REPORT_05#"]],
-	["QST_REPORT_Q_KEYS",["#QST_REPORT_Q_01#","#QST_REPORT_Q_02#","#QST_REPORT_Q_03#","#QST_REPORT_Q_04#","#QST_REPORT_Q_05#"]],
-	/*Quest info*/
+	/*Quest start|report*/
+	["QST_START__A",["#QST_START_01#","#QST_START_02#","#QST_START_03#","#QST_START_04#","#QST_START_05#"]],
+	["QST_REPORT_A",["#QST_REPORT_01#","#QST_REPORT_02#","#QST_REPORT_03#","#QST_REPORT_04#","#QST_REPORT_05#"]],
+	/*Quest short info*/
 	["QST_DISPLAY_TEMPLATES",[
         /*QST_TYPE_VEH_STEAL:*/ "#QST_DISPLAY_VEH_STEAL#",
         /*QST_TYPE_INTERROGATE:*/ "#QST_DISPLAY_INTERROGATE#",
@@ -64,42 +65,139 @@ NWG_DLGHLP_Settings = createHashMapFromArray [
 	]],
 	["QST_REWARD_TEMPLATE","#QST_REWARD_TEMPLATE#"],
 	["QST_REWARD_TEMPLATE_PER_ITEM","#QST_REWARD_TEMPLATE_PER_ITEM#"],
-
-	/*Quests descriptions*/
-	["QST_QD_VEH_STEAL_KEYS",["#QST_QD_VEH_STEAL_01#","#QST_QD_VEH_STEAL_02#","#QST_QD_VEH_STEAL_03#"]],
-	["QST_QD_INTERROGATE_KEYS",["#QST_QD_INTERROGATE_01#","#QST_QD_INTERROGATE_02#","#QST_QD_INTERROGATE_03#"]],
-	["QST_QD_HACK_DATA_KEYS",["#QST_QD_HACK_DATA_01#","#QST_QD_HACK_DATA_02#","#QST_QD_HACK_DATA_03#"]],
-	["QST_QD_DESTROY_KEYS",["#QST_QD_DESTROY_01#","#QST_QD_DESTROY_02#","#QST_QD_DESTROY_03#"]],
-	["QST_QD_INTEL_KEYS",["#QST_QD_INTEL_01#","#QST_QD_INTEL_02#","#QST_QD_INTEL_03#"]],
-	["QST_QD_INFECTION_KEYS",["#QST_QD_INFECTION_01#","#QST_QD_INFECTION_02#","#QST_QD_INFECTION_03#"]],
-	["QST_QD_WOUNDED_KEYS",["#QST_QD_WOUNDED_01#","#QST_QD_WOUNDED_02#","#QST_QD_WOUNDED_03#"]],
-	["QST_QD_MED_SUPPLY_KEYS",["#QST_QD_MED_SUPPLY_01#","#QST_QD_MED_SUPPLY_02#","#QST_QD_MED_SUPPLY_03#"]],
-	["QST_QD_WEAPON_KEYS",["#QST_QD_WEAPON_01#","#QST_QD_WEAPON_02#","#QST_QD_WEAPON_03#"]],
-	["QST_QD_ELECTRONICS_KEYS",["#QST_QD_ELECTRONICS_01#","#QST_QD_ELECTRONICS_02#","#QST_QD_ELECTRONICS_03#"]],
-
-	/*Quest answers*/
-	["QST_WILL_DO_A_KEYS",["#QST_WILL_DO_A_01#","#QST_WILL_DO_A_02#","#QST_WILL_DO_A_03#","#QST_WILL_DO_A_04#","#QST_WILL_DO_A_05#"]],
-	["QST_DONE_A_KEYS",["#QST_DONE_A_01#","#QST_DONE_A_02#","#QST_DONE_A_03#","#QST_DONE_A_04#","#QST_DONE_A_05#"]],
-
-	/*Quest completion dialogues*/
-	["QST_DONE_FALSE_TAXI",["#QST_DONE_FALSE_TAXI_01#"]],
-	["QST_DONE_TRUE_TAXI",["#QST_DONE_TRUE_TAXI_01#"]],
-	["QST_DONE_FALSE_MECH",["#QST_DONE_FALSE_MECH_01#"]],
-	["QST_DONE_TRUE_MECH",["#QST_DONE_TRUE_MECH_01#"]],
-	["QST_DONE_FALSE_TRDR",["#QST_DONE_FALSE_TRDR_01#"]],
-	["QST_DONE_TRUE_TRDR",["#QST_DONE_TRUE_TRDR_01#"]],
-	["QST_DONE_FALSE_MEDC",["#QST_DONE_FALSE_MEDC_01#"]],
-	["QST_DONE_TRUE_MEDC",["#QST_DONE_TRUE_MEDC_01#"]],
-	["QST_DONE_TRUE_MEDC_INFECTION_GOOD_ENDING",["#QST_DONE_TRUE_MEDC_INFECTION_GOOD_ENDING_01#"]],
-	["QST_DONE_TRUE_MEDC_INFECTION_BAD_ENDING",["#QST_DONE_TRUE_MEDC_INFECTION_BAD_ENDING_01#"]],
-	["QST_DONE_FALSE_COMM",["#QST_DONE_FALSE_COMM_01#"]],
-	["QST_DONE_FALSE_COMM_ITEMS",["#QST_DONE_FALSE_COMM_ITEMS#"]],
-	["QST_DONE_TRUE_COMM",["#QST_DONE_TRUE_COMM_01#"]],
-	["QST_DONE_FALSE_ROOF",["#QST_DONE_FALSE_ROOF_01#"]],
-	["QST_DONE_TRUE_ROOF",["#QST_DONE_TRUE_ROOF_01#"]],
-
-	/*Quest close*/
-	["QST_CLOSE_KEYS",["#QST_CLOSE_01#","#QST_CLOSE_02#","#QST_CLOSE_03#","#QST_CLOSE_04#","#QST_CLOSE_05#"]],
+	/*Full quest dialogue*/
+	["QST_LOC_DATA",[
+		/*QST_TYPE_VEH_STEAL:*/
+		[
+			/*LOC_QST_START__Q:*/["#QST_DESCR_VEH_STEAL_01#","#QST_DESCR_VEH_STEAL_02#","#QST_DESCR_VEH_STEAL_03#"],
+			/*LOC_QST_START__A:*/["#QST_ANY_START_A_01#","#QST_ANY_START_A_02#","#QST_ANY_START_A_03#","#QST_ANY_START_A_04#","#QST_ANY_START_A_05#","#QST_ANY_START_A_06#","#QST_ANY_START_A_07#","#QST_VEH_STEAL_START_A_01#","#QST_VEH_STEAL_START_A_02#"],
+			/*LOC_QST_REPORT_Q:*/["#QST_ANY_REPORT_Q_01#","#QST_ANY_REPORT_Q_02#","#QST_ANY_REPORT_Q_03#","#QST_ANY_DELIVER_REPORT_Q_01#","#QST_ANY_DELIVER_REPORT_Q_02#"],
+			/*LOC_QST_REPORT_A:*/["#QST_ANY_ACTION_REPORT_A_01#","#QST_ANY_ACTION_REPORT_A_02#","#QST_ANY_ACTION_REPORT_A_03#","#QST_ANY_ACTION_REPORT_A_04#"],
+			/*LOC_QST_UNDONE_Q:*/["#QST_UNDONE_VEH_STEAL_Q_01#"],
+			/*LOC_QST_UNDONE_A:*/["#QST_UNDONE_ANY_A_01#","#QST_UNDONE_ANY_A_02#","#QST_UNDONE_ANY_A_03#","#QST_UNDONE_ANY_A_04#"],
+			/*LOC_QST_END_GD_Q:*/["#QST_END_GD_VEH_STEAL_01#"],
+			/*LOC_QST_END_GD_A:*/["#QST_END_GD_ANY_A_01#","#QST_END_GD_ANY_A_02#","#QST_END_GD_ANY_A_03#","#QST_END_GD_ANY_A_04#","#QST_END_GD_ANY_A_05#","#QST_END_GD_MECH_A_01#"],
+			/*LOC_QST_END_BD_Q:*/[LOC_NO_DATA],
+			/*LOC_QST_END_BD_A:*/[]
+		],
+		/*QST_TYPE_INTERROGATE:*/
+		[
+			/*LOC_QST_START__Q:*/["#QST_DESCR_INTERROGATE_01#","#QST_DESCR_INTERROGATE_02#","#QST_DESCR_INTERROGATE_03#"],
+			/*LOC_QST_START__A:*/["#QST_ANY_START_A_01#","#QST_ANY_START_A_02#","#QST_ANY_START_A_03#","#QST_ANY_START_A_04#","#QST_ANY_START_A_05#","#QST_ANY_START_A_06#","#QST_ANY_START_A_07#","#QST_INTERROGATE_START_A_01#","#QST_INTERROGATE_START_A_02#"],
+			/*LOC_QST_REPORT_Q:*/["#QST_ANY_REPORT_Q_01#","#QST_ANY_REPORT_Q_02#","#QST_ANY_REPORT_Q_03#","#QST_ANY_ACTION_REPORT_Q_01#","#QST_ANY_ACTION_REPORT_Q_02#","#QST_ANY_COMM_REPORT_Q_01#"],
+			/*LOC_QST_REPORT_A:*/["#QST_ANY_ACTION_REPORT_A_01#","#QST_ANY_ACTION_REPORT_A_02#","#QST_ANY_ACTION_REPORT_A_03#","#QST_ANY_ACTION_REPORT_A_04#"],
+			/*LOC_QST_UNDONE_Q:*/["#QST_UNDONE_COMM_ANY_ACTION_Q_01#"],
+			/*LOC_QST_UNDONE_A:*/["#QST_UNDONE_ANY_A_01#","#QST_UNDONE_ANY_A_02#","#QST_UNDONE_ANY_A_03#","#QST_UNDONE_ANY_A_04#"],
+			/*LOC_QST_END_GD_Q:*/["#QST_END_GD_ANY_COMM_01#","#QST_END_GD_ANY_ACTION_COMM_01#","#QST_END_GD_ANY_ACTION_COMM_02#"],
+			/*LOC_QST_END_GD_A:*/["#QST_END_GD_ANY_A_01#","#QST_END_GD_ANY_A_02#","#QST_END_GD_ANY_A_03#","#QST_END_GD_ANY_A_04#","#QST_END_GD_ANY_A_05#","#QST_END_GD_COMM_A_01#"],
+			/*LOC_QST_END_BD_Q:*/["#QST_END_BD_INTERROGATE_01#"],
+			/*LOC_QST_END_BD_A:*/["#QST_END_BD_ANY_A_01#","#QST_END_BD_ANY_A_02#","#QST_END_BD_ANY_A_03#","#QST_END_BD_ANY_A_04#"]
+		],
+		/*QST_TYPE_HACK_DATA:*/
+		[
+			/*LOC_QST_START__Q:*/["#QST_DESCR_HACK_DATA_01#","#QST_DESCR_HACK_DATA_02#","#QST_DESCR_HACK_DATA_03#"],
+			/*LOC_QST_START__A:*/["#QST_ANY_START_A_01#","#QST_ANY_START_A_02#","#QST_ANY_START_A_03#","#QST_ANY_START_A_04#","#QST_ANY_START_A_05#","#QST_ANY_START_A_06#","#QST_ANY_START_A_07#","#QST_HACK_DATA_START_A_01#","#QST_HACK_DATA_START_A_02#"],
+			/*LOC_QST_REPORT_Q:*/["#QST_ANY_REPORT_Q_01#","#QST_ANY_REPORT_Q_02#","#QST_ANY_REPORT_Q_03#","#QST_ANY_ACTION_REPORT_Q_01#","#QST_ANY_ACTION_REPORT_Q_02#","#QST_ANY_COMM_REPORT_Q_01#"],
+			/*LOC_QST_REPORT_A:*/["#QST_ANY_ACTION_REPORT_A_01#","#QST_ANY_ACTION_REPORT_A_02#","#QST_ANY_ACTION_REPORT_A_03#","#QST_ANY_ACTION_REPORT_A_04#"],
+			/*LOC_QST_UNDONE_Q:*/["#QST_UNDONE_COMM_ANY_ACTION_Q_01#"],
+			/*LOC_QST_UNDONE_A:*/["#QST_UNDONE_ANY_A_01#","#QST_UNDONE_ANY_A_02#","#QST_UNDONE_ANY_A_03#","#QST_UNDONE_ANY_A_04#"],
+			/*LOC_QST_END_GD_Q:*/["#QST_END_GD_ANY_COMM_01#","#QST_END_GD_ANY_ACTION_COMM_01#","#QST_END_GD_ANY_ACTION_COMM_02#"],
+			/*LOC_QST_END_GD_A:*/["#QST_END_GD_ANY_A_01#","#QST_END_GD_ANY_A_02#","#QST_END_GD_ANY_A_03#","#QST_END_GD_ANY_A_04#","#QST_END_GD_ANY_A_05#","#QST_END_GD_COMM_A_01#"],
+			/*LOC_QST_END_BD_Q:*/[LOC_NO_DATA],
+			/*LOC_QST_END_BD_A:*/[]
+		],
+		/*QST_TYPE_DESTROY:*/
+		[
+			/*LOC_QST_START__Q:*/["#QST_DESCR_DESTROY_01#","#QST_DESCR_DESTROY_02#","#QST_DESCR_DESTROY_03#"],
+			/*LOC_QST_START__A:*/["#QST_ANY_START_A_01#","#QST_ANY_START_A_02#","#QST_ANY_START_A_03#","#QST_ANY_START_A_04#","#QST_ANY_START_A_05#","#QST_ANY_START_A_06#","#QST_ANY_START_A_07#","#QST_DESTROY_START_A_01#","#QST_DESTROY_START_A_02#"],
+			/*LOC_QST_REPORT_Q:*/["#QST_ANY_REPORT_Q_01#","#QST_ANY_REPORT_Q_02#","#QST_ANY_REPORT_Q_03#","#QST_ANY_ACTION_REPORT_Q_01#","#QST_ANY_ACTION_REPORT_Q_02#","#QST_ANY_COMM_REPORT_Q_01#"],
+			/*LOC_QST_REPORT_A:*/["#QST_ANY_ACTION_REPORT_A_01#","#QST_ANY_ACTION_REPORT_A_02#","#QST_ANY_ACTION_REPORT_A_03#","#QST_ANY_ACTION_REPORT_A_04#"],
+			/*LOC_QST_UNDONE_Q:*/["#QST_UNDONE_COMM_ANY_ACTION_Q_01#"],
+			/*LOC_QST_UNDONE_A:*/["#QST_UNDONE_ANY_A_01#","#QST_UNDONE_ANY_A_02#","#QST_UNDONE_ANY_A_03#","#QST_UNDONE_ANY_A_04#"],
+			/*LOC_QST_END_GD_Q:*/["#QST_END_GD_ANY_COMM_01#","#QST_END_GD_ANY_ACTION_COMM_01#","#QST_END_GD_ANY_ACTION_COMM_02#"],
+			/*LOC_QST_END_GD_A:*/["#QST_END_GD_ANY_A_01#","#QST_END_GD_ANY_A_02#","#QST_END_GD_ANY_A_03#","#QST_END_GD_ANY_A_04#","#QST_END_GD_ANY_A_05#","#QST_END_GD_COMM_A_01#"],
+			/*LOC_QST_END_BD_Q:*/[LOC_NO_DATA],
+			/*LOC_QST_END_BD_A:*/[]
+		],
+		/*QST_TYPE_INTEL:*/
+		[
+			/*LOC_QST_START__Q:*/["#QST_DESCR_INTEL_01#","#QST_DESCR_INTEL_02#","#QST_DESCR_INTEL_03#"],
+			/*LOC_QST_START__A:*/["#QST_ANY_START_A_01#","#QST_ANY_START_A_02#","#QST_ANY_START_A_03#","#QST_ANY_START_A_04#","#QST_ANY_START_A_05#","#QST_ANY_START_A_06#","#QST_ANY_START_A_07#","#QST_INTEL_START_A_01#","#QST_INTEL_START_A_02#"],
+			/*LOC_QST_REPORT_Q:*/["#QST_ANY_REPORT_Q_01#","#QST_ANY_REPORT_Q_02#","#QST_ANY_REPORT_Q_03#","#QST_ANY_DELIVER_REPORT_Q_01#","#QST_ANY_DELIVER_REPORT_Q_02#","#QST_ANY_COMM_REPORT_Q_01#"],
+			/*LOC_QST_REPORT_A:*/["#QST_ANY_DELIVER_REPORT_A_01#","#QST_ANY_DELIVER_REPORT_A_02#","#QST_ANY_DELIVER_REPORT_A_03#"],
+			/*LOC_QST_UNDONE_Q:*/["#QST_UNDONE_COMM_ANY_DELIVER_Q_01#"],
+			/*LOC_QST_UNDONE_A:*/["#QST_UNDONE_ANY_A_01#","#QST_UNDONE_ANY_A_02#","#QST_UNDONE_ANY_A_03#","#QST_UNDONE_ANY_A_04#"],
+			/*LOC_QST_END_GD_Q:*/["#QST_END_GD_ANY_COMM_01#","#QST_END_GD_ANY_DELIVER_COMM_01#"],
+			/*LOC_QST_END_GD_A:*/["#QST_END_GD_ANY_A_01#","#QST_END_GD_ANY_A_02#","#QST_END_GD_ANY_A_03#","#QST_END_GD_ANY_A_04#","#QST_END_GD_ANY_A_05#","#QST_END_GD_COMM_A_01#"],
+			/*LOC_QST_END_BD_Q:*/[LOC_NO_DATA],
+			/*LOC_QST_END_BD_A:*/[]
+		],
+		/*QST_TYPE_INFECTION:*/
+		[
+			/*LOC_QST_START__Q:*/["#QST_DESCR_INFECTION_01#","#QST_DESCR_INFECTION_02#","#QST_DESCR_INFECTION_03#"],
+			/*LOC_QST_START__A:*/["#QST_ANY_START_A_01#","#QST_ANY_START_A_02#","#QST_ANY_START_A_03#","#QST_ANY_START_A_04#","#QST_ANY_START_A_05#","#QST_ANY_START_A_06#","#QST_ANY_START_A_07#","#QST_INFECTION_START_A_01#","#QST_INFECTION_START_A_02#"],
+			/*LOC_QST_REPORT_Q:*/["#QST_ANY_REPORT_Q_01#","#QST_ANY_REPORT_Q_02#","#QST_ANY_REPORT_Q_03#","#QST_ANY_ACTION_REPORT_Q_01#","#QST_ANY_ACTION_REPORT_Q_02#","#QST_ANY_MEDC_REPORT_Q_01#"],
+			/*LOC_QST_REPORT_A:*/["#QST_ANY_ACTION_REPORT_A_01#","#QST_ANY_ACTION_REPORT_A_02#","#QST_ANY_ACTION_REPORT_A_03#","#QST_ANY_ACTION_REPORT_A_04#"],
+			/*LOC_QST_UNDONE_Q:*/["#QST_UNDONE_MEDC_ANY_ACTION_Q_01#"],
+			/*LOC_QST_UNDONE_A:*/["#QST_UNDONE_ANY_A_01#","#QST_UNDONE_ANY_A_02#","#QST_UNDONE_ANY_A_03#","#QST_UNDONE_ANY_A_04#"],
+			/*LOC_QST_END_GD_Q:*/["#QST_END_GD_ANY_MEDC_01#","#QST_END_GD_INFECTION_01#"],
+			/*LOC_QST_END_GD_A:*/["#QST_END_GD_ANY_A_01#","#QST_END_GD_ANY_A_02#","#QST_END_GD_ANY_A_03#","#QST_END_GD_ANY_A_04#","#QST_END_GD_ANY_A_05#","#QST_END_GD_MEDC_A_01#"],
+			/*LOC_QST_END_BD_Q:*/["#QST_END_BD_INFECTION_01#"],
+			/*LOC_QST_END_BD_A:*/["#QST_END_BD_ANY_A_01#","#QST_END_BD_ANY_A_02#","#QST_END_BD_ANY_A_03#","#QST_END_BD_ANY_A_04#"]
+		],
+		/*QST_TYPE_WOUNDED:*/
+		[
+			/*LOC_QST_START__Q:*/["#QST_DESCR_WOUNDED_01#","#QST_DESCR_WOUNDED_02#","#QST_DESCR_WOUNDED_03#"],
+			/*LOC_QST_START__A:*/["#QST_ANY_START_A_01#","#QST_ANY_START_A_02#","#QST_ANY_START_A_03#","#QST_ANY_START_A_04#","#QST_ANY_START_A_05#","#QST_ANY_START_A_06#","#QST_ANY_START_A_07#","#QST_WOUNDED_START_A_01#","#QST_WOUNDED_START_A_02#"],
+			/*LOC_QST_REPORT_Q:*/["#QST_ANY_REPORT_Q_01#","#QST_ANY_REPORT_Q_02#","#QST_ANY_REPORT_Q_03#","#QST_ANY_ACTION_REPORT_Q_01#","#QST_ANY_ACTION_REPORT_Q_02#","#QST_ANY_MEDC_REPORT_Q_01#"],
+			/*LOC_QST_REPORT_A:*/["#QST_ANY_ACTION_REPORT_A_01#","#QST_ANY_ACTION_REPORT_A_02#","#QST_ANY_ACTION_REPORT_A_03#","#QST_ANY_ACTION_REPORT_A_04#"],
+			/*LOC_QST_UNDONE_Q:*/["#QST_UNDONE_MEDC_ANY_ACTION_Q_01#"],
+			/*LOC_QST_UNDONE_A:*/["#QST_UNDONE_ANY_A_01#","#QST_UNDONE_ANY_A_02#","#QST_UNDONE_ANY_A_03#","#QST_UNDONE_ANY_A_04#"],
+			/*LOC_QST_END_GD_Q:*/["#QST_END_GD_ANY_MEDC_01#","#QST_END_GD_WOUNDED_01#","#QST_END_GD_WOUNDED_02#"],
+			/*LOC_QST_END_GD_A:*/["#QST_END_GD_ANY_A_01#","#QST_END_GD_ANY_A_02#","#QST_END_GD_ANY_A_03#","#QST_END_GD_ANY_A_04#","#QST_END_GD_ANY_A_05#","#QST_END_GD_MEDC_A_01#"],
+			/*LOC_QST_END_BD_Q:*/["#QST_END_BD_WOUNDED_01#"],
+			/*LOC_QST_END_BD_A:*/["#QST_END_BD_ANY_A_01#","#QST_END_BD_ANY_A_02#","#QST_END_BD_ANY_A_03#","#QST_END_BD_ANY_A_04#"]
+		],
+		/*QST_TYPE_MED_SUPPLY:*/
+		[
+			/*LOC_QST_START__Q:*/["#QST_DESCR_MED_SUPPLY_01#","#QST_DESCR_MED_SUPPLY_02#","#QST_DESCR_MED_SUPPLY_03#"],
+			/*LOC_QST_START__A:*/["#QST_ANY_START_A_01#","#QST_ANY_START_A_02#","#QST_ANY_START_A_03#","#QST_ANY_START_A_04#","#QST_ANY_START_A_05#","#QST_ANY_START_A_06#","#QST_ANY_START_A_07#","#QST_MED_SUPPLY_START_A_01#","#QST_MED_SUPPLY_START_A_02#"],
+			/*LOC_QST_REPORT_Q:*/["#QST_ANY_REPORT_Q_01#","#QST_ANY_REPORT_Q_02#","#QST_ANY_REPORT_Q_03#","#QST_ANY_DELIVER_REPORT_Q_01#","#QST_ANY_DELIVER_REPORT_Q_02#","#QST_ANY_MEDC_REPORT_Q_01#"],
+			/*LOC_QST_REPORT_A:*/["#QST_ANY_DELIVER_REPORT_A_01#","#QST_ANY_DELIVER_REPORT_A_02#","#QST_ANY_DELIVER_REPORT_A_03#"],
+			/*LOC_QST_UNDONE_Q:*/["#QST_UNDONE_MEDC_ANY_DELIVER_Q_01#"],
+			/*LOC_QST_UNDONE_A:*/["#QST_UNDONE_ANY_A_01#","#QST_UNDONE_ANY_A_02#","#QST_UNDONE_ANY_A_03#","#QST_UNDONE_ANY_A_04#"],
+			/*LOC_QST_END_GD_Q:*/["#QST_END_GD_ANY_MEDC_01#","#QST_END_GD_MED_SUPPLY_01#"],
+			/*LOC_QST_END_GD_A:*/["#QST_END_GD_ANY_A_01#","#QST_END_GD_ANY_A_02#","#QST_END_GD_ANY_A_03#","#QST_END_GD_ANY_A_04#","#QST_END_GD_ANY_A_05#","#QST_END_GD_MEDC_A_01#"],
+			/*LOC_QST_END_BD_Q:*/[LOC_NO_DATA],
+			/*LOC_QST_END_BD_A:*/[]
+		],
+		/*QST_TYPE_WEAPON:*/
+		[
+			/*LOC_QST_START__Q:*/["#QST_DESCR_WEAPON_01#","#QST_DESCR_WEAPON_02#","#QST_DESCR_WEAPON_03#"],
+			/*LOC_QST_START__A:*/["#QST_ANY_START_A_01#","#QST_ANY_START_A_02#","#QST_ANY_START_A_03#","#QST_ANY_START_A_04#","#QST_ANY_START_A_05#","#QST_ANY_START_A_06#","#QST_ANY_START_A_07#","#QST_WEAPON_START_A_01#","#QST_WEAPON_START_A_02#"],
+			/*LOC_QST_REPORT_Q:*/["#QST_ANY_REPORT_Q_01#","#QST_ANY_REPORT_Q_02#","#QST_ANY_REPORT_Q_03#","#QST_ANY_DELIVER_REPORT_Q_01#","#QST_ANY_DELIVER_REPORT_Q_02#","#QST_ANY_ROOF_REPORT_Q_01#"],
+			/*LOC_QST_REPORT_A:*/["#QST_ANY_DELIVER_REPORT_A_01#","#QST_ANY_DELIVER_REPORT_A_02#","#QST_ANY_DELIVER_REPORT_A_03#"],
+			/*LOC_QST_UNDONE_Q:*/["#QST_UNDONE_ROOF_ANY_DELIVER_Q_01#"],
+			/*LOC_QST_UNDONE_A:*/["#QST_UNDONE_ANY_A_01#","#QST_UNDONE_ANY_A_02#","#QST_UNDONE_ANY_A_03#","#QST_UNDONE_ANY_A_04#"],
+			/*LOC_QST_END_GD_Q:*/["#QST_END_GD_ANY_ROOF_01#"],
+			/*LOC_QST_END_GD_A:*/["#QST_END_GD_ANY_A_01#","#QST_END_GD_ANY_A_02#","#QST_END_GD_ANY_A_03#","#QST_END_GD_ANY_A_04#","#QST_END_GD_ANY_A_05#","#QST_END_GD_ROOF_A_01#"],
+			/*LOC_QST_END_BD_Q:*/[LOC_NO_DATA],
+			/*LOC_QST_END_BD_A:*/[]
+		],
+		/*QST_TYPE_ELECTRONICS:*/
+		[
+			/*LOC_QST_START__Q:*/["#QST_DESCR_ELECTRONICS_01#","#QST_DESCR_ELECTRONICS_02#","#QST_DESCR_ELECTRONICS_03#"],
+			/*LOC_QST_START__A:*/["#QST_ANY_START_A_01#","#QST_ANY_START_A_02#","#QST_ANY_START_A_03#","#QST_ANY_START_A_04#","#QST_ANY_START_A_05#","#QST_ANY_START_A_06#","#QST_ANY_START_A_07#","#QST_ELECTRONICS_START_A_01#","#QST_ELECTRONICS_START_A_02#"],
+			/*LOC_QST_REPORT_Q:*/["#QST_ANY_REPORT_Q_01#","#QST_ANY_REPORT_Q_02#","#QST_ANY_REPORT_Q_03#","#QST_ANY_DELIVER_REPORT_Q_01#","#QST_ANY_DELIVER_REPORT_Q_02#","#QST_ANY_TRDR_REPORT_Q_01#"],
+			/*LOC_QST_REPORT_A:*/["#QST_ANY_DELIVER_REPORT_A_01#","#QST_ANY_DELIVER_REPORT_A_02#","#QST_ANY_DELIVER_REPORT_A_03#"],
+			/*LOC_QST_UNDONE_Q:*/["#QST_UNDONE_TRDR_ANY_DELIVER_Q_01#"],
+			/*LOC_QST_UNDONE_A:*/["#QST_UNDONE_ANY_A_01#","#QST_UNDONE_ANY_A_02#","#QST_UNDONE_ANY_A_03#","#QST_UNDONE_ANY_A_04#"],
+			/*LOC_QST_END_GD_Q:*/["#QST_END_GD_ANY_TRDR_01#"],
+			/*LOC_QST_END_GD_A:*/["#QST_END_GD_ANY_A_01#","#QST_END_GD_ANY_A_02#","#QST_END_GD_ANY_A_03#","#QST_END_GD_ANY_A_04#","#QST_END_GD_ANY_A_05#","#QST_END_GD_TRDR_A_01#"],
+			/*LOC_QST_END_BD_Q:*/[LOC_NO_DATA],
+			/*LOC_QST_END_BD_A:*/[]
+		]
+	]],
 
 	["",0]
 ];
@@ -218,6 +316,17 @@ NWG_DLGHLP_UI_UpdatePlayerMoney = {
 //================================================================================================================
 //================================================================================================================
 //Quests
+#define LOC_QST_START__Q 0
+#define LOC_QST_START__A 1
+#define LOC_QST_REPORT_Q 2
+#define LOC_QST_REPORT_A 3
+#define LOC_QST_UNDONE_Q 4
+#define LOC_QST_UNDONE_A 5
+#define LOC_QST_END_GD_Q 6
+#define LOC_QST_END_GD_A 7
+#define LOC_QST_END_BD_Q 8
+#define LOC_QST_END_BD_A 9
+
 /*Defines wether or not entire quest dialogue tree should be available*/
 NWG_DLGHLP_QST_ShowQuest = {
 	// private _npcName = _this;
@@ -230,10 +339,9 @@ NWG_DLGHLP_QST_ShowQuest = {
 };
 NWG_DLGHLP_QST_GenerateShowQuest = {
 	// private _npcName = _this;
-	if !(_this call NWG_DLGHLP_QST_ShowQuest) exitWith {[]};
-	private _nodeName = format ["%1_QST_DISPLAY",_this];
-	//return
-	[[{call NWG_DLGHLP_GetRndQuestStart},_nodeName,{},0,COLOR_GREEN]]
+	if (_this call NWG_DLGHLP_QST_ShowQuest)
+		then {[[{call NWG_DLGHLP_GetRndQuestOpen},(format ["%1_QST_DISPLAY",_this]),{},0,COLOR_GREEN]]}
+		else {[]}
 };
 
 NWG_DLGHLP_QST_IsReporting = {
@@ -241,13 +349,13 @@ NWG_DLGHLP_QST_IsReporting = {
 	player call NWG_fnc_mmWasPlayerOnMission
 };
 
-NWG_DLGHLP_GetRndQuestStart = {
+NWG_DLGHLP_GetRndQuestOpen = {
 	if (call NWG_DLGHLP_QST_IsReporting)
-		then {selectRandom (NWG_DLGHLP_Settings get "QST_REPORT_KEYS")}
-		else {selectRandom (NWG_DLGHLP_Settings get "QST_START_KEYS")}
+		then {selectRandom (NWG_DLGHLP_Settings get "QST_REPORT_A")}
+		else {selectRandom (NWG_DLGHLP_Settings get "QST_START__A")}
 };
 
-NWG_DLGHLP_QST_DisplayQuestData = {
+NWG_DLGHLP_QST_GenerateQuestDisplayQ = {
 	disableSerialization;
 	private _npcName = _this;
 	private _onError = "[NO QUEST DATA]";
@@ -255,23 +363,23 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 	//Get quest data
 	private _questData = call NWG_fnc_qstGetQuestData;
 	if (_questData isEqualTo false) exitWith {
-		"NWG_DLGHLP_QST_DisplayQuestData: No quest data found" call NWG_fnc_logError;
+		"NWG_DLGHLP_QST_GenerateQuestDisplayQ: No quest data found" call NWG_fnc_logError;
 		_onError
 	};
 	if ((_questData param [QST_DATA_NPC,""]) isNotEqualTo _npcName) exitWith {
-		(format ["NWG_DLGHLP_QST_DisplayQuestData: Quest data NPC name mismatch: %1 != %2",(_questData param [QST_DATA_NPC,""]),_npcName]) call NWG_fnc_logError;
+		(format ["NWG_DLGHLP_QST_GenerateQuestDisplayQ: Quest data NPC name mismatch: %1 != %2",(_questData param [QST_DATA_NPC,""]),_npcName]) call NWG_fnc_logError;
 		_onError
 	};
 
 	//Display NPC name
 	private _gui = uiNamespace getVariable ["NWG_DLG_gui",displayNull];
 	if (isNull _gui) exitWith {
-		"NWG_DLGHLP_QST_DisplayQuestData: GUI is null" call NWG_fnc_logError;
+		"NWG_DLGHLP_QST_GenerateQuestDisplayQ: GUI is null" call NWG_fnc_logError;
 		_onError
 	};
 	private _qListbox = _gui displayCtrl IDC_QLISTBOX;
 	if (isNull _qListbox) exitWith {
-		"NWG_DLGHLP_QST_DisplayQuestData: Quest list box is null" call NWG_fnc_logError;
+		"NWG_DLGHLP_QST_GenerateQuestDisplayQ: Quest list box is null" call NWG_fnc_logError;
 		_onError
 	};
 	private _npcNameLoc = ((NWG_DLG_CLI_Settings get "LOC_NPC_NAME") getOrDefault [_npcName,""]) call NWG_fnc_localize;
@@ -295,7 +403,7 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
 			private _cfg = configFile >> "CfgVehicles" >> _targetClassname;
 			if !(isClass _cfg) exitWith {
-				(format ["NWG_DLGHLP_QST_DisplayQuestData: Target classname is not a valid vehicle: '%1'",_targetClassname]) call NWG_fnc_logError;
+				(format ["NWG_DLGHLP_QST_GenerateQuestDisplayQ: Target classname is not a valid vehicle: '%1'",_targetClassname]) call NWG_fnc_logError;
 			};
 			_displayName = getText (_cfg >> "displayName");
 			_image = getText (_cfg >> "editorPreview");
@@ -311,13 +419,13 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
 			private _cfg = configFile >> "CfgWeapons" >> _targetClassname;
 			if !(isClass _cfg) exitWith {
-				(format ["NWG_DLGHLP_QST_DisplayQuestData: Target classname is not a valid vehicle: '%1'",_targetClassname]) call NWG_fnc_logError;
+				(format ["NWG_DLGHLP_QST_GenerateQuestDisplayQ: Target classname is not a valid vehicle: '%1'",_targetClassname]) call NWG_fnc_logError;
 			};
 			_displayName = getText (_cfg >> "displayName");
 			_image = getText (_cfg >> "picture");
 		};
 		default {
-			(format ["NWG_DLGHLP_QST_DisplayQuestData: Unknown quest type: '%1'",_questType]) call NWG_fnc_logError;
+			(format ["NWG_DLGHLP_QST_GenerateQuestDisplayQ: Unknown quest type: '%1'",_questType]) call NWG_fnc_logError;
 		};
 	};
 	private _displayTemplate = ((NWG_DLGHLP_Settings get "QST_DISPLAY_TEMPLATES") param [_questType,"%1"]) call NWG_fnc_localize;
@@ -336,113 +444,110 @@ NWG_DLGHLP_QST_DisplayQuestData = {
 		};
 		case (_rewardRaw isEqualType ""): {_rewardRaw call NWG_fnc_localize};
 		default {
-			(format ["NWG_DLGHLP_QST_DisplayQuestData: Unknown reward type for '%1'",_rewardRaw]) call NWG_fnc_logError;
+			(format ["NWG_DLGHLP_QST_GenerateQuestDisplayQ: Unknown reward type for '%1'",_rewardRaw]) call NWG_fnc_logError;
 			"[UNKNOWN REWARD]"
 		};
 	};
 	_qListbox lbAdd (format [_rewardTemplate,_rewardStr]);
 
-	//If player reporting - return short 'welcome back' message
-	if (call NWG_DLGHLP_QST_IsReporting) exitWith {
-		selectRandom (NWG_DLGHLP_Settings get "QST_REPORT_Q_KEYS")
-	};
-
-	//Else if starting the quest - return quest description
-	switch (_questType) do {
-		case QST_TYPE_VEH_STEAL:   {selectRandom (NWG_DLGHLP_Settings get "QST_QD_VEH_STEAL_KEYS")};
-		case QST_TYPE_INTERROGATE: {selectRandom (NWG_DLGHLP_Settings get "QST_QD_INTERROGATE_KEYS")};
-		case QST_TYPE_HACK_DATA:   {selectRandom (NWG_DLGHLP_Settings get "QST_QD_HACK_DATA_KEYS")};
-		case QST_TYPE_DESTROY:     {selectRandom (NWG_DLGHLP_Settings get "QST_QD_DESTROY_KEYS")};
-		case QST_TYPE_INTEL: 	   {selectRandom (NWG_DLGHLP_Settings get "QST_QD_INTEL_KEYS")};
-		case QST_TYPE_INFECTION:   {selectRandom (NWG_DLGHLP_Settings get "QST_QD_INFECTION_KEYS")};
-		case QST_TYPE_WOUNDED:     {selectRandom (NWG_DLGHLP_Settings get "QST_QD_WOUNDED_KEYS")};
-		case QST_TYPE_MED_SUPPLY:  {selectRandom (NWG_DLGHLP_Settings get "QST_QD_MED_SUPPLY_KEYS")};
-		case QST_TYPE_WEAPON:      {selectRandom (NWG_DLGHLP_Settings get "QST_QD_WEAPON_KEYS")};
-		case QST_TYPE_ELECTRONICS: {selectRandom (NWG_DLGHLP_Settings get "QST_QD_ELECTRONICS_KEYS")};
-		default {"[UNKNOWN QUEST DATA]"};
-	}
+	//Displayer quest description OR report
+	private _qstLocData = (NWG_DLGHLP_Settings get "QST_LOC_DATA") param [_questType,[]];
+	private _toShow = if (call NWG_DLGHLP_QST_IsReporting) then {LOC_QST_REPORT_Q} else {LOC_QST_START__Q};
+	selectRandom (_qstLocData param [_toShow,["[UNKNOWN QUEST DATA]"]])
 };
 
-NWG_DLGHLP_QST_GenerateQuestAnswers = {
+NWG_DLGHLP_QST_GenerateQuestDisplayA = {
 	private _npcName = _this;
+	private _onError = [];
 
-	//Return 'I'll do it' answer
-	if !(call NWG_DLGHLP_QST_IsReporting) exitWith {
-		[[(selectRandom (NWG_DLGHLP_Settings get "QST_WILL_DO_A_KEYS")),NODE_EXIT]]
+	//Get quest data
+	private _questData = call NWG_fnc_qstGetQuestData;
+	if (_questData isEqualTo false) exitWith {
+		"NWG_DLGHLP_QST_GenerateQuestDisplayQ: No quest data found" call NWG_fnc_logError;
+		_onError
 	};
+	if ((_questData param [QST_DATA_NPC,""]) isNotEqualTo _npcName) exitWith {
+		(format ["NWG_DLGHLP_QST_GenerateQuestDisplayQ: Quest data NPC name mismatch: %1 != %2",(_questData param [QST_DATA_NPC,""]),_npcName]) call NWG_fnc_logError;
+		_onError
+	};
+	private _questType = _questData param [QST_DATA_TYPE,-1];
 
-	//Return 'I've done it' TRUE answer
-	private _doneKey = selectRandom (NWG_DLGHLP_Settings get "QST_DONE_A_KEYS");
-	if (_npcName call NWG_fnc_qstCanCloseQuest) exitWith {
-		private _closeScript = switch (_npcName) do {
-			case NPC_TAXI: {{NPC_TAXI call NWG_fnc_qstCloseQuest}};
-			case NPC_MECH: {{NPC_MECH call NWG_fnc_qstCloseQuest}};
-			case NPC_TRDR: {{NPC_TRDR call NWG_fnc_qstCloseQuest}};
-			case NPC_MEDC: {{NPC_MEDC call NWG_fnc_qstCloseQuest}};
-			case NPC_COMM: {{NPC_COMM call NWG_fnc_qstCloseQuest}};
-			case NPC_ROOF: {{NPC_ROOF call NWG_fnc_qstCloseQuest}};
+	//Return quest accept OR report answer
+	private _qstLocData = (NWG_DLGHLP_Settings get "QST_LOC_DATA") param [_questType,[]];
+	private _toShow = if (call NWG_DLGHLP_QST_IsReporting) then {LOC_QST_REPORT_A} else {LOC_QST_START__A};
+
+	if (call NWG_DLGHLP_QST_IsReporting) then {
+		private _answerStr = selectRandom (_qstLocData param [LOC_QST_REPORT_A,["[UNKNOWN QUEST ANSWER]"]]);
+		private _nextNode = format ["%1_QST_RESULT",_npcName];
+		private _script = switch (_npcName) do {
+			case NPC_TAXI: {{NWG_DLGHLP_QST_questResult = NPC_TAXI call NWG_fnc_qstTryCloseQuest}};
+			case NPC_MECH: {{NWG_DLGHLP_QST_questResult = NPC_MECH call NWG_fnc_qstTryCloseQuest}};
+			case NPC_TRDR: {{NWG_DLGHLP_QST_questResult = NPC_TRDR call NWG_fnc_qstTryCloseQuest}};
+			case NPC_MEDC: {{NWG_DLGHLP_QST_questResult = NPC_MEDC call NWG_fnc_qstTryCloseQuest}};
+			case NPC_COMM: {{NWG_DLGHLP_QST_questResult = NPC_COMM call NWG_fnc_qstTryCloseQuest}};
+			case NPC_ROOF: {{NWG_DLGHLP_QST_questResult = NPC_ROOF call NWG_fnc_qstTryCloseQuest}};
 		};//Dirty hack to avoid caching npc name
-		[[_doneKey,(format ["%1_QST_QUEST_DONE_TRUE",_npcName]),_closeScript]]
+		[[_answerStr,_nextNode,_script]]
+	} else {
+		private _answerStr = selectRandom (_qstLocData param [LOC_QST_START__A,["[UNKNOWN QUEST ANSWER]"]]);
+		[[_answerStr,NODE_EXIT]]
 	};
-
-	//Return 'I've done it' FALSE answer
-	[[_doneKey,(format ["%1_QST_QUEST_DONE_FALSE",_npcName])]]
 };
 
-NWG_DLGHLP_GetRndQuestDoneFalseQ = {
-	private _npcName = _this;
-	switch (_npcName) do {
-		case NPC_TAXI: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_TAXI")};
-		case NPC_MECH: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_MECH")};
-		case NPC_TRDR: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_TRDR")};
-		case NPC_MEDC: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_MEDC")};
-		case NPC_COMM: {
-			/*Depending on quest type - return different false answers*/
-			private _random = selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_COMM");
-			private _questData = call NWG_fnc_qstGetQuestData;
-			if (_questData isEqualTo false) exitWith {_random};
-			private _questType = _questData param [QST_DATA_TYPE,-1];
-			if (_questType != QST_TYPE_INTEL) exitWith {_random};
-			selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_COMM_ITEMS")
-		};
-		case NPC_ROOF: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_FALSE_ROOF")};
+NWG_DLGHLP_QST_questResult = QST_RESULT_UNDONE;
+NWG_DLGHLP_QST_GenerateQuestResultQ = {
+	private _onError = "[ERROR]";
+	private _questData = call NWG_fnc_qstGetQuestData;
+	if (_questData isEqualTo false) exitWith {
+		"NWG_DLGHLP_QST_GenerateQuestDisplayQ: No quest data found" call NWG_fnc_logError;
+		_onError
+	};
+	private _questType = _questData param [QST_DATA_TYPE,-1];
+	if (_questType isEqualTo -1) exitWith {
+		"NWG_DLGHLP_QST_GenerateQuestResultQ: Invalid quest type" call NWG_fnc_logError;
+		_onError
+	};
+	private _qstLocData = (NWG_DLGHLP_Settings get "QST_LOC_DATA") param [_questType,[]];
+
+	//return
+	switch (NWG_DLGHLP_QST_questResult) do {
+		case QST_RESULT_UNDONE: {selectRandom (_qstLocData param [LOC_QST_UNDONE_Q,["[UNKNOWN QUEST RESULT]"]])};
+		case QST_RESULT_GD_END: {selectRandom (_qstLocData param [LOC_QST_END_GD_Q,["[UNKNOWN QUEST RESULT]"]])};
+		case QST_RESULT_BD_END: {selectRandom (_qstLocData param [LOC_QST_END_BD_Q,["[UNKNOWN QUEST RESULT]"]])};
+		case false: {_onError}; //Error logged in NWG_QST_CLI_TryCloseQuest
 		default {
-			(format ["NWG_DLGHLP_GetRndQuestDoneFalseQ: Unknown NPC name: '%1'",_npcName]) call NWG_fnc_logError;
-			""
+			(format ["NWG_DLGHLP_QST_GenerateQuestResultQ: Unknown quest result: %1",NWG_DLGHLP_QST_questResult]) call NWG_fnc_logError;
+			_onError
 		};
-	}
+	};
 };
 
-NWG_DLGHLP_GetRndQuestDoneTrueQ = {
-	private _npcName = _this;
-	switch (_npcName) do {
-		case NPC_TAXI: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_TAXI")};
-		case NPC_MECH: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_MECH")};
-		case NPC_TRDR: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_TRDR")};
-		case NPC_MEDC: {
-			/*Depending on quest type - return different true answers*/
-			private _random = selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_MEDC");
-			private _questData = call NWG_fnc_qstGetQuestData;
-			if (_questData isEqualTo false) exitWith {_random};
-			private _questType = _questData param [QST_DATA_TYPE,-1];
-			if (_questType != QST_TYPE_INFECTION) exitWith {_random};
-			switch (call NWG_QST_CLI_CalcInfectionOutcome) do {
-				case 1: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_MEDC_INFECTION_GOOD_ENDING")};
-				case -1: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_MEDC_INFECTION_BAD_ENDING")};
-				default {_random};
-			}
-		};
-		case NPC_COMM: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_COMM")};
-		case NPC_ROOF: {selectRandom (NWG_DLGHLP_Settings get "QST_DONE_TRUE_ROOF")};
+NWG_DLGHLP_QST_GenerateQuestResultA = {
+	private _onError = "[ERROR]";
+	private _questData = call NWG_fnc_qstGetQuestData;
+	if (_questData isEqualTo false) exitWith {
+		"NWG_DLGHLP_QST_GenerateQuestResultA: No quest data found" call NWG_fnc_logError;
+		_onError
+	};
+	private _questType = _questData param [QST_DATA_TYPE,-1];
+	if (_questType isEqualTo -1) exitWith {
+		"NWG_DLGHLP_QST_GenerateQuestResultA: Invalid quest type" call NWG_fnc_logError;
+		_onError
+	};
+	private _qstLocData = (NWG_DLGHLP_Settings get "QST_LOC_DATA") param [_questType,[]];
+
+	//return
+	private _answerStr = switch (NWG_DLGHLP_QST_questResult) do {
+		case QST_RESULT_UNDONE: {selectRandom (_qstLocData param [LOC_QST_UNDONE_A,["[UNKNOWN QUEST RESULT]"]])};
+		case QST_RESULT_GD_END: {selectRandom (_qstLocData param [LOC_QST_END_GD_A,["[UNKNOWN QUEST RESULT]"]])};
+		case QST_RESULT_BD_END: {selectRandom (_qstLocData param [LOC_QST_END_BD_A,["[UNKNOWN QUEST RESULT]"]])};
+		case false: {_onError}; //Error logged in NWG_QST_CLI_TryCloseQuest
 		default {
-			(format ["NWG_DLGHLP_GetRndQuestDoneTrueQ: Unknown NPC name: '%1'",_npcName]) call NWG_fnc_logError;
-			""
+			(format ["NWG_DLGHLP_QST_GenerateQuestResultA: Unknown quest result: %1",NWG_DLGHLP_QST_questResult]) call NWG_fnc_logError;
+			_onError
 		};
-	}
-};
-
-NWG_DLGHLP_GetRndQuestCloseA = {
-	selectRandom (NWG_DLGHLP_Settings get "QST_CLOSE_KEYS")
+	};
+	[[_answerStr,NODE_EXIT]]
 };
 
 //================================================================================================================
