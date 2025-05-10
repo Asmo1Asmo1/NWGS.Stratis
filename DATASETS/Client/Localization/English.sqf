@@ -755,6 +755,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_ELECTRONICS_CLOSED#","%1 handed over the electronics and closed the task"],
     ["#QST_BURNDOWN_DONE#","%1 burned down the stash (report to trader)"],
     ["#QST_BURNDOWN_CLOSED#","%1 reported to trader and closed the task"],
+    ["#QST_TOOLS_CLOSED#","%1 handed over the tools and closed the task"],
     ["#QST_UNKONW_WINNER#","Somebody"],
     ["#QST_CLOSE_ERROR#","Failed to close quest"],
     /*Quest start*/
@@ -781,6 +782,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DISPLAY_WEAPON#","Find and deliver: %1"],
     ["#QST_DISPLAY_ELECTRONICS#","Find electronic devices (example: %1)"],
     ["#QST_DISPLAY_BURNDOWN#","Burn down: %1"],
+    ["#QST_DISPLAY_TOOLS#","Find tools (example: %1)"],
     ["#QST_REWARD_TEMPLATE#","Reward: 1 Exp, 1 lvl and %1"],
     ["#QST_REWARD_TEMPLATE_PER_ITEM#","%1%% of price for each item"],
     /*Quest descriptions*/
@@ -817,6 +819,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DESCR_BURNDOWN_01#","Listen, it's between you and me|Some of my merchandise...|Ended up in the wrong hands|And I don't need that kind of attention|So...|You will burn it down for me|And I will gladly compensate your efforts|Is that a deal?"],
     ["#QST_DESCR_BURNDOWN_02#","This is a small world we live in|Some time ago I sold some... stuff... to local buyer|Turns out, he's working for our adversaries|They now have boxes with my name on it|As you understand - that is quite bad for business|So...|I want you to destroy that merchandise|Leave no trace"],
     ["#QST_DESCR_BURNDOWN_03#","Our enemies have a stash on the island|I need it gone|Reasons are irrelevant|What's important is that I will pay well for the job|... And for you to keep your mouth shut|So?|Will you do it?"],
+    ["#QST_DESCR_TOOLS_01#","Hey, I need you to find me some tools and gas cans|I'll pay well, so what would you say?"],
+    ["#QST_DESCR_TOOLS_02#","Yeah, so I need new tools as a replacement|And I though, you'll be roaming around anyway|So, you know, why not buy what you'll find, right?"],
+    ["#QST_DESCR_TOOLS_03#","I need more tools for a work I'm doing|And I though, you might find some where you're heading|What would you say?"],
     /*Quest description answers*/
     ["#QST_ANY_START_A_01#","Yeah, I'm in"],
     ["#QST_ANY_START_A_02#","Yeah, no problem"],
@@ -847,6 +852,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_ELECTRONICS_START_A_02#","Phones, laptops, flash drives. Ok, got it"],
     ["#QST_BURNDOWN_START_A_01#","Burn it down, got it"],
     ["#QST_BURNDOWN_START_A_02#","Burn it down, yeah, no problem"],
+    ["#QST_TOOLS_START_A_01#","Yeah, I'll see what I can find"],
+    ["#QST_TOOLS_START_A_02#","Tools and gas cans, yeah, no problem"],
     /*Quest reports questions*/
     ["#QST_ANY_REPORT_Q_01#","Well?"],
     ["#QST_ANY_REPORT_Q_02#","So?"],
@@ -869,6 +876,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_ANY_ACTION_REPORT_A_04#","Go check, it's done"],
     /*Quest UNDONE questions*/
     ["#QST_UNDONE_VEH_STEAL_Q_01#","Sorry, pal, but I don't see it on the list|Where is it?"],
+    ["#QST_UNDONE_MECH_ANY_DELIVER_Q_01#","So... where are the goods?|If you put it in the storage - bring it here"],
     ["#QST_UNDONE_COMM_ANY_ACTION_Q_01#","Oh yeah? Is that so?|Well, my sources do not confirm that|How strange, right?"],
     ["#QST_UNDONE_COMM_ANY_DELIVER_Q_01#","Then why don't I see it on the table?|If it's in your storage - bring it here"],
     ["#QST_UNDONE_MEDC_ANY_ACTION_Q_01#","Son, I'm old, not stupid|Come back when you're done"],
@@ -894,6 +902,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_END_GD_MED_SUPPLY_01#","This will be enough for now|Thank you, son|Here is your reward"],
     ["#QST_END_GD_ANY_TRDR_01#","Always a pleasure doing business with you"],
     ["#QST_END_GD_ANY_ROOF_01#","Hehe, now that will be a good one|A reward?|All right, fine, here you go|And don't tell anyone!"],
+    ["#QST_END_GD_TOOLS_01#","Yep, that's good enough|Thanks, pal, here is your reward"],
     /*Quest GOOD ending answers*/
     ["#QST_END_GD_ANY_A_01#","Let me know if you need anything else"],
     ["#QST_END_GD_ANY_A_02#","I'll be around if you need anything else"],

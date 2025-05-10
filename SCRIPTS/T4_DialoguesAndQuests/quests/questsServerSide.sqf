@@ -127,6 +127,11 @@ NWG_QST_SER_CreateNew = {
         private _selectBy = {(typeOf _x) in (NWG_QST_Settings get "BURNDOWN_TARGETS")};
         [QST_TYPE_BURNDOWN,OBJ_CAT_DECO,_selectBy] call _fillDice;
     };
+    /*Tools quest*/
+    if (QST_TYPE_TOOLS in _enabledQuests) then {
+        private _selectBy = {(typeOf _x) in (NWG_QST_Settings get "TOOLS_ITEMS_OBJECTS")};
+        [QST_TYPE_TOOLS,OBJ_CAT_DECO,_selectBy] call _fillDice;
+    };
 
     //Check dice
     if ((count _dice) == 0) exitWith {

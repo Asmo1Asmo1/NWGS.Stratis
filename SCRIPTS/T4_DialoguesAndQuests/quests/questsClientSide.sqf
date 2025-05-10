@@ -127,7 +127,8 @@ NWG_QST_CLI_TryCloseQuest = {
 		/*Winner is defined by wether or not they have at least one item from the price map*/
 		case QST_TYPE_INTEL;
 		case QST_TYPE_MED_SUPPLY;
-		case QST_TYPE_ELECTRONICS: {
+		case QST_TYPE_ELECTRONICS;
+		case QST_TYPE_TOOLS: {
 			private _priceMap = (_questData param [QST_DATA_REWARD,[]]) param [QST_REWARD_PER_ITEM_PRICE_MAP,createHashMap];
 			private _hasItem = false;
 			private _hasItemFunc = NWG_QST_Settings get "FUNC_HAS_ITEM";
@@ -183,7 +184,8 @@ NWG_QST_CLI_TryCloseQuest = {
 		/*Reward calculated on client side per item*/
 		case QST_TYPE_INTEL;
 		case QST_TYPE_MED_SUPPLY;
-		case QST_TYPE_ELECTRONICS: {
+		case QST_TYPE_ELECTRONICS;
+		case QST_TYPE_TOOLS: {
 			if (_questResult isEqualTo QST_RESULT_BD_END) exitWith {false};//Quest failed
 
 			private _priceMap = (_questData param [QST_DATA_REWARD,[]]) param [QST_REWARD_PER_ITEM_PRICE_MAP,createHashMap];
@@ -218,7 +220,8 @@ NWG_QST_CLI_TryCloseQuest = {
 		/*Delete items from player*/
 		case QST_TYPE_INTEL;
 		case QST_TYPE_MED_SUPPLY;
-		case QST_TYPE_ELECTRONICS: {
+		case QST_TYPE_ELECTRONICS;
+		case QST_TYPE_TOOLS: {
 			private _priceMap = (_questData param [QST_DATA_REWARD,[]]) param [QST_REWARD_PER_ITEM_PRICE_MAP,createHashMap];
 			private _getCountFunc = NWG_QST_Settings get "FUNC_GET_ITEM_COUNT";
 			private _items = [];

@@ -144,6 +144,7 @@
 #define QST_TYPE_WEAPON 8
 #define QST_TYPE_ELECTRONICS 9
 #define QST_TYPE_BURNDOWN 10
+#define QST_TYPE_TOOLS 11
 
 /*Quest States*/
 #define QST_STATE_UNASSIGNED 0
