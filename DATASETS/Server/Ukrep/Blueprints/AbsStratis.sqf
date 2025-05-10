@@ -1378,5 +1378,103 @@
         ["VEHC","Land_VR_Target_APC_Wheeled_01_F",[4003.5,6341,119.838],0,270.153,0,[]],
         ["VEHC","Land_VR_Target_MBT_01_cannon_F",[3931,6344.5,116.329],0,269.701,0,[]],
         ["VEHC","Land_VR_Target_MRAP_01_F",[4019.5,6338,119.299],0,284.657,0,[]],
-        ["VEHC","Land_VR_Target_MRAP_01_F",[3947.5,6344.5,117.431],0,270.086,0,[]]]]
+        ["VEHC","Land_VR_Target_MRAP_01_F",[3947.5,6344.5,117.431],0,270.086,0,[]]]],
+
+    ["ABS","NorthVillage_v1_1",[3616.47,6760.05,0],0,19.8642,0,[],[
+        ["BLDG","Land_i_Stone_Shed_V1_F",[3614.75,6751.75,46.2504],0,160,0,2],
+        ["BLDG","Land_Slum_House02_F",[3622.25,6777.5,47.0923],0,350,0,2],
+        ["BLDG","Land_u_House_Small_02_V1_F",[3627,6754.5,47.75],0,160,0,2],
+        ["DECO","Land_Cages_F",[3610.53,6750.13,44.7763],0,150.2,0,1],
+        ["DECO","Land_CratesPlastic_F",[3615.5,6754,45.9313],0,0,0,1],
+        ["DECO","Land_CratesShabby_F",[3614.75,6753.5,45.8269],0,250.342,0,1],
+        ["DECO","Land_Grave_dirt_F",[3610.5,6779,45.455],0,165,0,1]]],
+
+    ["ABS","AgiaVillage_v1_1",[3395.8,6062.17,0],0,37.2901,0,[],[
+        ["BLDG","CamoNet_BLUFOR_F",[3384.36,6078.84,5.85509],0,10,0,2],
+        ["DECO","B_CargoNet_01_ammo_F",[3394.73,6061.42,4.93343],0,150.141,0,1],
+        ["DECO","B_supplyCrate_F",[3395.49,6065.68,5.1569],0,130.115,0,1],
+        ["DECO","Land_BagFence_Round_F",[3396.75,6060.75,4.75],0,50,0,1],
+        ["DECO","Land_BagFence_Round_F",[3396.75,6065,5],0,130.127,0,1],
+        ["DECO","Land_BagFence_Round_F",[3401.25,6065,5.25],0,225.018,0,1],
+        ["DECO","Land_BagFence_Round_F",[3401.25,6060.75,5],0,310.616,0,1],
+        ["DECO","Land_Can_Dented_F",[3416.28,6035.22,5.5081],0,0,0,0],
+        ["DECO","Land_Can_Dented_F",[3367.99,6087.02,6.13712],0,0,0,0],
+        ["DECO","Land_VR_Shape_01_cube_1m_F",[3393.38,6060.63,4.875],0,150,0,1],
+        ["VEHC","C_Offroad_01_F",[3402.89,6042.35,5.06483],0,0.0522579,0,[[],[["Darkred",1],["HideDoor1",0,"HideDoor2",0,"HideDoor3",0,"HideBackpacks",1,"HideBumper1",0,"HideBumper2",1,"HideConstruction",1,"hidePolice",1,"HideServices",1,"BeaconsStart",0,"BeaconsServicesStart",0]]]],
+        ["TRRT","B_static_AA_F",[3398.47,6063.43,5.15609],0,165.026,0,["B_Soldier_VR_F"]]]],
+
+    ["ABS","OfficerQuarters_v1_1",[6585.78,5338.29,0],0,29.7148,0,[],[
+        ["DECO","Land_Atm_01_F",[6586.63,5343.88,24.5],0,80,0,1],
+        ["DECO","Land_Can_Dented_F",[6574.13,5352.04,23.7323],0,0,0,0],
+        ["DECO","Land_Can_Dented_F",[6600.12,5312.26,26.0041],0,0,0,0],
+        ["DECO","Land_ClothesLine_01_F",[6581.13,5340.88,24.25],0,80,0,1],
+        ["DECO","Land_PhoneBooth_01_F",[6586.88,5342.38,24.375],0,80,0,1]]],
+
+    ["ABS","KeirosVillage_v1_1",[5506.13,4714.57,0],0,34.5564,0,[],[
+        ["BLDG","CamoNet_BLUFOR_big_F",[5522.63,4716.75,78],0,255,0,2],
+        ["BLDG","Land_i_Stone_HouseBig_V1_F",[5509,4702.88,77.625],0,205,0,2],
+        ["BLDG","Land_Unfinished_Building_01_F",[5496.38,4731.38,78.875],0,295,0,1],
+        ["DECO","B_CargoNet_01_ammo_F",[5501.88,4703.59,77.7492],0,0,0,1],
+        ["DECO","Land_Bricks_V2_F",[5507.52,4718.63,78.6175],0,0,0,0],
+        ["DECO","Land_Bricks_V3_F",[5507.37,4719.99,78.6161],0,150,0,0],
+        ["DECO","Land_Can_Dented_F",[5487.85,4742.57,78.9104],0,0,0,0],
+        ["DECO","Land_Can_Dented_F",[5529.77,4689.36,75.5793],0,0,0,0],
+        ["DECO","Land_cargo_addon01_V2_F",[5502,4704.88,77.875],0,120,0,1],
+        ["DECO","Land_Pipes_large_F",[5509.18,4731.97,78.8704],0,30,0,0],
+        ["DECO","Land_VR_Shape_01_cube_1m_F",[5502.77,4705.2,77.8449],0,280,0,1],
+        ["HELP","Site_Ambient",[5497.25,4707.63,78],0,0,0,[["radius",10],["sitetype","Animal_poultry"],["animalcount",5],["animalsinradius","1"]]]]],
+
+    ["ABS","LimeriVillage_v1_1",[4795.26,4395.28,0],0,35.9286,0,[],[
+        ["BLDG","Land_Cargo_Patrol_V2_F",[4778,4394.63,192.625],0,65,0,2],
+        ["BLDG","Land_i_Stone_Shed_V1_F",[4818.75,4411,192.875],0,70,0,2],
+        ["BLDG","Land_Slum_House01_F",[4806,4395.63,193.375],0,155,0,2],
+        ["DECO","Land_Can_Dented_F",[4826.47,4413.07,193.257],0,0,0,0],
+        ["DECO","Land_Can_Dented_F",[4761.57,4387.62,190.488],0,0,0,0],
+        ["DECO","Land_CrabCages_F",[4809.38,4396.75,193.325],0,335,0,1],
+        ["DECO","Land_Tyres_F",[4769.13,4371.88,191.5],0,0,0,1],
+        ["VEHC","C_Truck_02_box_F",[4792.8,4391.64,193.512],0,64.3535,0,[[]]]]],
+
+    ["ABS","TsoukaliaVillage_v1_1",[4146.43,3291.69,0],0,45.1223,0,[],[
+        ["BLDG","Land_i_Stone_HouseSmall_V1_F",[4132.63,3287.5,157.358],0,240,0,2],
+        ["BLDG","Land_i_Stone_HouseSmall_V1_F",[4167,3294.13,158.125],0,105,0,2],
+        ["BLDG","Land_i_Stone_Shed_V1_F",[4146.63,3304.88,158],0,330,0,2],
+        ["BLDG","Land_i_Stone_Shed_V1_F",[4135.13,3314.13,160],0,235,0,2],
+        ["DECO","Land_GarbageBags_F",[4141,3280.5,156.25],0,0,0,1],
+        ["DECO","Land_GarbageBags_F",[4123.5,3298.75,157.875],0,0,0,1],
+        ["VEHC","C_Truck_02_box_F",[4181.17,3262.9,152.124],0,189.909,0,[[]]],
+        ["HELP","ModuleHideTerrainObjects_F",[4144.38,3290.75,157.375],0,0,0,[["#filter",1],["objectarea",[17,17,0,false,-1]],["#hidelocally",false]]]]],
+
+    ["ABS","RadioStation_v1_1",[3503.57,4916.8,0],0,24.7764,0,[],[
+        ["BLDG","Land_Cargo_House_V1_F",[3508.38,4920.5,200.507],0,17,0,2],
+        ["BLDG","Land_Cargo_HQ_V1_F",[3526.38,4907.13,200.862],0,108,0,2],
+        ["BLDG","Land_Cargo_Patrol_V1_F",[3504.38,4910,200.402],0,18,0,2],
+        ["DECO","Land_Can_Dented_F",[3483.08,4925.14,199.507],0,0,0,0],
+        ["DECO","RuggedTerminal_01_communications_hub_F",[3495.63,4921.25,200.137],0,17,0,1]]],
+
+    ["ABS","NisiVillage_v1_1",[2592.38,4898.89,0],0,19.2793,0,[],[
+        ["BLDG","Land_i_Addon_04_V1_F",[2593.88,4908.13,109.61],0,345,0,1],
+        ["BLDG","Land_Slum_House01_F",[2602,4890,109.541],0,170,0,2],
+        ["BLDG","Land_u_House_Small_02_V1_F",[2590.88,4915.25,110.625],0,345,0,2],
+        ["DECO","Land_Can_Dented_F",[2582.78,4882.17,110.12],0,0,0,0]]],
+
+    ["ABS","MarinaVillage_v1_1",[2554.21,5482.63,0],0,39.6834,0,[],[
+        ["BLDG","Land_d_House_Small_02_V1_F",[2556,5492.25,81.6719],0,98.409,0,2],
+        ["BLDG","Land_d_Windmill01_F",[2551.96,5474.52,80.5852],0,98.409,0,2],
+        ["DECO","Land_Can_Dented_F",[2585.67,5504.18,82.135],0,0,0,0],
+        ["DECO","Land_Can_Dented_F",[2576.37,5471.37,83.0076],0,0,0,0],
+        ["DECO","Land_Can_Dented_F",[2550.37,5522.12,80.6048],0,0,0,0],
+        ["DECO","Land_CratesShabby_F",[2557.13,5479.13,81.875],0,359.879,0,1],
+        ["DECO","Land_CratesWooden_F",[2551,5487.38,80.375],0,280.487,0,1],
+        ["DECO","Land_MetalBarrel_empty_F",[2551.1,5485.63,80.7234],0,98.26,0,1],
+        ["DECO","Land_Pallets_stack_F",[2557.69,5477.79,81.8433],0,187.128,0,0],
+        ["DECO","Land_Pallets_stack_F",[2556.06,5477.29,81.5933],0,256.831,0,0],
+        ["DECO","Land_Pipes_large_F",[2557.93,5480.84,82.1186],0,88.59,0,0],
+        ["DECO","Land_Sacks_heap_F",[2546.36,5475.38,78.1683],0,187.114,0,1],
+        ["DECO","Land_Sacks_heap_F",[2544.38,5477.88,77.5],0,181.113,0,1],
+        ["DECO","Land_Sacks_heap_F",[2544.96,5475.51,77.6228],0,83.1178,0,1],
+        ["DECO","Land_Sacks_heap_F",[2544.67,5476.79,77.5807],0,343.961,0,1],
+        ["DECO","Land_WoodenBox_F",[2557.01,5476.25,81.6237],0,340.693,0,0],
+        ["DECO","Land_WoodenCart_F",[2551.66,5468.6,79.7363],0,90,0,0],
+        ["DECO","Land_Wreck_Car2_F",[2545,5485.75,77.875],0,201.48,0,1],
+        ["DECO","Land_Wreck_Truck_dropside_F",[2544.75,5481.25,77.5],0,358.716,0,1]]]
 ]
