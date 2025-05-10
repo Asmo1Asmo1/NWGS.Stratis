@@ -50,7 +50,7 @@ NWG_QST_CLI_OnQuestCreated = {
 //Quest state
 NWG_QST_CLI_IsQuestActive = {
 	if (isNil "NWG_QST_State") exitWith {false};
-	if !(NWG_QST_State in [QST_STATE_IN_PROGRESS,QST_STATE_DONE]) exitWith {false};
+	if !(NWG_QST_State in [QST_STATE_IN_PROGRESS,QST_STATE_FAILED,QST_STATE_DONE]) exitWith {false};
 	if (isNil "NWG_QST_Data") exitWith {false};
 	//return
 	true
