@@ -2,20 +2,21 @@
 //================================================================================================================
 //Assign ownership
 NWG_VEHOWN_SetVehicleOwner = {
-	params ["_vehicle","_player"];
-	_vehicle setVariable ["NWG_VEHOWN_Owner",(name _player),true];
+	params ["_vehicle","_playerName"];
+	_vehicle setVariable ["NWG_VEHOWN_Owner",_playerName,true];
 };
 
 //================================================================================================================
 //================================================================================================================
 //Get ownership
-NWG_VEHOWN_GetVehicleOwner = {
+NWG_VEHOWN_IsPlayerOwner = {
+	params ["_vehicle","_player"];
+	(_vehicle getVariable ["NWG_VEHOWN_Owner",""]) isEqualTo (name _player)
+};
+
+NWG_VEHOWN_GetVehicleOwnerName = {
 	// private _vehicle = _this;
-	private _ownerName = _this getVariable ["NWG_VEHOWN_Owner",""];
-	private _allPlayers = call NWG_fnc_getPlayersAll;
-	private _i = _allPlayers findIf {(name _x) isEqualTo _ownerName};
-	//return
-	_allPlayers param [_i,objNull]
+	_this getVariable ["NWG_VEHOWN_Owner",""];
 };
 
 NWG_VEHOWN_GetOwnedVehicles = {

@@ -30,21 +30,23 @@ NWG_VEHOWN_OnGetIn = {
 	if (_i <= 0) exitWith {};//Not a vehicle
 
 	//Try claiming vehicle
-	private _owner = _vehicle call NWG_VEHOWN_GetVehicleOwner;
-	private _ownerChanged = false;
-	if (isNull _owner || {!alive _owner}) then {
+	private _ownerName = _vehicle call NWG_VEHOWN_GetVehicleOwnerName;
+	private _claimVehicle = switch (true) do {
+		case (_ownerName isEqualTo ""): {true};//No one's vehicle
+		case (_ownerName isEqualTo (name _player)): {false};//Player's vehicle
+		default {((call NWG_fnc_getPlayersAll) findIf {(name _x) isEqualTo _ownerName}) == -1};//Is owner online?
+	};
+	if (_claimVehicle) then {
 		[_vehicle,_player] call NWG_fnc_vownSetOwner;
-		_ownerChanged = true;
-		_owner = _player;
+		_ownerName = name _player;
 	};
 
 	//Show message
 	if (NWG_VEHOWN_Settings get "SHOW_OWNERSHIP_ON_GETIN") then {
-		if (!_ownerChanged && {_vehicle isEqualTo (player getVariable ["NWG_VEHOWN_lastVehicle",objNull])}) exitWith {};//Fix repeating messages
+		if (!_claimVehicle && {_vehicle isEqualTo (player getVariable ["NWG_VEHOWN_lastVehicle",objNull])}) exitWith {};//Fix repeating messages
 		player setVariable ["NWG_VEHOWN_lastVehicle",_vehicle];
 
 		private _displayName = getText (configOf _vehicle >> "displayName");
-		private _ownerName = name _owner;
 		["#VEHOWN_MESSAGE_OWNER#",_displayName,_ownerName] call NWG_fnc_systemChatMe;
 	};
 };

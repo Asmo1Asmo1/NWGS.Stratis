@@ -2,28 +2,21 @@
 //Sets the owner of a vehicle
 //params:
 //_vehicle: Object - The vehicle to set the owner of
-//_player: Object - The player to set as the owner of the vehicle
+//_playerName: String - The name of the player to set as the owner of the vehicle
 NWG_fnc_vownSetOwner = {
-	params ["_vehicle","_player"];
-	if (isNull _vehicle || !alive _vehicle) exitWith {
-		"NWG_fnc_vownSetOwner: Vehicle is null or dead" call NWG_fnc_logError;
-	};
-	if (isNull _player || !alive _player) exitWith {
-		"NWG_fnc_vownSetOwner: Player is null or dead" call NWG_fnc_logError;
-	};
-
-	if (local _vehicle)
-		then {_this call NWG_VEHOWN_SetVehicleOwner}
-		else {_this remoteExec ["NWG_fnc_vownSetOwner",_vehicle]};//Call where the vehicle is local
+	params ["_vehicle","_playerName"];
+	if (_playerName isEqualType objNull) then {_playerName = name _playerName};
+	[_vehicle,_playerName] call NWG_VEHOWN_SetVehicleOwner;
 };
 
-//Gets the owner of a vehicle
+//Returns if a player is the owner of a vehicle
 //params:
-//_vehicle: Object - The vehicle to get the owner of
-//returns: Object - The owner of the vehicle
-NWG_fnc_vownGetOwner = {
-	// private _vehicle = _this;
-	_this call NWG_VEHOWN_GetVehicleOwner;
+//_vehicle: Object - The vehicle to check the owner of
+//_player: Object - The player to check if they are the owner of the vehicle
+//returns: Boolean - True if the player is the owner of the vehicle, false otherwise
+NWG_fnc_vownIsPlayerOwner = {
+	// params ["_vehicle","_player"];
+	_this call NWG_VEHOWN_IsPlayerOwner;
 };
 
 //Returns the list of owned vehicles of a player

@@ -52,7 +52,7 @@ NWG_LS_AV_AssignAction = {
 //Action condition
 NWG_LS_AV_ActionCondition = {
 	if (isNull (call NWG_fnc_radarGetVehInFront)) exitWith {false};
-	((call NWG_fnc_radarGetVehInFront) call NWG_fnc_vownGetOwner) isEqualTo player
+	[(call NWG_fnc_radarGetVehInFront),player] call NWG_fnc_vownIsPlayerOwner
 };
 
 //================================================================================================================
