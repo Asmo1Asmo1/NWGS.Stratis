@@ -143,12 +143,20 @@
 #define QST_TYPE_MED_SUPPLY 7
 #define QST_TYPE_WEAPON 8
 #define QST_TYPE_ELECTRONICS 9
+#define QST_TYPE_BURNDOWN 10
+#define QST_TYPE_TOOLS 11
 
 /*Quest States*/
 #define QST_STATE_UNASSIGNED 0
 #define QST_STATE_IN_PROGRESS 1
-#define QST_STATE_DONE 2
-#define QST_STATE_CLOSED 3
+#define QST_STATE_FAILED 2
+#define QST_STATE_DONE 3
+#define QST_STATE_CLOSED 4
+
+/*Quest Results*/
+#define QST_RESULT_BD_END -1
+#define QST_RESULT_UNDONE 0
+#define QST_RESULT_GD_END 1
 
 /*Quest Data structure*/
 #define QST_DATA_TYPE 0

@@ -14,7 +14,7 @@ NWG_QST_Data = [];
 NWG_QST_WinnerName = "";
 
 /*Local Variables*/
-NWG_QST_lastQuestType = -1;
+NWG_QST_lastQuestTypes = [];
 
 //================================================================================================================
 //================================================================================================================
@@ -28,7 +28,15 @@ NWG_QST_SER_CreateNew = {
     //Prepare dice fill script
     private _fillDice = {
         params ["_questType","_objCat","_selectBy"];
+        //First filter by selectBy
         private _possibleTargets = (_missionObjects select _objCat) select _selectBy;
+        if ((count _possibleTargets) == 0) exitWith {};
+        //Then filter by general criteria
+        _possibleTargets = _possibleTargets select {
+            !isNull _x && {
+            !isSimpleObject _x && {
+            ((getPosASL _x)#2) >= 0}}
+        };
         if ((count _possibleTargets) == 0) exitWith {};
         private _target = selectRandom _possibleTargets;
         for "_i" from 1 to (_diceWeights select _questType) do {
@@ -54,10 +62,7 @@ NWG_QST_SER_CreateNew = {
     };
     /*Hack data quest*/
     if (QST_TYPE_HACK_DATA in _enabledQuests) then {
-        private _selectBy = {
-            (typeOf _x) in (NWG_QST_Settings get "HACK_DATA_TARGETS") && {
-            !(isSimpleObject _x)}
-        };
+        private _selectBy = {(typeOf _x) in (NWG_QST_Settings get "HACK_DATA_TARGETS")};
         [QST_TYPE_HACK_DATA,OBJ_CAT_DECO,_selectBy] call _fillDice;
     };
     /*Destroy object quest*/
@@ -103,7 +108,9 @@ NWG_QST_SER_CreateNew = {
             _x canAdd "Antibiotic"}
         });
         if (isNull _mostContainer) exitWith {};//Nothing found
-        _dice pushBack [QST_TYPE_WEAPON,_mostContainer,_mostWeapon];
+        for "_i" from 1 to (_diceWeights select QST_TYPE_WEAPON) do {
+            _dice pushBack [QST_TYPE_WEAPON,_mostContainer,_mostWeapon];
+        };
     };
     /*Wounded quest*/
     if (QST_TYPE_WOUNDED in _enabledQuests) then {
@@ -114,13 +121,27 @@ NWG_QST_SER_CreateNew = {
         };
         if ((count _possibleTargets) == 0) exitWith {};
         private _target = selectRandom _possibleTargets;
-        _dice pushBack [QST_TYPE_WOUNDED,_target,""];
+        for "_i" from 1 to (_diceWeights select QST_TYPE_WOUNDED) do {
+            _dice pushBack [QST_TYPE_WOUNDED,_target,""];
+        };
     };
     /*Infection quest*/
     if (QST_TYPE_INFECTION in _enabledQuests) then {
         private _possibleTargets = (_missionObjects#OBJ_CAT_UNIT) select {(typeOf _x) in (NWG_QST_Settings get "INFECTED_TARGETS")};
         if ((count _possibleTargets) == 0) exitWith {};
-        _dice pushBack [QST_TYPE_INFECTION,_possibleTargets,""];
+        for "_i" from 1 to (_diceWeights select QST_TYPE_INFECTION) do {
+            _dice pushBack [QST_TYPE_INFECTION,_possibleTargets,""];
+        };
+    };
+    /*Burn down quest*/
+    if (QST_TYPE_BURNDOWN in _enabledQuests) then {
+        private _selectBy = {(typeOf _x) in (NWG_QST_Settings get "BURNDOWN_TARGETS")};
+        [QST_TYPE_BURNDOWN,OBJ_CAT_DECO,_selectBy] call _fillDice;
+    };
+    /*Tools quest*/
+    if (QST_TYPE_TOOLS in _enabledQuests) then {
+        private _selectBy = {(typeOf _x) in (NWG_QST_Settings get "TOOLS_ITEMS_OBJECTS")};
+        [QST_TYPE_TOOLS,OBJ_CAT_DECO,_selectBy] call _fillDice;
     };
 
     //Check dice
@@ -130,21 +151,24 @@ NWG_QST_SER_CreateNew = {
         false;
     };
 
-    //Remove last quest type to not repeat it second time in a row
-    if ((count _dice) > 1 && {NWG_QST_lastQuestType >= 0}) then {
-        private _lastQuestType = NWG_QST_lastQuestType;
-        private _toRemove = [];
-        {
-            if ((_x select QST_DATA_TYPE) == _lastQuestType) then {_toRemove pushBack (_dice deleteAt _forEachIndex)};
-        } forEachReversed _dice;
-        if ((count _dice) == 0) then {_dice append _toRemove};//That was the only quest available - undo deletion
+    //Remove last quest type(s) to not repeat it second time in a row
+    if ((count _dice) > 1 && {(count NWG_QST_lastQuestTypes) > 0}) then {
+        private _toKeep = _dice select {!((_x#QST_DATA_TYPE) in NWG_QST_lastQuestTypes)};
+        if ((count _toKeep) > 0) then {_dice = _toKeep};//Replace dice with filtered results
     };
 
     //Roll the dice
     _dice = _dice call NWG_fnc_arrayShuffle;//Works better than selectRandom
     (_dice select 0) params ["_questType","_targetObj","_targetClassname"];
     _dice resize 0;//Clear the dice
-    NWG_QST_lastQuestType = _questType;//Save last quest type
+
+    //Remember last quest type(s)
+    NWG_QST_lastQuestTypes pushBack _questType;
+    if ((count NWG_QST_lastQuestTypes) > (NWG_QST_Settings get "QUETS_IGNORE_LAST")) then {
+        reverse NWG_QST_lastQuestTypes;
+        NWG_QST_lastQuestTypes resize (NWG_QST_Settings get "QUETS_IGNORE_LAST");
+        reverse NWG_QST_lastQuestTypes;
+    };
 
     //Run type-specific logic
     switch (_questType) do {
@@ -157,6 +181,12 @@ NWG_QST_SER_CreateNew = {
             _targetObj setVariable ["QST_toBreak",_toBreak,true];
             //Setup interrogate target for current and JIP players
             [_targetObj,"NWG_QST_CLI_OnInterrogateCreated",[]] call NWG_fnc_rqAddCommand;
+            //Setup failure
+            _targetObj addEventHandler ["Killed",{
+                params ["_targetObj"/*,"_killer","_instigator","_useEffects"*/];
+                if (NWG_QST_State isEqualTo QST_STATE_IN_PROGRESS) then {call NWG_QST_SER_OnQuestFailed};
+                _targetObj removeEventHandler [_thisEvent,_thisEventHandler];
+            }];
         };
         case QST_TYPE_HACK_DATA: {
             //Set initial state
@@ -196,6 +226,12 @@ NWG_QST_SER_CreateNew = {
             _wounded playMoveNow "Acts_ExecutionVictim_Loop";
             //Setup command for current and JIP players
             [_targetObj,"NWG_QST_CLI_OnWoundedCreated",[]] call NWG_fnc_rqAddCommand;
+            //Setup failure
+            _targetObj addEventHandler ["Killed",{
+                params ["_targetObj"/*,"_killer","_instigator","_useEffects"*/];
+                if (NWG_QST_State isEqualTo QST_STATE_IN_PROGRESS) then {call NWG_QST_SER_OnQuestFailed};
+                _targetObj removeEventHandler [_thisEvent,_thisEventHandler];
+            }];
         };
         case QST_TYPE_INFECTION: {
             //Track player's actions towards infected
@@ -204,6 +240,12 @@ NWG_QST_SER_CreateNew = {
             //Re-write variables
             _targetObj = selectRandom _infectedUnits;
             _targetClassname = (typeOf _targetObj);
+        };
+        case QST_TYPE_BURNDOWN: {
+            //Set initial state
+            _targetObj setVariable ["QST_isBurned",false,true];
+            //Setup burning for current and JIP players
+            [_targetObj,"NWG_QST_CLI_OnBurnCreated",[]] call NWG_fnc_rqAddCommand;
         };
         default {};//Do nothing
     };
@@ -284,6 +326,14 @@ NWG_QST_SER_ClearAll = {
 //================================================================================================================
 //================================================================================================================
 //Quest completion
+NWG_QST_SER_OnQuestFailed = {
+    if (NWG_QST_State != QST_STATE_IN_PROGRESS) exitWith {
+        (format ["NWG_QST_SER_OnQuestFailed: Quest is not in progress: '%1'",NWG_QST_State]) call NWG_fnc_logError;
+    };
+    NWG_QST_State = QST_STATE_FAILED;
+    publicVariable "NWG_QST_State";
+};
+
 NWG_QST_SER_OnQuestDone = {
     private _player = _this;
     if (NWG_QST_State != QST_STATE_IN_PROGRESS) exitWith {
@@ -319,7 +369,7 @@ NWG_QST_SER_OnQuestDone = {
 
 NWG_QST_SER_OnQuestClosed = {
     params ["_player","_reward"];
-    if !(NWG_QST_State in [QST_STATE_IN_PROGRESS,QST_STATE_DONE]) exitWith {
+    if !(NWG_QST_State in [QST_STATE_IN_PROGRESS,QST_STATE_DONE,QST_STATE_FAILED]) exitWith {
         (format ["NWG_QST_SER_OnQuestClosed: Quest is not in progress or done: '%1'",NWG_QST_State]) call NWG_fnc_logError;
     };
 
@@ -352,10 +402,12 @@ NWG_QST_SER_OnQuestClosed = {
     };
 
     //Reward players
+    if (_reward isEqualTo false || {NWG_QST_State isEqualTo QST_STATE_FAILED}) exitWith {};//No reward or failed quest
     private _funcRewardPlayer = NWG_QST_Settings get "FUNC_REWARD_PLAYER";
+    private _funcRewardablePlayer = NWG_QST_Settings get "FUNC_REWARDABLE_PLAYER";
     {
         [_x,_reward] call _funcRewardPlayer;
-    } forEach ((units (group _player)) select {isPlayer _x});
+    } forEach ((units (group _player)) select {_x call _funcRewardablePlayer});
 };
 
 //================================================================================================================
