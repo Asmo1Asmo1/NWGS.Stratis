@@ -4,7 +4,7 @@
 //================================================================================================================
 //Settings
 NWG_LS_CLI_Settings = createHashMapFromArray [
-    ["INVISIBLE_BOX_TYPE","B_supplyCrate_F"],//Classname of the object that will be used as a loot storage
+    ["INVISIBLE_BOX_TYPE","B_CargoNet_01_ammo_F"],//Classname of the object that will be used as a loot storage
     ["CLOSE_INVENTORY_ON_LOOT",true],//Should the inventory be closed automatically when loot is taken
 
     ["ALLOW_LOOTING_ALIVE_UNITS",false],//Should we allow looting of alive units
@@ -60,9 +60,10 @@ NWG_LS_CLI_OpenMyStorage = {
     //Create new invisible box
     if (!isNull NWG_LS_CLI_invisibleBox)
         then {deleteVehicle NWG_LS_CLI_invisibleBox};
-    private _invisibleBox = createVehicleLocal [(NWG_LS_CLI_Settings get "INVISIBLE_BOX_TYPE"),player,[],0,"CAN_COLLIDE"];
+    private _invisibleBox = createVehicleLocal [(NWG_LS_CLI_Settings get "INVISIBLE_BOX_TYPE"),[0,0,0],[],0,"CAN_COLLIDE"];
     _invisibleBox hideObject true;
     _invisibleBox allowDamage false;//Fix for Au who keeps burning it somehow
+    _invisibleBox setPosASL (getPosASL player);
     NWG_LS_CLI_invisibleBox = _invisibleBox;
 
     //Clear the box
