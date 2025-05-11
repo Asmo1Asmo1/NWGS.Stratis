@@ -61,6 +61,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_SETTINGS_KEYBINDINGS_HINT_2#","Ctrl, Shift, Alt - modifiers"],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_3#",'"Delete" or "BackSpace" - delete keybinding'],
     ["#UP_SETTINGS_KEYBINDINGS_HINT_4#",'"Tab" - toggle key bypass'],
+    //maprules
+    ["#RULES_TITLE1#","Server Rules"],
+    ["#RULES_DESCRIPTION1#","What you can do here:<br />- Spend time in pleasant company, have fun *robbing caravans* and getting in-game money and other goodies<br />- Suggest ideas for improvement (discord preferred)<br />- Report problems found, especially economic abuses (discord preferred)<br /><br />What you can't do:<br />- Ruin the game for yourself or others<br />- Any politics in any form. This is an Arma 3 server<br />- Hide and use abuses, especially teach them to others<br />- Drama, showdowns, bullying and other bad things<br />In general - we all come here to relax, leave problems and showdowns outside. Expulsion from the server and discord is an extreme measure, but nerves are more important. Thank you for understanding and enjoy the game."],
+    ["#RULES_TITLE2#","About Server"],
+    ["#RULES_DESCRIPTION2#","NWG: Scavenger<br />- This is an author's PVE project<br />- Draws its inspiration from the 'Patrol' mode of the single-player part of Arma 3 and Ghost Recon: Wildlands<br />- Designed for a small number of players<br />- Consists of purchasing weapons and equipment, moving to a point of interest, combat, collecting loot and then selling it, completing side missions"],
     //medicine
     ["#MED_CLI_BLEEDING_UI_TITLE_LOW#","Patched"],
     ["#MED_CLI_BLEEDING_UI_TITLE_MID#","Bleeding"],
