@@ -50,7 +50,7 @@ NWG_QST_CLI_OnQuestCreated = {
 //Quest state
 NWG_QST_CLI_IsQuestActive = {
 	if (isNil "NWG_QST_State") exitWith {false};
-	if !(NWG_QST_State in [QST_STATE_IN_PROGRESS,QST_STATE_DONE]) exitWith {false};
+	if !(NWG_QST_State in [QST_STATE_IN_PROGRESS,QST_STATE_FAILED,QST_STATE_DONE]) exitWith {false};
 	if (isNil "NWG_QST_Data") exitWith {false};
 	//return
 	true
@@ -71,92 +71,11 @@ NWG_QST_CLI_GetQuestData = {
 
 //================================================================================================================
 //================================================================================================================
-//Quest completion
-NWG_QST_CLI_CanCloseQuest = {
-	// private _npcName = _this;
-	if !(_this call NWG_QST_CLI_IsQuestActiveForNpc) exitWith {false};
-	private _questData = call NWG_QST_CLI_GetQuestData;
-	if (_questData isEqualTo false) exitWith {false};
-
-	private _questType = NWG_QST_Data param [QST_DATA_TYPE,-1];
-	if (_questType isEqualTo -1) exitWith {false};
-
-	private _canClose = switch (_questType) do {
-		/*Winner defined by having target vehicle or its total analogue in owned vehicles*/
-		case QST_TYPE_VEH_STEAL: {
-			!(isNull ([player,_questData] call NWG_QST_CLI_GetTargetVehicle))
-		};
-
-		/*Winner is set server side and is defined by NWG_QST_WinnerName*/
-		case QST_TYPE_INTERROGATE;
-		case QST_TYPE_HACK_DATA;
-		case QST_TYPE_DESTROY;
-		case QST_TYPE_WOUNDED: {
-			!isNil "NWG_QST_State" && {
-			NWG_QST_State == QST_STATE_DONE && {
-			player call NWG_QST_CLI_IsWinnerByName}}
-		};
-
-		/*Winner is defined by wether or not they have at least one item from the price map*/
-		case QST_TYPE_INTEL;
-		case QST_TYPE_MED_SUPPLY;
-		case QST_TYPE_ELECTRONICS: {
-			private _priceMap = (_questData param [QST_DATA_REWARD,[]]) param [QST_REWARD_PER_ITEM_PRICE_MAP,createHashMap];
-			private _hasItem = false;
-			private _hasItemFunc = NWG_QST_Settings get "FUNC_HAS_ITEM";
-			{if (_x call _hasItemFunc) exitWith {_hasItem = true}} forEach _priceMap;
-			_hasItem
-		};
-
-		/*Winner is defined by custom logic*/
-		case QST_TYPE_INFECTION: {
-			(call NWG_QST_CLI_CalcInfectionOutcome) != 0
-		};
-		case QST_TYPE_WEAPON: {
-			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
-			_targetClassname call (NWG_QST_Settings get "FUNC_HAS_ITEM")
-		};
-		default {false};
-	};
-
-	//return
-	_canClose
-};
-
-NWG_QST_CLI_IsWinnerByName = {
-	// private _player = _this;
-	private _playerName = name _this;
-	if (isNil "NWG_QST_WinnerName") exitWith {
-		"NWG_QST_CLI_IsWinnerByName: No winner set" call NWG_fnc_logError;
-		false
-	};
-
-	//If winner is unknown - winner place is vacant
-	private _curWinnerName = NWG_QST_WinnerName;
-	if (_curWinnerName isEqualTo "") exitWith {true};
-	if (_curWinnerName isEqualTo QST_UNKNOWN_WINNER) exitWith {true};
-
-	//If winner is known, but not online - winner place is vacant
-	private _isOnline = ((call NWG_fnc_getPlayersAll) findIf {(name _x) isEqualTo _curWinnerName}) != -1;
-	if (!_isOnline) exitWith {true};
-
-	//Check if this player is the winner
-	//return
-	_playerName isEqualTo _curWinnerName
-};
-
-//================================================================================================================
-//================================================================================================================
-//Quest closure and rewards
-NWG_QST_CLI_CloseQuest = {
+//Quest completion and rewards
+NWG_QST_CLI_TryCloseQuest = {
 	// private _npcName = _this;
 	if !(_this call NWG_QST_CLI_IsQuestActiveForNpc) exitWith {
-		(format ["NWG_QST_CLI_CloseQuest: Quest is not active for NPC: '%1'",_this]) call NWG_fnc_logError;
-		"#QST_CLOSE_ERROR#" call NWG_fnc_systemChatMe;
-		false
-	};
-	if !(call NWG_QST_CLI_CanCloseQuest) exitWith {
-		"NWG_QST_CLI_CloseQuest: Quest cannot be closed by player" call NWG_fnc_logError;
+		(format ["NWG_QST_CLI_TryCloseQuest: Quest is not active for NPC: '%1'",_this]) call NWG_fnc_logError;
 		"#QST_CLOSE_ERROR#" call NWG_fnc_systemChatMe;
 		false
 	};
@@ -164,13 +83,90 @@ NWG_QST_CLI_CloseQuest = {
 	//Get quest data
 	private _questData = call NWG_QST_CLI_GetQuestData;
 	if (_questData isEqualTo false) exitWith {
-		"NWG_QST_CLI_CloseQuest: Failed to get quest data" call NWG_fnc_logError;
+		"NWG_QST_CLI_TryCloseQuest: Failed to get quest data" call NWG_fnc_logError;
+		"#QST_CLOSE_ERROR#" call NWG_fnc_systemChatMe;
+		false
+	};
+	private _questType = NWG_QST_Data param [QST_DATA_TYPE,-1];
+	if (_questType isEqualTo -1) exitWith {
+		"NWG_QST_CLI_TryCloseQuest: Invalid quest type" call NWG_fnc_logError;
+		"#QST_CLOSE_ERROR#" call NWG_fnc_systemChatMe;
+		false
+	};
+
+	//Define quest result
+	private _questResult = switch (_questType) do {
+		/*Winner defined by having target vehicle or its total analogue in owned vehicles*/
+		case QST_TYPE_VEH_STEAL: {
+			if !(isNull ([player,_questData] call NWG_QST_CLI_GetTargetVehicle))
+				then {QST_RESULT_GD_END}
+				else {QST_RESULT_UNDONE}
+		};
+
+		/*Winner is set server side and is defined by NWG_QST_WinnerName*/
+		case QST_TYPE_INTERROGATE;
+		case QST_TYPE_HACK_DATA;
+		case QST_TYPE_DESTROY;
+		case QST_TYPE_WOUNDED;
+		case QST_TYPE_BURNDOWN: {
+			if (isNil "NWG_QST_State") exitWith {
+				"NWG_QST_CLI_TryCloseQuest: Quest state is nil" call NWG_fnc_logError;
+				false
+			};
+			if (NWG_QST_State isEqualTo QST_STATE_FAILED) exitWith {
+				QST_RESULT_BD_END
+			};
+			if (NWG_QST_State isNotEqualTo QST_STATE_DONE) exitWith {
+				QST_RESULT_UNDONE
+			};
+			if (player call NWG_QST_CLI_IsWinnerByName)
+				then {QST_RESULT_GD_END}
+				else {QST_RESULT_UNDONE}
+		};
+
+		/*Winner is defined by wether or not they have at least one item from the price map*/
+		case QST_TYPE_INTEL;
+		case QST_TYPE_MED_SUPPLY;
+		case QST_TYPE_ELECTRONICS;
+		case QST_TYPE_TOOLS: {
+			private _priceMap = (_questData param [QST_DATA_REWARD,[]]) param [QST_REWARD_PER_ITEM_PRICE_MAP,createHashMap];
+			private _hasItem = false;
+			private _hasItemFunc = NWG_QST_Settings get "FUNC_HAS_ITEM";
+			{if (_x call _hasItemFunc) exitWith {_hasItem = true}} forEach _priceMap;
+			if (_hasItem)
+				then {QST_RESULT_GD_END}
+				else {QST_RESULT_UNDONE}
+		};
+
+		/*Winner is defined by custom logic*/
+		case QST_TYPE_INFECTION: {
+			(call NWG_QST_CLI_CalcInfectionOutcome)
+		};
+		case QST_TYPE_WEAPON: {
+			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
+			if (_targetClassname call (NWG_QST_Settings get "FUNC_HAS_ITEM"))
+				then {QST_RESULT_GD_END}
+				else {QST_RESULT_UNDONE}
+		};
+
+		default {
+			(format ["NWG_QST_CLI_TryCloseQuest: Invalid quest type: '%1'",_questType]) call NWG_fnc_logError;
+			false
+		};
+	};
+	if (_questResult isEqualTo false) exitWith {
+		"NWG_QST_CLI_TryCloseQuest: Failed to define quest result" call NWG_fnc_logError;
+		"#QST_CLOSE_ERROR#" call NWG_fnc_systemChatMe;
+		false
+	};
+	if (_questResult isEqualTo QST_RESULT_UNDONE) exitWith {QST_RESULT_UNDONE};//Quest is not done yet
+	if !(_questResult in [QST_RESULT_GD_END,QST_RESULT_BD_END]) exitWith {
+		"NWG_QST_CLI_TryCloseQuest: Invalid quest result: '%1'" call NWG_fnc_logError;
 		"#QST_CLOSE_ERROR#" call NWG_fnc_systemChatMe;
 		false
 	};
 
 	//(Re)calculate reward
-	private _questType = _questData param [QST_DATA_TYPE,-1];
 	private _reward = _questData param [QST_DATA_REWARD,false];
 	_reward = switch (_questType) do {
 		/*Reward pre-calculated by server side*/
@@ -179,58 +175,73 @@ NWG_QST_CLI_CloseQuest = {
 		case QST_TYPE_HACK_DATA;
 		case QST_TYPE_DESTROY;
 		case QST_TYPE_WOUNDED;
-		case QST_TYPE_WEAPON: {_reward};
+		case QST_TYPE_WEAPON;
+		case QST_TYPE_BURNDOWN: {
+			if (_questResult isEqualTo QST_RESULT_BD_END) exitWith {false};//Quest failed
+			_reward
+		};
 
 		/*Reward calculated on client side per item*/
 		case QST_TYPE_INTEL;
 		case QST_TYPE_MED_SUPPLY;
-		case QST_TYPE_ELECTRONICS: {
+		case QST_TYPE_ELECTRONICS;
+		case QST_TYPE_TOOLS: {
+			if (_questResult isEqualTo QST_RESULT_BD_END) exitWith {false};//Quest failed
+
 			private _priceMap = (_questData param [QST_DATA_REWARD,[]]) param [QST_REWARD_PER_ITEM_PRICE_MAP,createHashMap];
 			private _getCountFunc = NWG_QST_Settings get "FUNC_GET_ITEM_COUNT";
-			private _items = [];
-			private _counts = [];
 			private _count = 0;
 			private _totalReward = 0;
 			{
 				_count = _x call _getCountFunc;
-				if (_count <= 0) then {continue};
-				_totalReward = _totalReward + (_count * _y);
-				_items pushBack _x;
-				_counts pushBack _count;
+				if (_count > 0) then {_totalReward = _totalReward + (_count * _y)};
 			} forEach _priceMap;
-			/*Inject removing items just not to re-calculate counts again*/
-			[_items,_counts] call (NWG_QST_Settings get "FUNC_REMOVE_ITEMS");
 			//return
 			round _totalReward
 		};
 
 		/*Reward calculated on client side per condition*/
 		case QST_TYPE_INFECTION: {
-			if ((call NWG_QST_CLI_CalcInfectionOutcome) < 0)
-				then {round (_reward * 0.5)}
-				else {_reward}
-		};
-
-		/*Invalid quest type*/
-		default {
-			"NWG_QST_CLI_CloseQuest: Invalid quest type" call NWG_fnc_logError;
-			0
+			if (_questResult isEqualTo QST_RESULT_GD_END)
+				then {_reward}
+				else {round (_reward * 0.5)}
 		};
 	};
 
 	//Run quest-specific logic
 	switch (_questType) do {
+		/*Delete target vehicle*/
 		case QST_TYPE_VEH_STEAL: {
-			//Delete target vehicle
 			private _targetVehicle = [player,_questData] call NWG_QST_CLI_GetTargetVehicle;
-			if (isNull _targetVehicle) exitWith {"NWG_QST_CLI_CloseQuest: Target vehicle is null" call NWG_fnc_logError};
+			if (isNull _targetVehicle) exitWith {"NWG_QST_CLI_TryCloseQuest: Target vehicle is null" call NWG_fnc_logError};
 			_targetVehicle call (NWG_QST_Settings get "FUNC_DELETE_VEHICLE");
 		};
+
+		/*Delete items from player*/
+		case QST_TYPE_INTEL;
+		case QST_TYPE_MED_SUPPLY;
+		case QST_TYPE_ELECTRONICS;
+		case QST_TYPE_TOOLS: {
+			private _priceMap = (_questData param [QST_DATA_REWARD,[]]) param [QST_REWARD_PER_ITEM_PRICE_MAP,createHashMap];
+			private _getCountFunc = NWG_QST_Settings get "FUNC_GET_ITEM_COUNT";
+			private _items = [];
+			private _counts = [];
+			private _count = 0;
+			{
+				_count = _x call _getCountFunc;
+				if (_count > 0) then {
+					_items pushBack _x;
+					_counts pushBack _count;
+				};
+			} forEach _priceMap;
+			[_items,_counts] call (NWG_QST_Settings get "FUNC_REMOVE_ITEMS");
+		};
+
+		/*Delete target weapon from player*/
 		case QST_TYPE_WEAPON: {
-			//Delete target weapon from player
 			private _targetClassname = _questData param [QST_DATA_TARGET_CLASSNAME,""];
 			if !(_targetClassname call (NWG_QST_Settings get "FUNC_HAS_ITEM")) exitWith {
-				"NWG_QST_CLI_CloseQuest: Target weapon not found" call NWG_fnc_logError;
+				"NWG_QST_CLI_TryCloseQuest: Target weapon not found" call NWG_fnc_logError;
 			};
 			//Delete from loadout
 			private _loadout = getUnitLoadout player;
@@ -253,11 +264,36 @@ NWG_QST_CLI_CloseQuest = {
 
 	//Close quest
 	[player,_reward] remoteExec ["NWG_fnc_qstOnQuestClosed",2];
+
+	//return
+	_questResult
 };
 
 //================================================================================================================
 //================================================================================================================
 //Utils
+NWG_QST_CLI_IsWinnerByName = {
+	// private _player = _this;
+	private _playerName = name _this;
+	if (isNil "NWG_QST_WinnerName") exitWith {
+		"NWG_QST_CLI_IsWinnerByName: No winner set" call NWG_fnc_logError;
+		false
+	};
+
+	//If winner is unknown - winner place is vacant
+	private _curWinnerName = NWG_QST_WinnerName;
+	if (_curWinnerName isEqualTo "") exitWith {true};
+	if (_curWinnerName isEqualTo QST_UNKNOWN_WINNER) exitWith {true};
+
+	//If winner is known, but not online - winner place is vacant
+	private _isOnline = ((call NWG_fnc_getPlayersAll) findIf {(name _x) isEqualTo _curWinnerName}) != -1;
+	if (!_isOnline) exitWith {true};
+
+	//Check if this player is the winner
+	//return
+	_playerName isEqualTo _curWinnerName
+};
+
 NWG_QST_CLI_GetTargetVehicle = {
 	params ["_player","_questData"];
 	private _questTarget = _questData param [QST_DATA_TARGET_OBJECT,objNull];
@@ -494,8 +530,45 @@ NWG_QST_CLI_CalcInfectionOutcome = {
 	};
 
 	NWG_QST_InfectionData params [["_infectedCount",0],["_healedCount",0],["_killedCount",0]];
-	if ((_healedCount + _killedCount) < (_infectedCount * 0.66)) exitWith {0};//It's not over yet
-	if (_healedCount > _killedCount) then {1} else {-1}
+	if ((_healedCount + _killedCount) < (_infectedCount * 0.66)) exitWith {QST_RESULT_UNDONE};//It's not over yet
+	if (_healedCount > _killedCount) then {QST_RESULT_GD_END} else {QST_RESULT_BD_END}
+};
+
+NWG_QST_CLI_OnBurnCreated = {
+	params ["_targetObj"];
+	//Check for JIP players
+	if (_targetObj getVariable ["QST_isBurned",false]) exitWith {_targetObj call NWG_QST_CLI_OnBurnDone};
+
+	//Add action
+	private _title = NWG_QST_Settings get "BURNDOWN_TITLE";
+	private _icon = NWG_QST_Settings get "BURNDOWN_ICON";
+	private _actionId = [_targetObj,_title,_icon,{_this call NWG_QST_CLI_OnBurnDo}] call NWG_fnc_addHoldAction;
+	if (isNil "_actionId") exitWith {
+		"NWG_QST_CLI_OnBurnCreated: Failed to add action" call NWG_fnc_logError;
+		false
+	};
+
+	//Save action ID for later removal
+	_targetObj setVariable ["QST_burnActionId",_actionId];//Set locally
+};
+NWG_QST_CLI_OnBurnDo = {
+	params ["_targetObj","_player"];
+	//Check again just in case
+	if (_targetObj getVariable ["QST_isBurned",false]) exitWith {};
+
+	//Mark burned for everyone
+	_targetObj setVariable ["QST_isBurned",true,true];
+	_targetObj remoteExec ["NWG_fnc_qstOnBurnDone",0];//Also creates fire
+
+	//Report to server
+	_player remoteExec ["NWG_fnc_qstOnQuestDone",2];
+};
+NWG_QST_CLI_OnBurnDone = {
+	private _targetObj = _this;
+
+	//Remove action
+	private _actionId = _targetObj getVariable ["QST_burnActionId",-1];
+	if (_actionId != -1) then {_targetObj removeAction _actionId};
 };
 
 //================================================================================================================

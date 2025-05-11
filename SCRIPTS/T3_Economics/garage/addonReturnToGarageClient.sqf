@@ -60,7 +60,7 @@ NWG_GRG_RET_AssignAction = {
 NWG_GRG_RET_ActionCondition = {
 	if (isNull (call NWG_fnc_radarGetVehInFront)) exitWith {false};
 	private _veh = call NWG_fnc_radarGetVehInFront;
-	if ((_veh call NWG_fnc_vownGetOwner) isNotEqualTo player) exitWith {false};
+	if !([_veh,player] call NWG_fnc_vownIsPlayerOwner) exitWith {false};
 	if !(_veh call NWG_fnc_grgIsSpawnedFromGarage) exitWith {false};
 	true
 };

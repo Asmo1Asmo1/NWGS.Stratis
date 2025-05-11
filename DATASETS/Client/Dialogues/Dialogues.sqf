@@ -508,30 +508,21 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_GEN,	{"MECH_01" call NWG_DLGHLP_GenerateBackExit}/*["MECH_01",NODE_EXIT]*/
 		]
 	],
-	/*Quest - display quest data*/
+	/*Quest Display - display quest data*/
 	[
 		"MECH_QST_DISPLAY",	[
-			Q_ONE,	["%1",{"MECH" call NWG_DLGHLP_QST_DisplayQuestData}],
+			Q_ONE,	["%1",{"MECH" call NWG_DLGHLP_QST_GenerateQuestDisplayQ}],
 			A_GEN,	[
-				{"MECH" call NWG_DLGHLP_QST_GenerateQuestAnswers},
+				{"MECH" call NWG_DLGHLP_QST_GenerateQuestDisplayA},
 				{"MECH_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MECH_01",NODE_EXIT]*/
 			]
 		]
 	],
-	/*Quest Report - quest done FALSE*/
+	/*Quest Result*/
 	[
-		"MECH_QST_QUEST_DONE_FALSE",	[
-			Q_ONE,	["%1",{"MECH" call NWG_DLGHLP_GetRndQuestDoneFalseQ}],
-			A_GEN,	{"MECH_01" call NWG_DLGHLP_GenerateBackExit}/*["MECH_01",NODE_EXIT]*/
-		]
-	],
-	/*Quest Report - quest done TRUE*/
-	[
-		"MECH_QST_QUEST_DONE_TRUE",	[
-			Q_ONE,	["%1",{"MECH" call NWG_DLGHLP_GetRndQuestDoneTrueQ}],
-			A_DEF,	[
-				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT]
-			]
+		"MECH_QST_RESULT",	[
+			Q_ONE,	["%1",{"MECH" call NWG_DLGHLP_QST_GenerateQuestResultQ}],
+			A_GEN,	{"MECH_01" call NWG_DLGHLP_QST_GenerateQuestResultA}
 		]
 	],
 
@@ -553,7 +544,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_CND,	[
 				{true},["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
-				{"TRDR" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"TRDR_QST_DISPLAY",{},0,COLOR_GREEN],
+				{"TRDR" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestOpen},"TRDR_QST_DISPLAY",{},0,COLOR_GREEN],
 				{true},["#TRDR_00_A_02#","TRDR_PRGB",{},[],COLOR_YELLOW],
 				{true},["#AGEN_HELP_01#","TRDR_HELP"],
 				{true},["#AGEN_ADV_01#","TRDR_ADV1"],
@@ -571,7 +562,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_CND,	[
 				{true},["#TRDR_00_A_01#",NODE_EXIT,{call NWG_DLG_TRDR_OpenItemsShop}],
-				{"TRDR" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"TRDR_QST_DISPLAY",{},0,COLOR_GREEN],
+				{"TRDR" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestOpen},"TRDR_QST_DISPLAY",{},0,COLOR_GREEN],
 				{true},["#TRDR_00_A_02#","TRDR_PRGB",{},[],COLOR_YELLOW],
 				{true},["#AGEN_HELP_01#","TRDR_HELP"],
 				{true},["#AGEN_ADV_01#","TRDR_ADV1"],
@@ -723,30 +714,21 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_GEN,	{"TRDR_01" call NWG_DLGHLP_GenerateBackExit}/*["TRDR_01",NODE_EXIT]*/
 		]
 	],
-	/*Quest - display quest data*/
+	/*Quest Display - display quest data*/
 	[
 		"TRDR_QST_DISPLAY",	[
-			Q_ONE,	["%1",{"TRDR" call NWG_DLGHLP_QST_DisplayQuestData}],
+			Q_ONE,	["%1",{"TRDR" call NWG_DLGHLP_QST_GenerateQuestDisplayQ}],
 			A_GEN,	[
-				{"TRDR" call NWG_DLGHLP_QST_GenerateQuestAnswers},
+				{"TRDR" call NWG_DLGHLP_QST_GenerateQuestDisplayA},
 				{"TRDR_01" call NWG_DLGHLP_GenerateDoubtExit}/*["TRDR_01",NODE_EXIT]*/
 			]
 		]
 	],
-	/*Quest Report - quest done FALSE*/
+	/*Quest Result*/
 	[
-		"TRDR_QST_QUEST_DONE_FALSE",	[
-			Q_ONE,	["%1",{"TRDR" call NWG_DLGHLP_GetRndQuestDoneFalseQ}],
-			A_GEN,	{"TRDR_01" call NWG_DLGHLP_GenerateBackExit}/*["TRDR_01",NODE_EXIT]*/
-		]
-	],
-	/*Quest Report - quest done TRUE*/
-	[
-		"TRDR_QST_QUEST_DONE_TRUE",	[
-			Q_ONE,	["%1",{"TRDR" call NWG_DLGHLP_GetRndQuestDoneTrueQ}],
-			A_DEF,	[
-				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT]
-			]
+		"TRDR_QST_RESULT",	[
+			Q_ONE,	["%1",{"TRDR" call NWG_DLGHLP_QST_GenerateQuestResultQ}],
+			A_GEN,	{"TRDR_01" call NWG_DLGHLP_QST_GenerateQuestResultA}
 		]
 	],
 
@@ -765,7 +747,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_CND,	[
 				{call NWG_DLG_MEDC_IsInjured},["#MEDC_00_A_01#","MEDC_PATCH"],
-				{"MEDC" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"MEDC_QST_DISPLAY",{},0,COLOR_GREEN],
+				{"MEDC" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestOpen},"MEDC_QST_DISPLAY",{},0,COLOR_GREEN],
 				{true},["#AGEN_HELP_01#","MEDC_HELP"],
 				{true},["#AGEN_ADV_01#","MEDC_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
@@ -782,7 +764,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_CND,	[
 				{call NWG_DLG_MEDC_IsInjured},["#MEDC_01_A_01#","MEDC_PATCH"],
-				{"MEDC" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"MEDC_QST_DISPLAY",{},0,COLOR_GREEN],
+				{"MEDC" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestOpen},"MEDC_QST_DISPLAY",{},0,COLOR_GREEN],
 				{true},["#AGEN_HELP_01#","MEDC_HELP"],
 				{true},["#AGEN_ADV_01#","MEDC_ADV"],
 				{true},["#XXX_QUIT_DIALOGUE#",NODE_EXIT]
@@ -853,30 +835,21 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_GEN,	{"MEDC_01" call NWG_DLGHLP_GenerateBackExit}/*["MEDC_01",NODE_EXIT]*/
 		]
 	],
-	/*Quest - display quest data*/
+	/*Quest Display - display quest data*/
 	[
 		"MEDC_QST_DISPLAY",	[
-			Q_ONE,	["%1",{"MEDC" call NWG_DLGHLP_QST_DisplayQuestData}],
+			Q_ONE,	["%1",{"MEDC" call NWG_DLGHLP_QST_GenerateQuestDisplayQ}],
 			A_GEN,	[
-				{"MEDC" call NWG_DLGHLP_QST_GenerateQuestAnswers},
+				{"MEDC" call NWG_DLGHLP_QST_GenerateQuestDisplayA},
 				{"MEDC_01" call NWG_DLGHLP_GenerateDoubtExit}/*["MEDC_01",NODE_EXIT]*/
 			]
 		]
 	],
-	/*Quest Report - quest done FALSE*/
+	/*Quest Result*/
 	[
-		"MEDC_QST_QUEST_DONE_FALSE",	[
-			Q_ONE,	["%1",{"MEDC" call NWG_DLGHLP_GetRndQuestDoneFalseQ}],
-			A_GEN,	{"MEDC_01" call NWG_DLGHLP_GenerateBackExit}/*["MEDC_01",NODE_EXIT]*/
-		]
-	],
-	/*Quest Report - quest done TRUE*/
-	[
-		"MEDC_QST_QUEST_DONE_TRUE",	[
-			Q_ONE,	["%1",{"MEDC" call NWG_DLGHLP_GetRndQuestDoneTrueQ}],
-			A_DEF,	[
-				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT]
-			]
+		"MEDC_QST_RESULT",	[
+			Q_ONE,	["%1",{"MEDC" call NWG_DLGHLP_QST_GenerateQuestResultQ}],
+			A_GEN,	{"MEDC_01" call NWG_DLGHLP_QST_GenerateQuestResultA}
 		]
 	],
 
@@ -898,7 +871,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_CND,	[
 				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_LVL"],
 				{call NWG_DLG_COMM_IsMissionStarted},["#COMM_00_A_02#",NODE_EXIT],
-				{"COMM" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"COMM_QST_DISPLAY",{},0,COLOR_GREEN],
+				{"COMM" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestOpen},"COMM_QST_DISPLAY",{},0,COLOR_GREEN],
 				{true},["#COMM_00_A_03#","COMM_PRGB",{},[],COLOR_YELLOW],
 				{true},["#COMM_00_A_04#","COMM_HELP"],
 				{true},["#COMM_00_A_05#","COMM_ADV"],
@@ -918,7 +891,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_CND,	[
 				{call NWG_DLG_COMM_IsMissionReady},["#COMM_00_A_01#","COMM_LVL"],
 				{call NWG_DLG_COMM_IsMissionStarted},["#COMM_01_A_02#",NODE_EXIT],
-				{"COMM" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"COMM_QST_DISPLAY",{},0,COLOR_GREEN],
+				{"COMM" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestOpen},"COMM_QST_DISPLAY",{},0,COLOR_GREEN],
 				{true},["#COMM_00_A_03#","COMM_PRGB",{},[],COLOR_YELLOW],
 				{true},["#COMM_00_A_04#","COMM_HELP"],
 				{true},["#COMM_00_A_05#","COMM_ADV"],
@@ -1113,30 +1086,21 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_GEN,	{"COMM_01" call NWG_DLGHLP_GenerateBackExit}/*["COMM_01",NODE_EXIT]*/
 		]
 	],
-	/*Quest - display quest data*/
+	/*Quest Display - display quest data*/
 	[
 		"COMM_QST_DISPLAY",	[
-			Q_ONE,	["%1",{"COMM" call NWG_DLGHLP_QST_DisplayQuestData}],
+			Q_ONE,	["%1",{"COMM" call NWG_DLGHLP_QST_GenerateQuestDisplayQ}],
 			A_GEN,	[
-				{"COMM" call NWG_DLGHLP_QST_GenerateQuestAnswers},
+				{"COMM" call NWG_DLGHLP_QST_GenerateQuestDisplayA},
 				{"COMM_01" call NWG_DLGHLP_GenerateDoubtExit}/*["COMM_01",NODE_EXIT]*/
 			]
 		]
 	],
-	/*Quest Report - quest done FALSE*/
+	/*Quest Result*/
 	[
-		"COMM_QST_QUEST_DONE_FALSE",	[
-			Q_ONE,	["%1",{"COMM" call NWG_DLGHLP_GetRndQuestDoneFalseQ}],
-			A_GEN,	{"COMM_01" call NWG_DLGHLP_GenerateBackExit}/*["COMM_01",NODE_EXIT]*/
-		]
-	],
-	/*Quest Report - quest done TRUE*/
-	[
-		"COMM_QST_QUEST_DONE_TRUE",	[
-			Q_ONE,	["%1",{"COMM" call NWG_DLGHLP_GetRndQuestDoneTrueQ}],
-			A_DEF,	[
-				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT]
-			]
+		"COMM_QST_RESULT",	[
+			Q_ONE,	["%1",{"COMM" call NWG_DLGHLP_QST_GenerateQuestResultQ}],
+			A_GEN,	{"COMM_01" call NWG_DLGHLP_QST_GenerateQuestResultA}
 		]
 	],
 
@@ -1155,7 +1119,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_CND,	[
 				{true},["#ROOF_00_A_00#","ROOF_TS"],
-				{"ROOF" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"ROOF_QST_DISPLAY",{},0,COLOR_GREEN],
+				{"ROOF" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestOpen},"ROOF_QST_DISPLAY",{},0,COLOR_GREEN],
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_01#","ROOF_WHAT"],
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_02#","ROOF_NO_TRUST"],
 				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#ROOF_00_A_02#","ROOF_KNOW"],
@@ -1177,7 +1141,7 @@ NWG_DialogueTree = createHashMapFromArray [
 			],
 			A_CND,	[
 				{true},["#ROOF_00_A_00#","ROOF_TS"],
-				{"ROOF" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestStart},"ROOF_QST_DISPLAY",{},0,COLOR_GREEN],
+				{"ROOF" call NWG_DLGHLP_QST_ShowQuest},[{call NWG_DLGHLP_GetRndQuestOpen},"ROOF_QST_DISPLAY",{},0,COLOR_GREEN],
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_01#","ROOF_WHAT"],
 				{10 call NWG_DLGHLP_HasLessOrEqMoneyStartSum},["#ROOF_00_A_02#","ROOF_NO_TRUST"],
 				{10 call NWG_DLGHLP_HasMoreMoneyStartSum},["#ROOF_00_A_02#","ROOF_KNOW"],
@@ -1475,30 +1439,21 @@ NWG_DialogueTree = createHashMapFromArray [
 			A_GEN,	{"ROOF_01" call NWG_DLGHLP_GenerateBackExit}/*["ROOF_01",NODE_EXIT]*/
 		]
 	],
-	/*Quest - display quest data*/
+	/*Quest Display - display quest data*/
 	[
 		"ROOF_QST_DISPLAY",	[
-			Q_ONE,	["%1",{"ROOF" call NWG_DLGHLP_QST_DisplayQuestData}],
+			Q_ONE,	["%1",{"ROOF" call NWG_DLGHLP_QST_GenerateQuestDisplayQ}],
 			A_GEN,	[
-				{"ROOF" call NWG_DLGHLP_QST_GenerateQuestAnswers},
+				{"ROOF" call NWG_DLGHLP_QST_GenerateQuestDisplayA},
 				{"ROOF_01" call NWG_DLGHLP_GenerateDoubtExit}/*["ROOF_01",NODE_EXIT]*/
 			]
 		]
 	],
-	/*Quest Report - quest done FALSE*/
+	/*Quest Result*/
 	[
-		"ROOF_QST_QUEST_DONE_FALSE",	[
-			Q_ONE,	["%1",{"ROOF" call NWG_DLGHLP_GetRndQuestDoneFalseQ}],
-			A_GEN,	{"ROOF_01" call NWG_DLGHLP_GenerateBackExit}/*["ROOF_01",NODE_EXIT]*/
-		]
-	],
-	/*Quest Report - quest done TRUE*/
-	[
-		"ROOF_QST_QUEST_DONE_TRUE",	[
-			Q_ONE,	["%1",{"ROOF" call NWG_DLGHLP_GetRndQuestDoneTrueQ}],
-			A_DEF,	[
-				[{call NWG_DLGHLP_GetRndQuestCloseA},NODE_EXIT]
-			]
+		"ROOF_QST_RESULT",	[
+			Q_ONE,	["%1",{"ROOF" call NWG_DLGHLP_QST_GenerateQuestResultQ}],
+			A_GEN,	{"ROOF_01" call NWG_DLGHLP_QST_GenerateQuestResultA}
 		]
 	],
 

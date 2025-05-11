@@ -25,6 +25,7 @@ NWG_AW_CreateHolderObject = {
     _holder setVectorDirAndUp [[0, 0, 1], [0, 0.5, 0]];
     _holder addWeaponWithAttachmentsCargoGlobal [_config,1];
     _holder setDamage 1;//Prevent taking items out of the holder
+    _holder lockInventory true;
 
     //return
     _holder

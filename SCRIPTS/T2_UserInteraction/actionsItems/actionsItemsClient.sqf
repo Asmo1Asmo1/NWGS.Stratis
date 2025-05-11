@@ -60,6 +60,7 @@ NWG_AI_Settings = createHashMapFromArray [
 	["REFUEL_PRIORITY",19],
 	["REFUEL_DURATION",12],
 	["REFUEL_AUTOSHOW",true],
+	["REFUEL_VALUE",0.075],//0.0 ... 1.0 - how much fuel will be added to the vehicle
 
 	["",0]
 ];
@@ -431,7 +432,7 @@ NWG_AI_VehicleRefuel_OnCompleted = {
 	if (isNull _veh) exitWith {};
 	private _removeOk = (NWG_AI_Settings get "REFUEL_ITEM") call NWG_fnc_invRemoveItem;
 	if (!_removeOk) exitWith {format ["NWG_AI_VehicleRefuel_OnCompleted: Failed to remove item '%1'",(NWG_AI_Settings get "REFUEL_ITEM")] call NWG_fnc_logError};
-	private _newFuel = ((fuel _veh) + 0.1) min 1;
+	private _newFuel = ((fuel _veh) + (NWG_AI_Settings get "REFUEL_VALUE")) min 1;
 	[_veh,_newFuel] call NWG_fnc_setFuel;//Run where the vehicle is local
 };
 
