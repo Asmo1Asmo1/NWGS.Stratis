@@ -1352,6 +1352,10 @@ NWG_DSPAWN_ReturnToPatrol = {
             default {"ground"};
         };
         _patrolRoute = [_trigger,_type,3] call NWG_fnc_dtsGenerateSimplePatrol;
+        if (_patrolRoute isEqualTo false) exitWith {
+            (format ["NWG_DSPAWN_ReturnToPatrol: Could not generate patrol route for group '%1'",_group]) call NWG_fnc_logError;
+            _patrolRoute = [];
+        };
         _group setVariable ["NWG_DSPAWN_patrolRoute",_patrolRoute];
     };
     if (_patrolRoute isEqualTo []) exitWith {};//No patrol route found/generated

@@ -41,7 +41,7 @@ NWG_fnc_dtsFindDotForWaypoint = {
 //_type: type of patrol, can be of "ground"|"water"|"air"
 //_patrolLength: length of the patrol route to generate
 //returns:
-//array of positions
+//array of positions OR 'false' if no positions were found
 NWG_fnc_dtsGenerateSimplePatrol = {
     //params ["_trigger","_type","_patrolLength"];
     _this call NWG_DOTS_GenerateSimplePatrol
