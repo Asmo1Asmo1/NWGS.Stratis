@@ -646,7 +646,6 @@ NWG_VSHOP_SER_OnShopRequest = {
 	_result
 };
 
-//NEW IMPLEMENTATION
 NWG_VSHOP_SER_OnTransaction = {
 	params ["_itemsSoldToPlayer","_itemsBoughtFromPlayer"];
 
