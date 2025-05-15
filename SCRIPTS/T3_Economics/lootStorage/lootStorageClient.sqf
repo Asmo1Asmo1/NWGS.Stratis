@@ -162,7 +162,6 @@ NWG_LS_CLI_OnInventoryClose = {
         private _storageLoot = NWG_LS_CLI_invisibleBox call NWG_LS_CLI_GetAllContainerItems;
         _storageLoot = _storageLoot call NWG_LS_CLI_AutoSell;//Auto sell (just in case something got there)
         _storageLoot = _storageLoot call NWG_LS_CLI_ConvertToLoot;//Convert to loot structure
-        {_x call NWG_fnc_compactStringArray} forEach _storageLoot;//Compact storage loot structure
 
         //Re-write player loot based on what is left in the box
         [player,_storageLoot] call NWG_fnc_lsSetPlayerLoot;
@@ -286,6 +285,8 @@ NWG_LS_CLI_ConvertToLoot = {
         };
     } forEach _this;
 
+    {_x call NWG_fnc_compactStringArray} forEach _loot;
+
     //return
     _loot
 };
@@ -358,7 +359,7 @@ NWG_LS_CLI_LootByInventoryUI = {
         };
         //Fix secondary weapon pseudo container getting in the way
         case (_container isKindOf "Library_WeaponHolder"): {
-            if (!isNull (attachedTo _container) && {(attachedTo _container) isKindOf "Man"}) then {
+            if (!isNull _secdContainer) then {
                 _container = _secdContainer;
                 _secdContainer = objNull;
             };
@@ -423,9 +424,6 @@ NWG_LS_CLI_LootContainer_Core = {
     private _mustMerge = (count _allContainerItems) > 0;
     if (!_mustClear && !_mustMerge) exitWith {false};//Nothing do here
 
-    //Convert to loot structure
-    private _loot = _allContainerItems call NWG_LS_CLI_ConvertToLoot;
-
     //Clear the container
     if (_mustClear) then {
         if (_container isKindOf "Man") then {
@@ -434,7 +432,7 @@ NWG_LS_CLI_LootContainer_Core = {
             if (_uniform isNotEqualTo "" && {_allContainerItems isNotEqualTo [_uniform]}) then {
                 //If there was a uniform and it is not the only thing left
                 _container setUnitLoadout [[],[],[],[_uniform,[]],[],[],"","",[],["","","","","",""]];//Leave only the uniform
-                (_loot#LOOT_ITEM_CAT_CLTH) deleteAt ((_loot#LOOT_ITEM_CAT_CLTH) find _uniform);//Remove uniform from loot (we're not taking it)
+                _allContainerItems deleteAt (_allContainerItems find _uniform);//Remove uniform from loot (we're not taking it)
             } else {
                 _container setUnitLoadout (configFile >> "EmptyLoadout");//Clear the inventory completely
             };
@@ -446,15 +444,13 @@ NWG_LS_CLI_LootContainer_Core = {
         };
     };
 
-    //Append to player loot storage
+    //Add to player loot storage
     if (_mustMerge) then {
-        private _playerLoot = player call NWG_fnc_lsGetPlayerLoot;
-        {
-            _x call NWG_fnc_unCompactStringArray;//Uncompact
-            _x append (_loot#_forEachIndex);//Append
-            _x call NWG_fnc_compactStringArray;//Compact
-        } forEach _playerLoot;
-        [player,_playerLoot] call NWG_fnc_lsSetPlayerLoot;//Save
+        private _loot = _allContainerItems call NWG_LS_CLI_ConvertToLoot;
+        [player,_loot] call NWG_fnc_lsAddToLocalPlayerLoot;//Save locally
+        if (!isServer) then {
+            [player,_loot] remoteExec ["NWG_fnc_lsAddToLocalPlayerLoot",2];//Save on server
+        };
     };
 
     //return

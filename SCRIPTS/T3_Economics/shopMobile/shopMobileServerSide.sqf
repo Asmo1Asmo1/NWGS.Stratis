@@ -691,6 +691,14 @@ NWG_MSHOP_SER_OnVehicleBought = {
 	(group _player) addVehicle _vehicle;
 	[_vehicle,_player] call NWG_fnc_vownSetOwner;
 
+	//Clear vehicle cargo
+	_vehicle call NWG_fnc_clearContainerCargo;
+
+	//Create AI crew for UAVs
+	if (unitIsUAV _vehicle) then {
+		(side (group _player)) createVehicleCrew _vehicle;
+	};
+
 	//return
 	true
 };

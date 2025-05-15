@@ -135,8 +135,17 @@ NWG_QST_SER_CreateNew = {
     };
     /*Burn down quest*/
     if (QST_TYPE_BURNDOWN in _enabledQuests) then {
-        private _selectBy = {(typeOf _x) in (NWG_QST_Settings get "BURNDOWN_TARGETS")};
-        [QST_TYPE_BURNDOWN,OBJ_CAT_DECO,_selectBy] call _fillDice;
+        /*Find supply boxes even if they are simple objects - we'll replace them later*/
+        private _possibleTargets = (_missionObjects#OBJ_CAT_DECO) select {
+            !isNull _x && {
+            ((getPosASL _x)#2) >= 0 && {
+            (typeOf _x) in (NWG_QST_Settings get "BURNDOWN_TARGETS")}}
+        };
+        if ((count _possibleTargets) == 0) exitWith {};
+        private _target = selectRandom _possibleTargets;
+        for "_i" from 1 to (_diceWeights select QST_TYPE_BURNDOWN) do {
+            _dice pushBack [QST_TYPE_BURNDOWN,_target,(typeOf _target)];
+        };
     };
     /*Tools quest*/
     if (QST_TYPE_TOOLS in _enabledQuests) then {
@@ -204,26 +213,9 @@ NWG_QST_SER_CreateNew = {
         };
         case QST_TYPE_WOUNDED: {
             //Replace unit with a wounded civilian
-            //Get random unit type from config (exempt from 'BIS_fnc_moduleCivilianPresence')
-            private _cfg = configFile >> "CfgVehicles" >> "ModuleCivilianPresence_F" >> "UnitTypes";
-			private _cfgUnitTypes = _cfg >> worldName;
-			if (isNull _cfgUnitTypes) then { _cfgUnitTypes = _cfg >> "other" };
-			private _unitType = selectRandom (getArray _cfgUnitTypes);
-            if (isNil "_unitType") exitWith {
-                (format ["NWG_QST_SER_CreateNew: No unit type found for quest type: '%1'",_questType]) call NWG_fnc_logError;
-                false;
-            };
-            //Replace selected unit with a wounded civilian
-            private _dir = getDir _targetObj;
-            private _wounded = createAgent [_unitType,_targetObj,[],0,"CAN_COLLIDE"];
-            deleteVehicle _targetObj;
-            _wounded setDir _dir;
-            _targetObj = _wounded;
-            _targetClassname = (typeOf _wounded);
-            //Apply wounded state
-            private _pos = getPosASL _wounded;
-            _wounded setDamage 0.5;
-            _wounded playMoveNow "Acts_ExecutionVictim_Loop";
+            _targetObj = _targetObj call NWG_QST_SER_ReplaceWithWoundedCivilian;
+            _targetClassname = (typeOf _targetObj);
+
             //Setup command for current and JIP players
             [_targetObj,"NWG_QST_CLI_OnWoundedCreated",[]] call NWG_fnc_rqAddCommand;
             //Setup failure
@@ -242,6 +234,18 @@ NWG_QST_SER_CreateNew = {
             _targetClassname = (typeOf _targetObj);
         };
         case QST_TYPE_BURNDOWN: {
+            //Replace with interactable object if simple
+            if (isSimpleObject _targetObj) then {
+                private _pos = getPosASL _targetObj;
+                private _dir = getDir _targetObj;
+                deleteVehicle _targetObj;
+                private _newObj = createVehicle [_targetClassname,_pos,[],0,"CAN_COLLIDE"];
+                _newObj setDir _dir;
+                _newObj setPosASL _pos;
+                _newObj call NWG_fnc_clearContainerCargo;//Remove any cargo
+                _targetObj = _newObj;
+            };
+
             //Set initial state
             _targetObj setVariable ["QST_isBurned",false,true];
             //Setup burning for current and JIP players
@@ -367,10 +371,10 @@ NWG_QST_SER_OnQuestDone = {
     [_locKey,_winnerStr] call NWG_fnc_sideChatAll;
 };
 
-NWG_QST_SER_OnQuestClosed = {
+NWG_QST_SER_OnQuestClose = {
     params ["_player","_reward"];
     if !(NWG_QST_State in [QST_STATE_IN_PROGRESS,QST_STATE_DONE,QST_STATE_FAILED]) exitWith {
-        (format ["NWG_QST_SER_OnQuestClosed: Quest is not in progress or done: '%1'",NWG_QST_State]) call NWG_fnc_logError;
+        (format ["NWG_QST_SER_OnQuestClose: Quest state unexpected: '%1'",NWG_QST_State]) call NWG_fnc_logError;
     };
 
     //Get player str
@@ -388,11 +392,11 @@ NWG_QST_SER_OnQuestClosed = {
     call {
         private _questType = NWG_QST_Data param [QST_DATA_TYPE,-1];
         if (_questType isEqualTo -1) exitWith {
-            (format ["NWG_QST_SER_OnQuestClosed: No quest type found"]) call NWG_fnc_logError;
+            (format ["NWG_QST_SER_OnQuestClose: No quest type found"]) call NWG_fnc_logError;
         };
         private _locKey = (NWG_QST_Settings get "LOC_QUEST_CLOSED") param [_questType,""];
         if (_locKey isEqualTo "") exitWith {
-            (format ["NWG_QST_SER_OnQuestClosed: No localization key found for quest type: '%1'",_questType]) call NWG_fnc_logError;
+            (format ["NWG_QST_SER_OnQuestClose: No localization key found for quest type: '%1'",_questType]) call NWG_fnc_logError;
         };
         if (_locKey isEqualTo false) exitWith {};//Chat message disabled for this quest type
         private _winnerStr = if (_playerName isNotEqualTo QST_UNKNOWN_WINNER)
@@ -474,6 +478,38 @@ NWG_QST_SER_OnWounded = {
     };
 
     _dmg
+};
+
+/*Replace with wounded civilian*/
+NWG_QST_SER_ReplaceWithWoundedCivilian = {
+    private _targetObj = _this;
+
+    //Get random unit type from config (exempt from 'BIS_fnc_moduleCivilianPresence')
+    private _cfg = configFile >> "CfgVehicles" >> "ModuleCivilianPresence_F" >> "UnitTypes";
+    private _cfgUnitTypes = _cfg >> worldName;
+    if (isNull _cfgUnitTypes) then { _cfgUnitTypes = _cfg >> "other" };
+    private _unitType = selectRandom (getArray _cfgUnitTypes);
+    if (isNil "_unitType") exitWith {
+        (format ["NWG_QST_SER_CreateNew: No unit type found for quest type: '%1'",_questType]) call NWG_fnc_logError;
+        false;
+    };
+
+    //Replace selected unit with a wounded civilian
+    private _wounded = createAgent [_unitType,_targetObj,[],0,"CAN_COLLIDE"];
+    private _pos = getPosASL _targetObj;
+    private _dir = getDir _targetObj;
+    deleteVehicle _targetObj;
+    _wounded setDir _dir;
+
+    //Apply wounded state
+    _wounded setDamage 0.5;
+    _wounded playMoveNow "Acts_ExecutionVictim_Loop";
+
+    //Compensate position shifting because of animation
+    _wounded setPosASL (_pos vectorAdd [((sin _dir) * -0.7),((cos _dir) * -0.7),0]);
+
+    //return
+    _wounded
 };
 
 /*Infection utils*/

@@ -65,9 +65,28 @@ NWG_fnc_lsGetPlayerLoot = {
     _this call NWG_LS_COM_GetPlayerLoot
 };
 
+//Add to player loot storage
+//note: this function adds to local copy of player loot storage, if you want to add to server side as well, use remoteExec
+//params: _player - object
+//params: _loot - array of arrays (loot structure)
+NWG_fnc_lsAddToLocalPlayerLoot = {
+    params ["_player","_loot"];
+    if !(_player isEqualType objNull) exitWith {
+        "NWG_fnc_lsAddToLocalPlayerLoot: Invalid player" call NWG_fnc_logError;
+    };
+    if (isNull _player) exitWith {
+        "NWG_fnc_lsAddToLocalPlayerLoot: Player is null" call NWG_fnc_logError;
+    };
+    if !(_loot isEqualType []) exitWith {
+        "NWG_fnc_lsAddToLocalPlayerLoot: Invalid loot" call NWG_fnc_logError;
+    };
+
+    _this call NWG_LS_COM_AddToLocalPlayerLoot;
+};
+
 //Set loot storage for a player
 //params: _player - object
-//params: _loot - array
+//params: _loot - array of arrays (loot structure)
 NWG_fnc_lsSetPlayerLoot = {
     params ["_player","_loot"];
     if !(_player isEqualType objNull) exitWith {

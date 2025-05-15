@@ -181,7 +181,10 @@ NWG_DOTS_GenerateSimplePatrol = {
             _dots
         };
     };
-    if ((count _dots) == 0) exitWith {false};
+    if ((count _dots) == 0) exitWith {
+        (format ["NWG_DOTS_GenerateSimplePatrol: No dots found for type '%1'",_type]) call NWG_fnc_logError;
+        false
+    };
 
     //Start forming the result
     private _result = [];

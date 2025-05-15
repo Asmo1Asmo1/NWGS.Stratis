@@ -86,6 +86,7 @@ NWG_AK_QuickVehicleAccess = {
 	//Get target vehicle
 	private _vehicle = cursorObject;
 	if (isNull _vehicle) exitWith {};//Ignore if there is no object under cursor
+	if ((locked _vehicle) > 1) exitWith {};//Ignore if vehicle is locked
 	if ((["ParachuteBase","Car","Tank","Helicopter","Plane","Ship"] findIf {_vehicle isKindOf _x}) <= 0) exitWith {};//Ignore if cursorObject is not a vehicle
 	if ((player distance _vehicle) > (NWG_AK_Settings get "QUICK_VEH_ACCESS_DISTANCE")) exitWith {};//Ignore if player is too far from the vehicle
 	if (unitIsUAV _vehicle) exitWith {};//Ignore if cursorObject is a UAV
