@@ -213,26 +213,9 @@ NWG_QST_SER_CreateNew = {
         };
         case QST_TYPE_WOUNDED: {
             //Replace unit with a wounded civilian
-            //Get random unit type from config (exempt from 'BIS_fnc_moduleCivilianPresence')
-            private _cfg = configFile >> "CfgVehicles" >> "ModuleCivilianPresence_F" >> "UnitTypes";
-			private _cfgUnitTypes = _cfg >> worldName;
-			if (isNull _cfgUnitTypes) then { _cfgUnitTypes = _cfg >> "other" };
-			private _unitType = selectRandom (getArray _cfgUnitTypes);
-            if (isNil "_unitType") exitWith {
-                (format ["NWG_QST_SER_CreateNew: No unit type found for quest type: '%1'",_questType]) call NWG_fnc_logError;
-                false;
-            };
-            //Replace selected unit with a wounded civilian
-            private _dir = getDir _targetObj;
-            private _wounded = createAgent [_unitType,_targetObj,[],0,"CAN_COLLIDE"];
-            deleteVehicle _targetObj;
-            _wounded setDir _dir;
-            _targetObj = _wounded;
-            _targetClassname = (typeOf _wounded);
-            //Apply wounded state
-            private _pos = getPosASL _wounded;
-            _wounded setDamage 0.5;
-            _wounded playMoveNow "Acts_ExecutionVictim_Loop";
+            _targetObj = _targetObj call NWG_QST_SER_ReplaceWithWoundedCivilian;
+            _targetClassname = (typeOf _targetObj);
+
             //Setup command for current and JIP players
             [_targetObj,"NWG_QST_CLI_OnWoundedCreated",[]] call NWG_fnc_rqAddCommand;
             //Setup failure
@@ -495,6 +478,38 @@ NWG_QST_SER_OnWounded = {
     };
 
     _dmg
+};
+
+/*Replace with wounded civilian*/
+NWG_QST_SER_ReplaceWithWoundedCivilian = {
+    private _targetObj = _this;
+
+    //Get random unit type from config (exempt from 'BIS_fnc_moduleCivilianPresence')
+    private _cfg = configFile >> "CfgVehicles" >> "ModuleCivilianPresence_F" >> "UnitTypes";
+    private _cfgUnitTypes = _cfg >> worldName;
+    if (isNull _cfgUnitTypes) then { _cfgUnitTypes = _cfg >> "other" };
+    private _unitType = selectRandom (getArray _cfgUnitTypes);
+    if (isNil "_unitType") exitWith {
+        (format ["NWG_QST_SER_CreateNew: No unit type found for quest type: '%1'",_questType]) call NWG_fnc_logError;
+        false;
+    };
+
+    //Replace selected unit with a wounded civilian
+    private _wounded = createAgent [_unitType,_targetObj,[],0,"CAN_COLLIDE"];
+    private _pos = getPosASL _targetObj;
+    private _dir = getDir _targetObj;
+    deleteVehicle _targetObj;
+    _wounded setDir _dir;
+
+    //Apply wounded state
+    _wounded setDamage 0.5;
+    _wounded playMoveNow "Acts_ExecutionVictim_Loop";
+
+    //Compensate position shifting because of animation
+    _wounded setPosASL (_pos vectorAdd [((sin _dir) * -0.7),((cos _dir) * -0.7),0]);
+
+    //return
+    _wounded
 };
 
 /*Infection utils*/
