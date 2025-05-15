@@ -753,10 +753,24 @@ NWG_MIS_SER_BuildPlayerBase = {
 NWG_MIS_SER_FixNpcPosition = {
     private ["_posOrig","_posCur"];
     {
+        if (isNull _x || {!alive _x}) exitWith {
+            (format ["NWG_MIS_SER_FixNpcPosition: NPC is null or dead: '%1'",_x]) call NWG_fnc_logError;
+            NWG_MIS_SER_playerBaseNPCs deleteAt _forEachIndex;
+            continue
+        };
+
         _posOrig = _x getVariable "NWG_baseNpcOrigPos";
+        if (isNil "_posOrig") then {
+            (format ["NWG_MIS_SER_FixNpcPosition: NPC has no original position: '%1'",_x]) call NWG_fnc_logError;
+            _posOrig = getPosASL _x;
+            _x setVariable ["NWG_baseNpcOrigPos",_posOrig];
+        };
+
         _posCur = getPosASL _x;
-        if ((_posOrig distance _posCur) > 0.25) then {_x setPosASL _posOrig};
-    } forEach NWG_MIS_SER_playerBaseNPCs;
+        if ((_posOrig distance _posCur) > 0.25) then {
+            _x setPosASL _posOrig
+        };
+    } forEachReversed NWG_MIS_SER_playerBaseNPCs;
 };
 
 //================================================================================================================
