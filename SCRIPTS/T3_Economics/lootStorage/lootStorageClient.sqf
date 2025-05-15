@@ -359,7 +359,7 @@ NWG_LS_CLI_LootByInventoryUI = {
         };
         //Fix secondary weapon pseudo container getting in the way
         case (_container isKindOf "Library_WeaponHolder"): {
-            if (!isNull (attachedTo _container) && {(attachedTo _container) isKindOf "Man"}) then {
+            if (!isNull _secdContainer) then {
                 _container = _secdContainer;
                 _secdContainer = objNull;
             };
