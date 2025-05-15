@@ -30,6 +30,13 @@ NWG_LS_COM_SetPlayerLoot = {
     };
 };
 
+NWG_LS_COM_AddToLocalPlayerLoot = {
+    params ["_player","_loot"];
+    private _playerLoot = _player getVariable ["NWG_LS_LootStorage",LOOT_ITEM_DEFAULT_CHART];
+    {_playerLoot set [_forEachIndex,([_x,(_loot#_forEachIndex)] call NWG_fnc_mergeCompactedStringArrays)]} forEach _playerLoot;
+    _player setVariable ["NWG_LS_LootStorage",_playerLoot];
+};
+
 //=============================================================================
 //Loot depletion util
 NWG_LS_COM_DepleteLoot = {

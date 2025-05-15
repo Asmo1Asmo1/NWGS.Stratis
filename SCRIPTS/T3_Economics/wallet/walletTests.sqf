@@ -48,16 +48,16 @@ NWG_WLT_GetSeparatorOptions = {
 	[_separators,(toArray _separators)]
 };
 
-// -2500 call NWG_WLT_BalanceLosses_Test
+// -25000 call NWG_WLT_BalanceLosses_Test
 NWG_WLT_BalanceLosses_Test = {
 	private _totalDebt = _this;
-	private _moneyArray = [0,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000];
+	private _moneyArray = [500,1000,1500,2000,2500,3000,3500,4000,4500,5000,5500,6000,6500,7000,7500,8000,8500,9000,9500,10000];
 	private _players = ["1","2","3","4","5"];
 	private _moneyMap = createHashMapFromArray (_players apply {[_x,(selectRandom _moneyArray)]});
 	NWG_WLT_MockMoneyGet = _moneyMap;
 
-	//Re-define NWG_fnc_wltGetPlayerMoney
-	NWG_fnc_wltGetPlayerMoney = {
+	//Re-define NWG_WLT_GetPlayerMoney
+	NWG_WLT_GetPlayerMoney = {
 		// private _player = _this;
 		NWG_WLT_MockMoneyGet getOrDefault [_this,0]
 	};

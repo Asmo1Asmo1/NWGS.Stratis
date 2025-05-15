@@ -746,8 +746,11 @@ NWG_ACA_InfBuildingStorm = {
 NWG_ACA_CanDoVehRepair = {
     // private _group = _this;
     private _veh = vehicle (leader _this);
+    if !(alive _veh) exitWith {false};
+    if !(_veh isKindOf "Car" || {_veh isKindOf "Tank"}) exitWith {false};
+    if (unitIsUAV _veh) exitWith {false};
     //return
-    (alive _veh && {_veh isKindOf "Car" || _veh isKindOf "Tank"})
+    true
 };
 
 NWG_ACA_NeedsRepair = {

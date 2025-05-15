@@ -364,7 +364,8 @@ NWG_YK_GetHuntersData = {
     private _groups = (groups (NWG_YK_Settings get "KING_SIDE")) select {
         !isNull _x && {
         alive (leader _x) && {
-        ((units _x) findIf {isPlayer _x}) == -1}}
+        ((units _x) findIf {isPlayer _x}) == -1 && {
+        !(_x call NWG_fnc_acIsGroupBusy)}}}
     };
     if ((count _groups) == 0) exitWith {[]};
     _groups = _groups call NWG_fnc_arrayShuffle;

@@ -304,38 +304,37 @@ NWG_MSHOP_CLI_OnVehicleBought = {
 //Map click handler
 NWG_MSHOP_CLI_OnMapClick = {
 	// params ["_units","_pos","_alt","_shift"];
-	switch (true) do {
-		//Request for item from server
-		case (NWG_MSHOP_CLI_selectedItem isNotEqualTo ""): {
-			private _pos = _this select 1;
-			private _itemName = NWG_MSHOP_CLI_selectedItem;
-			private _moneySpent = NWG_MSHOP_CLI_moneySpent;
-			NWG_MSHOP_CLI_selectedItem = "";//Reset
-			NWG_MSHOP_CLI_moneySpent = 0;//Reset
 
-			//Send request to server
-			[player,_itemName,_pos,_moneySpent] remoteExec ["NWG_fnc_mshopOnItemBought",2];
+	//Request for item from server
+	if (NWG_MSHOP_CLI_selectedItem isNotEqualTo "") exitWith {
+		private _pos = _this select 1;
+		private _itemName = NWG_MSHOP_CLI_selectedItem;
+		private _moneySpent = NWG_MSHOP_CLI_moneySpent;
+		NWG_MSHOP_CLI_selectedItem = "";//Reset
+		NWG_MSHOP_CLI_moneySpent = 0;//Reset
 
-			//Close map
-			openMap [true,false];
-			openMap false;
-			hintSilent "";
-		};
-		//Request for vehicle from server
-		case (NWG_MSHOP_CLI_selectedVehicle isNotEqualTo ""): {
-			private _pos = _this select 1;
-			private _vehicleClassname = NWG_MSHOP_CLI_selectedVehicle;
-			NWG_MSHOP_CLI_selectedVehicle = "";//Reset
+		//Send request to server
+		[player,_itemName,_pos,_moneySpent] remoteExec ["NWG_fnc_mshopOnItemBought",2];
 
-			//Send request to server
-			[player,_vehicleClassname,_pos] remoteExec ["NWG_fnc_mshopOnVehicleBought",2];
+		//Close map
+		openMap [true,false];
+		openMap false;
+		hintSilent "";
+	};
 
-			//Close map
-			openMap [true,false];
-			openMap false;
-			hintSilent "";
-		};
-		default {/*Do nothing*/};
+	//Request for vehicle from server
+	if (NWG_MSHOP_CLI_selectedVehicle isNotEqualTo "") exitWith {
+		private _pos = _this select 1;
+		private _vehicleClassname = NWG_MSHOP_CLI_selectedVehicle;
+		NWG_MSHOP_CLI_selectedVehicle = "";//Reset
+
+		//Send request to server
+		[player,_vehicleClassname,_pos] remoteExec ["NWG_fnc_mshopOnVehicleBought",2];
+
+		//Close map
+		openMap [true,false];
+		openMap false;
+		hintSilent "";
 	};
 };
 

@@ -12,7 +12,7 @@ NWG_KOSTYLI_Settings = createHashMapFromArray [
 	["UNDG_HOLDER_DELETION_TIME",5],
 	["UNDG_HOLDER_DELETION_IF_LOWER",-0.5],
 
-	["VEH_UNSTUCK_ENABLED",true],
+	["VEH_UNSTUCK_ENABLED",false],
 	["VEH_UNSTUCK_INTERVAL",3],
 
 	["",0]
@@ -31,16 +31,14 @@ NWG_KOSTYLI_OnCreated = {
 	params [["_object",objNull]];
 	if (isNull _object) exitWith {};
 
-	if (_object isKindOf "Man") exitWith {
-		if (NWG_KOSTYLI_Settings get "UNIT_UNSTUCK_ENABLED") then {
-			_object call NWG_KOSTYLI_CheckUnitUnstuck;
-		};
+	if (NWG_KOSTYLI_Settings get "UNIT_UNSTUCK_ENABLED" && {
+		_object isKindOf "Man"}) exitWith {
+		_object call NWG_KOSTYLI_CheckUnitUnstuck;
 	};
 
-	if ((["ParachuteBase","Car","Tank","Helicopter","Plane","Ship"] findIf {_object isKindOf _x}) > 0) exitWith {
-		if (NWG_KOSTYLI_Settings get "VEH_UNSTUCK_ENABLED") then {
-			_object call NWG_KOSTYLI_AddToVehUnstuck;
-		};
+	if (NWG_KOSTYLI_Settings get "VEH_UNSTUCK_ENABLED" && {
+		(["ParachuteBase","Car","Tank","Helicopter","Plane","Ship"] findIf {_object isKindOf _x}) > 0}) exitWith {
+		_object call NWG_KOSTYLI_AddToVehUnstuck;
 	};
 };
 

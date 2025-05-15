@@ -7,9 +7,9 @@ NWG_GC_Settings = createHashMapFromArray [
     ["PLAYER_DELETION_DELAY",0.25],//Delay amount to wait before deleting the player (on respawn or disconnect)
     ["IMMEDIATE_DELETE_IF_PLAYER_DISTANCE",2500],//If vehicle/unit is killed not by player and there are no players closer than N - delete immediately (prevent bodies on the roads)
 
-    ["BODIES_LIMITS",[15,30]],//Min and max bodies count on the map allowed
-    ["WRECKS_LIMITS",[5,10]],//Min and max vehicle/turret wrecks
-    ["TRASH_LIMITS",[4,8]],//Min and max ground trash
+    ["BODIES_LIMITS",[18,36]],//Min and max bodies count on the map allowed
+    ["WRECKS_LIMITS",[6,12]],//Min and max vehicle/turret wrecks
+    ["TRASH_LIMITS",[5,10]],//Min and max ground trash
     ["PRESERVE_DISTANCE",25],//Distance from players to objects at which we will try to preserve them to not break immersion
 
     ["BUILDING_DECOR_DELETE",true],//Delete building decorations on building destroy

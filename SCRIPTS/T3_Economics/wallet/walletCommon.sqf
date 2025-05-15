@@ -86,61 +86,67 @@ NWG_WLT_SplitMoneyToGroup = {
     } else {
         //Players spent - balance out losses based on what each player has
         private _balanced = [_money,_units] call NWG_WLT_BalanceLosses;
-        {[_x#0,_x#1] call NWG_WLT_AddPlayerMoney} forEach _balanced;
+        {[(_x#0),(_x#1)] call NWG_WLT_AddPlayerMoney} forEach _balanced;
     };
 };
 
-#define BALANCE_UNIT 0
+#define BALANCE_MONEY 0
 #define BALANCE_SHARE 1
-#define BALANCE_MONEY 2
+#define BALANCE_UNIT 2
 NWG_WLT_BalanceLosses = {
     params ["_totalDebt","_units"];
-    if ((count _units) == 0) exitWith {[]};//No players - nothing to balance
-    if ((count _units) == 1) exitWith {[[(_units#0),_totalDebt]]};//Only one player - take all responsibility
+    if ((count _units) == 0) exitWith {[]};
+    if ((count _units) == 1) exitWith {[[(_units#0),_totalDebt]]};
+    _totalDebt = round (abs _totalDebt);
+    if (_totalDebt == 0) exitWith {[]};
 
-    //Prepare variables
-    _totalDebt = abs _totalDebt;
-    private _balancing = _units apply {[_x,0,((_x call NWG_WLT_GetPlayerMoney) max 0)]};//[unit,share,money]
-    private _balanced = [];
-    private _newShare = 0;
-    private _iterations = 100;//Just in case
-
-    //Balance debt in iterations
-    while {true} do {
-        _iterations = _iterations - 1;
-        _newShare = round (_totalDebt / ((count _balancing) max 1));
-
-        {
-            _x params ["","_curShare","_myMoney"];
-            if (_myMoney > (_curShare + _newShare)) then {
-                //Enough money - take their share
-                _x set [BALANCE_SHARE,(_curShare + _newShare)];
-                _totalDebt = _totalDebt - _newShare;
-            } else {
-                //Not enough money - take what they can pay
-                _x set [BALANCE_SHARE,_myMoney];
-                _totalDebt = _totalDebt + _curShare - _myMoney;//Restore what was (possibly) taken out on prev iteration and subtract all that player has
-                _balancing deleteAt _forEachIndex;
-                _balanced pushBack _x;
-            };
-        } forEachReversed _balancing;
-
-        if ((count _balancing) == 0) exitWith {};
-        if (_totalDebt <= 0) exitWith {
-            _balanced append _balancing;
-            _balancing resize 0;
-        };
-        if (_iterations <= 0) exitWith {
-            "NWG_WLT_BalanceLosses: Exceeded max iterations" call NWG_fnc_logError;
-            _balanced append _balancing;
-            _balancing resize 0;
-        };
+    //Prepare data
+    private _money = 0;
+    private _totalMoney = 0;
+    private _balancing = _units apply {
+        _money = (round (_x call NWG_WLT_GetPlayerMoney)) max 0;
+        _totalMoney = _totalMoney + _money;
+        [_money,0,_x]
     };
 
-    //Balance the rest of the debt (if any) equally between players
-    if (_totalDebt > 0) then {
-        _newShare = round (_totalDebt / ((count _balanced) max 1));
-        {_x set [BALANCE_SHARE,((_x#BALANCE_SHARE) + _newShare)]} forEach _balanced;
+    //Check if we have enough money to cover the debt
+    if (_totalMoney == _totalDebt) exitWith {
+        _balancing apply {[(_x#BALANCE_UNIT),-(_x#BALANCE_MONEY)]}
+    };
+    if (_totalMoney < _totalDebt) exitWith {
+        (format ["NWG_WLT_BalanceLosses: Not enough money '%1' to cover the debt: %2. Should never happen.",_totalMoney,_totalDebt]) call NWG_fnc_logError;
+        private _delta = _totalDebt - _totalMoney;
+        private _share = round (_delta / (count _units));
+        private _balanced = _balancing apply {[(_x#BALANCE_UNIT),-((_x#BALANCE_MONEY)+_share)]};
+        //return
+        _balanced
+    };
+
+    //Sort units and distribute debt
+    _balancing sort false;//Will sort by money, highest to lowest (we need it that way because we will iterate in reverse order)
+    private _balanced = [];
+    private _share = round (_totalDebt / (count _units));
+    {
+        if ((_x#BALANCE_MONEY) >= _share) then {
+            //Enough money to cover the share
+            _x set [BALANCE_SHARE,_share];//Sign up for full share
+            _balanced pushBack _x;//Add to balanced list
+            _balancing deleteAt _forEachIndex;//Remove from balancing list
+            _totalDebt = _totalDebt - _share;//Subtract from total debt
+        } else {
+            //Not enough money
+            private _delta = _share - (_x#BALANCE_MONEY);
+            _x set [BALANCE_SHARE,_x#BALANCE_MONEY];//Sign up for what we have
+            _balanced pushBack _x;//Add to balanced list
+            _balancing deleteAt _forEachIndex;//Remove from balancing list
+            _totalDebt = _totalDebt - _x#BALANCE_MONEY;//Subtract from total debt
+            _share = round (_totalDebt / ((count _balancing) max 1));//Re-calculate share based on remaining units
+        };
+    } forEachReversed _balancing;
+
+    //Check if we have any debt left
+    if (_totalDebt > 100) then {
+        (format ["NWG_WLT_BalanceLosses: High amount of debt left: '%1'",_totalDebt]) call NWG_fnc_logError;
     };
 
     //return

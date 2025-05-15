@@ -9,6 +9,16 @@
 */
 
 //=============================================================================
+/*General*/
+//Check if group is in process of doing something
+//params: _group - group to check
+//returns: boolean
+NWG_fnc_acIsGroupBusy = {
+    // private _group = _this;
+    _this call NWG_ACA_IsDoingAdvancedLogic
+};
+
+//=============================================================================
 /*Airstrike*/
 
 //Check if can do airstrike
