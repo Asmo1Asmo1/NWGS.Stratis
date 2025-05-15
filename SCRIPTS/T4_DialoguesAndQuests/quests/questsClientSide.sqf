@@ -263,7 +263,7 @@ NWG_QST_CLI_TryCloseQuest = {
 	};
 
 	//Close quest
-	[player,_reward] remoteExec ["NWG_fnc_qstOnQuestClosed",2];
+	[player,_reward] remoteExec ["NWG_fnc_qstOnQuestClose",2];
 
 	//return
 	_questResult
@@ -536,6 +536,7 @@ NWG_QST_CLI_CalcInfectionOutcome = {
 
 NWG_QST_CLI_OnBurnCreated = {
 	params ["_targetObj"];
+	_targetObj lockInventory true;//Prevent looting
 	//Check for JIP players
 	if (_targetObj getVariable ["QST_isBurned",false]) exitWith {_targetObj call NWG_QST_CLI_OnBurnDone};
 

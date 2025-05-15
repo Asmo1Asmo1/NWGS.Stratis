@@ -135,8 +135,17 @@ NWG_QST_SER_CreateNew = {
     };
     /*Burn down quest*/
     if (QST_TYPE_BURNDOWN in _enabledQuests) then {
-        private _selectBy = {(typeOf _x) in (NWG_QST_Settings get "BURNDOWN_TARGETS")};
-        [QST_TYPE_BURNDOWN,OBJ_CAT_DECO,_selectBy] call _fillDice;
+        /*Find supply boxes even if they are simple objects - we'll replace them later*/
+        private _possibleTargets = (_missionObjects#OBJ_CAT_DECO) select {
+            !isNull _x && {
+            ((getPosASL _x)#2) >= 0 && {
+            (typeOf _x) in (NWG_QST_Settings get "BURNDOWN_TARGETS")}}
+        };
+        if ((count _possibleTargets) == 0) exitWith {};
+        private _target = selectRandom _possibleTargets;
+        for "_i" from 1 to (_diceWeights select QST_TYPE_BURNDOWN) do {
+            _dice pushBack [QST_TYPE_BURNDOWN,_target,(typeOf _target)];
+        };
     };
     /*Tools quest*/
     if (QST_TYPE_TOOLS in _enabledQuests) then {
@@ -242,6 +251,18 @@ NWG_QST_SER_CreateNew = {
             _targetClassname = (typeOf _targetObj);
         };
         case QST_TYPE_BURNDOWN: {
+            //Replace with interactable object if simple
+            if (isSimpleObject _targetObj) then {
+                private _pos = getPosASL _targetObj;
+                private _dir = getDir _targetObj;
+                deleteVehicle _targetObj;
+                private _newObj = createVehicle [_targetClassname,_pos,[],0,"CAN_COLLIDE"];
+                _newObj setDir _dir;
+                _newObj setPosASL _pos;
+                _newObj call NWG_fnc_clearContainerCargo;//Remove any cargo
+                _targetObj = _newObj;
+            };
+
             //Set initial state
             _targetObj setVariable ["QST_isBurned",false,true];
             //Setup burning for current and JIP players
@@ -367,10 +388,10 @@ NWG_QST_SER_OnQuestDone = {
     [_locKey,_winnerStr] call NWG_fnc_sideChatAll;
 };
 
-NWG_QST_SER_OnQuestClosed = {
+NWG_QST_SER_OnQuestClose = {
     params ["_player","_reward"];
     if !(NWG_QST_State in [QST_STATE_IN_PROGRESS,QST_STATE_DONE,QST_STATE_FAILED]) exitWith {
-        (format ["NWG_QST_SER_OnQuestClosed: Quest is not in progress or done: '%1'",NWG_QST_State]) call NWG_fnc_logError;
+        (format ["NWG_QST_SER_OnQuestClose: Quest state unexpected: '%1'",NWG_QST_State]) call NWG_fnc_logError;
     };
 
     //Get player str
@@ -388,11 +409,11 @@ NWG_QST_SER_OnQuestClosed = {
     call {
         private _questType = NWG_QST_Data param [QST_DATA_TYPE,-1];
         if (_questType isEqualTo -1) exitWith {
-            (format ["NWG_QST_SER_OnQuestClosed: No quest type found"]) call NWG_fnc_logError;
+            (format ["NWG_QST_SER_OnQuestClose: No quest type found"]) call NWG_fnc_logError;
         };
         private _locKey = (NWG_QST_Settings get "LOC_QUEST_CLOSED") param [_questType,""];
         if (_locKey isEqualTo "") exitWith {
-            (format ["NWG_QST_SER_OnQuestClosed: No localization key found for quest type: '%1'",_questType]) call NWG_fnc_logError;
+            (format ["NWG_QST_SER_OnQuestClose: No localization key found for quest type: '%1'",_questType]) call NWG_fnc_logError;
         };
         if (_locKey isEqualTo false) exitWith {};//Chat message disabled for this quest type
         private _winnerStr = if (_playerName isNotEqualTo QST_UNKNOWN_WINNER)

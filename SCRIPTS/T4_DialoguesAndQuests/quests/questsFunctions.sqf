@@ -63,9 +63,9 @@ NWG_fnc_qstOnQuestDone = {
 // - _player - player object
 // - _reward - reward amount
 //returns: nothing
-NWG_fnc_qstOnQuestClosed = {
+NWG_fnc_qstOnQuestClose = {
     // params ["_player","_reward"];
-    _this call NWG_QST_SER_OnQuestClosed
+    _this call NWG_QST_SER_OnQuestClose
 };
 
 /*Utils*/
