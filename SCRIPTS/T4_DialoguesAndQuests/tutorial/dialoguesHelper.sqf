@@ -192,6 +192,8 @@ NWG_TUTDLG_COMM_OpenMissionSelect = {
 //================================================================================================================
 //================================================================================================================
 //STEP_05 Taxi. Discord and Paradrop
+#define MAX_PARADROP_SAFENET 4
+
 NWG_TUTDLG_TAXI_OpenDiscord = {
 	hint ("#TAXI_DISCORD_HINT#" call NWG_fnc_localize);
 	call NWG_UP_03Group_Discord_Open;//Use of inner method from 'userPlanshet' subsystem
@@ -226,23 +228,43 @@ NWG_TUTDLG_TAXI_Paradrop = {
 	hint ("#TAXI_PARA_MAP_HINT#" call NWG_fnc_localize);
 
 	//Handle map click (wrap checking for map click to be in mission area around normal paradrop)
+	localNamespace setVariable ["NWG_TUTDLG_TAXI_Paradrop_safenet",MAX_PARADROP_SAFENET];
 	addMissionEventHandler ["MapSingleClick",{
 		// params ["_units","_pos","_alt","_shift"];
 		private _pos = _this select 1;
+		private _safenet = localNamespace getVariable ["NWG_TUTDLG_TAXI_Paradrop_safenet",MAX_PARADROP_SAFENET];
+		_safenet = _safenet - 1;
+		localNamespace setVariable ["NWG_TUTDLG_TAXI_Paradrop_safenet",_safenet];
 		switch (true) do {
+			case (_safenet <= 0): {
+				/*Safenet limit reached - let them jump wherever if they want it so much (Also serves as a fix for any unexpected cases)*/
+				/*Show 'whatever' hint*/
+				private _npcNameLoc = ((NWG_DLG_CLI_Settings get "LOC_NPC_NAME") getOrDefault [NPC_TAXI,""]) call NWG_fnc_localize;
+				private _messageLoc = ("#TAXI_PARA_MAP_HINT_MAX_ATTEMPTS#" call NWG_fnc_localize);
+				[_npcNameLoc,_messageLoc] call BIS_fnc_showSubtitle;
+				/*Jump as usual*/
+				hint ("#TAXI_PARA_AIR_HINT#" call NWG_fnc_localize);//Show air hint
+				NWG_DLG_TAXI_mapClickExpected = true;//Raise expected flag
+				_this call NWG_DLG_TAXI_OnMapClick;//Use of inner method from 'dialogueSystem' subsystem
+				call NWG_TUT_NextStep;//Finish the tutorial
+				removeMissionEventHandler ["MapSingleClick",_thisEventHandler];//Remove this event handler
+			};
 			case (isNil "NWG_AI_MissionPos" || {!(NWG_AI_MissionPos isEqualType [])}): {
+				/*Mission pos is not set - show hint*/
 				private _npcNameLoc = ((NWG_DLG_CLI_Settings get "LOC_NPC_NAME") getOrDefault [NPC_TAXI,""]) call NWG_fnc_localize;
 				private _messageLoc = ("#TAXI_PARA_MAP_HINT_MIS_NOT_SET#" call NWG_fnc_localize);
 				hint _messageLoc;
 				[_npcNameLoc,_messageLoc] call BIS_fnc_showSubtitle;
 			};
 			case ((_pos distance2D (NWG_AI_MissionPos param [0,[0,0,0]])) > 750): {
+				/*Too far from mission pos - show hint*/
 				private _npcNameLoc = ((NWG_DLG_CLI_Settings get "LOC_NPC_NAME") getOrDefault [NPC_TAXI,""]) call NWG_fnc_localize;
 				private _messageLoc = ("#TAXI_PARA_MAP_HINT_TOO_FAR#" call NWG_fnc_localize);
 				hint _messageLoc;
 				[_npcNameLoc,_messageLoc] call BIS_fnc_showSubtitle;
 			};
 			default {
+				/*Mission pos is set and click is close enough - jump*/
 				["",""] call BIS_fnc_showSubtitle;//Clear subtitle
 				hint ("#TAXI_PARA_AIR_HINT#" call NWG_fnc_localize);//Show air hint
 				NWG_DLG_TAXI_mapClickExpected = true;//Raise expected flag

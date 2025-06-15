@@ -91,8 +91,8 @@ player addEventHandler ["InventoryClosed", {
     // params ["_unit", "_container"];
     private _holder = ((attachedObjects player) select {_x isKindOf "Library_WeaponHolder"}) param [0,objNull];
     if (!isNull _holder) then {
-        private _expected = [(player call NWG_fnc_awGetHolderData)];
-        private _actual = weaponsItems _holder;
+        private _expected = if ((player call NWG_fnc_awGetHolderData) isEqualTo []) then {0} else {1};
+        private _actual = count (weaponsItems _holder);
         if (_expected isNotEqualTo _actual) then {
             player call NWG_fnc_awDeleteHolderObject;
             [player,[]] call NWG_fnc_awSetHolderData;

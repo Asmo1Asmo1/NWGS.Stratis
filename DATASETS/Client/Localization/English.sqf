@@ -1023,6 +1023,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_TUTOR05_05_Q#","Well, well, well...|You're the boss all right|Ok, ready?"],
     ["#TAXI_TUTOR05_05_A_01#","Yeah, let's go!"],
     ["#TAXI_PARA_MAP_HINT#","Move cursor close to the mission area\nAnd click once to paradrop"],
+    ["#TAXI_PARA_MAP_HINT_MAX_ATTEMPTS#","All right, if you insist, I'll just drop you there"],
     ["#TAXI_PARA_MAP_HINT_MIS_NOT_SET#","No mission area set yet, wait a little"],
     ["#TAXI_PARA_MAP_HINT_TOO_FAR#","Boss, that's too far from the mission area, click closer to it"],
     ["#TAXI_PARA_AIR_HINT#","To deploy parachute\nPress 'Space' while in the air"],
