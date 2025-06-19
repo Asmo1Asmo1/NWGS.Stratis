@@ -249,7 +249,7 @@ NWG_QST_CLI_TryCloseQuest = {
 			{
 				if (_targetClassname in (flatten (_loadout select _x))) exitWith {
 					_loadout set [_x,[]];
-					player setUnitLoadout _loadout;
+					[player,_loadout] call NWG_fnc_setUnitLoadout;
 					_deleted = true;
 				};
 			} forEach [0,1,2,8];//Primary,Secondary,Handgun,Binoculars

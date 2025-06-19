@@ -30,7 +30,7 @@ NWG_AW_SwitchWeapon = {
     private _newLoadout = [];
     _newLoadout resize 10;//Array with 10 'nil' elements
     _newLoadout set [0,_holderLoadout];
-    player setUnitLoadout _newLoadout;
+    [player,_newLoadout] call NWG_fnc_setUnitLoadout;
 
     //Apply fixes
     switch (true) do {

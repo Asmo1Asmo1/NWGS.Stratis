@@ -54,25 +54,31 @@ NWG_AK_ParachuteDeployment = {
 	[] spawn {
 		//Save current backpack loadout
 		//[[],[],[],[],[],["B_Parachute",[]],"","",[],["","","","","",""]]
-		private _loadout = getUnitLoadout player;
-		private _backpack = _loadout select 5;
+		private _backpack = (getUnitLoadout player) select 5;
+		player setVariable ["NWG_AK_ParachuteDeployment_backpack",_backpack];
 
-		//Replace backpack with parachute
-		_loadout = [nil,nil,nil,nil,nil,["B_Parachute",[]],nil,nil,nil,nil];
-		player setUnitLoadout _loadout;
-		player action ["OpenParachute",player];//Deploy parachute
-
-		//Wait till player lands
-		waitUntil {
-			sleep 0.1;
-			if (isNull player || {!alive player}) exitWith {true};
-			isNull (objectParent player)
+		//Prepare loadout change callback
+		private _callback = {
+			[] spawn {
+				//Deploy parachute
+				player action ["OpenParachute",player];
+				//Wait till player lands
+				waitUntil {
+					sleep 0.1;
+					if (isNull player || {!alive player}) exitWith {true};
+					isNull (objectParent player)
+				};
+				if (isNull player || {!alive player}) exitWith {};
+				//Restore original loadout
+				private _backpack = player getVariable ["NWG_AK_ParachuteDeployment_backpack",[]];
+				private _loadout = [nil,nil,nil,nil,nil,_backpack,nil,nil,nil,nil];
+				[player,_loadout] call NWG_fnc_setUnitLoadout;
+			};
 		};
-		if (isNull player || {!alive player}) exitWith {};
 
-		//Restore backpack loadout
-		_loadout set [5,_backpack];
-		player setUnitLoadout _loadout;
+		//Replace backpack with parachute and run callback when done
+		private _loadout = [nil,nil,nil,nil,nil,["B_Parachute",[]],nil,nil,nil,nil];
+		[player,_loadout,_callback] call NWG_fnc_setUnitLoadout;
 	};
 };
 
