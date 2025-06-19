@@ -209,5 +209,5 @@ NWG_UNEQ_ReplaceOnUnit = {
     _newLoadout resize 10;//Get array with 10 'nil' elements
     _newLoadout set [_swapType,_itemLoadout];
 
-    _unit setUnitLoadout _newLoadout;
+    [_unit,_newLoadout] call NWG_fnc_setUnitLoadout;
 };

@@ -657,13 +657,14 @@ NWG_MSHOP_SER_SpawnInfSupport = {
 	//Dress AA unit(s)
 	private _aaUnit = NWG_MSHOP_SER_Settings get "UNITS_AA_UNIT";
 	{
-		_x setUnitLoadout [
+		private _newLoadout = [
 			["SMG_03C_TR_black","","","",["50Rnd_570x28_SMG_03",50],[],""],
 			["launch_I_Titan_F","","","",["Titan_AA",1],[],""],
 			nil,nil,nil,
 			["B_Kitbag_rgr",[["Titan_AA",2,1],["50Rnd_570x28_SMG_03",3,50]]]
 			,nil,nil,nil,nil
 		];
+		[_x,_newLoadout] call NWG_fnc_setUnitLoadout;
 	} forEach (_units select {(typeOf _x) isEqualTo _aaUnit});
 
 	//return

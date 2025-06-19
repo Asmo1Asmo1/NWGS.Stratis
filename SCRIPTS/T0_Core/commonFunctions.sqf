@@ -492,6 +492,41 @@ NWG_fnc_clearContainerCargo = {
     if ((count ((getBackpackCargo _this) param [0,[]])) > 0) then {clearBackpackCargoGlobal _this};
 };
 
+//Fix for Arma's 2.20 'setUnitLoadout' shitty behavior
+NWG_fnc_setUnitLoadout = {
+    params ["_unit","_loadout",["_callback",{}]];
+    if (!alive _unit) exitWith {_unit setUnitLoadout _loadout; _unit call _callback};//Should work fine for dead units
+    if (!isSwitchingWeapon _unit) exitWith {_unit setUnitLoadout _loadout; _unit call _callback};//Should be no problem with stable units
+
+    private _queue = localNamespace getVariable ["NWG_fnc_setUnitLoadout_queue",[]];
+    _queue pushBack _this;//[_unit,_loadout,_callback]
+    localNamespace setVariable ["NWG_fnc_setUnitLoadout_queue",_queue];
+
+    private _handle = localNamespace getVariable ["NWG_fnc_setUnitLoadout_handle",scriptNull];
+    if (!isNull _handle && {!scriptDone _handle}) exitWith {};//Already running
+
+    _handle = [] spawn {
+        waitUntil {
+            private _queue = localNamespace getVariable ["NWG_fnc_setUnitLoadout_queue",[]];
+            reverse _queue;
+            {
+                _x params ["_unit","_loadout",["_callback",{}]];
+                if (isNull _unit) then {_queue deleteAt _forEachIndex; continue};
+                if (alive _unit && {isSwitchingWeapon _unit}) then {continue};
+                _unit setUnitLoadout _loadout;
+                _unit call _callback;
+                _queue deleteAt _forEachIndex;
+            } forEachReversed _queue;
+            reverse _queue;
+            localNamespace setVariable ["NWG_fnc_setUnitLoadout_queue",_queue];
+            sleep 0.1;
+            //Exit the cycle if:
+            (count _queue) == 0
+        };
+    };
+    localNamespace setVariable ["NWG_fnc_setUnitLoadout_handle",_handle];
+};
+
 //===============================================================
 //Modules (lightweight version of BIS modules)
 NWG_fnc_moduleLightning = {
