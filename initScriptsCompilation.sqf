@@ -259,6 +259,7 @@ _commonFunctions pushBack ("SCRIPTS\T3_Economics\playerStateHolder\playerStateHo
 _serverModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonDepleterServer.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonEventsConnectorClient.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonLoadoutHelperServer.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonLoadoutHelperClient.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\playerStateHolder\addonMissionMachineConnectorServer.sqf" call NWG_fnc_compile);
 //progress
 _serverModules pushBack ("SCRIPTS\T3_Economics\progress\progressCommon.sqf" call NWG_fnc_compile);

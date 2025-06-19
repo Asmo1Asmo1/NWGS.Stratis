@@ -11,6 +11,5 @@ NWG_PSH_LH_SetLoadout = {
 	if (isNil "_loadout" || {_loadout isEqualTo []}) exitWith {
 		(format ["NWG_PSH_LH_SetLoadout: Loadout is nil or empty for player '%1'",(name _player)]) call NWG_fnc_logError;
 	};
-	_player setUnitLoadout _loadout;
-	remoteExec ["NWG_fnc_invInvokeChangeCheck",_player];
+	_loadout remoteExec ["NWG_PSH_LH_SetLoadout_Core",_player];
 };

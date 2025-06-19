@@ -906,7 +906,7 @@ NWG_DSPAWN_AC_AttachTurret = {
 NWG_DSPAWN_AC_DressUnits = {
     params ["_spawnResult","_loadouts"];
     // _spawnResult params ["_group","_vehicle","_units"];
-    {_x setUnitLoadout ([_loadouts,"DSPAWN_AC_DressUnits"] call NWG_fnc_selectRandomGuaranteed)} forEach (_spawnResult#SPAWN_RESULT_UNITS);
+    {[_x,([_loadouts,"DSPAWN_AC_DressUnits"] call NWG_fnc_selectRandomGuaranteed)] call NWG_fnc_setUnitLoadout} forEach (_spawnResult#SPAWN_RESULT_UNITS);
 };
 
 //================================================================================================================

@@ -11,8 +11,9 @@ NWG_PSH_DPL_Settings = createHashMapFromArray [
     ["DEPLETE_ON_RESPAWN",true],//Deplete loot on respawn
     ["DEPLETE_ON_DISCONNECT",true],//Deplete loot on disconnect
 
-    ["BASE_PROXIMITY_CHECK_ENABLED",true],//Check if player was on base (if set to false, values will be depleted regardless of player's location)
-    ["BASE_PROXIMITY_CHECK_DEFAULT_VALUE",true],//Default value for the base proximity check if proximity check was enabled but could not be done
+    ["MISSION_STATE_CHECK_ENABLED",true],//Check if mission state is one of 'combat' states to deplete
+    ["BASE_PROXIMITY_CHECK_ENABLED",true],//Check if player was far from base to deplete
+    ["DEBUG_LOG_CHECKS",true],//Log every check result
 
     ["PROGRESS_STATE_NAME","progress"],//Name of the progress state
 
@@ -61,8 +62,8 @@ NWG_PSH_DPL_OnRespawn = {
     if !(_player isKindOf "Man") exitWith {};
     if !(isPlayer _player) exitWith {};
 
-    //Base proximity check
-    if (_corpse call NWG_PSH_DPL_WasOnBase) exitWith {
+    //Deplete check
+    if !(_corpse call NWG_PSH_DPL_ShouldDeplete) exitWith {
         //Player was on base, do not deplete, just re-apply known states
         _player call NWG_fnc_pshOnPlayerJoined;
     };
@@ -90,27 +91,73 @@ NWG_PSH_DPL_OnDisconnected = {
         (format ["NWG_PSH_DPL_OnDisconnected: Player steamID not provided for player: '%1'",(name _corpse)]) call NWG_fnc_logError;
     };
 
-    //Base proximity check
-    if (_corpse call NWG_PSH_DPL_WasOnBase) exitWith {};//Player disconnected while on base, do not deplete
+    //Deplete check
+    if !(_corpse call NWG_PSH_DPL_ShouldDeplete) exitWith {};//Player disconnected while on base, do not deplete
 
     //Deplete
     [_steamID,false,objNull] call NWG_PSH_DPL_Deplete;
 };
 
 //================================================================================================================
-//Base proximity check
-NWG_PSH_DPL_WasOnBase = {
-    private _corpse = _this;
-    if !(NWG_PSH_DPL_Settings get "BASE_PROXIMITY_CHECK_ENABLED") exitWith {
+//Main check
+NWG_PSH_DPL_ShouldDeplete = {
+    private _unit = _this;
+    if (isNil "_unit" || {isNull _unit}) exitWith {
+        "NWG_PSH_DPL_ShouldDeplete: Unit is nil/null. Fallback to false" call NWG_fnc_logError;
         false
     };
-    if (isNil "_corpse" || {isNull _corpse}) exitWith {
-        "NWG_PSH_DPL_WasOnBase: Corpse is nil/null. Fallback to default value" call NWG_fnc_logError;
-        NWG_PSH_DPL_Settings get "BASE_PROXIMITY_CHECK_DEFAULT_VALUE"
+
+    private _baseCheck = call {
+        if !(NWG_PSH_DPL_Settings get "BASE_PROXIMITY_CHECK_ENABLED") exitWith {[true,0]};
+        if (isNil "NWG_MIS_SER_playerBase") exitWith {
+            "NWG_PSH_DPL_ShouldDeplete: Player base is nil. Skipping base proximity check" call NWG_fnc_logError;
+            [true,-1]
+        };
+        private _base = NWG_MIS_SER_playerBase;
+        if !(_base isEqualType objNull) exitWith {
+            "NWG_PSH_DPL_ShouldDeplete: Player base is not an object. Skipping base proximity check" call NWG_fnc_logError;
+            [true,-1]
+        };
+        if (isNull _base) exitWith {
+            "NWG_PSH_DPL_ShouldDeplete: Player base is null. Skipping base proximity check" call NWG_fnc_logError;
+            [true,-1]
+        };
+        private _distance = round (_unit distance _base);
+        [(_distance <= 100),_distance]
+    };
+    _baseCheck params ["_isOnBase","_distanceToBase"];
+
+    private _missionStateCheck = call {
+        if !(NWG_PSH_DPL_Settings get "MISSION_STATE_CHECK_ENABLED") exitWith {[true,-1]};
+        if (isNil "NWG_MIS_CurrentState") exitWith {
+            "NWG_PSH_DPL_ShouldDeplete: Mission state is nil. Skipping mission state check" call NWG_fnc_logError;
+            [true,-1]
+        };
+        private _currentState = NWG_MIS_CurrentState;
+        if !(_currentState isEqualType 0) exitWith {
+            "NWG_PSH_DPL_ShouldDeplete: Mission state is not a number. Skipping mission state check" call NWG_fnc_logError;
+            [true,-1]
+        };
+
+        if (_currentState == MSTATE_SERVER_RESTART) exitWith {[true,_currentState]};//Server restart is not a combat state
+        [(_currentState <= MSTATE_VOTING),_currentState]
+    };
+    _missionStateCheck params ["_isSafeState","_currentState"];
+
+    private _shouldDeplete = if (_isOnBase || _isSafeState) then {false} else {true};
+    if (NWG_PSH_DPL_Settings get "DEBUG_LOG_CHECKS") then {
+        (format ["NWG_PSH_DPL_ShouldDeplete: Unit: '%1'. Is on base: '%2' (dist: '%3'). Is safe state: '%4' (state: '%5'). Depleting: '%6'",
+            (name _unit),
+            _isOnBase,
+            _distanceToBase,
+            _isSafeState,
+            _currentState,
+            _shouldDeplete
+        ]) call NWG_fnc_logInfo;
     };
 
     //return
-    _corpse call NWG_fnc_mmIsPlayerOnBase
+    _shouldDeplete
 };
 
 //================================================================================================================

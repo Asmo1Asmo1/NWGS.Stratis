@@ -431,10 +431,12 @@ NWG_LS_CLI_LootContainer_Core = {
             private _uniform = uniform _container;//Get current uniform
             if (_uniform isNotEqualTo "" && {_allContainerItems isNotEqualTo [_uniform]}) then {
                 //If there was a uniform and it is not the only thing left
-                _container setUnitLoadout [[],[],[],[_uniform,[]],[],[],"","",[],["","","","","",""]];//Leave only the uniform
+                private _newLoadout = [[],[],[],[_uniform,[]],[],[],"","",[],["","","","","",""]];//Leave only the uniform
+                [_container,_newLoadout] call NWG_fnc_setUnitLoadout;
                 _allContainerItems deleteAt (_allContainerItems find _uniform);//Remove uniform from loot (we're not taking it)
             } else {
-                _container setUnitLoadout (configFile >> "EmptyLoadout");//Clear the inventory completely
+                private _newLoadout = (configFile >> "EmptyLoadout");//Clear the inventory completely
+                [_container,_newLoadout] call NWG_fnc_setUnitLoadout;
             };
             //Delete weapons from weapon holders
             {deleteVehicle _x} forEach (_container call NWG_LS_CLI_GetDeadUnitWeaponHolders);
