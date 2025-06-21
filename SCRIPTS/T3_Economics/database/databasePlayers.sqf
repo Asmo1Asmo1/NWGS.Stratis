@@ -32,7 +32,7 @@ NWG_DB_PL_Settings = createHashMapFromArray [
 		["loadout",[]],
 		["add_weapon",[]],
 		["loot_storage",LOOT_ITEM_DEFAULT_CHART],
-		["wallet",20250],
+		["wallet",WLT_DEFAULT_MONEY],
 		["progress",P_DEFAULT_CHART],
 		["garage",[]]
 	]],

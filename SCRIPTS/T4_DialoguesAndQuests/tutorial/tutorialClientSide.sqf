@@ -26,9 +26,14 @@ NWG_TUT_CLI_Settings = createHashMapFromArray [
 	]],
 
 	/*External functions*/
-	["FUNC_GET_PLAYER_LEVEL",{
-		if (isNil "NWG_fnc_pGetPlayerLevel") exitWith {-1};
-		player call NWG_fnc_pGetPlayerLevel
+	["FUNC_IS_PLAYER_LOADED",{
+		if (isNull player) exitWith {false};
+		if !(local player) exitWith {false};
+		if (isNil "NWG_fnc_pGetPlayerLevel") exitWith {false};//Function not set yet
+		(player call NWG_fnc_pGetPlayerLevel) != -1
+	}],
+	["FUNC_SHOULD_START_TUTOR",{
+		(player call NWG_fnc_pGetPlayerLevel) == 0
 	}],
 	["FUNC_IS_STORAGE_OPEN",{
 		call NWG_fnc_lsIsStorageOpen
@@ -52,25 +57,32 @@ private _Init = {
 	private _isDevBuild = (is3DENPreview || {is3DENMultiplayer});
 	if (_skipInDevBuild && _isDevBuild) exitWith {};//Skip tutorial in dev build
 
-	//Wait for initialization to complete
+	//Wait for player and world loaded
 	private _timeoutAt = time + 180;
-	private _getLvlFunc = NWG_TUT_CLI_Settings get "FUNC_GET_PLAYER_LEVEL";
-	private _playerLvl = -1;
+	private _checkLoadedFunc = NWG_TUT_CLI_Settings get "FUNC_IS_PLAYER_LOADED";
 	waitUntil {
-		sleep 3;
+		sleep 0.5;
 		if (time > _timeoutAt) exitWith {true};//Timeout reached
 		if (isNull (findDisplay 46)) exitWith {false};//Game display not found
-		if (isNil "NWG_TUT_TutorialObjects") exitWith {false};//Tutorial objects did not arrive yet
-		_playerLvl = call _getLvlFunc;
-		if (_playerLvl < 0) exitWith {false};//Player level has not been assigned yet
-		true
+		call _checkLoadedFunc;
 	};
 	if (time > _timeoutAt) exitWith {
-		"NWG_TUT_Init: Timeout reached" call NWG_fnc_logError;
+		"NWG_TUT_Init: Timeout reached on player loaded check" call NWG_fnc_logError;
+	};
+
+	//Wait for tutorial objects
+	waitUntil {
+		sleep 0.5;
+		if (time > _timeoutAt) exitWith {true};//Timeout reached
+		!isNil "NWG_TUT_TutorialObjects"
+	};
+	if (time > _timeoutAt) exitWith {
+		"NWG_TUT_Init: Timeout reached on tutorial objects check" call NWG_fnc_logError;
 	};
 
 	//Determine if tutorial should start
-	if (_playerLvl >= 1) exitWith {};//Player is level 1 or higher, skip tutorial
+	private _shouldStartFunc = NWG_TUT_CLI_Settings get "FUNC_SHOULD_START_TUTOR";
+	if !(call _shouldStartFunc) exitWith {};//Tutorial should not start
 	"NWG_TUT_Init: Starting tutorial" call NWG_fnc_logInfo;
 	call NWG_TUT_NextStep;
 };
