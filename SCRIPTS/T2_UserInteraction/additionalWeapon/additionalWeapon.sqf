@@ -30,7 +30,9 @@ NWG_AW_SwitchWeapon = {
     private _newLoadout = [];
     _newLoadout resize 10;//Array with 10 'nil' elements
     _newLoadout set [0,_holderLoadout];
-    [player,_newLoadout] call NWG_fnc_setUnitLoadout;
+    if (!isNil "NWG_fnc_invSetPlayerLoadout")
+        then {_newLoadout call NWG_fnc_invSetPlayerLoadout}
+        else {player setUnitLoadout _newLoadout};//Might not work after Arma 2.20
 
     //Apply fixes
     switch (true) do {

@@ -18,7 +18,7 @@
 //================================================================================================================
 //Defines
 #define CLOSE_INVENTORY_ON_UNIFORM_CHANGE false //Close inventory on uniform switch (hides the bug with inventory tabs)
-#define INVENTORY_WINDOW_FIX true       //Fix the issue with inventory tabs disappearing (suggestion by HOPA_EHOTA)
+#define INVENTORY_WINDOW_FIX false       //Fix the issue with inventory tabs disappearing (suggestion by HOPA_EHOTA)
 
 //UI IDDs
 #define MAIN_CONTAINER_LIST 640
@@ -209,5 +209,7 @@ NWG_UNEQ_ReplaceOnUnit = {
     _newLoadout resize 10;//Get array with 10 'nil' elements
     _newLoadout set [_swapType,_itemLoadout];
 
-    [_unit,_newLoadout] call NWG_fnc_setUnitLoadout;
+    if (_unit isEqualTo player && {!isNil "NWG_fnc_invSetPlayerLoadout"})
+        then {_newLoadout call NWG_fnc_invSetPlayerLoadout}
+        else {[_unit,_newLoadout] call NWG_fnc_setUnitLoadout};
 };

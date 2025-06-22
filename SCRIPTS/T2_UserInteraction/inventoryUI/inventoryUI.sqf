@@ -12,6 +12,9 @@ NWG_INVUI_Settings = createHashMapFromArray [
     ["SOUND_BUTTON_UNIF","surrender_stand_up"],
     ["SOUND_BUTTON_MAGR","Place_Flag"],
 
+    ["WHILE_LOADOUT_SET_CLOSE",true],//Close inventory during loadout set for player (e.g.: open inventory while equipping uniform)
+    ["WHILE_LOADOUT_SET_BLOCK",true],//Block buttons during loadout set for player (e.g.: pushing buttons while changing add. weapon)
+
     ["",0]
 ];
 
@@ -32,6 +35,11 @@ NWG_INVUI_OnInventoryOpen = {
     waitUntil {
         _inventoryDisplay = findDisplay 602;
         !isNull _inventoryDisplay
+    };
+
+    //Check if player loadout set is in progress
+    if ((NWG_INVUI_Settings get "WHILE_LOADOUT_SET_CLOSE") && {call NWG_fnc_invIsLoadoutSetInProgress}) then {
+        (uiNamespace getVariable ["RscDisplayInventory", displayNull]) closeDisplay 2;
     };
 
     //Create our custom inventory UI additons
@@ -68,6 +76,7 @@ NWG_INVUI_OnInventoryOpen = {
 //================================================================================================================
 //Buttons
 NWG_INVUI_OnButtonLoot = {
+    if ((NWG_INVUI_Settings get "WHILE_LOADOUT_SET_BLOCK") && {call NWG_fnc_invIsLoadoutSetInProgress}) exitWith {};
     //Loot the container opened in inventory
     private _ok = (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_lsLootContainerByUI;
     if (_ok) then {
@@ -76,6 +85,7 @@ NWG_INVUI_OnButtonLoot = {
 };
 
 NWG_INVUI_OnButtonWeap = {
+    if ((NWG_INVUI_Settings get "WHILE_LOADOUT_SET_BLOCK") && {call NWG_fnc_invIsLoadoutSetInProgress}) exitWith {};
     //Switch primary<->additional weapon
     private _ok = call NWG_fnc_awSwitchWeapon;
     if (_ok) then {
@@ -84,6 +94,7 @@ NWG_INVUI_OnButtonWeap = {
 };
 
 NWG_INVUI_OnButtonUnif = {
+    if ((NWG_INVUI_Settings get "WHILE_LOADOUT_SET_BLOCK") && {call NWG_fnc_invIsLoadoutSetInProgress}) exitWith {};
     //Equip the unform selected in inventory
     private _ok = (uiNamespace getVariable ["NWG_INVUI_eventArgs",[]]) call NWG_fnc_uneqEquipSelected;
     if (_ok) then {
@@ -92,6 +103,7 @@ NWG_INVUI_OnButtonUnif = {
 };
 
 NWG_INVUI_OnButtonMagR = {
+    if ((NWG_INVUI_Settings get "WHILE_LOADOUT_SET_BLOCK") && {call NWG_fnc_invIsLoadoutSetInProgress}) exitWith {};
     //Magazine repack
     call NWG_fnc_mroOpen;//Opens separate window
     (NWG_INVUI_Settings get "SOUND_BUTTON_MAGR") call NWG_INVUI_PlaySound;//Always play sound
