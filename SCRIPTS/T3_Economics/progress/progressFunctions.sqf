@@ -88,6 +88,7 @@ NWG_fnc_pGetMyTaxiLvl =    {(_this call NWG_fnc_pGetPlayerProgress) param [P_TAX
 NWG_fnc_pGetMyTraderLvl =  {(_this call NWG_fnc_pGetPlayerProgress) param [P_TRDR,0]};
 NWG_fnc_pGetMySupportLvl = {(_this call NWG_fnc_pGetPlayerProgress) param [P_COMM,0]};
 
+//returns: Number - The player level, -1 if not set yet
 NWG_fnc_pGetPlayerLevel = {
 	// private _player = _this;
 	if (isNil "NWG_PRG_GetPlayerLevel") exitWith {-1};

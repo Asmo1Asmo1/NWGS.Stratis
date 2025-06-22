@@ -5,7 +5,8 @@ NWG_WLT_CLI_Settings = createHashMapFromArray [
     ["MONEYSTR_PREFIX","€$"],
     ["MONEYSTR_SEPARATOR",44],//char ","
 
-    ["INITIAL_MONEY",20250],//Initial amount of money a player has
+    ["INIT_MONEY_ON_LOAD",false],//Initialize money on load
+    ["INITIAL_MONEY",0],//Initial amount of money a player has
 
     ["MONEY_ADD_NOTIFY",true],//Notify player when money is added
     ["MONEY_ADD_NOTIFY_SOUND","FD_Target_PopUp_Small_F"],//Sound to play when money is added
@@ -20,7 +21,9 @@ NWG_WLT_CLI_Settings = createHashMapFromArray [
 //Init
 private _Init = {
     //Init money
-    [player,(NWG_WLT_CLI_Settings get "INITIAL_MONEY")] call NWG_fnc_wltSetPlayerMoney;
+    if ((NWG_WLT_CLI_Settings get "INIT_MONEY_ON_LOAD")) then {
+        [player,(NWG_WLT_CLI_Settings get "INITIAL_MONEY")] call NWG_fnc_wltSetPlayerMoney;
+    };
 
     //Transfer on respawn to new player instance
     //UPD: Not required, public variables get transferred on respawn automatically

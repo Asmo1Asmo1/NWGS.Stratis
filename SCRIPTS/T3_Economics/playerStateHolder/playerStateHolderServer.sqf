@@ -1,3 +1,4 @@
+#include "..\..\globalDefines.h"
 /*
 	Player state holder
 	States to carry:
@@ -9,8 +10,9 @@
 //================================================================================================================
 //================================================================================================================
 //Defines
-#define STATE_GET_CODE 0
-#define STATE_SET_CODE 1
+#define STATE_DEFAULT 0
+#define STATE_GET_CODE 1
+#define STATE_SET_CODE 2
 
 #define STATE_DIRTY "is_dirty"
 
@@ -20,17 +22,17 @@
 NWG_PSH_SER_Settings = createHashMapFromArray [
 /*
 	State holding
-	State|GetCode|SetCode
+	State|Default|GetCode|SetCode
 	get params: _player
 	set params: [_player,_data]
 */
 	["STATES_TO_HOLD",createHashMapFromArray [
-		["loadout",		[{_this call NWG_PSH_LH_GetLoadout},	 {_this call NWG_PSH_LH_SetLoadout}]],
-		["add_weapon",	[{_this call NWG_fnc_awGetHolderData},	 {_this call NWG_fnc_awAddHolderDataAndCreateObject}]],
-		["loot_storage",[{_this call NWG_fnc_lsGetPlayerLoot},	 {_this call NWG_fnc_lsSetPlayerLoot}]],
-		["wallet",		[{_this call NWG_fnc_wltGetPlayerMoney}, {_this call NWG_fnc_wltSetPlayerMoney}]],
-		["progress",	[{_this call NWG_fnc_pGetPlayerProgress},{_this call NWG_fnc_pSetPlayerProgress}]],
-		["garage",		[{_this call NWG_fnc_grgGetGarageArray}, {_this call NWG_fnc_grgSetGarageArray}]]
+		["loadout",		[{_this call NWG_PSH_LH_GetLoadout},{_this call NWG_PSH_LH_GetLoadout},{_this call NWG_PSH_LH_SetLoadout}]],
+		["add_weapon",	[[],						{_this call NWG_fnc_awGetHolderData},	{_this call NWG_fnc_awAddHolderDataAndCreateObject}]],
+		["loot_storage",[LOOT_ITEM_DEFAULT_CHART,	{_this call NWG_fnc_lsGetPlayerLoot},	{_this call NWG_fnc_lsSetPlayerLoot}]],
+		["wallet",		[WLT_DEFAULT_MONEY,			{_this call NWG_fnc_wltGetPlayerMoney}, {_this call NWG_fnc_wltSetPlayerMoney}]],
+		["progress",	[P_DEFAULT_CHART,			{_this call NWG_fnc_pGetPlayerProgress},{_this call NWG_fnc_pSetPlayerProgress}]],
+		["garage",		[LOOT_VEHC_DEFAULT_CHART,	{_this call NWG_fnc_grgGetGarageArray}, {_this call NWG_fnc_grgSetGarageArray}]]
 	]],
 
 /*
@@ -98,23 +100,33 @@ NWG_PSH_SER_OnStateApplyRequest = {
 			_stored
 		};
 
-		//Create new state in database (can not use it though - it will be completely empty resulting in unit undress and money 0)
+		//else - return false
+		false
+	};
+
+	//If state not found - create new
+	if (isNil "_playerState" || {_playerState isEqualTo false}) then {
+		//Create new empty state in database
 		private _ok = _playerId call (NWG_PSH_SER_Settings get "FUNC_NEW_STATE_BY_ID");
 		if (!_ok) then {
 			(format ["NWG_PSH_SER_OnStateApplyRequest: Failed to create new state in database for player '%1' with id '%2'",(name _player),_playerId]) call NWG_fnc_logError;
 		};
 
-		//else - return false
-		false
+		//Create new state with default values
+		_playerState = createHashMap;
+		private ["_default"];
+		{
+			_default = _y param [STATE_DEFAULT,[]];
+			if (_default isEqualType {}) then {_default = call _default};
+			_playerState set [_x,_default];
+		} forEach (NWG_PSH_SER_Settings get "STATES_TO_HOLD");
+		_playerState set [STATE_DIRTY,true];//Mark as dirty from the start
+
+		//Save state to cache
+		NWG_PSH_SER_playerStateCache set [_playerId,_playerState];
 	};
 
-	//If state not found - create new and invoke state update to fill it
-	if (isNil "_playerState" || {_playerState isEqualTo false}) exitWith {
-		NWG_PSH_SER_playerStateCache set [_playerId,createHashMap];
-		_player call NWG_PSH_SER_OnStateUpdateRequest;
-	};
-
-	//Else - state found - apply it
+	//Apply state
 	{
 		if (_x in _playerState)
 			then {[_player,(_playerState get _x)] call (_y#STATE_SET_CODE)}

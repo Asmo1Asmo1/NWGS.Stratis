@@ -13,6 +13,7 @@
 //Settings
 NWG_PRG_Settings = createHashMapFromArray [
     /*Initial progress*/
+    ["INIT_PROGRESS_ON_LOAD",false],//Initialize progress on load
     ["INITIAL_PROGRESS",P_DEFAULT_CHART],//Initial amount of progress a player has
 
     /*Upper limits*/
@@ -85,7 +86,9 @@ NWG_PRG_Settings = createHashMapFromArray [
 //Init
 private _Init = {
     //Init progress
-    [player,(NWG_PRG_Settings get "INITIAL_PROGRESS")] call NWG_fnc_pSetPlayerProgress;
+    if ((NWG_PRG_Settings get "INIT_PROGRESS_ON_LOAD")) then {
+        [player,(NWG_PRG_Settings get "INITIAL_PROGRESS")] call NWG_fnc_pSetPlayerProgress;
+    };
 };
 
 //================================================================================================================
