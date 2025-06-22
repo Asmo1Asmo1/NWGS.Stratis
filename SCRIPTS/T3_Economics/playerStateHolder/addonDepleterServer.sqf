@@ -63,7 +63,7 @@ NWG_PSH_DPL_OnRespawn = {
     if !(isPlayer _player) exitWith {};
 
     //Deplete check
-    if !(_corpse call NWG_PSH_DPL_ShouldDeplete) exitWith {
+    if !([_corpse,"Resp"] call NWG_PSH_DPL_ShouldDeplete) exitWith {
         //Player was on base, do not deplete, just re-apply known states
         _player call NWG_fnc_pshOnPlayerJoined;
     };
@@ -92,7 +92,7 @@ NWG_PSH_DPL_OnDisconnected = {
     };
 
     //Deplete check
-    if !(_corpse call NWG_PSH_DPL_ShouldDeplete) exitWith {};//Player disconnected while on base, do not deplete
+    if !([_corpse,"Disc"] call NWG_PSH_DPL_ShouldDeplete) exitWith {};//Player disconnected while on base, do not deplete
 
     //Deplete
     [_steamID,false,objNull] call NWG_PSH_DPL_Deplete;
@@ -101,7 +101,7 @@ NWG_PSH_DPL_OnDisconnected = {
 //================================================================================================================
 //Main check
 NWG_PSH_DPL_ShouldDeplete = {
-    private _unit = _this;
+    params ["_unit","_event"];
     if (isNil "_unit" || {isNull _unit}) exitWith {
         "NWG_PSH_DPL_ShouldDeplete: Unit is nil/null. Fallback to false" call NWG_fnc_logError;
         false
@@ -146,12 +146,13 @@ NWG_PSH_DPL_ShouldDeplete = {
 
     private _shouldDeplete = if (_isOnBase || _isSafeState) then {false} else {true};
     if (NWG_PSH_DPL_Settings get "DEBUG_LOG_CHECKS") then {
-        (format ["NWG_PSH_DPL_ShouldDeplete: Unit: '%1'. Is on base: '%2' (dist: '%3'). Is safe state: '%4' (state: '%5'). Depleting: '%6'",
+        (format ["NWG_PSH_DPL_ShouldDeplete: Unit: '%1'. On: '%2'. BaseCheck: [%3] (dist: '%4'). MissionStateCheck: [%5] (state: '%6'). Depleting: '%7'",
             (name _unit),
-            _isOnBase,
+            _event,
+            (if (_isOnBase) then {"+"} else {"-"}),
             _distanceToBase,
-            _isSafeState,
-            _currentState,
+            (if (_isSafeState) then {"+"} else {"-"}),
+            (_currentState call NWG_MIS_SER_GetStateName),
             _shouldDeplete
         ]) call NWG_fnc_logInfo;
     };

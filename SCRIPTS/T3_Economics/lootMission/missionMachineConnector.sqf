@@ -128,13 +128,19 @@ NWG_LM_MMC_OnMissionStateChanged = {
 
 			//Fill civilian luggage heaps
 			private _boxClassname = NWG_LM_MMC_Settings get "LUGGAGE_CONTAINER";
+			private _pos = [0,0,0];
 			private _invisibleBoxes = [];
 			{
+				//Get normalized position (not underground)
+				_pos = getPosATL _x;
+				_pos set [2,((_pos#2) max 0)];
+
 				//Create invisible container inside
 				private _box = createVehicle [_boxClassname,_x,[],0,"CAN_COLLIDE"];
 				_box allowDamage false;
+				_box enableSimulationGlobal false;
 				_box hideObjectGlobal true;
-				_box setPosASL (getPosASL _x);
+				_box setPosATL _pos;
 				_invisibleBoxes pushBack _box;
 
 				//Connect with luggage object

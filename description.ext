@@ -18,7 +18,7 @@
 //Loading screen
 author			= "Asmo";
 onLoadName		= "NWG: Scavenger";
-onLoadMission	= "Scavenger v2.3.3 [Hotfix]";
+onLoadMission	= "Scavenger v2.3.4";
 
 class Header
 {

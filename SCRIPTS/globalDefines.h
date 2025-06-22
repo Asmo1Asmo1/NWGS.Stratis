@@ -59,6 +59,9 @@
 //Default vehicles chart
 #define LOOT_VEHC_DEFAULT_CHART [[],[],[],[],[],[],[],[],[],[]]
 
+//Default wallet amount
+#define WLT_DEFAULT_MONEY 20250
+
 //Server events (arguments for NWG_fnc_subscribeToServerEvent and NWG_fnc_raiseServerEvent)
 #define EVENT_ON_OBJECT_KILLED "OnObjectKilled" //Called by 'undertaker' subsystem when an object is killed.                params ["_obj","_objType","_actualKiller","_isPlayerKiller"];
 #define EVENT_ON_DSPAWN_GROUP_SPAWNED "OnDynamicSpawnGroupSpawned" //Called by 'dspawn' subsystem when a group is spawned.  params ["_group","_vehicle","_units","_tags","_tier","_faction"];
