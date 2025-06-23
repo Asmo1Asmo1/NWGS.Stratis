@@ -7,8 +7,6 @@ NWG_LS_CLI_Settings = createHashMapFromArray [
     ["INVISIBLE_BOX_TYPE","B_CargoNet_01_ammo_F"],//Classname of the object that will be used as a loot storage
     ["CLOSE_INVENTORY_ON_LOOT",true],//Should the inventory be closed automatically when loot is taken
 
-    ["ALLOW_LOOTING_ALIVE_UNITS",false],//Should we allow looting of alive units
-
     ["AUTO_SELL_LOOT",true],//Should the loot defined in the pricemap be automatically sold on moving to storage (+ on closing the storage just in case)
     ["AUTO_SELL_ON_TAKE",true],//Should the loot be automatically sold when it is taken (uses 'Take' event handler)
     ["AUTO_SELL_PRICE_MAP",createHashMapFromArray [
@@ -80,21 +78,11 @@ NWG_LS_CLI_OpenMyStorage = {
     private _count = 1;
     //forEach ["clth1",2,"clth2",3,"wepn1",...]
     {
-        switch (true) do {
-            case (_x isEqualType 1): {
-                //Read count
-                _count = _x;
-            };
-            case (isClass (configFile >> "CfgVehicles" >> _x)): {
-                //Backpacks require different approach
-                _invisibleBox addBackpackCargo [_x,_count];
-                _count = 1;//Reset count
-            };
-            default {
-                //Items (any, except for backpacks, see: https://community.bistudio.com/wiki/addItemCargo)
-                _invisibleBox addItemCargo [_x,_count];
-                _count = 1;//Reset count
-            };
+        if (_x isEqualType 1) then {_count = _x} else {
+            if (isClass (configFile >> "CfgVehicles" >> _x))
+                then {_invisibleBox addBackpackCargo [_x,_count]}
+                else {_invisibleBox addItemCargo [_x,_count]};
+            _count = 1;
         };
     } forEach _loot;
 
@@ -126,6 +114,7 @@ NWG_LS_CLI_OnInventoryOpen = {
     //Setup polling-based storage change detection
     _grounds spawn {
         private _grounds = _this;
+        private _timeoutAt = time + 300;//300 seconds = 5 minutes
         private _getFingerprint = {
             [
                 (count ((getWeaponCargo _this)   param [0,[]])),
@@ -138,6 +127,7 @@ NWG_LS_CLI_OnInventoryOpen = {
 
         waitUntil {
             sleep 0.1;
+            if (time > _timeoutAt) exitWith {true};
             if (isNull _grounds) exitWith {true};
             if (isNull NWG_LS_CLI_invisibleBox) exitWith {true};
             if (NWG_LS_CLI_storageChanged) exitWith {true};
@@ -185,7 +175,7 @@ NWG_LS_CLI_GetAllContainerItems = {
     private _scanContainer = {
         private _container = _this;
 
-        //Loot clothes, items and ammo
+        //Loot backpacks, clothes, items and ammo
         {
             private _arr = switch (_x) do {
                 case 0: {getBackpackCargo _container};
@@ -201,11 +191,9 @@ NWG_LS_CLI_GetAllContainerItems = {
         } forEach [0,1,2];
 
         //Loot weapons with their attachments and magazines
-        private _weapCargoInfo = (getWeaponCargo _container)#0;//["weapon","weapon","weapon",...]
-        private _weapFullInfo = weaponsItems _container;//[["weapon","silencer","flashlight","optics",["mag",30],[],"bipod"],...]
-        _weapFullInfo = _weapFullInfo select {(_x#0) in _weapCargoInfo};//Remove non-containable weapons (horn, etc.)
-        _weapFullInfo = (flatten _weapFullInfo) select {_x isEqualType "" && {_x isNotEqualTo ""}};//Flatten and filter
-        _allContainerItems append _weapFullInfo;
+        private _weapons = weaponsItemsCargo _container;//[["weapon","silencer","flashlight","optics",["mag",30],[],"bipod"],...]
+        _weapons = (flatten _weapons) select {_x isEqualType "" && {_x isNotEqualTo ""}};//Flatten and filter
+        _allContainerItems append _weapons;
     };
 
     //Get all items from the container
@@ -337,19 +325,6 @@ NWG_LS_CLI_LootContainer_Core = {
 
     //Check that we not trying to loot the storage itself (obviously forbidden)
     if (!isNull NWG_LS_CLI_invisibleBox && {_container isEqualTo NWG_LS_CLI_invisibleBox}) exitWith {false};
-
-    //Check that we not trying to loot alive unit (also frowned upon)
-    private _allowed = true;
-    if !(NWG_LS_CLI_Settings get "ALLOW_LOOTING_ALIVE_UNITS") then {
-        private _i = [_container,(objectParent _container)] findIf {
-            !isNull _x && {
-            alive _x && {
-            _x isKindOf "Man" && {
-            _x isNotEqualTo player}}}
-        };
-        if (_i != -1) then {_allowed = false};
-    };
-    if (!_allowed) exitWith {false};
 
     //Get container loot
     private _allContainerItems = _container call NWG_LS_CLI_GetAllContainerItems;
