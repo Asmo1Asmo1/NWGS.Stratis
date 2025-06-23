@@ -97,5 +97,34 @@ NWG_INV_ExchangeItem = {
 
 //================================================================================================================
 //================================================================================================================
+//Loadout set for player
+NWG_INV_SetPlayerLoadout = {
+    private _loadout = _this;
+    if (isNull player || {!local player}) exitWith {
+        "NWG_INV_SetPlayerLoadout: Player is invalid" call NWG_fnc_logError;
+    };
+
+    player setVariable ["NWG_INV_loadoutSetInProgress",true];
+    private _callback = {
+        //Drop flag
+        player setVariable ["NWG_INV_loadoutSetInProgress",false];
+        //Fix inventory window
+        if (!isNull (uiNamespace getVariable ["RscDisplayInventory", displayNull])) then {
+            player addItem "Antibiotic";
+            player removeItem "Antibiotic";
+        };
+        //Invoke loadout change check
+        call NWG_INV_CheckLoadoutChange;
+    };
+
+    [player,_loadout,_callback] call NWG_fnc_setUnitLoadout;
+};
+
+NWG_INV_IsPlayerLoadoutSetInProgress = {
+    player getVariable ["NWG_INV_loadoutSetInProgress",false]
+};
+
+//================================================================================================================
+//================================================================================================================
 //Post-compilation init
 call _Init;

@@ -72,7 +72,7 @@ NWG_AK_ParachuteDeployment = {
 				//Restore original loadout
 				private _backpack = player getVariable ["NWG_AK_ParachuteDeployment_backpack",[]];
 				private _loadout = [nil,nil,nil,nil,nil,_backpack,nil,nil,nil,nil];
-				[player,_loadout] call NWG_fnc_setUnitLoadout;
+				_loadout call NWG_fnc_invSetPlayerLoadout;
 			};
 		};
 
