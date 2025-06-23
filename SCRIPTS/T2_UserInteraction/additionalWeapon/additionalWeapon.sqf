@@ -88,7 +88,19 @@ player addEventHandler ["GetOutMan",{
 };
 
 //================================================================================================================
-//Fix for weapon dupe
+//Fixes for weapon dupe
+player addEventHandler ["InventoryOpened", {
+    // params ["_unit", "_primaryContainer", "_secondaryContainer"];
+    params ["","_c1","_c2"];
+    if (_c1 isKindOf "Library_WeaponHolder" || {_c2 isKindOf "Library_WeaponHolder"}) then {
+        with uiNamespace do {
+            disableSerialization;
+            private _display = uiNamespace getVariable ["RscDisplayInventory", displayNull];
+            (_display displayCtrl 6401) ctrlEnable false;
+        };
+    };
+}];
+
 player addEventHandler ["InventoryClosed", {
     // params ["_unit", "_container"];
     private _holder = ((attachedObjects player) select {_x isKindOf "Library_WeaponHolder"}) param [0,objNull];
