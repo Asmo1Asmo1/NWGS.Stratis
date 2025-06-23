@@ -48,3 +48,12 @@ NWG_fnc_testRaiseLvlAndMoney = {
         [player,_addMoney] call NWG_fnc_wltAddPlayerMoney;
     };
 };
+
+NWG_fnc_testAssignDebugLoadout = {
+    private _loadout = [["arifle_SPAR_01_snd_F","muzzle_snds_M","acc_pointer_IR","optic_Hamr",["30Rnd_556x45_Stanag_Sand",30],[],""],["launch_MRAWS_olive_rail_F","","","",["MRAWS_HEAT_F",1],[],""],[],["U_B_CombatUniform_mcam_tshirt",[["FirstAidKit",5]]],["V_PlateCarrier1_rgr",[["30Rnd_556x45_Stanag_Sand",10,30]]],["B_Kitbag_mcamo",[["ToolKit",1],["MRAWS_HEAT_F",1,1]]],"H_MilCap_grn","",["Rangefinder","","","",[],[],""],["ItemMap","O_UavTerminal","ItemRadio","ItemCompass","ItemWatch","NVGoggles_OPFOR"]];
+    _loadout call NWG_fnc_invSetPlayerLoadout;
+
+    private _holder = ["arifle_SPAR_01_snd_F","muzzle_snds_M","acc_pointer_IR","optic_Hamr",["30Rnd_556x45_Stanag_Sand",30],[],""];
+    [player,_holder] call NWG_AW_SetHolderData;
+    [player,_holder] call NWG_AW_CreateHolderObject;
+};

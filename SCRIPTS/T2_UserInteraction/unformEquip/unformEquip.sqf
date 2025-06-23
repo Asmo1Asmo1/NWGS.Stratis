@@ -1,13 +1,6 @@
 /*
     In Arma 3, it is forbidden to equip any uniform that is not of the same faction as the player.
     This module adds this ability.
-    Note: It requires inventory to be opened in order to work.
-
-    Usage: Inside "InventoryOpened" event handler, add any handler that will call this function with the same arguments.
-    ["_unit","_mainContainer","_secdContainer"] call NWG_fnc_uneqEquipSelected
-
-    I did not find a way to grab actual containers solely from the inventory UI.
-    So unfortunately this module requires the arguments of "InventoryOpened" handler to be sent
 */
 /*
     Important notes:
@@ -34,60 +27,20 @@
 //Script
 NWG_UNEQ_EquipSelectedUniform = {
     disableSerialization;
-    //params ["_unit","_mainContainer","_secdContainer"];
-    params ["",["_mainContainer",objNull],["_secdContainer",objNull]];
-    if (isNull _mainContainer && {isNull _secdContainer}) exitWith {
-        "NWG_UNEQ_EquipSelectedUniform: Inventory containers are not available." call NWG_fnc_logError;
-        false
-    };
+    params [["_container",objNull],["_listboxIDC",-1]];
+    if (isNull _container) exitWith {false};
+    if (_listboxIDC == -1) exitWith {false};
 
+    //Get opened listbox
     private _inventoryDisplay = findDisplay 602;
     if (isNull _inventoryDisplay) exitWith {
         "NWG_UNEQ_EquipSelectedUniform: Inventory must be opened to equip uniform." call NWG_fnc_logError;
         false
     };
-
-    //Get UI container with selected item
-    private _uiContainerID = -1;
-    {
-        if ((lbCurSel (_inventoryDisplay displayCtrl _x)) > -1) exitWith {_uiContainerID = _x};
-    } forEach [MAIN_CONTAINER_LIST,SECN_CONTAINER_LIST];
-    if (_uiContainerID == -1) exitWith {false};//Nothing is selected anywhere
-    private _uiContainer = _inventoryDisplay displayCtrl _uiContainerID;
-
-    //Get physical container (with a shit ton of fixes)
-    private _containers = switch (true) do {
-        case (_uiContainerID == MAIN_CONTAINER_LIST): {[_mainContainer,_secdContainer]};
-        case (_uiContainerID == SECN_CONTAINER_LIST && {!isNull _mainContainer && {_mainContainer isKindOf "Man"}}): {[_mainContainer,_secdContainer]};
-        default {[_secdContainer,_mainContainer]};
-    };
-    if (isNull (_containers#0)) then {
-        _containers pushBack (_containers deleteAt 0);//Swap (old fix for looting corpses)
-    };
-    private _container = _containers#0;
-    if (isNull _container) exitWith {
-        "NWG_LS_CLI_LootByInventoryUI: Inventory containers are not available." call NWG_fnc_logError;
+    private _uiContainer = _inventoryDisplay displayCtrl _listboxIDC;
+    if (isNull _uiContainer) exitWith {
+        "NWG_UNEQ_EquipSelectedUniform: Listbox is not available." call NWG_fnc_logError;
         false
-    };
-    _secdContainer = _containers#1;
-    switch (true) do {
-        //Fix Arma 2.18 introducing weaponholders instead of actual units
-        case (_container isKindOf "WeaponHolder");
-        case (_container isKindOf "WeaponHolderSimulated"): {
-            if (!isNull _secdContainer && {_secdContainer isNotEqualTo _container}) then {
-                if (_secdContainer isKindOf "Man" || {(objectParent _secdContainer) isKindOf "Man"}) then {
-                    _container = _secdContainer;
-                    _secdContainer = objNull;
-                };
-            };
-        };
-        //Fix secondary weapon pseudo container getting in the way
-        case (_container isKindOf "Library_WeaponHolder"): {
-            if (!isNull (attachedTo _container) && {(attachedTo _container) isKindOf "Man"}) then {
-                _container = _secdContainer;
-                _secdContainer = objNull;
-            };
-        };
     };
 
     //Get selected item
