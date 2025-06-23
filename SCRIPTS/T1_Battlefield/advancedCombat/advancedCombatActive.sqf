@@ -37,10 +37,11 @@
 NWG_ACA_Settings = createHashMapFromArray [
     ["AIRSTRIKE_PREPARE_RADIUS",2000],//Distance to fly away from the target in order to prepare for the airsrike
     ["AIRSTRIKE_PREPARE_HEIGHT",600],//Height at which airstrike will prepare
-    ["AIRSTRIKE_YELLOW_RADIUS",1400],//Distance at which plane will start descending
-    ["AIRSTRIKE_FIRE_RADIUS",800],//Distance at which to start fireing
-    ["AIRSTRIKE_STOP_RADIUS",400],//Distance at which to pull up
+    ["AIRSTRIKE_YELLOW_RADIUS",1450],//Distance at which plane will start descending
+    ["AIRSTRIKE_FIRE_RADIUS",850],//Distance at which to start fireing
+    ["AIRSTRIKE_STOP_RADIUS",450],//Distance at which to pull up
     ["AIRSTRIKE_LASER_CLASSNAME","LaserTargetW"],//Classname for laser target (faction matters!)
+    ["AIRSTRIKE_TIMEOUT",300],//Timeout for airstrike (in case of any errors)
 
     ["ARTILLERY_STRIKE_WARNING_RADIUS",100],//Radius for warning strike
     ["ARTILLERY_STRIKE_WARNING_PAUSE",1],//Pause between warning strike and actual strike
@@ -131,11 +132,13 @@ NWG_ACA_SendToAirstrike = {
     true
 };
 
+#define DEBUG_AIRSTRIKE true
 NWG_ACA_Airstrike = {
     params ["_group","_target",["_numberOfStrikes",1]];
     private _plane = vehicle (leader _group);
     private _pilot = currentPilot _plane;//Fix for some helicopters
-    private _abortCondition = {!alive _plane || {!alive _pilot || {!alive _target}}};
+    private _timeoutAt = time + (NWG_ACA_Settings get "AIRSTRIKE_TIMEOUT");
+    private _abortCondition = {!alive _plane || {!alive _pilot || {!alive _target || {time > _timeoutAt}}}};
     if (call _abortCondition) exitWith {};//Immediate check
 
     _group setBehaviourStrong "CARELESS";
@@ -174,6 +177,9 @@ NWG_ACA_Airstrike = {
             sleep 0.25;
             (call _abortCondition || {(_plane distance2D _preparePos) < 100})
         };
+        if (DEBUG_AIRSTRIKE && {time > _timeoutAt}) then {
+            "NWG_ACA_Airstrike: timeout reached at 'Fly away' stage" call NWG_fnc_logError;
+        };
         if (call _abortCondition) exitWith {true};
 
         //2. Create airstrike helper at current target position
@@ -187,6 +193,9 @@ NWG_ACA_Airstrike = {
             {_x reveal _helper; _x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
             sleep 0.25;
             (call _abortCondition || {(_plane distance2D _helper) <= (NWG_ACA_Settings get "AIRSTRIKE_YELLOW_RADIUS")})
+        };
+        if (DEBUG_AIRSTRIKE && {time > _timeoutAt}) then {
+            (format ["NWG_ACA_Airstrike: timeout reached at 'Fly toward target' stage. Helper exists: %1",(!isNull _helper)]) call NWG_fnc_logError;
         };
         if (call _abortCondition) exitWith {true};
 
@@ -206,6 +215,9 @@ NWG_ACA_Airstrike = {
             //Fire
             [_plane,_strikeData,_helper] call NWG_ACA_VehicleForceFire;
             false
+        };
+        if (DEBUG_AIRSTRIKE && {time > _timeoutAt}) then {
+            (format ["NWG_ACA_Airstrike: timeout reached at 'Fire' stage. Helper exists: %1",!isNull _helper]) call NWG_fnc_logError;
         };
         if (call _abortCondition) exitWith {true};
 

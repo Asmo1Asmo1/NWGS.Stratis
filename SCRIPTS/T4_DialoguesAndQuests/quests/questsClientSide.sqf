@@ -243,19 +243,14 @@ NWG_QST_CLI_TryCloseQuest = {
 			if !(_targetClassname call (NWG_QST_Settings get "FUNC_HAS_ITEM")) exitWith {
 				"NWG_QST_CLI_TryCloseQuest: Target weapon not found" call NWG_fnc_logError;
 			};
-			//Delete from loadout
+			//Delete from loadout by replacing the weapon with an empty array
 			private _loadout = getUnitLoadout player;
-			private _deleted = false;
 			{
 				if (_targetClassname in (flatten (_loadout select _x))) exitWith {
 					_loadout set [_x,[]];
-					[player,_loadout] call NWG_fnc_setUnitLoadout;
-					_deleted = true;
+					_loadout call (NWG_QST_Settings get "FUNC_SET_LOADOUT");
 				};
 			} forEach [0,1,2,8];//Primary,Secondary,Handgun,Binoculars
-			if (_deleted) exitWith {
-				player call (NWG_QST_Settings get "FUNC_ON_INVENTORY_CHANGE");
-			};
 			//Delete from inventory (uniform, vest, backpack)
 			[[_targetClassname],[1]] call (NWG_QST_Settings get "FUNC_REMOVE_ITEMS");
 		};

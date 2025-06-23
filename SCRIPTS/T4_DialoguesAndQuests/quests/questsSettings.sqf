@@ -322,7 +322,7 @@ NWG_QST_Settings = createHashMapFromArray [
 	["FUNC_HAS_ITEM",{_this call NWG_fnc_invHasItem}],
 	["FUNC_GET_ITEM_COUNT",{_this call NWG_fnc_invGetItemCount}],
 	["FUNC_REMOVE_ITEMS",{_this call NWG_fnc_invRemoveItems}],
-	["FUNC_ON_INVENTORY_CHANGE",{call NWG_fnc_invInvokeChangeCheck}],
+	["FUNC_SET_LOADOUT",{_this call NWG_fnc_invSetPlayerLoadout}],
 	["FUNC_ON_WOUNDED_UNTIED",{_this remoteExec ["NWG_QST_MC_SetWounded",2]}],
 
 	["",0]

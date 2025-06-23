@@ -60,8 +60,23 @@ NWG_fnc_invExchangeItem = {
     _this call NWG_INV_ExchangeItem
 };
 
-//Invoke inventory change check
+//Invokes inventory change check
 //note: use it when doing 'setUnitLoadout' on player
 NWG_fnc_invInvokeChangeCheck = {
     call NWG_INV_CheckLoadoutChange;
+};
+
+//Sets new player loadout
+//params:
+//_loadout: Array - the loadout to set
+//note: may take some time to complete depending on player 'isSwitchingWeapon' state
+NWG_fnc_invSetPlayerLoadout = {
+    _this call NWG_INV_SetPlayerLoadout
+};
+
+//Checks if player loadout set is in progress
+//returns:
+// Boolean - true if the loadout set is in progress, false otherwise
+NWG_fnc_invIsLoadoutSetInProgress = {
+    call NWG_INV_IsPlayerLoadoutSetInProgress
 };
