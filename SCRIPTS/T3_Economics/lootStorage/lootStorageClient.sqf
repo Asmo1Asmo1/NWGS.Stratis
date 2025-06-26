@@ -4,7 +4,7 @@
 //================================================================================================================
 //Settings
 NWG_LS_CLI_Settings = createHashMapFromArray [
-    ["INVISIBLE_BOX_TYPE","B_CargoNet_01_ammo_F"],//Classname of the object that will be used as a loot storage
+    ["INVISIBLE_BOX_TYPE","Box_NATO_Uniforms_F"],//Classname of the object that will be used as a loot storage
     ["CLOSE_INVENTORY_ON_LOOT",true],//Should the inventory be closed automatically when loot is taken
 
     ["AUTO_SELL_LOOT",true],//Should the loot defined in the pricemap be automatically sold on moving to storage (+ on closing the storage just in case)
