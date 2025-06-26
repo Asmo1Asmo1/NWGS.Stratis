@@ -5,8 +5,6 @@
 //Settings
 NWG_VOTE_SER_Settings = createHashMapFromArray [
     ["TIMEOUT",60],//Voting timeout
-    ["THRESHOLD_INFAVOR",0.66],//Used to determine vote result: 'infavor' >= 'all'*X (note: uses 'ceil' to round up)
-    ["THRESHOLD_AGAINST",0.5], //Used to determine vote result: 'against' >= 'all'*X (note: uses 'ceil' to round up)
 
     ["",0]
 ];
@@ -70,8 +68,15 @@ NWG_VOTE_SER_VoteCore = {
     private _abortCondition = {!(_anchor call NWG_VOTE_COM_IsValidAnchor)};
     private _timeout = NWG_VOTE_SER_Settings get "TIMEOUT";
     private _timeoutAt = time + _timeout + 1;//Give extra second for vote result to be processed
-    private _thresholdInfavor = (ceil (_votersCount * (NWG_VOTE_SER_Settings get "THRESHOLD_INFAVOR"))) max 1;
-    private _thresholdAgainst = (ceil (_votersCount * (NWG_VOTE_SER_Settings get "THRESHOLD_AGAINST"))) max 1;
+
+    // Calculate thresholds based on voter count
+    private _thresholdInfavor = if ((_votersCount % 2) == 0)
+        then {(_votersCount / 2) + 1}/*Even number of voters: 50% + 1 vote (simple majority)*/
+        else {ceil(_votersCount / 2)}/*Odd number of voters: ceil(50%) (majority)*/
+    private _thresholdAgainst = if ((_votersCount % 2) == 0)
+        then {_votersCount / 2}      /*Even number of voters: 50% (half can block)*/
+        else {ceil(_votersCount / 2)}/*Odd number of voters: ceil(50%) (majority needed to block)*/
+
     private _voteResult = VOTE_UNDEFINED;
 
     //Configure anchor
