@@ -700,18 +700,21 @@ NWG_VSHOP_SER_SpawnVehicleAtPlatform = {
 	params ["_player","_vehicleClassname"];
     if (_vehicleClassname isEqualTo "" || {!(_vehicleClassname isEqualType "")}) exitWith {
         (format["NWG_VSHOP_SER_SpawnVehicleAtPlatform: Invalid vehicle classname '%1'",_vehicleClassname]) call NWG_fnc_logError;
+		_vehicleClassname remoteExec ["NWG_fnc_vshopRefund",_player];
         false
     };
 
     private _platform = NWG_VSHOP_spawnPlatform;
     if (isNil "_platform" || {!(_platform isEqualType objNull) || {isNull _platform}}) exitWith {
         (format["NWG_VSHOP_SER_SpawnVehicleAtPlatform: No platform found"]) call NWG_fnc_logError;
+		_vehicleClassname remoteExec ["NWG_fnc_vshopRefund",_player];
         false
     };
 
     private _spwnFunc = (NWG_VSHOP_SER_Settings get "SPAWN_PLATFORM_FUNC");
     if (isNil "_spwnFunc" || {!(_spwnFunc isEqualType {})}) exitWith {
         (format["NWG_VSHOP_SER_SpawnVehicleAtPlatform: Invalid spawn function defined"]) call NWG_fnc_logError;
+		_vehicleClassname remoteExec ["NWG_fnc_vshopRefund",_player];
         false
     };
 
@@ -721,10 +724,12 @@ NWG_VSHOP_SER_SpawnVehicleAtPlatform = {
     private _vehicle = [_vehicleClassname,_pos,_dir] call _spwnFunc;
 	if (_vehicle isEqualTo false) exitWith {
 		(format["NWG_VSHOP_SER_SpawnVehicleAtPlatform: Failed to spawn vehicle '%1'",_vehicleClassname]) call NWG_fnc_logError;
+		_vehicleClassname remoteExec ["NWG_fnc_vshopRefund",_player];
 		false
 	};
 	if (!(_vehicle isEqualType objNull) || {isNull _vehicle}) exitWith {
 		(format["NWG_VSHOP_SER_SpawnVehicleAtPlatform: Spawned vehicle is null"]) call NWG_fnc_logError;
+		_vehicleClassname remoteExec ["NWG_fnc_vshopRefund",_player];
 		false
 	};
 

@@ -143,6 +143,9 @@ if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\keyb
 //magrepack
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepack.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepackFunctions.sqf" call NWG_fnc_compile);
+//mapOpen
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\mapOpen\mapOpen.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\mapOpen\mapOpenFunctions.sqf" call NWG_fnc_compile);
 //maprules
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\maprules\maprules.sqf" call NWG_fnc_compile);
 //markers

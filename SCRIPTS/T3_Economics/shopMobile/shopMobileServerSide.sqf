@@ -684,7 +684,8 @@ NWG_MSHOP_SER_OnVehicleBought = {
 	//Spawn vehicle
 	private _vehicle = _this call (NWG_MSHOP_SER_Settings get "FUNC_SPAWN_VEHICLE");
 	if (isNil "_vehicle" || {_vehicle isEqualTo false || {isNull _vehicle}}) exitWith {
-		(format ["NWG_MSHOP_SER_OnVehicleBought: Failed to spawn vehicle with args: '%1'",_this]) call NWG_fnc_logError;
+		(format ["NWG_MSHOP_SER_OnVehicleBought: Failed to spawn vehicle with args: '%1'",_this]) call NWG_fnc_logError;//Log error
+		_vehicleClassname remoteExec ["NWG_fnc_vshopRefund",_player];//Refund vehicle price
 		false
 	};
 
