@@ -285,6 +285,29 @@ NWG_LS_CLI_GetDeadUnitWeaponHolders = {
         else {[]}
 };
 
+//Rarely bodies are stuck in limbo where their loadout does not change and thus they can be looted indefinitely
+//We only support 2 loots - one for all the items, second for the uniform
+NWG_LS_CLI_lootedBodies = [];
+NWG_LS_CLI_CheckOverlooting = {
+    private _body = _this;
+
+    //Clear invalid entries
+    {if (isNil "_x" || {isNull _x}) then {NWG_LS_CLI_lootedBodies deleteAt _forEachIndex}} forEachReversed NWG_LS_CLI_lootedBodies;
+
+    //Check limit
+    private _count = {_x isEqualTo _body} count NWG_LS_CLI_lootedBodies;
+    if (_count >= 2) exitWith {
+        "NWG_LS_CLI_CheckOverlooting: Body looting limit reached" call NWG_fnc_logError;
+        {if (_x isEqualTo _body) then {NWG_LS_CLI_lootedBodies deleteAt _forEachIndex}} forEachReversed NWG_LS_CLI_lootedBodies;//Remove the body from the list
+        deleteVehicle _body;//Delete the body
+        false
+    };
+
+    //Add to list
+    NWG_LS_CLI_lootedBodies pushBack _body;
+    true
+};
+
 //================================================================================================================
 //================================================================================================================
 //Looting (public, high level)
@@ -329,6 +352,9 @@ NWG_LS_CLI_LootContainer_Core = {
     //Get container loot
     private _allContainerItems = _container call NWG_LS_CLI_GetAllContainerItems;
     if (_allContainerItems isEqualTo []) exitWith {false};//Nothing to take
+
+    //Check overlooting
+    if (_container isKindOf "Man" && {!(_container call NWG_LS_CLI_CheckOverlooting)}) exitWith {false};
 
     //Auto sell (will remove sold items from the loot)
     private _initialCount = count _allContainerItems;
