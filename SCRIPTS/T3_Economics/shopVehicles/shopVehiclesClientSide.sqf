@@ -856,8 +856,8 @@ NWG_VSHOP_CLI_TRA_OnClose = {
 		//Dispose uiNamespace variables
 		uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_soldToPlayer",nil];
 		uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_boughtFromPlayer",nil];
-		uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_playerMoney_new",nil];
 		uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_playerMoney_old",nil];
+		uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_playerMoney_new",nil];
 	};
 
 	//Form transaction report
@@ -896,8 +896,8 @@ NWG_VSHOP_CLI_TRA_OnClose = {
 	//Dispose uiNamespace variables
 	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_soldToPlayer",nil];
 	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_boughtFromPlayer",nil];
-	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_playerMoney_new",nil];
 	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_playerMoney_old",nil];
+	uiNamespace setVariable ["NWG_VSHOP_CLI_TRA_playerMoney_new",nil];
 };
 
 NWG_VSHOP_CLI_TRA_Refund = {
