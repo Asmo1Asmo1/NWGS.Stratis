@@ -75,7 +75,7 @@ NWG_VOTE_SER_VoteCore = {
         else {ceil(_votersCount / 2)};/*Odd number of voters: ceil(50%) (majority)*/
     private _thresholdAgainst = if ((_votersCount % 2) == 0)
         then {_votersCount / 2}      /*Even number of voters: 50% (half can block)*/
-        else {ceil(_votersCount / 2)}/*Odd number of voters: ceil(50%) (majority needed to block)*/
+        else {ceil(_votersCount / 2)};/*Odd number of voters: ceil(50%) (majority needed to block)*/
 
     private _voteResult = VOTE_UNDEFINED;
 
