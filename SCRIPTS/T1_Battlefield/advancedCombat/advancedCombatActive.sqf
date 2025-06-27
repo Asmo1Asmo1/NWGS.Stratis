@@ -36,7 +36,7 @@
 //Settings
 NWG_ACA_Settings = createHashMapFromArray [
     ["AIRSTRIKE_PREPARE_RADIUS",2000],//Distance to fly away from the target in order to prepare for the airsrike
-    ["AIRSTRIKE_PREPARE_HEIGHT",600],//Height at which airstrike will prepare
+    ["AIRSTRIKE_PREPARE_HEIGHT",650],//Height at which airstrike will prepare
     ["AIRSTRIKE_YELLOW_RADIUS",1450],//Distance at which plane will start descending
     ["AIRSTRIKE_FIRE_RADIUS",850],//Distance at which to start fireing
     ["AIRSTRIKE_STOP_RADIUS",450],//Distance at which to pull up
@@ -170,12 +170,21 @@ NWG_ACA_Airstrike = {
         //1. Fly away from the target
         private _preparePos = _target getPos [(NWG_ACA_Settings get "AIRSTRIKE_PREPARE_RADIUS"),(random 360)];
         _preparePos set [2,_prepareAltitude];
+        _preparePos = ASLToAGL _preparePos;
         _plane flyInHeight [_prepareAltitude,true];
         _plane flyInHeightASL [_prepareAltitude,_prepareAltitude,_prepareAltitude];
         _pilot doMove _preparePos;
+        private _distOld = _plane distance2D _preparePos;
+        private _distNew = _distOld;
         waitUntil {
-            sleep 0.25;
-            (call _abortCondition || {(_plane distance2D _preparePos) < 100})
+            sleep 0.5;
+            if (call _abortCondition) exitWith {true};
+            if ((_plane distance2D _preparePos) < 100) exitWith {true};
+            _distNew = _plane distance2D _preparePos;
+            if (_distNew > _distOld)
+                then {_pilot doMove _preparePos}/*Push forward*/
+                else {_distOld = _distNew};/*Update distance*/
+            false/*go to next iteration*/
         };
         if (DEBUG_AIRSTRIKE && {time > _timeoutAt}) then {
             "NWG_ACA_Airstrike: timeout reached at 'Fly away' stage" call NWG_fnc_logError;

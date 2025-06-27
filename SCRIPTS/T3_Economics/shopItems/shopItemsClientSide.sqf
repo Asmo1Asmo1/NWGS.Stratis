@@ -49,14 +49,6 @@ NWG_ISHOP_CLI_Settings = createHashMapFromArray [
 
 //================================================================================================================
 //================================================================================================================
-//Init
-private _Init = {
-	//Update shop's player money when it's changed outside of shop (money transfer, quest completion, etc)
-	[EVENT_ON_MONEY_CHANGED,{_this call NWG_ISHOP_CLI_TRA_OnMoneyChangedOutside}] call NWG_fnc_subscribeToClientEvent;
-};
-
-//================================================================================================================
-//================================================================================================================
 //Shop
 NWG_ISHOP_CLI_OpenShop = {
 	//Send request to server
@@ -552,24 +544,12 @@ NWG_ISHOP_CLI_TRA_OnOpen = {
 	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_pricesMap",_pricesMap];
 	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_soldToPlayer",[]];
 	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_boughtFromPlayer",[]];
-	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney",_playerMoney];
+	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney_old",_playerMoney];
+	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney_new",_playerMoney];
 };
 
 NWG_ISHOP_CLI_TRA_GetPlayerMoney = {
-	uiNamespace getVariable ["NWG_ISHOP_CLI_TRA_playerMoney",0]
-};
-
-NWG_ISHOP_CLI_TRA_OnMoneyChangedOutside = {
-	// params ["_oldMoney","_newMoney","_delta"];
-	params ["","","_delta"];
-	if (isNil {uiNamespace getVariable "NWG_ISHOP_CLI_TRA_playerMoney"}) exitWith {};//Shop is not open
-
-	//Update player virtual money
-	private _virtMoney = uiNamespace getVariable ["NWG_ISHOP_CLI_TRA_playerMoney",0];
-	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney",(_virtMoney + _delta)];
-
-	//Update money text
-	call NWG_ISHOP_CLI_UpdatePlayerMoneyText;
+	uiNamespace getVariable ["NWG_ISHOP_CLI_TRA_playerMoney_new",0]
 };
 
 NWG_ISHOP_CLI_TRA_GetPrice = {
@@ -585,7 +565,7 @@ NWG_ISHOP_CLI_TRA_GetPrice = {
 NWG_ISHOP_CLI_TRA_TryAddToTransaction = {
 	params ["_item","_count","_isSellingToPlayer"];
 	private _price = ([_item,!_isSellingToPlayer] call NWG_ISHOP_CLI_TRA_GetPrice) * _count;
-	private _playerMoney = call NWG_ISHOP_CLI_TRA_GetPlayerMoney;
+	private _playerMoney = uiNamespace getVariable ["NWG_ISHOP_CLI_TRA_playerMoney_new",0];
 
 	//If buying from player
 	if (!_isSellingToPlayer) exitWith {
@@ -595,7 +575,7 @@ NWG_ISHOP_CLI_TRA_TryAddToTransaction = {
 		_trArray pushBack _item;
 		uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_boughtFromPlayer",_trArray];
 		//Add to player money
-		uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney",(_playerMoney + _price)];
+		uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney_new",(_playerMoney + _price)];
 		//return
 		true
 	};
@@ -613,7 +593,7 @@ NWG_ISHOP_CLI_TRA_TryAddToTransaction = {
 	_trArray pushBack _item;
 	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_soldToPlayer",_trArray];
 	//Subtract from player money
-	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney",(_playerMoney - _price)];
+	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney_new",(_playerMoney - _price)];
 	//return
 	true
 };
@@ -622,6 +602,14 @@ NWG_ISHOP_CLI_TRA_OnClose = {
 	//Get transactions
 	private _soldToPlayer = uiNamespace getVariable ["NWG_ISHOP_CLI_TRA_soldToPlayer",[]];
 	private _boughtFromPlayer = uiNamespace getVariable ["NWG_ISHOP_CLI_TRA_boughtFromPlayer",[]];
+	if ((count _soldToPlayer) == 0 && {count _boughtFromPlayer == 0}) exitWith {
+		//Dispose uiNamespace variables
+		uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_pricesMap",nil];
+		uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_soldToPlayer",nil];
+		uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_boughtFromPlayer",nil];
+		uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney_old",nil];
+		uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney_new",nil];
+	};
 
 	//Form transaction report
 	//+Filter out mutual records (same item bought and sold in one session)
@@ -648,9 +636,9 @@ NWG_ISHOP_CLI_TRA_OnClose = {
 	};
 
 	//Update player money
-	private _playerVirtualMoney = call NWG_ISHOP_CLI_TRA_GetPlayerMoney;
-	private _playerActualMoney = player call NWG_fnc_wltGetPlayerMoney;
-	private _delta = _playerVirtualMoney - _playerActualMoney;
+	private _playerMoneyOld = uiNamespace getVariable ["NWG_ISHOP_CLI_TRA_playerMoney_old",0];
+	private _playerMoneyNew = uiNamespace getVariable ["NWG_ISHOP_CLI_TRA_playerMoney_new",0];
+	private _delta = _playerMoneyNew - _playerMoneyOld;
 	if (_delta != 0) then {
 		[player,(round _delta)] call NWG_fnc_wltAddPlayerMoney;
 	};
@@ -667,9 +655,6 @@ NWG_ISHOP_CLI_TRA_OnClose = {
 	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_pricesMap",nil];
 	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_soldToPlayer",nil];
 	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_boughtFromPlayer",nil];
-	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney",nil];
+	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney_old",nil];
+	uiNamespace setVariable ["NWG_ISHOP_CLI_TRA_playerMoney_new",nil];
 };
-
-//================================================================================================================
-//================================================================================================================
-call _Init;

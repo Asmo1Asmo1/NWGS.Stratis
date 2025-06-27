@@ -59,3 +59,13 @@ NWG_fnc_voteOnEnded = {
     if (isNull player || {!alive player}) exitWith {};//Fix player not ready yet
     _this call NWG_VOTE_CLI_OnVoteEnd;
 };
+
+/* Client -> Server */
+//Cast a vote
+//params:
+// - _player - vote cast by
+// - _voteType - vote type
+NWG_fnc_voteCast = {
+    // params ["_player","_voteType"];
+    _this call NWG_VOTE_SER_OnPlayerVote;
+};

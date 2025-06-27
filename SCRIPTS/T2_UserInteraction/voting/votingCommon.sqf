@@ -17,11 +17,6 @@ NWG_VOTE_COM_SetInfavor = {
     params ["_anchor","_value"];
     _anchor setVariable ["NWG_VOTE_infavor",_value,true];
 };
-NWG_VOTE_COM_AddInfavor = {
-    // private _anchor = _this;
-    if !(_this call NWG_VOTE_COM_IsValidAnchor) exitWith {};
-    [_this,((_this call NWG_VOTE_COM_GetInfavor) + 1)] call NWG_VOTE_COM_SetInfavor;
-};
 
 NWG_VOTE_COM_GetAgainst = {
     // private _anchor = _this;
@@ -30,11 +25,6 @@ NWG_VOTE_COM_GetAgainst = {
 NWG_VOTE_COM_SetAgainst = {
     params ["_anchor","_value"];
     _anchor setVariable ["NWG_VOTE_against",_value,true];
-};
-NWG_VOTE_COM_AddAgainst = {
-    // private _anchor = _this;
-    if !(_this call NWG_VOTE_COM_IsValidAnchor) exitWith {};
-    [_this,((_this call NWG_VOTE_COM_GetAgainst) + 1)] call NWG_VOTE_COM_SetAgainst;
 };
 
 NWG_VOTE_COM_Clear = {
