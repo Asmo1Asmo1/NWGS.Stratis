@@ -83,8 +83,9 @@ NWG_MIS_SER_Cycle = {
     waitUntil {
         /*Every heartbeat...*/
         sleep (NWG_MIS_SER_Settings get "HEARTBEAT_RATE");
+        [EVENT_ON_MISSION_HEARTBEAT,0] call NWG_fnc_raiseServerEvent;
 
-        /*Update flags and fire events on a first iteration of a new state*/
+        /*Update state and fire events*/
         if (NWG_MIS_CurrentState isNotEqualTo NWG_MIS_SER_newState) then {
             //State changed
             private _oldState = NWG_MIS_CurrentState;
@@ -93,9 +94,6 @@ NWG_MIS_SER_Cycle = {
             NWG_MIS_CurrentState = _newState;
             publicVariable "NWG_MIS_CurrentState";
         };
-
-        /*Fix NPCs position*//*Yeah, that's dirty, but until we find a better solution...*/
-        call NWG_MIS_SER_FixNpcPosition;
 
         /*Do things and calculate next state to switch to*/
         switch (NWG_MIS_CurrentState) do {
@@ -719,8 +717,7 @@ NWG_MIS_SER_BuildPlayerBase = {
             };
         };
 
-        //3.6 Setup NPCs for position fixing
-        {_x setVariable ["NWG_baseNpcOrigPos",(getPosASL _x)]} forEach _baseNpcs;
+        //3.6 Save base NPCs
         NWG_MIS_SER_playerBaseNPCs = _baseNpcs;
     };
 
@@ -748,29 +745,6 @@ NWG_MIS_SER_BuildPlayerBase = {
 
     //7. Return result
     [_playerBaseRoot,_buildResult]
-};
-
-NWG_MIS_SER_FixNpcPosition = {
-    private ["_posOrig","_posCur"];
-    {
-        if (isNull _x || {!alive _x}) exitWith {
-            (format ["NWG_MIS_SER_FixNpcPosition: NPC is null or dead: '%1'",_x]) call NWG_fnc_logError;
-            NWG_MIS_SER_playerBaseNPCs deleteAt _forEachIndex;
-            continue
-        };
-
-        _posOrig = _x getVariable "NWG_baseNpcOrigPos";
-        if (isNil "_posOrig") then {
-            (format ["NWG_MIS_SER_FixNpcPosition: NPC has no original position: '%1'",_x]) call NWG_fnc_logError;
-            _posOrig = getPosASL _x;
-            _x setVariable ["NWG_baseNpcOrigPos",_posOrig];
-        };
-
-        _posCur = getPosASL _x;
-        if ((_posOrig distance _posCur) > 0.25) then {
-            _x setPosASL _posOrig
-        };
-    } forEachReversed NWG_MIS_SER_playerBaseNPCs;
 };
 
 //================================================================================================================
