@@ -166,6 +166,9 @@ NWG_MIS_SER_Cycle = {
                     "NWG_MIS_SER_Cycle: Empty missions list at LIST_CHECK phase and no action taken." call NWG_fnc_logError;//Log at least
                 };
 
+                //Drop cache selection
+                call NWG_MIS_SER_DropSelectionCache;
+
                 call NWG_MIS_SER_NextState;
             };
 
@@ -240,6 +243,9 @@ NWG_MIS_SER_Cycle = {
 
             /* mission build */
             case MSTATE_BUILD_CONFIG: {
+                //Drop cache selection
+                call NWG_MIS_SER_DropSelectionCache;
+
                 //Default 'WasOnMission' flag to false for all the players
                 [(call NWG_fnc_getPlayersAll),false] call NWG_MIS_SER_SetWasOnMission;
 
@@ -795,6 +801,7 @@ NWG_MIS_SER_GenerateMissionsList = {
 //================================================================================================================
 //================================================================================================================
 //Missions selection process (client->server interaction not affected by heartbeat cycle)
+NWG_MIS_SER_cachedSelection = [];
 NWG_MIS_SER_OnSelectionRequest = {
     private _level = _this;
     private _caller = remoteExecutedOwner;
@@ -805,6 +812,14 @@ NWG_MIS_SER_OnSelectionRequest = {
     if (NWG_MIS_CurrentState isNotEqualTo MSTATE_READY) exitWith {
         (format ["NWG_MIS_SER_OnSelectionRequest: Invalid state for selection request. state:'%1'",(NWG_MIS_CurrentState call NWG_MIS_SER_GetStateName)]) call NWG_fnc_logError;
         false
+    };
+
+    //Check cache
+    private _cached = NWG_MIS_SER_cachedSelection param [_level,[]];
+    if ((count _cached) > 0) exitWith {
+        _cached = _cached + [];//Fix for EDEN testing
+        _cached remoteExec ["NWG_fnc_mmSelectionResponse",_caller];
+        _cached/*for testing*/
     };
 
     //Check if level was unlocked and is valid
@@ -906,9 +921,17 @@ NWG_MIS_SER_OnSelectionRequest = {
         ];
     } forEach _selectedIndexes;
 
+    //Cache selection
+    NWG_MIS_SER_cachedSelection set [_level,_selectionList];
+
     //return
+    _selectionList = _selectionList + [];//Fix for EDEN testing
     _selectionList remoteExec ["NWG_fnc_mmSelectionResponse",_caller];
     _selectionList/*for testing*/
+};
+
+NWG_MIS_SER_DropSelectionCache = {
+    NWG_MIS_SER_cachedSelection resize 0;
 };
 
 NWG_MIS_SER_OnSelectionMade = {

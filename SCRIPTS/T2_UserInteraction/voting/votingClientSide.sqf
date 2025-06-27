@@ -76,9 +76,6 @@ NWG_VOTE_CLI_VoteCore = {
     switch (NWG_VOTE_CLI_myVote) do {
         case VOTE_INFAVOR: {[player, VOTE_INFAVOR] remoteExec ["NWG_fnc_voteCast",2]};
         case VOTE_AGAINST: {[player, VOTE_AGAINST] remoteExec ["NWG_fnc_voteCast",2]};
-        default {
-            (format ["NWG_VOTE_CLI_VoteCore: Invalid vote type: '%1'",NWG_VOTE_CLI_myVote]) call NWG_fnc_logError;
-        };
     };
 
     //Wait for voting to end

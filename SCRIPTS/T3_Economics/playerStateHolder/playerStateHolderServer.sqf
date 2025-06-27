@@ -32,7 +32,7 @@ NWG_PSH_SER_Settings = createHashMapFromArray [
 		["loot_storage",[LOOT_ITEM_DEFAULT_CHART,	{_this call NWG_fnc_lsGetPlayerLoot},	{_this call NWG_fnc_lsSetPlayerLoot}]],
 		["wallet",		[WLT_DEFAULT_MONEY,			{_this call NWG_fnc_wltGetPlayerMoney}, {_this call NWG_fnc_wltSetPlayerMoney}]],
 		["progress",	[P_DEFAULT_CHART,			{_this call NWG_fnc_pGetPlayerProgress},{_this call NWG_fnc_pSetPlayerProgress}]],
-		["garage",		[LOOT_VEHC_DEFAULT_CHART,	{_this call NWG_fnc_grgGetGarageArray}, {_this call NWG_fnc_grgSetGarageArray}]]
+		["garage",		[[],						{_this call NWG_fnc_grgGetGarageArray}, {_this call NWG_fnc_grgSetGarageArray}]]
 	]],
 
 /*
@@ -173,10 +173,17 @@ NWG_PSH_SER_OnStateUpdateRequest = {
 //States sync
 NWG_PSH_SER_SyncStates = {
 	private _ok = true;
+	private _totalOk = true;
 	{
 		if !(_y getOrDefault [STATE_DIRTY,false]) then {continue};//No need to re-write state if there were no changes
 		_ok = [_x,_y] call (NWG_PSH_SER_Settings get "FUNC_SAVE_STATE_BY_ID");
-		if (!_ok) then {(format ["NWG_PSH_SER_SyncStates: Failed to save state for player with id '%1'",_x]) call NWG_fnc_logError};
+		if (!_ok) then {
+			_totalOk = false;
+			(format ["NWG_PSH_SER_SyncStates: Failed to save state for player with id '%1'",_x]) call NWG_fnc_logError;
+		};
 		_y set [STATE_DIRTY,false];
 	} forEach NWG_PSH_SER_playerStateCache;
+
+	//return
+	_totalOk
 };

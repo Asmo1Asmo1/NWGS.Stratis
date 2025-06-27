@@ -94,8 +94,10 @@ NWG_MIS_CLI_RequestMissionSelection = {
 
 NWG_MIS_CLI_selectionList = [];
 NWG_MIS_CLI_selectionMarkers = [];
+NWG_MIS_CLI_selectionMade = false;
 NWG_MIS_CLI_OnSelectionOptionsReceived = {
     private _selections = _this;
+    NWG_MIS_CLI_selectionMade = false;
 
     //Check state
     if (isNil "NWG_MIS_CurrentState" || {NWG_MIS_CurrentState != MSTATE_READY})
@@ -155,20 +157,23 @@ NWG_MIS_CLI_OnSelectionOptionsReceived = {
         private _selected = NWG_MIS_CLI_selectionList param [_i,[]];
         if (count _selected == 0) exitWith {};
 
+        //Send selection
+        NWG_MIS_CLI_selectionMade = true;
+        _selected remoteExec ["NWG_fnc_mmSelectionMade",2];
+
         //Cleanup
         {deleteMarker _x} forEach NWG_MIS_CLI_selectionMarkers;
         NWG_MIS_CLI_selectionList resize 0;
         NWG_MIS_CLI_selectionMarkers resize 0;
         call NWG_fnc_moClose;
 
-        //Send selection
-        _selected remoteExec ["NWG_fnc_mmSelectionMade",2];
     };
     private _onMapClose = {
         //Cleanup
         {deleteMarker _x} forEach NWG_MIS_CLI_selectionMarkers;
         NWG_MIS_CLI_selectionList resize 0;
         NWG_MIS_CLI_selectionMarkers resize 0;
+        NWG_MIS_CLI_selectionMade = false;
     };
 
     //Open map

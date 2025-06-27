@@ -12,6 +12,7 @@ NWG_fnc_pshOnClientStateChange = {
 //Sync holded states with database
 //note: states are not synced automatically, usage of this function is required
 //note: sync is a heavy operation, use 'spawn'
+//returns: boolean - true if success, false in case of error(s)
 NWG_fnc_pshSyncRequest = {
 	call NWG_PSH_SER_SyncStates;
 };

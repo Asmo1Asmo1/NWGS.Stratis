@@ -182,8 +182,8 @@ NWG_TUTDLG_COMM_OpenMissionSelect = {
 			params ["_mapIsOpened", "_mapIsForced"];
 			if (!_mapIsOpened) then {
 				hintSilent "";//Clear hint
-				call NWG_TUT_NextStep;
-				removeMissionEventHandler ["Map",_thisEventHandler];
+				if (NWG_MIS_CLI_selectionMade) then {call NWG_TUT_NextStep};//Use of inner variable from 'missionMachine' subsystem
+				removeMissionEventHandler ["Map",_thisEventHandler];//Remove event handler
 			};
 		}];
 	};
@@ -193,6 +193,11 @@ NWG_TUTDLG_COMM_OpenMissionSelect = {
 //================================================================================================================
 //STEP_05 Taxi. Discord and Paradrop
 #define MAX_PARADROP_SAFENET 4
+
+NWG_TUTDLG_TAXI_IsVotingState = {
+	if (isNil "NWG_MIS_CurrentState") exitWith {false};
+	NWG_MIS_CurrentState == MSTATE_VOTING
+};
 
 NWG_TUTDLG_TAXI_OpenDiscord = {
 	hint ("#TAXI_DISCORD_HINT#" call NWG_fnc_localize);

@@ -2,8 +2,8 @@
 //================================================================================================================
 //Fields
 NWG_MO_processing = false;
-NWG_MO_onMapClick = {};
-NWG_MO_onMapClose = {};
+NWG_MO_clickCallback = {};
+NWG_MO_closeCallback = {};
 
 //================================================================================================================
 //================================================================================================================
@@ -28,14 +28,14 @@ NWG_MO_OpenMap = {
 	//Open map and enable processing
 	openMap true;
 	NWG_MO_processing = true;
-	NWG_MO_onMapClick = _onMapClick;
-	NWG_MO_onMapClose = _onMapClose;
+	NWG_MO_clickCallback = _onMapClick;
+	NWG_MO_closeCallback = _onMapClose;
 };
 
 NWG_MO_CloseMap = {
 	NWG_MO_processing = false;
-	NWG_MO_onMapClick = {};
-	NWG_MO_onMapClose = {};
+	NWG_MO_clickCallback = {};
+	NWG_MO_closeCallback = {};
 	openMap false;
 };
 
@@ -45,14 +45,14 @@ NWG_MO_CloseMap = {
 NWG_MO_OnMapClick = {
 	//params ["_units","_pos","_alt","_shift"];
 	if (!NWG_MO_processing) exitWith {};
-	(_this#1) call NWG_MO_onMapClick;
+	(_this#1) call NWG_MO_clickCallback;
 };
 
 NWG_MO_OnMapClose = {
 	//params ["_mapIsOpened","_mapIsForced"];
 	if (!NWG_MO_processing) exitWith {};
 	if (_this#0) exitWith {};
-	call NWG_MO_onMapClose;
+	call NWG_MO_closeCallback;
 	call NWG_MO_CloseMap;
 };
 
