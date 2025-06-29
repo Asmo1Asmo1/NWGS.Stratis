@@ -74,8 +74,8 @@ NWG_VOTE_CLI_VoteCore = {
 
     //Apply player vote
     switch (NWG_VOTE_CLI_myVote) do {
-        case VOTE_INFAVOR: {_anchor call NWG_VOTE_COM_AddInfavor};
-        case VOTE_AGAINST: {_anchor call NWG_VOTE_COM_AddAgainst};
+        case VOTE_INFAVOR: {[player, VOTE_INFAVOR] remoteExec ["NWG_fnc_voteCast",2]};
+        case VOTE_AGAINST: {[player, VOTE_AGAINST] remoteExec ["NWG_fnc_voteCast",2]};
     };
 
     //Wait for voting to end

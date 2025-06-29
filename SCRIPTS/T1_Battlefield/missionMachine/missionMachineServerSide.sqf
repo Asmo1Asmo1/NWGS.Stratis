@@ -83,8 +83,9 @@ NWG_MIS_SER_Cycle = {
     waitUntil {
         /*Every heartbeat...*/
         sleep (NWG_MIS_SER_Settings get "HEARTBEAT_RATE");
+        [EVENT_ON_MISSION_HEARTBEAT,0] call NWG_fnc_raiseServerEvent;
 
-        /*Update flags and fire events on a first iteration of a new state*/
+        /*Update state and fire events*/
         if (NWG_MIS_CurrentState isNotEqualTo NWG_MIS_SER_newState) then {
             //State changed
             private _oldState = NWG_MIS_CurrentState;
@@ -93,9 +94,6 @@ NWG_MIS_SER_Cycle = {
             NWG_MIS_CurrentState = _newState;
             publicVariable "NWG_MIS_CurrentState";
         };
-
-        /*Fix NPCs position*//*Yeah, that's dirty, but until we find a better solution...*/
-        call NWG_MIS_SER_FixNpcPosition;
 
         /*Do things and calculate next state to switch to*/
         switch (NWG_MIS_CurrentState) do {
@@ -167,6 +165,9 @@ NWG_MIS_SER_Cycle = {
                     //else
                     "NWG_MIS_SER_Cycle: Empty missions list at LIST_CHECK phase and no action taken." call NWG_fnc_logError;//Log at least
                 };
+
+                //Drop cache selection
+                call NWG_MIS_SER_DropSelectionCache;
 
                 call NWG_MIS_SER_NextState;
             };
@@ -242,6 +243,9 @@ NWG_MIS_SER_Cycle = {
 
             /* mission build */
             case MSTATE_BUILD_CONFIG: {
+                //Drop cache selection
+                call NWG_MIS_SER_DropSelectionCache;
+
                 //Default 'WasOnMission' flag to false for all the players
                 [(call NWG_fnc_getPlayersAll),false] call NWG_MIS_SER_SetWasOnMission;
 
@@ -719,8 +723,7 @@ NWG_MIS_SER_BuildPlayerBase = {
             };
         };
 
-        //3.6 Setup NPCs for position fixing
-        {_x setVariable ["NWG_baseNpcOrigPos",(getPosASL _x)]} forEach _baseNpcs;
+        //3.6 Save base NPCs
         NWG_MIS_SER_playerBaseNPCs = _baseNpcs;
     };
 
@@ -748,29 +751,6 @@ NWG_MIS_SER_BuildPlayerBase = {
 
     //7. Return result
     [_playerBaseRoot,_buildResult]
-};
-
-NWG_MIS_SER_FixNpcPosition = {
-    private ["_posOrig","_posCur"];
-    {
-        if (isNull _x || {!alive _x}) exitWith {
-            (format ["NWG_MIS_SER_FixNpcPosition: NPC is null or dead: '%1'",_x]) call NWG_fnc_logError;
-            NWG_MIS_SER_playerBaseNPCs deleteAt _forEachIndex;
-            continue
-        };
-
-        _posOrig = _x getVariable "NWG_baseNpcOrigPos";
-        if (isNil "_posOrig") then {
-            (format ["NWG_MIS_SER_FixNpcPosition: NPC has no original position: '%1'",_x]) call NWG_fnc_logError;
-            _posOrig = getPosASL _x;
-            _x setVariable ["NWG_baseNpcOrigPos",_posOrig];
-        };
-
-        _posCur = getPosASL _x;
-        if ((_posOrig distance _posCur) > 0.25) then {
-            _x setPosASL _posOrig
-        };
-    } forEachReversed NWG_MIS_SER_playerBaseNPCs;
 };
 
 //================================================================================================================
@@ -821,6 +801,7 @@ NWG_MIS_SER_GenerateMissionsList = {
 //================================================================================================================
 //================================================================================================================
 //Missions selection process (client->server interaction not affected by heartbeat cycle)
+NWG_MIS_SER_cachedSelection = [];
 NWG_MIS_SER_OnSelectionRequest = {
     private _level = _this;
     private _caller = remoteExecutedOwner;
@@ -831,6 +812,14 @@ NWG_MIS_SER_OnSelectionRequest = {
     if (NWG_MIS_CurrentState isNotEqualTo MSTATE_READY) exitWith {
         (format ["NWG_MIS_SER_OnSelectionRequest: Invalid state for selection request. state:'%1'",(NWG_MIS_CurrentState call NWG_MIS_SER_GetStateName)]) call NWG_fnc_logError;
         false
+    };
+
+    //Check cache
+    private _cached = NWG_MIS_SER_cachedSelection param [_level,[]];
+    if ((count _cached) > 0) exitWith {
+        _cached = _cached + [];//Fix for EDEN testing
+        _cached remoteExec ["NWG_fnc_mmSelectionResponse",_caller];
+        _cached/*for testing*/
     };
 
     //Check if level was unlocked and is valid
@@ -932,9 +921,17 @@ NWG_MIS_SER_OnSelectionRequest = {
         ];
     } forEach _selectedIndexes;
 
+    //Cache selection
+    NWG_MIS_SER_cachedSelection set [_level,_selectionList];
+
     //return
+    _selectionList = _selectionList + [];//Fix for EDEN testing
     _selectionList remoteExec ["NWG_fnc_mmSelectionResponse",_caller];
     _selectionList/*for testing*/
+};
+
+NWG_MIS_SER_DropSelectionCache = {
+    NWG_MIS_SER_cachedSelection resize 0;
 };
 
 NWG_MIS_SER_OnSelectionMade = {

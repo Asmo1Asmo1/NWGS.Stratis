@@ -129,6 +129,8 @@ _serverModules pushBack ("SCRIPTS\T2_UserInteraction\adminTools\adminToolsServer
 _serverFunctions pushBack ("SCRIPTS\T2_UserInteraction\adminTools\adminToolsFunctions.sqf" call NWG_fnc_compile);
 //antiAbuse
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\antiAbuse\antiAbuse.sqf" call NWG_fnc_compile);
+//groupNames
+_serverModules pushBack ("SCRIPTS\T2_UserInteraction\groupNames\groupNamesServer.sqf" call NWG_fnc_compile);
 //inventoryManager
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\inventoryManager\inventoryManager.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\inventoryManager\inventoryManagerFunctions.sqf" call NWG_fnc_compile);
@@ -143,6 +145,9 @@ if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\keyb
 //magrepack
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepack.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\magrepack\magrepackFunctions.sqf" call NWG_fnc_compile);
+//mapOpen
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\mapOpen\mapOpen.sqf" call NWG_fnc_compile);
+_clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\mapOpen\mapOpenFunctions.sqf" call NWG_fnc_compile);
 //maprules
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\maprules\maprules.sqf" call NWG_fnc_compile);
 //markers

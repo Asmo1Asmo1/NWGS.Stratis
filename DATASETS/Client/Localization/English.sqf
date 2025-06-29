@@ -1004,8 +1004,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_TUTOR04_05v3_Q#","Yeah, something is wrong with the computer|'Unexpected state' hmm...|Let me log the error and come back in a few minutes|At ease"],
     ["#COMM_TUTOR04_MAP_HINT#","Move cursor to the mission area\nAnd click once to select it"],
     /*Step 05 - Taxi*/
-    ["#TAXI_TUTOR05_00_Q0#","Hold on, mission did not start yet"],
-    ["#TAXI_TUTOR05_00_Q1#","So? Ready for your first one?"],
+    ["#TAXI_TUTOR05_00_Q0#","See? There's a voting in progress|Open the chat and send '+' or '-'"],
+    ["#TAXI_TUTOR05_00_Q1#","Hold on, mission did not start yet|Check again in a minute or so|Ask others for help if needed"],
+    ["#TAXI_TUTOR05_00_Q2#","So? Ready for your first one?"],
     ["#TAXI_TUTOR05_00_A_01#","All set"],
     ["#TAXI_TUTOR05_00_A_02#","No, something else first"],
     ["#TAXI_TUTOR05_01_Q#","Before we go|Do you want to join our Discord?"],

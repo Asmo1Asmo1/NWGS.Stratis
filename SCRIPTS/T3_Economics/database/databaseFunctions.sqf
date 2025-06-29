@@ -1,5 +1,5 @@
 /*==== Players ====*/
-//Get new player record
+//Create new player record
 //params: _playerID
 //returns: boolean - true if success, false if failed
 NWG_fnc_dbCreatePlayer = {

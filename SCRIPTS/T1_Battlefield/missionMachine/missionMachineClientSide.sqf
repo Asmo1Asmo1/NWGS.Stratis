@@ -28,13 +28,6 @@ NWG_MIS_CLI_Settings = createHashMapFromArray [
 
 //================================================================================================================
 //================================================================================================================
-//Init
-private _Init = {
-    addMissionEventHandler ["MapSingleClick",{_this call NWG_MIS_CLI_OnMapClick}];
-};
-
-//================================================================================================================
-//================================================================================================================
 //Levels and level unlocking
 NWG_MIS_CLI_GetUnlockedLevels = {
     if (isNil "NWG_MIS_UnlockedLevels") exitWith {[]};
@@ -101,18 +94,14 @@ NWG_MIS_CLI_RequestMissionSelection = {
 
 NWG_MIS_CLI_selectionList = [];
 NWG_MIS_CLI_selectionMarkers = [];
-NWG_MIS_CLI_selectionInProgress = false;
+NWG_MIS_CLI_selectionMade = false;
 NWG_MIS_CLI_OnSelectionOptionsReceived = {
     private _selections = _this;
+    NWG_MIS_CLI_selectionMade = false;
 
     //Check state
     if (isNil "NWG_MIS_CurrentState" || {NWG_MIS_CurrentState != MSTATE_READY})
         exitWith {"NWG_MIS_CLI_OnSelectionOptionsReceived: NWG_MIS_CurrentState is not READY" call NWG_fnc_logError};
-    if (NWG_MIS_CLI_selectionInProgress)
-        exitWith {"NWG_MIS_CLI_OnSelectionOptionsReceived: selection is already in progress" call NWG_fnc_logError};
-
-    //Set state
-    NWG_MIS_CLI_selectionInProgress = true;
 
     //Create markers on the map
     private ["_selName","_selPos","_selRadius","_selFaction","_selColor","_selTime","_selWeather","_markerName","_marker"];
@@ -149,45 +138,46 @@ NWG_MIS_CLI_OnSelectionOptionsReceived = {
     NWG_MIS_CLI_selectionMarkers = _markers;
     NWG_MIS_CLI_selectionList = _selections;
 
-    //Force open map
-	if ( (((getUnitLoadout player) param [9,[]]) param [0,""]) isEqualTo "")
-		then {player addItem "ItemMap"; player assignItem "ItemMap"};
-	openMap [true,true];
+    //Prepare callbacks
+    private _onMapClick = {
+        private _clickPos = _this;
 
-    //... to be continued in map click handler 'NWG_MIS_CLI_OnMapClick'
-};
+        //Find the closest selection
+        private _minDistance = NWG_MIS_CLI_Settings get "MAP_MIS_MAPCLICK_MIN_DISTANCE";
+        private _i = -1;
+        private _dist = 0;
+        {
+            _dist = _clickPos distance2D (_x#SELECTION_POS);
+            if (_dist <= _minDistance)
+                then {_minDistance = _dist; _i = _forEachIndex};
+        } forEach NWG_MIS_CLI_selectionList;
+        if (_i == -1) exitWith {};
 
-NWG_MIS_CLI_OnMapClick = {
-    // params ["_units","_pos","_alt","_shift"];
-    if (!NWG_MIS_CLI_selectionInProgress) exitWith {};
-    if ((count NWG_MIS_CLI_selectionList) == 0) exitWith {};
+        //Cache selected mission
+        private _selected = NWG_MIS_CLI_selectionList param [_i,[]];
+        if (count _selected == 0) exitWith {};
 
-    //Process the click
-    private _clickPos = _this select 1;
-    private _minDistance = NWG_MIS_CLI_Settings get "MAP_MIS_MAPCLICK_MIN_DISTANCE";
-    private _i = -1;
-    private _dist = 0;
-    {
-        _dist = _clickPos distance2D (_x#SELECTION_POS);
-        if (_dist <= _minDistance)
-            then {_minDistance = _dist; _i = _forEachIndex};
-    } forEach NWG_MIS_CLI_selectionList;
-    if (_i == -1) exitWith {};
-    private _selected = NWG_MIS_CLI_selectionList param [_i,[]];
-    if (count _selected == 0) exitWith {};
+        //Send selection
+        NWG_MIS_CLI_selectionMade = true;
+        _selected remoteExec ["NWG_fnc_mmSelectionMade",2];
 
-    //Cleanup
-    {deleteMarker _x} forEach NWG_MIS_CLI_selectionMarkers;
-    NWG_MIS_CLI_selectionList resize 0;
-    NWG_MIS_CLI_selectionMarkers resize 0;
-    NWG_MIS_CLI_selectionInProgress = false;
+        //Cleanup
+        {deleteMarker _x} forEach NWG_MIS_CLI_selectionMarkers;
+        NWG_MIS_CLI_selectionList resize 0;
+        NWG_MIS_CLI_selectionMarkers resize 0;
+        call NWG_fnc_moClose;
 
-    //Close map
-    openMap [true,false];
-    openMap false;
+    };
+    private _onMapClose = {
+        //Cleanup
+        {deleteMarker _x} forEach NWG_MIS_CLI_selectionMarkers;
+        NWG_MIS_CLI_selectionList resize 0;
+        NWG_MIS_CLI_selectionMarkers resize 0;
+        NWG_MIS_CLI_selectionMade = false;
+    };
 
-    //Send selection
-    _selected remoteExec ["NWG_fnc_mmSelectionMade",2];
+    //Open map
+    [_onMapClick,_onMapClose] call NWG_fnc_moOpen;
 };
 
 //================================================================================================================
@@ -289,7 +279,3 @@ NWG_MIS_CLI_OnEscapeCompleted = {
     private _success = _this;
     [/*endName:*/"end2",/*isVictory:*/_success,/*fadeType:*/true,/*playMusic:*/true,/*cancelTasks:*/true] call BIS_fnc_endMission;
 };
-
-//================================================================================================================
-//================================================================================================================
-call _Init;

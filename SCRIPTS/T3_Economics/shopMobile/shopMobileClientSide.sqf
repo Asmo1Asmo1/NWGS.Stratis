@@ -56,16 +56,8 @@ NWG_MSHOP_CLI_Settings =  createHashMapFromArray [
 //Fields
 NWG_MSHOP_CLI_priceMap = createHashMap;
 NWG_MSHOP_CLI_supportMap = createHashMap;
-NWG_MSHOP_CLI_selectedItem = "";
-NWG_MSHOP_CLI_moneySpent = 0;
+NWG_MSHOP_CLI_selectedItem = [];
 NWG_MSHOP_CLI_selectedVehicle = "";
-
-//================================================================================================================
-//================================================================================================================
-//Init
-private _Init = {
-	addMissionEventHandler ["MapSingleClick",{_this call NWG_MSHOP_CLI_OnMapClick}];
-};
 
 //================================================================================================================
 //================================================================================================================
@@ -230,20 +222,33 @@ NWG_MSHOP_CLI_OnItemSelected = {
 		(ctrlParent _listBox) call NWG_MSHOP_CLI_BlinkPlayerMoneyTextOnError;
 	};
 
-	//Decrease player money
-	[player,-_itemPrice] call NWG_fnc_wltAddPlayerMoney;
-
-	//Prepare item placement
-	NWG_MSHOP_CLI_selectedItem = _itemName;//Save
-	NWG_MSHOP_CLI_moneySpent = _itemPrice;//Save
+	//Close all open interfaces
+	[player,-_itemPrice] call NWG_fnc_wltAddPlayerMoney;//Decrease player money (bezobrazno zato odnoobrazno)
 	call (NWG_MSHOP_CLI_Settings get "FUNC_CLOSE_ALL_INTERFACES");//Close all open interfaces
 
-	//Force open map
-	if ( (((getUnitLoadout player) param [9,[]]) param [0,""]) isEqualTo "")
-		then {player addItem "ItemMap"; player assignItem "ItemMap"};
-	openMap [true,true];
-	hint ((NWG_MSHOP_CLI_Settings get "LOC_MAP_ITEM_HINT") call NWG_fnc_localize);//Show hint
-	//... to be continued in map click handler 'NWG_MSHOP_CLI_OnMapClick'
+	//Prepare map callbacks
+	NWG_MSHOP_CLI_selectedItem = [_itemName,_itemPrice];//Save
+	private _onMapClick = {
+		private _clickPos = _this;
+		NWG_MSHOP_CLI_selectedItem params ["_itemName","_moneySpent"];
+		NWG_MSHOP_CLI_selectedItem = [];//Reset
+
+		//Send request to server
+		[player,_itemName,_clickPos,_moneySpent] remoteExec ["NWG_fnc_mshopOnItemBought",2];
+
+		//Close map
+		call NWG_fnc_moClose;
+		hintSilent "";
+	};
+	private _onMapClose = {
+		NWG_MSHOP_CLI_selectedItem params ["_itemName","_moneySpent"];
+		NWG_MSHOP_CLI_selectedItem = [];//Reset
+		[player,_moneySpent] call NWG_fnc_wltAddPlayerMoney;//Return money
+	};
+
+	//Open map and show hint
+	hint ((NWG_MSHOP_CLI_Settings get "LOC_MAP_ITEM_HINT") call NWG_fnc_localize);
+	[_onMapClick,_onMapClose] call NWG_fnc_moOpen;
 };
 
 //================================================================================================================
@@ -288,56 +293,31 @@ NWG_MSHOP_CLI_OnVehicleBought = {
 	// private _vehicleClassname = _this;
 	//note: we don't need vehicle price here, underlying vehicle shop will take care of that
 
-	NWG_MSHOP_CLI_selectedVehicle = _this;//Save
-	call (NWG_MSHOP_CLI_Settings get "FUNC_CLOSE_ALL_INTERFACES");//Close all open interfaces (will also trigger money deduction for bought vehicle)
-	//Force open map
-	if ( (((getUnitLoadout player) param [9,[]]) param [0,""]) isEqualTo "")
-		then {player addItem "ItemMap"; player assignItem "ItemMap"};
-	openMap [true,true];
-	hint ((NWG_MSHOP_CLI_Settings get "LOC_MAP_VEHICLE_HINT") call NWG_fnc_localize);//Show hint
+	//Close all open interfaces (will also trigger money deduction for bought vehicle)
+	call (NWG_MSHOP_CLI_Settings get "FUNC_CLOSE_ALL_INTERFACES");
 
-	//... to be continued in map click handler 'NWG_MSHOP_CLI_OnMapClick'
-};
-
-//================================================================================================================
-//================================================================================================================
-//Map click handler
-NWG_MSHOP_CLI_OnMapClick = {
-	// params ["_units","_pos","_alt","_shift"];
-
-	//Request for item from server
-	if (NWG_MSHOP_CLI_selectedItem isNotEqualTo "") exitWith {
-		private _pos = _this select 1;
-		private _itemName = NWG_MSHOP_CLI_selectedItem;
-		private _moneySpent = NWG_MSHOP_CLI_moneySpent;
-		NWG_MSHOP_CLI_selectedItem = "";//Reset
-		NWG_MSHOP_CLI_moneySpent = 0;//Reset
-
-		//Send request to server
-		[player,_itemName,_pos,_moneySpent] remoteExec ["NWG_fnc_mshopOnItemBought",2];
-
-		//Close map
-		openMap [true,false];
-		openMap false;
-		hintSilent "";
-	};
-
-	//Request for vehicle from server
-	if (NWG_MSHOP_CLI_selectedVehicle isNotEqualTo "") exitWith {
-		private _pos = _this select 1;
+	//Prepare map callbacks
+	NWG_MSHOP_CLI_selectedVehicle = _this;
+	private _onMapClick = {
+		private _clickPos = _this;
 		private _vehicleClassname = NWG_MSHOP_CLI_selectedVehicle;
 		NWG_MSHOP_CLI_selectedVehicle = "";//Reset
 
 		//Send request to server
-		[player,_vehicleClassname,_pos] remoteExec ["NWG_fnc_mshopOnVehicleBought",2];
+		[player,_vehicleClassname,_clickPos] remoteExec ["NWG_fnc_mshopOnVehicleBought",2];
 
 		//Close map
-		openMap [true,false];
-		openMap false;
+		call NWG_fnc_moClose;
 		hintSilent "";
 	};
-};
+	private _onMapClose = {
+		private _vehicleClassname = NWG_MSHOP_CLI_selectedVehicle;
+		NWG_MSHOP_CLI_selectedVehicle = "";//Reset
+		_vehicleClassname call NWG_fnc_vshopRefund;//Refund vehicle price
+		hintSilent "";
+	};
 
-//================================================================================================================
-//================================================================================================================
-call _Init
+	//Open map and show hint
+	hint ((NWG_MSHOP_CLI_Settings get "LOC_MAP_VEHICLE_HINT") call NWG_fnc_localize);
+	[_onMapClick,_onMapClose] call NWG_fnc_moOpen;
+};

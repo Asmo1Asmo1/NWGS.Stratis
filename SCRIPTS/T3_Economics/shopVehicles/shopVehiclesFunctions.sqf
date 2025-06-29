@@ -61,6 +61,13 @@ NWG_fnc_vshopOpenCustomShop = {
 	call NWG_VSHOP_CLI_OpenCustomShop;
 };
 
+//Refund vehicle price (use in case of error)
+//params: _vehicleClassname - string
+NWG_fnc_vshopRefund = {
+	// private _vehicleClassname = _this;
+	_this call NWG_VSHOP_CLI_TRA_Refund;
+};
+
 /*Client<->Server*/
 //Request shop values from server
 NWG_fnc_vshopShopValuesRequest = {

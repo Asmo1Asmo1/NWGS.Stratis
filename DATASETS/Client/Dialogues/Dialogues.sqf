@@ -1770,8 +1770,9 @@ NWG_DialogueTree = createHashMapFromArray [
 	[
 		"TAXI_TUTOR05_00",	[
 			Q_CND,	[
-				{!(call NWG_TUTDLG_COMM_IsFightState)},"#TAXI_TUTOR05_00_Q0#",/*Hold on, mission did not start yet*/
-				{true},"#TAXI_TUTOR05_00_Q1#"/*So? Are you ready for your first one?*/
+				{call NWG_TUTDLG_TAXI_IsVotingState},"#TAXI_TUTOR05_00_Q0#",/*You have to vote first*/
+				{!(call NWG_TUTDLG_COMM_IsFightState)},"#TAXI_TUTOR05_00_Q1#",/*Hold on, mission did not start yet*/
+				{true},"#TAXI_TUTOR05_00_Q2#"/*So? Are you ready for your first one?*/
 			],
 			A_CND, [
 				{call NWG_TUTDLG_COMM_IsFightState},["#TAXI_TUTOR05_00_A_01#","TAXI_TUTOR05_01"],/*All set*/

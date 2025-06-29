@@ -493,8 +493,12 @@ NWG_fnc_clearContainerCargo = {
 };
 
 //Fix for Arma's 2.20 'setUnitLoadout' shitty behavior
+//note: they reverted it back for now, see: https://dev.arma3.com/post/spotrep-00119
+//note: I've spent too much time on that, plus they can change it again in the future, so I'm leaving it here
+#define BOHEMIA_CHANGED_MIND true
 NWG_fnc_setUnitLoadout = {
     params ["_unit","_loadout",["_callback",{}]];
+    if (BOHEMIA_CHANGED_MIND) exitWith {_unit setUnitLoadout _loadout; _unit call _callback};//Immediate execution
     if (!alive _unit) exitWith {_unit setUnitLoadout _loadout; _unit call _callback};//Should work fine for dead units
     if (!isSwitchingWeapon _unit) exitWith {_unit setUnitLoadout _loadout; _unit call _callback};//Should be no problem with stable units
 

@@ -1,36 +1,63 @@
-//Get steam ID by player name
+//================================================================================================================
+//================================================================================================================
+//Players
+
+//Find player by name
+//note: caches last found player as 'NWG_ADM_Lastfound'
 // params
 // 	name - player name
 // returns either
-// 	[steam ID, player name] - array of two elements
+// 	[player name, player group, steam ID] - array of three elements
 // 	or
 // 	"Player not found" - string
 // 	"Multiple players found" - string
-NWG_fnc_admGetId = {
-	// private _name = _this;
-	_this call NWG_ADM_GetId
+NWG_fnc_admFindByName = {
+	_this call NWG_ADM_FindByName
 };
 
-//Kick player
-// params
-// 	steam ID - string
-NWG_fnc_admKick = {
-	// private _steamId = _this;
-	_this call NWG_ADM_Kick
+//Return last found player
+//returns
+// 	[player name, player group, steam ID] - array of three elements
+// 	or
+// 	["NaN",grpNull,"NaN"] - array of three elements
+NWG_fnc_admGetLastFound = {
+	NWG_ADM_Lastfound
 };
 
-//Ban player
-// params
-// 	steam ID - string
-NWG_fnc_admBan = {
-	// private _steamId = _this;
-	_this call NWG_ADM_Ban
+//Kick last found player
+NWG_fnc_admKickLastFound = {
+	call NWG_ADM_KickLastFound
 };
 
-//Unban player
-// params
-// 	steam ID - string
-NWG_fnc_admUnban = {
-	// private _steamId = _this;
-	_this call NWG_ADM_Unban
+//Ban last found player
+NWG_fnc_admBanLastFound = {
+	call NWG_ADM_BanLastFound
+};
+
+//Rename group of last found player
+//params: - name - string - new name of the group
+NWG_fnc_admRenameGroup = {
+	// private _newName = _this;
+	_this call NWG_ADM_RenameGroupOfLastFound
+};
+
+//================================================================================================================
+//================================================================================================================
+//Enemies
+
+//Get enemy group by name
+//params: - name - string - name of the group
+//returns: group object or "No group found"|"Multiple groups found" string
+NWG_fnc_admGetEnemyGroup = {
+	_this call NWG_ADM_GetEnemyGroup
+};
+
+//================================================================================================================
+//================================================================================================================
+//Database
+
+//Force save everything into DB
+//returns: array of reports
+NWG_fnc_admForceSaveToDB = {
+	call NWG_ADM_ForceSaveToDB
 };

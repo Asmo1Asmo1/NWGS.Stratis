@@ -51,13 +51,6 @@ NWG_DLG_TAXI_SelectedItem = objNull;
 
 //================================================================================================================
 //================================================================================================================
-//Init
-private _Init = {
-    addMissionEventHandler ["MapSingleClick",{_this call NWG_DLG_TAXI_OnMapClick}];
-};
-
-//================================================================================================================
-//================================================================================================================
 //Dialogue answers generation
 NWG_DLG_TAXI_GenerateDropRoot = {
 	if (!isNil "NWG_MIS_CurrentState" && {NWG_MIS_CurrentState < MSTATE_BUILD_CONFIG}) exitWith {[["#TAXI_00_A_01#","TAXI_EARLY"]]};//Mission is not started
@@ -271,37 +264,29 @@ NWG_DLG_TAXI_Teleport = {
 			//Deplete money
 			[player,-_price] call NWG_fnc_wltAddPlayerMoney;
 
-			//Force open map
-			NWG_DLG_TAXI_mapClickExpected = true;
-			if ( (((getUnitLoadout player) param [9,[]]) param [0,""]) isEqualTo "")
-				then {player addItem "ItemMap"; player assignItem "ItemMap"};
-			openMap [true,true];
-			//To be continued in map click handler 'NWG_DLG_TAXI_OnMapClick'....
+			//Prepare map callbacks
+			private _onMapClick = {
+				private _clickPos = _this;
+				call NWG_fnc_moClose;//Close map
+				_clickPos call NWG_DLG_TAXI_Paradrop;//Paradrop
+			};
+			private _onMapClose = {
+				private _price = NWG_DLG_TAXI_Settings get "PRICE_AIR_RAW";
+				[player,_price] call NWG_fnc_wltAddPlayerMoney;//Return money
+			};
+
+			//Open map
+			[_onMapClick,_onMapClose] call NWG_fnc_moOpen;
 		};
 	};
 };
 
-//================================================================================================================
-//================================================================================================================
-//Paradrop
-NWG_DLG_TAXI_mapClickExpected = false;
-NWG_DLG_TAXI_OnMapClick = {
-	// params ["_units","_pos","_alt","_shift"];
-	private _pos = _this select 1;
-
-	//Check flag
-	if (!NWG_DLG_TAXI_mapClickExpected) exitWith {};
-	NWG_DLG_TAXI_mapClickExpected = false;
-
-	//Close map
-	openMap [true,false];
-	openMap false;
-
-	//Set position
-	_pos set [2,(NWG_DLG_TAXI_Settings get "PARADROP_ALTITUDE")];
+NWG_DLG_TAXI_Paradrop = {
+	private _clickPos = _this;
+	private _tpPos = [(_clickPos#0),(_clickPos#1),(NWG_DLG_TAXI_Settings get "PARADROP_ALTITUDE")];
 
 	//Create fake plane
-	private _planePos = _pos vectorAdd [0,0,1];
+	private _planePos = _tpPos vectorAdd [0,0,1];
 	private _plane = createVehicleLocal ["C_Plane_Civil_01_F",_planePos,[],0,"FLY"];
 	_plane setPosATL _planePos;
 	private _dir = getDir _plane;
@@ -315,9 +300,5 @@ NWG_DLG_TAXI_OnMapClick = {
 	};
 
 	//Teleport player
-	player setPosATL _pos;
+	player setPosATL _tpPos;
 };
-
-//================================================================================================================
-//================================================================================================================
-call _Init

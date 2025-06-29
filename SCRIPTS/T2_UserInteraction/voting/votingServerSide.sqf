@@ -5,8 +5,6 @@
 //Settings
 NWG_VOTE_SER_Settings = createHashMapFromArray [
     ["TIMEOUT",60],//Voting timeout
-    ["THRESHOLD_INFAVOR",0.66],//Used to determine vote result: 'infavor' >= 'all'*X (note: uses 'ceil' to round up)
-    ["THRESHOLD_AGAINST",0.5], //Used to determine vote result: 'against' >= 'all'*X (note: uses 'ceil' to round up)
 
     ["",0]
 ];
@@ -16,6 +14,8 @@ NWG_VOTE_SER_Settings = createHashMapFromArray [
 //Fields
 NWG_VOTE_SER_voteHandle = scriptNull;
 NWG_VOTE_SER_voteResult = VOTE_UNDEFINED;
+NWG_VOTE_SER_currentAnchor = objNull; // Track current voting anchor
+NWG_VOTE_SER_votersWhoVoted = []; // Track players who already voted
 
 //================================================================================================================
 //================================================================================================================
@@ -68,13 +68,24 @@ NWG_VOTE_SER_VoteCore = {
     private _abortCondition = {!(_anchor call NWG_VOTE_COM_IsValidAnchor)};
     private _timeout = NWG_VOTE_SER_Settings get "TIMEOUT";
     private _timeoutAt = time + _timeout + 1;//Give extra second for vote result to be processed
-    private _thresholdInfavor = (ceil (_votersCount * (NWG_VOTE_SER_Settings get "THRESHOLD_INFAVOR"))) max 1;
-    private _thresholdAgainst = (ceil (_votersCount * (NWG_VOTE_SER_Settings get "THRESHOLD_AGAINST"))) max 1;
+
+    // Calculate thresholds based on voter count
+    private _thresholdInfavor = if ((_votersCount % 2) == 0)
+        then {(_votersCount / 2) + 1}/*Even number of voters: 50% + 1 vote (simple majority)*/
+        else {ceil(_votersCount / 2)};/*Odd number of voters: ceil(50%) (majority)*/
+    private _thresholdAgainst = if ((_votersCount % 2) == 0)
+        then {_votersCount / 2}      /*Even number of voters: 50% (half can block)*/
+        else {ceil(_votersCount / 2)};/*Odd number of voters: ceil(50%) (majority needed to block)*/
+
     private _voteResult = VOTE_UNDEFINED;
 
     //Configure anchor
     [_anchor,0] call NWG_VOTE_COM_SetInfavor;
     [_anchor,0] call NWG_VOTE_COM_SetAgainst;
+
+    // Initialize server tracking
+    NWG_VOTE_SER_currentAnchor = _anchor;
+    NWG_VOTE_SER_votersWhoVoted = [];
 
     //Start voting
     [_anchor,_title,_timeout] remoteExec ["NWG_fnc_voteOnStarted",0];
@@ -99,4 +110,41 @@ NWG_VOTE_SER_VoteCore = {
     [_title,_voteResult] remoteExec ["NWG_fnc_voteOnEnded",0];
     if (_anchor call NWG_VOTE_COM_IsValidAnchor) then {_anchor call NWG_VOTE_COM_Clear};
     NWG_VOTE_SER_voteResult = _voteResult;
+
+    // Clear server tracking
+    NWG_VOTE_SER_currentAnchor = objNull;
+    NWG_VOTE_SER_votersWhoVoted = [];
+};
+
+NWG_VOTE_SER_OnPlayerVote = {
+    params ["_player", "_voteType"];
+
+    // Validation checks
+    if !(call NWG_VOTE_SER_IsVoteRunning) exitWith {
+        "NWG_VOTE_SER_OnPlayerVote: No vote is running" call NWG_fnc_logError;
+    };
+    if (isNull NWG_VOTE_SER_currentAnchor || {!alive NWG_VOTE_SER_currentAnchor}) exitWith {
+        "NWG_VOTE_SER_OnPlayerVote: Invalid anchor" call NWG_fnc_logError;
+    };
+    if (_player in NWG_VOTE_SER_votersWhoVoted) exitWith {
+        "NWG_VOTE_SER_OnPlayerVote: Player already voted" call NWG_fnc_logError;
+    };
+
+    // Record that this player voted
+    NWG_VOTE_SER_votersWhoVoted pushBack _player;
+
+    // Apply vote safely on server
+    switch (_voteType) do {
+        case VOTE_INFAVOR: {
+            private _currentValue = NWG_VOTE_SER_currentAnchor call NWG_VOTE_COM_GetInfavor;
+            [NWG_VOTE_SER_currentAnchor, _currentValue + 1] call NWG_VOTE_COM_SetInfavor;
+        };
+        case VOTE_AGAINST: {
+            private _currentValue = NWG_VOTE_SER_currentAnchor call NWG_VOTE_COM_GetAgainst;
+            [NWG_VOTE_SER_currentAnchor, _currentValue + 1] call NWG_VOTE_COM_SetAgainst;
+        };
+        default {
+            (format ["NWG_VOTE_SER_OnPlayerVote: Invalid vote type: '%1'",_voteType]) call NWG_fnc_logError;
+        };
+    };
 };

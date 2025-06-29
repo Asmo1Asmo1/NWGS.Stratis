@@ -41,28 +41,28 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 
 	/*Price increase settings*//*params ["_itemIncrease","_catIncrease","_allIncrease"]*//*Applied consecutively*/
 	["PRICE_INCREASE_SETTINGS",createHashMapFromArray [
-		["C0I0",[100,500,0]],//Scout drone
-		["C0I1",[200,500,0]],//Suicide drone (HE 44)
-		["C0I2",[200,500,0]],//Suicide drone (HEAT 55)
-		["C0I3",[200,500,0]],//Suicide drone (HEAT 75)
-		["C0I4",[200,500,0]],//Mine drone
-		["C0I5",[500,500,0]],//EMI drone
-		["C0I6",[500,500,0]],//Bomber drone
+		["C0I0",[500,100,0]],//Scout drone
+		["C0I1",[200,100,0]],//Suicide drone (HE 44)
+		["C0I2",[200,100,0]],//Suicide drone (HEAT 55)
+		["C0I3",[200,100,0]],//Suicide drone (HEAT 75)
+		["C0I4",[500,200,0]],//Mine drone
+		["C0I5",[1000,200,0]],//EMI drone
+		["C0I6",[1000,200,0]],//Bomber drone
 		["C0I7",[5000,500,0]],//Ababil
 
 		/*Mortars*/
-		["C1I0",[100,500,0]],//Single strike
-		["C1I1",[200,500,0]],//Double tap
-		["C1I2",[300,500,0]],//Three in a row
-		["C1I3",[1000,1000,0]],//Barrage
-		["C1I4",[200,100,0]],//Illumination shells
-		["C1I5",[200,100,0]],//Smoke shells
+		["C1I0",[100,1000,0]],//Single strike
+		["C1I1",[200,1000,0]],//Double tap
+		["C1I2",[300,1000,0]],//Three in a row
+		["C1I3",[1000,2000,0]],//Barrage
+		["C1I4",[200,200,0]],//Illumination shells
+		["C1I5",[200,200,0]],//Smoke shells
 
 		/*Infantry support*/
-		["C2I0",[0,1000,0]],//Team (2)
-		["C2I1",[0,2000,0]],//Squad (3)
-		["C2I2",[0,3000,0]],//Company (5)
-		["C2I3",[0,4000,0]] //Fire team (8)
+		["C2I0",[0,2000,0]],//Team (2)
+		["C2I1",[0,4000,0]],//Squad (3)
+		["C2I2",[0,6000,0]],//Company (5)
+		["C2I3",[0,8000,0]] //Fire team (8)
 	]],
 
 	/*Marker settings*//*params ["_markerType","_markerColor"]*/
@@ -684,7 +684,8 @@ NWG_MSHOP_SER_OnVehicleBought = {
 	//Spawn vehicle
 	private _vehicle = _this call (NWG_MSHOP_SER_Settings get "FUNC_SPAWN_VEHICLE");
 	if (isNil "_vehicle" || {_vehicle isEqualTo false || {isNull _vehicle}}) exitWith {
-		(format ["NWG_MSHOP_SER_OnVehicleBought: Failed to spawn vehicle with args: '%1'",_this]) call NWG_fnc_logError;
+		(format ["NWG_MSHOP_SER_OnVehicleBought: Failed to spawn vehicle with args: '%1'",_this]) call NWG_fnc_logError;//Log error
+		_vehicleClassname remoteExec ["NWG_fnc_vshopRefund",_player];//Refund vehicle price
 		false
 	};
 
