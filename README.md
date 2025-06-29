@@ -1,9 +1,9 @@
 # NWG: Scavenger
-This is a coop PVE roguelite project
-It draws its inspiration from the 'Patrol' side missions of Arma 3 single-player campaign
-Designed for a small number of players
-It consists of purchasing weapons and equipment, moving to a selected point of interest, battle, looting, and selling it for in-game currency
-Roguelite comes from player progression between runs where they can save (from loot) or buy (from shop) a better equipment as well as spend money to unlock new gameplay features, increase insurance rate in case of failure and unlock new difficulty levels
++ This is a coop PVE roguelite project
++ It draws its inspiration from the 'Patrol' side missions of Arma 3 single-player campaign
++ Designed for a small number of players
++ It consists of purchasing weapons and equipment, moving to a selected point of interest, battle, looting, and selling it for in-game currency
++ Roguelite comes from player progression between runs where they can save (from loot) or buy (from shop) a better equipment as well as spend money to unlock new gameplay features, increase insurance rate in case of failure and unlock new difficulty levels
 
 # Technical features:
 + Custom localization solution with dictionaries being part of servermod and sent to player based on their game language
