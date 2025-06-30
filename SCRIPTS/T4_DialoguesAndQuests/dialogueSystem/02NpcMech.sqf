@@ -27,7 +27,7 @@ NWG_DLG_MECH_Settings = createHashMapFromArray [
 	/*Prices*/
 	["PRICE_VEH_DEFAULT",10000],
 	["PRICE_REPIR_MULTIPLIER",0.75],//Final price = (vehPrice * damage) * multiplier | Acts as discount
-	["PRICE_PERCENTAGE",0.05],//Percentage of vehicle price to use as service price
+	["PRICE_PERCENTAGE",0.1],//Percentage of vehicle price to use as service price
 	["PRICE_REFEL_DEFAULT",1000],
 	["PRICE_REARM_DEFAULT",2500],
 	["PRICE_APRNC_DEFAULT",2500],

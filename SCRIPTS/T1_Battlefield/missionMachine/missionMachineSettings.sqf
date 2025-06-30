@@ -89,10 +89,13 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 	["MAP_MIS_MARKER_TYPE","mil_objective"],//Marker type for missions
 	["MAP_MIS_MARKER_SIZE",1.25],//Marker size for missions
 	["MAP_MIS_OUTLINE_ALPHA",0.6],//Alpha value of outline for missions
+
 	["MAP_DONE_SIZE",1],//Marker size for missions
-	["MAP_DONE_TYPE","waypoint"],//Marker type for missions
+	["MAP_DONE_TYPE","waypoint"],//Marker type for marking missions as done
 	["MAP_DONE_COLOR","ColorGreen"],//Color to mark missions on the map as done
 	["MAP_DONE_ALPHA",0.6],//Alpha value of 'done' map mark
+	["MAP_DONE_ADD_COUNTER",false],//Add counter to the 'done' map mark (e.g.: 1/16)
+	["MAP_DONE_ADD_OUTLINE",false],//Add outline to the 'done' map mark (e.g.: Big green circle)
 
 	//==================================================================================================
 	// Mission settings
