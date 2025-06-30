@@ -1237,31 +1237,37 @@ NWG_MIS_SER_FightTeardown = {
 NWG_MIS_SER_MarkMissionDone = {
     // private _missionInfo = _this;
     private _pos = _this get MINFO_POSITION;
-    private _missionName = format ["MIS_%1_Done",(round time)];//A little hack to get a unique marker name
+    private _markerName = format ["MIS_%1_Done",(round time)];//A little hack to get a unique marker name
 
     //Create background outline marker
-    private _outlineName = format ["%1_Outline",_missionName];
-    private _outlineRad = _this get MINFO_RADIUS;
-    private _outline = createMarkerLocal [_outlineName,_pos];
-    _outline setMarkerShapeLocal "ELLIPSE";
-    _outline setMarkerSizeLocal [_outlineRad,_outlineRad];
-    _outline setMarkerColorLocal (NWG_MIS_SER_Settings get "MAP_DONE_COLOR");
-    _outline setMarkerAlpha (NWG_MIS_SER_Settings get "MAP_DONE_ALPHA");
+    if (NWG_MIS_SER_Settings get "MAP_DONE_ADD_OUTLINE") then {
+        private _outlineName = format ["%1_Outline",_markerName];
+        private _outlineRad = _this get MINFO_RADIUS;
+        private _outline = createMarkerLocal [_outlineName,_pos];
+        _outline setMarkerShapeLocal "ELLIPSE";
+        _outline setMarkerSizeLocal [_outlineRad,_outlineRad];
+        _outline setMarkerColorLocal (NWG_MIS_SER_Settings get "MAP_DONE_COLOR");
+        _outline setMarkerAlpha (NWG_MIS_SER_Settings get "MAP_DONE_ALPHA");
+        [_outline] call NWG_fnc_gcAddOriginalMarkers;
+    };
 
-    //Create visible marker with missions counter
-    private _markerName = _missionName;
+    //Create visible marker
     private _markerSize = NWG_MIS_SER_Settings get "MAP_DONE_SIZE";
     private _marker = createMarkerLocal [_markerName,_pos];
     _marker setMarkerShapeLocal "icon";
     _marker setMarkerTypeLocal (NWG_MIS_SER_Settings get "MAP_DONE_TYPE");
     _marker setMarkerSizeLocal [_markerSize,_markerSize];
     _marker setMarkerColorLocal (NWG_MIS_SER_Settings get "MAP_DONE_COLOR");
-    private _curLevel = (_this get MINFO_LEVEL) + 1;//Start from '1' for visual representation
-    private _maxLevel = (count (NWG_MIS_SER_Settings get "LEVELS_AND_TIERS"))-1;
-    _marker setMarkerText (format [" %1 / %2 ",_curLevel,_maxLevel]);
+
+    //Add counter
+    if (NWG_MIS_SER_Settings get "MAP_DONE_ADD_COUNTER") then {
+        private _curLevel = (_this get MINFO_LEVEL) + 1;//Start from '1' for visual representation
+        private _maxLevel = (count (NWG_MIS_SER_Settings get "LEVELS_AND_TIERS"))-1;
+        _marker setMarkerText (format [" %1 / %2 ",_curLevel,_maxLevel]);
+    };
 
     //GC ignore
-    [_outline,_marker] call NWG_fnc_gcAddOriginalMarkers;
+    [_marker] call NWG_fnc_gcAddOriginalMarkers;
 };
 
 //================================================================================================================
