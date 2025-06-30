@@ -20,7 +20,7 @@
         };
 
         _posCur = getPosASL _x;
-        if ((_posOrig distance _posCur) > 0.25) then {
+        if ((_posOrig distance _posCur) > 0.2) then {
             _x setPosASL _posOrig
         };
     } forEachReversed NWG_MIS_SER_playerBaseNPCs;
