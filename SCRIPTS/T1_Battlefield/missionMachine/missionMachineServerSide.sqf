@@ -1257,7 +1257,7 @@ NWG_MIS_SER_MarkMissionDone = {
     _marker setMarkerShapeLocal "icon";
     _marker setMarkerTypeLocal (NWG_MIS_SER_Settings get "MAP_DONE_TYPE");
     _marker setMarkerSizeLocal [_markerSize,_markerSize];
-    _marker setMarkerColorLocal (NWG_MIS_SER_Settings get "MAP_DONE_COLOR");
+    _marker setMarkerColor (NWG_MIS_SER_Settings get "MAP_DONE_COLOR");
 
     //Add counter
     if (NWG_MIS_SER_Settings get "MAP_DONE_ADD_COUNTER") then {
