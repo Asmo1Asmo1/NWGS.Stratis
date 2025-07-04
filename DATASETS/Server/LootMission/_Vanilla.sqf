@@ -77,6 +77,14 @@
 			["Laserbatteries"]
 		]
 	],
+	[
+		["CSAT","ANYVEH","ANYBOX"],TIER_1,[
+			[],
+			[],
+			["Laserdesignator_02","NVGoggles_OPFOR","O_NVGoggles_hex_F","O_NVGoggles_urb_F","O_UavTerminal"],
+			["Laserbatteries"]
+		]
+	],
 
 	/*===== CLOTHING AND BACKPACKS =====*/
 	/*Facewear*/
@@ -104,6 +112,14 @@
 			[]
 		]
 	],
+	[
+		["CSAT","ANYVEH","LOOT","RUG"],TIER_1,[
+			[],
+			[],
+			["G_AirPurifyingRespirator_02_black_F","G_AirPurifyingRespirator_02_olive_F","G_AirPurifyingRespirator_02_sand_F","G_O_Diving"],
+			[]
+		]
+	],
 	/*Headgear*/
 	[
 		["ANYFAC","ANYVEH","LOOT","RUG"],TIER_1,[
@@ -124,6 +140,14 @@
 	[
 		["AAF","ANYVEH","LOOT","RUG"],TIER_1,[
 			["H_Booniehat_dgtl","H_Cap_blk_Raven","H_HelmetIA","H_MilCap_dgtl","H_Shemag_olive","H_Shemag_olive_hs"],
+			[],
+			[],
+			[]
+		]
+	],
+	[
+		["CSAT","ANYVEH","LOOT","RUG"],TIER_1,[
+			["H_Beret_CSAT_01_F","H_Cap_brn_SPECOPS","H_CrewHelmetHeli_O","H_HelmetCrew_O","H_HelmetLeaderO_ocamo","H_HelmetLeaderO_oucamo","H_HelmetO_ocamo","H_HelmetO_oucamo","H_HelmetSpecO_blk","H_HelmetSpecO_ocamo","H_MilCap_ocamo","H_ParadeDressCap_01_CSAT_F","H_PilotHelmetFighter_O","H_ShemagOpen_khk","H_ShemagOpen_tan","H_Tank_black_F"],
 			[],
 			[],
 			[]
@@ -179,6 +203,14 @@
 		]
 	],
 	[
+		["CSAT","ANYVEH","LOOT","WEAP"],TIER_1,[
+			["B_AssaultPack_cbr","B_AssaultPack_khk","B_AssaultPack_ocamo","B_Bergen_hex_F","B_Carryall_cbr","B_Carryall_khk","B_Carryall_ocamo","B_Carryall_oucamo","B_FieldPack_cbr","B_FieldPack_khk","B_FieldPack_ocamo","B_FieldPack_oucamo","B_Kitbag_cbr","B_Kitbag_tan","B_LegStrapBag_coyote_F","B_RadioBag_01_hex_F","B_RadioBag_01_oucamo_F","B_TacticalPack_ocamo","B_ViperHarness_hex_F","B_ViperHarness_khk_F","B_ViperLightHarness_hex_F","B_ViperLightHarness_khk_F"],
+			[],
+			[],
+			[]
+		]
+	],
+	[
 		["CIV","ANYVEH","LOOT","WEAP"],TIER_1,[
 			["B_CivilianBackpack_01_Everyday_Astra_F","B_CivilianBackpack_01_Everyday_Black_F","B_CivilianBackpack_01_Everyday_IDAP_F","B_CivilianBackpack_01_Everyday_Vrana_F","B_CivilianBackpack_01_Sport_Blue_F","B_CivilianBackpack_01_Sport_Green_F","B_CivilianBackpack_01_Sport_Red_F","B_Messenger_Black_F","B_Messenger_Coyote_F","B_Messenger_Gray_F","B_Messenger_IDAP_F","B_Messenger_Olive_F"],
 			[],
@@ -203,6 +235,14 @@
 			[]
 		]
 	],
+	[
+		["CSAT","ANYVEH","WEAP"],TIER_2,[
+			[],
+			["O_GMG_01_A_weapon_F","O_GMG_01_high_weapon_F","O_GMG_01_weapon_F","O_HMG_01_A_weapon_F","O_HMG_01_high_weapon_F","O_HMG_01_support_F","O_HMG_01_support_high_F","O_HMG_01_weapon_F"],
+			[],
+			[]
+		]
+	],
 
 	/*Weapon backpacks - mortars (+designators)*/
 	[
@@ -217,6 +257,14 @@
 		["AAF","ANYVEH","WEAP"],TIER_2,[
 			[],
 			["I_Mortar_01_support_F","I_Mortar_01_weapon_F"],
+			[],
+			[]
+		]
+	],
+	[
+		["CSAT","ANYVEH","WEAP"],TIER_2,[
+			[],
+			["O_Mortar_01_support_F","O_Mortar_01_weapon_F","O_Static_Designator_02_weapon_F"],
 			[],
 			[]
 		]
@@ -238,6 +286,14 @@
 			[]
 		]
 	],
+	[
+		["CSAT","ANYVEH","WEAP"],TIER_3,[
+			[],
+			["O_AA_01_weapon_F","O_AT_01_weapon_F","O_HMG_01_support_F"],
+			[],
+			[]
+		]
+	],
 	/*Drone backpacks*/
 	[
 		["NATO","ANYVEH","WEAP"],TIER_2,[
@@ -252,6 +308,14 @@
 			[],
 			["I_UAV_01_backpack_F","I_UAV_06_backpack_F","I_UAV_06_medical_backpack_F","I_UGV_02_Demining_backpack_F","I_UGV_02_Science_backpack_F"],
 			["I_UavTerminal"],
+			[]
+		]
+	],
+	[
+		["CSAT","ANYVEH","WEAP"],TIER_2,[
+			[],
+			["O_UAV_01_backpack_F","O_UAV_06_backpack_F","O_UAV_06_medical_backpack_F","O_UGV_02_Demining_backpack_F","O_UGV_02_Science_backpack_F"],
+			["O_UavTerminal"],
 			[]
 		]
 	],
@@ -283,6 +347,14 @@
 	[
 		["AAF","CAR","ARM","LOOT","WEAP"],TIER_1,[
 			["V_BandollierB_oli","V_LegStrapBag_olive_F","V_PlateCarrierIA1_dgtl","V_PlateCarrierIA2_dgtl","V_PlateCarrierIAGL_dgtl","V_PlateCarrierIAGL_oli","V_TacChestrig_grn_F","V_TacChestrig_oli_F","V_TacVest_oli"],
+			[],
+			[],
+			[]
+		]
+	],
+	[
+		["CSAT","ANYVEH","LOOT","WEAP"],TIER_1,[
+			["V_BandollierB_cbr","V_BandollierB_khk","V_Chestrig_khk","V_EOD_coyote_F","V_HarnessO_brn","V_HarnessO_gry","V_HarnessOGL_brn","V_HarnessOGL_gry","V_LegStrapBag_coyote_F","V_TacChestrig_cbr_F","V_TacVest_brn","V_TacVest_khk"],
 			[],
 			[],
 			[]
@@ -322,6 +394,14 @@
 		]
 	],
 	[
+		["CSAT","ANYVEH","LOOT","WEAP"],TIER_1,[
+			["U_O_CombatUniform_ocamo","U_O_CombatUniform_oucamo","U_O_FullGhillie_ard","U_O_FullGhillie_lsh","U_O_FullGhillie_sard","U_O_GhillieSuit","U_O_officer_noInsignia_hex_F","U_O_OfficerUniform_ocamo","U_O_ParadeUniform_01_CSAT_decorated_F","U_O_ParadeUniform_01_CSAT_F","U_O_V_Soldier_Viper_hex_F"],
+			[],
+			[],
+			[]
+		]
+	],
+	[
 		["CIV","ANYVEH","LOOT","WEAP"],TIER_0,[
 			["U_BG_Guerilla2_1","U_BG_Guerilla2_2","U_BG_Guerilla2_3","U_BG_Guerilla3_1","U_C_ArtTShirt_01_v1_F","U_C_ArtTShirt_01_v2_F","U_C_ArtTShirt_01_v3_F","U_C_ArtTShirt_01_v4_F","U_C_ArtTShirt_01_v5_F","U_C_ArtTShirt_01_v6_F","U_C_ConstructionCoverall_Black_F","U_C_ConstructionCoverall_Blue_F","U_C_ConstructionCoverall_Red_F","U_C_ConstructionCoverall_Vrana_F","U_C_Driver_1","U_C_Driver_1_black","U_C_Driver_1_blue","U_C_Driver_1_green","U_C_Driver_1_orange","U_C_Driver_1_red","U_C_Driver_1_white","U_C_Driver_1_yellow","U_C_Driver_2","U_C_Driver_3","U_C_Driver_4","U_C_E_LooterJacket_01_F","U_C_FormalSuit_01_black_F","U_C_FormalSuit_01_blue_F","U_C_FormalSuit_01_gray_F","U_C_FormalSuit_01_khaki_F","U_C_FormalSuit_01_tshirt_black_F","U_C_FormalSuit_01_tshirt_gray_F","U_C_HunterBody_grn","U_C_IDAP_Man_cargo_F","U_C_IDAP_Man_casual_F","U_C_IDAP_Man_Jeans_F","U_C_IDAP_Man_shorts_F","U_C_IDAP_Man_Tee_F","U_C_IDAP_Man_TeeShorts_F","U_C_Journalist","U_C_Man_casual_1_F","U_C_Man_casual_2_F","U_C_Man_casual_3_F","U_C_Man_casual_4_F","U_C_Man_casual_5_F","U_C_Man_casual_6_F","U_C_man_sport_1_F","U_C_man_sport_2_F","U_C_man_sport_3_F","U_C_Mechanic_01_F","U_C_Paramedic_01_F","U_C_Poloshirt_blue","U_C_Poloshirt_burgundy","U_C_Poloshirt_redwhite","U_C_Poloshirt_salmon","U_C_Poloshirt_stripped","U_C_Poloshirt_tricolour","U_C_Poor_1","U_C_Scientist","U_C_Uniform_Farmer_01_F","U_C_Uniform_Scientist_01_F","U_C_Uniform_Scientist_01_formal_F","U_C_Uniform_Scientist_02_F","U_C_Uniform_Scientist_02_formal_F","U_Competitor","U_I_C_Soldier_Bandit_1_F","U_I_C_Soldier_Bandit_2_F","U_I_C_Soldier_Bandit_3_F","U_I_C_Soldier_Bandit_4_F","U_I_C_Soldier_Bandit_5_F","U_I_L_Uniform_01_tshirt_black_F","U_I_L_Uniform_01_tshirt_olive_F","U_I_L_Uniform_01_tshirt_skull_F","U_I_L_Uniform_01_tshirt_sport_F","U_Marshal","U_OrestesBody"],
 			[],
@@ -347,6 +427,14 @@
 			[]
 		]
 	],
+	[
+		["CSAT","AIR"],TIER_0,[
+			["B_Parachute","H_CrewHelmetHeli_O","H_EarProtectors_black_F","H_EarProtectors_white_F","H_HeadSet_black_F","H_HeadSet_white_F","H_PilotHelmetFighter_O","H_PilotHelmetHeli_O","U_O_PilotCoveralls"],
+			[],
+			[],
+			[]
+		]
+	],
 	/*Armour*/
 	[
 		["NATO","ARM"],TIER_0,[
@@ -359,6 +447,14 @@
 	[
 		["AAF","ARM"],TIER_0,[
 			["H_EarProtectors_black_F","H_HeadSet_black_F","H_HelmetCrew_I","U_Tank_green_F"],
+			[],
+			["MineDetector","ToolKit"],
+			[]
+		]
+	],
+	[
+		["CSAT","ARM"],TIER_0,[
+			["H_EarProtectors_black_F","H_EarProtectors_white_F","H_HeadSet_black_F","H_HeadSet_white_F","H_HelmetCrew_O","H_Tank_black_F"],
 			[],
 			["MineDetector","ToolKit"],
 			[]
@@ -378,6 +474,14 @@
 			["B_SCBA_01_F","U_I_Wetsuit","V_RebreatherIA"],
 			[],
 			["G_I_Diving"],
+			[]
+		]
+	],
+	[
+		["CSAT","BOAT"],TIER_0,[
+			["B_SCBA_01_F","U_O_Wetsuit","V_RebreatherIR"],
+			[],
+			["G_O_Diving"],
 			[]
 		]
 	],
@@ -445,6 +549,14 @@
 			["RPG32_F","RPG32_HE_F"]
 		]
 	],
+	[
+		["CSAT","ANYVEH","WEAP"],TIER_2,[
+			[],
+			["launch_RPG32_F"],
+			[],
+			["RPG32_F","RPG32_HE_F"]
+		]
+	],
 	/*RPG-7*/
 	[
 		["ANYFAC","-CIV","ANYVEH","WEAP"],TIER_2,[
@@ -479,6 +591,14 @@
 			["Titan_AA"]
 		]
 	],
+	[
+		["CSAT","ANYVEH","WEAP"],TIER_2,[
+			[],
+			["launch_O_Titan_F"],
+			[],
+			["Titan_AA"]
+		]
+	],
 	/*Titan AT*/
 	[
 		["ANYFAC","-CIV","ANYVEH","WEAP"],TIER_3,[
@@ -492,6 +612,14 @@
 		["NATO","ANYVEH","WEAP"],TIER_3,[
 			[],
 			["launch_B_Titan_short_F"],
+			[],
+			["Titan_AP","Titan_AT"]
+		]
+	],
+	[
+		["CSAT","ANYVEH","WEAP"],TIER_3,[
+			[],
+			["launch_O_Titan_short_F"],
 			[],
 			["Titan_AP","Titan_AT"]
 		]
