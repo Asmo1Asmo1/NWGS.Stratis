@@ -402,6 +402,12 @@
             ["O_Plane_CAS_02_dynamicLoadout_F"],
             ["O_Fighter_Pilot_F"]
         ],
+        //X-32 Xi'an (low crew)
+        [
+            ["AIR","MEC","PLANE","AT","PARA+","AIRSTRIKE+"],TIER_2,
+            ["O_T_VTOL_02_infantry_dynamicLoadout_F",[["Hex",1],[]],false],
+            [2,"O_T_Pilot_F",8,"RANDOM"]
+        ],
 
         /*[Tier 3]*/
         //Taru (bench) (max crew)
@@ -427,6 +433,12 @@
             ["AIR","MEC","PLANE","AA","AT","AIRSTRIKE+"],TIER_3,
             ["O_Plane_Fighter_02_F",false,["PylonMissile_Missile_AA_R73_x1","PylonMissile_Missile_AA_R73_x1","PylonMissile_Missile_AGM_KH25_x1","PylonMissile_Missile_AGM_KH25_x1","PylonMissile_Bomb_KAB250_x1","PylonMissile_Bomb_KAB250_x1","PylonMissile_Missile_AA_R73_x1","PylonMissile_Missile_AA_R73_x1","PylonMissile_Missile_AA_R77_x1","PylonMissile_Missile_AA_R77_x1","PylonMissile_Missile_AA_R77_INT_x1","PylonMissile_Missile_AA_R77_INT_x1","PylonMissile_Bomb_KAB250_x1"]],
             ["O_Fighter_Pilot_F"]
+        ],
+        //X-32 Xi'an
+        [
+            ["AIR","MEC","PLANE","AT","PARA+","AIRSTRIKE+"],TIER_3,
+            ["O_T_VTOL_02_infantry_dynamicLoadout_F",[["Hex",1],[]],false],
+            [2,"O_T_Pilot_F",16,"RANDOM"]
         ],
 
         /*[Tier 4]*/
