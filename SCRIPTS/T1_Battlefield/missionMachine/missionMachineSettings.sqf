@@ -83,7 +83,7 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 		[MISSION_FACTION_AAF,"ColorGUER"],
 		[MISSION_FACTION_CSAT,"ColorRed"]
 	]],
-	["ENEMY_PER_SELECTION",2],//Max number of factions to use in selection
+	["ENEMY_PER_SELECTION",3],//Max number of factions to use in selection
 
 	//==================================================================================================
 	// Map markers settings
