@@ -166,13 +166,13 @@
         [
             ["VEH","MOT","REG"],TIER_1,
             ["O_MRAP_02_F"],
-            [2,"O_Soldier_F"]
+            ["O_Soldier_F",2,"RANDOM"]
         ],
         //Qilin unarmed (low crew)
         [
             ["VEH","MOT","REG","PARADROPPABLE+"],TIER_1,
             ["O_LSV_02_unarmed_F"],
-            [3,"O_Soldier_F"]
+            ["O_Soldier_F",3,"RANDOM"]
         ],
 
         /*[Tier 2]*/
@@ -406,7 +406,7 @@
         [
             ["AIR","MEC","PLANE","AT","PARA+","AIRSTRIKE+"],TIER_2,
             ["O_T_VTOL_02_infantry_dynamicLoadout_F",[["Hex",1],[]],false],
-            [2,"O_T_Pilot_F",8,"RANDOM"]
+            [2,"O_helipilot_F",8,"RANDOM"]
         ],
 
         /*[Tier 3]*/
@@ -438,7 +438,7 @@
         [
             ["AIR","MEC","PLANE","AT","PARA+","AIRSTRIKE+"],TIER_3,
             ["O_T_VTOL_02_infantry_dynamicLoadout_F",[["Hex",1],[]],false],
-            [2,"O_T_Pilot_F",16,"RANDOM"]
+            [2,"O_helipilot_F",16,"RANDOM"]
         ],
 
         /*[Tier 4]*/
