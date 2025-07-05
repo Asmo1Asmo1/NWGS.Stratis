@@ -104,7 +104,7 @@ NWG_LM_GATHER_ClearGatheredItems = {
 //================================================================================================================
 //Check loot catalogue (using logic from items shop)
 #define SET_TAGS 0
-#define SET_ITEMS 1
+#define SET_ITEMS 2
 
 // call NWG_LM_TEST_CheckLootCatalogue
 NWG_LM_TEST_CheckLootCatalogue = {
@@ -112,7 +112,8 @@ NWG_LM_TEST_CheckLootCatalogue = {
 		"NWG_LM_TEST_CheckLootCatalogue: Shop items validation function is not available"
 	};
 
-	private _catalogue = call NWG_LM_SER_GetFullCatalogue;
+	call NWG_LM_SER_CompileCatalogue;
+	private _catalogue = NWG_LM_SER_lootCatalogue;
 	if (_catalogue isEqualTo false) exitWith {
 		"NWG_LM_TEST_CheckLootCatalogue: Failed to get full catalogue"
 	};

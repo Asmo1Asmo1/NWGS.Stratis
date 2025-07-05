@@ -25,3 +25,6 @@ call NWG_DSPAWN_Dev_EasyGather
 
 //Gather the description of provided group (e.g.: ((groups west)#0) call NWG_DSPAWN_Dev_Gather)
 _group call NWG_DSPAWN_Dev_Gather
+
+//Gather UAVs
+(group cursorObject) call NWG_DSPAWN_Dev_Gather
