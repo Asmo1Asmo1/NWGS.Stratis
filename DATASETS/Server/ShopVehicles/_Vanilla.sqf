@@ -41,6 +41,7 @@
 "B_Heli_Attack_01_dynamicLoadout_F",
 "B_Heli_Light_01_F",
 "B_Heli_Transport_01_F",
+"B_Heli_Transport_01_pylons_F",
 "B_SDV_01_F",
 "B_MBT_01_cannon_F",
 "B_MBT_01_TUSK_F",

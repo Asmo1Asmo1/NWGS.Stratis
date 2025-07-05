@@ -27,7 +27,8 @@ NWG_VCAT_testCases = [
 ["B_SDV_01_F",LOOT_VEHC_TYPE_SUBM],
 ["B_Boat_Armed_01_minigun_F",LOOT_VEHC_TYPE_BOAT],
 ["B_UGV_01_F",LOOT_VEHC_TYPE_DRON],
-["B_Heli_Transport_01_F",LOOT_VEHC_TYPE_HELI]
+["B_Heli_Transport_01_F",LOOT_VEHC_TYPE_HELI],
+["B_Heli_Transport_01_pylons_F",LOOT_VEHC_TYPE_HELI]
 ];
 
 //================================================================================================================

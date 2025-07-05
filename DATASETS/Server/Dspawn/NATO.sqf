@@ -238,7 +238,7 @@ private _faction = [
         //=============================================
         /*VEH MEC - Mechanized (armed) vehicles*/
         /*[Tier 1]*/
-        //Prawler HMG
+        //Prowler HMG
         [
             ["VEH","MEC","REG","PARADROPPABLE+"],TIER_1,
             ["B_LSV_01_armed_F"],
@@ -258,13 +258,13 @@ private _faction = [
             ["B_MRAP_01_hmg_F"],
             [2,"B_Soldier_F",2,"RANDOM"]
         ],
-        //Prawler AT
+        //Prowler AT
         [
             ["VEH","MEC","REG","PARADROPPABLE+"],TIER_2,
             ["B_LSV_01_AT_F"],
             [3,"B_Soldier_F",2,"RANDOM"]
         ],
-        //Prawler HMG
+        //Prowler HMG
         [
             ["VEH","MEC","REG","PARADROPPABLE+"],TIER_2,
             ["B_LSV_01_armed_F"],
@@ -456,6 +456,12 @@ private _faction = [
             ["B_Heli_Transport_01_F"],
             [2,"B_Helipilot_F",2,"B_helicrew_F",8,"RANDOM"]
         ],
+        //Ghosthawk (CAS with pylons)
+        [
+            ["AIR","MEC","HELI","REG","LAND+","PARA+","AIRSTRIKE+"],TIER_3,
+            ["B_Heli_Transport_01_pylons_F",false,["PylonRack_12Rnd_missiles","PylonRack_12Rnd_PGM_missiles","PylonRack_12Rnd_PGM_missiles","PylonRack_12Rnd_missiles"]],
+            [2,"B_Helipilot_F",10,"RANDOM"]
+        ],
         //Black wasp
         [
             ["AIR","MEC","PLANE","AA","AT","AIRSTRIKE+"],TIER_3,
@@ -469,6 +475,12 @@ private _faction = [
             ["AIR","MEC","HELI","AA","AT"],TIER_4,
             ["B_Heli_Attack_01_dynamicLoadout_F"],
             [2,"B_Helipilot_F"]
+        ],
+        //Black wasp Stealth
+        [
+            ["AIR","MEC","PLANE","AA","AIRSTRIKE+"],TIER_4,
+            ["B_Plane_Fighter_01_Stealth_F",[["DarkGreyCamo",1],[]],["","","","","PylonMissile_Missile_BIM9X_x1","PylonMissile_Missile_BIM9X_x1","PylonMissile_Missile_AMRAAM_D_INT_x1","PylonMissile_Missile_AMRAAM_D_INT_x1","PylonMissile_Missile_AMRAAM_D_INT_x1","PylonMissile_Missile_AMRAAM_D_INT_x1","PylonMissile_1Rnd_BombCluster_01_F","PylonMissile_1Rnd_BombCluster_01_F"]],
+            ["B_Fighter_Pilot_F"]
         ],
 
 
