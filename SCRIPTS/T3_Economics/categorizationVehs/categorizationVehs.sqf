@@ -29,7 +29,7 @@ NWG_VCAT_GetVehcType = {
         case "EdSubcat_Tanks":        {LOOT_VEHC_TYPE_TANK};
         default {
             (format ["NWG_VCAT_GetVehcType: Unknown vehicle type: '%1' with subcat: '%2'",
-                _veh, getText (configFile >> "CfgVehicles" >> _veh >> "editorSubCategory")]) call NWG_fnc_error;
+                _veh, getText (configFile >> "CfgVehicles" >> _veh >> "editorSubCategory")]) call NWG_fnc_logError;
             LOOT_VEHC_TYPE_CARS//Default to cars
         };
     };
