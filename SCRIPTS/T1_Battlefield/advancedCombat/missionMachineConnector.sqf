@@ -17,7 +17,6 @@ NWG_AC_MMC_OnMissionStateChanged = {
 
 	//Get mission objects and side
 	private _mObjects = call NWG_fnc_mmGetMissionObjects;
-	private _mSide = call NWG_fnc_mmGetMissionSide;
 
 	//Allow wounded
 	if (NWG_ACP_Settings get "ON_DSPAWN_ALLOW_WOUNDED") then {

@@ -37,11 +37,11 @@
 NWG_ACA_Settings = createHashMapFromArray [
     ["AIRSTRIKE_PREPARE_RADIUS",2000],//Distance to fly away from the target in order to prepare for the airsrike
     ["AIRSTRIKE_PREPARE_HEIGHT",650],//Height at which airstrike will prepare
-    ["AIRSTRIKE_DESCEND_RADIUS",1450],//Distance at which plane will start descending
+    ["AIRSTRIKE_YELLOW_RADIUS",1450],//Distance at which plane will start descending
     ["AIRSTRIKE_FIRE_RADIUS",850],//Distance at which to start fireing
     ["AIRSTRIKE_STOP_RADIUS",450],//Distance at which to pull up
     ["AIRSTRIKE_LASER_CLASSNAME","LaserTargetW"],//Classname for laser target (faction matters!)
-    ["AIRSTRIKE_TIMEOUT",120],//Timeout for EACH STEP of airstrike (in case of any errors) (there are 6 steps)
+    ["AIRSTRIKE_TIMEOUT",300],//Timeout for airstrike (in case of any errors)
 
     ["ARTILLERY_STRIKE_WARNING_RADIUS",100],//Radius for warning strike
     ["ARTILLERY_STRIKE_WARNING_PAUSE",1],//Pause between warning strike and actual strike
@@ -70,7 +70,7 @@ NWG_ACA_Settings = createHashMapFromArray [
 ];
 
 //================================================================================================================
-//General logic assignment
+//Common
 NWG_ACA_StartAdvancedLogic = {
     params ["_group","_logic",["_arg1",[]],["_arg2",[]]];
     //Stop any previous logic
@@ -81,7 +81,6 @@ NWG_ACA_StartAdvancedLogic = {
     //Start new logic
     _group setVariable ["NWG_ACA_LogicHandle",([_group,_arg1,_arg2] spawn _logic)];
 };
-
 NWG_ACA_IsDoingAdvancedLogic = {
     // private _group = _this;
     private _logicHandle = _this getVariable ["NWG_ACA_LogicHandle",scriptNull];
@@ -89,19 +88,16 @@ NWG_ACA_IsDoingAdvancedLogic = {
     (!isNull _logicHandle && {!scriptDone _logicHandle})
 };
 
-//================================================================================================================
-//Logic helper (target for strikes)
 NWG_ACA_CreateHelper = {
     params ["_group","_target"];
     (NWG_ACA_Settings get "HELPER_CLASSNAMES") params ["_invisibleVehicle","_agentToPutIntoVehicle"];
-    private _helperVeh = createVehicle [_invisibleVehicle,(call NWG_fnc_spwnGetSafePrespawnPos),[],0,"CAN_COLLIDE"];
+    private _helperVeh = createVehicle [_invisibleVehicle,_target,[],0,"CAN_COLLIDE"];
     _helperVeh hideObjectGlobal true;
     _helperVeh allowDamage false;
     private _helperUnit = createAgent [_agentToPutIntoVehicle,_helperVeh,[],0,"CAN_COLLIDE"];
     _helperUnit hideObjectGlobal true;
     _helperUnit allowDamage false;
     _helperUnit moveInAny _helperVeh;
-    _helperVeh setPosATL (getPosATL _target);
     _group setVariable ["NWG_ACA_LogicHelper",_helperVeh];
     //return
     _helperVeh
@@ -115,49 +111,18 @@ NWG_ACA_DeleteHelper = {
 };
 
 //================================================================================================================
-//Waypoints logic
-NWG_ACA_CreateWaypointAt = {
-    params ["_group","_target",["_radius",0],["_posType","ground"],["_posHeight",0],["_wpType","MOVE"]];
-
-    _group call NWG_fnc_dsClearWaypoints;//Clear existing waypoints
-    private _targetPos = getPosASL _target;
-    _targetPos set [2,0];
-    private _wpPos = [_targetPos,(_radius max 1),_posType] call NWG_fnc_dtsFindDotForWaypoint;//Get position for new waypoint
-    _wpPos set [2,_posHeight];
-    if (_posHeight > 0) then {_wpPos = ASLToAGL _wpPos};
-
-    private _wp = [_group,_wpPos,_wpType] call NWG_fnc_dsAddWaypoint;//Create new waypoint
-    _group setVariable ["NWG_ACA_IsWaypointCompleted",false];//Track waypoint completion
-    _wp setWaypointStatements ["true", "if (local this) then {this call NWG_ACA_OnWaypointCompleted}"];
-};
-
-NWG_ACA_OnWaypointCompleted = {
-    // private _groupLeader = _this;
-    private _group = group _this;
-    _group setVariable ["NWG_ACA_IsWaypointCompleted",true];
-};
-
-NWG_ACA_IsWaypointCompleted = {
-    // private _group = _this;
-    _this getVariable ["NWG_ACA_IsWaypointCompleted",false]
-};
-
-//================================================================================================================
 //Airstrike
 NWG_ACA_CanDoAirstrike = {
     // private _group = _this;
     if (!alive (leader _this)) exitWith {false};
     private _veh = vehicle (leader _this);
-    if (!alive _veh) exitWith {false};
-    private _result = _veh getVariable "NWG_ACA_CanDoAirstrike";//Check cached result
-    if (!isNil "_result") exitWith {_result};
-    _result = (_veh isKindOf "Air" && {(count (_veh call NWG_fnc_spwnGetVehiclePylons)) > 0});//Check if vehicle can do airstrike
-    _veh setVariable ["NWG_ACA_CanDoAirstrike",_result];//Cache result for future calls
-    _result
+    //return
+    (alive _veh && {_veh isKindOf "Air" && {(count (_veh call NWG_fnc_spwnGetVehiclePylons)) > 0}})
 };
 
 NWG_ACA_SendToAirstrike = {
     params ["_group","_target",["_numberOfStrikes",1]];
+    //Check if group can do airstrike
     if !(_group call NWG_ACA_CanDoAirstrike) exitWith {
         "NWG_ACA_SendToAirstrike: tried to send group that can't do airstrike" call NWG_fnc_logError;
         false;
@@ -167,11 +132,13 @@ NWG_ACA_SendToAirstrike = {
     true
 };
 
+#define DEBUG_AIRSTRIKE true
 NWG_ACA_Airstrike = {
     params ["_group","_target",["_numberOfStrikes",1]];
     private _plane = vehicle (leader _group);
     private _pilot = currentPilot _plane;//Fix for some helicopters
-    private _abortCondition = {!alive _plane || {!alive _pilot || {!alive _target}}};
+    private _timeoutAt = time + (NWG_ACA_Settings get "AIRSTRIKE_TIMEOUT");
+    private _abortCondition = {!alive _plane || {!alive _pilot || {!alive _target || {time > _timeoutAt}}}};
     if (call _abortCondition) exitWith {};//Immediate check
 
     _group setBehaviourStrong "CARELESS";
@@ -201,22 +168,28 @@ NWG_ACA_Airstrike = {
         };
 
         //1. Fly away from the target
-        private _timeoutAt = time + (NWG_ACA_Settings get "AIRSTRIKE_TIMEOUT");
-        [_group,_target,(NWG_ACA_Settings get "AIRSTRIKE_PREPARE_RADIUS"),"air",_prepareAltitude,"MOVE"] call NWG_ACA_CreateWaypointAt;
+        private _preparePos = _target getPos [(NWG_ACA_Settings get "AIRSTRIKE_PREPARE_RADIUS"),(random 360)];
+        _preparePos set [2,_prepareAltitude];
+        _preparePos = ASLToAGL _preparePos;
         _plane flyInHeight [_prepareAltitude,true];
         _plane flyInHeightASL [_prepareAltitude,_prepareAltitude,_prepareAltitude];
+        _pilot doMove _preparePos;
+        private _distOld = _plane distance2D _preparePos;
+        private _distNew = _distOld;
         waitUntil {
-            sleep 1;
+            sleep 0.5;
             if (call _abortCondition) exitWith {true};
-            if (time > _timeoutAt) exitWith {true};//Timeout
-            if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint reached
+            if ((_plane distance2D _preparePos) < 100) exitWith {true};
+            _distNew = _plane distance2D _preparePos;
+            if (_distNew > _distOld)
+                then {_pilot doMove _preparePos}/*Push forward*/
+                else {_distOld = _distNew};/*Update distance*/
             false/*go to next iteration*/
         };
-        if (call _abortCondition) exitWith {true};
-        if (time > _timeoutAt && {(_plane distance2D _target) < (NWG_ACA_Settings get "AIRSTRIKE_DESCEND_RADIUS")}) exitWith {
-            "NWG_ACA_Airstrike: timeout reached at 'Fly away' stage and plane is not far enough - exiting cycle" call NWG_fnc_logError;
-            true
+        if (DEBUG_AIRSTRIKE && {time > _timeoutAt}) then {
+            "NWG_ACA_Airstrike: timeout reached at 'Fly away' stage" call NWG_fnc_logError;
         };
+        if (call _abortCondition) exitWith {true};
 
         //2. Create airstrike helper at current target position
         _helper = [_group,_target] call NWG_ACA_CreateHelper;
@@ -224,50 +197,36 @@ NWG_ACA_Airstrike = {
         _laser attachTo [_helper,[0,0,0]];
 
         //3. Fly toward target
-        _timeoutAt = time + (NWG_ACA_Settings get "AIRSTRIKE_TIMEOUT");
-        [_group,_target,5,"air",_prepareAltitude,"MOVE"] call NWG_ACA_CreateWaypointAt;
+        _pilot doMove (position _helper);
         waitUntil {
-            sleep 1;
-            if (call _abortCondition) exitWith {true};
-            {_x reveal _helper; _x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;//Watch at helper
-            if (time > _timeoutAt) exitWith {true};//Timeout
-            if ((_plane distance2D _helper) <= (NWG_ACA_Settings get "AIRSTRIKE_DESCEND_RADIUS")) exitWith {true};//Enough, descend
-            if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint reached (shouldn't happen actually)
-            false
+            {_x reveal _helper; _x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
+            sleep 0.25;
+            (call _abortCondition || {(_plane distance2D _helper) <= (NWG_ACA_Settings get "AIRSTRIKE_YELLOW_RADIUS")})
+        };
+        if (DEBUG_AIRSTRIKE && {time > _timeoutAt}) then {
+            (format ["NWG_ACA_Airstrike: timeout reached at 'Fly toward target' stage. Helper exists: %1",(!isNull _helper)]) call NWG_fnc_logError;
         };
         if (call _abortCondition) exitWith {true};
-        if (time > _timeoutAt && {(_plane distance2D _target) < (NWG_ACA_Settings get "AIRSTRIKE_STOP_RADIUS")}) exitWith {
-            "NWG_ACA_Airstrike: timeout reached at 'Fly toward target' stage and plane is not far enough - exiting cycle" call NWG_fnc_logError;
-            true
-        };
 
-        //4. Descend and fire (we take manual control over Arma physics and AI behavior for this part, so no need to check for waypoint completion or timeout)
+        //4. Descend and fire
         _plane flyInHeight [0,true];
         _plane flyInHeightASL [0,0,0];
         {_x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
-        private ["_dirVectorNormalized","_currentSpeed","_newVelocity"];
+        private _dirVectorNormalized = vectorNormalized ((getPosASL _helper) vectorDiff (getPosASL _plane));
+        private _newVelocity = _dirVectorNormalized vectorMultiply (vectorMagnitude (velocity _plane));
         waitUntil {
-            sleep 0.05;//Smallest value required for plane not to jiggle
-            if (call _abortCondition) exitWith {true};
-            if ((_plane distance2D _helper) <= (NWG_ACA_Settings get "AIRSTRIKE_STOP_RADIUS")) exitWith {true};//Enough, stop
-            if ((_plane distance2D _helper) >= (NWG_ACA_Settings get "AIRSTRIKE_FIRE_RADIUS")) exitWith {false};//Continue getting closer
-
-            //Continuously recalculate direction to target
-            _dirVectorNormalized = vectorNormalized ((getPosASL _helper) vectorDiff (getPosASL _plane));
-            _currentSpeed = vectorMagnitude (velocity _plane);
-            if (_currentSpeed < 50) then {_currentSpeed = 100}; //Minimum speed to prevent stalling
-            _newVelocity = _dirVectorNormalized vectorMultiply _currentSpeed;
-
-            //Update plane direction and velocity
             _plane setVectorDirAndUp [_dirVectorNormalized,[0,0,1]];
             _plane setVelocity _newVelocity;
-
-            //Ensure targeting is maintained
-            {_x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
-
-            if ((random 1) > 0.4) exitWith {false};//Chance to skip fire (fires too often otherwise)
-            [_plane,_strikeData,_helper] call NWG_ACA_VehicleForceFire;//Fire
+            sleep 0.05;
+            if (call _abortCondition || {(_plane distance2D _helper) <= (NWG_ACA_Settings get "AIRSTRIKE_STOP_RADIUS")}) exitWith {true};
+            if ((_plane distance2D _helper) >= (NWG_ACA_Settings get "AIRSTRIKE_FIRE_RADIUS")) exitWith {false};//Continue
+            if ((random 1) > 0.4) exitWith {false};//Continue
+            //Fire
+            [_plane,_strikeData,_helper] call NWG_ACA_VehicleForceFire;
             false
+        };
+        if (DEBUG_AIRSTRIKE && {time > _timeoutAt}) then {
+            (format ["NWG_ACA_Airstrike: timeout reached at 'Fire' stage. Helper exists: %1",!isNull _helper]) call NWG_fnc_logError;
         };
         if (call _abortCondition) exitWith {true};
 
@@ -275,19 +234,17 @@ NWG_ACA_Airstrike = {
         private _restoreAltitude = call NWG_fnc_dtsGetAirHeight;
         _plane flyInHeight [_restoreAltitude,true];
         _plane flyInHeightASL [_restoreAltitude,_restoreAltitude,_restoreAltitude];
-        {_x doWatch objNull; _x doTarget objNull} forEach _strikeTeam;//Release target from sight
+        {_x doWatch objNull; _x doTarget objNull} forEach _strikeTeam;
         _plane setVehicleAmmo 1;
 
         //6. Cleanup after flyby
-        _timeoutAt = time + (NWG_ACA_Settings get "AIRSTRIKE_TIMEOUT");
         private _distOld = _plane distance2D _target;
         private _distNew = _distOld;
         waitUntil {
-            sleep 1;
+            sleep 0.25;
             if (call _abortCondition) exitWith {true};
-            if (time > _timeoutAt) exitWith {true};//Timeout
             _distNew = _plane distance2D _target;
-            if (_distNew > _distOld) exitWith {true};//Plane is moving away from target
+            if (_distNew > _distOld) exitWith {true};
             _distOld = _distNew;
             false
         };

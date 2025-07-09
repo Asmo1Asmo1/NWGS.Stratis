@@ -147,7 +147,7 @@ NWG_ACP_AllowStayInVehicle = {
     if ((_this isEqualTo false) || {isNull _this || {!alive _this}}) exitWith {};//No vehicle passed
     if ((random 1) > (NWG_ACP_Settings get "ALLOW_STAY_IN_VEHICLE_CHANCE")) exitWith {};//Apply chance
     if !((_this isKindOf "Car") || {_this isKindOf "Tank" || {_this isKindOf "Wheeled_APC_F"}}) exitWith {};//Check type
-    if ((_this call NWG_ACA_GetDataForVehicleForceFire) isEqualTo []) exitWith {};//What's the point to stay in unarmed vehicle?
+    if !(_this call NWG_fnc_ocIsArmedVehicle) exitWith {};//What's the point to stay in unarmed vehicle?
     //Checks passed
     _this allowCrewInImmobile [/*brokenWheels:*/true,/*upsideDown:*/false];
 };
