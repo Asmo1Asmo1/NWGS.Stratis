@@ -41,10 +41,10 @@ NWG_ACA_Settings = createHashMapFromArray [
     ["ARTILLERY_STRIKE_COUNTS",[2,3,4,5,6]],//Number of artillery strikes to do (randomly selected from this array)
     ["ARTILLERY_STRIKE_TIMEOUT",300],//Timeout for artillery strike (in case of any errors)
 
-    ["VEH_DEMOLITION_DURATION",20],//How long to try to demolish a building (in seconds)
+    ["VEH_DEMOLITION_DURATION",30],//How long to try to demolish a building (in seconds)
     ["VEH_DEMOLITION_TIMEOUT",300],//Timeout for veh demolition
 
-    ["INF_STORM_FIRE_RADIUS",50],//Radius for fireing
+    ["INF_STORM_FIRE_RADIUS",35],//Radius for fireing
     ["INF_STORM_FIRE_TIME",10],//Time for fireing
     ["INF_STORM_STORM_TIME",20],//Time for storming the building
     ["INF_STORM_TIMEOUT",300],//Timeout for inf building storm
@@ -89,7 +89,9 @@ NWG_ACA_CreateHelper = {
     _helperUnit hideObjectGlobal true;
     _helperUnit allowDamage false;
     _helperUnit moveInAny _helperVeh;
-    _helperVeh setPosATL (getPosATL _target);
+    private _aslPos = getPosASL _target;
+    private _worldPos = getPosWorld _target;
+    _helperVeh setPosASL [(_aslPos#0),(_aslPos#1),(((_aslPos#2) + (_worldPos#2)) / 2)];//Slightly above ground
     _group setVariable ["NWG_ACA_LogicHelper",_helperVeh];
     //return
     _helperVeh
@@ -541,6 +543,19 @@ NWG_ACA_IsClearLineBetween = {
     (count _raycast) == 0 || {((_raycast#0)#2) isEqualTo _obj2 || {((_raycast#0)#3) isEqualTo _obj2}}
 };
 
+NWG_ACA_ReplaceTarget = {
+    private _target = _this;
+    if (!alive _target || {isObjectHidden _target || {((getPosATL _target)#2) < 0}}) then {
+        private _replacements = (nearestObjects [_target,["house"],10,true]) select {alive _x};
+        _replacements = _replacements - [_target];
+        _target = if ((count _replacements) > 0)
+            then {_replacements select 0}/*Get closest replacement*/
+            else {objNull};/*No replacements*/
+    };
+    //return
+    _target
+};
+
 NWG_ACA_VehDemolition = {
     params ["_group","_target"];
     private _veh = vehicle (leader _group);
@@ -548,12 +563,22 @@ NWG_ACA_VehDemolition = {
     private _abortCondition = {!alive _veh || {!alive (driver _veh) || {!alive (gunner _veh) || {!alive _target || {time > _timeoutAt}}}}};
     if (call _abortCondition) exitWith {};//Immediate check
 
+    //Setup
     _veh setVehicleAmmo 1;
     private _strikeData = _veh call NWG_ACA_GetDataForVehicleForceFire;
     private _strikeTeam = crew _veh;
-    _group setCombatMode "RED";
+    private _helper = objNull;
+    _group setCombatMode "BLUE";
     _group setSpeedMode "FULL";
     _group setBehaviourStrong "AWARE";
+
+    //Teardown
+    private _onExit = {
+        {_x doWatch objNull; _x doTarget objNull} forEach (_strikeTeam select {alive _x});//Release target from sight
+        if (!isNull _helper) then {_helper call NWG_ACA_DeleteHelper};//Delete helper
+        if (alive _veh) then {_veh setVehicleAmmo 1};//Reload
+        if (!isNull _group) then {_group setCombatMode "RED"; _group call NWG_fnc_dsReturnToPatrol};//Return to patrol
+    };
 
     //Move to the target
     [_group,_target,5,"ground"] call NWG_ACA_CreateWaypointAround;
@@ -567,19 +592,21 @@ NWG_ACA_VehDemolition = {
     if (time > _timeoutAt) then {
         "NWG_ACA_VehDemolition: timeout reached" call NWG_fnc_logError;
     };
-    if (call _abortCondition) exitWith {};
+    if (call _abortCondition) exitWith {call _onExit};
 
     //Stop and watch
     _group call NWG_fnc_dsClearWaypoints;
     private _helper = [_group,_target] call NWG_ACA_CreateHelper;
     {doStop _x; _x reveal _helper; _x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
     sleep 2;//Wait for turret to turn
-    if (call _abortCondition) exitWith {_helper call NWG_ACA_DeleteHelper};
+    if (call _abortCondition) exitWith {call _onExit};
 
     //Fire
     private _stopFireAt = time + (NWG_ACA_Settings get "VEH_DEMOLITION_DURATION");
+    _group setCombatMode "RED";
     waitUntil {
         sleep 0.1;
+        _target = _target call NWG_ACA_ReplaceTarget;
         if (call _abortCondition) exitWith {true};
         if (time > _stopFireAt) exitWith {true};
         {_x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
@@ -589,9 +616,7 @@ NWG_ACA_VehDemolition = {
     };
 
     //Cleanup
-    {_x doWatch objNull; _x doTarget objNull} forEach (_strikeTeam select {alive _x});//Release target from sight
-    if (alive _veh) then {_veh setVehicleAmmo 1};//Reload
-    _helper call NWG_ACA_DeleteHelper;//Delete helper
+    call _onExit;
 };
 
 //================================================================================================================
@@ -626,38 +651,69 @@ NWG_ACA_SendToInfBuildingStorm = {
 #define FIRE_TYPE_GRNDE 2
 NWG_ACA_InfBuildingStorm = {
     params ["_group","_target"];
-
     private _timeout = time + (NWG_ACA_Settings get "INF_STORM_TIMEOUT");
     private _abortCondition = {({alive _x} count (units _group)) < 1 || {time > _timeout}};
     if (call _abortCondition) exitWith {};//Immediate check
 
-    _group setCombatMode "RED";
+    //Setup
+    private _strikeTeam = units _group;
+    private _helper = objNull;
+    _group setCombatMode "BLUE";
     _group setSpeedMode "FULL";
     _group setBehaviourStrong "AWARE";
 
-    //Get closer to the building
-    (units _group) doMove (position _target);
-    waitUntil {
-        sleep 2;
-        if (call _abortCondition) exitWith {true};
-        (units _group) doMove (position _target);
-        if (((leader _group) distance _target) > (NWG_ACA_Settings get "INF_STORM_FIRE_RADIUS")) exitWith {false};//Out of range
-        if !([(leader _group),_target] call NWG_ACA_IsClearLineBetween) exitWith {false};//Obstacle between
-        true
+    //Teardown
+    private _onExit = {
+        {_x doWatch objNull; _x doTarget objNull} forEach (_strikeTeam select {alive _x});//Release target from sight
+        if (!isNull _helper) then {_helper call NWG_ACA_DeleteHelper};//Delete helper
+        if (!isNull _group) then {_group setCombatMode "RED"; _group call NWG_fnc_dsReturnToPatrol};//Return to patrol
     };
-    if (call _abortCondition) exitWith {};
 
-    //Attack the building
-    private _helper = [_group,_target] call NWG_ACA_CreateHelper;
-    private _units = (units _group) select {alive _x};
-    doStop _units;
-    _group reveal [_helper,4];
-    _units doWatch _helper; _units doTarget _helper;
-    private _fireTime = time + (NWG_ACA_Settings get "INF_STORM_FIRE_TIME");
-
+    //Get closer to the building
+    [_group,_target,5,"ground"] call NWG_ACA_CreateWaypointAround;
     waitUntil {
+        sleep 1;
         if (call _abortCondition) exitWith {true};
-        _units = _units select {alive _x};//Update list
+        if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint completed
+        //Exit cycle when within firing range
+        ((leader _group) distance _target) <= (NWG_ACA_Settings get "INF_STORM_FIRE_RADIUS")
+    };
+    if (time > _timeout) then {
+        "NWG_ACA_InfBuildingStorm: timeout reached on step 1" call NWG_fnc_logError;
+    };
+    if (call _abortCondition) exitWith {call _onExit};
+
+    //Get within firing range
+    waitUntil {
+        sleep 1;
+        _strikeTeam = _strikeTeam select {alive _x};//Update list
+        if ((count _strikeTeam) <= 0) exitWith {true};//No units left
+        if (call _abortCondition) exitWith {true};
+        if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint completed
+        //Exit cycle when enough units can see the target
+        (({[_x,_target] call NWG_ACA_IsClearLineBetween} count _strikeTeam) >= (ceil ((count _strikeTeam) * 0.5)))
+    };
+    if (time > _timeout) then {
+        "NWG_ACA_InfBuildingStorm: timeout reached on step 2" call NWG_fnc_logError;
+    };
+    if (call _abortCondition) exitWith {call _onExit};
+
+    //Stop and watch
+    _group call NWG_fnc_dsClearWaypoints;
+    _helper = [_group,_target] call NWG_ACA_CreateHelper;
+    _group setCombatMode "RED";
+    _group reveal [_helper,4];
+    {doStop _x; _x reveal _helper; _x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
+
+    //Fire
+    private _stopFireAt = time + (NWG_ACA_Settings get "INF_STORM_FIRE_TIME");
+    waitUntil {
+        sleep 1;
+        _target = _target call NWG_ACA_ReplaceTarget;
+        if (call _abortCondition) exitWith {true};
+        if (time > _stopFireAt) exitWith {true};
+        _strikeTeam = _strikeTeam select {alive _x};//Update list
+        if ((count _strikeTeam) <= 0) exitWith {true};//No units left
 
         //forEach unit
         private ["_unit","_weaponsInfo","_primaryWeapon","_secondaryWeapon","_g","_i","_fireType","_muzzle"];
@@ -665,7 +721,7 @@ NWG_ACA_InfBuildingStorm = {
             _unit = _x;
             _weaponsInfo = _unit weaponsInfo [""];
 
-            _i = call {
+            _i = if (true) then {
                 _primaryWeapon = primaryWeapon _unit;
                 _secondaryWeapon = secondaryWeapon _unit;
 
@@ -690,7 +746,7 @@ NWG_ACA_InfBuildingStorm = {
                 //Fallback to primary weapon
                 _fireType = FIRE_TYPE_SPPRS;
                 _weaponsInfo findIf {(_x#2) isEqualTo _primaryWeapon};
-            };
+            } else {-1};
             if (_i == -1) then {continue};//Something went wrong
             _muzzle = (_weaponsInfo#_i)#3;
             _unit doTarget _helper;
@@ -700,50 +756,45 @@ NWG_ACA_InfBuildingStorm = {
                 case FIRE_TYPE_GRNDE : {[_unit,_muzzle] call BIS_fnc_fire};
             };
             sleep (random 0.5);
-        } forEach _units;
+        } forEach _strikeTeam;
 
-        sleep 3;
-        time > _fireTime
+        time > _stopFireAt
     };
     _helper call NWG_ACA_DeleteHelper;
-    if (call _abortCondition) exitWith {};
-
-    //Check if target is (half-destroyed)
-    private _continue = true;
-    if (!alive _target || {isObjectHidden _target || {((getPosATL _target)#2) < 0}}) then {
-        private _replacements = nearestObjects [_target,["house"],10,true];
-        _replacements = _replacements - [_target];
-        if ((count _replacements) <= 0) exitWith {_continue = false};//Target is destroyed and there are no replacements
-        _target = _replacements select 0;//Get closest replacement
-    };
-    if (!_continue) exitWith {};
-
-    //Prepare storming positions
-    _units = _units select {alive _x};//Update list
-    private _buildingPos = _target buildingPos -1;
-    if (_buildingPos isEqualTo []) then {_buildingPos = [(getPosATL _target)]};
-    _buildingPos = _buildingPos apply {[_x#2,_x]};//Conver for sorting
-    _buildingPos sort false;//Descending order
-    _buildingPos = _buildingPos apply {_x#1};//Convert back
-    while {(count _buildingPos) < (count _units)} do {_buildingPos append _buildingPos};//Extend the list to match the number of units
+    if (call _abortCondition) exitWith {call _onExit};
 
     //Storm the building
-    private _stormTime = time + (NWG_ACA_Settings get "INF_STORM_STORM_TIME");
-    private ["_pos"];
-    waitUntil {
-        if (call _abortCondition) exitWith {true};
-
-        {
-            _pos = _buildingPos select _forEachIndex;
-            _x forceSpeed -1;
-            _x doMove _pos;
-            _x moveTo _pos;
-            _x setDestination [_pos,"FORMATION PLANNED",true];
-        } foreach _units;
-
-        sleep 3;
-        time > _stormTime
+    private _buildingPos = _target buildingPos -1;
+    if (_buildingPos isEqualTo []) then {_buildingPos = [(getPosATL _target)]};
+    _buildingPos = _buildingPos apply {[_x#2,_x]};//Conver for sorting by height
+    _buildingPos sort false;//Descending order (highest to lowest)
+    _buildingPos = _buildingPos apply {_x#1};//Convert back
+    private _attempts = 100;
+    while {_attempts > 0 && {(count _buildingPos) < (count _strikeTeam)}} do {
+        _attempts = _attempts - 1;
+        _buildingPos append _buildingPos;
     };
+    if (_attempts <= 0) exitWith {
+        "NWG_ACA_InfBuildingStorm: failed to find enough positions to storm the building" call NWG_fnc_logError;
+        call _onExit;
+    };
+    _strikeTeam = _strikeTeam select {alive _x};//Update list
+    if ((count _strikeTeam) <= 0) exitWith {call _onExit};//No units left
+    {
+        _x forceSpeed -1;
+        _x doMove (_buildingPos select _forEachIndex);
+        _x moveTo (_buildingPos select _forEachIndex);
+        _x setDestination [(_buildingPos select _forEachIndex),"FORMATION PLANNED",true];
+    } foreach _strikeTeam;
+    private _stopStormAt = time + (NWG_ACA_Settings get "INF_STORM_STORM_TIME");
+    waitUntil {
+        sleep 1;
+        if (call _abortCondition) exitWith {true};
+        time > _stopStormAt
+    };
+
+    //Cleanup
+    call _onExit;
 };
 
 //================================================================================================================
