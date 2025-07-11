@@ -49,9 +49,11 @@ NWG_ACA_Settings = createHashMapFromArray [
     ["INF_STORM_STORM_TIME",20],//Time for storming the building
     ["INF_STORM_TIMEOUT",300],//Timeout for inf building storm
 
-    ["VEH_REPAIR_RADIUS",250],//Radius for vehicle to move to repair
-    ["VEH_REPAIR_TIMEOUT",300],//Timeout for veh repair
+    ["VEH_REPAIR_RADIUS",500],//Radius for vehicle to initially move to repair (repair starts when no players are within 'VEH_REPAIR_PLAYER_DISTANCE')
+    ["VEH_REPAIR_PLAYER_DISTANCE",200],//Distance from nearest player to assume repair is safe
+    ["VEH_REPAIR_TIMEOUT",120],//Timeout for EACH STEP of veh repair
 
+    ["HELPER_WAYPOINT_ADD",true],//Add first waypoint at current vehicle position to be visible at spectator view
     ["HELPER_CLASSNAMES",["O_Quadbike_01_F","O_Soldier_AT_F"]],//params ["_invisibleVehicle","_agentToPutIntoVehicle"] (faction matters!)
 
     ["",0]
@@ -110,9 +112,17 @@ NWG_ACA_CreateWaypointAround = {
     params ["_group","_target",["_radius",0],["_posType","ground"],["_posHeight",0],["_wpType","MOVE"]];
 
     _group call NWG_fnc_dsClearWaypoints;//Clear existing waypoints
+    if (NWG_ACA_Settings get "HELPER_WAYPOINT_ADD") then {
+        _group addWaypoint [(vehicle (leader _group)),0];//Create first waypoint at current vehicle position
+    };
+
     private _targetPos = getPosASL _target;
     _targetPos set [2,0];
     private _wpPos = [_targetPos,(_radius max 1),_posType] call NWG_fnc_dtsFindDotForWaypoint;//Get position for new waypoint
+    if (_wpPos isEqualTo false) then {
+        (format ["NWG_ACA_CreateWaypointAround: failed to find waypoint position for args: '%1', fallback to target position: %2",_this,_targetPos]) call NWG_fnc_logError;
+        _wpPos = _targetPos;
+    };
     _wpPos set [2,_posHeight];
     if (_posHeight > 0) then {_wpPos = ASLToAGL _wpPos};
 
@@ -128,6 +138,10 @@ NWG_ACA_CreateWaypointAt = {
     params ["_group","_target",["_wpType","MOVE"]];
 
     _group call NWG_fnc_dsClearWaypoints;//Clear existing waypoints
+    if (NWG_ACA_Settings get "HELPER_WAYPOINT_ADD") then {
+        _group addWaypoint [(vehicle (leader _group)),0];//Create first waypoint at current vehicle position
+    };
+
     private _wp = _group addWaypoint [_target,0];//Create new waypoint exactly at the target
     _wp setWaypointType _wpType;//Specify waypoint type
     _group setVariable ["NWG_ACA_IsWaypointCompleted",false];//Track waypoint completion (part 1)
@@ -823,7 +837,10 @@ NWG_ACA_SendToVehRepair = {
         "NWG_ACA_SendToVehRepair: tried to send group that can't do veh repair" call NWG_fnc_logError;
         false;
     };
-    if !(_group call NWG_ACA_NeedsRepair) exitWith {false};
+    if !(_group call NWG_ACA_NeedsRepair) exitWith {
+        "NWG_ACA_SendToVehRepair: tried to send group that doesn't need repair" call NWG_fnc_logError;
+        false;
+    };
 
     [_group,NWG_ACA_VehRepair] call NWG_ACA_StartAdvancedLogic;
     true
@@ -833,70 +850,60 @@ NWG_ACA_VehRepair = {
     params ["_group"];
     private _veh = vehicle (leader _group);
     private _crew = crew _veh;
+    private _abortCondition = {!alive _veh || {({alive _x} count _crew) < 1}};
+    if (call _abortCondition) exitWith {};//Immediate check
 
     //Reload the crew if driver is dead
     if (!alive (driver _veh)) then {
         {_x moveOut _veh; _x moveInAny _veh} forEach _crew;
     };
 
-    private _timeout = time + 180;
-    private _abortCondition = {!alive _veh || {({alive _x} count _crew) < 1 || {time > _timeout}}};
-    if (call _abortCondition) exitWith {};//Immediate check
+    //Setup
+    _group setCombatMode "RED";
+    _group setSpeedMode "FULL";
+    _group setBehaviourStrong "AWARE";
 
-    _group setBehaviourStrong "CARELESS";
-    _group setCombatBehaviour "CARELESS";
+    //Teardown
     private _onExit = {
-        if (!isNull _group) then {
-            _group setBehaviourStrong "AWARE";
-            _group setCombatBehaviour "AWARE";
-        };
+        if (!isNull _group) then {_group call NWG_fnc_dsReturnToPatrol};
     };
 
-    //Find a repair position
-    private _repairPos = call {
-        private _vehPos = getPosATL _veh;
-        if !(canMove _veh) exitWith {_vehPos};//Vehicle is stuck
-        private _radius = (NWG_ACA_Settings get "VEH_REPAIR_RADIUS");
-        private _posOptions = [_vehPos,_radius,9] call NWG_fnc_dtsGenerateDotsCircle;
-        _posOptions = _posOptions select {!surfaceIsWater _x};
-        if (_posOptions isEqualTo []) exitWith {_vehPos};//Fallback
-        private _allPlayers = call NWG_fnc_getPlayersOrOccupiedVehicles;
-        if (_allPlayers isEqualTo []) exitWith {selectRandom _posOptions};//Fallback
-        private ["_point","_minDist","_dist"];
-        _posOptions = _posOptions apply {
-            _point = _x;
-            _minDist = 100000;
-            {
-                _dist = _point distance _x;
-                if (_dist < _minDist) then {_minDist = _dist};
-            } forEach _allPlayers;
-            [_minDist,_point]
-        };
-        _posOptions sort false;
-        ((_posOptions#0)#1)
+    //Prepare script to check players proximity
+    private _getPlayers = if (!isNil "NWG_fnc_medIsWounded")
+        then { {call NWG_fnc_getPlayersAll select {!(_x call NWG_fnc_medIsWounded)}} }
+        else { {call NWG_fnc_getPlayersOrOccupiedVehicles} };
+    private _isSafeToRepair = {
+        private _players = call _getPlayers;
+        if (_players isEqualTo []) exitWith {true};
+        private _minDist = 100000;
+        {_minDist = _minDist min (_veh distance _x)} forEach _players;
+        _minDist >= (NWG_ACA_Settings get "VEH_REPAIR_PLAYER_DISTANCE")
     };
 
-    //Move to the repair position
-    _crew doMove _repairPos;
+    //Move to the repair position (or at least away from players)
+    private _timeout = time + (NWG_ACA_Settings get "VEH_REPAIR_TIMEOUT");
+    [_group,_veh,(NWG_ACA_Settings get "VEH_REPAIR_RADIUS"),"ground"] call NWG_ACA_CreateWaypointAround;
     waitUntil {
         sleep 1;
         if (call _abortCondition) exitWith {true};
-        (_veh distance _repairPos) < 15
+        if (time > _timeout) exitWith {true};//Timeout
+        if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint completed
+        call _isSafeToRepair
     };
-    if (call _abortCondition) exitWith _onExit;
+    if (call _abortCondition) exitWith {call _onExit};
 
     //Unload the crew
     _crew = _crew select {alive _x};
-    doStop _crew;
+    {doStop _x} forEach _crew;
     sleep 2;
-    if (call _abortCondition) exitWith _onExit;
+    if (call _abortCondition) exitWith {call _onExit};
     _crew = _crew select {alive _x};
     _group leaveVehicle _veh;
     {_x moveOut _veh} forEach _crew;
 
     //Repair
     sleep 1;
-    if (call _abortCondition) exitWith _onExit;
+    if (call _abortCondition) exitWith {call _onExit};
     _crew = _crew select {alive _x};
     {
         _x setDir (_x getDir _veh);
@@ -904,7 +911,7 @@ NWG_ACA_VehRepair = {
         _x playMoveNow "Acts_carFixingWheel";
     } forEach _crew;
     sleep ((random 2)+5);
-    if (call _abortCondition) exitWith _onExit;
+    if (call _abortCondition) exitWith {call _onExit};
     _veh setDamage 0;
 
     //Reload the crew
@@ -912,5 +919,6 @@ NWG_ACA_VehRepair = {
     _crew = _crew select {alive _x};
     {_x moveInAny _veh} forEach _crew;
 
+    //Cleanup
     call _onExit;
 };
