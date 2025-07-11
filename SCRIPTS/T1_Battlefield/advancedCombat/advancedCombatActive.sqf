@@ -41,12 +41,12 @@ NWG_ACA_Settings = createHashMapFromArray [
     ["ARTILLERY_STRIKE_COUNTS",[2,3,4,5,6]],//Number of artillery strikes to do (randomly selected from this array)
     ["ARTILLERY_STRIKE_TIMEOUT",300],//Timeout for artillery strike (in case of any errors)
 
-    ["VEH_DEMOLITION_DURATION",30],//How long to try to demolish a building (in seconds)
+    ["VEH_DEMOLITION_DURATION",40],//How long to try to demolish a building (in seconds)
     ["VEH_DEMOLITION_TIMEOUT",300],//Timeout for veh demolition
 
     ["INF_STORM_FIRE_RADIUS",35],//Radius for fireing
     ["INF_STORM_FIRE_TIME",10],//Time for fireing
-    ["INF_STORM_STORM_TIME",20],//Time for storming the building
+    ["INF_STORM_STORM_TIME",60],//Time for storming the building
     ["INF_STORM_TIMEOUT",300],//Timeout for inf building storm
 
     ["VEH_REPAIR_RADIUS",500],//Radius for vehicle to initially move to repair (repair starts when no players are within 'VEH_REPAIR_PLAYER_DISTANCE')
@@ -129,6 +129,7 @@ NWG_ACA_CreateWaypointAround = {
     private _wp = [_group,_wpPos,_wpType] call NWG_fnc_dsAddWaypoint;//Create new waypoint
     _group setVariable ["NWG_ACA_IsWaypointCompleted",false];//Track waypoint completion (part 1)
     _wp setWaypointStatements ["true", "if (local this) then {this call NWG_ACA_OnWaypointCompleted}"];//Track waypoint completion (part 2)
+    if (NWG_ACA_Settings get "HELPER_WAYPOINT_ADD") then {_group setCurrentWaypoint _wp};
 
     //return
     _wp
@@ -146,6 +147,7 @@ NWG_ACA_CreateWaypointAt = {
     _wp setWaypointType _wpType;//Specify waypoint type
     _group setVariable ["NWG_ACA_IsWaypointCompleted",false];//Track waypoint completion (part 1)
     _wp setWaypointStatements ["true", "if (local this) then {this call NWG_ACA_OnWaypointCompleted}"];//Track waypoint completion (part 2)
+    if (NWG_ACA_Settings get "HELPER_WAYPOINT_ADD") then {_group setCurrentWaypoint _wp};
 
     //return
     _wp
@@ -438,7 +440,7 @@ NWG_ACA_CanDoArtilleryStrikeOnTarget = {
 NWG_ACA_SendArtilleryStrike = {
     params ["_group","_target"];
     if !([_group,_target] call NWG_ACA_CanDoArtilleryStrikeOnTarget) exitWith {false};
-    [_group,NWG_ACA_ArtilleryStrike,_target,_precise] call NWG_ACA_StartAdvancedLogic;
+    [_group,NWG_ACA_ArtilleryStrike,_target] call NWG_ACA_StartAdvancedLogic;
     true
 };
 
@@ -783,6 +785,8 @@ NWG_ACA_InfBuildingStorm = {
     _buildingPos = _buildingPos apply {[_x#2,_x]};//Conver for sorting by height
     _buildingPos sort false;//Descending order (highest to lowest)
     _buildingPos = _buildingPos apply {_x#1};//Convert back
+    private _playersPos = (_target nearEntities ["Man",10]) apply {ASLtoAGL (getPosASL _x)};
+    _buildingPos = _playersPos + _buildingPos;//Add players positions to the list (as first)
     private _attempts = 100;
     while {_attempts > 0 && {(count _buildingPos) < (count _strikeTeam)}} do {
         _attempts = _attempts - 1;

@@ -675,7 +675,7 @@ NWG_YK_FillDice = {
         };
         if (_i != -1) then {
             // private _precise = (_target#TARGET_TYPE) in [TARGET_TYPE_BLDG,TARGET_TYPE_ARM];
-            _dice pushBack [SPECIAL_ARTA,_i/*,_precise*/];
+            _dice pushBack [SPECIAL_ARTA,_i,false];
         };
     };
 
