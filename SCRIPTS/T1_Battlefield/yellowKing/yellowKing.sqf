@@ -682,8 +682,8 @@ NWG_YK_FillDice = {
             [(_x#HUNTER_GROUP),(_target#TARGET_OBJECT)] call NWG_fnc_acCanDoArtilleryStrikeOnTarget}}
         };
         if (_i != -1) then {
-            private _precise = (_target#TARGET_TYPE) in [TARGET_TYPE_BLDG,TARGET_TYPE_ARM];
-            _dice pushBack [SPECIAL_ARTA,_i,_precise];
+            // private _precise = (_target#TARGET_TYPE) in [TARGET_TYPE_BLDG,TARGET_TYPE_ARM];
+            _dice pushBack [SPECIAL_ARTA,_i/*,_precise*/];
         };
     };
 
@@ -695,8 +695,8 @@ NWG_YK_FillDice = {
             [(_x#HUNTER_GROUP),(_target#TARGET_OBJECT)] call NWG_fnc_acCanDoMortarStrikeOnTarget}}
         };
         if (_i != -1) then {
-            private _precise = (_target#TARGET_TYPE) in [TARGET_TYPE_BLDG,TARGET_TYPE_ARM];
-            _dice pushBack [SPECIAL_MORTAR,_i,_precise];
+            // private _precise = (_target#TARGET_TYPE) in [TARGET_TYPE_BLDG,TARGET_TYPE_ARM];
+            _dice pushBack [SPECIAL_MORTAR,_i/*,_precise*/];
         };
     };
 
@@ -764,8 +764,8 @@ NWG_YK_UseSpecial = {
     //Use the special
     private _ok = switch (_special) do {
         case SPECIAL_AIRSTRIKE: {[_group,_targetObj,_arg] call NWG_fnc_acSendToAirstrike};
-        case SPECIAL_ARTA:      {[_group,_targetObj,_arg] call NWG_fnc_acSendArtilleryStrike};
-        case SPECIAL_MORTAR:    {[_group,_targetObj,_arg] call NWG_fnc_acSendMortarStrike};
+        case SPECIAL_ARTA:      {[_group,_targetObj/*,_arg*/] call NWG_fnc_acSendArtilleryStrike};
+        case SPECIAL_MORTAR:    {[_group,_targetObj/*,_arg*/] call NWG_fnc_acSendMortarStrike};
         case SPECIAL_VEHDEM:    {[_group,_targetObj] call NWG_fnc_acSendToVehDemolition};
         case SPECIAL_INFSTORM:  {[_group,_targetObj] call NWG_fnc_acSendToInfBuildingStorm};
         default {

@@ -71,13 +71,10 @@ NWG_fnc_acCanDoArtilleryStrikeOnTarget = {
 //params:
 // _group - group to send
 // _target - target object
-// _precise - boolean flag of precise strike, options:
-//      - true - precise strike (faster and with small radius)
-//      - false - normal strike (slower and with wider radius)
 //returns:
 // boolean - true if successful, false in case of error or if target is out of range
 NWG_fnc_acSendArtilleryStrike = {
-    // params ["_group","_target",["_precise",false]];
+    // params ["_group","_target"];
     _this call NWG_ACA_SendArtilleryStrike
 };
 

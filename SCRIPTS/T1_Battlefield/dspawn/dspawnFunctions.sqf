@@ -164,6 +164,14 @@ NWG_fnc_dsAddWaypoint = {
     _this call NWG_DSPAWN_AddWaypoint
 };
 
+//Return group to patrol
+//params:
+// _group - group to return to patrol
+NWG_fnc_dsReturnToPatrol = {
+    // private _group = _this;
+    (leader _this) call NWG_DSPAWN_ReturnToPatrol
+};
+
 //=============================================================================
 /*Additional code helpers*/
 

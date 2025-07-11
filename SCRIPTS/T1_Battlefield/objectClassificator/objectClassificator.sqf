@@ -109,13 +109,10 @@ NWG_OBCL_IsUnit = {
     _this isKindOf "Man"
 };
 
+NWG_OBCL_vehTypes = [/*invalid:*/"ParachuteBase",/*valid:*/"Car","Tank","Helicopter","Plane","Ship"];
 NWG_OBCL_IsVehicle = {
     // private _object = _this;
-    (_this isKindOf "Car"        ||
-    {_this isKindOf "Tank"       ||
-    {_this isKindOf "Helicopter" ||
-    {_this isKindOf "Plane"      ||
-    {_this isKindOf "Ship"}}}})
+    (NWG_OBCL_vehTypes findIf {_this isKindOf _x}) > 0
 };
 
 NWG_OBCL_IsTurret = {
