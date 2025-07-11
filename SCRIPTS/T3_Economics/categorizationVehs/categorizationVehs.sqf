@@ -1,18 +1,16 @@
 #include "..\..\globalDefines.h"
 
-//Cache (with known exceptions)
-NWG_VCAT_vehTypeCache = createHashMapFromArray [
+//Get vehicle type
+NWG_VCAT_GetVehcType_cache = createHashMapFromArray [
     ["B_AFV_Wheeled_01_cannon_F",LOOT_VEHC_TYPE_TANK],//Rhino is definetly too powerful for APCs
     ["B_AFV_Wheeled_01_up_cannon_F",LOOT_VEHC_TYPE_TANK]//Rhino is definetly too powerful for APCs
 ];
-
-//Get vehicle type
 NWG_VCAT_GetVehcType = {
     private _veh = _this;
     if (_veh isEqualType objNull) then {_veh = typeOf _veh};
 
     //Check cache
-    private _cached = NWG_VCAT_vehTypeCache get _veh;
+    private _cached = NWG_VCAT_GetVehcType_cache get _veh;
     if (!isNil "_cached") exitWith {_cached};
 
     //We will use the editor categories to determine the vehicle type
@@ -35,49 +33,64 @@ NWG_VCAT_GetVehcType = {
     };
 
     //Cache and return
-    NWG_VCAT_vehTypeCache set [_veh,_vehcType];
+    NWG_VCAT_GetVehcType_cache set [_veh,_vehcType];
     _vehcType
 };
 
 //BIS_fnc_baseVehicle (reworked)
+NWG_VCAT_GetBaseVehicle_cache = createHashMap;
 NWG_VCAT_GetBaseVehicle = {
     private _input = _this;
+
+    //Check cache
+    private _cached = NWG_VCAT_GetBaseVehicle_cache get _input;
+    if (!isNil "_cached") exitWith {_cached};
+
+    //Check if it's a vehicle
     private _cfg = configFile >> "CfgVehicles" >> _input;
-    if !(isClass _cfg) exitWith {_input};//Not a vehicle
+    if !(isClass _cfg) exitWith {
+        NWG_VCAT_GetBaseVehicle_cache set [_input,_input];
+        _input
+    };//Not a vehicle
 
+    //Get base vehicle
     private _base = getText (_cfg >> "baseVehicle");
-    if (isClass (configFile >> "CfgVehicles" >> _base)) exitWith {_base};
+    if (isClass (configFile >> "CfgVehicles" >> _base)) exitWith {
+        NWG_VCAT_GetBaseVehicle_cache set [_input,_base];
+        _base
+    };//Base vehicle found
 
+    //Deeper search
     private _return = _input;
     private _model = getText (_cfg >> "model");
     {
         if ((gettext (_x >> "model")) isEqualTo _model && {(getnumber (_x >> "scope")) == 2}) then {_return = configname _x};
     } foreach (_cfg call BIS_fnc_returnParents);
+
+    //Cache and return
+    NWG_VCAT_GetBaseVehicle_cache set [_input,_return];
     _return
 };
 
-NWG_VCAT_unifiedClassnameCache = createHashMapFromArray [
+
+//Get unified classname
+NWG_VCAT_GetUnifiedClassname_cache = createHashMapFromArray [
     ["I_C_Boat_Transport_02_F","I_C_Boat_Transport_02_F"]/*Exception: B_G_... class exists, but is hidden, that breaks getting its picture for shop UI*/
 ];
 NWG_VCAT_GetUnifiedClassname = {
 	private _input = _this;
 
     //Check cache
-    private _cached = NWG_VCAT_unifiedClassnameCache get _input;
+    private _cached = NWG_VCAT_GetUnifiedClassname_cache get _input;
     if (!isNil "_cached") exitWith {_cached};
-
-    //Prepare caching on function exit
-    private _cacheAndReturn = {
-        NWG_VCAT_unifiedClassnameCache set [_input,_this];
-        _this
-    };
 
 	//Get base classname for the vehicle and disassemble it for analysis
 	private _classname =_this call NWG_VCAT_GetBaseVehicle;
 	private _classnameParts = _classname splitString "_";
 	if ((count _classnameParts) < 2) exitWith {
 		(format ["NWG_VCAT_GetUnifiedClassname: Invalid classname '%1'",_classname]) call NWG_fnc_logError;
-		_input call _cacheAndReturn
+        NWG_VCAT_GetUnifiedClassname_cache set [_input,_input];
+		_input
 	};
 
 	//Get variables for further analysis
@@ -89,7 +102,10 @@ NWG_VCAT_GetUnifiedClassname = {
 		else {_classnameParts select [1]};/*select [1:]*/
 
 	//Check if we already dealing with BLUFOR standard vehicle
-	if (_prefix1 isEqualTo "B" && !_doublePrefix) exitWith {_classname call _cacheAndReturn};
+	if (_prefix1 isEqualTo "B" && !_doublePrefix) exitWith {
+        NWG_VCAT_GetUnifiedClassname_cache set [_input,_classname];
+        _classname
+    };
 
     //Try getting unified classname of whatever faction it is now
     if (_doublePrefix) then {
@@ -105,12 +121,19 @@ NWG_VCAT_GetUnifiedClassname = {
 
 	//Try converting to BLUFOR
 	private _newClassname = (["B"] + _body) joinString "_";
-	if (isClass (configFile >> "CfgVehicles" >> _newClassname)) exitWith {_newClassname call _cacheAndReturn};
+	if (isClass (configFile >> "CfgVehicles" >> _newClassname)) exitWith {
+        NWG_VCAT_GetUnifiedClassname_cache set [_input,_newClassname];
+        _newClassname
+    };
 
 	//Try converting to BLUFOR guerilla
 	_newClassname = (["B","G"] + _body) joinString "_";
-	if (isClass (configFile >> "CfgVehicles" >> _newClassname)) exitWith {_newClassname call _cacheAndReturn};
+	if (isClass (configFile >> "CfgVehicles" >> _newClassname)) exitWith {
+        NWG_VCAT_GetUnifiedClassname_cache set [_input,_newClassname];
+        _newClassname
+    };
 
 	//Return original name or original within its faction (if were able to convert)
-	_classname call _cacheAndReturn
+    NWG_VCAT_GetUnifiedClassname_cache set [_input,_classname];
+	_classname
 };
