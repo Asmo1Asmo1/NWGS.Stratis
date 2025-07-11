@@ -41,7 +41,7 @@ NWG_ACA_Settings = createHashMapFromArray [
     ["ARTILLERY_STRIKE_COUNTS",[2,3,4,5,6]],//Number of artillery strikes to do (randomly selected from this array)
     ["ARTILLERY_STRIKE_TIMEOUT",300],//Timeout for artillery strike (in case of any errors)
 
-    ["VEH_DEMOLITION_FIRE_RADIUS",150],//Radius for fireing
+    ["VEH_DEMOLITION_DURATION",20],//How long to try to demolish a building (in seconds)
     ["VEH_DEMOLITION_TIMEOUT",300],//Timeout for veh demolition
 
     ["INF_STORM_FIRE_RADIUS",50],//Radius for fireing
@@ -391,6 +391,7 @@ NWG_ACA_GetArtilleryVehicle = {
     private _veh = vehicle (leader _this);
     if (!alive _veh) exitWith {objNull};
     if (_veh isEqualTo (leader _this)) exitWith {objNull};//Leader on-foot
+    if (!alive (gunner _veh)) exitWith {objNull};//No gunner
 
     //Check cache
     private _flag = _veh getVariable "NWG_ACA_vehCanArtillery";//Check cache
@@ -493,12 +494,25 @@ NWG_ACA_ArtilleryStrike = {
 //Veh demolition (reuses utils from airstrike)
 NWG_ACA_CanDoVehDemolition = {
     // private _group = _this;
-    private _veh = vehicle (leader _group);
-    if !(_veh isKindOf "Tank"  || {_veh isKindOf "Wheeled_APC_F"}) exitWith {false};
-    if !((alive (gunner _veh)) && {alive (driver _veh)}) exitWith {false};
-    if !(_veh call NWG_fnc_ocIsArmedVehicle) exitWith {false};
-    //All checks passed
-    true
+
+    //Get leader's vehicle
+    private _veh = vehicle (leader _this);
+    if (!alive _veh) exitWith {false};
+    if (_veh isEqualTo (leader _this)) exitWith {false};//Leader on-foot
+    if (!alive (gunner _veh)) exitWith {false};//No gunner
+    if (!alive (driver _veh)) exitWith {false};//No driver
+
+    //Check cache
+    private _flag = _veh getVariable "NWG_ACA_vehCanDemolition";//Check cache
+    if (!isNil "_flag") exitWith {_flag};
+
+    //Check if vehicle can do demolition
+    _flag = (_veh isKindOf "Tank"  || {_veh isKindOf "Wheeled_APC_F"});
+    _flag = _flag && {_veh call NWG_fnc_ocIsArmedVehicle};
+
+    //Cache and return
+    _veh setVariable ["NWG_ACA_vehCanDemolition",_flag];
+    _flag
 };
 
 NWG_ACA_SendToVehDemolition = {
@@ -519,14 +533,12 @@ NWG_ACA_SendToVehDemolition = {
 
 NWG_ACA_IsClearLineBetween = {
     params ["_obj1","_obj2"];
-    private _raycastFrom = getPosASL _obj1; _raycastFrom = _raycastFrom vectorAdd [0,0,1.5];//Raise the position a bit
-    private _raycastTo = getPosASL _obj2;
+    private _raycastFrom = (getPosASL _obj1) vectorAdd [0,0,1.5];//Raise the position a bit
+    private _raycastTo = (getPosASL _obj2) vectorAdd [0,0,1.5];//Raise the position a bit
     private _raycast = lineIntersectsSurfaces [_raycastFrom,_raycastTo,_obj1,objNull,true,1,"FIRE","VIEW",true];
 
-    if ((count _raycast) == 0) exitWith {true};/*No obstacles*/
-    if (((_raycast#0)#2) isEqualTo _obj2) exitWith {true};/*The first/only obstacle is the target itself*/
-    if (((_raycast#0)#3) isEqualTo _obj2) exitWith {true};/*The first/only obstacle is the target itself*/
-    false/*There is an obstacle between the two objects*/
+    //return
+    (count _raycast) == 0 || {((_raycast#0)#2) isEqualTo _obj2 || {((_raycast#0)#3) isEqualTo _obj2}}
 };
 
 NWG_ACA_VehDemolition = {
@@ -544,34 +556,42 @@ NWG_ACA_VehDemolition = {
     _group setBehaviourStrong "AWARE";
 
     //Move to the target
-    _strikeTeam doMove (position _target);
-    private _lastPos = getPosATL _veh;
+    [_group,_target,5,"ground"] call NWG_ACA_CreateWaypointAround;
     waitUntil {
-        sleep 3;
+        sleep 1;
         if (call _abortCondition) exitWith {true};
-        if ((_veh distance _lastPos) < 1) then {_strikeTeam doMove (position _target)};
-        _lastPos = getPosATL _veh;
-        if ((_veh distance _target) > (NWG_ACA_Settings get "VEH_DEMOLITION_FIRE_RADIUS")) exitWith {false};//Out of range
-        if !([_veh,_target] call NWG_ACA_IsClearLineBetween) exitWith {false};//Obstacle between
-        true
+        if ([_veh,_target] call NWG_ACA_IsClearLineBetween) exitWith {true};//Ready to fire
+        if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint completed
+        false
+    };
+    if (time > _timeoutAt) then {
+        "NWG_ACA_VehDemolition: timeout reached" call NWG_fnc_logError;
     };
     if (call _abortCondition) exitWith {};
 
-    //Watch
+    //Stop and watch
+    _group call NWG_fnc_dsClearWaypoints;
     private _helper = [_group,_target] call NWG_ACA_CreateHelper;
     {doStop _x; _x reveal _helper; _x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
-    sleep 1;//Wait for turret to turn
+    sleep 2;//Wait for turret to turn
     if (call _abortCondition) exitWith {_helper call NWG_ACA_DeleteHelper};
 
-    //Fire until _abortCondition is met
+    //Fire
+    private _stopFireAt = time + (NWG_ACA_Settings get "VEH_DEMOLITION_DURATION");
     waitUntil {
-        sleep ((random 1)+1);
+        sleep 0.1;
         if (call _abortCondition) exitWith {true};
+        if (time > _stopFireAt) exitWith {true};
+        {_x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
+        if ((random 1) > 0.2) exitWith {false};//Chance to skip fire (fires too often otherwise)
         [_veh,_strikeData,_helper] call NWG_ACA_VehicleForceFire;
-        _veh setVehicleAmmo 1;
         false
     };
-    _helper call NWG_ACA_DeleteHelper;
+
+    //Cleanup
+    {_x doWatch objNull; _x doTarget objNull} forEach (_strikeTeam select {alive _x});//Release target from sight
+    if (alive _veh) then {_veh setVehicleAmmo 1};//Reload
+    _helper call NWG_ACA_DeleteHelper;//Delete helper
 };
 
 //================================================================================================================
