@@ -1,8 +1,7 @@
 /*
     This module implements the following logic:
     - Airstrike
-    - Artillery strike
-    - Mortart strike
+    - Artillery/Mortar strike
     - Veh building demolition
     - Inf building storm
     - Veh vehicle repair
@@ -76,44 +75,6 @@ NWG_fnc_acCanDoArtilleryStrikeOnTarget = {
 NWG_fnc_acSendArtilleryStrike = {
     // params ["_group","_target"];
     _this call NWG_ACA_SendArtilleryStrike
-};
-
-//=============================================================================
-/*Mortar strike*/
-
-//Check if can do mortar strike
-//params:
-// _group - group to check
-//returns:
-// boolean
-NWG_fnc_acCanDoMortarStrike = {
-    // private _group = _this;
-    _this call NWG_ACA_CanDoMortarStrike
-};
-
-//Check if this group can do mortar strike on this target
-//params:
-// _group - group to check
-// _target - target object
-//returns:
-// boolean
-NWG_fnc_acCanDoMortarStrikeOnTarget = {
-    // params ["_group","_target"];
-    _this call NWG_ACA_CanDoMortarStrikeOnTarget
-};
-
-//Send mortar strike by group
-//params:
-// _group - group to send
-// _target - target object
-// _precise - boolean flag of precise strike, options:
-//      - true - precise strike (faster and with small radius)
-//      - false - normal strike (slower and with wider radius)
-//returns:
-// boolean - true if successful, false in case of error or if target is out of range
-NWG_fnc_acSendMortarStrike = {
-    // params ["_group","_target",["_precise",false]];
-    _this call NWG_ACA_SendMortarStrike
 };
 
 //=============================================================================

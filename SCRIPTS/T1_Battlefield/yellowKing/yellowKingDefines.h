@@ -43,7 +43,6 @@
 #define SPECIAL_NONE ""
 #define SPECIAL_AIRSTRIKE "AIRSTRIKE"
 #define SPECIAL_ARTA "ARTA"
-#define SPECIAL_MORTAR "MORTAR"
 #define SPECIAL_VEHDEM "VEHDEM"
 #define SPECIAL_INFSTORM "INFSTORM"
 //Passive specials
@@ -77,7 +76,6 @@
 #define STAT_SPECIALS_USED "SpecialsUsed"
 #define STAT_SPEC_AIRSTRIKE "AirstrikeCount"
 #define STAT_SPEC_ARTA "ArtaCount"
-#define STAT_SPEC_MORTAR "MortarCount"
 #define STAT_SPEC_VEHDEM "VehDemolitionCount"
 #define STAT_SPEC_INFSTORM "InfStormCount"
 #define STAT_SPEC_VEHREPAIR "VehRepairCount"

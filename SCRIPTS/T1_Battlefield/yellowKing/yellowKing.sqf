@@ -23,8 +23,6 @@ NWG_YK_Settings = createHashMapFromArray [
     ["SPECIAL_AIRSTRIKE_RADIUS",100000],//Radius at which groups will be sent to do airstrike
     ["SPECIAL_ARTA_ENABLED",true],//Is artillery strike allowed
     ["SPECIAL_ARTA_RADIUS",100000],//Radius at which groups will be ordered to do artillery strike
-    ["SPECIAL_MORTAR_ENABLED",true],//Is mortar strike allowed
-    ["SPECIAL_MORTAR_RADIUS",100000],//Radius at which groups will be ordered to do mortar strike
     ["SPECIAL_VEHDEMOLITION_ENABLED",true],//Is vehicle demolition allowed
     ["SPECIAL_VEHDEMOLITION_RADIUS",500],//Radius at which groups will be sent to do vehdemolition
     ["SPECIAL_INFSTORM_ENABLED",true],//Is infantry building storm allowed
@@ -288,12 +286,6 @@ NWG_YK_React = {
                 [STAT_SPEC_ARTA,1] call NWG_YK_STAT_Increment;/*Statistics*/
                 [STAT_SPECIALS_USED,1] call NWG_YK_STAT_Increment;/*Statistics*/
             };
-            case SPECIAL_MORTAR: {
-                _speciaslLeft = _speciaslLeft - 1;
-                [(_hunters deleteAt _hunterIndex),_x,SPECIAL_MORTAR,_addArg] call NWG_YK_UseSpecial;
-                [STAT_SPEC_MORTAR,1] call NWG_YK_STAT_Increment;/*Statistics*/
-                [STAT_SPECIALS_USED,1] call NWG_YK_STAT_Increment;/*Statistics*/
-            };
             case SPECIAL_VEHDEM: {
                 _speciaslLeft = _speciaslLeft - 1;
                 [(_hunters deleteAt _hunterIndex),_x,SPECIAL_VEHDEM,_addArg] call NWG_YK_UseSpecial;
@@ -449,9 +441,9 @@ NWG_YK_GetGroupSpecial = {
     };
 
     if (_parent isEqualTo PARENT_UKREP) exitWith {
-        if (_group call NWG_fnc_acCanDoArtilleryStrike) exitWith {SPECIAL_ARTA};
-        if (_group call NWG_fnc_acCanDoMortarStrike) exitWith {SPECIAL_MORTAR};
-        SPECIAL_NONE
+        if (_group call NWG_fnc_acCanDoArtilleryStrike)
+            then {SPECIAL_ARTA}
+            else {SPECIAL_NONE};
     };
 
     (format ["NWG_YK_GetGroupSpecial: Unknown parent: '%1'",_parent]) call NWG_fnc_logError;
@@ -687,19 +679,6 @@ NWG_YK_FillDice = {
         };
     };
 
-    //Mortar strike
-    if (NWG_YK_Settings get "SPECIAL_MORTAR_ENABLED") then {
-        _i = _hunters findIf {
-            (_x#HUNTER_SPECIAL) isEqualTo SPECIAL_MORTAR && {
-            ((_x#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "SPECIAL_MORTAR_RADIUS") && {
-            [(_x#HUNTER_GROUP),(_target#TARGET_OBJECT)] call NWG_fnc_acCanDoMortarStrikeOnTarget}}
-        };
-        if (_i != -1) then {
-            // private _precise = (_target#TARGET_TYPE) in [TARGET_TYPE_BLDG,TARGET_TYPE_ARM];
-            _dice pushBack [SPECIAL_MORTAR,_i/*,_precise*/];
-        };
-    };
-
     //Vehicle demolition
     if (NWG_YK_Settings get "SPECIAL_VEHDEMOLITION_ENABLED" && {(_target#TARGET_TYPE) isEqualTo TARGET_TYPE_BLDG}) then {
         _i = _hunters findIf {
@@ -764,8 +743,7 @@ NWG_YK_UseSpecial = {
     //Use the special
     private _ok = switch (_special) do {
         case SPECIAL_AIRSTRIKE: {[_group,_targetObj,_arg] call NWG_fnc_acSendToAirstrike};
-        case SPECIAL_ARTA:      {[_group,_targetObj/*,_arg*/] call NWG_fnc_acSendArtilleryStrike};
-        case SPECIAL_MORTAR:    {[_group,_targetObj/*,_arg*/] call NWG_fnc_acSendMortarStrike};
+        case SPECIAL_ARTA:      {[_group,_targetObj] call NWG_fnc_acSendArtilleryStrike};
         case SPECIAL_VEHDEM:    {[_group,_targetObj] call NWG_fnc_acSendToVehDemolition};
         case SPECIAL_INFSTORM:  {[_group,_targetObj] call NWG_fnc_acSendToInfBuildingStorm};
         default {
@@ -789,7 +767,7 @@ NWG_YK_STAT_statisticsKeys = [
     STAT_KILL_COUNT,STAT_REACTION_COUNT,
     STAT_TARGETS_ACQUIRED,STAT_TARGETS_IGNORED,
     STAT_GROUPS_MOVED,STAT_REINFS_SENT,STAT_SPECIALS_USED,
-    STAT_SPEC_AIRSTRIKE,STAT_SPEC_ARTA,STAT_SPEC_MORTAR,STAT_SPEC_VEHDEM,STAT_SPEC_INFSTORM,STAT_SPEC_VEHREPAIR,STAT_SPEC_LONEMERGE
+    STAT_SPEC_AIRSTRIKE,STAT_SPEC_ARTA,STAT_SPEC_VEHDEM,STAT_SPEC_INFSTORM,STAT_SPEC_VEHREPAIR,STAT_SPEC_LONEMERGE
 ];
 NWG_YK_STAT_GetCurCounters = {
     private _curTime = round ((round time)/60);//Time in minutes
@@ -856,7 +834,6 @@ NWG_YK_STAT_Output = {
     ];
     if (NWG_YK_Settings get "SPECIAL_AIRSTRIKE_ENABLED") then {_lines pushBack (format ["AIRSTRIKE: %1",(_stat get STAT_SPEC_AIRSTRIKE)])};
     if (NWG_YK_Settings get "SPECIAL_ARTA_ENABLED")      then {_lines pushBack (format ["ARTA: %1",(_stat get STAT_SPEC_ARTA)])};
-    if (NWG_YK_Settings get "SPECIAL_MORTAR_ENABLED")    then {_lines pushBack (format ["MORTAR: %1",(_stat get STAT_SPEC_MORTAR)])};
     if (NWG_YK_Settings get "SPECIAL_VEHDEMOLITION_ENABLED") then {_lines pushBack (format ["VEHDEMOLITION: %1",(_stat get STAT_SPEC_VEHDEM)])};
     if (NWG_YK_Settings get "SPECIAL_INFSTORM_ENABLED")  then {_lines pushBack (format ["INFSTORM: %1",(_stat get STAT_SPEC_INFSTORM)])};
     if (NWG_YK_Settings get "SPECIAL_VEHREPAIR_ENABLED") then {_lines pushBack (format ["VEHREPAIR: %1",(_stat get STAT_SPEC_VEHREPAIR)])};

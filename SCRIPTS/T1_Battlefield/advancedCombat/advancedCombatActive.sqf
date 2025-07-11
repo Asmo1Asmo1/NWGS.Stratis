@@ -2,8 +2,7 @@
 /*
     This module implements the following logic:
     - Airstrike
-    - Artillery strike
-    - Mortart strike
+    - Artillery/Mortar strike
     - Veh building demolition
     - Inf building storm
     - Veh vehicle repair
@@ -13,13 +12,9 @@
     - Find groups that can do Airstrike
     - Send group to do Airstrike on target
 
-    - Find groups that can do Artillery strike
+    - Find groups that can do Artillery strike (includes Mortar)
     - Find groups that can do Artillery strike on this position
     - Order to do Artillery strike onto position
-
-    - Find groups that can do Mortar strike
-    - Find groups that can do Mortar strike on this position
-    - Order to do Mortar strike onto position
 
     - Find groups that can do Veh building demolition
     - Send group to do Veh building demolition
@@ -45,11 +40,6 @@ NWG_ACA_Settings = createHashMapFromArray [
 
     ["ARTILLERY_STRIKE_COUNTS",[2,3,4,5,6]],//Number of artillery strikes to do (randomly selected from this array)
     ["ARTILLERY_STRIKE_TIMEOUT",300],//Timeout for artillery strike (in case of any errors)
-
-    ["MORTAR_STRIKE_WARNING_RADIUS",100],//Radius for warning strike
-    ["MORTAR_STRIKE_WARNING_PAUSE",1],//Pause between warning strike and actual strike
-    ["MORTAR_STRIKE_RADIUS",35],//Radius for actual fire (only if using !_precise argument)
-    ["MORTAR_STRIKE_TIMEOUT",300],//Timeout for mortar strike (in case of any errors)
 
     ["VEH_DEMOLITION_FIRE_RADIUS",150],//Radius for fireing
     ["VEH_DEMOLITION_TIMEOUT",300],//Timeout for veh demolition
@@ -161,13 +151,22 @@ NWG_ACA_IsWaypointCompleted = {
 NWG_ACA_CanDoAirstrike = {
     // private _group = _this;
     if (!alive (leader _this)) exitWith {false};
+
+    //Get leader's vehicle
     private _veh = vehicle (leader _this);
     if (!alive _veh) exitWith {false};
-    private _result = _veh getVariable "NWG_ACA_vehCanAirstrike";//Check cached result
-    if (!isNil "_result") exitWith {_result};
-    _result = (_veh isKindOf "Air" && {(count (_veh call NWG_fnc_spwnGetVehiclePylons)) > 0});//Check if vehicle can do airstrike
-    _veh setVariable ["NWG_ACA_vehCanAirstrike",_result];//Cache result for future calls
-    _result
+    if (_veh isEqualTo (leader _this)) exitWith {false};//Leader on-foot
+
+    //Check cache
+    private _flag = _veh getVariable "NWG_ACA_vehCanAirstrike";//Check cached result
+    if (!isNil "_flag") exitWith {_flag};
+
+    //Check if vehicle can do airstrike
+    _flag = (_veh isKindOf "Air" && {(count (_veh call NWG_fnc_spwnGetVehiclePylons)) > 0});
+
+    //Cache and return
+    _veh setVariable ["NWG_ACA_vehCanAirstrike",_flag];
+    _flag
 };
 
 NWG_ACA_SendToAirstrike = {
@@ -384,38 +383,39 @@ NWG_ACA_VehicleForceFire = {
 
 //================================================================================================================
 //Artillery strike
-NWG_ACA_GetArtilleryVehicles = {
+NWG_ACA_GetArtilleryVehicle = {
     // private _group = _this;
-    private _result = (units _this) apply {vehicle _x};
-    _result = _result arrayIntersect _result;//Remove duplicates
-    _result = _result select {alive _x && {_x call NWG_fnc_ocIsVehicle}};//Rough filter
-    //Fine filter:
-    private _flag = true;
-    _result select {
-        if !(alive (gunner _x)) then {continueWith false};//Even if it can, the gunner must be alive
-        _flag = _x getVariable "NWG_ACA_vehCanArtillery";//Check cache
-        if (!isNil "_flag") then {continueWith _flag};
-        _flag = (getArtilleryAmmo [_x]) isNotEqualTo [];//Find out if it can do artillery fire at all
-        _x setVariable ["NWG_ACA_vehCanArtillery",_flag];//Cache result
-        _flag
-    }
+    if (!alive (leader _this)) exitWith {objNull};
+
+    //Get leader's vehicle
+    private _veh = vehicle (leader _this);
+    if (!alive _veh) exitWith {objNull};
+    if (_veh isEqualTo (leader _this)) exitWith {objNull};//Leader on-foot
+
+    //Check cache
+    private _flag = _veh getVariable "NWG_ACA_vehCanArtillery";//Check cache
+    if (!isNil "_flag") exitWith {if (_flag) then {_veh} else {objNull}};
+
+    //Check if vehicle can do artillery fire
+    _flag = (_veh call NWG_fnc_ocIsVehicle) || {_veh call NWG_fnc_ocIsTurret};
+    _flag = _flag && {(getArtilleryAmmo [_veh]) isNotEqualTo []};
+
+    //Cache and return
+    _veh setVariable ["NWG_ACA_vehCanArtillery",_flag];
+    if (_flag) then {_veh} else {objNull}
 };
 
 NWG_ACA_CanDoArtilleryStrike = {
     // private _group = _this;
-    (_this call NWG_ACA_GetArtilleryVehicles) isNotEqualTo []
-};
-
-NWG_ACA_IsInRange = {
-    params ["_artillery","_target"];
-    if (isNull _target || {!alive _target}) exitWith {false};//Target is not valid
-    (position _target) inRangeOfArtillery [[_artillery],((getArtilleryAmmo [_artillery]) param [0,""])]
+    !isNull (_this call NWG_ACA_GetArtilleryVehicle)
 };
 
 NWG_ACA_CanDoArtilleryStrikeOnTarget = {
     params ["_group","_target"];
     if (isNull _target || {!alive _target}) exitWith {false};//Target is not valid
-    ((_group call NWG_ACA_GetArtilleryVehicles) findIf {[_x,_target] call NWG_ACA_IsInRange}) != -1
+    private _artillery = _group call NWG_ACA_GetArtilleryVehicle;
+    if (isNull _artillery) exitWith {false};
+    (position _target) inRangeOfArtillery [[_artillery],((getArtilleryAmmo [_artillery]) param [0,""])]
 };
 
 NWG_ACA_SendArtilleryStrike = {
@@ -428,34 +428,11 @@ NWG_ACA_SendArtilleryStrike = {
 NWG_ACA_ArtilleryStrike = {
     params ["_group","_target"];
 
-    //Get artillery vehicle of the group
-    private _artillery = _group call NWG_ACA_GetArtilleryVehicles;
-    if (_artillery isEqualTo []) exitWith {"NWG_ACA_ArtilleryStrike: No artillery units found" call NWG_fnc_logError};
-    _artillery = _artillery select {[_x,_target] call NWG_ACA_IsInRange};
-    if (_artillery isEqualTo []) exitWith {"NWG_ACA_ArtilleryStrike: No artillery units in range" call NWG_fnc_logError};
-    _artillery = selectRandom _artillery;//Select random artillery vehicle from available (usually there is only one)
-
-    //Determine number of strikes
+    //Prepare variables
+    private _artillery = _group call NWG_ACA_GetArtilleryVehicle;
+    if (isNull _artillery) exitWith {"NWG_ACA_ArtilleryStrike: No artillery units found" call NWG_fnc_logError};
     private _count = selectRandom (NWG_ACA_Settings get "ARTILLERY_STRIKE_COUNTS");
-    if (_count <= 0) then {
-        "NWG_ACA_ArtilleryStrike: invalid number of strikes, fallback to 1" call NWG_fnc_logError;
-        _count = 1;
-    };//Fallback
-
-    //Prepare timeout
-    private _timeout = (NWG_ACA_Settings get "ARTILLERY_STRIKE_TIMEOUT");
-    if (_timeout <= 0) then {
-        "NWG_ACA_ArtilleryStrike: invalid timeout, fallback to 300" call NWG_fnc_logError;
-        _timeout = 300;
-    };//Fallback
-    private _timeoutAt = time + _timeout;
-
-    //Start strike
-    [_group,_artillery,_target,_count,_timeoutAt] call NWG_ACA_ArtilleryStrikeCore;
-};
-
-NWG_ACA_ArtilleryStrikeCore = {
-    params ["_group","_artillery","_target","_count","_timeoutAt"];
+    private _timeoutAt = time + (NWG_ACA_Settings get "ARTILLERY_STRIKE_TIMEOUT");
     private _gunner = gunner _artillery;
     private _abortCondition = {!alive _artillery || {!alive _gunner || {time > _timeoutAt}}};
     if (call _abortCondition) exitWith {};//Immediate check
@@ -510,55 +487,6 @@ NWG_ACA_ArtilleryStrikeCore = {
     if (alive _artillery) then {
         _artillery setVehicleAmmo 1;
     };
-};
-
-//================================================================================================================
-//Mortar strike (partially re-uses artillery strike logic)
-NWG_ACA_GetMortars = {
-    // private _group = _this;
-    private _result = (units _this) apply {vehicle _x};
-    _result = _result arrayIntersect _result;//Remove duplicates
-    _result select {alive _x && {_x call NWG_fnc_ocIsTurret && {(getArtilleryAmmo [_x]) isNotEqualTo []}}}
-};
-
-NWG_ACA_CanDoMortarStrike = {
-    // private _group = _this;
-    (_this call NWG_ACA_GetMortars) isNotEqualTo []
-};
-
-NWG_ACA_CanDoMortarStrikeOnTarget = {
-    params ["_group","_target"];
-    ((_group call NWG_ACA_GetMortars) findIf {[_x,(position _target)] call NWG_ACA_IsInRange}) != -1
-};
-
-NWG_ACA_SendMortarStrike = {
-    params ["_group","_target",["_precise",false]];
-    if !([_group,_target] call NWG_ACA_CanDoMortarStrikeOnTarget) exitWith {false};
-    [_group,NWG_ACA_MortarStrike,_target,_precise] call NWG_ACA_StartAdvancedLogic;
-    true
-};
-
-NWG_ACA_MortarStrike = {
-    params ["_group","_target",["_precise",false]];
-
-    //Get artillery
-    private _targetPos = position _target;
-    private _mortar = _group call NWG_ACA_GetMortars;
-    if (_mortar isEqualTo []) exitWith {"NWG_ACA_MortarStrike: No mortar units found" call NWG_fnc_logError};
-    _mortar = _mortar select {[_x,_targetPos] call NWG_ACA_IsInRange};
-    if (_mortar isEqualTo []) exitWith {"NWG_ACA_MortarStrike: No mortar units in range" call NWG_fnc_logError};
-    _mortar = selectRandom _mortar;//Select random mortar unit from the list of available units
-
-    [
-        _group,
-        _mortar,
-        _targetPos,
-        (NWG_ACA_Settings get "MORTAR_STRIKE_WARNING_RADIUS"),
-        (NWG_ACA_Settings get "MORTAR_STRIKE_WARNING_PAUSE"),
-        (NWG_ACA_Settings get "MORTAR_STRIKE_RADIUS"),
-        _precise,
-        (time + (NWG_ACA_Settings get "MORTAR_STRIKE_TIMEOUT"))
-    ] call NWG_ACA_ArtilleryStrikeCore
 };
 
 //================================================================================================================
