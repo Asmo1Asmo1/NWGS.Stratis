@@ -221,15 +221,15 @@ NWG_ACA_Airstrike = {
     {
         if (call _abortCondition) exitWith {true};
 
-        //0. Fix pilots stucking in one place
-        if !(unitIsUAV _plane) then {
-            private _crew = (crew _plane) select {alive _x};
-            _group leaveVehicle _plane;
-            {_x disableCollisionWith _plane; _x moveOut _plane} forEach _crew;
-            _plane engineOn true;
-            _group addVehicle _plane;
-            {_x moveInAny _plane} forEach _crew;
-        };
+        //0. Fix pilots stucking in one place (No longer needed?)
+        // if !(unitIsUAV _plane) then {
+        //     private _crew = (crew _plane) select {alive _x};
+        //     _group leaveVehicle _plane;
+        //     {_x disableCollisionWith _plane; _x moveOut _plane} forEach _crew;
+        //     _plane engineOn true;
+        //     _group addVehicle _plane;
+        //     {_x moveInAny _plane} forEach _crew;
+        // };
 
         //1. Fly away from the target
         private _timeoutAt = time + (NWG_ACA_Settings get "AIRSTRIKE_TIMEOUT");
