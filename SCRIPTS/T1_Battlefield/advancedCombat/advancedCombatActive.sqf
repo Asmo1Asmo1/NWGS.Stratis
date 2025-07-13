@@ -36,7 +36,7 @@ NWG_ACA_Settings = createHashMapFromArray [
     ["AIRSTRIKE_FIRE_RADIUS",850],//Distance at which to start fireing
     ["AIRSTRIKE_STOP_RADIUS",450],//Distance at which to pull up
     ["AIRSTRIKE_LASER_CLASSNAME","LaserTargetW"],//Classname for laser target (faction matters!)
-    ["AIRSTRIKE_TIMEOUT",120],//Timeout for EACH STEP of airstrike (in case of any errors) (there are 6 steps)
+    ["AIRSTRIKE_TIMEOUT",180],//Timeout for EACH STEP of airstrike (in case of any errors) (there are 6 steps)
 
     ["ARTILLERY_STRIKE_COUNTS",[2,3,4,5,6]],//Number of artillery strikes to do (randomly selected from this array)
     ["ARTILLERY_STRIKE_TIMEOUT",300],//Timeout for artillery strike (in case of any errors)
