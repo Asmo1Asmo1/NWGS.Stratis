@@ -183,6 +183,29 @@ NWG_fnc_acSendToInfVehCapture = {
 };
 
 //=============================================================================
+/*Veh flee*/
+
+//Check if can do veh flee
+//params:
+// _group - group to check
+//returns:
+// boolean
+NWG_fnc_acCanDoVehFlee = {
+    // private _group = _this;
+    _this call NWG_ACA_CanDoVehFlee
+};
+
+//Send group to flee
+//params:
+// _group - group to send
+//returns:
+// boolean - true if successful, false in case of error (e.g. group has no vehicle or can't do flee)
+NWG_fnc_acSendToVehFlee = {
+    // private _group = _this;
+    _this call NWG_ACA_SendToVehFlee
+};
+
+//=============================================================================
 /*Targeting utils*/
 //Returns target type of the object
 //note: send (vehicle _object) as an argument

@@ -56,6 +56,10 @@ NWG_ACA_Settings = createHashMapFromArray [
     ["INF_VEH_CAPTURE_RADIUS",150],//Radius to search for vehicles to capture
     ["INF_VEH_CAPTURE_TIMEOUT",240],//Timeout for inf vehicle capture
 
+    ["VEH_FLEE_RADIUS",3000],//Radius to flee from current position
+    ["VEH_FLEE_DESPAWN_RADIUS",1000],//Radius to check for players before despawning
+    ["VEH_FLEE_TIMEOUT",600],//Timeout for veh flee
+
     ["HELPER_WAYPOINT_ADD",true],//Add first waypoint at current vehicle position to be visible at spectator view
     ["HELPER_CLASSNAMES",["O_Quadbike_01_F","O_Soldier_AT_F"]],//params ["_invisibleVehicle","_agentToPutIntoVehicle"] (faction matters!)
 
@@ -1002,4 +1006,77 @@ NWG_ACA_InfVehCapture = {
 
     //Cleanup
     call _onExit;
+};
+
+//================================================================================================================
+//Veh flee
+NWG_ACA_CanDoVehFlee = {
+    //private _group = _this;
+    if ((count (units _this)) != 1) exitWith {false};//Exactly one unit must be in the group
+    if (!alive (leader _this)) exitWith {false};
+
+    //Get leader's vehicle
+    private _veh = vehicle (leader _this);
+    if (!alive _veh) exitWith {false};
+    if (_veh isEqualTo (leader _this)) exitWith {false};//Leader on-foot
+
+    //Check that their vehicle is of kind 'Car','Tank' or 'Wheeled_APC_F'
+    if !(_veh isKindOf "Car" || {_veh isKindOf "Tank" || {_veh isKindOf "Wheeled_APC_F"}}) exitWith {false};
+
+    //return
+    true
+};
+
+NWG_ACA_SendToVehFlee = {
+    // private _group = _this;
+    //Use NWG_ACA_CanDoVehFlee to re-check
+    if !(_this call NWG_ACA_CanDoVehFlee) exitWith {
+        "NWG_ACA_SendToVehFlee: tried to send group that can't do veh flee" call NWG_fnc_logError;
+        false;
+    };
+
+    //Start advanced logic
+    [_this,NWG_ACA_VehFlee] call NWG_ACA_StartAdvancedLogic;
+    true
+};
+
+NWG_ACA_VehFlee = {
+    params ["_group"];
+    private _veh = vehicle (leader _group);
+    private _timeoutAt = time + (NWG_ACA_Settings get "VEH_FLEE_TIMEOUT");
+    private _abortCondition = {!alive _veh || {!alive (leader _group) || {time > _timeoutAt}}};
+    if (call _abortCondition) exitWith {};//Immediate check
+
+    //Setup
+    _group setCombatMode "BLUE";
+    _group setSpeedMode "FULL";
+    _group setBehaviourStrong "AWARE";
+
+    //Teardown
+    private _onExit = {
+        if (!isNull _group) then {_group setCombatMode "RED"; _group call NWG_fnc_dsReturnToPatrol};
+    };
+
+    //Create waypoint around group's own vehicle with flee radius and 'ground' type
+    [_group,_veh,(NWG_ACA_Settings get "VEH_FLEE_RADIUS"),"ground"] call NWG_ACA_CreateWaypointAround;
+
+    //Wait for waypoint to be completed
+    waitUntil {
+        sleep 1;
+        if (call _abortCondition) exitWith {true};
+        if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint completed
+        false
+    };
+    if (time > _timeoutAt) then {
+        "NWG_ACA_VehFlee: timeout reached" call NWG_fnc_logError;
+    };
+    if (call _abortCondition) exitWith {call _onExit};
+
+    //Check that there are no players anywhere near despawn radius
+    private _players = call NWG_fnc_getPlayersOrOccupiedVehicles;
+    private _minDist = 100000;
+    {_minDist = _minDist min (_veh distance2D _x)} forEach _players;
+    if (_minDist < (NWG_ACA_Settings get "VEH_FLEE_DESPAWN_RADIUS"))
+        then {call _onExit}
+        else {_group call NWG_fnc_gcDeleteGroup};
 };
