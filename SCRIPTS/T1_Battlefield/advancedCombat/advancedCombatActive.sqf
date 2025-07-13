@@ -51,7 +51,10 @@ NWG_ACA_Settings = createHashMapFromArray [
 
     ["VEH_REPAIR_RADIUS",500],//Radius for vehicle to initially move to repair (repair starts when no players are within 'VEH_REPAIR_PLAYER_DISTANCE')
     ["VEH_REPAIR_PLAYER_DISTANCE",200],//Distance from nearest player to assume repair is safe
-    ["VEH_REPAIR_TIMEOUT",120],//Timeout for EACH STEP of veh repair
+    ["VEH_REPAIR_TIMEOUT",180],//Timeout for EACH STEP of veh repair
+
+    ["INF_VEH_CAPTURE_RADIUS",150],//Radius to search for vehicles to capture
+    ["INF_VEH_CAPTURE_TIMEOUT",240],//Timeout for inf vehicle capture
 
     ["HELPER_WAYPOINT_ADD",true],//Add first waypoint at current vehicle position to be visible at spectator view
     ["HELPER_CLASSNAMES",["O_Quadbike_01_F","O_Soldier_AT_F"]],//params ["_invisibleVehicle","_agentToPutIntoVehicle"] (faction matters!)
@@ -922,6 +925,80 @@ NWG_ACA_VehRepair = {
     _group addVehicle _veh;
     _crew = _crew select {alive _x};
     {_x moveInAny _veh} forEach _crew;
+
+    //Cleanup
+    call _onExit;
+};
+
+//================================================================================================================
+//Inf vehicle capture
+NWG_ACA_GetInfVehCaptureTarget = {
+    //private _group = _this;
+    ((leader _this) nearEntities [["Car","Tank","Helicopter","Plane","Ship"],(NWG_ACA_Settings get "INF_VEH_CAPTURE_RADIUS")] select {
+        ((crew _x) isEqualTo []) && {_x call NWG_fnc_ocIsArmedVehicle}
+    }) param [0,objNull]
+};
+
+NWG_ACA_CanDoInfVehCapture = {
+    //private _group = _this;
+    (_this call NWG_ACA_CanDoInfBuildingStorm) && {!isNull (_this call NWG_ACA_GetInfVehCaptureTarget)}
+};
+
+NWG_ACA_SendToInfVehCapture = {
+    // private _group = _this;
+
+    //Check if group is infantry and has a valid target vehicle
+    if !(_this call NWG_ACA_CanDoInfBuildingStorm) exitWith {
+        "NWG_ACA_SendToInfVehCapture: tried to send group that can't do inf vehicle capture" call NWG_fnc_logError;
+        false;
+    };
+    private _targetVehicle = _this call NWG_ACA_GetInfVehCaptureTarget;
+    if (isNull _targetVehicle) exitWith {
+        "NWG_ACA_SendToInfVehCapture: no valid vehicle found to capture" call NWG_fnc_logError;
+        false;
+    };
+
+    //2. Reuse target vehicle as target arg for advanced logic (to reduce number of searches)
+    [_this,NWG_ACA_InfVehCapture,_targetVehicle] call NWG_ACA_StartAdvancedLogic;
+    true
+};
+
+NWG_ACA_InfVehCapture = {
+    params ["_group","_targetVehicle"];
+    private _leader = leader _group;
+    private _timeoutAt = time + (NWG_ACA_Settings get "INF_VEH_CAPTURE_TIMEOUT");
+    private _abortCondition = {({alive _x} count (units _group)) < 1 || {time > _timeoutAt}};
+    private _vehicleInvalidCondition = {!alive _targetVehicle || {(crew _targetVehicle) findIf {!(_x in (units _group))} != -1}};
+    if (call _abortCondition || {call _vehicleInvalidCondition}) exitWith {};//Immediate check
+
+    //Setup
+    _group setCombatMode "BLUE";
+    _group setSpeedMode "FULL";
+    _group setBehaviourStrong "AWARE";
+
+    //Teardown
+    private _onExit = {
+        if (!isNull _group) then {_group setCombatMode "RED"; _group call NWG_fnc_dsReturnToPatrol};//Return to patrol
+    };
+
+    //Add vehicle to group
+    _group addVehicle _targetVehicle;
+
+    //Create waypoint to get in the vehicle
+    [_group,_targetVehicle,"GETIN"] call NWG_ACA_CreateWaypointAt;
+
+    //Wait for waypoint completion or timeout
+    waitUntil {
+        sleep 1;
+        if (call _abortCondition) exitWith {true};
+        if (call _vehicleInvalidCondition) exitWith {true};//Vehicle no longer valid
+        if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint completed
+        if (time > _timeoutAt) exitWith {true};//Timeout
+        false
+    };
+    if (time > _timeoutAt) then {
+        "NWG_ACA_InfVehCapture: timeout reached" call NWG_fnc_logError;
+    };
 
     //Cleanup
     call _onExit;

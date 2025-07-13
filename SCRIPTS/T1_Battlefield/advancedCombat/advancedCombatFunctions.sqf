@@ -159,6 +159,30 @@ NWG_fnc_acSendToVehRepair = {
 };
 
 //=============================================================================
+/*Inf vehicle capture*/
+
+//Check if can do inf vehicle capture
+//params:
+// _group - group to check
+//returns:
+// boolean
+NWG_fnc_acCanDoInfVehCapture = {
+    // private _group = _this;
+    _this call NWG_ACA_CanDoInfVehCapture
+};
+
+
+//Send group to capture an enemy vehicle
+//params:
+// _group - group to send
+//returns:
+// boolean - true if successful, false in case of error (e.g. group has no vehicle or can't do capture)
+NWG_fnc_acSendToInfVehCapture = {
+    // private _group = _this;
+    _this call NWG_ACA_SendToInfVehCapture
+};
+
+//=============================================================================
 /*Targeting utils*/
 //Returns target type of the object
 //note: send (vehicle _object) as an argument
