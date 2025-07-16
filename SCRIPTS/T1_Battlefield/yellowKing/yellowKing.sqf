@@ -35,9 +35,8 @@ NWG_YK_Settings = createHashMapFromArray [
     ["SPECIAL_LONEMERGE_ENABLED",true],//Is lone group merge allowed
 
     /*Statistics*/
-    ["STATISTICS_ENABLED",true],//If true, the system will keep track of statistics
-    ["STATISTICS_TO_RPT",true],//If true, the statistics will be dumped to rpt
-    ["STATISTICS_TO_PROFILENAMESPACE",false],//If true, the statistics will be saved to profileNamespace
+    ["STATISTICS_ENABLED",true],//If true, the system will keep track of statistics and output them to the RPT log
+    ["STATISTICS_ADVANCED_COMBAT",true],//If true, additional statistics will be outputted for advanced combat (must be enabled on advanced combat side as well)
 
     /*Difficulty*/
     ["DIFFICULTY_REACTION_COOLDOWN",[45,90]],//Min and max time before the next reaction can be started  (will be defined randomly between the two)
@@ -839,15 +838,12 @@ NWG_YK_STAT_Output = {
     if (NWG_YK_Settings get "SPECIAL_VEHREPAIR_ENABLED") then {_lines pushBack (format ["VEHREPAIR: %1",(_stat get STAT_SPEC_VEHREPAIR)])};
     if (NWG_YK_Settings get "SPECIAL_LONEMERGE_ENABLED") then {_lines pushBack (format ["LONEMERGE: %1",(_stat get STAT_SPEC_LONEMERGE)])};
 
-    if (NWG_YK_Settings get "STATISTICS_TO_RPT") then {
-        diag_log text "==========[ YELLOW KING STATS ]===========";
-        {diag_log (text _x)} forEach _lines;
-        diag_log text "==========[        END        ]===========";
-    };
+    diag_log text "==========[ YELLOW KING STATS ]===========";
+    {diag_log (text _x)} forEach _lines;
+    diag_log text "==========[        END        ]===========";
 
-    if (NWG_YK_Settings get "STATISTICS_TO_PROFILENAMESPACE") then {
-        profileNamespace setVariable ["NWG_YK_STATISTICS",_lines];
-        saveProfileNamespace;//Adds a lag
+    if (NWG_YK_Settings get "STATISTICS_ADVANCED_COMBAT") then {
+        call NWG_fnc_acPrintStatistics;
     };
 };
 

@@ -231,3 +231,11 @@ NWG_fnc_acIsGroupBusy = {
     // private _group = _this;
     _this call NWG_ACA_IsDoingAdvancedLogic
 };
+
+//=============================================================================
+/*Statistics*/
+//Print statistics to the RPT log
+NWG_fnc_acPrintStatistics = {
+    call NWG_ACA_PrintStatistics;
+    call NWG_ACP_PrintStatistics;
+};
