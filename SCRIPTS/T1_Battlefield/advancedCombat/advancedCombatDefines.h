@@ -18,3 +18,12 @@
 #define STAT_ACA_ABORTED 1
 #define STAT_ACA_TIMEOUT 2
 #define STAT_ACA_SUCCESS 3
+
+//Statistics - Advanced Combat Passive
+#define STAT_ACP_SKILLSET 0
+#define STAT_ACP_WOUNDED 1
+#define STAT_ACP_STAY_IN_VEHICLE 2
+
+#define STAT_ACP_TOTAL 0
+#define STAT_ACP_SKIPPED 1
+#define STAT_ACP_APPLIED 2
