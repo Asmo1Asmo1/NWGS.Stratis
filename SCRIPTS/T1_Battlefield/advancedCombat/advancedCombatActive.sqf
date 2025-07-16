@@ -1,4 +1,5 @@
 #include "..\..\globalDefines.h"
+#include "advancedCombatDefines.h"
 /*
     This module implements the following logic:
     - Airstrike
@@ -62,6 +63,8 @@ NWG_ACA_Settings = createHashMapFromArray [
 
     ["HELPER_WAYPOINT_ADD",true],//Add first waypoint at current vehicle position to be visible at spectator view
     ["HELPER_CLASSNAMES",["O_Quadbike_01_F","O_Soldier_AT_F"]],//params ["_invisibleVehicle","_agentToPutIntoVehicle"] (faction matters!)
+
+    ["STATISTICS_ENABLED",true],//If true, the system will keep track of statistics and output them to the RPT log
 
     ["",0]
 ];
@@ -207,10 +210,13 @@ NWG_ACA_SendToAirstrike = {
 
 NWG_ACA_Airstrike = {
     params ["_group","_target",["_numberOfStrikes",1]];
+    [STAT_ACA_AIRSTRIKE,STAT_ACA_TOTAL] call NWG_ACA_AddStat;
     private _plane = vehicle (leader _group);
     private _pilot = currentPilot _plane;//Fix for some helicopters
     private _abortCondition = {!alive _plane || {!alive _pilot || {!alive _target}}};
-    if (call _abortCondition) exitWith {};//Immediate check
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_AIRSTRIKE,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+    };//Immediate check
 
     _group setBehaviourStrong "CARELESS";
     _group setCombatBehaviour "CARELESS";
@@ -222,11 +228,13 @@ NWG_ACA_Airstrike = {
     private _helper = objNull;
     private _laser = objNull;
 
+    //Statistics
+    private _statFired = false;
+    private _statTimed = false;
+
     //Start Airstrike cycle
-    private _counter = 0;
-    waitUntil
-    {
-        if (call _abortCondition) exitWith {true};
+    for "_i" from 1 to _numberOfStrikes do {
+        if (call _abortCondition) exitWith {};
 
         //0. Fix pilots stucking in one place (No longer needed?)
         // if !(unitIsUAV _plane) then {
@@ -245,16 +253,13 @@ NWG_ACA_Airstrike = {
         _plane flyInHeightASL [_prepareAltitude,_prepareAltitude,_prepareAltitude];
         waitUntil {
             sleep 1;
-            if (call _abortCondition) exitWith {true};
+            if (call _abortCondition) exitWith {true};//Abort the mission
             if (time > _timeoutAt) exitWith {true};//Timeout
             if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint reached
             false/*go to next iteration*/
         };
-        if (call _abortCondition) exitWith {true};
-        if (time > _timeoutAt && {(_plane distance2D _target) < (NWG_ACA_Settings get "AIRSTRIKE_DESCEND_RADIUS")}) exitWith {
-            "NWG_ACA_Airstrike: timeout reached at 'Fly away' stage and plane is not far enough - exiting cycle" call NWG_fnc_logError;
-            true
-        };
+        if (call _abortCondition) exitWith {};
+        if (time > _timeoutAt && {(_plane distance2D _target) < (NWG_ACA_Settings get "AIRSTRIKE_DESCEND_RADIUS")}) exitWith {_statTimed = true};
 
         //2. Create airstrike helper at current target position
         _helper = [_group,_target] call NWG_ACA_CreateHelper;
@@ -273,11 +278,8 @@ NWG_ACA_Airstrike = {
             if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint reached (shouldn't happen actually)
             false
         };
-        if (call _abortCondition) exitWith {true};
-        if (time > _timeoutAt && {(_plane distance2D _target) < (NWG_ACA_Settings get "AIRSTRIKE_STOP_RADIUS")}) exitWith {
-            "NWG_ACA_Airstrike: timeout reached at 'Fly toward target' stage and plane is not far enough - exiting cycle" call NWG_fnc_logError;
-            true
-        };
+        if (call _abortCondition) exitWith {};
+        if (time > _timeoutAt && {(_plane distance2D _target) < (NWG_ACA_Settings get "AIRSTRIKE_STOP_RADIUS")}) exitWith {_statTimed = true};
 
         //4. Descend and fire (we take manual control over Arma physics and AI behavior for this part, so no need to check for waypoint completion or timeout)
         _plane flyInHeight [0,true];
@@ -287,8 +289,6 @@ NWG_ACA_Airstrike = {
         waitUntil {
             sleep 0.05;//Smallest value required for plane not to jiggle
             if (call _abortCondition) exitWith {true};
-            if ((_plane distance2D _helper) <= (NWG_ACA_Settings get "AIRSTRIKE_STOP_RADIUS")) exitWith {true};//Enough, stop
-            if ((_plane distance2D _helper) >= (NWG_ACA_Settings get "AIRSTRIKE_FIRE_RADIUS")) exitWith {false};//Continue getting closer
 
             //Continuously recalculate direction to target
             _dirVectorNormalized = vectorNormalized ((getPosASL _helper) vectorDiff (getPosASL _plane));
@@ -303,11 +303,36 @@ NWG_ACA_Airstrike = {
             //Ensure targeting is maintained
             {_x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
 
-            if ((random 1) > 0.4) exitWith {false};//Chance to skip fire (fires too often otherwise)
-            [_plane,_strikeData,_helper] call NWG_ACA_VehicleForceFire;//Fire
-            false
+            //Exit when close enough
+            (_plane distance2D _helper) <= (NWG_ACA_Settings get "AIRSTRIKE_FIRE_RADIUS")
         };
-        if (call _abortCondition) exitWith {true};
+        waitUntil {
+            sleep 0.05;//Smallest value required for plane not to jiggle
+            if (call _abortCondition) exitWith {true};
+
+            //Continuously recalculate direction to target
+            _dirVectorNormalized = vectorNormalized ((getPosASL _helper) vectorDiff (getPosASL _plane));
+            _currentSpeed = vectorMagnitude (velocity _plane);
+            if (_currentSpeed < 50) then {_currentSpeed = 100}; //Minimum speed to prevent stalling
+            _newVelocity = _dirVectorNormalized vectorMultiply _currentSpeed;
+
+            //Update plane direction and velocity
+            _plane setVectorDirAndUp [_dirVectorNormalized,[0,0,1]];
+            _plane setVelocity _newVelocity;
+
+            //Ensure targeting is maintained
+            {_x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
+
+            //Fire sequence
+            if ((random 1) > 0.4) then {
+                [_plane,_strikeData,_helper] call NWG_ACA_VehicleForceFire;//Fire
+                _statFired = true;
+            };
+
+            //Exit when close enough
+            (_plane distance2D _helper) <= (NWG_ACA_Settings get "AIRSTRIKE_STOP_RADIUS")
+        };
+        if (call _abortCondition) exitWith {};
 
         //5. Release and reload
         private _restoreAltitude = call NWG_fnc_dtsGetAirHeight;
@@ -329,15 +354,11 @@ NWG_ACA_Airstrike = {
             _distOld = _distNew;
             false
         };
-        if (call _abortCondition) exitWith {true};
+        if (call _abortCondition) exitWith {};
         if (!isNull _helper) then {
             deleteVehicle _laser;
             _helper call NWG_ACA_DeleteHelper;
         };
-
-        //return
-        _counter = _counter + 1;
-        _counter >= _numberOfStrikes
     };
 
     //Cleanup
@@ -353,6 +374,11 @@ NWG_ACA_Airstrike = {
     if (alive _plane) then {
         _plane setVehicleAmmo 1;
     };
+
+    //Statistics
+    if (_statFired) exitWith {[STAT_ACA_AIRSTRIKE,STAT_ACA_SUCCESS] call NWG_ACA_AddStat};
+    if (_statTimed) exitWith {[STAT_ACA_AIRSTRIKE,STAT_ACA_TIMEOUT] call NWG_ACA_AddStat};
+    [STAT_ACA_AIRSTRIKE,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
 };
 
 /*Utils*/
@@ -453,15 +479,21 @@ NWG_ACA_SendArtilleryStrike = {
 
 NWG_ACA_ArtilleryStrike = {
     params ["_group","_target"];
+    [STAT_ACA_ARTILLERY,STAT_ACA_TOTAL] call NWG_ACA_AddStat;
 
     //Prepare variables
     private _artillery = _group call NWG_ACA_GetArtilleryVehicle;
-    if (isNull _artillery) exitWith {"NWG_ACA_ArtilleryStrike: No artillery units found" call NWG_fnc_logError};
+    if (isNull _artillery) exitWith {
+        "NWG_ACA_ArtilleryStrike: No artillery units found" call NWG_fnc_logError;
+        [STAT_ACA_ARTILLERY,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+    };
     private _count = selectRandom (NWG_ACA_Settings get "ARTILLERY_STRIKE_COUNTS");
     private _timeoutAt = time + (NWG_ACA_Settings get "ARTILLERY_STRIKE_TIMEOUT");
     private _gunner = gunner _artillery;
-    private _abortCondition = {!alive _artillery || {!alive _gunner || {time > _timeoutAt}}};
-    if (call _abortCondition) exitWith {};//Immediate check
+    private _abortCondition = {!alive _artillery || {!alive _gunner}};
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_ARTILLERY,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+    };//Immediate check
 
     //Unfreeze (fix for dynamic simulation)
     {
@@ -496,12 +528,9 @@ NWG_ACA_ArtilleryStrike = {
         sleep 0.1;
         if (call _abortCondition) exitWith {true};
         if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};
-        if ((_artillery getVariable ["NWG_ACA_artFiredCountDown",0]) <= 0) exitWith {true};
         if (time > _timeoutAt) exitWith {true};
+        if ((_artillery getVariable ["NWG_ACA_artFiredCountDown",0]) <= 0) exitWith {true};
         false
-    };
-    if (time > _timeoutAt) then {
-        "NWG_ACA_ArtilleryStrikeCore: timeout reached" call NWG_fnc_logError;
     };
 
     //Cleanup
@@ -513,6 +542,11 @@ NWG_ACA_ArtilleryStrike = {
     if (alive _artillery) then {
         _artillery setVehicleAmmo 1;
     };
+
+    //Statistics
+    if ((_artillery getVariable ["NWG_ACA_artFiredCountDown",_count]) < _count) exitWith {[STAT_ACA_ARTILLERY,STAT_ACA_SUCCESS] call NWG_ACA_AddStat};
+    if (time > _timeoutAt) exitWith {[STAT_ACA_ARTILLERY,STAT_ACA_TIMEOUT] call NWG_ACA_AddStat};
+    [STAT_ACA_ARTILLERY,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
 };
 
 //================================================================================================================
@@ -581,10 +615,18 @@ NWG_ACA_ReplaceTarget = {
 
 NWG_ACA_VehDemolition = {
     params ["_group","_target"];
+    [STAT_ACA_VEH_DEMOL,STAT_ACA_TOTAL] call NWG_ACA_AddStat;
     private _veh = vehicle (leader _group);
     private _timeoutAt = time + (NWG_ACA_Settings get "VEH_DEMOLITION_TIMEOUT");
-    private _abortCondition = {!alive _veh || {!alive (driver _veh) || {!alive (gunner _veh) || {!alive _target || {time > _timeoutAt}}}}};
-    if (call _abortCondition) exitWith {};//Immediate check
+    private _abortCondition = {
+        !alive _veh || {
+        !alive (driver _veh) || {
+        !alive (gunner _veh) || {
+        !alive _target || {
+        ((_veh nearEntities [["Man"],7]) findIf {isPlayer _x}) != -1}}}}};
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_VEH_DEMOL,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+    };//Immediate check
 
     //Setup
     _veh setVehicleAmmo 1;
@@ -610,36 +652,51 @@ NWG_ACA_VehDemolition = {
         if (call _abortCondition) exitWith {true};
         if ([_veh,_target] call NWG_ACA_IsClearLineBetween) exitWith {true};//Ready to fire
         if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint completed
+        if (time > _timeoutAt) exitWith {true};
         false
     };
-    if (time > _timeoutAt) then {
-        "NWG_ACA_VehDemolition: timeout reached" call NWG_fnc_logError;
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_VEH_DEMOL,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+        call _onExit;
     };
-    if (call _abortCondition) exitWith {call _onExit};
+    if (time > _timeoutAt) exitWith {
+        [STAT_ACA_VEH_DEMOL,STAT_ACA_TIMEOUT] call NWG_ACA_AddStat;
+        call _onExit;
+    };
 
     //Stop and watch
     _group call NWG_fnc_dsClearWaypoints;
     private _helper = [_group,_target] call NWG_ACA_CreateHelper;
     {doStop _x; _x reveal _helper; _x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
     sleep 2;//Wait for turret to turn
-    if (call _abortCondition) exitWith {call _onExit};
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_VEH_DEMOL,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+        call _onExit;
+    };
 
     //Fire
     private _stopFireAt = time + (NWG_ACA_Settings get "VEH_DEMOLITION_DURATION");
+    {_x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;//Keep targeting
     _group setCombatMode "RED";
+    private _statFired = false;
     waitUntil {
         sleep 0.1;
         _target = _target call NWG_ACA_ReplaceTarget;
         if (call _abortCondition) exitWith {true};
         if (time > _stopFireAt) exitWith {true};
-        {_x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
+        {_x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;//Keep targeting
         if ((random 1) > 0.2) exitWith {false};//Chance to skip fire (fires too often otherwise)
         [_veh,_strikeData,_helper] call NWG_ACA_VehicleForceFire;
+        _statFired = true;
         false
     };
 
     //Cleanup
     call _onExit;
+
+    //Statistics
+    if (_statFired) exitWith {[STAT_ACA_VEH_DEMOL,STAT_ACA_SUCCESS] call NWG_ACA_AddStat};
+    [STAT_ACA_VEH_DEMOL,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
 };
 
 //================================================================================================================
@@ -674,9 +731,12 @@ NWG_ACA_SendToInfBuildingStorm = {
 #define FIRE_TYPE_GRNDE 2
 NWG_ACA_InfBuildingStorm = {
     params ["_group","_target"];
-    private _timeout = time + (NWG_ACA_Settings get "INF_STORM_TIMEOUT");
-    private _abortCondition = {({alive _x} count (units _group)) < 1 || {time > _timeout}};
-    if (call _abortCondition) exitWith {};//Immediate check
+    [STAT_ACA_INF_STORM,STAT_ACA_TOTAL] call NWG_ACA_AddStat;
+    private _timeoutAt = time + (NWG_ACA_Settings get "INF_STORM_TIMEOUT");
+    private _abortCondition = {({alive _x} count (units _group)) < 1};
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_INF_STORM,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+    };//Immediate check
 
     //Setup
     private _strikeTeam = units _group;
@@ -697,29 +757,38 @@ NWG_ACA_InfBuildingStorm = {
     waitUntil {
         sleep 1;
         if (call _abortCondition) exitWith {true};
+        if (time > _timeoutAt) exitWith {true};
         if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint completed
         //Exit cycle when within firing range
         ((leader _group) distance _target) <= (NWG_ACA_Settings get "INF_STORM_FIRE_RADIUS")
     };
-    if (time > _timeout) then {
-        "NWG_ACA_InfBuildingStorm: timeout reached on step 1" call NWG_fnc_logError;
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_INF_STORM,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+        call _onExit;
     };
-    if (call _abortCondition) exitWith {call _onExit};
+    if (time > _timeoutAt) exitWith {
+        [STAT_ACA_INF_STORM,STAT_ACA_TIMEOUT] call NWG_ACA_AddStat;
+        call _onExit;
+    };
 
-    //Get within firing range
+    //Ensure enough units can see the target
     waitUntil {
         sleep 1;
-        _strikeTeam = _strikeTeam select {alive _x};//Update list
-        if ((count _strikeTeam) <= 0) exitWith {true};//No units left
         if (call _abortCondition) exitWith {true};
+        if (time > _timeoutAt) exitWith {true};
         if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint completed
         //Exit cycle when enough units can see the target
+        _strikeTeam = _strikeTeam select {alive _x};
         (({[_x,_target] call NWG_ACA_IsClearLineBetween} count _strikeTeam) >= (ceil ((count _strikeTeam) * 0.5)))
     };
-    if (time > _timeout) then {
-        "NWG_ACA_InfBuildingStorm: timeout reached on step 2" call NWG_fnc_logError;
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_INF_STORM,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+        call _onExit;
     };
-    if (call _abortCondition) exitWith {call _onExit};
+    if (time > _timeoutAt) exitWith {
+        [STAT_ACA_INF_STORM,STAT_ACA_TIMEOUT] call NWG_ACA_AddStat;
+        call _onExit;
+    };
 
     //Stop and watch
     _group call NWG_fnc_dsClearWaypoints;
@@ -732,13 +801,11 @@ NWG_ACA_InfBuildingStorm = {
     private _stopFireAt = time + (NWG_ACA_Settings get "INF_STORM_FIRE_TIME");
     waitUntil {
         sleep 1;
-        _target = _target call NWG_ACA_ReplaceTarget;
         if (call _abortCondition) exitWith {true};
-        if (time > _stopFireAt) exitWith {true};
-        _strikeTeam = _strikeTeam select {alive _x};//Update list
-        if ((count _strikeTeam) <= 0) exitWith {true};//No units left
+        _target = _target call NWG_ACA_ReplaceTarget;
 
         //forEach unit
+        _strikeTeam = _strikeTeam select {alive _x};//Update list
         private ["_unit","_weaponsInfo","_primaryWeapon","_secondaryWeapon","_g","_i","_fireType","_muzzle"];
         {
             _unit = _x;
@@ -783,8 +850,11 @@ NWG_ACA_InfBuildingStorm = {
 
         time > _stopFireAt
     };
-    _helper call NWG_ACA_DeleteHelper;
-    if (call _abortCondition) exitWith {call _onExit};
+    if (!isNull _helper) then {_helper call NWG_ACA_DeleteHelper};
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_INF_STORM,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+        call _onExit;
+    };
 
     //Storm the building
     private _buildingPos = _target buildingPos -1;
@@ -801,10 +871,14 @@ NWG_ACA_InfBuildingStorm = {
     };
     if (_attempts <= 0) exitWith {
         "NWG_ACA_InfBuildingStorm: failed to find enough positions to storm the building" call NWG_fnc_logError;
+        [STAT_ACA_INF_STORM,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
         call _onExit;
     };
     _strikeTeam = _strikeTeam select {alive _x};//Update list
-    if ((count _strikeTeam) <= 0) exitWith {call _onExit};//No units left
+    if ((count _strikeTeam) <= 0) exitWith {
+        [STAT_ACA_INF_STORM,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+        call _onExit;
+    };//No units left
     {
         _x forceSpeed -1;
         _x doMove (_buildingPos select _forEachIndex);
@@ -817,9 +891,13 @@ NWG_ACA_InfBuildingStorm = {
         if (call _abortCondition) exitWith {true};
         time > _stopStormAt
     };
+    //No need to check for abort condition here, because it's ok if players killed the units at this point
 
     //Cleanup
     call _onExit;
+
+    //Statistics
+    [STAT_ACA_INF_STORM,STAT_ACA_SUCCESS] call NWG_ACA_AddStat;
 };
 
 //================================================================================================================
@@ -859,10 +937,13 @@ NWG_ACA_SendToVehRepair = {
 
 NWG_ACA_VehRepair = {
     params ["_group"];
+    [STAT_ACA_VEH_REPAIR,STAT_ACA_TOTAL] call NWG_ACA_AddStat;
     private _veh = vehicle (leader _group);
     private _crew = crew _veh;
     private _abortCondition = {!alive _veh || {({alive _x} count _crew) < 1}};
-    if (call _abortCondition) exitWith {};//Immediate check
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_VEH_REPAIR,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+    };//Immediate check
 
     //Reload the crew if driver is dead
     if (!alive (driver _veh)) then {
@@ -892,29 +973,38 @@ NWG_ACA_VehRepair = {
     };
 
     //Move to the repair position (or at least away from players)
-    private _timeout = time + (NWG_ACA_Settings get "VEH_REPAIR_TIMEOUT");
+    private _timeoutAt = time + (NWG_ACA_Settings get "VEH_REPAIR_TIMEOUT");
     [_group,_veh,(NWG_ACA_Settings get "VEH_REPAIR_RADIUS"),"ground"] call NWG_ACA_CreateWaypointAround;
     waitUntil {
         sleep 1;
         if (call _abortCondition) exitWith {true};
-        if (time > _timeout) exitWith {true};//Timeout
+        if (time > _timeoutAt) exitWith {true};//Timeout
         if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint completed
         call _isSafeToRepair
     };
-    if (call _abortCondition) exitWith {call _onExit};
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_VEH_REPAIR,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+        call _onExit;
+    };
 
     //Unload the crew
     _crew = _crew select {alive _x};
     {doStop _x} forEach _crew;
     sleep 2;
-    if (call _abortCondition) exitWith {call _onExit};
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_VEH_REPAIR,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+        call _onExit;
+    };
     _crew = _crew select {alive _x};
     _group leaveVehicle _veh;
     {_x moveOut _veh} forEach _crew;
 
     //Repair
     sleep 1;
-    if (call _abortCondition) exitWith {call _onExit};
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_VEH_REPAIR,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+        call _onExit;
+    };
     _crew = _crew select {alive _x};
     {
         _x setDir (_x getDir _veh);
@@ -922,7 +1012,10 @@ NWG_ACA_VehRepair = {
         _x playMoveNow "Acts_carFixingWheel";
     } forEach _crew;
     sleep ((random 2)+5);
-    if (call _abortCondition) exitWith {call _onExit};
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_VEH_REPAIR,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+        call _onExit;
+    };
     _veh setDamage 0;
 
     //Reload the crew
@@ -932,6 +1025,9 @@ NWG_ACA_VehRepair = {
 
     //Cleanup
     call _onExit;
+
+    //Statistics
+    [STAT_ACA_VEH_REPAIR,STAT_ACA_SUCCESS] call NWG_ACA_AddStat;
 };
 
 //================================================================================================================
@@ -969,11 +1065,18 @@ NWG_ACA_SendToInfVehCapture = {
 
 NWG_ACA_InfVehCapture = {
     params ["_group","_targetVehicle"];
+    [STAT_ACA_VEH_CAPTURE,STAT_ACA_TOTAL] call NWG_ACA_AddStat;
     private _leader = leader _group;
     private _timeoutAt = time + (NWG_ACA_Settings get "INF_VEH_CAPTURE_TIMEOUT");
-    private _abortCondition = {({alive _x} count (units _group)) < 1 || {time > _timeoutAt}};
-    private _vehicleInvalidCondition = {!alive _targetVehicle || {(crew _targetVehicle) findIf {!(_x in (units _group))} != -1}};
-    if (call _abortCondition || {call _vehicleInvalidCondition}) exitWith {};//Immediate check
+    private _abortCondition = {
+        ({alive _x} count (units _group)) < 1 || {
+        !alive _targetVehicle || {
+        (crew _targetVehicle) findIf {!(_x in (units _group))} != -1}}
+    };
+    private _successCondition = {((units _group) select {alive _x}) findIf {(vehicle _x) isNotEqualTo _targetVehicle} == -1};
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_VEH_CAPTURE,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+    };//Immediate check
 
     //Setup
     _group setCombatMode "BLUE";
@@ -995,17 +1098,20 @@ NWG_ACA_InfVehCapture = {
     waitUntil {
         sleep 1;
         if (call _abortCondition) exitWith {true};
-        if (call _vehicleInvalidCondition) exitWith {true};//Vehicle no longer valid
-        if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint completed
+        if (call _successCondition) exitWith {true};
         if (time > _timeoutAt) exitWith {true};//Timeout
+        if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint completed
         false
-    };
-    if (time > _timeoutAt) then {
-        "NWG_ACA_InfVehCapture: timeout reached" call NWG_fnc_logError;
     };
 
     //Cleanup
     call _onExit;
+
+    //Statistics
+    if (call _abortCondition) exitWith {[STAT_ACA_VEH_CAPTURE,STAT_ACA_ABORTED] call NWG_ACA_AddStat};
+    if (call _successCondition) exitWith {[STAT_ACA_VEH_CAPTURE,STAT_ACA_SUCCESS] call NWG_ACA_AddStat};
+    if (time > _timeoutAt) exitWith {[STAT_ACA_VEH_CAPTURE,STAT_ACA_TIMEOUT] call NWG_ACA_AddStat};
+    [STAT_ACA_VEH_CAPTURE,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
 };
 
 //================================================================================================================
@@ -1042,10 +1148,13 @@ NWG_ACA_SendToVehFlee = {
 
 NWG_ACA_VehFlee = {
     params ["_group"];
+    [STAT_ACA_VEH_FLEE,STAT_ACA_TOTAL] call NWG_ACA_AddStat;
     private _veh = vehicle (leader _group);
     private _timeoutAt = time + (NWG_ACA_Settings get "VEH_FLEE_TIMEOUT");
-    private _abortCondition = {!alive _veh || {!alive (leader _group) || {time > _timeoutAt}}};
-    if (call _abortCondition) exitWith {};//Immediate check
+    private _abortCondition = {!alive _veh || {!alive (leader _group)}};
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_VEH_FLEE,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+    };//Immediate check
 
     //Setup
     _group setCombatMode "BLUE";
@@ -1065,18 +1174,79 @@ NWG_ACA_VehFlee = {
         sleep 1;
         if (call _abortCondition) exitWith {true};
         if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint completed
+        if (time > _timeoutAt) exitWith {true};//Timeout
         false
     };
-    if (time > _timeoutAt) then {
-        "NWG_ACA_VehFlee: timeout reached" call NWG_fnc_logError;
+    if (call _abortCondition) exitWith {
+        [STAT_ACA_VEH_FLEE,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
+        call _onExit;
     };
-    if (call _abortCondition) exitWith {call _onExit};
 
     //Check that there are no players anywhere near despawn radius
     private _players = call NWG_fnc_getPlayersOrOccupiedVehicles;
     private _minDist = 100000;
     {_minDist = _minDist min (_veh distance2D _x)} forEach _players;
-    if (_minDist < (NWG_ACA_Settings get "VEH_FLEE_DESPAWN_RADIUS"))
-        then {call _onExit}
-        else {_group call NWG_fnc_gcDeleteGroup};
+    if (_minDist >= (NWG_ACA_Settings get "VEH_FLEE_DESPAWN_RADIUS")) exitWith {
+        [STAT_ACA_VEH_FLEE,STAT_ACA_SUCCESS] call NWG_ACA_AddStat;
+        _group call NWG_fnc_gcDeleteGroup;
+    };
+
+    //Cleanup
+    call _onExit;
+
+    //Statistics
+    if (time > _timeoutAt)
+        then {[STAT_ACA_VEH_FLEE,STAT_ACA_TIMEOUT] call NWG_ACA_AddStat}
+        else {[STAT_ACA_VEH_FLEE,STAT_ACA_ABORTED] call NWG_ACA_AddStat};
+};
+
+//================================================================================================================
+//Statistics
+NWG_ACA_statistics = [
+/*STAT_ACA_AIRSTRIKE:*/     [0,0,0,0],
+/*STAT_ACA_ARTILLERY:*/     [0,0,0,0],
+/*STAT_ACA_VEH_DEMOL:*/     [0,0,0,0],
+/*STAT_ACA_INF_STORM:*/     [0,0,0,0],
+/*STAT_ACA_VEH_REPAIR:*/    [0,0,0,0],
+/*STAT_ACA_VEH_CAPTURE:*/   [0,0,0,0],
+/*STAT_ACA_VEH_FLEE:*/      [0,0,0,0]
+];
+
+NWG_ACA_AddStat = {
+    params ["_logicType","_statType"];
+    if !(NWG_ACA_Settings get "STATISTICS_ENABLED") exitWith {};
+
+    private _stats = NWG_ACA_statistics param [_logicType,[]];
+    private _stat = _stats param [_statType,0];
+    _stats set [_statType,_stat + 1];
+    NWG_ACA_statistics set [_logicType,_stats];
+};
+
+NWG_ACA_PrintStatistics = {
+    //Check if statistics are enabled
+    if !(NWG_ACA_Settings get "STATISTICS_ENABLED") exitWith {
+        "NWG_ACA_PrintStatistics: statistics are disabled" call NWG_fnc_logInfo;
+    };
+
+    //Print statistics
+    private _stats = NWG_ACA_statistics;
+    private _format = {
+        params ["_total","_aborted","_timeout","_success"];
+        (format ["Total:%1 (A:%2, T:%3, S:%4)",_total,_aborted,_timeout,_success])
+    };
+    private _lines = [
+        (format ["AIRSTRIKE:   %1",((_stats#STAT_ACA_AIRSTRIKE) call _format)]),
+        (format ["ARTILLERY:   %1",((_stats#STAT_ACA_ARTILLERY) call _format)]),
+        (format ["VEH DEMOL:   %1",((_stats#STAT_ACA_VEH_DEMOL) call _format)]),
+        (format ["INF STORM:   %1",((_stats#STAT_ACA_INF_STORM) call _format)]),
+        (format ["VEH REPAIR:  %1",((_stats#STAT_ACA_VEH_REPAIR) call _format)]),
+        (format ["VEH CAPTURE: %1",((_stats#STAT_ACA_VEH_CAPTURE) call _format)]),
+        (format ["VEH FLEE:    %1",((_stats#STAT_ACA_VEH_FLEE) call _format)])
+    ];
+    diag_log text "==========[  AC ACTIVE STATS  ]===========";
+    {diag_log (text _x)} forEach _lines;
+    diag_log text "==========[        END        ]===========";
+
+    //Drop statistics
+    {NWG_ACA_statistics set [_forEachIndex,(_x apply {0})]} forEach NWG_ACA_statistics;
 };
