@@ -55,6 +55,7 @@ NWG_ACA_Settings = createHashMapFromArray [
     ["VEH_REPAIR_TIMEOUT",180],//Timeout for EACH STEP of veh repair
 
     ["INF_VEH_CAPTURE_RADIUS",150],//Radius to search for vehicles to capture
+    ["INF_VEH_CAPTURE_MARK_TIME",120],//Time to mark vehicle for capture (in seconds)
     ["INF_VEH_CAPTURE_TIMEOUT",240],//Timeout for inf vehicle capture
 
     ["VEH_FLEE_RADIUS",3000],//Radius to flee from current position
@@ -1032,10 +1033,35 @@ NWG_ACA_VehRepair = {
 //================================================================================================================
 //Inf vehicle capture
 NWG_ACA_GetInfVehCaptureTarget = {
-    //private _group = _this;
-    ((leader _this) nearEntities [["Car","Tank","Helicopter","Plane","Ship"],(NWG_ACA_Settings get "INF_VEH_CAPTURE_RADIUS")] select {
+    private _group = _this;
+
+    //Get possible target vehicle
+    private _veh = ((leader _group) nearEntities [["Car","Tank","Wheeled_APC_F"],(NWG_ACA_Settings get "INF_VEH_CAPTURE_RADIUS")] select {
         ((crew _x) isEqualTo []) && {_x call NWG_fnc_ocIsArmedVehicle}
-    }) param [0,objNull]
+    }) param [0,objNull];
+    if (isNull _veh || {!alive _veh}) exitWith {objNull};
+
+    //Check that we can claim the vehicle for capture
+    if ([_veh,_group] call NWG_ACA_CanClaimForInfVehCapture) exitWith {_veh};
+    objNull
+};
+
+NWG_ACA_CanClaimForInfVehCapture = {
+    params ["_veh","_group"];
+    private _mark = _veh getVariable "NWG_ACA_InfVehCaptureMark";
+    if (isNil "_mark") exitWith {true};//No mark yet
+    _mark params ["_markGroup","_markTime"];
+    if (_markGroup isEqualTo _group) exitWith {true};//Same group, so OK
+    if (({alive _x} count (units _markGroup)) == 0) exitWith {true};//Mark group is dead
+    if (time > _markTime) exitWith {true};//Mark expired
+    false
+};
+
+NWG_ACA_ClaimForInfVehCapture = {
+    params ["_veh","_group"];
+    if !([_veh,_group] call NWG_ACA_CanClaimForInfVehCapture) exitWith {false};
+    _veh setVariable ["NWG_ACA_InfVehCaptureMark",[_group,(time + (NWG_ACA_Settings get "INF_VEH_CAPTURE_MARK_TIME"))]];
+    true
 };
 
 NWG_ACA_CanDoInfVehCapture = {
@@ -1056,8 +1082,12 @@ NWG_ACA_SendToInfVehCapture = {
         "NWG_ACA_SendToInfVehCapture: no valid vehicle found to capture" call NWG_fnc_logError;
         false;
     };
+    if !([_targetVehicle,_this] call NWG_ACA_ClaimForInfVehCapture) exitWith {
+        "NWG_ACA_SendToInfVehCapture: could not claim vehicle for capture" call NWG_fnc_logError;
+        false;
+    };
 
-    //2. Reuse target vehicle as target arg for advanced logic (to reduce number of searches)
+    //Reuse target vehicle as target arg for advanced logic (to reduce number of searches)
     [_this,NWG_ACA_InfVehCapture,_targetVehicle] call NWG_ACA_StartAdvancedLogic;
     true
 };
