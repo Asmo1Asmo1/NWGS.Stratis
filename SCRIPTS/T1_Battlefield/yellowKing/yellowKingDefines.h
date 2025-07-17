@@ -45,9 +45,12 @@
 #define SPECIAL_ARTA "ARTA"
 #define SPECIAL_VEHDEM "VEHDEM"
 #define SPECIAL_INFSTORM "INFSTORM"
+
 //Passive specials
 #define SPECIAL_VEHREPAIR "VEHREPAIR"
 #define SPECIAL_LONEMERGE "LONEMERGE"
+#define SPECIAL_VEHCAPTURE "VEHCAPTURE"
+#define SPECIAL_VEHFLEE "VEHFLEE"
 
 //Dice structure
 #define DICE_TYPE 0
@@ -80,3 +83,5 @@
 #define STAT_SPEC_INFSTORM "InfStormCount"
 #define STAT_SPEC_VEHREPAIR "VehRepairCount"
 #define STAT_SPEC_LONEMERGE "LoneMergeCount"
+#define STAT_SPEC_VEHCAPTURE "VehCaptureCount"
+#define STAT_SPEC_VEHFLEE "VehFleeCount"

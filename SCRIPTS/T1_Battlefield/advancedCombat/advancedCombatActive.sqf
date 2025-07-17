@@ -914,7 +914,6 @@ NWG_ACA_CanDoVehRepair = {
 
 NWG_ACA_NeedsRepair = {
     // private _group = _this;
-    if !(_this call NWG_ACA_CanDoVehRepair) exitWith {false};
     private _veh = vehicle (leader _this);
     (((getAllHitPointsDamage _veh)#2) findIf {_x >= 0.25}) != -1
 };

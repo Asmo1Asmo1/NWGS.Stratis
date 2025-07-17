@@ -33,6 +33,8 @@ NWG_YK_Settings = createHashMapFromArray [
     ["SPECIAL_ALARMING_RADIUS",500],//Radius at which groups will be alarmed
     ["SPECIAL_VEHREPAIR_ENABLED",true],//Is vehicle repair allowed
     ["SPECIAL_LONEMERGE_ENABLED",true],//Is lone group merge allowed
+    ["SPECIAL_VEHCAPTURE_ENABLED",true],//Is vehicle capture allowed
+    ["SPECIAL_VEHFLEE_ENABLED",true],//Is vehicle flee allowed
 
     /*Statistics*/
     ["STATISTICS_ENABLED",true],//If true, the system will keep track of statistics and output them to the RPT log
@@ -366,7 +368,12 @@ NWG_YK_GetHuntersData = {
     _groups apply {
         _parent = _x call NWG_YK_GetGroupParent;
         _tags = if (_parent isEqualTo PARENT_DSPAWN) then {_x call NWG_fnc_dsGetTags} else {[]};
-        [([_x,_parent,_tags] call NWG_YK_GetGroupType),([_x,_parent,_tags] call NWG_YK_GetGroupSpecial),_x,(getPosASL (vehicle (leader _x)))]
+        [
+            /*HUNTER_TYPE:*/([_x,_parent,_tags] call NWG_YK_GetGroupType),
+            /*HUNTER_SPECIAL:*/([_x,_parent,_tags] call NWG_YK_GetGroupSpecial),
+            /*HUNTER_GROUP:*/_x,
+            /*HUNTER_POSITION:*/(getPosASL (vehicle (leader _x)))
+        ]
     }
 };
 
@@ -430,19 +437,32 @@ NWG_YK_GetGroupSpecial = {
     params ["_group","_parent","_tags"];
 
     if (_parent isEqualTo PARENT_DSPAWN) exitWith {
-        if ("INF"  in _tags       && {({alive _x} count (units _group)) == 1}) exitWith {SPECIAL_LONEMERGE};
-        if ("INF"  in _tags       && {_group call NWG_fnc_acCanDoInfBuildingStorm}) exitWith {SPECIAL_INFSTORM};
-        if ("VEH"  in _tags       && {_group call NWG_fnc_acNeedsRepair}) exitWith {SPECIAL_VEHREPAIR};
-        if ("ARTA" in _tags       && {_group call NWG_fnc_acCanDoArtilleryStrike}) exitWith {SPECIAL_ARTA};
-        if ("VEH"  in _tags       && {_group call NWG_fnc_acCanDoVehDemolition}) exitWith {SPECIAL_VEHDEM};
+        /*Infantry specials*/
+        if ("INF" in _tags) exitWith {
+            if (({alive _x} count (units _group)) == 1) exitWith {SPECIAL_LONEMERGE};//Single unit - prioritize lonemerge
+            if (_group call NWG_fnc_acCanDoInfVehCapture) exitWith {SPECIAL_VEHCAPTURE};//Group near vehicle - prioritize veh capture
+            if (_group call NWG_fnc_acCanDoInfBuildingStorm) exitWith {SPECIAL_INFSTORM};//Any other inf special
+            SPECIAL_NONE
+        };
+
+        /*Ground vehicle specials*/
+        if ("VEH" in _tags || {"ARM" in _tags}) exitWith {
+            if (_group call NWG_fnc_acCanDoVehRepair) exitWith {SPECIAL_VEHREPAIR};//Vehicle needs repair - prioritize veh repair
+            if ("ARTA" in _tags && {_group call NWG_fnc_acCanDoArtilleryStrike}) exitWith {SPECIAL_ARTA};//Can artillery strike - prioritize arta
+            if (_group call NWG_fnc_acCanDoVehFlee) exitWith {SPECIAL_VEHFLEE};//Should flee the battle - prioritize veh flee
+            if (_group call NWG_fnc_acCanDoVehDemolition) exitWith {SPECIAL_VEHDEM};//Any other armed vehicle special
+            SPECIAL_NONE
+        };
+
+        /*Air specials*/
         if ("AIRSTRIKE+" in _tags && {_group call NWG_fnc_acCanDoAirstrike}) exitWith {SPECIAL_AIRSTRIKE};
+
         SPECIAL_NONE
     };
 
     if (_parent isEqualTo PARENT_UKREP) exitWith {
-        if (_group call NWG_fnc_acCanDoArtilleryStrike)
-            then {SPECIAL_ARTA}
-            else {SPECIAL_NONE};
+        if (_group call NWG_fnc_acCanDoArtilleryStrike) exitWith {SPECIAL_ARTA};
+        SPECIAL_NONE
     };
 
     (format ["NWG_YK_GetGroupSpecial: Unknown parent: '%1'",_parent]) call NWG_fnc_logError;
@@ -460,11 +480,15 @@ NWG_YK_RunPassiveSpecials = {
     private _alarmRadius = NWG_YK_Settings get "SPECIAL_ALARMING_RADIUS";
     private _loneMergeEnabled = NWG_YK_Settings get "SPECIAL_LONEMERGE_ENABLED";
     private _vehRepairEnabled = NWG_YK_Settings get "SPECIAL_VEHREPAIR_ENABLED";
-    if (!_alarmEnabled && !_loneMergeEnabled && !_vehRepairEnabled) exitWith {_hunters};//No passive specials enabled
+    private _vehCaptureEnabled = NWG_YK_Settings get "SPECIAL_VEHCAPTURE_ENABLED";
+    private _vehFleeEnabled = NWG_YK_Settings get "SPECIAL_VEHFLEE_ENABLED";
+    if (!_alarmEnabled && !_loneMergeEnabled && !_vehRepairEnabled && !_vehCaptureEnabled && !_vehFleeEnabled) exitWith {_hunters};//No passive specials enabled
 
     //Prepare scripts
     private _loners = [];
     private _vehRepairs = [];
+    private _vehCaptures = [];
+    private _vehFlees = [];
     private _alarmHunter = if (_alarmEnabled) then {{
         // private _hunterRecord = _this;
         private _hunterPos = _this select HUNTER_POSITION;
@@ -484,11 +508,26 @@ NWG_YK_RunPassiveSpecials = {
             then {_vehRepairs pushBack _this; true}
             else {false}
     }} else {{false}};
+    private _extractCapture = if (_vehCaptureEnabled) then {{
+        // private _hunterRecord = _this;
+        if ((_this#HUNTER_SPECIAL) isEqualTo SPECIAL_VEHCAPTURE)
+            then {_vehCaptures pushBack _this; true}
+            else {false}
+    }} else {{false}};
+    private _extractFlee = if (_vehFleeEnabled) then {{
+        // private _hunterRecord = _this;
+        if ((_this#HUNTER_SPECIAL) isEqualTo SPECIAL_VEHFLEE)
+            then {_vehFlees pushBack _this; true}
+            else {false}
+    }} else {{false}};
 
     //Alarm and extract groups to act upon
     {
         _x call _alarmHunter;
-        if (_x call _extractLoner || {_x call _extractRepair}) then {_hunters deleteAt _forEachIndex};
+        if (_x call _extractLoner   || {
+            _x call _extractRepair  || {
+            _x call _extractCapture || {
+            _x call _extractFlee}}}) then {_hunters deleteAt _forEachIndex};
     } forEachReversed _hunters;
 
     //Merge loners
@@ -543,6 +582,44 @@ NWG_YK_RunPassiveSpecials = {
 
         /*Statistics*/
         [STAT_SPEC_VEHREPAIR,_vehRepairsCount] call NWG_YK_STAT_Increment;
+    };
+
+    //Capture vehicles
+    if ((count _vehCaptures) > 0) then {
+        /*Statistics*/
+        private _vehCapturesCount = count _vehCaptures;
+
+        /*Send each vehicle to capture*/
+        private _ok = true;
+        {
+            _ok = (_x#HUNTER_GROUP) call NWG_fnc_acSendToInfVehCapture;
+            if (isNil "_ok" || {_ok isNotEqualTo true}) then {
+                format ["NWG_YK_RunPassiveSpecials: Failed to send '%1' to capture. Result:%2",_x,_ok] call NWG_fnc_logError;
+                _vehCapturesCount = _vehCapturesCount - 1;
+            };
+        } forEach _vehCaptures;
+
+        /*Statistics*/
+        [STAT_SPEC_VEHCAPTURE,_vehCapturesCount] call NWG_YK_STAT_Increment;
+    };
+
+    //Flee vehicles
+    if ((count _vehFlees) > 0) then {
+        /*Statistics*/
+        private _vehFleesCount = count _vehFlees;
+
+        /*Send each vehicle to flee*/
+        private _ok = true;
+        {
+            _ok = (_x#HUNTER_GROUP) call NWG_fnc_acSendToVehFlee;
+            if (isNil "_ok" || {_ok isNotEqualTo true}) then {
+                format ["NWG_YK_RunPassiveSpecials: Failed to send '%1' to flee. Result:%2",_x,_ok] call NWG_fnc_logError;
+                _vehFleesCount = _vehFleesCount - 1;
+            };
+        } forEach _vehFlees;
+
+        /*Statistics*/
+        [STAT_SPEC_VEHFLEE,_vehFleesCount] call NWG_YK_STAT_Increment;
     };
 
     //return
@@ -766,7 +843,8 @@ NWG_YK_STAT_statisticsKeys = [
     STAT_KILL_COUNT,STAT_REACTION_COUNT,
     STAT_TARGETS_ACQUIRED,STAT_TARGETS_IGNORED,
     STAT_GROUPS_MOVED,STAT_REINFS_SENT,STAT_SPECIALS_USED,
-    STAT_SPEC_AIRSTRIKE,STAT_SPEC_ARTA,STAT_SPEC_VEHDEM,STAT_SPEC_INFSTORM,STAT_SPEC_VEHREPAIR,STAT_SPEC_LONEMERGE
+    STAT_SPEC_AIRSTRIKE,STAT_SPEC_ARTA,STAT_SPEC_VEHDEM,STAT_SPEC_INFSTORM,
+    STAT_SPEC_VEHREPAIR,STAT_SPEC_LONEMERGE,STAT_SPEC_VEHCAPTURE,STAT_SPEC_VEHFLEE
 ];
 NWG_YK_STAT_GetCurCounters = {
     private _curTime = round ((round time)/60);//Time in minutes
@@ -837,6 +915,8 @@ NWG_YK_STAT_Output = {
     if (NWG_YK_Settings get "SPECIAL_INFSTORM_ENABLED")  then {_lines pushBack (format ["INFSTORM: %1",(_stat get STAT_SPEC_INFSTORM)])};
     if (NWG_YK_Settings get "SPECIAL_VEHREPAIR_ENABLED") then {_lines pushBack (format ["VEHREPAIR: %1",(_stat get STAT_SPEC_VEHREPAIR)])};
     if (NWG_YK_Settings get "SPECIAL_LONEMERGE_ENABLED") then {_lines pushBack (format ["LONEMERGE: %1",(_stat get STAT_SPEC_LONEMERGE)])};
+    if (NWG_YK_Settings get "SPECIAL_VEHCAPTURE_ENABLED") then {_lines pushBack (format ["VEHCAPTURE: %1",(_stat get STAT_SPEC_VEHCAPTURE)])};
+    if (NWG_YK_Settings get "SPECIAL_VEHFLEE_ENABLED") then {_lines pushBack (format ["VEHFLEE: %1",(_stat get STAT_SPEC_VEHFLEE)])};
 
     diag_log text "==========[ YELLOW KING STATS ]===========";
     {diag_log (text _x)} forEach _lines;

@@ -135,17 +135,7 @@ NWG_fnc_acSendToInfBuildingStorm = {
 // boolean
 NWG_fnc_acCanDoVehRepair = {
     // private _group = _this;
-    _this call NWG_ACA_CanDoVehRepair
-};
-
-//Check if group's vehicle needs repair
-//params:
-// _group - group to check
-//returns:
-// boolean (also false if group has no vehicle or can't do repair)
-NWG_fnc_acNeedsRepair = {
-    // private _group = _this;
-    _this call NWG_ACA_NeedsRepair
+    (_this call NWG_ACA_CanDoVehRepair) && {_this call NWG_ACA_NeedsRepair}
 };
 
 //Send group to repair their vehicle
