@@ -103,19 +103,16 @@ NWG_OBCL_GetSameFurniture = {
 };
 
 //================================================================================================================
-//Object methods
+//Object type methods
 NWG_OBCL_IsUnit = {
     // private _object = _this;
     _this isKindOf "Man"
 };
 
+NWG_OBCL_vehTypes = [/*invalid:*/"ParachuteBase",/*valid:*/"Car","Tank","Helicopter","Plane","Ship"];
 NWG_OBCL_IsVehicle = {
     // private _object = _this;
-    (_this isKindOf "Car"        ||
-    {_this isKindOf "Tank"       ||
-    {_this isKindOf "Helicopter" ||
-    {_this isKindOf "Plane"      ||
-    {_this isKindOf "Ship"}}}})
+    (NWG_OBCL_vehTypes findIf {_this isKindOf _x}) > 0
 };
 
 NWG_OBCL_IsTurret = {
@@ -129,10 +126,10 @@ NWG_OBCL_IsMine = {
 };
 
 //================================================================================================================
-//Hub method
+//Object type hub method
 NWG_OBCL_GetObjectType = {
     // private _object = _this;
-    if (!(_this isEqualType objNull)) exitWith {
+    if !(_this isEqualType objNull) exitWith {
         (format ["NWG_OBCL_GetObjectType: Unexpected argument '%1'",_this]) call NWG_fnc_logError;
         ""
     };
@@ -147,6 +144,37 @@ NWG_OBCL_GetObjectType = {
         case (_this call NWG_OBCL_IsFurniture):{OBJ_TYPE_FURN};
         default {OBJ_TYPE_DECO};
     }
+};
+
+//================================================================================================================
+//Armed/unarmed vehicle methods
+NWG_OBCL_armedLookupMap = createHashMap;
+NWG_OBCL_IsArmedVehicle = {
+    private _vehicle = _this;
+    private _classname = typeOf _vehicle;
+
+    //Check lookup map
+    if (_classname in NWG_OBCL_armedLookupMap) exitWith {
+        NWG_OBCL_armedLookupMap get _classname
+    };
+
+    //Check pylons
+    if ((count (getPylonMagazines _vehicle)) > 0) exitWith {
+        NWG_OBCL_armedLookupMap set [_classname,true];
+        true
+    };
+
+    //Check weapons
+    private _notWeapon = ["Horn","Laserdesignator","CMFlareLauncher","SmokeLauncher"];
+    private _weapons = (fullCrew [_vehicle,"",true]) apply {_vehicle weaponsTurret (_x#3)};//Get all weapons of all turrets
+    _weapons = flatten _weapons;//Unwrap subarrays
+    private _cur = "";
+    private _i = _weapons findIf {_cur = _x; (_notWeapon findIf {_x in _cur}) == -1};//Find any first valid weapon
+
+    //Cache and return
+    private _result = (_i != -1);
+    NWG_OBCL_armedLookupMap set [_classname,_result];
+    _result
 };
 
 //================================================================================================================

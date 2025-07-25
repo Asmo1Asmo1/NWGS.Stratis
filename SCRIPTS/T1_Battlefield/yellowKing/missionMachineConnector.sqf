@@ -19,13 +19,17 @@ NWG_YK_MMC_OnMissionStateChanged = {
 	private _mObjects = call NWG_fnc_mmGetMissionObjects;
 	private _mSide = call NWG_fnc_mmGetMissionSide;
 
-	//Prepare script
-	private _separate = {
-		// private _veh = _this;
-		private _crew = (crew _this) select {alive _x};
-		if ((count _crew) == 0) exitWith {};//Empty vehicle
-		if ((side _this) != _mSide) exitWith {};//Not of mission side
-		if ((count (units (group (_crew#0)))) == (count _crew)) exitWith {};//All crew is in the group
+	//Separate crews of artillery-capable vehicles into separate groups
+	{
+		if !(alive _x) then {continue};//Not alive
+		if !(alive (gunner _x)) then {continue};//No gunner
+		if ((getArtilleryAmmo [_x]) isEqualTo []) then {continue};//No artillery capabilities
+
+		private _veh = _x;
+		private _crew = (crew _veh) select {alive _x};
+		if ((count _crew) == 0) then {continue};//Empty vehicle
+		if ((side _veh) != _mSide) then {continue};//Not of mission side
+		if ((count (units (group (_crew#0)))) == (count _crew)) then {continue};//All crew is already in the separate group
 
 		private _newGroup = createGroup [_mSide,true];
 		[_crew,_newGroup] spawn {
@@ -41,20 +45,10 @@ NWG_YK_MMC_OnMissionStateChanged = {
 				sleep 1;
 			};
 			if (_attempts <= 0) then {
-				(format ["NWG_YK_MMC_OnMissionStateChanged: Failed to separate crew of %1",_this]) call NWG_fnc_logError;
+				"NWG_YK_MMC_OnMissionStateChanged: Failed to separate crew" call NWG_fnc_logError;
 			};
 		};
-	};
-
-	//Process vehicles
-	{
-		_x call _separate;
-	} forEach ((_mObjects#OBJ_CAT_VEHC) select {alive _x && {_x call NWG_fnc_ocIsVehicle && {((getArtilleryAmmo [_x]) isNotEqualTo []) && {alive (gunner _x)}}}});
-
-	//Process turrets
-	{
-		_x call _separate;
-	} forEach ((_mObjects#OBJ_CAT_TRRT) select {alive _x && {_x call NWG_fnc_ocIsTurret && {((getArtilleryAmmo [_x]) isNotEqualTo []) && {alive (gunner _x)}}}});
+	} forEach ((_mObjects#OBJ_CAT_VEHC) + (_mObjects#OBJ_CAT_TRRT));
 };
 
 //================================================================================================================

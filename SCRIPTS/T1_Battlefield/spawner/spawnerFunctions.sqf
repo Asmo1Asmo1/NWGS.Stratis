@@ -192,3 +192,8 @@ NWG_fnc_spwnRevealObject = {
     //private _object = _this;
     _this call NWG_SPWN_Reveal
 };
+
+//Get safe AGL position to pre-spawn object
+NWG_fnc_spwnGetSafePrespawnPos = {
+    call NWG_SPWN_GetSafePrespawnPos
+};

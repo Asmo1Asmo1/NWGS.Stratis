@@ -8,7 +8,8 @@ NWG_DSPAWN_Settings = createHashMapFromArray [
     ["CATALOGUE_ADDRESS","DATASETS\Server\Dspawn"],
     ["CATALOGUE_MAX_TIER",4],//Max tier of groups that can be spawned
 
-    ["WAYPOINT_RADIUS",25],//Default radius for any waypoint-related logic, the more - the easier for big vehicles and complicated terrains
+    ["WAYPOINT_RADIUS_PLACE",10],//Radius for waypoint random placement (use '0' for almost exact placement and '-1' for exact)
+    ["WAYPOINT_RADIUS_COMPL",30],//Radius for waypoint to count as 'completed', the more - the easier for big vehicles and complicated terrains
 
     ["TRIGGER_POPULATION_DISTRIBUTION",[5,3,1,1,1]],//Default population as INF/VEH/ARM/AIR/BOAT
     ["TRIGGER_MAX_BUILDINGS_TO_OCCUPY",5],//Max number of buildings that dspawn will try to occupy with 'ambush' infantry forces
@@ -969,8 +970,7 @@ NWG_DSPAWN_TAGs_GenerateTags = {
 
     //Vehicle tags -
     if (_primeTag isNotEqualTo "INF") then {
-        if ((count (_grpVehicle call NWG_DSPAWN_TAGs_GetVehicleWeapons)) > 0 ||
-           {(count (_grpVehicle call NWG_fnc_spwnGetVehiclePylons)) > 0})
+        if (_grpVehicle call NWG_fnc_ocIsArmedVehicle)
             then {_tags pushBack "MEC"}
             else {_tags pushBack "MOT"};
     };
@@ -1061,8 +1061,15 @@ NWG_DSPAWN_TAGs_magToWeaponTagCache = createHashMap;//Config manipulations are E
 NWG_DSPAWN_TAGs_DefineWeaponTagForObject = {
     // private _object = _this;
 
+    //Check cache
+    private _cached = _this getVariable "NWG_DSPAWN_TAGs_cached";
+    if (!isNil "_cached") exitWith {_cached};
+
     //Check artillery
-    if (_this call NWG_fnc_ocIsVehicle && {(getArtilleryAmmo [_this]) isNotEqualTo []}) exitWith {"ARTA"};
+    if (_this call NWG_fnc_ocIsVehicle && {(getArtilleryAmmo [_this]) isNotEqualTo []}) exitWith {
+        _this setVariable ["NWG_DSPAWN_TAGs_cached","ARTA"];
+        "ARTA"
+    };
 
     //Get all the magazines
     private _mags = if (_this isKindOf "Man")
@@ -1099,10 +1106,14 @@ NWG_DSPAWN_TAGs_DefineWeaponTagForObject = {
         _cached
     };
 
-    //return
-    if ("AA" in _mags)
+    //Define result
+    private _result = if ("AA" in _mags)
         then {if ("AT" in _mags) then {"AA|AT"} else {"AA"}}
-        else {if ("AT" in _mags) then {"AT"} else {"REG"}}
+        else {if ("AT" in _mags) then {"AT"} else {"REG"}};
+
+    //Cache and return
+    _this setVariable ["NWG_DSPAWN_TAGs_cached",_result];
+    _result
 };
 
 //================================================================================================================
@@ -1111,19 +1122,16 @@ NWG_DSPAWN_TAGs_DefineWeaponTagForObject = {
 NWG_DSPAWN_AddWaypoint = {
     params ["_group","_pos",["_type","MOVE"]];
 
-    if (!surfaceIsWater _pos) then {_pos = ATLToASL _pos};
-    private _wp = _group addWaypoint [_pos,0];
+    private _wp = _group addWaypoint [_pos,(NWG_DSPAWN_Settings get "WAYPOINT_RADIUS_PLACE")];
     _wp setWaypointType _type;
-    _wp setWaypointCompletionRadius (NWG_DSPAWN_Settings get "WAYPOINT_RADIUS");
+    _wp setWaypointCompletionRadius (NWG_DSPAWN_Settings get "WAYPOINT_RADIUS_COMPL");
     //return
     _wp
 };
 
 NWG_DSPAWN_ClearWaypoints = {
     // private _group = _this;
-    for "_i" from ((count (waypoints _this)) - 1) to 0 step -1 do {
-        deleteWaypoint [_this, _i];
-    };
+    {deleteWaypoint _x} forEachReversed (waypoints _this);
 };
 
 //================================================================================================================

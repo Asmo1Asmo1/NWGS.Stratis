@@ -34,6 +34,14 @@ NWG_fnc_gcDeleteMission = {
     _this call NWG_GC_DeleteMission
 };
 
+//Deletes group along with all its units and vehicles
+//params:
+// _group: the group to delete
+NWG_fnc_gcDeleteGroup = {
+    // private _group = _this;
+    _this call NWG_GC_DeleteGroup
+};
+
 //=============================================================================
 /*Server -> Units*/
 

@@ -314,7 +314,7 @@ private _faction = [
         [
             ["VEH","MEC","AA"],TIER_4,
             ["B_Truck_01_flatbed_F"],
-            ["B_Soldier_F"],
+            [2,"B_Soldier_F"],
             //Additional code:
             {
                 // params ["_group","_vehicle","_units"]

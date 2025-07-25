@@ -1,8 +1,7 @@
 /*
     This module implements the following logic:
     - Airstrike
-    - Artillery strike
-    - Mortart strike
+    - Artillery/Mortar strike
     - Veh building demolition
     - Inf building storm
     - Veh vehicle repair
@@ -71,52 +70,11 @@ NWG_fnc_acCanDoArtilleryStrikeOnTarget = {
 //params:
 // _group - group to send
 // _target - target object
-// _precise - boolean flag of precise strike, options:
-//      - true - precise strike (faster and with small radius)
-//      - false - normal strike (slower and with wider radius)
 //returns:
 // boolean - true if successful, false in case of error or if target is out of range
 NWG_fnc_acSendArtilleryStrike = {
-    // params ["_group","_target",["_precise",false]];
-    _this call NWG_ACA_SendArtilleryStrike
-};
-
-//=============================================================================
-/*Mortar strike*/
-
-//Check if can do mortar strike
-//params:
-// _group - group to check
-//returns:
-// boolean
-NWG_fnc_acCanDoMortarStrike = {
-    // private _group = _this;
-    _this call NWG_ACA_CanDoMortarStrike
-};
-
-//Check if this group can do mortar strike on this target
-//params:
-// _group - group to check
-// _target - target object
-//returns:
-// boolean
-NWG_fnc_acCanDoMortarStrikeOnTarget = {
     // params ["_group","_target"];
-    _this call NWG_ACA_CanDoMortarStrikeOnTarget
-};
-
-//Send mortar strike by group
-//params:
-// _group - group to send
-// _target - target object
-// _precise - boolean flag of precise strike, options:
-//      - true - precise strike (faster and with small radius)
-//      - false - normal strike (slower and with wider radius)
-//returns:
-// boolean - true if successful, false in case of error or if target is out of range
-NWG_fnc_acSendMortarStrike = {
-    // params ["_group","_target",["_precise",false]];
-    _this call NWG_ACA_SendMortarStrike
+    _this call NWG_ACA_SendArtilleryStrike
 };
 
 //=============================================================================
@@ -177,17 +135,7 @@ NWG_fnc_acSendToInfBuildingStorm = {
 // boolean
 NWG_fnc_acCanDoVehRepair = {
     // private _group = _this;
-    _this call NWG_ACA_CanDoVehRepair
-};
-
-//Check if group's vehicle needs repair
-//params:
-// _group - group to check
-//returns:
-// boolean (also false if group has no vehicle or can't do repair)
-NWG_fnc_acNeedsRepair = {
-    // private _group = _this;
-    _this call NWG_ACA_NeedsRepair
+    (_this call NWG_ACA_CanDoVehRepair) && {_this call NWG_ACA_NeedsRepair}
 };
 
 //Send group to repair their vehicle
@@ -198,6 +146,53 @@ NWG_fnc_acNeedsRepair = {
 NWG_fnc_acSendToVehRepair = {
     // private _group = _this;
     _this call NWG_ACA_SendToVehRepair
+};
+
+//=============================================================================
+/*Inf vehicle capture*/
+
+//Check if can do inf vehicle capture
+//params:
+// _group - group to check
+//returns:
+// boolean
+NWG_fnc_acCanDoInfVehCapture = {
+    // private _group = _this;
+    _this call NWG_ACA_CanDoInfVehCapture
+};
+
+
+//Send group to capture an enemy vehicle
+//params:
+// _group - group to send
+//returns:
+// boolean - true if successful, false in case of error (e.g. group has no vehicle or can't do capture)
+NWG_fnc_acSendToInfVehCapture = {
+    // private _group = _this;
+    _this call NWG_ACA_SendToInfVehCapture
+};
+
+//=============================================================================
+/*Veh flee*/
+
+//Check if can do veh flee
+//params:
+// _group - group to check
+//returns:
+// boolean
+NWG_fnc_acCanDoVehFlee = {
+    // private _group = _this;
+    _this call NWG_ACA_CanDoVehFlee
+};
+
+//Send group to flee
+//params:
+// _group - group to send
+//returns:
+// boolean - true if successful, false in case of error (e.g. group has no vehicle or can't do flee)
+NWG_fnc_acSendToVehFlee = {
+    // private _group = _this;
+    _this call NWG_ACA_SendToVehFlee
 };
 
 //=============================================================================
@@ -225,4 +220,12 @@ NWG_fnc_acGetBuildingTargetIn = {
 NWG_fnc_acIsGroupBusy = {
     // private _group = _this;
     _this call NWG_ACA_IsDoingAdvancedLogic
+};
+
+//=============================================================================
+/*Statistics*/
+//Print statistics to the RPT log
+NWG_fnc_acPrintStatistics = {
+    call NWG_ACA_PrintStatistics;
+    call NWG_ACP_PrintStatistics;
 };

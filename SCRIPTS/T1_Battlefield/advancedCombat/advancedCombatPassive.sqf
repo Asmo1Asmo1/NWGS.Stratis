@@ -1,4 +1,5 @@
 #include "..\..\globalDefines.h"
+#include "advancedCombatDefines.h"
 /*
     This module implements the following logic:
     - Set group skill based on TIER
@@ -28,6 +29,8 @@ NWG_ACP_Settings = createHashMapFromArray [
 
     ["ON_DSPAWN_ALLOW_STAY_IN_VEHICLE",true],//Enable stay in vehicle for SOME of the groups when dspawn spawns the group
     ["ALLOW_STAY_IN_VEHICLE_CHANCE",0.5],//Chance for a group to be allowed to stay in the vehicle
+
+    ["STATISTICS_ENABLED",true],//If true, the system will keep track of statistics and output them to the RPT log
 
     ["",0]
 ];
@@ -67,19 +70,31 @@ NWG_ACP_SetGroupSkills = {
 
     [_leader,_leaderSkillSet] call _setSkill;
     {[_x,_memberSkillSet] call _setSkill} forEach _members;
+
+    //Statistics
+    private _totalCount = (count _members) + 1;//+1 for leader
+    [STAT_ACP_SKILLSET,STAT_ACP_TOTAL,_totalCount] call NWG_ACP_AddStat;
+    [STAT_ACP_SKILLSET,STAT_ACP_APPLIED,_totalCount] call NWG_ACP_AddStat;//There is no skip for skillset
 };
 
 NWG_ACP_AllowWounded = {
-    private _units = _this;
+    private _allUnits = _this select {!unitIsUAV _x};
+    if ((count _allUnits) == 0) exitWith {};//No units to process
     private _chance = NWG_ACP_Settings get "ALLOW_WOUNDED_CHANCE";
-    private _units = _units select {!unitIsUAV _x && {(random 1) <= _chance}};//Filter UAV and apply chance
-    if ((count _units) == 0) exitWith {};//No units left
-    private _id = -1;
-    //forEach unit in the group
-    {
-        _id = _x addEventHandler ["HandleDamage",{_this call NWG_ACP_OnWounded}];
-        _x setVariable ["NWG_ACP_OnWoundedHandle",_id];
-    } forEach _units;
+    private _units = _allUnits select {(random 1) <= _chance};//Apply chance
+    if ((count _units) > 0) then {
+        private _id = -1;
+        //forEach unit in the group
+        {
+            _id = _x addEventHandler ["HandleDamage",{_this call NWG_ACP_OnWounded}];
+            _x setVariable ["NWG_ACP_OnWoundedHandle",_id];
+        } forEach _units;
+    };
+
+    //Statistics
+    [STAT_ACP_WOUNDED,STAT_ACP_TOTAL,(count _allUnits)] call NWG_ACP_AddStat;
+    [STAT_ACP_WOUNDED,STAT_ACP_SKIPPED,((count _allUnits) - (count _units))] call NWG_ACP_AddStat;
+    [STAT_ACP_WOUNDED,STAT_ACP_APPLIED,(count _units)] call NWG_ACP_AddStat;
 };
 
 NWG_ACP_OnWounded = {
@@ -144,12 +159,62 @@ NWG_ACP_Unwound = {
 
 NWG_ACP_AllowStayInVehicle = {
     // private _vehicle = _this;
+    //Checks
     if ((_this isEqualTo false) || {isNull _this || {!alive _this}}) exitWith {};//No vehicle passed
-    if ((random 1) > (NWG_ACP_Settings get "ALLOW_STAY_IN_VEHICLE_CHANCE")) exitWith {};//Apply chance
     if !((_this isKindOf "Car") || {_this isKindOf "Tank" || {_this isKindOf "Wheeled_APC_F"}}) exitWith {};//Check type
-    if ((_this call NWG_ACA_GetDataForVehicleForceFire) isEqualTo []) exitWith {};//What's the point to stay in unarmed vehicle?
-    //Checks passed
+    if !(_this call NWG_fnc_ocIsArmedVehicle) exitWith {};//What's the point to stay in unarmed vehicle?
+    [STAT_ACP_STAY_IN_VEHICLE,STAT_ACP_TOTAL,1] call NWG_ACP_AddStat;//Statistics
+
+    //Apply chance
+    if ((random 1) > (NWG_ACP_Settings get "ALLOW_STAY_IN_VEHICLE_CHANCE")) exitWith {
+        [STAT_ACP_STAY_IN_VEHICLE,STAT_ACP_SKIPPED,1] call NWG_ACP_AddStat;
+    };
+
+    //Apply allow
     _this allowCrewInImmobile [/*brokenWheels:*/true,/*upsideDown:*/false];
+    [STAT_ACP_STAY_IN_VEHICLE,STAT_ACP_APPLIED,1] call NWG_ACP_AddStat;
+};
+
+//================================================================================================================
+//Statistics
+NWG_ACP_statistics = [
+/*STAT_ACP_SKILLSET:*/       [0,0,0],
+/*STAT_ACP_WOUNDED:*/        [0,0,0],
+/*STAT_ACP_STAY_IN_VEHICLE:*/[0,0,0]
+];
+
+NWG_ACP_AddStat = {
+    params ["_logicType","_statType","_value"];
+    if !(NWG_ACP_Settings get "STATISTICS_ENABLED") exitWith {};
+
+    private _stats = NWG_ACP_statistics param [_logicType,[]];
+    private _stat = _stats param [_statType,0];
+    _stats set [_statType,_stat + _value];
+    NWG_ACP_statistics set [_logicType,_stats];
+};
+
+NWG_ACP_PrintStatistics = {
+    //Check if statistics are enabled
+    if !(NWG_ACP_Settings get "STATISTICS_ENABLED") exitWith {
+        "NWG_ACP_PrintStatistics: statistics are disabled" call NWG_fnc_logInfo;
+    };
+
+    //Print statistics
+    private _stats = NWG_ACP_statistics;
+    private _format = {
+        params ["_total","_skipped","_applied"];
+        (format ["Total:%1 (Skp:%2, App:%3)",_total,_skipped,_applied])
+    };
+    private _lines = [
+        (format ["SKILLSET:    %1",((_stats#STAT_ACP_SKILLSET) call _format)]),
+        (format ["WOUNDED:     %1",((_stats#STAT_ACP_WOUNDED) call _format)]),
+        (format ["STAY IN VEH: %1",((_stats#STAT_ACP_STAY_IN_VEHICLE) call _format)])
+    ];
+    diag_log text "==========[  AC PASSIVE STATS ]===========";
+    {diag_log (text _x)} forEach _lines;
+
+    //Drop statistics
+    {NWG_ACP_statistics set [_forEachIndex,(_x apply {0})]} forEach NWG_ACP_statistics;
 };
 
 //================================================================================================================
