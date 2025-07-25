@@ -52,6 +52,7 @@ NWG_ACA_Settings = createHashMapFromArray [
 
     ["VEH_REPAIR_RADIUS",500],//Radius for vehicle to initially move to repair (repair starts when no players are within 'VEH_REPAIR_PLAYER_DISTANCE')
     ["VEH_REPAIR_PLAYER_DISTANCE",200],//Distance from nearest player to assume repair is safe
+    ["VEH_REPAIR_DURATION",8],//Time to repair a vehicle (in seconds)
     ["VEH_REPAIR_TIMEOUT",180],//Timeout for EACH STEP of veh repair
 
     ["INF_VEH_CAPTURE_RADIUS",150],//Radius to search for vehicles to capture
@@ -603,7 +604,7 @@ NWG_ACA_IsClearLineBetween = {
 
 NWG_ACA_ReplaceTarget = {
     private _target = _this;
-    if (!alive _target || {isObjectHidden _target || {((getPosATL _target)#2) < 0}}) then {
+    if (!alive _target || {isObjectHidden _target || {((getPosATL _target)#2) < -10}}) then {
         private _replacements = (nearestObjects [_target,["house"],10,true]) select {alive _x};
         _replacements = _replacements - [_target];
         _target = if ((count _replacements) > 0)
@@ -705,7 +706,7 @@ NWG_ACA_VehDemolition = {
 NWG_ACA_CanDoInfBuildingStorm = {
     //private _group = _this;
     //Just check that it is an infantry group
-    private _units = ((units _this) select {alive _x});
+    private _units = (units _this) call NWG_ACA_GetActiveUnits;
     if ((count _units) == 0) exitWith {false};//No alive units
     //return
     (_units findIf {(vehicle _x) isNotEqualTo _x}) == -1
@@ -734,7 +735,7 @@ NWG_ACA_InfBuildingStorm = {
     params ["_group","_target"];
     [STAT_ACA_INF_STORM,STAT_ACA_TOTAL] call NWG_ACA_AddStat;
     private _timeoutAt = time + (NWG_ACA_Settings get "INF_STORM_TIMEOUT");
-    private _abortCondition = {({alive _x} count (units _group)) < 1};
+    private _abortCondition = {((units _group) call NWG_ACA_GetActiveUnits) isEqualTo []};
     if (call _abortCondition) exitWith {
         [STAT_ACA_INF_STORM,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
     };//Immediate check
@@ -779,7 +780,7 @@ NWG_ACA_InfBuildingStorm = {
         if (time > _timeoutAt) exitWith {true};
         if (_group call NWG_ACA_IsWaypointCompleted) exitWith {true};//Waypoint completed
         //Exit cycle when enough units can see the target
-        _strikeTeam = _strikeTeam select {alive _x};
+        _strikeTeam = _strikeTeam call NWG_ACA_GetActiveUnits;
         (({[_x,_target] call NWG_ACA_IsClearLineBetween} count _strikeTeam) >= (ceil ((count _strikeTeam) * 0.5)))
     };
     if (call _abortCondition) exitWith {
@@ -806,7 +807,7 @@ NWG_ACA_InfBuildingStorm = {
         _target = _target call NWG_ACA_ReplaceTarget;
 
         //forEach unit
-        _strikeTeam = _strikeTeam select {alive _x};//Update list
+        _strikeTeam = _strikeTeam call NWG_ACA_GetActiveUnits;//Update list
         private ["_unit","_weaponsInfo","_primaryWeapon","_secondaryWeapon","_g","_i","_fireType","_muzzle"];
         {
             _unit = _x;
@@ -858,6 +859,7 @@ NWG_ACA_InfBuildingStorm = {
     };
 
     //Storm the building
+    _target = _target call NWG_ACA_ReplaceTarget;
     private _buildingPos = _target buildingPos -1;
     if (_buildingPos isEqualTo []) then {_buildingPos = [(getPosATL _target)]};
     _buildingPos = _buildingPos apply {[_x#2,_x]};//Conver for sorting by height
@@ -875,16 +877,14 @@ NWG_ACA_InfBuildingStorm = {
         [STAT_ACA_INF_STORM,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
         call _onExit;
     };
-    _strikeTeam = _strikeTeam select {alive _x};//Update list
+    _strikeTeam = _strikeTeam call NWG_ACA_GetActiveUnits;//Update list
     if ((count _strikeTeam) <= 0) exitWith {
         [STAT_ACA_INF_STORM,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
         call _onExit;
     };//No units left
     {
         _x forceSpeed -1;
-        _x doMove (_buildingPos select _forEachIndex);
         _x moveTo (_buildingPos select _forEachIndex);
-        _x setDestination [(_buildingPos select _forEachIndex),"FORMATION PLANNED",true];
     } foreach _strikeTeam;
     private _stopStormAt = time + (NWG_ACA_Settings get "INF_STORM_STORM_TIME");
     waitUntil {
@@ -899,6 +899,11 @@ NWG_ACA_InfBuildingStorm = {
 
     //Statistics
     [STAT_ACA_INF_STORM,STAT_ACA_SUCCESS] call NWG_ACA_AddStat;
+};
+
+NWG_ACA_GetActiveUnits = {
+    // private _units = _this;
+    _this select {alive _x && {(incapacitatedState _x) isEqualTo ""}}
 };
 
 //================================================================================================================
@@ -940,7 +945,7 @@ NWG_ACA_VehRepair = {
     [STAT_ACA_VEH_REPAIR,STAT_ACA_TOTAL] call NWG_ACA_AddStat;
     private _veh = vehicle (leader _group);
     private _crew = crew _veh;
-    private _abortCondition = {!alive _veh || {({alive _x} count _crew) < 1}};
+    private _abortCondition = {!alive _veh || {(_crew call NWG_ACA_GetActiveUnits) isEqualTo []}};
     if (call _abortCondition) exitWith {
         [STAT_ACA_VEH_REPAIR,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
     };//Immediate check
@@ -988,14 +993,14 @@ NWG_ACA_VehRepair = {
     };
 
     //Unload the crew
-    _crew = _crew select {alive _x};
+    _crew = _crew call NWG_ACA_GetActiveUnits;
     {doStop _x} forEach _crew;
     sleep 2;
     if (call _abortCondition) exitWith {
         [STAT_ACA_VEH_REPAIR,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
         call _onExit;
     };
-    _crew = _crew select {alive _x};
+    _crew = _crew call NWG_ACA_GetActiveUnits;
     _group leaveVehicle _veh;
     {_x moveOut _veh} forEach _crew;
 
@@ -1005,13 +1010,15 @@ NWG_ACA_VehRepair = {
         [STAT_ACA_VEH_REPAIR,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
         call _onExit;
     };
-    _crew = _crew select {alive _x};
     {
+        if (!alive _x) then {continue};
+        if ((incapacitatedState _x) isNotEqualTo "") then {continue};
         _x setDir (_x getDir _veh);
         _x switchMove "Acts_carFixingWheel";
         _x playMoveNow "Acts_carFixingWheel";
+        sleep (random 0.75);
     } forEach _crew;
-    sleep ((random 2)+5);
+    sleep (NWG_ACA_Settings get "VEH_REPAIR_DURATION");
     if (call _abortCondition) exitWith {
         [STAT_ACA_VEH_REPAIR,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
         call _onExit;
@@ -1020,7 +1027,7 @@ NWG_ACA_VehRepair = {
 
     //Reload the crew
     _group addVehicle _veh;
-    _crew = _crew select {alive _x};
+    _crew = _crew call NWG_ACA_GetActiveUnits;
     {_x moveInAny _veh} forEach _crew;
 
     //Cleanup
@@ -1098,11 +1105,11 @@ NWG_ACA_InfVehCapture = {
     private _leader = leader _group;
     private _timeoutAt = time + (NWG_ACA_Settings get "INF_VEH_CAPTURE_TIMEOUT");
     private _abortCondition = {
-        ({alive _x} count (units _group)) < 1 || {
+        (count ((units _group) call NWG_ACA_GetActiveUnits)) < 1 || {
         !alive _targetVehicle || {
         (crew _targetVehicle) findIf {!(_x in (units _group))} != -1}}
     };
-    private _successCondition = {((units _group) select {alive _x}) findIf {(vehicle _x) isNotEqualTo _targetVehicle} == -1};
+    private _successCondition = {((units _group) call NWG_ACA_GetActiveUnits) findIf {(vehicle _x) isNotEqualTo _targetVehicle} == -1};
     if (call _abortCondition) exitWith {
         [STAT_ACA_VEH_CAPTURE,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
     };//Immediate check
