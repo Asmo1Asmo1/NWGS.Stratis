@@ -146,16 +146,30 @@ NWG_fnc_dsImitateParadrop = {
     _this call NWG_DSPAWN_ImitateParadrop
 };
 
-/*Exposure of inner utilities (sorry, not sorry)*/
-
-//Inner utility to define the weapon tag for the given object
+//Clear all the waypoints of the given group
 //params:
-// _object - object to define the weapon tag for (vehicle or unit)
-//returns:
-// weapon tag "AA", "AT", "AA|AT" or "REG"
-NWG_fnc_dsDefineWeaponTagForObject = {
-    // private _object = _this;
-    _this call NWG_DSPAWN_TAGs_DefineWeaponTagForObject
+// _group - group to clear the waypoints of
+NWG_fnc_dsClearWaypoints = {
+    // private _group = _this;
+    _this call NWG_DSPAWN_ClearWaypoints
+};
+
+//Add new waypoint to the given group
+//params:
+// _group - group to add the waypoint to
+// _pos - position to add the waypoint to
+// _type - type of the waypoint (MOVE, SAD, HUNT, etc.)
+NWG_fnc_dsAddWaypoint = {
+    // params ["_group","_pos",["_type","MOVE"]];
+    _this call NWG_DSPAWN_AddWaypoint
+};
+
+//Return group to patrol
+//params:
+// _group - group to return to patrol
+NWG_fnc_dsReturnToPatrol = {
+    // private _group = _this;
+    (leader _this) call NWG_DSPAWN_ReturnToPatrol
 };
 
 //=============================================================================

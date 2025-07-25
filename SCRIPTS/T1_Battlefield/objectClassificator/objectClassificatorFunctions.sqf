@@ -1,3 +1,6 @@
+//================================================================================================================
+//Buldings and Furniture
+
 //Check if object is building
 // _objectOrClassname: Object OR string (class name)
 // Returns: Boolean
@@ -52,6 +55,9 @@ NWG_fnc_ocGetSameFurniture = {
     _this call NWG_OBCL_GetSameFurniture
 };
 
+//================================================================================================================
+//Vehicles
+
 //Check if object is vehicle
 // _object: Object
 // Returns: Boolean
@@ -60,20 +66,20 @@ NWG_fnc_ocIsVehicle = {
     _this call NWG_OBCL_IsVehicle
 };
 
+//Check if object is armed vehicle (has any weapons)
+// _object: Object
+// Returns: Boolean
+NWG_fnc_ocIsArmedVehicle = {
+    // private _object = _this;
+    _this call NWG_OBCL_IsArmedVehicle
+};
+
 //Check if object is turret
 // _object: Object
 // Returns: Boolean
 NWG_fnc_ocIsTurret = {
     // private _object = _this;
     _this call NWG_OBCL_IsTurret
-};
-
-//Check if object is unit
-// _object: Object
-// Returns: Boolean
-NWG_fnc_ocIsUnit = {
-    // private _object = _this;
-    _this call NWG_OBCL_IsUnit
 };
 
 //Gets the NWG type of the object

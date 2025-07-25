@@ -1,6 +1,7 @@
 #include "..\..\globalDefines.h"
 
-NWG_ICAT_itemTypeCache = createHashMap;
+//Get item type
+NWG_ICAT_GetItemType_cache = createHashMap;
 NWG_ICAT_GetItemType = {
     private _item = _this;
     if (_item isEqualType objNull) then {_item = typeOf _item};
@@ -12,7 +13,7 @@ NWG_ICAT_GetItemType = {
     };
 
     //Check cache
-    private _cached = NWG_ICAT_itemTypeCache get _item;
+    private _cached = NWG_ICAT_GetItemType_cache get _item;
     if (!isNil "_cached") exitWith {_cached};
 
     //Try getting config
@@ -66,15 +67,26 @@ NWG_ICAT_GetItemType = {
     };
 
     //Cache and return
-    NWG_ICAT_itemTypeCache set [_item,_itemType];
+    NWG_ICAT_GetItemType_cache set [_item,_itemType];
     _itemType
 };
 
 //BIS_fnc_basicBackpack (reworked)
+NWG_ICAT_GetBaseBackpack_cache = createHashMap;
 NWG_ICAT_GetBaseBackpack = {
     private _input = _this;
-    if !(isClass (configFile >> "CfgVehicles" >> _input)) exitWith {_input};//Not a backpack
 
+    //Check cache
+    private _cached = NWG_ICAT_GetBaseBackpack_cache get _input;
+    if (!isNil "_cached") exitWith {_cached};
+
+    //Check if it's a backpack
+    if !(isClass (configFile >> "CfgVehicles" >> _input)) exitWith {
+        NWG_ICAT_GetBaseBackpack_cache set [_input,_input];
+        _input
+    };//Not a backpack
+
+    //Check if it is already basic (has no cargo predefined)
     private _fn_hasCargo = {
         // private _input = _this;
         private _hasCargo = false;
@@ -90,39 +102,59 @@ NWG_ICAT_GetBaseBackpack = {
 
         _hasCargo
     };
-    if !(_input call _fn_hasCargo) exitWith {_input};//Backpack has no cargo
+    if !(_input call _fn_hasCargo) exitWith {
+        NWG_ICAT_GetBaseBackpack_cache set [_input,_input];
+        _input
+    };//Backpack has no cargo - already basic
 
+    //Find 'parent' without cargo
     private _output = "";
     private _parents = [configFile >> "CfgVehicles" >> _input, true] call BIS_fnc_returnParents;
     private _i = _parents findIf {!(_x call _fn_hasCargo) && {(getNumber (configFile >> "CfgVehicles" >> _x >> "scope")) == 2}};
     if (_i != -1) then {_output = _parents select _i};//Can it return ""? Let's be extra cautious and assume it can
 
+    //Special case
     if (_output isEqualTo "") then {
-        _output = if (_input == "b_kitbag_rgr_exp")
+        _output = if (_input == "b_kitbag_rgr_exp")/*'==' for case-insensitive comparison*/
             then {"b_kitbag_rgr"}/*Some unnamed border case, taken from original 'as is'*/
             else {_input};
     };
 
-    //return
+    //Cache and return
+    NWG_ICAT_GetBaseBackpack_cache set [_input,_output];
     _output
 };
 
 //BIS_fnc_baseWeapon (reworked)
+NWG_ICAT_GetBaseWeapon_cache = createHashMap;
 NWG_ICAT_GetBaseWeapon = {
-    _input = _this;
+    private _input = _this;
+
+    //Check cache
+    private _cached = NWG_ICAT_GetBaseWeapon_cache get _input;
+    if (!isNil "_cached") exitWith {_cached};
+
+    //Check if it's a weapon
     private _cfg = configFile >> "CfgWeapons" >> _input;
-    if !(isClass _cfg) exitWith {_input};//Not a weapon
+    if !(isClass _cfg) exitWith {
+        NWG_ICAT_GetBaseWeapon_cache set [_input,_input];
+        _input
+    };//Not a weapon
 
-    //--- Get manual base weapon
+    //Get manual base weapon
     private _base = getText (_cfg >> "baseWeapon");
-    if (isclass (configFile >> "CfgWeapons" >> _base)) exitWith {_base};
+    if (isClass (configFile >> "CfgWeapons" >> _base)) exitWith {
+        NWG_ICAT_GetBaseWeapon_cache set [_input,_base];
+        _base
+    };//Base weapon found
 
-    //--- Get first parent without any attachments
+    //Get first parent without any attachments
     private _return = _input;
     {
         if (count (_x >> "linkeditems") == 0) exitWith {_return = configname _x};
     } foreach (_cfg call BIS_fnc_returnParents);
 
-    //return
+    //Cache and return
+    NWG_ICAT_GetBaseWeapon_cache set [_input,_return];
     _return
 };
