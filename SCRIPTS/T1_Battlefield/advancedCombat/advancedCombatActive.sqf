@@ -1268,7 +1268,7 @@ NWG_ACA_PrintStatistics = {
     private _stats = NWG_ACA_statistics;
     private _format = {
         params ["_total","_aborted","_timeout","_success"];
-        (format ["Total:%1 (A:%2, T:%3, S:%4)",_total,_aborted,_timeout,_success])
+        (format ["Total:%1 (Abrt:%2, Time:%3, Sccs:%4)",_total,_aborted,_timeout,_success])
     };
     private _lines = [
         (format ["AIRSTRIKE:   %1",((_stats#STAT_ACA_AIRSTRIKE) call _format)]),
@@ -1281,7 +1281,6 @@ NWG_ACA_PrintStatistics = {
     ];
     diag_log text "==========[  AC ACTIVE STATS  ]===========";
     {diag_log (text _x)} forEach _lines;
-    diag_log text "==========[        END        ]===========";
 
     //Drop statistics
     {NWG_ACA_statistics set [_forEachIndex,(_x apply {0})]} forEach NWG_ACA_statistics;

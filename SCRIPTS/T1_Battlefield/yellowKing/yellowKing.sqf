@@ -920,11 +920,10 @@ NWG_YK_STAT_Output = {
 
     diag_log text "==========[ YELLOW KING STATS ]===========";
     {diag_log (text _x)} forEach _lines;
-    diag_log text "==========[        END        ]===========";
-
     if (NWG_YK_Settings get "STATISTICS_ADVANCED_COMBAT") then {
         call NWG_fnc_acPrintStatistics;
     };
+    diag_log text "==========[        END        ]===========";
 };
 
 //======================================================================================================

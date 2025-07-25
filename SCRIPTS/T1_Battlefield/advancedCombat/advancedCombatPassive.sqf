@@ -203,7 +203,7 @@ NWG_ACP_PrintStatistics = {
     private _stats = NWG_ACP_statistics;
     private _format = {
         params ["_total","_skipped","_applied"];
-        (format ["Total:%1 (S:%2, A:%3)",_total,_skipped,_applied])
+        (format ["Total:%1 (Skp:%2, App:%3)",_total,_skipped,_applied])
     };
     private _lines = [
         (format ["SKILLSET:    %1",((_stats#STAT_ACP_SKILLSET) call _format)]),
@@ -212,7 +212,6 @@ NWG_ACP_PrintStatistics = {
     ];
     diag_log text "==========[  AC PASSIVE STATS ]===========";
     {diag_log (text _x)} forEach _lines;
-    diag_log text "==========[        END        ]===========";
 
     //Drop statistics
     {NWG_ACP_statistics set [_forEachIndex,(_x apply {0})]} forEach NWG_ACP_statistics;
