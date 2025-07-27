@@ -14,6 +14,10 @@
 
 /*enum*/
 #define SETTINGS_KEYBINDINGS "KEYBINDINGS"
+#define SETTINGS_DEBUG "DEBUG"
+
+/*debug enum (starts from 1 because row 0 is 'get back' row)*/
+#define DEBUG_STUCK 1
 
 //================================================================================================================
 //================================================================================================================
@@ -21,7 +25,8 @@
 NWG_UP_06Settings_Settings = createHashMapFromArray [
 	["WINDOW_NAME","#UP_SETTINGS_TITLE#"],
 	["PLANSHET_ROWS",[
-		["#UP_SETTINGS_KEYBINDINGS#",SETTINGS_KEYBINDINGS]
+		["#UP_SETTINGS_KEYBINDINGS#",SETTINGS_KEYBINDINGS],
+		["#UP_SETTINGS_DEBUG#",SETTINGS_DEBUG]
 	]],
 
 	["KB_EXPR_TEMPLATE",'"%1"    %2'],//where %1 is the expression, %2 is ON/OFF bypass indicator
@@ -36,6 +41,10 @@ NWG_UP_06Settings_Settings = createHashMapFromArray [
 	["KB_KEY_DELETE",KEY_DELETE],
 	["KB_KEY_DELETE_ALT",KEY_BACKSPACE],
 	["KB_KEY_TOGGLE_BYPASS",KEY_TAB],
+
+	["DEBUG_ROWS",[
+		"#SETTINGS_DEBUG_STUCK#"
+	]],
 
 	["",0]
 ];
@@ -57,6 +66,7 @@ NWG_UP_06Settings_Open = {
 		private _settingName = _listBox lbData _selectedIndex;
 		switch (_settingName) do {
 			case SETTINGS_KEYBINDINGS: {call NWG_UP_06Settings_Keybindings_Open};
+			case SETTINGS_DEBUG: {call NWG_UP_06Settings_Debug_Open};
 			default {(format ["NWG_UP_06Settings_OnRowSelected: Unknown setting: '%1'",_settingName]) call NWG_fnc_logError};
 		};
 	};
@@ -189,4 +199,54 @@ NWG_UP_06Settings_Keybindings_OnKeyDown = {
 
 	//Update UI
 	_listBox call NWG_UP_06Settings_Keybindings_FillKeybindings;
+};
+
+//================================================================================================================
+//================================================================================================================
+//Subcategories : Debug
+NWG_UP_06Settings_Debug_Open = {
+	disableSerialization;
+
+	//Prepare interface open
+	private _planshetRows = NWG_UP_06Settings_Settings get "PLANSHET_ROWS";
+	private _windowName = (_planshetRows param [(_planshetRows findIf {(_x#1) isEqualTo SETTINGS_DEBUG}),[]]) param [0,""];
+	private _debugRows = (NWG_UP_06Settings_Settings get "DEBUG_ROWS") apply {_x call NWG_fnc_localize};
+	private _callback = {
+		// params ["_listBox","_selectedIndex","_withTitleRow"];
+		params ["_listBox","_selectedIndex"];
+		call NWG_fnc_upCloseAllMenus;
+		switch (_selectedIndex) do {
+			case DEBUG_STUCK: {call NWG_UP_06Settings_Debug_Unstuck};
+			default {
+				(format ["NWG_UP_06Settings_Debug_Open: Unknown debug option: '%1'",_selectedIndex]) call NWG_fnc_logError;
+				"#SETTINGS_DEBUG_FAILED#" call NWG_fnc_systemChatMe
+			};
+		};
+	};
+
+	//Open interface
+	private _interface = [_windowName,_debugRows,[],_callback] call NWG_fnc_upOpenSecondaryMenuPrefilled;
+};
+
+NWG_UP_06Settings_Debug_Unstuck = {
+	//Check player is on foot
+	if (!isNull (objectParent player)) exitWith {
+		"#SETTINGS_DEBUG_FAILED#" call NWG_fnc_systemChatMe;
+	};
+
+	//Check environment
+	private _inTheAir = ((getPos player)#2) > 10;
+	private _underWater = ((getPosASL player)#2) < 0;
+	if (_inTheAir || _underWater) exitWith {
+		"#SETTINGS_DEBUG_FAILED#" call NWG_fnc_systemChatMe;
+	};
+
+	//Check wounded
+	if (!isNil "NWG_fnc_medIsWounded" && {player call NWG_fnc_medIsWounded}) exitWith {
+		"#SETTINGS_DEBUG_FAILED#" call NWG_fnc_systemChatMe;
+	};
+
+	//Reposition player
+	player setVehiclePosition [player,[],7,"NONE"];
+	"#SETTINGS_DEBUG_SUCCESS#" call NWG_fnc_systemChatMe;
 };
