@@ -127,7 +127,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_SETTINGS_TITLE#","Settings"],
     ["#UP_SETTINGS_KEYBINDINGS#","Keybindings"],
     ["#UP_SETTINGS_DEBUG#","Debug"],
-    ["#SETTINGS_DEBUG_STUCK#","Stuck under textures"],
+    ["#SETTINGS_DEBUG_STUCK#","I'm stuck under textures"],
+    ["#SETTINGS_DEBUG_CAMERA#","Fix my camera"],
     ["#SETTINGS_DEBUG_SUCCESS#","Debug success"],
     ["#SETTINGS_DEBUG_FAILED#","Debug failed"],
     //voting

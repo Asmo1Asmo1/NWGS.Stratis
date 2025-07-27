@@ -18,6 +18,7 @@
 
 /*debug enum (starts from 1 because row 0 is 'get back' row)*/
 #define DEBUG_STUCK 1
+#define DEBUG_CAMERA 2
 
 //================================================================================================================
 //================================================================================================================
@@ -43,7 +44,8 @@ NWG_UP_06Settings_Settings = createHashMapFromArray [
 	["KB_KEY_TOGGLE_BYPASS",KEY_TAB],
 
 	["DEBUG_ROWS",[
-		"#SETTINGS_DEBUG_STUCK#"
+		"#SETTINGS_DEBUG_STUCK#",
+		"#SETTINGS_DEBUG_CAMERA#"
 	]],
 
 	["",0]
@@ -217,6 +219,7 @@ NWG_UP_06Settings_Debug_Open = {
 		call NWG_fnc_upCloseAllMenus;
 		switch (_selectedIndex) do {
 			case DEBUG_STUCK: {call NWG_UP_06Settings_Debug_Unstuck};
+			case DEBUG_CAMERA: {call NWG_UP_06Settings_Debug_FixCamera};
 			default {
 				(format ["NWG_UP_06Settings_Debug_Open: Unknown debug option: '%1'",_selectedIndex]) call NWG_fnc_logError;
 				"#SETTINGS_DEBUG_FAILED#" call NWG_fnc_systemChatMe
@@ -248,5 +251,11 @@ NWG_UP_06Settings_Debug_Unstuck = {
 
 	//Reposition player
 	player setVehiclePosition [player,[],7,"NONE"];
+	"#SETTINGS_DEBUG_SUCCESS#" call NWG_fnc_systemChatMe;
+};
+
+NWG_UP_06Settings_Debug_FixCamera = {
+	//No checks as it may happen when player is loaded into vehicle
+	switchCamera player;
 	"#SETTINGS_DEBUG_SUCCESS#" call NWG_fnc_systemChatMe;
 };
