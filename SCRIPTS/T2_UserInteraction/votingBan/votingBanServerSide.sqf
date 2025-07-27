@@ -84,7 +84,7 @@ NWG_VOTEBAN_SER_OnRequest = {
 		case REQ_KICK: {NWG_VOTEBAN_SER_Settings get "VOTE_KICK_TITLE"};
 		default {""};
 	};
-	private _ok = [_targetPlayer,[_title,_targetName]] call NWG_fnc_voteRequestServer;
+	private _ok = [_requesterPlayer,[_title,_targetName]] call NWG_fnc_voteRequestServer;
 	if (!_ok) exitWith {
 		(format ["NWG_VOTEBAN_SER_OnRequest: Failed to start vote"]) call NWG_fnc_logError;
 		false
