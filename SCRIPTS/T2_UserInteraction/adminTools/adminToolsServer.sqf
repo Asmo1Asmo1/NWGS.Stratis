@@ -23,7 +23,9 @@ NWG_ADM_FindByName = {
 /*Kick player*/
 NWG_ADM_Kick = {
 	// private _steamId = _this;
-	SERVER_COMMAND_PASSWORD serverCommand (format ["#kick %1",(str _this)]);
+	private _ok = SERVER_COMMAND_PASSWORD serverCommand (format ["#kick %1",(str _this)]);
+	private _okStr = if (_ok) then {"SUCCESS"} else {"FAILED"};
+	format ["Kicked: '%1' with result: '%2'",_this,_okStr]
 };
 NWG_ADM_KickLastFound = {
 	private _steamId = (NWG_ADM_Lastfound select FOUND_UID);
@@ -33,7 +35,9 @@ NWG_ADM_KickLastFound = {
 /*Ban player*/
 NWG_ADM_Ban = {
 	// private _steamId = _this;
-	SERVER_COMMAND_PASSWORD serverCommand (format ["#exec ban %1",(str _this)]);
+	private _ok = SERVER_COMMAND_PASSWORD serverCommand (format ["#exec ban %1",(str _this)]);
+	private _okStr = if (_ok) then {"SUCCESS"} else {"FAILED"};
+	format ["Banned: '%1' with result: '%2'",_this,_okStr]
 };
 NWG_ADM_BanLastFound = {
 	private _steamId = (NWG_ADM_Lastfound select FOUND_UID);
@@ -43,7 +47,9 @@ NWG_ADM_BanLastFound = {
 /*Unban player*/
 NWG_ADM_Unban = {
 	// private _steamId = _this;
-	SERVER_COMMAND_PASSWORD serverCommand (format ["#exec unban %1",(str _this)]);
+	private _ok = SERVER_COMMAND_PASSWORD serverCommand (format ["#exec unban %1",(str _this)]);
+	private _okStr = if (_ok) then {"SUCCESS"} else {"FAILED"};
+	format ["Unbanned: '%1' with result: '%2'",_this,_okStr]
 };
 
 /*Rename group*/
@@ -51,8 +57,9 @@ NWG_ADM_RenameGroupOfLastFound = {
 	private _newName = _this;
 	private _group = (NWG_ADM_Lastfound select FOUND_GROUP);
 	if (isNull _group) exitWith {"No group found"};
+	private _oldName = groupId _group;
 	_group setGroupIdGlobal _newName;
-	"Renamed"
+	format ["Renamed group from '%1' to '%2'",_oldName,_newName]
 };
 
 //================================================================================================================
