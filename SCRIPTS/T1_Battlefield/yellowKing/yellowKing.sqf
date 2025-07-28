@@ -41,7 +41,7 @@ NWG_YK_Settings = createHashMapFromArray [
     ["STATISTICS_ADVANCED_COMBAT",true],//If true, additional statistics will be outputted for advanced combat (must be enabled on advanced combat side as well)
 
     /*Reaction*/
-    ["REACTION_COOLDOWN",[45,90]],//Min and max time before the next reaction can be started  (will be defined randomly between the two)
+    ["REACTION_COOLDOWN",[60,90]],//Min and max time before the next reaction can be started  (will be defined randomly between the two)
     ["REACTION_TIME",[10,60]],//Min and max time between actions and reactions (will be defined randomly between the two)
     ["REACTION_IMMEDIATE_ON_KILLCOUNT",10],//Number of kills to immediately react to (skips remaining reaction time, but not cooldown)
 
@@ -57,7 +57,7 @@ NWG_YK_Settings = createHashMapFromArray [
     ]],//YellowKing difficulty presets
 
     /*Berserk mode*/
-    ["BERSEK_MODE_COOLDOWN",60],//Mandatory cooldown before next berserk round can start (stacks with the difficulty cooldown)
+    ["BERSEK_MODE_COOLDOWN",90],//Mandatory cooldown before next berserk round can start (stacks with the difficulty cooldown)
 
     /*Dice weights*/
     ["DICE_WEIGHTS",createHashMapFromArray [
