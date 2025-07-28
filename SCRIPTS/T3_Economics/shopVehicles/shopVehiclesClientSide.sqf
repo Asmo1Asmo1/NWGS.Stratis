@@ -769,9 +769,17 @@ NWG_VSHOP_CLI_SortItems = {
 //================================================================================================================
 //Group leadership money management utils
 NWG_VSHOP_CLI_IsLeaderForMoney = {
-	NWG_VSHOP_CLI_Settings get "GROUP_LEADER_MANAGES_GROUP_MONEY" && {
-	player isEqualTo (leader (group player)) && {
-	(count (units (group player))) > 1}}
+	if !(NWG_VSHOP_CLI_Settings get "GROUP_LEADER_MANAGES_GROUP_MONEY") exitWith {false};//Check setting
+	if (player isNotEqualTo (leader (group player))) exitWith {false};//Check if player is leader of their group
+
+	//Check if there are at least 2 actual players in the group for money management to make sense
+	private _countCondition = if (is3DENPreview || {is3DENMultiplayer})/*Is it a dev build?*/
+		then {{true}}/*Any units, including AI*/
+		else {{alive _x && {isPlayer _x}}};/*Only actual players*/
+	if ((_countCondition count (units (group player))) <= 1) exitWith {false};//At least 2 players are required
+
+	//All checks passed
+	true
 };
 
 NWG_VSHOP_CLI_OnLeaderSpentMoney = {
