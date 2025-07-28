@@ -39,6 +39,8 @@ NWG_YK_Settings = createHashMapFromArray [
     /*Statistics*/
     ["STATISTICS_ENABLED",true],//If true, the system will keep track of statistics and output them to the RPT log
     ["STATISTICS_ADVANCED_COMBAT",true],//If true, additional statistics will be outputted for advanced combat (must be enabled on advanced combat side as well)
+    ["DIAG_FPS_ENABLED",true],//If true, the system will output the FPS to the RPT log
+    ["DIAG_FPS_END_DELAY",1],//Delay before the FPS at the end of reaction is logged
 
     /*Reaction*/
     ["REACTION_COOLDOWN",[60,90]],//Min and max time before the next reaction can be started  (will be defined randomly between the two)
@@ -233,6 +235,7 @@ NWG_YK_React = {
     };
     /*Statistics and status*/
     [STAT_REACTION_COUNT,1] call NWG_YK_STAT_Increment;
+    if (NWG_YK_Settings get "DIAG_FPS_ENABLED") then {(format ["NWG_YK_React: FPS at the start: '%1'",diag_fps]) call NWG_fnc_logInfo};
 
     //1. Get raw targets to react to
     private _targets = NWG_YK_reactList select {alive _x};
@@ -319,6 +322,12 @@ NWG_YK_React = {
     } forEach _targets;
 
     //7. Reset
+    if (NWG_YK_Settings get "DIAG_FPS_ENABLED") then {
+        [] spawn {
+            sleep (NWG_YK_Settings get "DIAG_FPS_END_DELAY");
+            (format ["NWG_YK_React: FPS at the end: '%1'",diag_fps]) call NWG_fnc_logInfo;
+        };
+    };
     call _onExit;
 };
 
