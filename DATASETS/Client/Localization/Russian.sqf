@@ -823,7 +823,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DISPLAY_DESTROY#","Уничтожить: %1"],
     ["#QST_DISPLAY_INTEL#","Собрать разведданные (пример: %1)"],
     ["#QST_DISPLAY_INFECTION#","Остановить инфекцию (заражённые: %1)"],
-    ["#QST_DISPLAY_WOUNDED#","Сопроводить на базу: %1"],
+    ["#QST_DISPLAY_WOUNDED#","Сопроводить на базу"],
     ["#QST_DISPLAY_MED_SUPPLY#","Найти медикаменты (пример: %1)"],
     ["#QST_DISPLAY_WEAPON#","Найти и доставить: %1"],
     ["#QST_DISPLAY_ELECTRONICS#","Собрать электронику (пример: %1)"],
