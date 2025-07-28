@@ -660,6 +660,13 @@ NWG_VSHOP_CLI_OnListDobuleClick = {
 			"NWG_VSHOP_CLI_OnListDobuleClick: Unknown shop type" call NWG_fnc_logError;
 		};
 	};
+
+	//Send notification about group leader spending group money
+	if (!_isPlayerSide && {call NWG_VSHOP_CLI_IsLeaderForMoney}) then {
+		private _leaderName = name player;
+		private _group = group player;
+		[_item,_leaderName] remoteExec ["NWG_VSHOP_CLI_OnLeaderSpentMoney",_group];
+	};
 };
 
 //================================================================================================================
@@ -744,6 +751,21 @@ NWG_VSHOP_CLI_SortItems = {
 
 //================================================================================================================
 //================================================================================================================
+//Group leadership money management utils
+NWG_VSHOP_CLI_IsLeaderForMoney = {
+	NWG_VSHOP_CLI_Settings get "GROUP_LEADER_MANAGES_GROUP_MONEY" && {
+	player isEqualTo (leader (group player)) && {
+	(count (units (group player))) > 1}}
+};
+
+NWG_VSHOP_CLI_OnLeaderSpentMoney = {
+	params ["_item","_leaderName"];
+	private _itemName = (_item call NWG_VSHOP_CLI_GetItemInfo) param [0,""];
+	["#VSHOP_GROUP_LEADER_SPENT_MONEY_ON#",_leaderName,_itemName] call NWG_fnc_sideChatMe;
+};
+
+//================================================================================================================
+//================================================================================================================
 //Transaction
 NWG_VSHOP_CLI_TRA_pricesMap = createHashMap;
 
@@ -754,7 +776,7 @@ NWG_VSHOP_CLI_TRA_OnOpen = {
 	{NWG_VSHOP_CLI_TRA_pricesMap set [_x,(_allPrices select _forEachIndex)]} forEach _allItems;
 
 	//Get player side shop money
-	private _playerMoney = if (NWG_VSHOP_CLI_Settings get "GROUP_LEADER_MANAGES_GROUP_MONEY" && {player isEqualTo (leader (group player))})
+	private _playerMoney = if (call NWG_VSHOP_CLI_IsLeaderForMoney)
 		then {(group player) call NWG_fnc_wltGetGroupMoney}
 		else {player call NWG_fnc_wltGetPlayerMoney};
 
@@ -885,7 +907,7 @@ NWG_VSHOP_CLI_TRA_OnClose = {
 	};
 
 	//Update player(s) money
-	private _isSplitToGroup = NWG_VSHOP_CLI_Settings get "GROUP_LEADER_MANAGES_GROUP_MONEY" && {player isEqualTo (leader (group player))};
+	private _isSplitToGroup = call NWG_VSHOP_CLI_IsLeaderForMoney;
 	private _playerMoneyOld = uiNamespace getVariable ["NWG_VSHOP_CLI_TRA_playerMoney_old",0];
 	private _playerMoneyNew = uiNamespace getVariable ["NWG_VSHOP_CLI_TRA_playerMoney_new",0];
 	private _delta = _playerMoneyNew - _playerMoneyOld;
@@ -913,7 +935,7 @@ NWG_VSHOP_CLI_TRA_Refund = {
 	};
 
 	//Else - refund to actual money
-	private _isSplitToGroup = NWG_VSHOP_CLI_Settings get "GROUP_LEADER_MANAGES_GROUP_MONEY" && {player isEqualTo (leader (group player))};
+	private _isSplitToGroup = call NWG_VSHOP_CLI_IsLeaderForMoney;
 	if (_isSplitToGroup)
 		then {[(group player),_vehPrice] call NWG_fnc_wltSplitMoneyToGroup}
 		else {[player,_vehPrice] call NWG_fnc_wltAddPlayerMoney};
