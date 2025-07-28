@@ -228,6 +228,11 @@ NWG_VSHOP_CLI_OnServerResponse_Platform = {
 	_plList ctrlAddEventHandler ["LBDblClick",{_this call NWG_VSHOP_CLI_OnListDobuleClick}];
 	_shList ctrlAddEventHandler ["LBDblClick",{_this call NWG_VSHOP_CLI_OnListDobuleClick}];
 
+	//Show warning for group leader
+	if (call NWG_VSHOP_CLI_IsLeaderForMoney) then {
+		call NWG_VSHOP_CLI_ShowGroupLeaderWarning;
+	};
+
 	//On close
 	_shopGUI displayAddEventHandler ["Unload",{
 		//Finalize transaction
@@ -299,6 +304,11 @@ NWG_VSHOP_CLI_OnServerResponse_Custom = {
 	uiNamespace setVariable ["NWG_VSHOP_CLI_shList",_shList];
 	[false,LOOT_VEHC_TYPE_ALL] call NWG_VSHOP_CLI_UpdateItemsList;
 	_shList ctrlAddEventHandler ["LBDblClick",{_this call NWG_VSHOP_CLI_OnListDobuleClick}];
+
+	//Show warning for group leader
+	if (call NWG_VSHOP_CLI_IsLeaderForMoney) then {
+		call NWG_VSHOP_CLI_ShowGroupLeaderWarning;
+	};
 
 	//On close
 	_shopGUI displayAddEventHandler ["Unload",{
@@ -434,6 +444,12 @@ NWG_VSHOP_CLI_GetDamageOfOwnedVehicle = {
 //================================================================================================================
 //================================================================================================================
 //Player money indicator
+NWG_VSHOP_CLI_ShowGroupLeaderWarning = {
+	private _shopGUI = uiNamespace getVariable ["NWG_VSHOP_CLI_shopGUI",displayNull];
+	private _idc = IDC_SHOPUI_PLAYERMONEYTEXT;
+	[_shopGUI,_idc] call NWG_fnc_uiHelperBlinkOnWarning;
+};
+
 NWG_VSHOP_CLI_UpdatePlayerMoneyText = {
 	disableSerialization;
 	private _shopGUI = uiNamespace getVariable ["NWG_VSHOP_CLI_shopGUI",displayNull];

@@ -3,12 +3,14 @@
 //Settings
 NWG_UIH_Settings = createHashMapFromArray [
 	/*Player money text blinking*/
-	["MONEY_BLINK_COLOR_ON_ERROR",[1,0,0,1]],
-	["MONEY_BLINK_TIMES_ON_ERROR",2],
-	["MONEY_BLINK_COLOR_ON_SUCCESS",[0,1,0,1]],
-	["MONEY_BLINK_TIMES_ON_SUCCESS",1],
-	["MONEY_BLINK_COLOR_INTERVAL_ON",0.3],
-	["MONEY_BLINK_COLOR_INTERVAL_OFF",0.2],
+	["BLINK_COLOR_ON_ERROR",[1,0,0,1]],
+	["BLINK_TIMES_ON_ERROR",2],
+	["BLINK_COLOR_ON_SUCCESS",[0,1,0,1]],
+	["BLINK_TIMES_ON_SUCCESS",1],
+	["BLINK_COLOR_ON_WARNING",[1,1,0,1]],
+	["BLINK_TIMES_ON_WARNING",2],
+	["BLINK_COLOR_INTERVAL_ON",0.3],
+	["BLINK_COLOR_INTERVAL_OFF",0.2],
 
 	["",0]
 ];
@@ -43,20 +45,27 @@ NWG_UIH_FillTextWithPlayerMoney = {
 //Player money text blinking
 NWG_UIH_BlinkOnSuccess = {
 	params ["_gui","_idc"];
-	private _color = NWG_UIH_Settings get "MONEY_BLINK_COLOR_ON_SUCCESS";
-	private _times = NWG_UIH_Settings get "MONEY_BLINK_TIMES_ON_SUCCESS";
-	[_gui,_idc,_color,_times] call NWG_UIH_BlinkPlayerMoney;
+	private _color = NWG_UIH_Settings get "BLINK_COLOR_ON_SUCCESS";
+	private _times = NWG_UIH_Settings get "BLINK_TIMES_ON_SUCCESS";
+	[_gui,_idc,_color,_times] call NWG_UIH_BlinkWithColor;
 };
 
 NWG_UIH_BlinkOnError = {
 	params ["_gui","_idc"];
-	private _color = NWG_UIH_Settings get "MONEY_BLINK_COLOR_ON_ERROR";
-	private _times = NWG_UIH_Settings get "MONEY_BLINK_TIMES_ON_ERROR";
-	[_gui,_idc,_color,_times] call NWG_UIH_BlinkPlayerMoney;
+	private _color = NWG_UIH_Settings get "BLINK_COLOR_ON_ERROR";
+	private _times = NWG_UIH_Settings get "BLINK_TIMES_ON_ERROR";
+	[_gui,_idc,_color,_times] call NWG_UIH_BlinkWithColor;
+};
+
+NWG_UIH_BlinkOnWarning = {
+	params ["_gui","_idc"];
+	private _color = NWG_UIH_Settings get "BLINK_COLOR_ON_WARNING";
+	private _times = NWG_UIH_Settings get "BLINK_TIMES_ON_WARNING";
+	[_gui,_idc,_color,_times] call NWG_UIH_BlinkWithColor;
 };
 
 NWG_UIH_blinkHandle = scriptNull;
-NWG_UIH_BlinkPlayerMoney = {
+NWG_UIH_BlinkWithColor = {
 	disableSerialization;
 	params ["_gui","_idc","_color","_times"];
 
@@ -68,7 +77,7 @@ NWG_UIH_BlinkPlayerMoney = {
 	//Find text control
 	private _textCtrl = _gui displayCtrl _idc;
 	if (isNull _textCtrl) exitWith {
-		(format ["NWG_UIH_BlinkPlayerMoney: Text is null: '%1'",_idc]) call NWG_fnc_logError;
+		(format ["NWG_UIH_BlinkWithColor: Text is null: '%1'",_idc]) call NWG_fnc_logError;
 		false
 	};
 
@@ -92,11 +101,11 @@ NWG_UIH_BlinkPlayerMoney = {
 			if (!_isOn) then {
 				//Turn on
 				_textCtrl ctrlSetBackgroundColor _color;
-				sleep (NWG_UIH_Settings get "MONEY_BLINK_COLOR_INTERVAL_ON");
+				sleep (NWG_UIH_Settings get "BLINK_COLOR_INTERVAL_ON");
 			} else {
 				//Turn off
 				_textCtrl ctrlSetBackgroundColor _origColor;
-				sleep (NWG_UIH_Settings get "MONEY_BLINK_COLOR_INTERVAL_OFF");
+				sleep (NWG_UIH_Settings get "BLINK_COLOR_INTERVAL_OFF");
 			};
 
 			_blinkCount = _blinkCount + 0.5;//Increment (each blink is two steps - ON and OFF, that is why we add 0.5)
