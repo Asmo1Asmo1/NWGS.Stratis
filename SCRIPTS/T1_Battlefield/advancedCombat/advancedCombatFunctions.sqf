@@ -152,6 +152,7 @@ NWG_fnc_acSendToVehRepair = {
 /*Inf vehicle capture*/
 
 //Check if can do inf vehicle capture
+//note: If multiple groups are around the same vehicle, they all will return 'true', but only one will be able to run 'NWG_fnc_acSendToInfVehCapture'
 //params:
 // _group - group to check
 //returns:
@@ -161,6 +162,16 @@ NWG_fnc_acCanDoInfVehCapture = {
     _this call NWG_ACA_CanDoInfVehCapture
 };
 
+//Prepares group to capture nearby vehicle
+//note: it is expected that you call 'NWG_fnc_acSendToInfVehCapture' afterwards because vehicle will be marked for capture by that group
+//params:
+// _group - group to prepare
+//returns:
+// boolean - true if successful, false otherwise (e.g.: group is not an infantry or there is no valid nearby vehicle)
+NWG_fnc_acPrepareInfVehCapture = {
+    // private _group = _this;
+    _this call NWG_ACA_PrepareInfVehCapture
+};
 
 //Send group to capture an enemy vehicle
 //params:

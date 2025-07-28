@@ -1041,16 +1041,16 @@ NWG_ACA_VehRepair = {
 //Inf vehicle capture
 NWG_ACA_GetInfVehCaptureTarget = {
     private _group = _this;
-
-    //Get possible target vehicle
-    private _veh = ((leader _group) nearEntities [["Car","Tank","Wheeled_APC_F"],(NWG_ACA_Settings get "INF_VEH_CAPTURE_RADIUS")] select {
-        ((crew _x) isEqualTo []) && {_x call NWG_fnc_ocIsArmedVehicle}
-    }) param [0,objNull];
-    if (isNull _veh || {!alive _veh}) exitWith {objNull};
-
-    //Check that we can claim the vehicle for capture
-    if ([_veh,_group] call NWG_ACA_CanClaimForInfVehCapture) exitWith {_veh};
-    objNull
+    private _vehsAround = (leader _group) nearEntities [["Car","Tank","Wheeled_APC_F"],(NWG_ACA_Settings get "INF_VEH_CAPTURE_RADIUS")];
+    if ((count _vehsAround) == 0) exitWith {objNull};
+    private _i = _vehsAround findIf {
+        !isNull _x && {
+        alive _x && {
+        ((crew _x) isEqualTo []) && {
+        _x call NWG_fnc_ocIsArmedVehicle && {
+        [_x,_group] call NWG_ACA_CanClaimForInfVehCapture}}}}};
+    if (_i == -1) exitWith {objNull};
+    _vehsAround param [_i,objNull]
 };
 
 NWG_ACA_CanClaimForInfVehCapture = {
@@ -1074,6 +1074,15 @@ NWG_ACA_ClaimForInfVehCapture = {
 NWG_ACA_CanDoInfVehCapture = {
     //private _group = _this;
     (_this call NWG_ACA_CanDoInfBuildingStorm) && {!isNull (_this call NWG_ACA_GetInfVehCaptureTarget)}
+};
+
+NWG_ACA_PrepareInfVehCapture = {
+    //private _group = _this;
+    if !(_this call NWG_ACA_CanDoInfBuildingStorm) exitWith {false};//Reuse check from inf building storm - we need to know that group is infantry
+    private _targetVehicle = _this call NWG_ACA_GetInfVehCaptureTarget;
+    if (isNull _targetVehicle) exitWith {false};
+    if !([_targetVehicle,_this] call NWG_ACA_ClaimForInfVehCapture) exitWith {false};
+    true
 };
 
 NWG_ACA_SendToInfVehCapture = {

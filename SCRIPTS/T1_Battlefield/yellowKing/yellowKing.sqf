@@ -462,7 +462,7 @@ NWG_YK_GetGroupSpecial = {
         /*Infantry specials*/
         if ("INF" in _tags) exitWith {
             if (({alive _x} count (units _group)) == 1) exitWith {SPECIAL_LONEMERGE};//Single unit - prioritize lonemerge
-            if (_group call NWG_fnc_acCanDoInfVehCapture) exitWith {SPECIAL_VEHCAPTURE};//Group near vehicle - prioritize veh capture
+            if (_group call NWG_fnc_acPrepareInfVehCapture) exitWith {SPECIAL_VEHCAPTURE};//Group near vehicle - prioritize veh capture
             if (_group call NWG_fnc_acCanDoInfBuildingStorm) exitWith {SPECIAL_INFSTORM};//Any other inf special
             SPECIAL_NONE
         };
