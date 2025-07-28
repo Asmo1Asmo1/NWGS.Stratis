@@ -29,6 +29,7 @@ NWG_GRG_SER_SetSpawnPlatformObject = {
 //Vehicles processing
 NWG_GRG_SER_DeleteVehicle = {
 	// private _vehicle = _this;
+	{deleteVehicle _x} forEach (attachedObjects _this);
 	deleteVehicle _this;
 };
 
