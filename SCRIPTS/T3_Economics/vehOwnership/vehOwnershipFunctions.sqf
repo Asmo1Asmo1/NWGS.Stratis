@@ -6,7 +6,10 @@
 NWG_fnc_vownSetOwner = {
 	params ["_vehicle","_playerName"];
 	if (_playerName isEqualType objNull) then {_playerName = name _playerName};
-	[_vehicle,_playerName] call NWG_VEHOWN_SetVehicleOwner;
+
+	if (local _vehicle)
+		then {[_vehicle,_playerName] call NWG_VEHOWN_SetVehicleOwner}
+		else {[_vehicle,_playerName] remoteExec ["NWG_fnc_vownSetOwner",_vehicle]};
 };
 
 //Returns if a player is the owner of a vehicle
