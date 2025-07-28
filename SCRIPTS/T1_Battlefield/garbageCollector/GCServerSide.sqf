@@ -10,7 +10,7 @@ NWG_GC_Settings = createHashMapFromArray [
     ["BODIES_LIMITS",[18,36]],//Min and max bodies count on the map allowed
     ["WRECKS_LIMITS",[6,12]],//Min and max vehicle/turret wrecks
     ["TRASH_LIMITS",[5,10]],//Min and max ground trash
-    ["PRESERVE_DISTANCE",25],//Distance from players to objects at which we will try to preserve them to not break immersion
+    ["PRESERVE_DISTANCE",50],//Distance from players to objects at which we will try to preserve them to not break immersion
 
     ["BUILDING_DECOR_DELETE",true],//Delete building decorations on building destroy
     ["BUILDING_DECOR_DELETE_DELAY",2],//Delay before deleting building decorations on building destroy
