@@ -1005,28 +1005,39 @@ NWG_ACA_VehRepair = {
     _group leaveVehicle _veh;
     {_x moveOut _veh} forEach _crew;
 
-    //Repair
+    //Play repair animation
     sleep 1;
     if (call _abortCondition) exitWith {
         [STAT_ACA_VEH_REPAIR,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
         call _onExit;
     };
     {
+        sleep (random 0.75);
         if (!alive _x) then {continue};
         if ((incapacitatedState _x) isNotEqualTo "") then {continue};
         _x setDir (_x getDir _veh);
         _x switchMove "Acts_carFixingWheel";
         _x playMoveNow "Acts_carFixingWheel";
-        sleep (random 0.75);
     } forEach _crew;
-    sleep (NWG_ACA_Settings get "VEH_REPAIR_DURATION");
-    if (call _abortCondition) exitWith {
+    private _stopRepairAt = time + (NWG_ACA_Settings get "VEH_REPAIR_DURATION");
+    private _vehCapturedCondition = {
+        ((crew _veh) findIf {!(_x in (units _group))}) != -1
+    };
+    waitUntil {
+        sleep 0.5;
+        if (call _abortCondition) exitWith {true};
+        if (call _vehCapturedCondition) exitWith {true};
+        if (time > _stopRepairAt) exitWith {true};
+        false
+    };
+    if (call _abortCondition || {call _vehCapturedCondition}) exitWith {
+        {_x switchMove ""} forEach (_crew call NWG_ACA_GetActiveUnits);
         [STAT_ACA_VEH_REPAIR,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
         call _onExit;
     };
-    _veh setDamage 0;
 
-    //Reload the crew
+    //Finish repair
+    _veh setDamage 0;
     _group addVehicle _veh;
     _crew = _crew call NWG_ACA_GetActiveUnits;
     {_x moveInAny _veh} forEach _crew;
