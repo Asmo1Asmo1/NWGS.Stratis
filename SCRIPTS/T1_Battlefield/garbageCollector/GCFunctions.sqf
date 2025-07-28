@@ -42,6 +42,14 @@ NWG_fnc_gcDeleteGroup = {
     _this call NWG_GC_DeleteGroup
 };
 
+//Deletes unit according to 'in vehicle' logic
+//params:
+// _unit: the unit to delete
+NWG_fnc_gcDeleteUnit = {
+    // private _unit = _this;
+    _this call NWG_GC_DeleteUnit
+};
+
 //=============================================================================
 /*Server -> Units*/
 

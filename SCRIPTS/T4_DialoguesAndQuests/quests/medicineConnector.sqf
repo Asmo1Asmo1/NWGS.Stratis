@@ -60,22 +60,23 @@ NWG_QST_MC_SetWounded = {
         };
 
 		//Check if unit is brought to base
-		if !(_unit getVariable ["NWG_QST_MC_IsAtBase",false]) then {
-			//Check if unit is on base
-			if !(_unit call NWG_fnc_mmIsPlayerOnBase) exitWith {};
-			_unit setVariable ["NWG_QST_MC_IsAtBase",true];
-			//Define player who drove him to base
-			if ((vehicle _unit) isNotEqualTo _unit && {!isNull (driver (vehicle _unit)) && {isPlayer (driver (vehicle _unit))}}) exitWith {
-				(driver (vehicle _unit)) call NWG_QST_SER_OnQuestDone;
+		if (_unit call NWG_fnc_mmIsPlayerOnBase) exitWith {
+			//Define winner and report it
+			private _winner = call {
+				//Define player who drove him to base
+				if ((vehicle _unit) isNotEqualTo _unit && {!isNull (driver (vehicle _unit)) && {isPlayer (driver (vehicle _unit))}}) exitWith {(driver (vehicle _unit))};
+				//Define player who carried him to base
+				private _allPlayers = call NWG_fnc_getPlayersAll;
+				private _i = _allPlayers findIf {(_unit distance _x) < 5};
+				if (_i != -1) exitWith {(_allPlayers select _i)};
+				//Well, somebody did it, but we don't know who
+				objNull
 			};
-			//Define player who carried him to base
-			private _allPlayers = call NWG_fnc_getPlayersAll;
-			private _i = _allPlayers findIf {(_unit distance _x) < 5};
-			if (_i != -1) exitWith {
-				(_allPlayers select _i) call NWG_QST_SER_OnQuestDone;
-			};
-			//Well, somebody did it, but we don't know who
-			objNull call NWG_QST_SER_OnQuestDone;
+			_winner call NWG_QST_SER_OnQuestDone;
+			//Delete unit
+			_unit call NWG_fnc_gcDeleteUnit;
+			//Exit the loop
+			true
 		};
 
         //Repeat
