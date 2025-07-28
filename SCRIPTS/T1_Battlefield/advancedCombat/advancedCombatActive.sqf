@@ -33,7 +33,7 @@
 NWG_ACA_Settings = createHashMapFromArray [
     ["AIRSTRIKE_PREPARE_RADIUS",2000],//Distance to fly away from the target in order to prepare for the airsrike
     ["AIRSTRIKE_PREPARE_HEIGHT",650],//Height at which airstrike will prepare
-    ["AIRSTRIKE_DESCEND_RADIUS",1450],//Distance at which plane will start descending
+    ["AIRSTRIKE_DESCEND_RADIUS",1200],//Distance at which plane will start descending
     ["AIRSTRIKE_FIRE_RADIUS",850],//Distance at which to start fireing
     ["AIRSTRIKE_STOP_RADIUS",450],//Distance at which to pull up
     ["AIRSTRIKE_LASER_CLASSNAME","LaserTargetW"],//Classname for laser target (faction matters!)
@@ -284,8 +284,8 @@ NWG_ACA_Airstrike = {
         if (time > _timeoutAt && {(_plane distance2D _target) < (NWG_ACA_Settings get "AIRSTRIKE_STOP_RADIUS")}) exitWith {_statTimed = true};
 
         //4. Descend and fire (we take manual control over Arma physics and AI behavior for this part, so no need to check for waypoint completion or timeout)
-        _plane flyInHeight [0,true];
-        _plane flyInHeightASL [0,0,0];
+        _plane flyInHeight [100,true];
+        _plane flyInHeightASL [100,100,100];
         {_x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
         private ["_dirVectorNormalized","_currentSpeed","_newVelocity"];
         waitUntil {
@@ -311,6 +311,7 @@ NWG_ACA_Airstrike = {
         waitUntil {
             sleep 0.05;//Smallest value required for plane not to jiggle
             if (call _abortCondition) exitWith {true};
+            if ((getPos _plane)#2 < 90) exitWith {true};//Abort if plane is too low
 
             //Continuously recalculate direction to target
             _dirVectorNormalized = vectorNormalized ((getPosASL _helper) vectorDiff (getPosASL _plane));
@@ -337,7 +338,7 @@ NWG_ACA_Airstrike = {
         if (call _abortCondition) exitWith {};
 
         //5. Release and reload
-        private _restoreAltitude = call NWG_fnc_dtsGetAirHeight;
+        private _restoreAltitude = call NWG_fnc_dtsGetAirHeightMin;
         _plane flyInHeight [_restoreAltitude,true];
         _plane flyInHeightASL [_restoreAltitude,_restoreAltitude,_restoreAltitude];
         {_x doWatch objNull; _x doTarget objNull} forEach _strikeTeam;//Release target from sight
