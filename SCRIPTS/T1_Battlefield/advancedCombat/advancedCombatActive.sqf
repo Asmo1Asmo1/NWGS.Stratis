@@ -33,7 +33,7 @@
 NWG_ACA_Settings = createHashMapFromArray [
     ["AIRSTRIKE_PREPARE_RADIUS",2000],//Distance to fly away from the target in order to prepare for the airsrike
     ["AIRSTRIKE_PREPARE_HEIGHT",650],//Height at which airstrike will prepare
-    ["AIRSTRIKE_DESCEND_RADIUS",1450],//Distance at which plane will start descending
+    ["AIRSTRIKE_DESCEND_RADIUS",1200],//Distance at which plane will start descending
     ["AIRSTRIKE_FIRE_RADIUS",850],//Distance at which to start fireing
     ["AIRSTRIKE_STOP_RADIUS",450],//Distance at which to pull up
     ["AIRSTRIKE_LASER_CLASSNAME","LaserTargetW"],//Classname for laser target (faction matters!)
@@ -284,8 +284,8 @@ NWG_ACA_Airstrike = {
         if (time > _timeoutAt && {(_plane distance2D _target) < (NWG_ACA_Settings get "AIRSTRIKE_STOP_RADIUS")}) exitWith {_statTimed = true};
 
         //4. Descend and fire (we take manual control over Arma physics and AI behavior for this part, so no need to check for waypoint completion or timeout)
-        _plane flyInHeight [0,true];
-        _plane flyInHeightASL [0,0,0];
+        _plane flyInHeight [100,true];
+        _plane flyInHeightASL [100,100,100];
         {_x doWatch _helper; _x doTarget _helper} forEach _strikeTeam;
         private ["_dirVectorNormalized","_currentSpeed","_newVelocity"];
         waitUntil {
@@ -311,6 +311,7 @@ NWG_ACA_Airstrike = {
         waitUntil {
             sleep 0.05;//Smallest value required for plane not to jiggle
             if (call _abortCondition) exitWith {true};
+            if ((getPos _plane)#2 < 90) exitWith {true};//Abort if plane is too low
 
             //Continuously recalculate direction to target
             _dirVectorNormalized = vectorNormalized ((getPosASL _helper) vectorDiff (getPosASL _plane));
@@ -337,7 +338,7 @@ NWG_ACA_Airstrike = {
         if (call _abortCondition) exitWith {};
 
         //5. Release and reload
-        private _restoreAltitude = call NWG_fnc_dtsGetAirHeight;
+        private _restoreAltitude = call NWG_fnc_dtsGetAirHeightMin;
         _plane flyInHeight [_restoreAltitude,true];
         _plane flyInHeightASL [_restoreAltitude,_restoreAltitude,_restoreAltitude];
         {_x doWatch objNull; _x doTarget objNull} forEach _strikeTeam;//Release target from sight
@@ -1004,28 +1005,39 @@ NWG_ACA_VehRepair = {
     _group leaveVehicle _veh;
     {_x moveOut _veh} forEach _crew;
 
-    //Repair
+    //Play repair animation
     sleep 1;
     if (call _abortCondition) exitWith {
         [STAT_ACA_VEH_REPAIR,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
         call _onExit;
     };
     {
+        sleep (random 0.75);
         if (!alive _x) then {continue};
         if ((incapacitatedState _x) isNotEqualTo "") then {continue};
         _x setDir (_x getDir _veh);
         _x switchMove "Acts_carFixingWheel";
         _x playMoveNow "Acts_carFixingWheel";
-        sleep (random 0.75);
     } forEach _crew;
-    sleep (NWG_ACA_Settings get "VEH_REPAIR_DURATION");
-    if (call _abortCondition) exitWith {
+    private _stopRepairAt = time + (NWG_ACA_Settings get "VEH_REPAIR_DURATION");
+    private _vehCapturedCondition = {
+        ((crew _veh) findIf {!(_x in (units _group))}) != -1
+    };
+    waitUntil {
+        sleep 0.5;
+        if (call _abortCondition) exitWith {true};
+        if (call _vehCapturedCondition) exitWith {true};
+        if (time > _stopRepairAt) exitWith {true};
+        false
+    };
+    if (call _abortCondition || {call _vehCapturedCondition}) exitWith {
+        {_x switchMove ""} forEach (_crew call NWG_ACA_GetActiveUnits);
         [STAT_ACA_VEH_REPAIR,STAT_ACA_ABORTED] call NWG_ACA_AddStat;
         call _onExit;
     };
-    _veh setDamage 0;
 
-    //Reload the crew
+    //Finish repair
+    _veh setDamage 0;
     _group addVehicle _veh;
     _crew = _crew call NWG_ACA_GetActiveUnits;
     {_x moveInAny _veh} forEach _crew;
@@ -1041,16 +1053,16 @@ NWG_ACA_VehRepair = {
 //Inf vehicle capture
 NWG_ACA_GetInfVehCaptureTarget = {
     private _group = _this;
-
-    //Get possible target vehicle
-    private _veh = ((leader _group) nearEntities [["Car","Tank","Wheeled_APC_F"],(NWG_ACA_Settings get "INF_VEH_CAPTURE_RADIUS")] select {
-        ((crew _x) isEqualTo []) && {_x call NWG_fnc_ocIsArmedVehicle}
-    }) param [0,objNull];
-    if (isNull _veh || {!alive _veh}) exitWith {objNull};
-
-    //Check that we can claim the vehicle for capture
-    if ([_veh,_group] call NWG_ACA_CanClaimForInfVehCapture) exitWith {_veh};
-    objNull
+    private _vehsAround = (leader _group) nearEntities [["Car","Tank","Wheeled_APC_F"],(NWG_ACA_Settings get "INF_VEH_CAPTURE_RADIUS")];
+    if ((count _vehsAround) == 0) exitWith {objNull};
+    private _i = _vehsAround findIf {
+        !isNull _x && {
+        alive _x && {
+        ((crew _x) isEqualTo []) && {
+        _x call NWG_fnc_ocIsArmedVehicle && {
+        [_x,_group] call NWG_ACA_CanClaimForInfVehCapture}}}}};
+    if (_i == -1) exitWith {objNull};
+    _vehsAround param [_i,objNull]
 };
 
 NWG_ACA_CanClaimForInfVehCapture = {
@@ -1074,6 +1086,15 @@ NWG_ACA_ClaimForInfVehCapture = {
 NWG_ACA_CanDoInfVehCapture = {
     //private _group = _this;
     (_this call NWG_ACA_CanDoInfBuildingStorm) && {!isNull (_this call NWG_ACA_GetInfVehCaptureTarget)}
+};
+
+NWG_ACA_PrepareInfVehCapture = {
+    //private _group = _this;
+    if !(_this call NWG_ACA_CanDoInfBuildingStorm) exitWith {false};//Reuse check from inf building storm - we need to know that group is infantry
+    private _targetVehicle = _this call NWG_ACA_GetInfVehCaptureTarget;
+    if (isNull _targetVehicle) exitWith {false};
+    if !([_targetVehicle,_this] call NWG_ACA_ClaimForInfVehCapture) exitWith {false};
+    true
 };
 
 NWG_ACA_SendToInfVehCapture = {

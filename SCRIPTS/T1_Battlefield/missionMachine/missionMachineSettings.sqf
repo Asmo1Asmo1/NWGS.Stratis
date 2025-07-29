@@ -105,7 +105,7 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 
 	//==================================================================================================
 	// Escape endgame settings
-	["ESCAPE_TIME_LIMIT",2100],//Time limit for escape mission
+	["ESCAPE_TIME_LIMIT",1500],//Time limit for escape mission
 	["ESCAPE_MUSIC",["LeadTrack01_F_Mark","LeadTrack01_F_Heli","LeadTrack04_F_EXP","MainTheme_F_Tank","LeadTrack01_F_6th_Anniversary_Remix"]],
 	["ESCAPE_BASEATTACK_GROUPSCOUNT",[5,6,7,8]],
 

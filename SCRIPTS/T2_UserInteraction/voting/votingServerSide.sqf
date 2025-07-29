@@ -49,6 +49,22 @@ NWG_VOTE_SER_OnVoteRequest = {
 
 //================================================================================================================
 //================================================================================================================
+//Voting debug functions
+NWG_VOTE_SER_strResult = "";
+NWG_VOTE_SER_SetVoteResultStr = {
+    private _for = NWG_VOTE_SER_currentAnchor call NWG_VOTE_COM_GetInfavor;
+    private _against = NWG_VOTE_SER_currentAnchor call NWG_VOTE_COM_GetAgainst;
+    private _total = count (call NWG_fnc_getPlayersAll);
+    private _abstained = _total - _for - _against;
+
+    NWG_VOTE_SER_strResult = format ["FOR:%1, AGAINST:%2, ABSTAINED:%3, TOTAL:%4", _for, _against, _abstained, _total];
+};
+NWG_VOTE_SER_GetVoteResultStr = {
+    NWG_VOTE_SER_strResult
+};
+
+//================================================================================================================
+//================================================================================================================
 //Voting core logic
 NWG_VOTE_SER_VoteCore = {
     params ["_anchor","_title"];
@@ -108,6 +124,7 @@ NWG_VOTE_SER_VoteCore = {
 
     //Finalize voting
     [_title,_voteResult] remoteExec ["NWG_fnc_voteOnEnded",0];
+    call NWG_VOTE_SER_SetVoteResultStr;//For logs and debug
     if (_anchor call NWG_VOTE_COM_IsValidAnchor) then {_anchor call NWG_VOTE_COM_Clear};
     NWG_VOTE_SER_voteResult = _voteResult;
 

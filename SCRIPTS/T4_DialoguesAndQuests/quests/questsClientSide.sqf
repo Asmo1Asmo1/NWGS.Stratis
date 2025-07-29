@@ -268,25 +268,31 @@ NWG_QST_CLI_TryCloseQuest = {
 //================================================================================================================
 //Utils
 NWG_QST_CLI_IsWinnerByName = {
-	// private _player = _this;
-	private _playerName = name _this;
+	private _player = _this;
+
+	//Check if winner is set
 	if (isNil "NWG_QST_WinnerName") exitWith {
 		"NWG_QST_CLI_IsWinnerByName: No winner set" call NWG_fnc_logError;
 		false
 	};
 
 	//If winner is unknown - winner place is vacant
-	private _curWinnerName = NWG_QST_WinnerName;
-	if (_curWinnerName isEqualTo "") exitWith {true};
-	if (_curWinnerName isEqualTo QST_UNKNOWN_WINNER) exitWith {true};
-
-	//If winner is known, but not online - winner place is vacant
-	private _isOnline = ((call NWG_fnc_getPlayersAll) findIf {(name _x) isEqualTo _curWinnerName}) != -1;
-	if (!_isOnline) exitWith {true};
+	private _winnerName = NWG_QST_WinnerName;
+	if (_winnerName isEqualTo "") exitWith {true};
+	if (_winnerName isEqualTo QST_UNKNOWN_WINNER) exitWith {true};
 
 	//Check if this player is the winner
+	private _playerName = name _player;
+	if (_playerName isEqualTo _winnerName) exitWith {true};
+
+	//Check if winner is in the same group as the player (allow closing quest for group members)
+	if (_winnerName in ((units (group _player)) apply {name _x})) exitWith {true};
+
+	//Check if winner is offline - winner place is vacant
+	if (((call NWG_fnc_getPlayersAll) findIf {(name _x) isEqualTo _winnerName}) == -1) exitWith {true};
+
 	//return
-	_playerName isEqualTo _curWinnerName
+	false
 };
 
 NWG_QST_CLI_GetTargetVehicle = {

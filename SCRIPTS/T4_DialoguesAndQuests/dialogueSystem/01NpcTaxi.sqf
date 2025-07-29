@@ -82,18 +82,18 @@ NWG_DLG_TAXI_GenerateDropPoints = {
 			private _medCheck = if (!isNil "NWG_fnc_medIsWounded")
 				then {{!(_this call NWG_fnc_medIsWounded)}}
 				else {{{true}}};
-			private _flyCheck = {
+			private _vehCheck = {
 				private _veh = vehicle _this;
-				if (_veh isKindOf "ParachuteBase") exitWith {false};
+				if (_veh isKindOf "ParachuteBase") exitWith {false};//Can not teleport to unit in parachute
 				if (_veh isKindOf "Man") exitWith {
-					if (((getPos _veh)#2) < 1) exitWith {true};//Ok for unit on ground
-					if (((getPosASL _veh)#2) < 0) exitWith {true};//Ok for unit underwater
-					false
+					if (((getPosASL _veh)#2) < 0) exitWith {false};//Can not teleport to unit underwater
+					if (((getPos _veh)#2) > 1) exitWith {false};//Can not teleport to unit in air
+					true
 				};
 				true
 			};
 			_squadMembers apply {
-				if (_x call _medCheck && {_x call _flyCheck})
+				if (_x call _medCheck && {_x call _vehCheck})
 					then {[(name _x),"TAXI_PAY",{NWG_DLG_TAXI_SelectedItem = _this},_x]}
 					else {[(name _x),"TAXI_SQD_UNFIT"]};
 			}

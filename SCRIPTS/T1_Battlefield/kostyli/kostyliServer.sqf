@@ -15,6 +15,9 @@ NWG_KOSTYLI_Settings = createHashMapFromArray [
 	["VEH_UNSTUCK_ENABLED",false],
 	["VEH_UNSTUCK_INTERVAL",3],
 
+	["TURRET_UNSTUCK_ENABLED",true],
+	["TURRET_UNSTUCK_DELAY",2],
+
 	["",0]
 ];
 
@@ -207,6 +210,39 @@ NWG_KOSTYLI_VehUnstuck_Core = {
 
 		//Go to new iteration if there are still targets to unstuck
 		(count NWG_KOSTYLI_vehUnstuckList) == 0
+	};
+};
+
+//================================================================================================================
+//Turret unstuck logic (fix for turret gunners stucking in limbo)
+NWG_KOSTYLI_turretUnstuckList = [];
+NWG_KOSTYLI_turretUnstuckCore = scriptNull;
+NWG_KOSTYLI_AddToTurretUnstuck = {
+	private _unit = _this;
+	private _turret = vehicle _unit;
+	if (isNull _turret || {!alive _turret}) exitWith {};//Prevent adding dead turrets
+	if (_turret isEqualTo _unit) exitWith {};//Skip soldiers on foot
+	if !(_turret isKindOf "StaticWeapon") exitWith {};//Not a turret
+	if (unitIsUAV _this || {unitIsUAV _turret}) exitWith {};//UAVs are not supported
+
+	private _checkAt = time + (NWG_KOSTYLI_Settings get "TURRET_UNSTUCK_DELAY");
+	NWG_KOSTYLI_turretUnstuckList pushBack [_unit,_checkAt];
+	if (isNull NWG_KOSTYLI_turretUnstuckCore || {scriptDone NWG_KOSTYLI_turretUnstuckCore}) then {
+		NWG_KOSTYLI_turretUnstuckCore = [] spawn NWG_KOSTYLI_TurretUnstuck_Core;
+	};
+};
+
+NWG_KOSTYLI_TurretUnstuck_Core = {
+	waitUntil {
+		sleep 0.5;
+		{
+			_x params ["_unit","_checkAt"];
+			if (time < _checkAt) then {continue};//Time has not come yet
+			if (isNull _unit || {!alive _unit}) then {NWG_KOSTYLI_turretUnstuckList deleteAt _forEachIndex; continue};//Drop deleted objects
+			if ((vehicle _unit) isEqualTo _unit) then {NWG_KOSTYLI_turretUnstuckList deleteAt _forEachIndex; continue};//Unit body ejected as it should
+			_unit moveOut (vehicle _unit);//Force unit to eject
+		} forEachReversed NWG_KOSTYLI_turretUnstuckList;
+		(count NWG_KOSTYLI_turretUnstuckList) == 0//Exit when list is empty
 	};
 };
 

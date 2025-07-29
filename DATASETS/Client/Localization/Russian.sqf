@@ -140,6 +140,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //06Settings
     ["#UP_SETTINGS_TITLE#","Настройки"],
     ["#UP_SETTINGS_KEYBINDINGS#","Горячие клавиши"],
+    ["#UP_SETTINGS_DEBUG#","Отладка"],
+    ["#SETTINGS_DEBUG_STUCK#","Я застрял под текстурой"],
+    ["#SETTINGS_DEBUG_CAMERA#","Починить мою камеру"],
+    ["#SETTINGS_DEBUG_SUCCESS#","Отладка успешна"],
+    ["#SETTINGS_DEBUG_FAILED#","Отладка не удалась"],
     //voting
     ["#VOTE_RESULT_INFAVOR#","\nРезультат: ЗА"],
     ["#VOTE_RESULT_AGAINST#","\nРезультат: ПРОТИВ"],
@@ -261,6 +266,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VSHOP_CAT_TANK#","Танки"],
     ["#VSHOP_PLATFORM_OCCUPIED#","Платформа занята"],
     ["#VSHOP_CANNOT_SELL_VEHICLE#","Техника недоступна"],
+    ["#VSHOP_GROUP_LEADER_SPENT_MONEY_ON#","%1 купил %2 за деньги группы"],
     //vehCustomizationAppearance
     ["#CAPP_LEFT_TITLE#","Цвет"],
     ["#CAPP_RIGHT_TITLE#","Компоненты"],
@@ -817,7 +823,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DISPLAY_DESTROY#","Уничтожить: %1"],
     ["#QST_DISPLAY_INTEL#","Собрать разведданные (пример: %1)"],
     ["#QST_DISPLAY_INFECTION#","Остановить инфекцию (заражённые: %1)"],
-    ["#QST_DISPLAY_WOUNDED#","Сопроводить на базу: %1"],
+    ["#QST_DISPLAY_WOUNDED#","Сопроводить на базу"],
     ["#QST_DISPLAY_MED_SUPPLY#","Найти медикаменты (пример: %1)"],
     ["#QST_DISPLAY_WEAPON#","Найти и доставить: %1"],
     ["#QST_DISPLAY_ELECTRONICS#","Собрать электронику (пример: %1)"],

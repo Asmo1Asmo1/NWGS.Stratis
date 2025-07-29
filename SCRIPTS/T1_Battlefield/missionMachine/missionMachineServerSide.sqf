@@ -285,6 +285,17 @@ NWG_MIS_SER_Cycle = {
                     if (isNull _escapeVehicle || {!alive _escapeVehicle}) exitWith
                         {"NWG_MIS_SER_Cycle: Escape vehicle not found or dead - exiting." call NWG_fnc_logError; _exit = true};//Exit
                     _escapeVehicle allowDamage false;
+                    _escapeVehicle addEventHandler ["Explosion", {
+                        // params ["_vehicle", "_damage", "_explosionSource"];
+                        private _allowedAt = localNamespace getVariable ["NWG_MIS_SER_EscapeVehicleDmgAllowedAt",0];
+                        if (time > _allowedAt) then {
+                            localNamespace setVariable ["NWG_MIS_SER_EscapeVehicleDmgAllowedAt",(time+1)];
+                            private _escapeVehicle = _this#0;
+                            private _damage = damage _escapeVehicle;
+                            _damage = (_damage + 0.02) min 0.9;
+                            _escapeVehicle setDamage _damage;
+                        };
+                    }];
                     NWG_MIS_SER_missionInfo set [MINFO_ESCAPE_VEHICLE,_escapeVehicle];
                     NWG_MIS_SER_missionInfo set [MINFO_ESCAPE_VEHICLE_POS,(getPosASL _escapeVehicle)];
                 };
