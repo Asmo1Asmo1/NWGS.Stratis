@@ -61,7 +61,7 @@ NWG_fnc_invExchangeItem = {
 };
 
 //Invokes inventory change check
-//note: use it when doing 'setUnitLoadout' on player
+//note: use it when doing 'setUnitLoadout' on player or when expecting loadout change not by player actions (someone else is putting items in player's inventory)
 NWG_fnc_invInvokeChangeCheck = {
     call NWG_INV_CheckLoadoutChange;
 };

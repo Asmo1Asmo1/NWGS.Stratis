@@ -319,7 +319,10 @@ NWG_QST_Settings = createHashMapFromArray [
 	/*External functions*/
 	["FUNC_GET_PLAYER_VEHICLES",{(group _this) call NWG_fnc_vownGetOwnedVehiclesGroup}],
 	["FUNC_DELETE_VEHICLE",{_this call NWG_fnc_vshopDeleteVehicle}],
-	["FUNC_HAS_ITEM",{_this call NWG_fnc_invHasItem}],
+	["FUNC_HAS_ITEM",{
+		call NWG_fnc_invInvokeChangeCheck;//Fix for items put by other players
+		_this call NWG_fnc_invHasItem
+	}],
 	["FUNC_GET_ITEM_COUNT",{_this call NWG_fnc_invGetItemCount}],
 	["FUNC_REMOVE_ITEMS",{_this call NWG_fnc_invRemoveItems}],
 	["FUNC_SET_LOADOUT",{_this call NWG_fnc_invSetPlayerLoadout}],
