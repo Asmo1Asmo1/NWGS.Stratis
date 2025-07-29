@@ -94,7 +94,12 @@ NWG_DB_PL_CreateWithId = {
 	// if (_debugLog) then {(format ["NWG_DB_PL_CreateWithId: Created success for player with id: '%1'. Result: '%2'",_playerID,_createResult]) call NWG_fnc_logInfo};
 
 	//Create mock state to use with update (fill table with default values)
-	private _playerState = createHashMapFromArray (NWG_DB_PL_Settings get "DEFAULT_VALUES");
+	private _playerState = createHashMap;
+	{
+		_x params ["_key","_value"];
+		if (_value isEqualType []) then {_value = +_value};//Deep copy (fix players sharing same loot_storage array)
+		_playerState set [_key,_value];
+	} forEach (NWG_DB_PL_Settings get "DEFAULT_VALUES");
 	private _updateOk = [_playerID,_playerState] call NWG_DB_PL_UpdateById;
 	if (!_updateOk) exitWith {
 		(format ["NWG_DB_PL_CreateWithId: Failed first update for player with id: '%1'. Result: '%2'",_playerID,_updateOk]) call NWG_fnc_logError;
@@ -206,7 +211,12 @@ NWG_DB_PL_GetById = {
 	// if (_debugLog) then {(format ["NWG_DB_PL_GetById: Getting player with id: '%1'",_playerID]) call NWG_fnc_logInfo};
 
 	//Create default state
-	private _playerState = createHashMapFromArray (NWG_DB_PL_Settings get "DEFAULT_VALUES");
+	private _playerState = createHashMap;
+	{
+		_x params ["_key","_value"];
+		if (_value isEqualType []) then {_value = +_value};//Deep copy (fix players sharing same loot_storage array)
+		_playerState set [_key,_value];
+	} forEach (NWG_DB_PL_Settings get "DEFAULT_VALUES");
 
 	//Get player state from DB (one value at a time)
 	private _tableName = NWG_DB_PL_Settings get "TABLE_NAME";
