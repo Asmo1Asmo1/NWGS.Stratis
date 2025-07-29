@@ -39,11 +39,15 @@ NWG_YK_Settings = createHashMapFromArray [
     /*Statistics*/
     ["STATISTICS_ENABLED",true],//If true, the system will keep track of statistics and output them to the RPT log
     ["STATISTICS_ADVANCED_COMBAT",true],//If true, additional statistics will be outputted for advanced combat (must be enabled on advanced combat side as well)
+    ["DIAG_FPS_ENABLED",true],//If true, the system will output the FPS to the RPT log
+    ["DIAG_FPS_END_DELAY",1],//Delay before the FPS at the end of reaction is logged
 
-    /*Difficulty*/
-    ["DIFFICULTY_REACTION_COOLDOWN",[45,90]],//Min and max time before the next reaction can be started  (will be defined randomly between the two)
-    ["DIFFICULTY_REACTION_TIME",[10,60]],//Min and max time between actions and reactions (will be defined randomly between the two)
-    ["DIFFICULTY_REACTION_IMMEDIATE_ON_KILLCOUNT",10],//Number of kills to immediately react to (skips remaining reaction time, but not cooldown)
+    /*Reaction*/
+    ["REACTION_COOLDOWN",[60,90]],//Min and max time before the next reaction can be started  (will be defined randomly between the two)
+    ["REACTION_TIME",[10,60]],//Min and max time between actions and reactions (will be defined randomly between the two)
+    ["REACTION_IMMEDIATE_ON_KILLCOUNT",10],//Number of kills to immediately react to (skips remaining reaction time, but not cooldown)
+
+    /*Difficulty curve*/
     ["DIFFICULTY_CURVE",[0,1,0,1,2,1,2,0,1,1,2,0,1,2,2,1,0]],//Yellow King difficulty curve
     ["DIFFUCULTY_PRESETS",[
         /*Easy*/
@@ -55,7 +59,18 @@ NWG_YK_Settings = createHashMapFromArray [
     ]],//YellowKing difficulty presets
 
     /*Berserk mode*/
-    ["BERSEK_MODE_COOLDOWN",60],//Mandatory cooldown before next berserk round can start (stacks with the difficulty cooldown)
+    ["BERSEK_MODE_COOLDOWN",90],//Mandatory cooldown before next berserk round can start (stacks with the difficulty cooldown)
+
+    /*Dice weights*/
+    ["DICE_WEIGHTS",createHashMapFromArray [
+        [DICE_IGNORE,       3],
+        [DICE_MOVE,         3],
+        [DICE_REINF,        4],
+        [SPECIAL_AIRSTRIKE, 6],
+        [SPECIAL_ARTA,      6],
+        [SPECIAL_VEHDEM,    6],
+        [SPECIAL_INFSTORM,  6]
+    ]],
 
     ["",0]
 ];
@@ -146,9 +161,9 @@ NWG_YK_BerserkReload = {
 
     //Setup reaction
     {
-        NWG_YK_reactList pushBackUnique _x;
+        NWG_YK_reactList pushBackUnique _x;//Unique because we keep filling it with players who do damage in 'NWG_YK_OnKilled'
     } forEach ((call NWG_fnc_getPlayersAll) select NWG_YK_BerserkSelectBy);
-    NWG_YK_reactTime = time + ((NWG_YK_Settings get "DIFFICULTY_REACTION_TIME") call NWG_fnc_randomRangeInt);
+    NWG_YK_reactTime = time + ((NWG_YK_Settings get "REACTION_TIME") call NWG_fnc_randomRangeInt);
     NWG_YK_reactHandle = [] spawn NWG_YK_React;
 };
 
@@ -191,7 +206,7 @@ NWG_YK_OnKilled = {
     NWG_YK_reactList pushBackUnique _actualKiller;
     if (NWG_YK_BerserkMode) exitWith {};//System is in berserk mode - no further action needed
     if (isNull NWG_YK_reactHandle || {scriptDone NWG_YK_reactHandle}) then {
-        NWG_YK_reactTime = time + ((NWG_YK_Settings get "DIFFICULTY_REACTION_TIME") call NWG_fnc_randomRangeInt);
+        NWG_YK_reactTime = time + ((NWG_YK_Settings get "REACTION_TIME") call NWG_fnc_randomRangeInt);
         NWG_YK_reactHandle = [] spawn NWG_YK_React;
     };
 };
@@ -207,11 +222,11 @@ NWG_YK_React = {
         sleep 1;
         time >= NWG_YK_cooldownTime
     };
-    NWG_YK_cooldownTime = time + ((NWG_YK_Settings get "DIFFICULTY_REACTION_COOLDOWN") call NWG_fnc_randomRangeInt);//Set next cooldown time
+    NWG_YK_cooldownTime = time + ((NWG_YK_Settings get "REACTION_COOLDOWN") call NWG_fnc_randomRangeInt);//Set next cooldown time
     /*Reaction time*/
     waitUntil {
         sleep 1;
-        (time >= NWG_YK_reactTime || {NWG_YK_killCount > (NWG_YK_Settings get "DIFFICULTY_REACTION_IMMEDIATE_ON_KILLCOUNT")})
+        (time >= NWG_YK_reactTime || {NWG_YK_killCount > (NWG_YK_Settings get "REACTION_IMMEDIATE_ON_KILLCOUNT")})
     };
     private _onExit = {
         NWG_YK_reactList resize 0;
@@ -220,6 +235,7 @@ NWG_YK_React = {
     };
     /*Statistics and status*/
     [STAT_REACTION_COUNT,1] call NWG_YK_STAT_Increment;
+    if (NWG_YK_Settings get "DIAG_FPS_ENABLED") then {(format ["NWG_YK_React: FPS at the start: '%1'",diag_fps]) call NWG_fnc_logInfo};
 
     //1. Get raw targets to react to
     private _targets = NWG_YK_reactList select {alive _x};
@@ -306,6 +322,12 @@ NWG_YK_React = {
     } forEach _targets;
 
     //7. Reset
+    if (NWG_YK_Settings get "DIAG_FPS_ENABLED") then {
+        [] spawn {
+            sleep (NWG_YK_Settings get "DIAG_FPS_END_DELAY");
+            (format ["NWG_YK_React: FPS at the end: '%1'",diag_fps]) call NWG_fnc_logInfo;
+        };
+    };
     call _onExit;
 };
 
@@ -440,7 +462,7 @@ NWG_YK_GetGroupSpecial = {
         /*Infantry specials*/
         if ("INF" in _tags) exitWith {
             if (({alive _x} count (units _group)) == 1) exitWith {SPECIAL_LONEMERGE};//Single unit - prioritize lonemerge
-            if (_group call NWG_fnc_acCanDoInfVehCapture) exitWith {SPECIAL_VEHCAPTURE};//Group near vehicle - prioritize veh capture
+            if (_group call NWG_fnc_acPrepareInfVehCapture) exitWith {SPECIAL_VEHCAPTURE};//Group near vehicle - prioritize veh capture
             if (_group call NWG_fnc_acCanDoInfBuildingStorm) exitWith {SPECIAL_INFSTORM};//Any other inf special
             SPECIAL_NONE
         };
@@ -633,9 +655,29 @@ NWG_YK_FillDice = {
     params ["_target","_hunters","_fillIgnore","_fillMove","_isMoveDistanceRestrictions","_fillReinf","_fillSpecials"];
     private _dice = [];
 
+    /*Prepare dice fill with chances*/
+    private _fillDice = {
+        params ["_diceType","_hunterIndex","_addArg"];
+        //Get weight
+        private _weight = (NWG_YK_Settings get "DICE_WEIGHTS") get _diceType;
+        if (isNil "_weight") then {
+            (format ["NWG_YK_FillDice: Dice weight not set for type: '%1'. Fallback to 1",_diceType]) call NWG_fnc_logError;
+            _weight = 1;
+        };
+        if (_weight < 1) then {
+            (format ["NWG_YK_FillDice: Dice weight is less than 1 for type: '%1'. Fallback to 1",_diceType]) call NWG_fnc_logError;
+            _weight = 1;
+        };
+
+        //Fill the dice according to the weight for future random selection
+        for "_i" from 1 to _weight do {
+            _dice pushBack [_diceType,_hunterIndex,_addArg];
+        };
+    };
+
     /*Fill with ignore*/
     if (_fillIgnore) then {
-        _dice pushBack [DICE_IGNORE,-1,false];
+        [DICE_IGNORE,-1,false] call _fillDice;
     };
 
     /*Fill with move*/
@@ -716,12 +758,12 @@ NWG_YK_FillDice = {
 
         /*Fill the dice*/
         if (_hunterIndex == -1) exitWith {};
-        _dice pushBack [DICE_MOVE,_hunterIndex,false];
+        [DICE_MOVE,_hunterIndex,false] call _fillDice;
     };
 
     /*Fill with reinf*/
     if (_fillReinf) then {
-        _dice pushBack [DICE_REINF,-1,false];
+        [DICE_REINF,-1,false] call _fillDice;
     };
 
     /*Fill with specials?*/
@@ -738,7 +780,7 @@ NWG_YK_FillDice = {
         };
         if (_i != -1) then {
             private _numberOfStrikes = selectRandom [1,1,2,3];
-            _dice pushBack [SPECIAL_AIRSTRIKE,_i,_numberOfStrikes];
+            [SPECIAL_AIRSTRIKE,_i,_numberOfStrikes] call _fillDice;
         };
     };
 
@@ -751,7 +793,7 @@ NWG_YK_FillDice = {
         };
         if (_i != -1) then {
             // private _precise = (_target#TARGET_TYPE) in [TARGET_TYPE_BLDG,TARGET_TYPE_ARM];
-            _dice pushBack [SPECIAL_ARTA,_i,false];
+            [SPECIAL_ARTA,_i,false] call _fillDice;
         };
     };
 
@@ -762,7 +804,7 @@ NWG_YK_FillDice = {
             ((_x#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "SPECIAL_VEHDEMOLITION_RADIUS")}
         };
         if (_i != -1) then {
-            _dice pushBack [SPECIAL_VEHDEM,_i,false];
+            [SPECIAL_VEHDEM,_i,false] call _fillDice;
         };
     };
 
@@ -773,7 +815,7 @@ NWG_YK_FillDice = {
             ((_x#HUNTER_POSITION) distance2D (_target#TARGET_POSITION)) <= (NWG_YK_Settings get "SPECIAL_INFSTORM_RADIUS")}
         };
         if (_i != -1) then {
-            _dice pushBack [SPECIAL_INFSTORM,_i,false];
+            [SPECIAL_INFSTORM,_i,false] call _fillDice;
         };
     };
 

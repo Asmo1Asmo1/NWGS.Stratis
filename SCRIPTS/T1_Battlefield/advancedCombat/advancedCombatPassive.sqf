@@ -16,8 +16,8 @@ NWG_ACP_Settings = createHashMapFromArray [
     ["TIER_MAX",4],//Maximum tier to apply skills (leader of the group will be one tier higher, so keep it at -1 from skillset)
     ["TIER_TO_SKILLSET",[
         /*Tier 0*/[],//Just to skip the index
-        /*Tier 1*/[["aimingAccuracy",0.3],["aimingShake",0.4],["aimingSpeed",0.4],["commanding",1.0],["courage",1.0],["general",0.3],["reloadSpeed",0.4],["spotDistance",0.4],["spotTime",0.4]],
-        /*Tier 2*/[["aimingAccuracy",0.4],["aimingShake",0.4],["aimingSpeed",0.4],["commanding",1.0],["courage",1.0],["general",0.5],["reloadSpeed",0.6],["spotDistance",0.6],["spotTime",0.6]],
+        /*Tier 1*/[["aimingAccuracy",0.4],["aimingShake",0.4],["aimingSpeed",0.4],["commanding",1.0],["courage",1.0],["general",0.3],["reloadSpeed",0.4],["spotDistance",0.4],["spotTime",0.4]],
+        /*Tier 2*/[["aimingAccuracy",0.5],["aimingShake",0.5],["aimingSpeed",0.5],["commanding",1.0],["courage",1.0],["general",0.5],["reloadSpeed",0.6],["spotDistance",0.6],["spotTime",0.6]],
         /*Tier 3*/[["aimingAccuracy",0.6],["aimingShake",0.6],["aimingSpeed",0.6],["commanding",1.0],["courage",1.0],["general",0.7],["reloadSpeed",0.8],["spotDistance",0.8],["spotTime",0.8]],
         /*Tier 4*/[["aimingAccuracy",0.8],["aimingShake",0.8],["aimingSpeed",0.8],["commanding",1.0],["courage",1.0],["general",0.9],["reloadSpeed",1.0],["spotDistance",1.0],["spotTime",1.0]],
         /*Tier 5*/[["aimingAccuracy",0.9],["aimingShake",0.9],["aimingSpeed",0.9],["commanding",1.0],["courage",1.0],["general",1.0],["reloadSpeed",1.0],["spotDistance",1.0],["spotTime",1.0]]

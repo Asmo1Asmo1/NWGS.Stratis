@@ -693,6 +693,7 @@ NWG_VSHOP_SER_OnTransaction = {
 //Vehicles processing
 NWG_VSHOP_SER_DeleteVehicle = {
 	// private _vehicle = _this;
+	{deleteVehicle _x} forEach (attachedObjects _this);
 	deleteVehicle _this;
 };
 

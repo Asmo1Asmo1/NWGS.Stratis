@@ -126,6 +126,11 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     //06Settings
     ["#UP_SETTINGS_TITLE#","Settings"],
     ["#UP_SETTINGS_KEYBINDINGS#","Keybindings"],
+    ["#UP_SETTINGS_DEBUG#","Debug"],
+    ["#SETTINGS_DEBUG_STUCK#","I'm stuck under textures"],
+    ["#SETTINGS_DEBUG_CAMERA#","Fix my camera"],
+    ["#SETTINGS_DEBUG_SUCCESS#","Debug success"],
+    ["#SETTINGS_DEBUG_FAILED#","Debug failed"],
     //voting
     ["#VOTE_RESULT_INFAVOR#","\nResult: IN FAVOR"],
     ["#VOTE_RESULT_AGAINST#","\nResult: AGAINST"],
@@ -226,6 +231,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VSHOP_CAT_TANK#","Tanks"],
     ["#VSHOP_PLATFORM_OCCUPIED#","Platform occupied"],
     ["#VSHOP_CANNOT_SELL_VEHICLE#","Vehicle unavailable"],
+    ["#VSHOP_GROUP_LEADER_SPENT_MONEY_ON#","%1 bought %2 for group's money"],
     //vehCustomizationAppearance
     ["#CAPP_LEFT_TITLE#","Color"],
     ["#CAPP_RIGHT_TITLE#","Components"],
@@ -782,7 +788,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#QST_DISPLAY_DESTROY#","Destroy: %1"],
     ["#QST_DISPLAY_INTEL#","Gather intel (example: %1)"],
     ["#QST_DISPLAY_INFECTION#","Stop infection (infected: %1)"],
-    ["#QST_DISPLAY_WOUNDED#","Escort to base: %1"],
+    ["#QST_DISPLAY_WOUNDED#","Escort to base"],
     ["#QST_DISPLAY_MED_SUPPLY#","Find med supplies (example: %1)"],
     ["#QST_DISPLAY_WEAPON#","Find and deliver: %1"],
     ["#QST_DISPLAY_ELECTRONICS#","Find electronic devices (example: %1)"],

@@ -23,6 +23,13 @@ NWG_fnc_voteGetResult = {
     call NWG_VOTE_SER_GetVoteResult;
 };
 
+//Get vote result as string
+//returns:
+// string - vote result as string
+NWG_fnc_voteGetResultStr = {
+    call NWG_VOTE_SER_GetVoteResultStr;
+};
+
 //Request to start vote on server side
 //params:
 // _anchor - object - anchor object

@@ -31,3 +31,14 @@ NWG_fnc_uiHelperBlinkOnError = {
 	// params ["_gui","_idc"];
 	_this call NWG_UIH_BlinkOnError;
 };
+
+//Blink on warning
+//params:
+// 0: gui - ui display
+// 1: idc - idc of the text
+//returns:
+// true if successful, false otherwise
+NWG_fnc_uiHelperBlinkOnWarning = {
+	// params ["_gui","_idc"];
+	_this call NWG_UIH_BlinkOnWarning;
+};

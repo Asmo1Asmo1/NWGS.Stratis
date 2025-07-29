@@ -84,7 +84,7 @@ NWG_VOTEBAN_SER_OnRequest = {
 		case REQ_KICK: {NWG_VOTEBAN_SER_Settings get "VOTE_KICK_TITLE"};
 		default {""};
 	};
-	private _ok = [_targetPlayer,[_title,_targetName]] call NWG_fnc_voteRequestServer;
+	private _ok = [_requesterPlayer,[_title,_targetName]] call NWG_fnc_voteRequestServer;
 	if (!_ok) exitWith {
 		(format ["NWG_VOTEBAN_SER_OnRequest: Failed to start vote"]) call NWG_fnc_logError;
 		false
@@ -100,6 +100,8 @@ NWG_VOTEBAN_SER_OnRequest = {
 		if (isNil "_result" || {_result isEqualTo false}) exitWith {
 			(format ["NWG_VOTEBAN_SER_OnRequest: Result invalid to '%1' player: '%2' (id:'%3')",_reqTypeStr,_targetName,_targetId]) call NWG_fnc_logError;
 		};
+		private _resultStr = call NWG_fnc_voteGetResultStr;
+		(format ["NWG_VOTEBAN_SER_OnRequest: Vote result: '%1'",_resultStr]) call NWG_fnc_logInfo;
 		if (_result < 1) exitWith {
 			(format ["NWG_VOTEBAN_SER_OnRequest: Players did not vote to '%1' player: '%2' (id:'%3')",_reqTypeStr,_targetName,_targetId]) call NWG_fnc_logInfo;
 		};

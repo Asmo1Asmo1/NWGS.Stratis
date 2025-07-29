@@ -77,16 +77,16 @@ NWG_WLT_SplitMoneyToGroup = {
 
     private _units = (units _group) select {alive _x && {isPlayer _x}};
     if ((count _units) <= 0) exitWith {};
-    if ((count _units) == 1) exitWith {[(_units#0),_money] call NWG_WLT_AddPlayerMoney};
+    if ((count _units) == 1) exitWith {[(_units#0),_money] call NWG_fnc_wltAddPlayerMoney};
 
     if (_money > 0) then {
         //Players earned - simple logic, each gets their share equally
         private _share = round (_money / (count _units));
-        {[_x,_share] call NWG_WLT_AddPlayerMoney} forEach _units;
+        {[_x,_share] call NWG_fnc_wltAddPlayerMoney} forEach _units;
     } else {
         //Players spent - balance out losses based on what each player has
         private _balanced = [_money,_units] call NWG_WLT_BalanceLosses;
-        {[(_x#0),(_x#1)] call NWG_WLT_AddPlayerMoney} forEach _balanced;
+        {[(_x#0),(_x#1)] call NWG_fnc_wltAddPlayerMoney} forEach _balanced;
     };
 };
 
@@ -111,7 +111,9 @@ NWG_WLT_BalanceLosses = {
 
     //Check if we have enough money to cover the debt
     if (_totalMoney == _totalDebt) exitWith {
-        _balancing apply {[(_x#BALANCE_UNIT),-(_x#BALANCE_MONEY)]}
+        private _balanced = _balancing apply {[(_x#BALANCE_UNIT),-(_x#BALANCE_MONEY)]};
+        //return
+        _balanced
     };
     if (_totalMoney < _totalDebt) exitWith {
         (format ["NWG_WLT_BalanceLosses: Not enough money '%1' to cover the debt: %2. Should never happen.",_totalMoney,_totalDebt]) call NWG_fnc_logError;
