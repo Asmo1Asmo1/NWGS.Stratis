@@ -64,7 +64,8 @@ NWG_DLG_COMM_Settings = createHashMapFromArray [
 	]],
 
 	/*Level unlock notification template*/
-	["NOTIFICATION_TEMPLATE","#COMM_LVLNLCK_NOTIFICATION#"],
+	["LVL_UNLOCK_NOTIFY_OWN","#COMM_LVLNLCK_NOTIFICATION_OWN#"],//Notification if level is unlocked by player using their own money
+	["LVL_UNLOCK_NOTIFY_GRP","#COMM_LVLNLCK_NOTIFICATION_GRP#"],//Notification if level is unlocked by group leader using group money
 
 	["COLOR_REQ_LOCKED",[1,1,1,0.5]],
 	["COLOR_LOCKED",[0,1,0,0.5]],
@@ -211,7 +212,8 @@ NWG_DLG_COMM_UnlockLevel = {
 
 	//Check if player has enough money
 	private _price = (NWG_DLG_COMM_Settings get "UNLOCK_PRICES") param [_selectedLevel,0];
-	private _playerMoney =  if (call NWG_DLG_COMM_IsGroupLeader)
+	private _isGroupLeader = call NWG_DLG_COMM_IsGroupLeader;
+	private _playerMoney =  if (_isGroupLeader)
 		then {(group player) call NWG_fnc_wltGetGroupMoney}
 		else {player call NWG_fnc_wltGetPlayerMoney};
 	if (_price > _playerMoney) exitWith {
@@ -227,7 +229,7 @@ NWG_DLG_COMM_UnlockLevel = {
 	};
 
 	//Pay for unlock
-	if (call NWG_DLG_COMM_IsGroupLeader)
+	if (_isGroupLeader)
 		then {[(group player),-_price] call NWG_fnc_wltSplitMoneyToGroup}
 		else {[player,-_price] call NWG_fnc_wltAddPlayerMoney};
 
@@ -235,7 +237,9 @@ NWG_DLG_COMM_UnlockLevel = {
 	call NWG_DLGHLP_UI_UpdatePlayerMoney;
 
 	//Notify everyone
-	private _template = NWG_DLG_COMM_Settings get "NOTIFICATION_TEMPLATE";
+	private _template = if (_isGroupLeader)
+		then {NWG_DLG_COMM_Settings get "LVL_UNLOCK_NOTIFY_GRP"}
+		else {NWG_DLG_COMM_Settings get "LVL_UNLOCK_NOTIFY_OWN"};
 	[_template,(name player),(_selectedLevel + 1)] call NWG_fnc_sideChatAll;
 
 	//return
