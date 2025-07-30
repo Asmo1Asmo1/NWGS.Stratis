@@ -231,7 +231,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VSHOP_CAT_TANK#","Tanks"],
     ["#VSHOP_PLATFORM_OCCUPIED#","Platform occupied"],
     ["#VSHOP_CANNOT_SELL_VEHICLE#","Vehicle unavailable"],
-    ["#VSHOP_GROUP_LEADER_SPENT_MONEY_ON#","%1 bought %2 for group's money"],
+    ["#VSHOP_GROUP_LEADER_SPENT_MONEY_ON#","%1 is buying %2 for group's money"],
     //vehCustomizationAppearance
     ["#CAPP_LEFT_TITLE#","Color"],
     ["#CAPP_RIGHT_TITLE#","Components"],
