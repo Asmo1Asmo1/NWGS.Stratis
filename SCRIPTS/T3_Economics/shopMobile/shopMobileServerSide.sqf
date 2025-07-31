@@ -88,7 +88,7 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 		["C2I2",["hd_join_noShadow","ColorBlack"]],//Company (5)
 		["C2I3",["hd_join_noShadow","ColorBlack"]] //Fire team (8)
 	]],
-	["MARKER_PRESERVE_COUNT",5],//How many markers to preserve at the same time (older ones will be deleted)
+	["MARKER_PRESERVE_COUNT",3],//How many markers to preserve at the same time (older ones will be deleted)
 
 	/*Support levels*/
 	["SUPPORT_LEVELS",createHashMapFromArray [
