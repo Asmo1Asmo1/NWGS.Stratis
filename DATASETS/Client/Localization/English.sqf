@@ -691,7 +691,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Roof - another legend*/
     ["#ROOF_LGND_A_01#","What about others?"],
     /*Roof - ROOF_LGND_HOPA*/
-    ["#ROOF_LGND_HOPA_Q_01#","Fucking genius, that's who he is|That guy could attach anything to anyone|He was building entire systems overnight|All with duct tape, spit, sticks and shit|Legendary engineer"],
+    ["#ROOF_LGND_HOPA_Q_01#","Fucking genius, that's who he is|PhD in 'attachTo' if you know what I mean|He was reverse engineering and building entire systems overnight|All with duct tape, spit, sticks and shit|Legendary engineer"],
     /*Roof - ROOF_LGND_BIT*/
     ["#ROOF_LGND_BIT_Q_01#","No, Rayman is another guy|But that Bit-Ramon?|Fucking lunatic|Would crash his heli into the building|Just to get there a 'Bit' faster|And knife out everyone inside|We thought he and MoshPit were the most badass out there|And were kinda expecting them to meet to settle the score|Turns out|It was all the same guy|Fucking both sides|Just for shit and giggles|Oh, and a fuck load of money of course"],
     /*Roof - ROOF_LGND_BANKA*/
