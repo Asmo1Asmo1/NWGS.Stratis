@@ -191,6 +191,7 @@ _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\userPlanshet
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\03Group.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\05Info.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\06Settings.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\addonMoneyUpdater.sqf" call NWG_fnc_compile);
 //viewDistance
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistance.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistanceFunctions.sqf" call NWG_fnc_compile);
