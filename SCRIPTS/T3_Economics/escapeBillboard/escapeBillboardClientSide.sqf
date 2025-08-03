@@ -64,7 +64,12 @@ NWG_ESCB_CLI_FormatWinners = {
 				case (count _name > _itemLength): {_name select [0, _itemLength]};
 				default {
 					_temp = _name;
-					while {count _temp < _itemLength} do {_temp = _temp + " "};
+					private _attempts = 100;
+					while {_attempts > 0} do {
+						if ((count _temp) >= _itemLength) exitWith {};
+						_temp = _temp + " ";
+						_attempts = _attempts - 1;
+					};
 					_temp
 				};
 			};

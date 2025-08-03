@@ -638,7 +638,7 @@ NWG_MSHOP_SER_FireMortar = {
 		//Fire loop
 		private _fireCount = _count call _toSingleValueInt;
 		private ["_firePos","_shell"];
-		while {_fireCount > 0} do {
+		waitUntil {
 			_firePos = _pos getPos [((sqrt random 1) * _radius),(random 360)];
 			_firePos set [2,(_altitude call _toSingleValueFloat)];
 			_shell = _ammoType createVehicle _firePos;
@@ -649,8 +649,9 @@ NWG_MSHOP_SER_FireMortar = {
 			if (!isNull _player)
 				then {_shell setShotParents [_player,_player]};
 
-			_fireCount = _fireCount - 1;
 			sleep (_inBetweenDelay call _toSingleValueFloat);
+			_fireCount = _fireCount - 1;
+			_fireCount <= 0
 		};
 	};
 
@@ -745,7 +746,10 @@ NWG_MSHOP_SER_PlaceMarker = {
 		(format ["NWG_MSHOP_SER_PlaceMarker: MARKER_PRESERVE_COUNT is less than 1: '%1', fix your settings",_preserveCount]) call NWG_fnc_logError;
 		_preserveCount = 1;
 	};
-	while {(count NWG_MSHOP_SER_placedMarkers) > _preserveCount} do {
+	private _curCount = count NWG_MSHOP_SER_placedMarkers;
+	if (_curCount <= _preserveCount) exitWith {};
+	private _delta = _curCount - _preserveCount;
+	for "_i" from 1 to _delta do {
 		deleteMarker (NWG_MSHOP_SER_placedMarkers deleteAt 0);
 	};
 };

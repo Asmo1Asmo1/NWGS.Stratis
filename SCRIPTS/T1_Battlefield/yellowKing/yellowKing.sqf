@@ -249,6 +249,7 @@ NWG_YK_React = {
     //3. Process and convert the targets
     /*Apply min reaction count*/
     if ((count _targets) < _minReact) then {
+        if ((count _targets) == 0) exitWith {};//No targets to react to (fix lowkey possible infinite while loop, no cap)
         while {(count _targets) < _minReact} do {_targets append _targets};
         _targets resize _minReact;
     };

@@ -216,8 +216,7 @@ NWG_DSPAWN_PATROL_TEST_GeneratePatrol = {
 
     private _dot1 = selectRandom _dots;
     private _dot2 = _dots select ([_dots,_pos] call NWG_fnc_dtsFindIndexOfFarthest);
-    private _dot3 = selectRandom _dots;
-    while {_dot3 isEqualTo _dot1 || {_dot3 isEqualTo _dot2}} do {_dot3 = selectRandom _dots};
+    private _dot3 = selectRandom (_dots - [_dot1,_dot2]);
     private _result = [_dot1,_dot2,_dot3];
 
     if (_isAirPatrol) then {
