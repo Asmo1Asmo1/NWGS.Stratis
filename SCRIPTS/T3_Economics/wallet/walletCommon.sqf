@@ -24,7 +24,8 @@ NWG_WLT_AddPlayerMoney = {
 
     //Calculate new money amount
     private _oldMoney = _player getVariable ["NWG_WLT_Money",0];
-    private _newMoney = (round (_oldMoney + _amount)) min 999999999;
+    private _newMoney = (round (_oldMoney + _amount));
+    _newMoney = (_newMoney max 0) min 999999999;//Clamp to 0-999999999
     private _delta = _newMoney - _oldMoney;
 
     //Set new money amount

@@ -181,6 +181,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["Hide","Скрыть"],
 
     //T3_Economics
+    //civKillFine
+    ["#CKF_NOTIFY_TEMPLATE#","%1 убил гражданского. Ваша группа оштрафована по %2 с каждого"],
     //escapeBillboard
     ["#ESCB_TITLE#","Победители 17-го уровня"],
     ["#ESCB_NO_WINNERS#","\nБудь первым, кто попадет сюда!"],

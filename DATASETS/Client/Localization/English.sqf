@@ -146,6 +146,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_BAN_NOT_ENOUGH_PLAYERS#","Not enough players on server to start the vote (min: %1)"],
 
     //T3_Economics
+    //civKillFine
+    ["#CKF_NOTIFY_TEMPLATE#","%1 has killed a civilian. Your group is fined %2 each"],
     //escapeBillboard
     ["#ESCB_TITLE#","Level 17th Winners"],
     ["#ESCB_NO_WINNERS#","\nBe the first to get here!"],
