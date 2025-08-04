@@ -244,6 +244,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#CPYL_OWNER_GUNNER#","Gunner"],
     //vehOwnership
     ["#VEHOWN_MESSAGE_OWNER#","['%1'] Owner: %2"],
+    ["#VEHOWN_MESSAGE_KICK_01#","This is a property of group %1. Get out, now!"],
+    ["#VEHOWN_MESSAGE_KICK_02#","Hey, pal, where you think you're going? That belongs to %1"],
+    ["#VEHOWN_MESSAGE_KICK_03#","Do not even think about it! Property of %1"],
     //wallet
     ["#WLT_NOTIFY_MONEY_ADD#","[Money:  +%1]"],
     ["#WLT_NOTIFY_MONEY_SUB#","[Money:  %1]"],
