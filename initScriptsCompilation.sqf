@@ -115,6 +115,7 @@ _serverModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\missionMachine
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\ukrepConnector.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\taxiConnector.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\actionsItemsClient.sqf" call NWG_fnc_compile);
+if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\actionsItemsClientTest.sqf" call NWG_fnc_compile)};
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\taxiConnector.sqf" call NWG_fnc_compile);//Both client and server
 _commonFunctions pushBack ("SCRIPTS\T2_UserInteraction\actionsItems\actionsItemsFunctions.sqf" call NWG_fnc_compile);
 //actionsKeybind
@@ -190,6 +191,7 @@ _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\userPlanshet
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\03Group.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\05Info.sqf" call NWG_fnc_compile);
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\06Settings.sqf" call NWG_fnc_compile);
+_clientModules pushBack ("SCRIPTS\T2_UserInteraction\userPlanshet\addonMoneyUpdater.sqf" call NWG_fnc_compile);
 //viewDistance
 _clientModules pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistance.sqf" call NWG_fnc_compile);
 _clientFunctions pushBack ("SCRIPTS\T2_UserInteraction\viewDistance\viewDistanceFunctions.sqf" call NWG_fnc_compile);
@@ -215,6 +217,9 @@ _serverModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorization
 _clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehs.sqf" call NWG_fnc_compile);
 if (_isDevBuild) then {_clientModules pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsTests.sqf" call NWG_fnc_compile)};
 _commonFunctions pushBack ("SCRIPTS\T3_Economics\categorizationVehs\categorizationVehsFunctions.sqf" call NWG_fnc_compile);
+//civKillFine
+_serverModules pushBack ("SCRIPTS\T3_Economics\civKillFine\civKillFineServerSide.sqf" call NWG_fnc_compile);
+_serverModules pushBack ("SCRIPTS\T3_Economics\civKillFine\missionMachineConnector.sqf" call NWG_fnc_compile);
 //database
 _serverModules pushBack ("SCRIPTS\T3_Economics\database\databaseCommon.sqf" call NWG_fnc_compile);
 _serverModules pushBack ("SCRIPTS\T3_Economics\database\databasePlayers.sqf" call NWG_fnc_compile);

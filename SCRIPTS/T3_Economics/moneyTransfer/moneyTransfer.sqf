@@ -150,15 +150,10 @@ NWG_MT_OnAmountSelected = {
 	};
 
 	//Transfer money
-	[player,-_amount] call NWG_fnc_wltAddPlayerMoney;
-	[_targetPlayer,_amount] call NWG_fnc_wltAddPlayerMoney;
+	private _data = [[player,-_amount],[_targetPlayer,_amount]];
+	[_data,"NWG_MT_OnAmountSelected",/*cancelOnError*/true] call NWG_fnc_wltDistributeMoneys;
 
-	//Update UI
-	[_gui,IDC_TEXT_LEFT] call NWG_fnc_uiHelperBlinkOnSuccess;
-	private _allWindows = call (NWG_MT_Settings get "FUNC_GET_ALL_INTERFACES");
-	{
-		[_x,IDC_TEXT_LEFT] call NWG_fnc_uiHelperFillTextWithPlayerMoney;
-	} forEach _allWindows;
+	//Local UI update will be done by 'addonMoneyUpdater.sqf' when/if money is changed
 
 	//return
 	true

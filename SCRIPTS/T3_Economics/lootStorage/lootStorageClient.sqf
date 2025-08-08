@@ -64,27 +64,13 @@ NWG_LS_CLI_OpenMyStorage = {
     _invisibleBox setPosASL (getPosASL player);
     NWG_LS_CLI_invisibleBox = _invisibleBox;
 
-    //Clear the box
-    clearWeaponCargo _invisibleBox;
-    clearMagazineCargo _invisibleBox;
-    clearItemCargo _invisibleBox;
-    clearBackpackCargo _invisibleBox;
-
     //Get player loot
     private _loot = player call NWG_fnc_lsGetPlayerLoot;//=> [["clth1",2,"clth2"],[3,"wepn1"],...]
     _loot = flatten _loot;//Flatten and shallow copy      => ["clth1",2,"clth2",3,"wepn1",...]
 
-    //Put loot into the box
-    private _count = 1;
-    //forEach ["clth1",2,"clth2",3,"wepn1",...]
-    {
-        if (_x isEqualType 1) then {_count = _x} else {
-            if (isClass (configFile >> "CfgVehicles" >> _x))
-                then {_invisibleBox addBackpackCargo [_x,_count]}
-                else {_invisibleBox addItemCargo [_x,_count]};
-            _count = 1;
-        };
-    } forEach _loot;
+    //Put loot into the box (locally, because this object is existing only on this client)
+    _invisibleBox call NWG_fnc_clearContainerCargoLocal;
+    [_invisibleBox,_loot] call NWG_fnc_fillContainerCargoLocal;
 
     //Open the box
     NWG_LS_CLI_storageChanged = false;
@@ -383,7 +369,7 @@ NWG_LS_CLI_LootContainer_Core = {
             {deleteVehicle _x} forEach (_container call NWG_LS_CLI_GetDeadUnitWeaponHolders);
         } else {
             //We were looting regular container (box/vehicle)
-            _container call NWG_fnc_clearContainerCargo;
+            _container call NWG_fnc_clearContainerCargoGlobal;
         };
     };
 

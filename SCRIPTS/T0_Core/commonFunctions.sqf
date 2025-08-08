@@ -483,13 +483,66 @@ NWG_fnc_placeUnitInFullCrewSeat = {
 //===============================================================
 //Containers
 //Clears container cargo in a JIP-friendly manner - only clear what is needed
-NWG_fnc_clearContainerCargo = {
+NWG_fnc_clearContainerCargoGlobal = {
     // private _object = _this;
     //Clear in a JIP-friendly manner - only clear what is needed
     if ((count ((getWeaponCargo _this)   param [0,[]])) > 0) then {clearWeaponCargoGlobal _this};
     if ((count ((getMagazineCargo _this) param [0,[]])) > 0) then {clearMagazineCargoGlobal _this};
     if ((count ((getItemCargo _this)     param [0,[]])) > 0) then {clearItemCargoGlobal _this};
     if ((count ((getBackpackCargo _this) param [0,[]])) > 0) then {clearBackpackCargoGlobal _this};
+};
+
+//Clears container using [Ga] [Le] commands (global argument, local effect)
+NWG_fnc_clearContainerCargoLocal = {
+    // private _object = _this;
+    if ((count ((getWeaponCargo _this)   param [0,[]])) > 0) then {clearWeaponCargo _this};
+    if ((count ((getMagazineCargo _this) param [0,[]])) > 0) then {clearMagazineCargo _this};
+    if ((count ((getItemCargo _this)     param [0,[]])) > 0) then {clearItemCargo _this};
+    if ((count ((getBackpackCargo _this) param [0,[]])) > 0) then {clearBackpackCargo _this};
+};
+
+//Returns true if classname is a backpack
+//note: this function is util for 'NWG_fnc_fillContainerCargoXXXX' functions
+NWG_fnc_isBackpack_map = createHashMap;
+NWG_fnc_isBackpack = {
+    // private _classname = _this;
+    private _result = NWG_fnc_isBackpack_map get _this;
+    if (!isNil "_result") exitWith {_result};
+    _result = (isClass (configFile >> "CfgVehicles" >> _this));
+    NWG_fnc_isBackpack_map set [_this,_result];
+    _result
+};
+
+//Fills container cargo using global commands
+//note: supports array of classnames as well as 'compacted' array [count,classname,count,classname...], where latter is recommended for efficiency
+NWG_fnc_fillContainerCargoGlobal = {
+    params ["_container","_cargo"];
+    private _count = 1;
+    //forEach ["clth1",2,"clth2",3,"wepn1",...]
+    {
+        if (_x isEqualType 1) then {_count = _x} else {
+            if (_x call NWG_fnc_isBackpack)
+                then {_container addBackpackCargoGlobal [_x,_count]}
+                else {_container addItemCargoGlobal [_x,_count]};
+            _count = 1;
+        };
+    } forEach _cargo;
+};
+
+//Fills container cargo using local commands
+//note: supports array of classnames as well as 'compacted' array [count,classname,count,classname...], where latter is recommended for efficiency
+NWG_fnc_fillContainerCargoLocal = {
+    params ["_container","_cargo"];
+    private _count = 1;
+    //forEach ["clth1",2,"clth2",3,"wepn1",...]
+    {
+        if (_x isEqualType 1) then {_count = _x} else {
+            if (_x call NWG_fnc_isBackpack)
+                then {_container addBackpackCargo [_x,_count]}
+                else {_container addItemCargo [_x,_count]};
+            _count = 1;
+        };
+    } forEach _cargo;
 };
 
 //Fix for Arma's 2.20 'setUnitLoadout' shitty behavior

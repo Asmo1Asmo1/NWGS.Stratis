@@ -36,6 +36,10 @@ NWG_PSH_DPL_Settings = createHashMapFromArray [
 ];
 
 //================================================================================================================
+//Defines
+#define STATE_DIRTY "is_dirty"
+
+//================================================================================================================
 //Init
 private _Init = {
     addMissionEventHandler ["EntityRespawned", {
@@ -48,6 +52,11 @@ private _Init = {
         _this call NWG_PSH_DPL_OnDisconnected;
         //Fix AI replacing player
         false
+    }];
+
+    addMissionEventHandler ["OnUserKicked", {
+	    // params ["_networkId", "_kickTypeNumber", "_kickType", "_kickReason", "_kickMessageIncReason"];
+        _this call NWG_PSH_DPL_OnPlayerKick;
     }];
 };
 
@@ -62,8 +71,13 @@ NWG_PSH_DPL_OnRespawn = {
     if !(_player isKindOf "Man") exitWith {};
     if !(isPlayer _player) exitWith {};
 
+    //Get unit name
+    private _unitName = name _player;
+    if (isNil "_unitName" || {_unitName isEqualTo ""}) then {_unitName = name _corpse};
+    if (isNil "_unitName") then {_unitName = ""};
+
     //Deplete check
-    if !([_corpse,"Resp"] call NWG_PSH_DPL_ShouldDeplete) exitWith {
+    if !([_corpse,_unitName,"Resp"] call NWG_PSH_DPL_ShouldDeplete) exitWith {
         //Player was on base, do not deplete, just re-apply known states
         _player call NWG_fnc_pshOnPlayerJoined;
     };
@@ -83,32 +97,37 @@ NWG_PSH_DPL_OnRespawn = {
 
 NWG_PSH_DPL_OnDisconnected = {
     // params ["_unit", "_id", "_uid", "_name"];
-    params [["_corpse",objNull],"",["_steamID",""]];
+    params [["_corpse",objNull],"",["_steamID",""],["_unitName",""]];
+    if (_unitName isEqualTo "") then {_unitName = name _corpse};
 
     //Checks
     if !(NWG_PSH_DPL_Settings get "DEPLETE_ON_DISCONNECT") exitWith {};//Deplete is disabled
     if (_steamID isEqualTo "") exitWith {
-        (format ["NWG_PSH_DPL_OnDisconnected: Player steamID not provided for player: '%1'",(name _corpse)]) call NWG_fnc_logError;
+        (format ["NWG_PSH_DPL_OnDisconnected: Player steamID not provided for player: '%1'",_unitName]) call NWG_fnc_logError;
     };
 
     //Deplete check
-    if !([_corpse,"Disc"] call NWG_PSH_DPL_ShouldDeplete) exitWith {};//Player disconnected while on base, do not deplete
+    if !([_corpse,_unitName,"Disc"] call NWG_PSH_DPL_ShouldDeplete) exitWith {};//Player disconnected while on base, do not deplete
 
-    //Deplete
-    [_steamID,false,objNull] call NWG_PSH_DPL_Deplete;
+    //Setup depletion after additional kick check
+    [_unitName,_steamID] spawn {
+        params ["_unitName","_steamID"];
+        if ([_unitName,_steamID] call NWG_PSH_DPL_WasKicked) exitWith {};//Player was kicked rather than disconnected, do not deplete - it's not their fault
+        [_steamID,false,objNull] call NWG_PSH_DPL_Deplete;
+    };
 };
 
 //================================================================================================================
-//Main check
+//Main depletion check
 NWG_PSH_DPL_ShouldDeplete = {
-    params ["_unit","_event"];
-    if (isNil "_unit" || {isNull _unit}) exitWith {
+    params ["_unitObj","_unitName","_event"];
+    if (isNil "_unitObj" || {isNull _unitObj}) exitWith {
         "NWG_PSH_DPL_ShouldDeplete: Unit is nil/null. Fallback to false" call NWG_fnc_logError;
         false
     };
 
     private _baseCheck = call {
-        if !(NWG_PSH_DPL_Settings get "BASE_PROXIMITY_CHECK_ENABLED") exitWith {[true,0]};
+        if !(NWG_PSH_DPL_Settings get "BASE_PROXIMITY_CHECK_ENABLED") exitWith {[true,-1]};
         if (isNil "NWG_MIS_SER_playerBase") exitWith {
             "NWG_PSH_DPL_ShouldDeplete: Player base is nil. Skipping base proximity check" call NWG_fnc_logError;
             [true,-1]
@@ -122,7 +141,7 @@ NWG_PSH_DPL_ShouldDeplete = {
             "NWG_PSH_DPL_ShouldDeplete: Player base is null. Skipping base proximity check" call NWG_fnc_logError;
             [true,-1]
         };
-        private _distance = round (_unit distance _base);
+        private _distance = round (_unitObj distance _base);
         [(_distance <= 100),_distance]
     };
     _baseCheck params ["_isOnBase","_distanceToBase"];
@@ -146,8 +165,8 @@ NWG_PSH_DPL_ShouldDeplete = {
 
     private _shouldDeplete = if (_isOnBase || _isSafeState) then {false} else {true};
     if (NWG_PSH_DPL_Settings get "DEBUG_LOG_CHECKS") then {
-        (format ["NWG_PSH_DPL_ShouldDeplete: Unit: '%1'. On: '%2'. BaseCheck: [%3] (dist: '%4'). MissionStateCheck: [%5] (state: '%6'). Depleting: '%7'",
-            (name _unit),
+        (format ["NWG_PSH_DPL_ShouldDeplete: Unit: '%1'. On: '%2'. BaseCheck: [%3] (%4m). StateCheck: [%5] (%6). Should deplete: '%7'",
+            _unitName,
             _event,
             (if (_isOnBase) then {"+"} else {"-"}),
             _distanceToBase,
@@ -159,6 +178,106 @@ NWG_PSH_DPL_ShouldDeplete = {
 
     //return
     _shouldDeplete
+};
+
+//================================================================================================================
+//Kick check
+/*
+From documentation:
+Executes assigned code after after a user has been kicked from the server providing kick reason. The possible values for 'kickTypeNumber' and 'kickType' are:
+0 : "TIMEOUT", 1 : "DISCONNECTED", 2 : "KICKED", 3 : "BANNED", 4 : "MISSING ADDON", 5 : "BAD CD KEY", 6 : "CD KEY IN USE", 7 : "SESSION LOCKED", 8 : "BATTLEYE", 9 : "STEAM CHECK", 10 : "DLC CONTENT", 11 : "GS TIMEOUT", 12 : "SCRIPT", 13 : "OTHER"
+*/
+#define KICK_TYPE_NONE -1
+#define KICK_TYPE_TIMEOUT 0
+#define KICK_TYPE_DISCONNECTED 1
+#define KICK_TYPE_KICKED 2
+#define KICK_TYPE_BANNED 3
+#define KICK_TYPE_MISSING_ADDON 4
+#define KICK_TYPE_BAD_CD_KEY 5
+#define KICK_TYPE_CD_KEY_IN_USE 6
+#define KICK_TYPE_SESSION_LOCKED 7
+#define KICK_TYPE_BATTLEYE 8
+#define KICK_TYPE_STEAM_CHECK 9
+#define KICK_TYPE_DLC_CONTENT 10
+#define KICK_TYPE_GS_TIMEOUT 11
+#define KICK_TYPE_SCRIPT 12
+#define KICK_TYPE_OTHER 13
+
+#define KICK_INFO_STEAM_ID 0
+#define KICK_INFO_TYPE 1
+#define KICK_INFO_REASON 2
+
+#define KICK_REASON_WAIT_TIMEOUT 2//Seconds to wait for kick reason to arrive
+
+NWG_PSH_DPL_kickInfoQueue = [];
+NWG_PSH_DPL_OnPlayerKick = {
+    params ["_steamID","_kickTypeNumber","_kickType","_kickReason","_kickMessageIncReason"];
+    if (isNil "_steamID" || {_steamID isEqualTo ""}) exitWith {
+        (format ["NWG_PSH_DPL_OnPlayerKick: SteamID not provided for kick type: '%1'. Can not track kick reason",_kickType]) call NWG_fnc_logError;
+    };
+    if (NWG_PSH_DPL_Settings get "DEBUG_LOG_CHECKS") then {
+        (format ["NWG_PSH_DPL_OnPlayerKick: SteamID: '%1'. Type: '%2':'%3'. Reason: '%4'. Full message: '%5'",_steamID,_kickTypeNumber,_kickType,_kickReason,_kickMessageIncReason]) call NWG_fnc_logInfo;
+    };
+    NWG_PSH_DPL_kickInfoQueue pushBack [_steamID,_kickTypeNumber];
+};
+
+NWG_PSH_DPL_WasKicked = {
+    params ["_unitName","_steamID"];
+
+    //Try waiting for kick info to arrive
+    private _i = -1;
+    private _timeoutAt = time + KICK_REASON_WAIT_TIMEOUT;
+    waitUntil {
+        sleep 0.1;
+        _i = NWG_PSH_DPL_kickInfoQueue findIf {(_x#KICK_INFO_STEAM_ID) isEqualTo _steamID};
+        if (_i != -1) exitWith {true};
+        if (time > _timeoutAt) exitWith {true};
+        false
+    };
+
+    //Extract kick info
+    private ["_kickType","_kickReason"];
+    if (_i != -1) then {
+        private _record = NWG_PSH_DPL_kickInfoQueue deleteAt _i;
+        _kickType = _record select KICK_INFO_TYPE;
+        _kickReason = _record select KICK_INFO_REASON;
+    } else {
+        _kickType = KICK_TYPE_NONE;
+        _kickReason = "";
+    };
+
+    //Define whether it was a kick with a reason or not
+    private _wasKicked = switch (_kickType) do {
+        /*Player was kicked and it is not their fault*/
+        case KICK_TYPE_TIMEOUT;
+        case KICK_TYPE_KICKED;
+        case KICK_TYPE_BANNED;
+        case KICK_TYPE_MISSING_ADDON;
+        case KICK_TYPE_BAD_CD_KEY;
+        case KICK_TYPE_CD_KEY_IN_USE;
+        case KICK_TYPE_SESSION_LOCKED;
+        case KICK_TYPE_BATTLEYE;
+        case KICK_TYPE_STEAM_CHECK;
+        case KICK_TYPE_DLC_CONTENT;
+        case KICK_TYPE_GS_TIMEOUT : {true};
+
+        /*Player disconnected on their own*/
+        case KICK_TYPE_NONE;
+        case KICK_TYPE_DISCONNECTED;
+        case KICK_TYPE_SCRIPT;
+        case KICK_TYPE_OTHER : {false};
+    };
+    if (NWG_PSH_DPL_Settings get "DEBUG_LOG_CHECKS") then {
+        (format ["NWG_PSH_DPL_WasKicked: Player: '%1'. KickCheck: [%2] (%3). Should deplete: '%4'",
+            _unitName,
+            (if (_wasKicked) then {"+"} else {"-"}),
+            _kickReason,
+            !_wasKicked
+        ]) call NWG_fnc_logInfo;
+    };
+
+    //Return
+    _wasKicked
 };
 
 //================================================================================================================
@@ -300,6 +419,9 @@ NWG_PSH_DPL_Deplete = {
     } else {
         (format ["NWG_PSH_DPL_Deplete: Loot state not found for player: '%1' with steamID: '%2'",(name _playerObj),_steamID]) call NWG_fnc_logError;
     };
+
+    //Mark as dirty
+    _playerState set [STATE_DIRTY,true];
 };
 
 //================================================================================================================

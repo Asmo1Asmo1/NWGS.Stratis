@@ -103,7 +103,7 @@ NWG_DB_PRC_Load = {
 	private ["_getResult","_getResultArray","_catArray"];
 	while {_maxIterations > 0} do {
 		_maxIterations = _maxIterations - 1;
-		if (_maxIterations < 2500) then {"NWG_DB_PRC_Load: Too much iterations!" call NWG_fnc_logError};
+		if (_maxIterations < 2500 && {(_maxIterations % 100) == 0}) then {"NWG_DB_PRC_Load: Too much iterations!" call NWG_fnc_logError};
 
 		_getResult = "extDB3" callExtension (format ["0:%1:SELECT * FROM %2 WHERE id=%3 LIMIT 1",NWG_DB_Protocol,_tableName,_id]);
 		// if (DEBUG_LOG) then {(format ["NWG_DB_PRC_Load: Loading item id: '%1'. Result: '%2'",_id,_getResult]) call NWG_fnc_logInfo};

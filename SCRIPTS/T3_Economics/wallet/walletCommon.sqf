@@ -24,7 +24,8 @@ NWG_WLT_AddPlayerMoney = {
 
     //Calculate new money amount
     private _oldMoney = _player getVariable ["NWG_WLT_Money",0];
-    private _newMoney = (round (_oldMoney + _amount)) min 999999999;
+    private _newMoney = (round (_oldMoney + _amount));
+    _newMoney = (_newMoney max 0) min 999999999;//Clamp to 0-999999999
     private _delta = _newMoney - _oldMoney;
 
     //Set new money amount
@@ -58,6 +59,78 @@ NWG_WLT_SetPlayerMoney = {
 
 //================================================================================================================
 //================================================================================================================
+//Money distribution logic (server-side with checks)
+NWG_WLT_DistributeMoneys = {
+    params ["_unitMoneyPairs",["_caller","UNKNOWN"],["_cancelOnError",false]];
+    if ((count _unitMoneyPairs) == 0) exitWith {
+        (format ["NWG_WLT_DistributeMoneys: No distribution pairs. Caller: '%1'",_caller]) call NWG_fnc_logError;
+        false
+    };
+
+    //Validate each pair
+    private _validPairs = [];
+    private _isError = false;
+    {
+        _x params ["_unit","_money"];
+
+        //Unit checks
+        if (isNil "_unit") then {
+            (format ["NWG_WLT_DistributeMoneys: Unit is nil. Caller: '%1'",_caller]) call NWG_fnc_logError;
+            _isError = true;
+            continue;
+        };
+        if !(_unit isEqualType objNull) then {
+            (format ["NWG_WLT_DistributeMoneys: Invalid unit type. Unit: '%1'. Caller: '%2'",_unit,_caller]) call NWG_fnc_logError;
+            _isError = true;
+            continue;
+        };
+        if (!alive _unit || {isNull _unit}) then {
+            (format ["NWG_WLT_DistributeMoneys: Unit is dead or null. Unit: '%1'. Caller: '%2'",_unit,_caller]) call NWG_fnc_logError;
+            _isError = true;
+            continue;
+        };
+        if !(isPlayer _unit) then {
+            (format ["NWG_WLT_DistributeMoneys: Unit is not a player. Unit: '%1'. Caller: '%2'",(name _unit),_caller]) call NWG_fnc_logError;
+            _isError = true;
+            continue;
+        };
+
+        //Money checks
+        if (isNil "_money") then {
+            (format ["NWG_WLT_DistributeMoneys: Money is nil. Unit: '%1'. Caller: '%2'",_unit,_caller]) call NWG_fnc_logError;
+            _isError = true;
+            continue;
+        };
+        if !(_money isEqualType 0) then {
+            (format ["NWG_WLT_DistributeMoneys: Invalid money type. Money: '%1'. Caller: '%2'",_money,_caller]) call NWG_fnc_logError;
+            _isError = true;
+            continue;
+        };
+
+        //Checks passed
+        _validPairs pushBack _x;
+
+    } forEach _unitMoneyPairs;
+
+    //Should we cancel?
+    if (_isError && _cancelOnError) exitWith {
+        "NWG_WLT_DistributeMoneys: Distribution cancelled due to errors." call NWG_fnc_logError;
+        false
+    };
+
+    //Distribute money (skipping in-function checks that we already did)
+    {
+        _x params ["_unit","_money"];
+        if (local _unit)
+            then {[_unit,_money] call NWG_WLT_AddPlayerMoney}
+            else {[_unit,_money] remoteExec ["NWG_WLT_AddPlayerMoney",_unit]};//Call where the unit is local
+    } forEach _validPairs;
+
+    //return
+    true
+};
+//================================================================================================================
+//================================================================================================================
 //Group money
 NWG_WLT_GetGroupMoney = {
     // private _group = _this;
@@ -76,18 +149,19 @@ NWG_WLT_SplitMoneyToGroup = {
     if (_money == 0) exitWith {};//Do nothing
 
     private _units = (units _group) select {alive _x && {isPlayer _x}};
-    if ((count _units) <= 0) exitWith {};
-    if ((count _units) == 1) exitWith {[(_units#0),_money] call NWG_fnc_wltAddPlayerMoney};
+    if ((count _units) <= 0) exitWith {
+        (format ["NWG_WLT_SplitMoneyToGroup: No units to split money to. Group: '%1'. Money: '%2'",_group,_money]) call NWG_fnc_logError;
+    };
 
-    if (_money > 0) then {
+    private _data = if (_money > 0) then {
         //Players earned - simple logic, each gets their share equally
-        private _share = round (_money / (count _units));
-        {[_x,_share] call NWG_fnc_wltAddPlayerMoney} forEach _units;
+        private _share = round (_money / (count _units));/*we already checked for zero units above*/
+        _units apply {[_x,_share]}/*creates array of pairs: [_unit,_money]*/
     } else {
         //Players spent - balance out losses based on what each player has
-        private _balanced = [_money,_units] call NWG_WLT_BalanceLosses;
-        {[(_x#0),(_x#1)] call NWG_fnc_wltAddPlayerMoney} forEach _balanced;
+        [_money,_units] call NWG_WLT_BalanceLosses/*returns array of pairs: [_unit,_money]*/
     };
+    [_data,"NWG_WLT_SplitMoneyToGroup",/*cancelOnError*/false] call NWG_fnc_wltDistributeMoneys;
 };
 
 #define BALANCE_MONEY 0

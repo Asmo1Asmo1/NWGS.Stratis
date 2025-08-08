@@ -242,7 +242,7 @@ NWG_QST_SER_CreateNew = {
                 private _newObj = createVehicle [_targetClassname,_pos,[],0,"CAN_COLLIDE"];
                 _newObj setDir _dir;
                 _newObj setPosASL _pos;
-                _newObj call NWG_fnc_clearContainerCargo;//Remove any cargo
+                _newObj call NWG_fnc_clearContainerCargoGlobal;//Remove any cargo
                 _targetObj = _newObj;
             };
 

@@ -146,6 +146,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VOTE_BAN_NOT_ENOUGH_PLAYERS#","Not enough players on server to start the vote (min: %1)"],
 
     //T3_Economics
+    //civKillFine
+    ["#CKF_NOTIFY_TEMPLATE#","%1 has killed a civilian. Your group is fined %2 each"],
     //escapeBillboard
     ["#ESCB_TITLE#","Level 17th Winners"],
     ["#ESCB_NO_WINNERS#","\nBe the first to get here!"],
@@ -231,7 +233,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#VSHOP_CAT_TANK#","Tanks"],
     ["#VSHOP_PLATFORM_OCCUPIED#","Platform occupied"],
     ["#VSHOP_CANNOT_SELL_VEHICLE#","Vehicle unavailable"],
-    ["#VSHOP_GROUP_LEADER_SPENT_MONEY_ON#","%1 bought %2 for group's money"],
+    ["#VSHOP_GROUP_LEADER_SPENT_MONEY_ON#","%1 is buying %2 for group's money"],
     //vehCustomizationAppearance
     ["#CAPP_LEFT_TITLE#","Color"],
     ["#CAPP_RIGHT_TITLE#","Components"],
@@ -242,6 +244,9 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#CPYL_OWNER_GUNNER#","Gunner"],
     //vehOwnership
     ["#VEHOWN_MESSAGE_OWNER#","['%1'] Owner: %2"],
+    ["#VEHOWN_MESSAGE_KICK_01#","This is a property of group %1. Get out, now!"],
+    ["#VEHOWN_MESSAGE_KICK_02#","Hey, pal, where you think you're going? That belongs to %1"],
+    ["#VEHOWN_MESSAGE_KICK_03#","Do not even think about it! Property of %1"],
     //wallet
     ["#WLT_NOTIFY_MONEY_ADD#","[Money:  +%1]"],
     ["#WLT_NOTIFY_MONEY_SUB#","[Money:  %1]"],
@@ -572,7 +577,8 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_LVLSEL#","Level %1"],
     ["#COMM_LVLNLCK_EXPLAIN_A_01#","How does this level unlock thing works?"],
     ["#COMM_LVLNLCK_EXPLAIN_Q_01#","By going on a mission you earn our trust|The more we trust you - the harder missions we can offer|But you also make a one time 'donation' - you buy the intel|Like it or not - that's how it is|But cheer up|If you are a squad leader - entire squad chips in|And once the level is unlocked - it can be accessed anytime|Well, until we leave this island that is|Then it's all over again"],
-    ["#COMM_LVLNLCK_NOTIFICATION#","%1 has unlocked Level %2"],
+    ["#COMM_LVLNLCK_NOTIFICATION_OWN#","%1 has unlocked Level %2 using their own money"],
+    ["#COMM_LVLNLCK_NOTIFICATION_GRP#","%1 has unlocked Level %2 using group money"],
     /*Comm - COMM_LVL_REQ_LOCKED*/
     ["#COMM_LVL_REQ_LOCKED_Q_01#","I can not trust you with this one yet|Required level: %1"],
     ["#COMM_LVL_REQ_LOCKED_Q_02#","It's above my confidence in you|Required level: %1"],
@@ -690,7 +696,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     /*Roof - another legend*/
     ["#ROOF_LGND_A_01#","What about others?"],
     /*Roof - ROOF_LGND_HOPA*/
-    ["#ROOF_LGND_HOPA_Q_01#","Fucking genius, that's who he is|That guy could attach anything to anyone|He was building entire systems overnight|All with duct tape, spit, sticks and shit|Legendary engineer"],
+    ["#ROOF_LGND_HOPA_Q_01#","Fucking genius, that's who he is|PhD in 'attachTo' if you know what I mean|He was reverse engineering and building entire systems overnight|All with duct tape, spit, sticks and shit|Legendary engineer"],
     /*Roof - ROOF_LGND_BIT*/
     ["#ROOF_LGND_BIT_Q_01#","No, Rayman is another guy|But that Bit-Ramon?|Fucking lunatic|Would crash his heli into the building|Just to get there a 'Bit' faster|And knife out everyone inside|We thought he and MoshPit were the most badass out there|And were kinda expecting them to meet to settle the score|Turns out|It was all the same guy|Fucking both sides|Just for shit and giggles|Oh, and a fuck load of money of course"],
     /*Roof - ROOF_LGND_BANKA*/
@@ -951,7 +957,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#TAXI_TUTOR01_01v2_Q#","Aha ha|That's a good one|What? Too many drinks on the flight here?|Or you just stumbled on a deserted base in the middle of nowhere|And thought to yourself 'Eh, why not?'|Anyway...|Why don't you buy yourself a gun first?|C'mon, get inside and on the left you'll find our Trader"],
     ["#ALL_TUTOR_JOB_A#","So what's the job?"],
     ["#TAXI_TUTOR01_01_A_02#","Yeah, thanks"],
-    ["#TAXI_TUTOR01_02_Q#","The best there is, pal|We're getting rich with this one"],
+    ["#TAXI_TUTOR01_02_Q#","The best there is, pal|We sell what we find and find what to sell|Gonna be rich with this one|... Although maybe go ask the Trader|He's explaining it better than I do"],
     ["#MECH_TUTOR01_00_Q#","Sorry, no time to talk|Go speak with the Taxi driver other there|The first guy you saw here"],
     ["#TRDR_TUTOR01_00_Q#","Not right now|If you want to chat|Go speak with the Taxi driver|Outside and to the right, under the umbrella"],
     ["#MEDC_TUTOR01_00_Q#","Sorry, son, I'm a bit busy|Go speak with the Taxi driver|Outside and to the right, under the umbrella"],
@@ -962,17 +968,17 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MECH_TUTOR02_00_Q#","What?|No, I'm dealing with vehicles|The one you need is inside and to the left"],
     ["#TRDR_TUTOR02_00_Q#","A new customer|What? Is the Commander busy?|Newcomers usually report in first"],
     ["#TRDR_TUTOR02_00_A_01#","I need a gun"],
-    ["#TRDR_TUTOR02_01_Q#","Of course you are|Eager to spend some cash, that's a good start|Did anyone tell you how to earn it back afterwards?"],
+    ["#TRDR_TUTOR02_01_Q#","Of course you are|Eager to spend some cash, that's a good start|Did anyone tell you how to earn it back?"],
     ["#TRDR_TUTOR02_01_A_01#","No, they didn't. How?"],
     ["#TRDR_TUTOR02_01_A_02#","Don't care. Just give me a pew pew"],
     ["#TRDR_TUTOR02_INVACT#","Open your inventory and you will see new actions available:"],
-    ["#TRDR_TUTOR02_INVACT_LOOT#","The most important one|This will transfer all items to your loot storage|You will see them again in said storage or when trading with me"],
+    ["#TRDR_TUTOR02_INVACT_LOOT#","The most important one|This will transfer all the items to your loot storage|You will see them again there or when trading with me"],
     ["#TRDR_TUTOR02_BUY_ADVICE#"," |In addition to gun and ammo, you better take these:"],
     ["#TRDR_TUTOR02_BUY_ADVICE_FAK#","To get back into action when wounded"],
     ["#TRDR_TUTOR02_BUY_ADVICE_BAG#","To deploy camp and get back to base"],
-    ["#TRDR_TUTOR02_02v1_Q#","Those are the basics|The rest you'll figure out yourself|Or ask around if you will|There is always more to know"],
-    ["#TRDR_TUTOR02_02v2_Q#","Less talking more shooting?|Pff... Fine by me, less time wasted"],
-    ["#TRDR_TUTOR02_03_Q#","Black market|We provide goods for the black market|And you are the lowest, expendable link in this supply chain|So...|Welcome onboard"],
+    ["#TRDR_TUTOR02_02v1_Q#","Those are the basics|The rest you'll figure out yourself|Or ask around if you will|I'm sure you'll find someone to tell you more"],
+    ["#TRDR_TUTOR02_02v2_Q#","Less talking more shooting?|Pff... Fine by me"],
+    ["#TRDR_TUTOR02_03_Q#","Black market|We provide goods for the black market|And you are the lowest, expendable link in this supply chain|Sign up for a raid, take whatever you can and sell it here|Easy as that|So... Welcome aboard!|Live long enough and you're gonna like it|And if you're more of a 'hero' type - go ask Commander the same|He has... a different perspective. Works better for some folks"],
     ["#TRDR_TUTOR02_SHOP_HINT#","Double click to buy/sell items\nHold 'Ctrl' or 'Shift' to buy/sell in stacks\n'Esc' to exit"],
     ["#MEDC_TUTOR02_00_Q#","Trader?|He's sitting right there, across the aisle|Just turn around and you'll see him"],
     ["#COMM_TUTOR02_00_Q#","Not now, soldier - I'm on command channel|Go buy the equipment from our Trader first|From here look at the entrance|Do a couple steps forward|And turn right"],
@@ -989,7 +995,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#MEDC_TUTOR04_00_Q#","I've heard the Commander is waiting for you|Go deeper into the base and turn left|Or look at the Trader, the Commander is right behind him"],
     ["#COMM_TUTOR04_00_Q#","Finally... some radio silence...|So... %1, right?|You up for a job?"],
     ["#COMM_TUTOR04_00_A_01#","Yeah, sure"],
-    ["#COMM_TUTOR04_01_Q#","I don't know what you've heard so far|But here's how it is|Yes, we need financial support|Yes, we sell what you find and share the profits|Somewhat fair...|But our main goal is bigger than this|Day after day striking the enemy forces|We seek to liberate these islands|This is a grey zone, almost deserted, almost forgotten|Under constant barrage and threat of invasion from all sides|And we say it suffered enough|This perpetual war zone must be stopped|One day all of our enemies will drop their weapons and retreat|That is our goal|Until then, we need people like you|To punch them where it hurts"],
+    ["#COMM_TUTOR04_01_Q#","I don't know what you've heard so far|But here's how it is|Yes, we need financial support|Yes, we sell what you find and share the profits|Somewhat fair...|But our main goal is bigger than this|Day after day striking the enemy forces|We seek to liberate these islands|This is a grey zone, almost deserted, almost forgotten|Under constant barrage and threat of invasion from all sides|And we say it suffered enough|This must be stopped|One day all of our enemies will drop their weapons and retreat|That is our goal|Until then, we need people like you|To punch them where it hurts"],
     ["#COMM_TUTOR04_01_A_02#","Wait, really?"],
     ["#COMM_TUTOR04_015_Q#","Need to keep troops motivated, right?"],
     ["#COMM_TUTOR04_02_Q#","Now one more thing|Here is your personal tablet|Press 'F3' to open and get yourself familiar with it|This is your best friend and tool of support here|Go on, try it out, chech that it is working|*PRESS 'F3' to open, then 'Esc' to close*"],
@@ -1007,7 +1013,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#COMM_TUTOR04_05v1_A_02#","Yes, sir [UNLOCK LEVEL 1 (%1)]"],
     ["#COMM_TUTOR04_05v2_Q#","There is a mission in progress already|So you just need to catch up with the others|Get back to the Taxi driver|Tell him I said your first paradrop is on the house"],
     ["#COMM_TUTOR04_05v2_A_01#","On my way"],
-    ["#COMM_TUTOR04_05v3_Q#","Yeah, something is wrong with the computer|'Unexpected state' hmm...|Let me log the error and come back in a few minutes|At ease"],
+    ["#COMM_TUTOR04_05v3_Q#","Yeah, something is wrong with the computer|'Unexpected state' hmm...|Let me log the error and do come back in a few minutes|At ease"],
     ["#COMM_TUTOR04_MAP_HINT#","Move cursor to the mission area\nAnd click once to select it"],
     /*Step 05 - Taxi*/
     ["#TAXI_TUTOR05_00_Q0#","See? There's a voting in progress|Open the chat and send '+' or '-'"],
