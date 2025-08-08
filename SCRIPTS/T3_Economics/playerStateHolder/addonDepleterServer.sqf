@@ -36,6 +36,10 @@ NWG_PSH_DPL_Settings = createHashMapFromArray [
 ];
 
 //================================================================================================================
+//Defines
+#define STATE_DIRTY "is_dirty"
+
+//================================================================================================================
 //Init
 private _Init = {
     addMissionEventHandler ["EntityRespawned", {
@@ -62,8 +66,13 @@ NWG_PSH_DPL_OnRespawn = {
     if !(_player isKindOf "Man") exitWith {};
     if !(isPlayer _player) exitWith {};
 
+    //Get unit name
+    private _unitName = name _player;
+    if (isNil "_unitName" || {_unitName isEqualTo ""}) then {_unitName = name _corpse};
+    if (isNil "_unitName") then {_unitName = ""};
+
     //Deplete check
-    if !([_corpse,"Resp"] call NWG_PSH_DPL_ShouldDeplete) exitWith {
+    if !([_corpse,_unitName,"Resp"] call NWG_PSH_DPL_ShouldDeplete) exitWith {
         //Player was on base, do not deplete, just re-apply known states
         _player call NWG_fnc_pshOnPlayerJoined;
     };
@@ -83,7 +92,7 @@ NWG_PSH_DPL_OnRespawn = {
 
 NWG_PSH_DPL_OnDisconnected = {
     // params ["_unit", "_id", "_uid", "_name"];
-    params [["_corpse",objNull],"",["_steamID",""]];
+    params [["_corpse",objNull],"",["_steamID",""],["_unitName",""]];
 
     //Checks
     if !(NWG_PSH_DPL_Settings get "DEPLETE_ON_DISCONNECT") exitWith {};//Deplete is disabled
@@ -92,7 +101,8 @@ NWG_PSH_DPL_OnDisconnected = {
     };
 
     //Deplete check
-    if !([_corpse,"Disc"] call NWG_PSH_DPL_ShouldDeplete) exitWith {};//Player disconnected while on base, do not deplete
+    if (_unitName isEqualTo "") then {_unitName = name _corpse};
+    if !([_corpse,_unitName,"Disc"] call NWG_PSH_DPL_ShouldDeplete) exitWith {};//Player disconnected while on base, do not deplete
 
     //Deplete
     [_steamID,false,objNull] call NWG_PSH_DPL_Deplete;
@@ -101,14 +111,14 @@ NWG_PSH_DPL_OnDisconnected = {
 //================================================================================================================
 //Main check
 NWG_PSH_DPL_ShouldDeplete = {
-    params ["_unit","_event"];
-    if (isNil "_unit" || {isNull _unit}) exitWith {
+    params ["_unitObj","_unitName","_event"];
+    if (isNil "_unitObj" || {isNull _unitObj}) exitWith {
         "NWG_PSH_DPL_ShouldDeplete: Unit is nil/null. Fallback to false" call NWG_fnc_logError;
         false
     };
 
     private _baseCheck = call {
-        if !(NWG_PSH_DPL_Settings get "BASE_PROXIMITY_CHECK_ENABLED") exitWith {[true,0]};
+        if !(NWG_PSH_DPL_Settings get "BASE_PROXIMITY_CHECK_ENABLED") exitWith {[true,-1]};
         if (isNil "NWG_MIS_SER_playerBase") exitWith {
             "NWG_PSH_DPL_ShouldDeplete: Player base is nil. Skipping base proximity check" call NWG_fnc_logError;
             [true,-1]
@@ -122,7 +132,7 @@ NWG_PSH_DPL_ShouldDeplete = {
             "NWG_PSH_DPL_ShouldDeplete: Player base is null. Skipping base proximity check" call NWG_fnc_logError;
             [true,-1]
         };
-        private _distance = round (_unit distance _base);
+        private _distance = round (_unitObj distance _base);
         [(_distance <= 100),_distance]
     };
     _baseCheck params ["_isOnBase","_distanceToBase"];
@@ -146,8 +156,8 @@ NWG_PSH_DPL_ShouldDeplete = {
 
     private _shouldDeplete = if (_isOnBase || _isSafeState) then {false} else {true};
     if (NWG_PSH_DPL_Settings get "DEBUG_LOG_CHECKS") then {
-        (format ["NWG_PSH_DPL_ShouldDeplete: Unit: '%1'. On: '%2'. BaseCheck: [%3] (dist: '%4'). MissionStateCheck: [%5] (state: '%6'). Depleting: '%7'",
-            (name _unit),
+        (format ["NWG_PSH_DPL_ShouldDeplete: Unit: '%1'. On: '%2'. BaseCheck: [%3] (%4m). StateCheck: [%5] (%6). Depleting: '%7'",
+            _unitName,
             _event,
             (if (_isOnBase) then {"+"} else {"-"}),
             _distanceToBase,
@@ -300,6 +310,9 @@ NWG_PSH_DPL_Deplete = {
     } else {
         (format ["NWG_PSH_DPL_Deplete: Loot state not found for player: '%1' with steamID: '%2'",(name _playerObj),_steamID]) call NWG_fnc_logError;
     };
+
+    //Mark as dirty
+    _playerState set [STATE_DIRTY,true];
 };
 
 //================================================================================================================
