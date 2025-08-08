@@ -43,8 +43,8 @@ NWG_AI_Settings = createHashMapFromArray [
 	["REPAIR_AUTOSHOW",true],
 	["REPAIR_ANIMATION","Acts_carFixingWheel"],
     ["REPAIR_MATRIX",[
-        ["hull","body","hitera","glass","light", "" ],/*"" - all parts, must be last as it gives 'true' to any part*/
-        [0.50,  0.50,  0.97,    0.97,   0.97,   0.33]
+        ["hull","body","hitera","glass","light","hitslat",""  ],/*"" - any part, must be last as it gives 'true' to any part*/
+        [0.75,  0.75,  1,       1,      1,      1,        0.33]
     ]],
 
     ["UNFLIP_ITEM","ToolKit"],
@@ -136,12 +136,6 @@ NWG_AI_ReloadActions = {
 	_isActionAssigned = SAVEID_REPR call NWG_AI_IsActionAssigned;
 	switch (true) do {
 		case (_hasItem && !_isActionAssigned): {
-			//Hack-in short-circuit condition check for lowest down-to value (save some resources)
-			(NWG_AI_Settings get "REPAIR_MATRIX") params ["","_downToRules"];
-			private _lowest = 1;
-			{if (_x < _lowest) then {_lowest = _x}} forEach _downToRules;
-			NWG_AI_VehicleFix_lowestDownTo = _lowest;
-
 			//Assign action
 			[
 				/*_saveID:*/SAVEID_REPR,
@@ -353,23 +347,28 @@ NWG_AI_SmokeOut_OnCompleted = {
 //================================================================================================================
 //================================================================================================================
 //Vehicle fix (Repair action)
-NWG_AI_VehicleFix_lowestDownTo = -1;
 NWG_AI_VehicleFix_Condition = {
     if (isNull (call NWG_fnc_radarGetVehInFront)) exitWith {false};
 	private _veh = call NWG_fnc_radarGetVehInFront;
 	if (_veh call NWG_AI_IsEnemyInside) exitWith {false};//Don't fix enemy vehicles
 
-    //Short-circuit check for undamaged vehicles
+    //Get vehicle parts and damages
     (getAllHitPointsDamage _veh) params ["_vehParts","","_vehDamages"];
-    if ((_vehDamages findIf {_x > NWG_AI_VehicleFix_lowestDownTo}) == -1) exitWith {false};
-
-    //Complex check for vehicle parts
     (NWG_AI_Settings get "REPAIR_MATRIX") params ["_partsRules","_downToRules"];
-    private _result = false;
-    {
-        if (_x > (_downToRules param [(_partsRules findIf {_x in (_vehParts#_forEachIndex)}),0])) exitWith {_result = true};
-    } forEach _vehDamages;
-    _result
+
+	//Check if vehicle (any part) is damaged enough for repair (short-circuit check)
+	if ((selectMax _vehDamages) < (selectMin _downToRules)) exitWith {false};
+
+	//Check if any part configured part is damaged enough for repair (complex check)
+	private _result = false;
+	private _cur = "";
+	private _j = -1;
+	{
+		_cur = _x;
+		_j = _partsRules findIf {_x in _cur};
+		if (_j != -1 && {(_vehDamages#_forEachIndex) > (_downToRules#_j)}) exitWith {_result = true};
+	} forEach _vehParts;
+	_result
 };
 NWG_AI_VehicleFix_OnStarted = {
     player playMoveNow (NWG_AI_Settings get "REPAIR_ANIMATION");
@@ -386,15 +385,18 @@ NWG_AI_VehicleFix_OnCompleted = {
 
     (getAllHitPointsDamage (call NWG_fnc_radarGetVehInFront)) params ["_vehParts","","_vehDamages"];
     (NWG_AI_Settings get "REPAIR_MATRIX") params ["_partsRules","_downToRules"];
-    private _fixDownTo = 0;
+	private _cur = "";
+	private _j = -1;
 	private _hitIndexArray = [];
-    {
-        _fixDownTo = _downToRules param [(_partsRules findIf {_x in (_vehParts#_forEachIndex)}),0];
-        if (_x > _fixDownTo) then {
+	{
+		_cur = _x;
+		_j = _partsRules findIf {_x in _cur};
+		if (_j != -1 && {(_vehDamages#_forEachIndex) > (_downToRules#_j)}) then {
 			_hitIndexArray pushBack _forEachIndex;
-			_hitIndexArray pushBack _fixDownTo;
+			_hitIndexArray pushBack (_downToRules#_j);
 		};
-    } forEach _vehDamages;
+	} forEach _vehParts;
+
 
 	[_vehicle,_hitIndexArray] call NWG_fnc_setHitIndex;
 };

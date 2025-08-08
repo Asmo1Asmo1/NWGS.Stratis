@@ -88,7 +88,7 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 		["C2I2",["hd_join_noShadow","ColorBlack"]],//Company (5)
 		["C2I3",["hd_join_noShadow","ColorBlack"]] //Fire team (8)
 	]],
-	["MARKER_PRESERVE_COUNT",5],//How many markers to preserve at the same time (older ones will be deleted)
+	["MARKER_PRESERVE_COUNT",3],//How many markers to preserve at the same time (older ones will be deleted)
 
 	/*Support levels*/
 	["SUPPORT_LEVELS",createHashMapFromArray [
@@ -120,7 +120,8 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 	["FUNC_SPAWN_VEHICLE",{_this call NWG_MSHOP_DSC_SpawnVehicle}],//params: ["_player","_itemName","_targetPos"]; returns: _vehicle object OR false in case of error
 
 	/*Drone actions settings*/
-	["MINE_DEPLOY_HEIGHT",1],//Height at which mine will be deployed
+	["SUICIDE_DRONE_CHARGE_OFFSET",[0,-3,-0.5]],//Offset of the charge from the drone
+	["MINE_DEPLOY_HEIGHT",2],//Height at which mine will be deployed
 	["MINE_DEPLOY_COUNT",3],
 	["MINE_DEPLOY_DRONE_DELETE_DELAY",5],
 	["EMI_RADIUS",25],
@@ -130,7 +131,7 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 	["BOMBER_DELETE_CHECK_INTERVAL",15],//Server-side check interval for bomber drones
 	["BOMBER_DELETE_DELAY",5],//Delay since last shot before deleting the vehicle
 
-	/*Mortar settings*//*params ["_ammoType","_radius","_count","_beforeDelay","_inBetweenDelay","_altitude","_velocity"]*/
+	/*Mortar settings*//*params ["_ammoType","_radius","_count","_beforeDelay","_inBetweenDelay","_altitude","_velocity",["_sound",""]]*/
 	["MORTAR_SETTINGS",createHashMapFromArray [
 		["C1I0",["Sh_82mm_AMOS",30, 1,  [5,15], 0,     250,15]],//Single strike
 		["C1I1",["Sh_82mm_AMOS",30, 2,  [7,17],[0.5,3],250,15]],//Double tap
@@ -303,17 +304,9 @@ NWG_MSHOP_SER_SpawnDrone = {
 			//Setup destruction logic
 			_drone addMPEventHandler ["MPHit", {
 				// params ["_unit","_causedBy","_damage","_instigator"];
-				params ["_drone"];
 				if (isServer) then {
-					_drone removeMPEventHandler [_thisEvent,_thisEventHandler];//Delete event handler
-					{deleteVehicle _x} forEach (attachedObjects _drone);//Delete visual object
-					private _shellType = _drone getVariable ["NWG_MSHOP_shellType",""];//Extract shell type
-					private _owner = _drone getVariable ["NWG_MSHOP_owner",objNull];//Extract owner
-					private _charge = createVehicle [_shellType,_drone,[],0,"CAN_COLLIDE"];//Create charge
-					_charge setShotParents [_owner, _owner];//Set charge ownership
-					_charge setVectorDirAndUp [vectorDir _drone, vectorUp _drone];//Set charge direction
-					_charge setVelocity (velocity _drone);//Set charge velocity
-					_drone setDamage 1;//Destroy drone
+					(_this#0) removeMPEventHandler [_thisEvent,_thisEventHandler];
+					_this call NWG_MSHOP_SuicideDrone_Action;
 				};
 			}];
 		};
@@ -408,6 +401,30 @@ NWG_MSHOP_SER_SpawnDrone = {
 
 	//return
 	true
+};
+
+NWG_MSHOP_SuicideDrone_Action = {
+	// params ["_unit","_causedBy","_damage","_instigator"];
+	params ["_drone"];
+
+	//Extract data
+	private _shellType = _drone getVariable ["NWG_MSHOP_shellType",""];
+	private _owner = _drone getVariable ["NWG_MSHOP_owner",objNull];
+
+	// Calculate charge position and orientation
+	private _chargePos = _drone modelToWorldWorld (NWG_MSHOP_SER_Settings get "SUICIDE_DRONE_CHARGE_OFFSET");
+	private _chargeDir = vectorDir _drone;
+	private _chargeUp = vectorUp _drone;
+
+	//Delete drone
+	{deleteVehicle _x} forEach (attachedObjects _drone);
+	deleteVehicle _drone;
+
+	// Create charge and propel it
+	private _charge = createVehicle [_shellType, (ASLToAGL _chargePos), [], 0, "CAN_COLLIDE"];
+	_charge setShotParents [_owner, _owner];
+	_charge setVectorDirAndUp [_chargeDir, _chargeUp];
+	_charge setVelocity (_chargeDir vectorMultiply 50);
 };
 
 NWG_MSHOP_MineDeployment_Action = {
@@ -621,7 +638,7 @@ NWG_MSHOP_SER_FireMortar = {
 		//Fire loop
 		private _fireCount = _count call _toSingleValueInt;
 		private ["_firePos","_shell"];
-		while {_fireCount > 0} do {
+		waitUntil {
 			_firePos = _pos getPos [((sqrt random 1) * _radius),(random 360)];
 			_firePos set [2,(_altitude call _toSingleValueFloat)];
 			_shell = _ammoType createVehicle _firePos;
@@ -632,8 +649,9 @@ NWG_MSHOP_SER_FireMortar = {
 			if (!isNull _player)
 				then {_shell setShotParents [_player,_player]};
 
-			_fireCount = _fireCount - 1;
 			sleep (_inBetweenDelay call _toSingleValueFloat);
+			_fireCount = _fireCount - 1;
+			_fireCount <= 0
 		};
 	};
 
@@ -694,7 +712,7 @@ NWG_MSHOP_SER_OnVehicleBought = {
 	[_vehicle,_player] call NWG_fnc_vownSetOwner;
 
 	//Clear vehicle cargo
-	_vehicle call NWG_fnc_clearContainerCargo;
+	_vehicle call NWG_fnc_clearContainerCargoGlobal;
 
 	//Create AI crew for UAVs
 	if (unitIsUAV _vehicle) then {
@@ -728,7 +746,10 @@ NWG_MSHOP_SER_PlaceMarker = {
 		(format ["NWG_MSHOP_SER_PlaceMarker: MARKER_PRESERVE_COUNT is less than 1: '%1', fix your settings",_preserveCount]) call NWG_fnc_logError;
 		_preserveCount = 1;
 	};
-	while {(count NWG_MSHOP_SER_placedMarkers) > _preserveCount} do {
+	private _curCount = count NWG_MSHOP_SER_placedMarkers;
+	if (_curCount <= _preserveCount) exitWith {};
+	private _delta = _curCount - _preserveCount;
+	for "_i" from 1 to _delta do {
 		deleteMarker (NWG_MSHOP_SER_placedMarkers deleteAt 0);
 	};
 };

@@ -39,7 +39,7 @@ NWG_YK_Settings = createHashMapFromArray [
     /*Statistics*/
     ["STATISTICS_ENABLED",true],//If true, the system will keep track of statistics and output them to the RPT log
     ["STATISTICS_ADVANCED_COMBAT",true],//If true, additional statistics will be outputted for advanced combat (must be enabled on advanced combat side as well)
-    ["DIAG_FPS_ENABLED",true],//If true, the system will output the FPS to the RPT log
+    ["DIAG_FPS_ENABLED",false],//If true, the system will output the FPS to the RPT log before and after each reaction
     ["DIAG_FPS_END_DELAY",1],//Delay before the FPS at the end of reaction is logged
 
     /*Reaction*/
@@ -249,6 +249,7 @@ NWG_YK_React = {
     //3. Process and convert the targets
     /*Apply min reaction count*/
     if ((count _targets) < _minReact) then {
+        if ((count _targets) == 0) exitWith {};//No targets to react to (fix lowkey possible infinite while loop, no cap)
         while {(count _targets) < _minReact} do {_targets append _targets};
         _targets resize _minReact;
     };
@@ -585,6 +586,7 @@ NWG_YK_RunPassiveSpecials = {
         /*Statistics*/
         _lonersCount = _lonersCount - (count _loners);
         [STAT_SPEC_LONEMERGE,_lonersCount] call NWG_YK_STAT_Increment;
+        [STAT_SPECIALS_USED,_lonersCount] call NWG_YK_STAT_Increment;
     };
 
     //Repair vehicles
@@ -604,6 +606,7 @@ NWG_YK_RunPassiveSpecials = {
 
         /*Statistics*/
         [STAT_SPEC_VEHREPAIR,_vehRepairsCount] call NWG_YK_STAT_Increment;
+        [STAT_SPECIALS_USED,_vehRepairsCount] call NWG_YK_STAT_Increment;
     };
 
     //Capture vehicles
@@ -623,6 +626,7 @@ NWG_YK_RunPassiveSpecials = {
 
         /*Statistics*/
         [STAT_SPEC_VEHCAPTURE,_vehCapturesCount] call NWG_YK_STAT_Increment;
+        [STAT_SPECIALS_USED,_vehCapturesCount] call NWG_YK_STAT_Increment;
     };
 
     //Flee vehicles
@@ -642,6 +646,7 @@ NWG_YK_RunPassiveSpecials = {
 
         /*Statistics*/
         [STAT_SPEC_VEHFLEE,_vehFleesCount] call NWG_YK_STAT_Increment;
+        [STAT_SPECIALS_USED,_vehFleesCount] call NWG_YK_STAT_Increment;
     };
 
     //return

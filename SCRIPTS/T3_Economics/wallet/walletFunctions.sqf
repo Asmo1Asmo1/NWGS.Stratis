@@ -110,7 +110,9 @@ NWG_fnc_wltSplitMoneyToGroup = {
 		"NWG_fnc_wltSplitMoneyToGroup: Invalid group" call NWG_fnc_logError;
 	};
 
-	_this call NWG_WLT_SplitMoneyToGroup
+	if (isServer)
+		then {_this call NWG_WLT_SplitMoneyToGroup}
+		else {_this remoteExec ["NWG_fnc_wltSplitMoneyToGroup",2]};
 };
 
 //Sends a notification to a player about their money change
@@ -129,4 +131,18 @@ NWG_fnc_wltNotifyMoneyChange = {
 	if (local _player)
 		then {_this call NWG_WLT_NotifyMoneyChange}
 		else {_this remoteExec ["NWG_fnc_wltNotifyMoneyChange",_player]};//Call where the player is local
+};
+
+/*Any->Server*/
+//Distributes money between players (server-side with checks)
+//note: It does not recalculate distribution in case of errors and just proceeds according to arguments given
+//params:
+//	_unitMoneyPairs: Array - Array of pairs of units and money to distribute (e.g. [[_unit1,100],[_unit2,200]])
+//	_caller: String - (optional, default: "UNKNOWN") The caller of the function (used for logging only)
+//	_cancelOnError: Boolean - (optional, default: false) If true, distribution will be cancelled if there is at least one error in arguments
+NWG_fnc_wltDistributeMoneys = {
+	// params ["_unitMoneyPairs",["_caller","UNKNOWN"],["_cancelOnError",false]];
+	if (isServer)
+		then {_this call NWG_WLT_DistributeMoneys}
+		else {_this remoteExec ["NWG_fnc_wltDistributeMoneys",2]};
 };

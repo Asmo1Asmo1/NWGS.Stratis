@@ -114,3 +114,19 @@ NWG_fnc_lsDepleteLoot = {
     // params ["_loot","_multiplier",["_notify",true]];
     _this call NWG_LS_COM_DepleteLoot
 };
+
+/*Any->Client*//*Utils*/
+//Get current loot storage object
+//returns: object or objNull if not exists
+NWG_fnc_lsGetLootStorage = {
+    NWG_LS_CLI_invisibleBox
+};
+
+//Get all items from container
+//note: returns UNcompacted array of strings (classnames)
+//param: _container - object
+//returns: array of strings (classnames)
+NWG_fnc_lsGetAllItemsFromContainer = {
+    // private _container = _this;
+    _this call NWG_LS_CLI_GetAllContainerItems
+};

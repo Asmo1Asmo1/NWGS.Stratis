@@ -341,7 +341,13 @@ NWG_MED_CLI_BLEEDING_PostProcessEnable = {
     private _create = {
         params ["_name","_priority"];
         private _handle = -1;
-        while {_handle = ppEffectCreate [_name,_priority]; _handle < 0} do {_priority = _priority + 1};
+        private _attempts = 100;
+        while {_attempts > 0} do {
+            _handle = ppEffectCreate [_name,_priority];
+            if (_handle >= 0) exitWith {};
+            _priority = _priority + 1;
+            _attempts = _attempts - 1;
+        };
         _handle
     };
 

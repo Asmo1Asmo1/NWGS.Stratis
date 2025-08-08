@@ -5,7 +5,7 @@ NWG_AA_Settings = createHashMapFromArray [
 	["ALL_ALLOWED_IN_LOCAL_DEV",true],
 	["ALL_ALLOWED_IN_MP_DEV",false],
 	["DISABLE_ARSENAL",true],
-	["PREVENT_BACKPACK_ACCESS",false],
+	["PREVENT_BACKPACK_ACCESS",true],
 
     ["",0]
 ];
@@ -34,24 +34,26 @@ private _Init = {
 //================================================================================================================
 //================================================================================================================
 //Backpack protection
+NWG_AA_BackpackProtection_AfkAnims = [
+	"amovpsitmstpsnonwnondnon_ground",/*Sitting on the ground unarmed*/
+	"amovpsitmstpsnonwpstdnon_ground",
+	"amovpsitmstpslowwrfldnon"/*Sitting on the ground with weapon*/
+];
 NWG_AA_BackpackProtection = {
 	// params ["_unit","_mainContainer","_secdContainer"];
-	params ["","_main","_secd"];
+	params ["","_backpack"];
+	private _unit = objectParent _backpack;
 
-	//Get info on opened containers
-	private _containers = [_main,_secd];
-	if (!isNull _main) then {_containers pushBack (objectParent _main)};
-	if (!isNull _secd) then {_containers pushBack (objectParent _secd)};
+	//First set of checks - make sure it's unit wearing backpack
+	if (isNull _unit) exitWith {};
+	if !(_unit isKindOf "Man") exitWith {};
+	if (_unit isEqualTo player) exitWith {};
+	if !(isPlayer _unit) exitWith {};
 
-	//Check if opening other player's backpack
-	private _p = _containers findIf {!isNull _x && {_x isKindOf "Man" && {_x isNotEqualTo player && {isPlayer _x}}}};
-	if (_p == -1) exitWith {};//Ignore if not accessing other players
-
-	//Check if accessing wounded player - that's okay
-	if (!isNil "NWG_fnc_medIsWounded" && {(_containers#_p) call NWG_fnc_medIsWounded}) exitWith {};
-
-	//Close inventory UI
-	(uiNamespace getVariable ["RscDisplayInventory", displayNull]) closeDisplay 2;
+	//Close invenotry if trying to access AFK player backpack
+	if ((animationState _unit) in NWG_AA_BackpackProtection_AfkAnims) exitWith {
+		(uiNamespace getVariable ["RscDisplayInventory", displayNull]) closeDisplay 2;
+	};
 };
 
 //================================================================================================================

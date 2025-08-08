@@ -198,8 +198,7 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
             default /*_patrolLength == 3 && (count _spawnPoints) >= 3*/ {{
                 private _p1 = [_spawnPointsIndex,_spawnPoints,_spawnPointsPointers] call _getNext;
                 private _p2 = _patrolPoints select ([_patrolPoints,_p1] call NWG_fnc_dtsFindIndexOfFarthest);
-                private _p3 = selectRandom _patrolPoints;
-                while {_p3 isEqualTo _p1 || {_p3 isEqualTo _p2}} do {_p3 = selectRandom _patrolPoints};
+                private _p3 = selectRandom (_patrolPoints - [_p1,_p2]);
                 [_p1,_p2,_p3]
             }};
         };
@@ -286,8 +285,7 @@ NWG_DSPAWN_TRIGGER_PopulateTrigger = {
             private _p2 = _ground select ([_ground,_p1] call NWG_fnc_dtsFindIndexOfFarthest);
             private _patrolRoute = [_p1,_p2];
             if ((count _ground) > 1) then {
-                private _p3 = selectRandom _ground;
-                while {_p3 isEqualTo _p2} do {_p3 = selectRandom _ground};
+                private _p3 = selectRandom (_ground - [_p1,_p2]);
                 _patrolRoute pushBack _p3;
             };
             _patrolRoute = _patrolRoute call NWG_fnc_arrayShuffle;

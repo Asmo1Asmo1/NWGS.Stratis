@@ -10,6 +10,8 @@ player allowDamage false;//Fix on spawn kill (will be removed in medicine)
 waitUntil {!isNil "NWG_SER_ServerReady"};//Wait for server
 
 /* --- Setup --- */
+//Push player into separate group on start
+if ((count (units (group player))) > 1) then {[player] joinSilent (createGroup [(side (group player)),true])};
 //Setup dynamic groups (the U button by default) - client side
 ["InitializePlayer", [player, true]] call BIS_fnc_dynamicGroups;
 
