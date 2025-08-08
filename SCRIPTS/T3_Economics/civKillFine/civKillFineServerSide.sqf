@@ -5,7 +5,7 @@
 //Settings
 NWG_CKF_Settings = createHashMapFromArray [
 	["FINE_INITIAL",1000],//Initial fine amount
-	["FINE_INCREMENT",100],//Fine increment for each kill
+	["FINE_INCREMENT",250],//Fine increment for each kill
 
 	/*Localization*/
 	["LOC_MESSAGE_TEMPLATE","#CKF_NOTIFY_TEMPLATE#"],
