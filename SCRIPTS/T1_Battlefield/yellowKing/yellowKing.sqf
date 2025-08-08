@@ -39,7 +39,7 @@ NWG_YK_Settings = createHashMapFromArray [
     /*Statistics*/
     ["STATISTICS_ENABLED",true],//If true, the system will keep track of statistics and output them to the RPT log
     ["STATISTICS_ADVANCED_COMBAT",true],//If true, additional statistics will be outputted for advanced combat (must be enabled on advanced combat side as well)
-    ["DIAG_FPS_ENABLED",true],//If true, the system will output the FPS to the RPT log
+    ["DIAG_FPS_ENABLED",false],//If true, the system will output the FPS to the RPT log before and after each reaction
     ["DIAG_FPS_END_DELAY",1],//Delay before the FPS at the end of reaction is logged
 
     /*Reaction*/
