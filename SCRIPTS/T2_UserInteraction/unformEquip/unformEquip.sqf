@@ -24,6 +24,21 @@
 #define SWAP_BACK 5
 
 //================================================================================================================
+//Settings
+NWG_UNEQ_Settings = createHashMapFromArray [
+    /*External functions*/
+    ["FUNC_IS_LOCAL_CONTAINER",{
+        private _lootStorage = call NWG_fnc_lsGetLootStorage;
+        !isNull _lootStorage && {_this isEqualTo _lootStorage}
+    }],
+    ["FUNC_GET_ALL_CONTAINER_ITEMS",{
+        _this call NWG_fnc_lsGetAllItemsFromContainer
+    }],
+
+    ["",0]
+];
+
+//================================================================================================================
 //Script
 NWG_UNEQ_EquipSelectedUniform = {
     disableSerialization;
@@ -80,7 +95,7 @@ NWG_UNEQ_EquipSelectedUniform = {
         [player,_selectedItem,_swapType] call NWG_UNEQ_ReplaceOnUnit;//Update player's loadout
     } else {
         //Swap items
-        [_container,_selectedItem,_playerItem,_swapType] call NWG_UNEQ_ReplaceInContainer;//Replace item in the container
+        [_container,_selectedItem,_playerItem] call NWG_UNEQ_ReplaceInContainer;//Replace item in the container
         [player,_selectedItem,_swapType] call NWG_UNEQ_ReplaceOnUnit;//Update player's loadout
     };
 
@@ -104,49 +119,6 @@ NWG_UNEQ_EquipSelectedUniform = {
 
 //================================================================================================================
 //Utils
-NWG_UNEQ_ReplaceInContainer = {
-    params ["_container","_itemToRemove","_itemToAdd","_swapType"];
-
-    if (_swapType == SWAP_UNIF || _swapType == SWAP_VEST) exitWith {
-        //Remove old item from the container
-        //In a most inconvenient Arma way possible - remove all items, then add them back except for the one to remove
-        (getItemCargo _container) params ["_items","_counts"];
-        clearItemCargoGlobal _container;
-        private _i = _items find _itemToRemove;
-        if (_i != -1) then {
-            //Modify target count or remove item completely
-            if ((_counts#_i) > 1)
-                then {_counts set [_i,((_counts#_i) - 1)]}
-                else {_counts deleteAt _i; _items deleteAt _i};
-            //Add all back
-            {_container addItemCargoGlobal [_x,(_counts#_forEachIndex)]} forEach _items;
-        };
-
-        //Add new item to the container
-        if (_itemToAdd isNotEqualTo "") then {_container addItemCargoGlobal [_itemToAdd,1]};
-    };
-
-    if (_swapType == SWAP_BACK) exitWith {
-        //Remove old item from the container
-        //In a most inconvenient Arma way possible - remove all items, then add them back except for the one to remove
-        (getBackpackCargo _container) params ["_backpacks","_counts"];
-        clearBackpackCargoGlobal _container;
-        private _i = _backpacks find _itemToRemove;
-        if (_i != -1) then {
-            //Modify target count or remove item completely
-            if ((_counts#_i) > 1)
-                then {_counts set [_i,((_counts#_i) - 1)]}
-                else {_counts deleteAt _i; _backpacks deleteAt _i};
-            //Add all back
-            {_container addBackpackCargoGlobal [_x,(_counts#_forEachIndex)]} forEach _backpacks;
-        };
-
-        //Add new item to the container
-        _itemToAdd = _itemToAdd call BIS_fnc_basicBackpack;//Prevent adding backpacks with pre-defined cargo (ammo dup fix)
-        if (_itemToAdd isNotEqualTo "") then {_container addBackpackCargoGlobal [_itemToAdd,1]};
-    };
-};
-
 NWG_UNEQ_ReplaceOnUnit = {
     params ["_unit","_itemToAdd","_swapType"];
     if (_swapType == SWAP_BACK) then {
@@ -165,4 +137,26 @@ NWG_UNEQ_ReplaceOnUnit = {
     if (_unit isEqualTo player && {!isNil "NWG_fnc_invSetPlayerLoadout"})
         then {_newLoadout call NWG_fnc_invSetPlayerLoadout}
         else {[_unit,_newLoadout] call NWG_fnc_setUnitLoadout};
+};
+
+NWG_UNEQ_ReplaceInContainer = {
+    params ["_container","_itemToRemove","_itemToAdd"];
+
+    //Replace item in the container data
+    private _allItems = _container call (NWG_UNEQ_Settings get "FUNC_GET_ALL_CONTAINER_ITEMS");
+    private _i = _allItems findIf {_x isEqualType 1};
+    if (_i != -1) then {_allItems = _allItems call NWG_fnc_unCompactStringArray};
+    _allItems deleteAt (_allItems find _itemToRemove);
+    if (_itemToAdd isNotEqualTo "") then {_allItems pushBack _itemToAdd};
+    _allItems = _allItems call NWG_fnc_compactStringArray;
+
+    //Refill the container
+    private _isLocal = _container call (NWG_UNEQ_Settings get "FUNC_IS_LOCAL_CONTAINER");
+    if (_isLocal) then {
+        _container call NWG_fnc_clearContainerCargoLocal;
+        [_container,_allItems] call NWG_fnc_fillContainerCargoLocal;
+    } else {
+        _container call NWG_fnc_clearContainerCargoGlobal;
+        [_container,_allItems] call NWG_fnc_fillContainerCargoGlobal;
+    };
 };

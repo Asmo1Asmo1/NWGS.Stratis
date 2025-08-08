@@ -679,7 +679,7 @@ NWG_MIS_SER_BuildPlayerBase = {
 
         //3.3 Clear and lock inventory of every object that has it
         {
-            _x call NWG_fnc_clearContainerCargo;
+            _x call NWG_fnc_clearContainerCargoGlobal;
             [_x,true] remoteExecCall ["lockInventory",0,_x];//Lock it JIP compatible
         } forEach (_buildResultFlatten select {
             !(_x isKindOf "Man") && {

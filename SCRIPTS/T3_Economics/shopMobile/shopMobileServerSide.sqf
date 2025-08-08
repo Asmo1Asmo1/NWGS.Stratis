@@ -712,7 +712,7 @@ NWG_MSHOP_SER_OnVehicleBought = {
 	[_vehicle,_player] call NWG_fnc_vownSetOwner;
 
 	//Clear vehicle cargo
-	_vehicle call NWG_fnc_clearContainerCargo;
+	_vehicle call NWG_fnc_clearContainerCargoGlobal;
 
 	//Create AI crew for UAVs
 	if (unitIsUAV _vehicle) then {
