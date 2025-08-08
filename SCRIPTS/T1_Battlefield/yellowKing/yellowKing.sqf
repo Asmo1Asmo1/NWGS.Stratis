@@ -586,6 +586,7 @@ NWG_YK_RunPassiveSpecials = {
         /*Statistics*/
         _lonersCount = _lonersCount - (count _loners);
         [STAT_SPEC_LONEMERGE,_lonersCount] call NWG_YK_STAT_Increment;
+        [STAT_SPECIALS_USED,_lonersCount] call NWG_YK_STAT_Increment;
     };
 
     //Repair vehicles
@@ -605,6 +606,7 @@ NWG_YK_RunPassiveSpecials = {
 
         /*Statistics*/
         [STAT_SPEC_VEHREPAIR,_vehRepairsCount] call NWG_YK_STAT_Increment;
+        [STAT_SPECIALS_USED,_vehRepairsCount] call NWG_YK_STAT_Increment;
     };
 
     //Capture vehicles
@@ -624,6 +626,7 @@ NWG_YK_RunPassiveSpecials = {
 
         /*Statistics*/
         [STAT_SPEC_VEHCAPTURE,_vehCapturesCount] call NWG_YK_STAT_Increment;
+        [STAT_SPECIALS_USED,_vehCapturesCount] call NWG_YK_STAT_Increment;
     };
 
     //Flee vehicles
@@ -643,6 +646,7 @@ NWG_YK_RunPassiveSpecials = {
 
         /*Statistics*/
         [STAT_SPEC_VEHFLEE,_vehFleesCount] call NWG_YK_STAT_Increment;
+        [STAT_SPECIALS_USED,_vehFleesCount] call NWG_YK_STAT_Increment;
     };
 
     //return
