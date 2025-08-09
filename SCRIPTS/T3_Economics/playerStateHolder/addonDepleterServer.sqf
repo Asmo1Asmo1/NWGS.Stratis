@@ -206,8 +206,10 @@ Executes assigned code after after a user has been kicked from the server provid
 #define KICK_INFO_STEAM_ID 0
 #define KICK_INFO_TYPE 1
 #define KICK_INFO_REASON 2
+#define KICK_INFO_TTL 3
 
-#define KICK_REASON_WAIT_TIMEOUT 2//Seconds to wait for kick reason to arrive
+#define KICK_REASON_WAIT_TIMEOUT 1//Seconds to wait for kick reason to arrive
+#define KICK_REASON_TTL 5//Seconds to keep kick reason in queue
 
 NWG_PSH_DPL_kickInfoQueue = [];
 NWG_PSH_DPL_OnPlayerKick = {
@@ -227,18 +229,24 @@ NWG_PSH_DPL_OnPlayerKick = {
         (format ["NWG_PSH_DPL_OnPlayerKick: SteamID: '%1'. Type: '%2':'%3'. Reason: '%4'. Full message: '%5'",_steamID,_kickTypeNumber,_kickType,_kickReason,_kickMessageIncReason]) call NWG_fnc_logInfo;
     };
 
-    //Delete old record (if any)
-    private _i = NWG_PSH_DPL_kickInfoQueue findIf {(_x#KICK_INFO_STEAM_ID) isEqualTo _steamID};
-    if (_i != -1) then {
-        NWG_PSH_DPL_kickInfoQueue deleteAt _i;
-    };
+    //Delete old records (same steamID or TTL expired)
+    private _timeNow = time;
+    {
+        if ((_x#KICK_INFO_STEAM_ID) isEqualTo _steamID || {(_x#KICK_INFO_TTL) < _timeNow}) then {NWG_PSH_DPL_kickInfoQueue deleteAt _forEachIndex};
+    } forEachReversed NWG_PSH_DPL_kickInfoQueue;
 
-    //Add new record
-    NWG_PSH_DPL_kickInfoQueue pushBack [_steamID,_kickTypeNumber];
+    //Add new
+    NWG_PSH_DPL_kickInfoQueue pushBack [_steamID,_kickTypeNumber,(_timeNow + KICK_REASON_TTL)];
 };
 
 NWG_PSH_DPL_WasKicked = {
     params ["_unitName","_steamID"];
+
+    //Delete old records (TTL expired)
+    private _timeNow = time;
+    {
+        if ((_x#KICK_INFO_TTL) < _timeNow) then {NWG_PSH_DPL_kickInfoQueue deleteAt _forEachIndex};
+    } forEachReversed NWG_PSH_DPL_kickInfoQueue;
 
     //Try waiting for kick info to arrive
     private _i = -1;
