@@ -143,6 +143,7 @@ NWG_LocalizationDictionary = createHashMapFromArray [
     ["#UP_SETTINGS_DEBUG#","Отладка"],
     ["#SETTINGS_DEBUG_STUCK#","Я застрял под текстурой"],
     ["#SETTINGS_DEBUG_CAMERA#","Починить мою камеру"],
+    ["#SETTINGS_DEBUG_ANIMATION#","Починить мою анимацию"],
     ["#SETTINGS_DEBUG_SUCCESS#","Отладка успешна"],
     ["#SETTINGS_DEBUG_FAILED#","Отладка не удалась"],
     //voting

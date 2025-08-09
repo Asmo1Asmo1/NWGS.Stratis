@@ -19,6 +19,7 @@
 /*debug enum (starts from 1 because row 0 is 'get back' row)*/
 #define DEBUG_STUCK 1
 #define DEBUG_CAMERA 2
+#define DEBUG_ANIMATION 3
 
 //================================================================================================================
 //================================================================================================================
@@ -45,7 +46,8 @@ NWG_UP_06Settings_Settings = createHashMapFromArray [
 
 	["DEBUG_ROWS",[
 		"#SETTINGS_DEBUG_STUCK#",
-		"#SETTINGS_DEBUG_CAMERA#"
+		"#SETTINGS_DEBUG_CAMERA#",
+		"#SETTINGS_DEBUG_ANIMATION#"
 	]],
 
 	["",0]
@@ -220,6 +222,7 @@ NWG_UP_06Settings_Debug_Open = {
 		switch (_selectedIndex) do {
 			case DEBUG_STUCK: {call NWG_UP_06Settings_Debug_Unstuck};
 			case DEBUG_CAMERA: {call NWG_UP_06Settings_Debug_FixCamera};
+			case DEBUG_ANIMATION: {call NWG_UP_06Settings_Debug_FixAnimation};
 			default {
 				(format ["NWG_UP_06Settings_Debug_Open: Unknown debug option: '%1'",_selectedIndex]) call NWG_fnc_logError;
 				"#SETTINGS_DEBUG_FAILED#" call NWG_fnc_systemChatMe
@@ -257,5 +260,28 @@ NWG_UP_06Settings_Debug_Unstuck = {
 NWG_UP_06Settings_Debug_FixCamera = {
 	//No checks as it may happen when player is loaded into vehicle
 	switchCamera player;
+	"#SETTINGS_DEBUG_SUCCESS#" call NWG_fnc_systemChatMe;
+};
+
+NWG_UP_06Settings_Debug_FixAnimation = {
+	//Check player is on foot
+	if (!isNull (objectParent player)) exitWith {
+		"#SETTINGS_DEBUG_FAILED#" call NWG_fnc_systemChatMe;
+	};
+
+	//Check environment
+	private _inTheAir = ((getPos player)#2) > 10;
+	private _underWater = ((getPosASL player)#2) < 0;
+	if (_inTheAir || _underWater) exitWith {
+		"#SETTINGS_DEBUG_FAILED#" call NWG_fnc_systemChatMe;
+	};
+
+	//Check wounded
+	if (!isNil "NWG_fnc_medIsWounded" && {player call NWG_fnc_medIsWounded}) exitWith {
+		"#SETTINGS_DEBUG_FAILED#" call NWG_fnc_systemChatMe;
+	};
+
+	//Reset animation
+	player switchMove "";
 	"#SETTINGS_DEBUG_SUCCESS#" call NWG_fnc_systemChatMe;
 };
