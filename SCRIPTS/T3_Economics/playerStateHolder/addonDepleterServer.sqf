@@ -211,13 +211,29 @@ Executes assigned code after after a user has been kicked from the server provid
 
 NWG_PSH_DPL_kickInfoQueue = [];
 NWG_PSH_DPL_OnPlayerKick = {
-    params ["_steamID","_kickTypeNumber","_kickType","_kickReason","_kickMessageIncReason"];
-    if (isNil "_steamID" || {_steamID isEqualTo ""}) exitWith {
-        (format ["NWG_PSH_DPL_OnPlayerKick: SteamID not provided for kick type: '%1'. Can not track kick reason",_kickType]) call NWG_fnc_logError;
+    params ["_networkId","_kickTypeNumber","_kickType","_kickReason","_kickMessageIncReason"];
+    if (isNil "_networkId" || {_networkId isEqualTo ""}) exitWith {
+        (format ["NWG_PSH_DPL_OnPlayerKick: NetworkID not provided for kick type: '%1'. Can not track kick reason",_kickType]) call NWG_fnc_logError;
     };
+
+    //Get steamID
+    private _steamID = _networkId getUserInfo 2;
+    if (isNil "_steamID" || {_steamID isEqualTo ""}) exitWith {
+        (format ["NWG_PSH_DPL_OnPlayerKick: SteamID not found for networkID: '%1'. Can not track kick reason",_networkId]) call NWG_fnc_logError;
+    };
+
+    //Log event
     if (NWG_PSH_DPL_Settings get "DEBUG_LOG_CHECKS") then {
         (format ["NWG_PSH_DPL_OnPlayerKick: SteamID: '%1'. Type: '%2':'%3'. Reason: '%4'. Full message: '%5'",_steamID,_kickTypeNumber,_kickType,_kickReason,_kickMessageIncReason]) call NWG_fnc_logInfo;
     };
+
+    //Delete old record (if any)
+    private _i = NWG_PSH_DPL_kickInfoQueue findIf {(_x#KICK_INFO_STEAM_ID) isEqualTo _steamID};
+    if (_i != -1) then {
+        NWG_PSH_DPL_kickInfoQueue deleteAt _i;
+    };
+
+    //Add new record
     NWG_PSH_DPL_kickInfoQueue pushBack [_steamID,_kickTypeNumber];
 };
 
