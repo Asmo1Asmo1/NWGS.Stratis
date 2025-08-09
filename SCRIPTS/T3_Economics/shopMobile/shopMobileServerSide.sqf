@@ -121,7 +121,7 @@ NWG_MSHOP_SER_Settings =  createHashMapFromArray [
 
 	/*Drone actions settings*/
 	["SUICIDE_DRONE_CHARGE_OFFSET",[0,-3,-0.5]],//Offset of the charge from the drone
-	["MINE_DEPLOY_HEIGHT",2],//Height at which mine will be deployed
+	["MINE_DEPLOY_HEIGHT",3],//Height at which mine will be deployed
 	["MINE_DEPLOY_COUNT",3],
 	["MINE_DEPLOY_DRONE_DELETE_DELAY",5],
 	["EMI_RADIUS",25],
@@ -459,13 +459,13 @@ NWG_MSHOP_MineDeployment_Action = {
 		deleteVehicle _mineFakeObj;
 	};
 
-	//Create real
+	//Create real mines
 	(_raycast select 0) params ["_intersectPos","_intersectNormal"];
-	private _mine = createMine ["ATMine",(ASLToAGL _intersectPos),[],0];
-	_mine setVectorUp _intersectNormal;
-	if (!isNull _owner) then {
-		_mine setShotParents [_owner,_owner];
-	};
+	{
+		private _mine = createMine [_x,(ASLToAGL _intersectPos),[],0];
+		_mine setVectorUp _intersectNormal;
+		if (!isNull _owner) then {_mine setShotParents [_owner,_owner]};
+	} forEach ["ATmine","APERSMine"];
 
 	//Delete drone if no mines are left
 	if ((count _mineMocks) <= 0) then {
@@ -558,7 +558,6 @@ NWG_MSHOP_BomberDrone_FiredDeletion = {
 		waitUntil {sleep 0.5; !alive _projectile};//Wait until projectile is hit
 		sleep (NWG_MSHOP_SER_Settings get "BOMBER_DELETE_DELAY");
 		if (!alive _drone) exitWith {};
-		"NWG_MSHOP_BomberDrone_FiredDeletion: Deleting drone" call NWG_fnc_logInfo;
 		objNull remoteControl _drone;
 		deleteVehicle _drone;
 	};

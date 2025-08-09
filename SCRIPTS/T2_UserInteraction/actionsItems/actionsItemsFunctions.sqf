@@ -40,8 +40,20 @@ NWG_fnc_aiSmokeOut = {
 	};
 
 	//You know what, we don't need a server method for that, who knows, maybe we will add HC, maybe multiplayer with opposite side of players
+	//Move crew out of the vehicle
 	private _crew = (crew _veh) select {alive _x};
 	if ((count _crew) == 0) exitWith {};
 	(group (_crew#0)) leaveVehicle _veh;
 	{unassignVehicle _x; _x moveOut _veh} forEach _crew;
+
+	//Allow them to move back to the vehicle after some time
+	[_crew,_veh] spawn {
+		params ["_crew","_veh"];
+		sleep 10;
+		_crew = _crew select {alive _x};
+		if ((count _crew) == 0) exitWith {};//Crew is dead
+		if (isNull _veh || {!alive _veh}) exitWith {};//Vehicle is dead
+		if ((count (crew _veh)) > 0) exitWith {};//Someone is already inside
+		(group (_crew#0)) addVehicle _veh;
+	};
 };
