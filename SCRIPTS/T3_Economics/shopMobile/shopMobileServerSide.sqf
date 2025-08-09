@@ -558,7 +558,6 @@ NWG_MSHOP_BomberDrone_FiredDeletion = {
 		waitUntil {sleep 0.5; !alive _projectile};//Wait until projectile is hit
 		sleep (NWG_MSHOP_SER_Settings get "BOMBER_DELETE_DELAY");
 		if (!alive _drone) exitWith {};
-		"NWG_MSHOP_BomberDrone_FiredDeletion: Deleting drone" call NWG_fnc_logInfo;
 		objNull remoteControl _drone;
 		deleteVehicle _drone;
 	};
