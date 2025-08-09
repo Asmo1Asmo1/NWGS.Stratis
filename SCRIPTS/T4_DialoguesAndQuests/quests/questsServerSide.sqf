@@ -242,11 +242,14 @@ NWG_QST_SER_CreateNew = {
                 private _newObj = createVehicle [_targetClassname,_pos,[],0,"CAN_COLLIDE"];
                 _newObj setDir _dir;
                 _newObj setPosASL _pos;
-                _newObj call NWG_fnc_clearContainerCargoGlobal;//Remove any cargo
                 _targetObj = _newObj;
             };
 
-            //Set initial state
+            //Set initial physical state
+            _targetObj enableSimulationGlobal false;
+            _targetObj allowDamage false;
+            _targetObj call NWG_fnc_clearContainerCargoGlobal;//Remove any cargo
+            //Set initial logical state
             _targetObj setVariable ["QST_isBurned",false,true];
             //Setup burning for current and JIP players
             [_targetObj,"NWG_QST_CLI_OnBurnCreated",[]] call NWG_fnc_rqAddCommand;
