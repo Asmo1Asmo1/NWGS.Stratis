@@ -10,7 +10,7 @@ NWG_MIS_SER_Settings = createHashMapFromArray [
 	["HEARTBEAT_RATE",1],//How often the mission machine should check for state changes
 
 	/*Restart*/
-	["SERVER_RESTART_ON_ZERO_ONLINE_AFTER",60],//Delay in seconds how long do we wait for someone to join before restarting the server
+	["SERVER_RESTART_ON_ZERO_ONLINE_AFTER",120],//Delay in seconds how long do we wait for someone to join before restarting the server
 
 	/*Logging*/
 	["LOG_STATE_CHANGE",true],//Log every state change
