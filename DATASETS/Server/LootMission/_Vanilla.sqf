@@ -371,15 +371,11 @@
 	/*Uniforms*/
 	[
 		["ANYFAC","CAR","ARM","LOOT","WEAP"],TIER_1,[
-			["U_BG_Guerilla1_1","U_BG_Guerilla1_2_F","U_BG_Guerrilla_6_1","U_BG_leader","U_C_CBRN_Suit_01_Blue_F","U_C_CBRN_Suit_01_White_F","U_C_WorkerCoveralls","U_I_C_Soldier_Camo_F","U_I_C_Soldier_Para_1_F","U_I_C_Soldier_Para_2_F","U_I_C_Soldier_Para_3_F","U_I_C_Soldier_Para_4_F","U_I_C_Soldier_Para_5_F","U_I_E_Uniform_01_sweater_F","U_I_E_Uniform_01_tanktop_F","U_I_G_resistanceLeader_F","U_I_L_Uniform_01_camo_F","U_I_L_Uniform_01_deserter_F","U_O_R_Gorka_01_black_F","U_O_R_Gorka_01_brown_F","U_O_R_Gorka_01_camo_F","U_O_R_Gorka_01_F","U_Rangemaster"],
-			[],
-			[],
-			[]
-		]
-	],
-	[
-		["ANYFAC","CAR","ARM","LOOT","WEAP"],TIER_2,[
-			["U_B_Protagonist_VR","U_C_Protagonist_VR","U_I_Protagonist_VR","U_O_Protagonist_VR"],
+			[
+				"U_B_Protagonist_VR","U_C_Protagonist_VR","U_I_Protagonist_VR","U_O_Protagonist_VR",
+				"U_BG_Guerilla1_1","U_BG_Guerilla1_2_F","U_BG_Guerrilla_6_1","U_BG_leader","U_C_CBRN_Suit_01_Blue_F","U_C_CBRN_Suit_01_White_F","U_C_WorkerCoveralls","U_I_C_Soldier_Camo_F","U_I_C_Soldier_Para_1_F","U_I_C_Soldier_Para_2_F","U_I_C_Soldier_Para_3_F","U_I_C_Soldier_Para_4_F","U_I_C_Soldier_Para_5_F","U_I_E_Uniform_01_sweater_F","U_I_E_Uniform_01_tanktop_F","U_I_G_resistanceLeader_F","U_I_L_Uniform_01_camo_F","U_I_L_Uniform_01_deserter_F","U_O_R_Gorka_01_black_F","U_O_R_Gorka_01_brown_F","U_O_R_Gorka_01_camo_F","U_O_R_Gorka_01_F","U_Rangemaster",
+				"U_BG_Guerilla1_1","U_BG_Guerilla1_2_F","U_BG_Guerrilla_6_1","U_BG_leader","U_C_CBRN_Suit_01_Blue_F","U_C_CBRN_Suit_01_White_F","U_C_WorkerCoveralls","U_I_C_Soldier_Camo_F","U_I_C_Soldier_Para_1_F","U_I_C_Soldier_Para_2_F","U_I_C_Soldier_Para_3_F","U_I_C_Soldier_Para_4_F","U_I_C_Soldier_Para_5_F","U_I_E_Uniform_01_sweater_F","U_I_E_Uniform_01_tanktop_F","U_I_G_resistanceLeader_F","U_I_L_Uniform_01_camo_F","U_I_L_Uniform_01_deserter_F","U_O_R_Gorka_01_black_F","U_O_R_Gorka_01_brown_F","U_O_R_Gorka_01_camo_F","U_O_R_Gorka_01_F","U_Rangemaster"
+			],
 			[],
 			[],
 			[]

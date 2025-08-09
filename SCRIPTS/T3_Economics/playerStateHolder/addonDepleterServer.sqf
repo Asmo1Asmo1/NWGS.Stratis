@@ -206,23 +206,47 @@ Executes assigned code after after a user has been kicked from the server provid
 #define KICK_INFO_STEAM_ID 0
 #define KICK_INFO_TYPE 1
 #define KICK_INFO_REASON 2
+#define KICK_INFO_TTL 3
 
-#define KICK_REASON_WAIT_TIMEOUT 2//Seconds to wait for kick reason to arrive
+#define KICK_REASON_WAIT_TIMEOUT 1//Seconds to wait for kick reason to arrive
+#define KICK_REASON_TTL 5//Seconds to keep kick reason in queue
 
 NWG_PSH_DPL_kickInfoQueue = [];
 NWG_PSH_DPL_OnPlayerKick = {
-    params ["_steamID","_kickTypeNumber","_kickType","_kickReason","_kickMessageIncReason"];
-    if (isNil "_steamID" || {_steamID isEqualTo ""}) exitWith {
-        (format ["NWG_PSH_DPL_OnPlayerKick: SteamID not provided for kick type: '%1'. Can not track kick reason",_kickType]) call NWG_fnc_logError;
+    params ["_networkId","_kickTypeNumber","_kickType","_kickReason","_kickMessageIncReason"];
+    if (isNil "_networkId" || {_networkId isEqualTo ""}) exitWith {
+        (format ["NWG_PSH_DPL_OnPlayerKick: NetworkID not provided for kick type: '%1'. Can not track kick reason",_kickType]) call NWG_fnc_logError;
     };
+
+    //Get steamID
+    private _steamID = _networkId getUserInfo 2;
+    if (isNil "_steamID" || {_steamID isEqualTo ""}) exitWith {
+        (format ["NWG_PSH_DPL_OnPlayerKick: SteamID not found for networkID: '%1'. Can not track kick reason",_networkId]) call NWG_fnc_logError;
+    };
+
+    //Log event
     if (NWG_PSH_DPL_Settings get "DEBUG_LOG_CHECKS") then {
         (format ["NWG_PSH_DPL_OnPlayerKick: SteamID: '%1'. Type: '%2':'%3'. Reason: '%4'. Full message: '%5'",_steamID,_kickTypeNumber,_kickType,_kickReason,_kickMessageIncReason]) call NWG_fnc_logInfo;
     };
-    NWG_PSH_DPL_kickInfoQueue pushBack [_steamID,_kickTypeNumber];
+
+    //Delete old records (same steamID or TTL expired)
+    private _timeNow = time;
+    {
+        if ((_x#KICK_INFO_STEAM_ID) isEqualTo _steamID || {(_x#KICK_INFO_TTL) < _timeNow}) then {NWG_PSH_DPL_kickInfoQueue deleteAt _forEachIndex};
+    } forEachReversed NWG_PSH_DPL_kickInfoQueue;
+
+    //Add new
+    NWG_PSH_DPL_kickInfoQueue pushBack [_steamID,_kickTypeNumber,(_timeNow + KICK_REASON_TTL)];
 };
 
 NWG_PSH_DPL_WasKicked = {
     params ["_unitName","_steamID"];
+
+    //Delete old records (TTL expired)
+    private _timeNow = time;
+    {
+        if ((_x#KICK_INFO_TTL) < _timeNow) then {NWG_PSH_DPL_kickInfoQueue deleteAt _forEachIndex};
+    } forEachReversed NWG_PSH_DPL_kickInfoQueue;
 
     //Try waiting for kick info to arrive
     private _i = -1;

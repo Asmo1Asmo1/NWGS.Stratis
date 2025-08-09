@@ -5,7 +5,7 @@
 //Settings
 NWG_CKF_Settings = createHashMapFromArray [
 	["FINE_INITIAL",1000],//Initial fine amount
-	["FINE_INCREMENT",100],//Fine increment for each kill
+	["FINE_INCREMENT",250],//Fine increment for each kill
 
 	/*Localization*/
 	["LOC_MESSAGE_TEMPLATE","#CKF_NOTIFY_TEMPLATE#"],
@@ -66,7 +66,7 @@ NWG_CKF_OnKill = {
 	] remoteExec ["NWG_fnc_sideChatMe",_group];
 
 	//Subtract money from each group member
-	private _data = (units _group) apply {[_x,-_fine]};
+	private _data = ((units _group) select {alive _x && {isPlayer _x}}) apply {[_x,-_fine]};
 	[_data,"NWG_CKF_OnKill",/*cancelOnError*/false] call NWG_fnc_wltDistributeMoneys;
 };
 
