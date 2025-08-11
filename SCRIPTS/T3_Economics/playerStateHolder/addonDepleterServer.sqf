@@ -236,7 +236,7 @@ NWG_PSH_DPL_OnPlayerKick = {
     } forEachReversed NWG_PSH_DPL_kickInfoQueue;
 
     //Add new
-    NWG_PSH_DPL_kickInfoQueue pushBack [_steamID,_kickTypeNumber,(_timeNow + KICK_REASON_TTL)];
+    NWG_PSH_DPL_kickInfoQueue pushBack [_steamID,_kickTypeNumber,_kickReason,(_timeNow + KICK_REASON_TTL)];
 };
 
 NWG_PSH_DPL_WasKicked = {
